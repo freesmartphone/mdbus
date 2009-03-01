@@ -2,6 +2,76 @@
 <repository version="1.0">
 <namespace name="FsoFramework" version="1.0">
 	<class name="SmartKeyFile" parent="GLib.Object" glib:type-name="FsoFrameworkSmartKeyFile" glib:get-type="fso_framework_smart_key_file_get_type">
+		<method name="loadFromFile" c:identifier="fso_framework_smart_key_file_loadFromFile">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.SmartKeyFile"/>
+				</parameter>
+				<parameter name="filename">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="bool"/>
+			</return-value>
+		</method>
+		<method name="stringValue" c:identifier="fso_framework_smart_key_file_stringValue">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.SmartKeyFile"/>
+				</parameter>
+				<parameter name="section">
+					<type name="string"/>
+				</parameter>
+				<parameter name="key">
+					<type name="string"/>
+				</parameter>
+				<parameter name="defaultvalue">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="string"/>
+			</return-value>
+		</method>
+		<method name="intValue" c:identifier="fso_framework_smart_key_file_intValue">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.SmartKeyFile"/>
+				</parameter>
+				<parameter name="section">
+					<type name="string"/>
+				</parameter>
+				<parameter name="key">
+					<type name="string"/>
+				</parameter>
+				<parameter name="defaultvalue">
+					<type name="int"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="int"/>
+			</return-value>
+		</method>
+		<method name="boolValue" c:identifier="fso_framework_smart_key_file_boolValue">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.SmartKeyFile"/>
+				</parameter>
+				<parameter name="section">
+					<type name="string"/>
+				</parameter>
+				<parameter name="key">
+					<type name="string"/>
+				</parameter>
+				<parameter name="defaultvalue">
+					<type name="bool"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="bool"/>
+			</return-value>
+		</method>
 		<constructor name="new" c:identifier="fso_framework_smart_key_file_new">
 			<parameters>
 			</parameters>
@@ -10,5 +80,12 @@
 			</return-value>
 		</constructor>
 	</class>
+	<method name="MasterKeyFile" c:identifier="fso_framework_MasterKeyFile">
+		<parameters>
+		</parameters>
+		<return-value transfer-ownership="full">
+			<type name="FsoFramework.SmartKeyFile"/>
+		</return-value>
+	</method>
 </namespace>
 </repository>

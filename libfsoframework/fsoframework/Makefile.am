@@ -14,6 +14,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsoframework_la_VALASOURCES = \
+	common.vala \
 	logger.vala \
 	smartkeyfile.vala \
 	$(NULL)
@@ -51,5 +52,8 @@ EXTRA_DIST += \
 	fsoframework-2.0.vapi \
 	fsoframework.vala.stamp
 
-MAINTAINERCLEANFILES = Makefile.in
+MAINTAINERCLEANFILES = \
+	$(BUILT_SOURCES) \
+	$(libfsoframework_la_SOURCES) \
+	Makefile.in
 
