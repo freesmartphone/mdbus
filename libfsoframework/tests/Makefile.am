@@ -20,6 +20,14 @@ $(testsmartkeyfile_SOURCES): $(testsmartkeyfile_VALASOURCES)
 testsmartkeyfile_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testsmartkeyfile_VALASOURCES)
 
+TEST_PROGS += testlogger
+testlogger_VALASOURCES = testlogger.vala
+testlogger_SOURCES = testlogger.c testlogger.h
+$(testlogger_SOURCES): $(testlogger_VALASOURCES)
+	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg fsoframework-2.0 $^
+	touch $@
+testlogger_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testlogger_VALASOURCES)
 
 # TEST_PROGS += testarraylist
 # testarraylist_VALASOURCES = testarraylist.vala

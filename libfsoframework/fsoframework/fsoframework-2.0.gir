@@ -1,6 +1,146 @@
 <?xml version="1.0"?>
 <repository version="1.0">
 <namespace name="FsoFramework" version="1.0">
+	<class name="AbstractLogger" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractLogger" glib:get-type="fso_framework_abstract_logger_get_type">
+		<field name="level">
+			<type name="uint"/>
+		</field>
+		<field name="domain">
+			<type name="string"/>
+		</field>
+		<field name="destination">
+			<type name="string"/>
+		</field>
+		<method name="write" c:identifier="fso_framework_abstract_logger_write">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractLogger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<constructor name="new" c:identifier="fso_framework_abstract_logger_new">
+			<parameters>
+				<parameter name="domain">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="FsoFramework.AbstractLogger"/>
+			</return-value>
+		</constructor>
+		<method name="setLevel" c:identifier="fso_framework_abstract_logger_setLevel">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractLogger"/>
+				</parameter>
+				<parameter name="level">
+					<type name="GLib.LogLevelFlags"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="setDestination" c:identifier="fso_framework_abstract_logger_setDestination">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractLogger"/>
+				</parameter>
+				<parameter name="destination">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="debug" c:identifier="fso_framework_abstract_logger_debug">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractLogger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="info" c:identifier="fso_framework_abstract_logger_info">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractLogger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="warning" c:identifier="fso_framework_abstract_logger_warning">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractLogger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="error" c:identifier="fso_framework_abstract_logger_error">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractLogger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+	</class>
+	<class name="FileLogger" parent="FsoFramework.AbstractLogger" glib:type-name="FsoFrameworkFileLogger" glib:get-type="fso_framework_file_logger_get_type">
+		<constructor name="new" c:identifier="fso_framework_file_logger_new">
+			<parameters>
+				<parameter name="domain">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="FsoFramework.FileLogger"/>
+			</return-value>
+		</constructor>
+		<method name="setFile" c:identifier="fso_framework_file_logger_setFile">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.FileLogger"/>
+				</parameter>
+				<parameter name="filename">
+					<type name="string"/>
+				</parameter>
+				<parameter name="append">
+					<type name="bool"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+	</class>
 	<class name="SmartKeyFile" parent="GLib.Object" glib:type-name="FsoFrameworkSmartKeyFile" glib:get-type="fso_framework_smart_key_file_get_type">
 		<method name="loadFromFile" c:identifier="fso_framework_smart_key_file_loadFromFile">
 			<parameters>

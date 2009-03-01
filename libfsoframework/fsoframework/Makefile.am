@@ -33,7 +33,9 @@ fsoframeworkinclude_HEADERS = \
 
 fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) \
+	            --pkg posix \
 	            --pkg glib-2.0 \
+	            --pkg gio-2.0 \
 	            --library fsoframework-2.0 $^
 	touch $@
 
