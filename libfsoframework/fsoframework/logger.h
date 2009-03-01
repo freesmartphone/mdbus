@@ -50,6 +50,17 @@ typedef struct _FsoFrameworkFileLogger FsoFrameworkFileLogger;
 typedef struct _FsoFrameworkFileLoggerClass FsoFrameworkFileLoggerClass;
 typedef struct _FsoFrameworkFileLoggerPrivate FsoFrameworkFileLoggerPrivate;
 
+#define FSO_FRAMEWORK_TYPE_SYSLOG_LOGGER (fso_framework_syslog_logger_get_type ())
+#define FSO_FRAMEWORK_SYSLOG_LOGGER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), FSO_FRAMEWORK_TYPE_SYSLOG_LOGGER, FsoFrameworkSyslogLogger))
+#define FSO_FRAMEWORK_SYSLOG_LOGGER_CLASS(klass) (G_TYPE_CHECK_CLASS_CAST ((klass), FSO_FRAMEWORK_TYPE_SYSLOG_LOGGER, FsoFrameworkSyslogLoggerClass))
+#define FSO_FRAMEWORK_IS_SYSLOG_LOGGER(obj) (G_TYPE_CHECK_INSTANCE_TYPE ((obj), FSO_FRAMEWORK_TYPE_SYSLOG_LOGGER))
+#define FSO_FRAMEWORK_IS_SYSLOG_LOGGER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), FSO_FRAMEWORK_TYPE_SYSLOG_LOGGER))
+#define FSO_FRAMEWORK_SYSLOG_LOGGER_GET_CLASS(obj) (G_TYPE_INSTANCE_GET_CLASS ((obj), FSO_FRAMEWORK_TYPE_SYSLOG_LOGGER, FsoFrameworkSyslogLoggerClass))
+
+typedef struct _FsoFrameworkSyslogLogger FsoFrameworkSyslogLogger;
+typedef struct _FsoFrameworkSyslogLoggerClass FsoFrameworkSyslogLoggerClass;
+typedef struct _FsoFrameworkSyslogLoggerPrivate FsoFrameworkSyslogLoggerPrivate;
+
 /**
  * AbstractLogger
  */
@@ -79,6 +90,18 @@ struct _FsoFrameworkFileLoggerClass {
 	FsoFrameworkAbstractLoggerClass parent_class;
 };
 
+/**
+ * SyslogLogger
+ */
+struct _FsoFrameworkSyslogLogger {
+	FsoFrameworkAbstractLogger parent_instance;
+	FsoFrameworkSyslogLoggerPrivate * priv;
+};
+
+struct _FsoFrameworkSyslogLoggerClass {
+	FsoFrameworkAbstractLoggerClass parent_class;
+};
+
 
 void fso_framework_abstract_logger_write (FsoFrameworkAbstractLogger* self, const char* message);
 char* fso_framework_abstract_logger_format (FsoFrameworkAbstractLogger* self, const char* message, const char* level);
@@ -95,6 +118,9 @@ FsoFrameworkFileLogger* fso_framework_file_logger_construct (GType object_type, 
 FsoFrameworkFileLogger* fso_framework_file_logger_new (const char* domain);
 void fso_framework_file_logger_setFile (FsoFrameworkFileLogger* self, const char* filename, gboolean append);
 GType fso_framework_file_logger_get_type (void);
+FsoFrameworkSyslogLogger* fso_framework_syslog_logger_construct (GType object_type, const char* domain);
+FsoFrameworkSyslogLogger* fso_framework_syslog_logger_new (const char* domain);
+GType fso_framework_syslog_logger_get_type (void);
 
 
 G_END_DECLS

@@ -30,7 +30,7 @@ void test_file_logger_new()
     FileUtils.remove( TEST_FILE_NAME );
 
     var logger = new FileLogger( TEST_LOG_DOMAIN );
-    logger.setFile( TEST_FILE_NAME, true );
+    logger.setFile( TEST_FILE_NAME, false );
     logger.setLevel( LogLevelFlags.LEVEL_DEBUG );
 
     logger.debug( "foo" );
@@ -46,13 +46,23 @@ void test_file_logger_new()
 }
 
 //===========================================================================
+void test_syslog_logger_new()
+//===========================================================================
+{
+    var logger = new SyslogLogger( TEST_LOG_DOMAIN );
+    logger.setLevel( LogLevelFlags.LEVEL_DEBUG );
+
+    logger.debug( "foo" );
+}
+
+//===========================================================================
 void main (string[] args)
 //===========================================================================
 {
     Test.init (ref args);
 
     Test.add_func ("/FileLogger/new", test_file_logger_new);
-    //Test.add_func ("/FileLogger/append", test_file_logger_append);
+    Test.add_func ("/SyslogLogger/new", test_syslog_logger_new);
 
     Test.run ();
 }

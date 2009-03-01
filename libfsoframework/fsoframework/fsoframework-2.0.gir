@@ -157,6 +157,18 @@
 			</return-value>
 		</method>
 	</class>
+	<class name="SyslogLogger" parent="FsoFramework.AbstractLogger" glib:type-name="FsoFrameworkSyslogLogger" glib:get-type="fso_framework_syslog_logger_get_type">
+		<constructor name="new" c:identifier="fso_framework_syslog_logger_new">
+			<parameters>
+				<parameter name="domain">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="FsoFramework.SyslogLogger"/>
+			</return-value>
+		</constructor>
+	</class>
 	<class name="SmartKeyFile" parent="GLib.Object" glib:type-name="FsoFrameworkSmartKeyFile" glib:get-type="fso_framework_smart_key_file_get_type">
 		<method name="loadFromFile" c:identifier="fso_framework_smart_key_file_loadFromFile">
 			<parameters>

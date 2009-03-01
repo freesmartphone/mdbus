@@ -31,6 +31,12 @@ namespace FsoFramework {
 		public SmartKeyFile ();
 		public string stringValue (string section, string key, string defaultvalue);
 	}
+	[CCode (cheader_filename = "fsoframework/logger.h")]
+	public class SyslogLogger : FsoFramework.AbstractLogger {
+		protected override string format (string message, string level);
+		public SyslogLogger (string domain);
+		protected override void write (string message);
+	}
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public static FsoFramework.SmartKeyFile MasterKeyFile ();
 }

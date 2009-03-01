@@ -19,9 +19,12 @@
 
 #include <fsoframework/logger.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <errno.h>
+#include <syslog.h>
 
 
 
@@ -44,6 +47,13 @@ enum  {
 static void fso_framework_file_logger_real_write (FsoFrameworkAbstractLogger* base, const char* message);
 static gpointer fso_framework_file_logger_parent_class = NULL;
 static void fso_framework_file_logger_finalize (GObject* obj);
+enum  {
+	FSO_FRAMEWORK_SYSLOG_LOGGER_DUMMY_PROPERTY
+};
+static void fso_framework_syslog_logger_real_write (FsoFrameworkAbstractLogger* base, const char* message);
+static char* fso_framework_syslog_logger_real_format (FsoFrameworkAbstractLogger* base, const char* message, const char* level);
+static gpointer fso_framework_syslog_logger_parent_class = NULL;
+static int _vala_strcmp0 (const char * str1, const char * str2);
 
 
 
@@ -218,9 +228,8 @@ FsoFrameworkFileLogger* fso_framework_file_logger_new (const char* domain) {
 
 
 void fso_framework_file_logger_setFile (FsoFrameworkFileLogger* self, const char* filename, gboolean append) {
-	gint flags;
-	char* _tmp2;
-	const char* _tmp1;
+	char* _tmp3;
+	const char* _tmp2;
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (filename != NULL);
 	if (self->priv->file != (-1)) {
@@ -229,14 +238,26 @@ void fso_framework_file_logger_setFile (FsoFrameworkFileLogger* self, const char
 		((FsoFrameworkAbstractLogger*) self)->destination = (_tmp0 = NULL, ((FsoFrameworkAbstractLogger*) self)->destination = (g_free (((FsoFrameworkAbstractLogger*) self)->destination), NULL), _tmp0);
 		close (self->priv->file);
 	}
-	flags = (O_EXCL | O_CREAT) | O_WRONLY;
-	if (append) {
-		flags = flags | O_APPEND;
+	if (_vala_strcmp0 (filename, "stderr") == 0) {
+		self->priv->file = fileno (stderr);
+	} else {
+		gint _tmp1;
+		gint flags;
+		_tmp1 = 0;
+		if (append) {
+			_tmp1 = O_APPEND;
+		} else {
+			_tmp1 = O_CREAT;
+		}
+		flags = O_WRONLY | _tmp1;
+		self->priv->file = open (filename, flags, S_IRWXU);
 	}
-	self->priv->file = open (filename, flags, S_IRWXU);
+	if (self->priv->file == (-1)) {
+		g_error ("logger.vala:118: %s", strerror (errno));
+	}
+	_tmp3 = NULL;
 	_tmp2 = NULL;
-	_tmp1 = NULL;
-	((FsoFrameworkAbstractLogger*) self)->destination = (_tmp2 = (_tmp1 = filename, (_tmp1 == NULL) ? NULL : g_strdup (_tmp1)), ((FsoFrameworkAbstractLogger*) self)->destination = (g_free (((FsoFrameworkAbstractLogger*) self)->destination), NULL), _tmp2);
+	((FsoFrameworkAbstractLogger*) self)->destination = (_tmp3 = (_tmp2 = filename, (_tmp2 == NULL) ? NULL : g_strdup (_tmp2)), ((FsoFrameworkAbstractLogger*) self)->destination = (g_free (((FsoFrameworkAbstractLogger*) self)->destination), NULL), _tmp3);
 }
 
 
@@ -268,6 +289,76 @@ GType fso_framework_file_logger_get_type (void) {
 		fso_framework_file_logger_type_id = g_type_register_static (FSO_FRAMEWORK_TYPE_ABSTRACT_LOGGER, "FsoFrameworkFileLogger", &g_define_type_info, 0);
 	}
 	return fso_framework_file_logger_type_id;
+}
+
+
+static void fso_framework_syslog_logger_real_write (FsoFrameworkAbstractLogger* base, const char* message) {
+	FsoFrameworkSyslogLogger * self;
+	self = (FsoFrameworkSyslogLogger*) base;
+	g_return_if_fail (message != NULL);
+	syslog (LOG_DEBUG, "%s", message, NULL);
+}
+
+
+/**
+     * Overridden, since syslog already includes a timestamp
+     **/
+static char* fso_framework_syslog_logger_real_format (FsoFrameworkAbstractLogger* base, const char* message, const char* level) {
+	FsoFrameworkSyslogLogger * self;
+	char* str;
+	self = (FsoFrameworkSyslogLogger*) base;
+	g_return_val_if_fail (message != NULL, NULL);
+	g_return_val_if_fail (level != NULL, NULL);
+	str = g_strdup_printf ("%s [%s] %s\n", ((FsoFrameworkAbstractLogger*) self)->domain, level, message);
+	return str;
+}
+
+
+FsoFrameworkSyslogLogger* fso_framework_syslog_logger_construct (GType object_type, const char* domain) {
+	FsoFrameworkSyslogLogger * self;
+	char* basename;
+	g_return_val_if_fail (domain != NULL, NULL);
+	self = (FsoFrameworkSyslogLogger*) fso_framework_abstract_logger_construct (object_type, domain);
+	basename = g_path_get_basename (g_get_prgname ());
+	openlog (basename, LOG_PID | LOG_CONS, LOG_DAEMON);
+	return self;
+}
+
+
+FsoFrameworkSyslogLogger* fso_framework_syslog_logger_new (const char* domain) {
+	return fso_framework_syslog_logger_construct (FSO_FRAMEWORK_TYPE_SYSLOG_LOGGER, domain);
+}
+
+
+static void fso_framework_syslog_logger_class_init (FsoFrameworkSyslogLoggerClass * klass) {
+	fso_framework_syslog_logger_parent_class = g_type_class_peek_parent (klass);
+	FSO_FRAMEWORK_ABSTRACT_LOGGER_CLASS (klass)->write = fso_framework_syslog_logger_real_write;
+	FSO_FRAMEWORK_ABSTRACT_LOGGER_CLASS (klass)->format = fso_framework_syslog_logger_real_format;
+}
+
+
+static void fso_framework_syslog_logger_instance_init (FsoFrameworkSyslogLogger * self) {
+}
+
+
+GType fso_framework_syslog_logger_get_type (void) {
+	static GType fso_framework_syslog_logger_type_id = 0;
+	if (fso_framework_syslog_logger_type_id == 0) {
+		static const GTypeInfo g_define_type_info = { sizeof (FsoFrameworkSyslogLoggerClass), (GBaseInitFunc) NULL, (GBaseFinalizeFunc) NULL, (GClassInitFunc) fso_framework_syslog_logger_class_init, (GClassFinalizeFunc) NULL, NULL, sizeof (FsoFrameworkSyslogLogger), 0, (GInstanceInitFunc) fso_framework_syslog_logger_instance_init, NULL };
+		fso_framework_syslog_logger_type_id = g_type_register_static (FSO_FRAMEWORK_TYPE_ABSTRACT_LOGGER, "FsoFrameworkSyslogLogger", &g_define_type_info, 0);
+	}
+	return fso_framework_syslog_logger_type_id;
+}
+
+
+static int _vala_strcmp0 (const char * str1, const char * str2) {
+	if (str1 == NULL) {
+		return -(str1 != str2);
+	}
+	if (str2 == NULL) {
+		return str1 != str2;
+	}
+	return strcmp (str1, str2);
 }
 
 

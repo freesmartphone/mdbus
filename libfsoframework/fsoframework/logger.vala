@@ -105,12 +105,46 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
             Posix.close( file );
         }
 
-        int flags = Posix.O_EXCL | Posix.O_CREAT | Posix.O_WRONLY;
-        if ( append )
-            flags |= Posix.O_APPEND;
-        file = Posix.open( filename, flags, Posix.S_IRWXU );
+        if ( filename == "stderr" )
+        {
+            file = stderr.fileno();
+        }
+        else
+        {
+            int flags = Posix.O_WRONLY | ( append? Posix.O_APPEND : Posix.O_CREAT );
+            file = Posix.open( filename, flags, Posix.S_IRWXU );
+        }
+        if ( file == -1 )
+            GLib.error( "%s", Posix.strerror( Posix.errno ) );
 
         this.destination  = filename;
+    }
+
+}
+/**
+ * SyslogLogger
+ */
+public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
+{
+    protected override void write( string message )
+    {
+        PosixExtra.syslog( PosixExtra.LOG_DEBUG, "%s", message );
+    }
+
+    /**
+     * Overridden, since syslog already includes a timestamp
+     **/
+    protected override string format( string message, string level )
+    {
+        var str = "%s [%s] %s\n".printf( domain, level, message );
+        return str;
+    }
+
+    public SyslogLogger( string domain )
+    {
+        base( domain );
+        string basename = Path.get_basename( Environment.get_prgname() );
+        PosixExtra.openlog( basename, PosixExtra.LOG_PID | PosixExtra.LOG_CONS, PosixExtra.LOG_DAEMON );
     }
 
 }
