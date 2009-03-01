@@ -1,3 +1,14 @@
 <?xml version="1.0"?>
 <repository version="1.0">
+<namespace name="FsoFramework" version="1.0">
+	<class name="SmartKeyFile" parent="GLib.Object" glib:type-name="FsoFrameworkSmartKeyFile" glib:get-type="fso_framework_smart_key_file_get_type">
+		<constructor name="new" c:identifier="fso_framework_smart_key_file_new">
+			<parameters>
+			</parameters>
+			<return-value>
+				<type name="FsoFramework.SmartKeyFile"/>
+			</return-value>
+		</constructor>
+	</class>
+</namespace>
 </repository>

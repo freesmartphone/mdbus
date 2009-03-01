@@ -9,35 +9,45 @@ AM_CPPFLAGS = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(DEPS_LIBS) ../fsoframework/fsoframework.la
+progs_ldadd = $(DEPS_LIBS) ../fsoframework/libfsoframework.la
+
+TEST_PROGS += testsmartkeyfile
+testsmartkeyfile_VALASOURCES = testsmartkeyfile.vala
+testsmartkeyfile_SOURCES = testsmartkeyfile.c testsmartkeyfile.h
+$(testsmartkeyfile_SOURCES): $(testsmartkeyfile_VALASOURCES)
+	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg fsoframework-2.0 $^
+	touch $@
+testsmartkeyfile_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testsmartkeyfile_VALASOURCES)
+
 
 # TEST_PROGS += testarraylist
 # testarraylist_VALASOURCES = testarraylist.vala
 # testarraylist_SOURCES = testarraylist.c testarraylist.h
 # $(testarraylist_SOURCES): $(testarraylist_VALASOURCES)
-# 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/gee --pkg gee-1.0 $^
+# 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg fsoframework-2.0 $^
 # 	touch $@
 # testarraylist_LDADD = $(progs_ldadd)
 # EXTRA_DIST += $(testarraylist_VALASOURCES)
-# 
+#
 # TEST_PROGS += testhashmap
 # testhashmap_VALASOURCES = testhashmap.vala
 # testhashmap_SOURCES = testhashmap.c testhashmap.h
 # $(testhashmap_SOURCES): $(testhashmap_VALASOURCES)
-# 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/gee --pkg gee-1.0 $^
+# 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg fsoframework-2.0 $^
 # 	touch $@
 # testhashmap_LDADD = $(progs_ldadd)
 # EXTRA_DIST += $(testhashmap_VALASOURCES)
-# 
+#
 # TEST_PROGS += testhashset
 # testhashset_VALASOURCES = testhashset.vala
 # testhashset_SOURCES = testhashset.c testhashset.h
 # $(testhashset_SOURCES): $(testhashset_VALASOURCES)
-# 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/gee --pkg gee-1.0 $^
+# 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg fsoframework-2.0 $^
 # 	touch $@
 # testhashset_LDADD = $(progs_ldadd)
 # EXTRA_DIST += $(testhashset_VALASOURCES)
-# 
+#
 
 MAINTAINERCLEAN = \
   Makefile.am \

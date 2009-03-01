@@ -15,6 +15,7 @@ lib_LTLIBRARIES = \
 
 libfsoframework_la_VALASOURCES = \
 	logger.vala \
+	smartkeyfile.vala \
 	$(NULL)
 
 libfsoframework_la_SOURCES = \

@@ -1,3 +1,7 @@
+include $(top_srcdir)/Makefile.decl
+
+NULL =
+
 SUBDIRS = \
   fsoframework \
   tests \
@@ -6,7 +10,7 @@ SUBDIRS = \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = fsoframework-2.0.pc
 
-EXTRA_DIST = \
+EXTRA_DIST += \
   MAINTAINERS \
   fsoframework-2.0.pc.in \
   $(NULL)
