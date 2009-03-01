@@ -64,6 +64,7 @@ struct _FsoFrameworkAbstractLogger {
 struct _FsoFrameworkAbstractLoggerClass {
 	GObjectClass parent_class;
 	void (*write) (FsoFrameworkAbstractLogger* self, const char* message);
+	char* (*format) (FsoFrameworkAbstractLogger* self, const char* message, const char* level);
 };
 
 /**
@@ -80,6 +81,7 @@ struct _FsoFrameworkFileLoggerClass {
 
 
 void fso_framework_abstract_logger_write (FsoFrameworkAbstractLogger* self, const char* message);
+char* fso_framework_abstract_logger_format (FsoFrameworkAbstractLogger* self, const char* message, const char* level);
 FsoFrameworkAbstractLogger* fso_framework_abstract_logger_construct (GType object_type, const char* domain);
 FsoFrameworkAbstractLogger* fso_framework_abstract_logger_new (const char* domain);
 void fso_framework_abstract_logger_setLevel (FsoFrameworkAbstractLogger* self, GLogLevelFlags level);

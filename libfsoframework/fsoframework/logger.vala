@@ -32,6 +32,13 @@ public abstract class FsoFramework.AbstractLogger : Object
     {
     }
 
+    protected virtual string format( string message, string level )
+    {
+        var t = TimeVal();
+        var str = "%s %s [%s] %s\n".printf( t.to_iso8601(), domain, level, message );
+        return str;
+    }
+
     public AbstractLogger( string domain )
     {
         this.domain = domain;
@@ -50,25 +57,25 @@ public abstract class FsoFramework.AbstractLogger : Object
     public void debug( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_DEBUG )
-            write( message );
+            write( format( message, "DEBUG" ) );
     }
 
     public void info( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_INFO )
-            write( message );
+            write( format( message, "INFO" ) );
     }
 
     public void warning( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_WARNING )
-            write( message );
+            write( format( message, "WARNING" ) );
     }
 
     public void error( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_ERROR )
-            write( message );
+            write( format( message, "ERROR" ) );
     }
 }
 
@@ -78,6 +85,12 @@ public abstract class FsoFramework.AbstractLogger : Object
 public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
 {
     int file = -1;
+
+    protected override void write( string message )
+    {
+        assert( file != -1 );
+        Posix.write( file, message, message.size() );
+    }
 
     public FileLogger( string domain )
     {

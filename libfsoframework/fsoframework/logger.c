@@ -30,6 +30,7 @@ enum  {
 	FSO_FRAMEWORK_ABSTRACT_LOGGER_DUMMY_PROPERTY
 };
 static void fso_framework_abstract_logger_real_write (FsoFrameworkAbstractLogger* self, const char* message);
+static char* fso_framework_abstract_logger_real_format (FsoFrameworkAbstractLogger* self, const char* message, const char* level);
 static gpointer fso_framework_abstract_logger_parent_class = NULL;
 static void fso_framework_abstract_logger_finalize (GObject* obj);
 struct _FsoFrameworkFileLoggerPrivate {
@@ -40,6 +41,7 @@ struct _FsoFrameworkFileLoggerPrivate {
 enum  {
 	FSO_FRAMEWORK_FILE_LOGGER_DUMMY_PROPERTY
 };
+static void fso_framework_file_logger_real_write (FsoFrameworkAbstractLogger* base, const char* message);
 static gpointer fso_framework_file_logger_parent_class = NULL;
 static void fso_framework_file_logger_finalize (GObject* obj);
 
@@ -53,6 +55,28 @@ static void fso_framework_abstract_logger_real_write (FsoFrameworkAbstractLogger
 
 void fso_framework_abstract_logger_write (FsoFrameworkAbstractLogger* self, const char* message) {
 	FSO_FRAMEWORK_ABSTRACT_LOGGER_GET_CLASS (self)->write (self, message);
+}
+
+
+static char* fso_framework_abstract_logger_real_format (FsoFrameworkAbstractLogger* self, const char* message, const char* level) {
+	GTimeVal _tmp0 = {0};
+	GTimeVal t;
+	char* _tmp1;
+	char* _tmp2;
+	char* str;
+	g_return_val_if_fail (self != NULL, NULL);
+	g_return_val_if_fail (message != NULL, NULL);
+	g_return_val_if_fail (level != NULL, NULL);
+	t = (g_get_current_time (&_tmp0), _tmp0);
+	_tmp1 = NULL;
+	_tmp2 = NULL;
+	str = (_tmp2 = g_strdup_printf ("%s %s [%s] %s\n", _tmp1 = g_time_val_to_iso8601 (&t), self->domain, level, message), _tmp1 = (g_free (_tmp1), NULL), _tmp2);
+	return str;
+}
+
+
+char* fso_framework_abstract_logger_format (FsoFrameworkAbstractLogger* self, const char* message, const char* level) {
+	return FSO_FRAMEWORK_ABSTRACT_LOGGER_GET_CLASS (self)->format (self, message, level);
 }
 
 
@@ -95,7 +119,10 @@ void fso_framework_abstract_logger_debug (FsoFrameworkAbstractLogger* self, cons
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (message != NULL);
 	if (self->level >= ((guint) G_LOG_LEVEL_DEBUG)) {
-		fso_framework_abstract_logger_write (self, message);
+		char* _tmp0;
+		_tmp0 = NULL;
+		fso_framework_abstract_logger_write (self, _tmp0 = fso_framework_abstract_logger_format (self, message, "DEBUG"));
+		_tmp0 = (g_free (_tmp0), NULL);
 	}
 }
 
@@ -104,7 +131,10 @@ void fso_framework_abstract_logger_info (FsoFrameworkAbstractLogger* self, const
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (message != NULL);
 	if (self->level >= ((guint) G_LOG_LEVEL_INFO)) {
-		fso_framework_abstract_logger_write (self, message);
+		char* _tmp0;
+		_tmp0 = NULL;
+		fso_framework_abstract_logger_write (self, _tmp0 = fso_framework_abstract_logger_format (self, message, "INFO"));
+		_tmp0 = (g_free (_tmp0), NULL);
 	}
 }
 
@@ -113,7 +143,10 @@ void fso_framework_abstract_logger_warning (FsoFrameworkAbstractLogger* self, co
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (message != NULL);
 	if (self->level >= ((guint) G_LOG_LEVEL_WARNING)) {
-		fso_framework_abstract_logger_write (self, message);
+		char* _tmp0;
+		_tmp0 = NULL;
+		fso_framework_abstract_logger_write (self, _tmp0 = fso_framework_abstract_logger_format (self, message, "WARNING"));
+		_tmp0 = (g_free (_tmp0), NULL);
 	}
 }
 
@@ -122,7 +155,10 @@ void fso_framework_abstract_logger_error (FsoFrameworkAbstractLogger* self, cons
 	g_return_if_fail (self != NULL);
 	g_return_if_fail (message != NULL);
 	if (self->level >= ((guint) G_LOG_LEVEL_ERROR)) {
-		fso_framework_abstract_logger_write (self, message);
+		char* _tmp0;
+		_tmp0 = NULL;
+		fso_framework_abstract_logger_write (self, _tmp0 = fso_framework_abstract_logger_format (self, message, "ERROR"));
+		_tmp0 = (g_free (_tmp0), NULL);
 	}
 }
 
@@ -131,6 +167,7 @@ static void fso_framework_abstract_logger_class_init (FsoFrameworkAbstractLogger
 	fso_framework_abstract_logger_parent_class = g_type_class_peek_parent (klass);
 	G_OBJECT_CLASS (klass)->finalize = fso_framework_abstract_logger_finalize;
 	FSO_FRAMEWORK_ABSTRACT_LOGGER_CLASS (klass)->write = fso_framework_abstract_logger_real_write;
+	FSO_FRAMEWORK_ABSTRACT_LOGGER_CLASS (klass)->format = fso_framework_abstract_logger_real_format;
 }
 
 
@@ -155,6 +192,15 @@ GType fso_framework_abstract_logger_get_type (void) {
 		fso_framework_abstract_logger_type_id = g_type_register_static (G_TYPE_OBJECT, "FsoFrameworkAbstractLogger", &g_define_type_info, G_TYPE_FLAG_ABSTRACT);
 	}
 	return fso_framework_abstract_logger_type_id;
+}
+
+
+static void fso_framework_file_logger_real_write (FsoFrameworkAbstractLogger* base, const char* message) {
+	FsoFrameworkFileLogger * self;
+	self = (FsoFrameworkFileLogger*) base;
+	g_return_if_fail (message != NULL);
+	g_assert (self->priv->file != (-1));
+	write (self->priv->file, message, (gsize) strlen (message));
 }
 
 
@@ -198,6 +244,7 @@ static void fso_framework_file_logger_class_init (FsoFrameworkFileLoggerClass * 
 	fso_framework_file_logger_parent_class = g_type_class_peek_parent (klass);
 	g_type_class_add_private (klass, sizeof (FsoFrameworkFileLoggerPrivate));
 	G_OBJECT_CLASS (klass)->finalize = fso_framework_file_logger_finalize;
+	FSO_FRAMEWORK_ABSTRACT_LOGGER_CLASS (klass)->write = fso_framework_file_logger_real_write;
 }
 
 

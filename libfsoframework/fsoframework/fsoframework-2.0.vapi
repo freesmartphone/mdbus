@@ -9,6 +9,7 @@ namespace FsoFramework {
 		protected uint level;
 		public void debug (string message);
 		public void error (string message);
+		protected virtual string format (string message, string level);
 		public void info (string message);
 		public AbstractLogger (string domain);
 		public void setDestination (string destination);
@@ -20,6 +21,7 @@ namespace FsoFramework {
 	public class FileLogger : FsoFramework.AbstractLogger {
 		public FileLogger (string domain);
 		public void setFile (string filename, bool append = false);
+		protected override void write (string message);
 	}
 	[CCode (cheader_filename = "fsoframework/smartkeyfile.h")]
 	public class SmartKeyFile : GLib.Object {

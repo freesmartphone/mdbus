@@ -31,6 +31,7 @@ void test_file_logger_new()
 
     var logger = new FileLogger( TEST_LOG_DOMAIN );
     logger.setFile( TEST_FILE_NAME, true );
+    logger.setLevel( LogLevelFlags.LEVEL_DEBUG );
 
     logger.debug( "foo" );
 

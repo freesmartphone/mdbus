@@ -24,6 +24,22 @@
 				<type name="none"/>
 			</return-value>
 		</method>
+		<method name="format" c:identifier="fso_framework_abstract_logger_format">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractLogger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+				<parameter name="level">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="string"/>
+			</return-value>
+		</method>
 		<constructor name="new" c:identifier="fso_framework_abstract_logger_new">
 			<parameters>
 				<parameter name="domain">
