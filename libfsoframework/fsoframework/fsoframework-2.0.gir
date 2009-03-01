@@ -2,6 +2,9 @@
 <repository version="1.0">
 <namespace name="FsoFramework" version="1.0">
 	<class name="AbstractLogger" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractLogger" glib:get-type="fso_framework_abstract_logger_get_type">
+		<implements>
+			<interface name="FsoFramework.Logger"/>
+		</implements>
 		<field name="level">
 			<type name="uint"/>
 		</field>
@@ -50,82 +53,24 @@
 				<type name="FsoFramework.AbstractLogger"/>
 			</return-value>
 		</constructor>
-		<method name="setLevel" c:identifier="fso_framework_abstract_logger_setLevel">
+		<method name="levelToString" c:identifier="fso_framework_abstract_logger_levelToString">
 			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractLogger"/>
-				</parameter>
 				<parameter name="level">
 					<type name="GLib.LogLevelFlags"/>
 				</parameter>
 			</parameters>
-			<return-value>
-				<type name="none"/>
+			<return-value transfer-ownership="full">
+				<type name="string"/>
 			</return-value>
 		</method>
-		<method name="setDestination" c:identifier="fso_framework_abstract_logger_setDestination">
+		<method name="stringToLevel" c:identifier="fso_framework_abstract_logger_stringToLevel">
 			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractLogger"/>
-				</parameter>
-				<parameter name="destination">
+				<parameter name="level">
 					<type name="string"/>
 				</parameter>
 			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="debug" c:identifier="fso_framework_abstract_logger_debug">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractLogger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="info" c:identifier="fso_framework_abstract_logger_info">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractLogger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="warning" c:identifier="fso_framework_abstract_logger_warning">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractLogger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="error" c:identifier="fso_framework_abstract_logger_error">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractLogger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
+			<return-value transfer-ownership="full">
+				<type name="GLib.LogLevelFlags"/>
 			</return-value>
 		</method>
 	</class>
@@ -248,11 +193,107 @@
 			</return-value>
 		</constructor>
 	</class>
-	<method name="MasterKeyFile" c:identifier="fso_framework_MasterKeyFile">
+	<interface name="Logger" glib:get-type="fso_framework_logger_get_type">
+		<requires>
+			<object name="GLib.Object"/>
+		</requires>
+		<method name="setLevel" c:identifier="fso_framework_logger_setLevel">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Logger"/>
+				</parameter>
+				<parameter name="level">
+					<type name="GLib.LogLevelFlags"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="setDestination" c:identifier="fso_framework_logger_setDestination">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Logger"/>
+				</parameter>
+				<parameter name="destination">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="debug" c:identifier="fso_framework_logger_debug">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Logger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="info" c:identifier="fso_framework_logger_info">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Logger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="warning" c:identifier="fso_framework_logger_warning">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Logger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="error" c:identifier="fso_framework_logger_error">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Logger"/>
+				</parameter>
+				<parameter name="message">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+	</interface>
+	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_TYPE"/>
+	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_LEVEL"/>
+	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_DESTINATION"/>
+	<method name="theMasterKeyFile" c:identifier="fso_framework_theMasterKeyFile">
 		<parameters>
 		</parameters>
 		<return-value transfer-ownership="full">
 			<type name="FsoFramework.SmartKeyFile"/>
+		</return-value>
+	</method>
+	<method name="theMasterLogger" c:identifier="fso_framework_theMasterLogger">
+		<parameters>
+			<parameter name="domain">
+				<type name="string"/>
+			</parameter>
+		</parameters>
+		<return-value transfer-ownership="full">
+			<type name="FsoFramework.Logger"/>
 		</return-value>
 	</method>
 </namespace>

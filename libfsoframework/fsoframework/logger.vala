@@ -20,9 +20,22 @@
 using GLib;
 
 /**
+ * Logger
+ */
+public interface FsoFramework.Logger : Object
+{
+    public abstract void setLevel( LogLevelFlags level );
+    public abstract void setDestination( string destination );
+    public abstract void debug( string message );
+    public abstract void info( string message );
+    public abstract void warning( string message );
+    public abstract void error( string message );
+}
+
+/**
  * AbstractLogger
  */
-public abstract class FsoFramework.AbstractLogger : Object
+public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
 {
     protected uint level = LogLevelFlags.LEVEL_INFO;
     protected string domain;
@@ -77,6 +90,37 @@ public abstract class FsoFramework.AbstractLogger : Object
         if ( level >= (uint)LogLevelFlags.LEVEL_ERROR )
             write( format( message, "ERROR" ) );
     }
+
+    public static string levelToString( LogLevelFlags level )
+    {
+    // FIXME: might use a static HashTable here, might also be overkill for 4 values
+        switch ( level )
+        {
+            case LogLevelFlags.LEVEL_DEBUG: return "DEBUG";
+            case LogLevelFlags.LEVEL_INFO: return "INFO";
+            case LogLevelFlags.LEVEL_WARNING: return "WARNING";
+            case LogLevelFlags.LEVEL_ERROR: return "ERROR";
+            default: assert( false ); break;
+        }
+        return "N/A";
+    }
+
+    public static LogLevelFlags stringToLevel( string level )
+    {
+        switch ( level )
+        {
+            case "debug":
+                case "DEBUG": return LogLevelFlags.LEVEL_DEBUG;
+            case "info":
+                case "INFO": return LogLevelFlags.LEVEL_INFO;
+            case "warning":
+                case "WARNING": return LogLevelFlags.LEVEL_WARNING;
+            case "error":
+                case "ERROR": return LogLevelFlags.LEVEL_ERROR;
+                default: assert( false ); break;
+        }
+        return LogLevelFlags.LEVEL_INFO;
+    }
 }
 
 /**
@@ -112,7 +156,7 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
         else
         {
             int flags = Posix.O_WRONLY | ( append? Posix.O_APPEND : Posix.O_CREAT );
-            file = Posix.open( filename, flags, Posix.S_IRWXU );
+            file = Posix.open( filename, flags, Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH);
         }
         if ( file == -1 )
             GLib.error( "%s", Posix.strerror( Posix.errno ) );
@@ -146,5 +190,5 @@ public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
         string basename = Path.get_basename( Environment.get_prgname() );
         PosixExtra.openlog( basename, PosixExtra.LOG_PID | PosixExtra.LOG_CONS, PosixExtra.LOG_DAEMON );
     }
-
 }
+

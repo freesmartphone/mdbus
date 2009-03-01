@@ -53,7 +53,7 @@ void test_smartkeyfile_all()
 void test_masterkeyfile_all()
 //===========================================================================
 {
-    var mkf = MasterKeyFile();
+    var mkf = theMasterKeyFile();
 }
 
 //===========================================================================

@@ -57,6 +57,11 @@ EXTRA_DIST += $(testlogger_VALASOURCES)
 # EXTRA_DIST += $(testhashset_VALASOURCES)
 #
 
+CLEANFILES = \
+    $(TEST_PROGS) \
+    *.? \
+    $(NULL)
+
 MAINTAINERCLEAN = \
   Makefile.am \
   $(NULL)

@@ -3,18 +3,14 @@
 [CCode (cprefix = "FsoFramework", lower_case_cprefix = "fso_framework_")]
 namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/logger.h")]
-	public abstract class AbstractLogger : GLib.Object {
+	public abstract class AbstractLogger : FsoFramework.Logger, GLib.Object {
 		protected string destination;
 		protected string domain;
 		protected uint level;
-		public void debug (string message);
-		public void error (string message);
 		protected virtual string format (string message, string level);
-		public void info (string message);
+		public static string levelToString (GLib.LogLevelFlags level);
 		public AbstractLogger (string domain);
-		public void setDestination (string destination);
-		public void setLevel (GLib.LogLevelFlags level);
-		public void warning (string message);
+		public static GLib.LogLevelFlags stringToLevel (string level);
 		protected virtual void write (string message);
 	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
@@ -37,6 +33,23 @@ namespace FsoFramework {
 		public SyslogLogger (string domain);
 		protected override void write (string message);
 	}
+	[CCode (cheader_filename = "fsoframework/logger.h")]
+	public interface Logger : GLib.Object {
+		public abstract void debug (string message);
+		public abstract void error (string message);
+		public abstract void info (string message);
+		public abstract void setDestination (string destination);
+		public abstract void setLevel (GLib.LogLevelFlags level);
+		public abstract void warning (string message);
+	}
 	[CCode (cheader_filename = "fsoframework/common.h")]
-	public static FsoFramework.SmartKeyFile MasterKeyFile ();
+	public const string DEFAULT_LOG_DESTINATION;
+	[CCode (cheader_filename = "fsoframework/common.h")]
+	public const string DEFAULT_LOG_LEVEL;
+	[CCode (cheader_filename = "fsoframework/common.h")]
+	public const string DEFAULT_LOG_TYPE;
+	[CCode (cheader_filename = "fsoframework/common.h")]
+	public static FsoFramework.SmartKeyFile theMasterKeyFile ();
+	[CCode (cheader_filename = "fsoframework/common.h")]
+	public static FsoFramework.Logger theMasterLogger (string domain);
 }

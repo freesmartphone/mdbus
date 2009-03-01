@@ -22,22 +22,62 @@ using GLib;
 namespace FsoFramework
 {
 
+public const string DEFAULT_LOG_TYPE = "syslog";
+public const string DEFAULT_LOG_LEVEL = "INFO";
+public const string DEFAULT_LOG_DESTINATION = "/tmp/frameworkd.log";
+
 internal static SmartKeyFile _masterkeyfile = null;
 
-public static SmartKeyFile MasterKeyFile()
+public static SmartKeyFile theMasterKeyFile()
 {
     if ( _masterkeyfile == null )
     {
         _masterkeyfile = new SmartKeyFile();
-        // first, try the user directory
+        var try0 = "./frameworkd.conf";
         var try1 = "%s/.frameworkd.conf".printf( Environment.get_home_dir() );
         var try2 = "/etc/frameworkd.conf";
-        if ( !_masterkeyfile.loadFromFile( try1 ) && !_masterkeyfile.loadFromFile( try2 ) )
+        if ( !_masterkeyfile.loadFromFile( try0 ) && !_masterkeyfile.loadFromFile( try1 ) && !_masterkeyfile.loadFromFile( try2 ) )
         {
-            warning( "could not load %s nor %s", try1, try2 );
+            warning( "could not load %s nor %s nor %s", try0, try1, try2 );
         }
     }
     return _masterkeyfile;
 }
 
+public static Logger theMasterLogger( string domain )
+{
+    SmartKeyFile smk = theMasterKeyFile();
+    var global_log_level = smk.stringValue( "frameworkd", "log_level", DEFAULT_LOG_LEVEL );
+    var log_level = smk.stringValue( domain, "log_level", global_log_level );
+    var log_to = smk.stringValue( "frameworkd", "log_to", DEFAULT_LOG_TYPE );
+
+    Logger theLogger = null;
+
+    switch ( log_to )
+    {
+        case "stderr":
+            var logger = new FileLogger( domain );
+            logger.setFile( log_to );
+            theLogger = logger;
+            break;
+        case "file":
+            var logger = new FileLogger( domain );
+            var log_destination = smk.stringValue( "frameworkd", "log_destination", DEFAULT_LOG_DESTINATION );
+            logger.setFile( log_destination );
+            theLogger = logger;
+            break;
+        case "syslog":
+            var logger = new SyslogLogger( domain );
+            theLogger = logger;
+            break;
+        default:
+            assert( false );
+            break;
+    }
+
+    theLogger.setLevel( AbstractLogger.stringToLevel( log_level ) );
+    return theLogger;
+
 }
+
+} /* namespace */

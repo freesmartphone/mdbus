@@ -56,6 +56,12 @@ EXTRA_DIST += \
 	fsoframework-2.0.vapi \
 	fsoframework.vala.stamp
 
+CLEANFILES = \
+    $(BUILT_SOURCES) \
+    $(libfsoframework_la_SOURCES) \
+    $(NULL)
+
+
 MAINTAINERCLEANFILES = \
 	$(BUILT_SOURCES) \
 	$(libfsoframework_la_SOURCES) \
