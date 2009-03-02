@@ -5,10 +5,9 @@ includedir=@includedir@
 datarootdir=@datarootdir@
 datadir=@datadir@
 
-Name: libfsocore
-Description: freesmartphone.org core library
+Name: libfsoframework
+Description: freesmartphone.org service implementation library
 Version: @VERSION@
 Requires:
-Libs: -L${libdir} -lfsocore
+Libs: -L${libdir} -lfsoframework
 Cflags: -I${includedir}/fsoframework-2.0
-
