@@ -62,6 +62,6 @@ CLEANFILES = \
     *.? \
     $(NULL)
 
-MAINTAINERCLEAN = \
-  Makefile.am \
+MAINTAINERCLEANFILES = \
+  Makefile.in \
   $(NULL)

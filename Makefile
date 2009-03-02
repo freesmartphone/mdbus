@@ -1,4 +1,4 @@
-SUBDIRS = libfsoframework odeviced
+SUBDIRS = libfsoframework fsodeviced
 
 all:
 	for i in $(SUBDIRS); do $(MAKE) -C $$i; done
