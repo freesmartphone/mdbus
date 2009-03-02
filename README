@@ -1,0 +1,37 @@
+This is the Vala/C reference implementation of the freesmartphone.org APIs,
+codename 'Cornucopia'.
+
+We build up on the concepts of the successful Python reference implementation
+and improve this incarnation based on the lessons learned while developing
+frameworkd.
+
+The main objectives for this new implementation are (in order of importance)
+
+1.) Full unit test coverage
+2.) Minimizing system resources
+3.) Maximizing system performance
+4.) Improved granularity / standaloneness of services
+
+We will start with implementing fsodeviced, implementing the FSO APIs
+org.freesmartphone.Device.*, basing on the results of the odeviced
+project from Google Summer of Code 2008.
+
+Tentative roadmap:
+
+fsodeviced: Q2/2009
+fsousaged: Q2/2009
+
+... misc. subsystems ...
+
+fsogpsd: Q3/2009
+fsogsmd: Q4/2009
+
+NOTE: The existence of this project does NOT mean that
+frameworkd is abandoned nor that most of new work is
+going into cornucopia. On the contrary, we will continue
+stabilizing frameworkd and fixing its bugs.
+
+The python implementation is the chance for getting the API
+right; the vala implementation is the chance of getting the
+right API fast.
+
