@@ -1,0 +1,50 @@
+include $(top_srcdir)/Makefile.decl
+
+NULL =
+
+INCLUDES = \
+	$(DEPS_CFLAGS) \
+	-include $(CONFIG_HEADER) \
+	$(NULL)
+
+BUILT_SOURCES = .vala.stamp
+
+bin_PROGRAMS = fsodeviced
+
+fsodeviced_VALASOURCES = \
+	main.vala \
+	$(NULL)
+
+fsodeviced_SOURCES = \
+	$(fsodeviced_VALASOURCES:.vala=.c) \
+	$(fsodeviced_VALASOURCES:.vala=.h) \
+	$(NULL)
+
+$(BUILT_SOURCES): $(fsodeviced_VALASOURCES)
+	$(VALAC) -c --vapidir vapi \
+				--pkg posix \
+				--pkg gio-2.0 \
+				--pkg dbus-glib-1 \
+				--pkg fsoframework-2.0 \
+				--save-temps \
+				--basedir $(top_srcdir) $^
+	touch $@
+
+fsodeviced_LDADD = \
+	$(DEPS_LIBS) \
+	$(NULL)
+
+EXTRA_DIST += \
+	$(fsodeviced_VALASOURCES) \
+	$(BUILT_SOURCES) \
+	$(NULL)
+
+CLEANFILES = \
+	*.c \
+	*.h \
+	$(BUILT_SOURCES) \
+	$(NULL)
+
+MAINTAINERCLEANFILES = \
+	Makefile.in \
+	$(NULL)
