@@ -13,6 +13,10 @@ namespace FsoFramework {
 		public static GLib.LogLevelFlags stringToLevel (string level);
 		protected virtual void write (string message);
 	}
+	[CCode (cheader_filename = "fsoframework/plugin.h")]
+	public class BasePlugin : FsoFramework.Plugin, GLib.Object {
+		public BasePlugin (string filename);
+	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public class FileLogger : FsoFramework.AbstractLogger {
 		public FileLogger (string domain);
@@ -42,6 +46,23 @@ namespace FsoFramework {
 		public abstract void setLevel (GLib.LogLevelFlags level);
 		public abstract void warning (string message);
 	}
+	[CCode (cheader_filename = "fsoframework/plugin.h")]
+	public interface Plugin : GLib.Object {
+		public abstract FsoFramework.PluginInfo info ();
+		public abstract void load () throws FsoFramework.PluginError;
+	}
+	[CCode (type_id = "FSO_FRAMEWORK_TYPE_PLUGIN_INFO", cheader_filename = "fsoframework/plugin.h")]
+	public struct PluginInfo {
+		public string name;
+		public bool loaded;
+	}
+	[CCode (cprefix = "FSO_FRAMEWORK_PLUGIN_ERROR_", cheader_filename = "fsoframework/plugin.h")]
+	public errordomain PluginError {
+		UNABLE_TO_LOAD,
+		FACTORY_NOT_FOUND,
+	}
+	[CCode (cheader_filename = "fsoframework/plugin.h")]
+	public delegate string FactoryFunc ();
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_DESTINATION;
 	[CCode (cheader_filename = "fsoframework/common.h")]

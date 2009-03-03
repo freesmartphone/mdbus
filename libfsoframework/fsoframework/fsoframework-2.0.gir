@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <repository version="1.0">
 <namespace name="FsoFramework" version="1.0">
+	<errordomain name="FsoFrameworkPluginError">
+		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_LOAD"/>
+		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_FACTORY_NOT_FOUND"/>
+	</errordomain>
 	<class name="AbstractLogger" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractLogger" glib:get-type="fso_framework_abstract_logger_get_type">
 		<implements>
 			<interface name="FsoFramework.Logger"/>
@@ -111,6 +115,21 @@
 			</parameters>
 			<return-value>
 				<type name="FsoFramework.SyslogLogger"/>
+			</return-value>
+		</constructor>
+	</class>
+	<class name="BasePlugin" parent="GLib.Object" glib:type-name="FsoFrameworkBasePlugin" glib:get-type="fso_framework_base_plugin_get_type">
+		<implements>
+			<interface name="FsoFramework.Plugin"/>
+		</implements>
+		<constructor name="new" c:identifier="fso_framework_base_plugin_new">
+			<parameters>
+				<parameter name="filename">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="FsoFramework.BasePlugin"/>
 			</return-value>
 		</constructor>
 	</class>
@@ -276,6 +295,46 @@
 			</return-value>
 		</method>
 	</interface>
+	<interface name="Plugin" glib:get-type="fso_framework_plugin_get_type">
+		<requires>
+			<object name="GLib.Object"/>
+		</requires>
+		<method name="load" c:identifier="fso_framework_plugin_load">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Plugin"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="info" c:identifier="fso_framework_plugin_info">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Plugin"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="FsoFramework.PluginInfo"/>
+			</return-value>
+		</method>
+	</interface>
+	<record name="PluginInfo">
+		<field name="name">
+			<type name="string"/>
+		</field>
+		<field name="loaded">
+			<type name="bool"/>
+		</field>
+	</record>
+	<callback name="FsoFrameworkFactoryFunc">
+		<parameters>
+		</parameters>
+		<return-value transfer-ownership="full">
+			<type name="string"/>
+		</return-value>
+	</callback>
 	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_TYPE"/>
 	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_LEVEL"/>
 	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_DESTINATION"/>

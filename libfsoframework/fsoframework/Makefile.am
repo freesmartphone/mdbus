@@ -16,6 +16,7 @@ lib_LTLIBRARIES = \
 libfsoframework_la_VALASOURCES = \
 	common.vala \
 	logger.vala \
+	plugin.vala \
 	smartkeyfile.vala \
 	$(NULL)
 
@@ -37,6 +38,7 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	            --pkg posix \
 	            --pkg posixextra \
 	            --pkg glib-2.0 \
+	            --pkg gmodule-2.0 \
 	            --pkg gio-2.0 \
 	            --library fsoframework-2.0 $^
 	touch $@
