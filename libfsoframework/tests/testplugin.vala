@@ -34,7 +34,7 @@ void test_plugin_all()
     }
     catch ( PluginError e )
     {
-        // ok
+       assert ( e is PluginError.UNABLE_TO_LOAD );
     }
 
     p = new BasePlugin( "./.libs/plugin" );

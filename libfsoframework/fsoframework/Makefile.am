@@ -4,7 +4,7 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	$(DEPS_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
 
 BUILT_SOURCES = fsoframework.vala.stamp
@@ -44,7 +44,7 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	touch $@
 
 libfsoframework_la_LIBADD = \
-	$(DEPS_LIBS) \
+	$(GLIB_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi

@@ -4,12 +4,13 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	$(DEPS_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(DBUS_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(DEPS_LIBS) ../fsoframework/libfsoframework.la
+progs_ldadd = $(GLIB_LIBS) $(DBUS_LIBS) ../fsoframework/libfsoframework.la
 #
 # smartkeyfile test
 #
@@ -42,7 +43,7 @@ modlibexec_LTLIBRARIES = plugin.la
 plugin_la_SOURCES = plugin.c plugin.h
 plugin_la_VALASOURCES = plugin.vala
 $(plugin_la_SOURCES): $(plugin_la_VALASOURCES)
-	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg gmodule-2.0 --pkg fsoframework-2.0 $^
+	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg fsoframework-2.0 $^
 	touch $@
 plugin_la_LIBADD = $(progs_ldadd)
 plugin_la_LDFLAGS = -no-undefined -module -avoid-version
@@ -55,7 +56,7 @@ TEST_PROGS += testplugin
 testplugin_VALASOURCES = testplugin.vala
 testplugin_SOURCES = testplugin.c testplugin.h
 $(testplugin_SOURCES): $(testplugin_VALASOURCES)
-	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg gmodule-2.0 --pkg fsoframework-2.0 $^
+	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg fsoframework-2.0 $^
 	touch $@
 testplugin_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testplugin_VALASOURCES)
