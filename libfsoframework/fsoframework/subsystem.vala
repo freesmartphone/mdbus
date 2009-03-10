@@ -53,12 +53,12 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
 
         if ( !FsoFramework.theMasterKeyFile().hasSection( _name ) )
         {
-            logger.warning( "No section for %s in configuration file. Not looking for plugins." );
+            logger.warning( "No section for %s in configuration file. Not looking for plugins.".printf( _name ) );
             return;
         }
-        if ( FsoFramework.theMasterKeyFile().boolValue( "fsodevice", "disabled", false ) )
+        if ( FsoFramework.theMasterKeyFile().boolValue( _name, "disabled", false ) )
         {
-            logger.warning( "Subsystem has been disabled in configuration file. Not looking for plugins." );
+            logger.info( "Subsystem %s has been disabled in configuration file. Not looking for plugins.".printf( _name ) );
             return;
         }
 
@@ -87,8 +87,8 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
 
     public uint loadPlugins()
     {
-        assert ( _plugins != null ); // need to call registerPlugins before loadPlugins
         uint counter = 0;
+
         foreach ( var plugin in _plugins )
         {
             try
