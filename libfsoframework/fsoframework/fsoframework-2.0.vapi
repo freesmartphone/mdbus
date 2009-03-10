@@ -79,7 +79,7 @@ namespace FsoFramework {
 		UNABLE_TO_INITIALIZE,
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
-	public delegate string? FactoryFunc ();
+	public delegate string FactoryFunc ();
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_DESTINATION;
 	[CCode (cheader_filename = "fsoframework/common.h")]

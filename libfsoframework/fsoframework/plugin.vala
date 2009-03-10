@@ -32,7 +32,7 @@ public errordomain FsoFramework.PluginError
 /**
  * Delegates
  */
-public delegate string? FsoFramework.FactoryFunc() throws FsoFramework.PluginError;
+public delegate string FsoFramework.FactoryFunc() throws FsoFramework.PluginError;
 
 /**
  * PluginInfo
@@ -82,17 +82,18 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, Object
 
         FsoFramework.FactoryFunc fso_factory_function = (FsoFramework.FactoryFunc) func;
 
-        // call factory method to acquire name
-        pluginInfo.name = fso_factory_function();
-
-        if ( pluginInfo.name == null )
+        try
+        {
+            // call factory method to acquire name
+            pluginInfo.name = fso_factory_function();
+            // flag as loaded
+            pluginInfo.loaded = true;
+        }
+        catch ( FsoFramework.PluginError e )
         {
             module = null;
-            throw new FsoFramework.PluginError.UNABLE_TO_INITIALIZE( "could not initialize module" );
+            throw e;
         }
-
-        // flag as loaded
-        pluginInfo.loaded = true;
     }
 
     public PluginInfo info()

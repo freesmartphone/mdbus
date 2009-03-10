@@ -418,7 +418,7 @@
 		<parameters>
 		</parameters>
 		<return-value transfer-ownership="full">
-			<type name="string?"/>
+			<type name="string"/>
 		</return-value>
 	</callback>
 	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_TYPE"/>
