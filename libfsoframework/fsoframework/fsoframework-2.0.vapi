@@ -13,6 +13,11 @@ namespace FsoFramework {
 		public static GLib.LogLevelFlags stringToLevel (string level);
 		protected virtual void write (string message);
 	}
+	[CCode (cheader_filename = "fsoframework/subsystem.h")]
+	public abstract class AbstractSubsystem : FsoFramework.Subsystem, GLib.Object {
+		public void loadPlugins ();
+		public AbstractSubsystem (string name);
+	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.Object {
 		public BasePlugin (string filename);
@@ -29,6 +34,7 @@ namespace FsoFramework {
 		public int intValue (string section, string key, int defaultvalue);
 		public bool loadFromFile (string filename);
 		public SmartKeyFile ();
+		public GLib.List<string> sectionsWithPrefix (string? prefix = null);
 		public string stringValue (string section, string key, string defaultvalue);
 	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
@@ -50,6 +56,9 @@ namespace FsoFramework {
 	public interface Plugin : GLib.Object {
 		public abstract FsoFramework.PluginInfo info ();
 		public abstract void load () throws FsoFramework.PluginError;
+	}
+	[CCode (cheader_filename = "fsoframework/subsystem.h")]
+	public interface Subsystem : GLib.Object {
 	}
 	[CCode (type_id = "FSO_FRAMEWORK_TYPE_PLUGIN_INFO", cheader_filename = "fsoframework/plugin.h")]
 	public struct PluginInfo {

@@ -204,6 +204,19 @@
 				<type name="bool"/>
 			</return-value>
 		</method>
+		<method name="sectionsWithPrefix" c:identifier="fso_framework_smart_key_file_sectionsWithPrefix">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.SmartKeyFile"/>
+				</parameter>
+				<parameter name="prefix">
+					<type name="string?"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="GLib.List<string>"/>
+			</return-value>
+		</method>
 		<constructor name="new" c:identifier="fso_framework_smart_key_file_new">
 			<parameters>
 			</parameters>
@@ -211,6 +224,31 @@
 				<type name="FsoFramework.SmartKeyFile"/>
 			</return-value>
 		</constructor>
+	</class>
+	<class name="AbstractSubsystem" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractSubsystem" glib:get-type="fso_framework_abstract_subsystem_get_type">
+		<implements>
+			<interface name="FsoFramework.Subsystem"/>
+		</implements>
+		<constructor name="new" c:identifier="fso_framework_abstract_subsystem_new">
+			<parameters>
+				<parameter name="name">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="FsoFramework.AbstractSubsystem"/>
+			</return-value>
+		</constructor>
+		<method name="loadPlugins" c:identifier="fso_framework_abstract_subsystem_loadPlugins">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractSubsystem"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
 	</class>
 	<interface name="Logger" glib:get-type="fso_framework_logger_get_type">
 		<requires>
@@ -319,6 +357,11 @@
 				<type name="FsoFramework.PluginInfo"/>
 			</return-value>
 		</method>
+	</interface>
+	<interface name="Subsystem" glib:get-type="fso_framework_subsystem_get_type">
+		<requires>
+			<object name="GLib.Object"/>
+		</requires>
 	</interface>
 	<record name="PluginInfo">
 		<field name="name">

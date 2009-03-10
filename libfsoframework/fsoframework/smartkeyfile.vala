@@ -93,4 +93,20 @@ public class FsoFramework.SmartKeyFile : Object
         return value;
     }
 
+    public List<string> sectionsWithPrefix( string? prefix = null )
+    {
+        var list = new List<string>();
+        var groups = kf.get_groups();
+
+        foreach ( var group in groups )
+        {
+            if ( prefix == null )
+                list.append( group );
+            else
+                if ( group.has_prefix( prefix ) )
+                    list.append( group );
+        }
+        return list;
+    }
+
 }

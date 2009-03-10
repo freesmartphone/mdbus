@@ -23,7 +23,7 @@ using FsoFramework;
 const string TEST_FILE_NAME = "testsmartkeyfile.ini";
 
 //===========================================================================
-void test_smartkeyfile_all()
+void test_smartkeyfile_values()
 //===========================================================================
 {
     var smk = new SmartKeyFile();
@@ -50,6 +50,28 @@ void test_smartkeyfile_all()
 }
 
 //===========================================================================
+void test_smartkeyfile_sections()
+//===========================================================================
+{
+    var smk = new SmartKeyFile();
+    var ok = smk.loadFromFile( TEST_FILE_NAME );
+    assert( ok );
+
+    var sections = smk.sectionsWithPrefix();
+    assert ( sections.length() == 8 );
+    assert ( sections.nth_data(0) == "section0" );
+    assert ( sections.nth_data(7) == "foo.bar" );
+
+    var foosections = smk.sectionsWithPrefix( "foo" );
+    assert ( foosections.length() == 4 );
+    assert ( foosections.nth_data(0) == "foo.1" );
+    assert ( foosections.nth_data(3) == "foo.bar" );
+
+    var nosections = smk.sectionsWithPrefix( "this.section.not.present" );
+    assert ( nosections.length() == 0 );
+}
+
+//===========================================================================
 void test_masterkeyfile_all()
 //===========================================================================
 {
@@ -64,7 +86,8 @@ void main (string[] args)
 
     // SmartKeyFile creation
 
-    Test.add_func ("/SmartKeyFile/all", test_smartkeyfile_all);
+    Test.add_func ("/SmartKeyFile/Values", test_smartkeyfile_values);
+    Test.add_func ("/SmartKeyFile/Sections", test_smartkeyfile_sections);
     Test.add_func ("/MasterKeyFile/all", test_masterkeyfile_all);
 
     Test.run ();
