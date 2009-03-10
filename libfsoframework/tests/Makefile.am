@@ -103,6 +103,18 @@ $(testplugin_SOURCES): $(testplugin_VALASOURCES)
 testplugin_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testplugin_VALASOURCES)
 
+#
+# subsystem test
+#
+TEST_PROGS += testsubsystem
+testsubsystem_VALASOURCES = testsubsystem.vala
+testsubsystem_SOURCES = testsubsystem.c testsubsystem.h
+$(testsubsystem_SOURCES): $(testsubsystem_VALASOURCES)
+	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg gio-2.0 --pkg fsoframework-2.0 $^
+	touch $@
+testsubsystem_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testsubsystem_VALASOURCES)
+
 # TEST_PROGS += testarraylist
 # testarraylist_VALASOURCES = testarraylist.vala
 # testarraylist_SOURCES = testarraylist.c testarraylist.h

@@ -19,6 +19,9 @@
 
 using GLib;
 
+//triggers a bug in Vala
+//const FsoFramework.Logger logger = FsoFramework.theMasterLogger( "subsystem" );
+
 /**
  * Subsystem
  */
@@ -51,11 +54,33 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
     {
         assert ( _plugins == null ); // this method can only be called once
         _plugins = new List<FsoFramework.Plugin>();
-        var names = theMasterKeyFile().sectionsWithPrefix( _name );
+        var names = FsoFramework.theMasterKeyFile().sectionsWithPrefix( _name + "." );
+
+        var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "frameworkd", "plugin_path" );
+        //logger.debug( "pluginpath is %s".printf( pluginpath ) );
+
         foreach ( var name in names )
         {
-/*            var filename = "%s/%s/%s".printf();
-            plugin = FsoFramework.Plugin(*/
+            var realname = name.replace( _name + ".", "" ); // cut subsystem name and dot
+            debug( "dealing with name %s", realname );
+            string filename;
+            if ( "%s" in pluginpath )
+                filename = pluginpath.printf( realname );
+            else
+                filename = "%s/%s/%s".printf( pluginpath, _name, realname );
+            var plugin = new FsoFramework.BasePlugin( filename );
+            _plugins.append( plugin );
+        }
+
+        //logger.debug( "registered %d plugins".printf( _plugins.length() ) );
+    }
+
+    public void loadPlugins()
+    {
+        assert ( _plugins != null ); // need to call registerPlugins before loadPlugins
+        foreach ( var plugin in _plugins )
+        {
+            plugin.load();
         }
     }
 
@@ -63,5 +88,25 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
     {
         return _name;
     }
+
+    public List<FsoFramework.PluginInfo?> pluginsInfo()
+    {
+        var list = new List<FsoFramework.PluginInfo?>();
+        foreach ( var plugin in _plugins )
+        {
+            list.append( plugin.info() );
+        }
+        return list;
+    }
 }
 
+/**
+ * BaseSubsystem
+ */
+public class FsoFramework.BaseSubsystem : FsoFramework.AbstractSubsystem
+{
+    public BaseSubsystem( string name )
+    {
+        base( name );
+    }
+}

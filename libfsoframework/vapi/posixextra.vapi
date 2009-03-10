@@ -478,7 +478,5 @@ namespace PosixExtra {
 
     [CCode (cheader_filename = "unistd.h")]
     uint sleep (uint seconds);
-
-
 }
 

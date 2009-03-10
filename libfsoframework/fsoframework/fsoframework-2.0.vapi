@@ -15,13 +15,19 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public abstract class AbstractSubsystem : FsoFramework.Subsystem, GLib.Object {
+		public void loadPlugins ();
 		public string name ();
 		public AbstractSubsystem (string name);
+		public GLib.List<FsoFramework.PluginInfo?> pluginsInfo ();
 		public void registerPlugins ();
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.Object {
 		public BasePlugin (string filename);
+	}
+	[CCode (cheader_filename = "fsoframework/subsystem.h")]
+	public class BaseSubsystem : FsoFramework.AbstractSubsystem {
+		public BaseSubsystem (string name);
 	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public class FileLogger : FsoFramework.AbstractLogger {
@@ -31,12 +37,12 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework/smartkeyfile.h")]
 	public class SmartKeyFile : GLib.Object {
-		public bool boolValue (string section, string key, bool defaultvalue);
-		public int intValue (string section, string key, int defaultvalue);
+		public bool boolValue (string section, string key, bool defaultvalue = false);
+		public int intValue (string section, string key, int defaultvalue = 0);
 		public bool loadFromFile (string filename);
 		public SmartKeyFile ();
 		public GLib.List<string> sectionsWithPrefix (string? prefix = null);
-		public string stringValue (string section, string key, string defaultvalue);
+		public string stringValue (string section, string key, string defaultvalue = "");
 	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public class SyslogLogger : FsoFramework.AbstractLogger {

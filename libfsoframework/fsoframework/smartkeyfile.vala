@@ -48,7 +48,7 @@ public class FsoFramework.SmartKeyFile : Object
         return true;
     }
 
-    public string stringValue( string section, string key, string defaultvalue )
+    public string stringValue( string section, string key, string defaultvalue = "" )
     {
         string value;
 
@@ -63,7 +63,7 @@ public class FsoFramework.SmartKeyFile : Object
         return value;
     }
 
-    public int intValue( string section, string key, int defaultvalue )
+    public int intValue( string section, string key, int defaultvalue = 0 )
     {
         int value;
 
@@ -78,7 +78,7 @@ public class FsoFramework.SmartKeyFile : Object
         return value;
     }
 
-    public bool boolValue( string section, string key, bool defaultvalue )
+    public bool boolValue( string section, string key, bool defaultvalue = false )
     {
         bool value;
 
