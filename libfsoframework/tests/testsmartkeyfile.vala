@@ -63,6 +63,8 @@ void test_smartkeyfile_sections()
     assert ( sections.nth_data(7) == "foo.bar" );
 
     var foosections = smk.sectionsWithPrefix( "foo" );
+    foreach ( var section in foosections )
+        assert ( section.has_prefix( "foo" ) );
     assert ( foosections.length() == 4 );
     assert ( foosections.nth_data(0) == "foo.1" );
     assert ( foosections.nth_data(3) == "foo.bar" );

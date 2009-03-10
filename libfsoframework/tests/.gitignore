@@ -1,3 +1,9 @@
+Makefile.in
+*.c
+*.h
+*.la
+*.lo
+*.so
 frameworkd.log
 testlogger
 testplugin

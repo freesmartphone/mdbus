@@ -239,7 +239,7 @@
 				<type name="FsoFramework.AbstractSubsystem"/>
 			</return-value>
 		</constructor>
-		<method name="loadPlugins" c:identifier="fso_framework_abstract_subsystem_loadPlugins">
+		<method name="registerPlugins" c:identifier="fso_framework_abstract_subsystem_registerPlugins">
 			<parameters>
 				<parameter name="self">
 					<type name="FsoFramework.AbstractSubsystem"/>
@@ -247,6 +247,16 @@
 			</parameters>
 			<return-value>
 				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="name" c:identifier="fso_framework_abstract_subsystem_name">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractSubsystem"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="string"/>
 			</return-value>
 		</method>
 	</class>

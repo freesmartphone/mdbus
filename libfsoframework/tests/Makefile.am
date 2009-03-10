@@ -11,6 +11,10 @@ AM_CPPFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = $(GLIB_LIBS) $(DBUS_LIBS) ../fsoframework/libfsoframework.la
+
+modlibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
+modlibexec_LTLIBRARIES =
+
 #
 # smartkeyfile test
 #
@@ -38,8 +42,7 @@ EXTRA_DIST += $(testlogger_VALASOURCES)
 #
 # plugin for the plugin test
 #
-modlibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
-modlibexec_LTLIBRARIES = plugin.la
+modlibexec_LTLIBRARIES += plugin.la
 plugin_la_SOURCES = plugin.c plugin.h
 plugin_la_VALASOURCES = plugin.vala
 $(plugin_la_SOURCES): $(plugin_la_VALASOURCES)
@@ -48,6 +51,45 @@ $(plugin_la_SOURCES): $(plugin_la_VALASOURCES)
 plugin_la_LIBADD = $(progs_ldadd)
 plugin_la_LDFLAGS = -no-undefined -module -avoid-version
 plugin_la_LIBTOOLFLAGS = --tag=disable-static
+
+#
+# plugin1 for the plugin1 test
+#
+modlibexec_LTLIBRARIES += plugin1.la
+plugin1_la_SOURCES = plugin1.c plugin1.h
+plugin1_la_VALASOURCES = plugin1.vala
+$(plugin1_la_SOURCES): $(plugin1_la_VALASOURCES)
+	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg fsoframework-2.0 $^
+	touch $@
+plugin1_la_LIBADD = $(progs_ldadd)
+plugin1_la_LDFLAGS = -no-undefined -module -avoid-version
+plugin1_la_LIBTOOLFLAGS = --tag=disable-static
+
+#
+# plugin2 for the plugin2 test
+#
+modlibexec_LTLIBRARIES += plugin2.la
+plugin2_la_SOURCES = plugin2.c plugin2.h
+plugin2_la_VALASOURCES = plugin2.vala
+$(plugin2_la_SOURCES): $(plugin2_la_VALASOURCES)
+	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg fsoframework-2.0 $^
+	touch $@
+plugin2_la_LIBADD = $(progs_ldadd)
+plugin2_la_LDFLAGS = -no-undefined -module -avoid-version
+plugin2_la_LIBTOOLFLAGS = --tag=disable-static
+
+#
+# plugin3 for the plugin3 test
+#
+modlibexec_LTLIBRARIES += plugin3.la
+plugin3_la_SOURCES = plugin3.c plugin3.h
+plugin3_la_VALASOURCES = plugin3.vala
+$(plugin3_la_SOURCES): $(plugin3_la_VALASOURCES)
+	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg fsoframework-2.0 $^
+	touch $@
+plugin3_la_LIBADD = $(progs_ldadd)
+plugin3_la_LDFLAGS = -no-undefined -module -avoid-version
+plugin3_la_LIBTOOLFLAGS = --tag=disable-static
 
 #
 # plugin test

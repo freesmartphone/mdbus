@@ -15,8 +15,9 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public abstract class AbstractSubsystem : FsoFramework.Subsystem, GLib.Object {
-		public void loadPlugins ();
+		public string name ();
 		public AbstractSubsystem (string name);
+		public void registerPlugins ();
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.Object {
