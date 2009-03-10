@@ -76,9 +76,10 @@ namespace FsoFramework {
 	public errordomain PluginError {
 		UNABLE_TO_LOAD,
 		FACTORY_NOT_FOUND,
+		UNABLE_TO_INITIALIZE,
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
-	public delegate string FactoryFunc ();
+	public delegate string? FactoryFunc ();
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_DESTINATION;
 	[CCode (cheader_filename = "fsoframework/common.h")]

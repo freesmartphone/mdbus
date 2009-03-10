@@ -26,12 +26,13 @@ public errordomain FsoFramework.PluginError
 {
     UNABLE_TO_LOAD,
     FACTORY_NOT_FOUND,
+    UNABLE_TO_INITIALIZE,
 }
 
 /**
  * Delegates
  */
-public delegate string FsoFramework.FactoryFunc();
+public delegate string? FsoFramework.FactoryFunc() throws FsoFramework.PluginError;
 
 /**
  * PluginInfo
@@ -79,10 +80,18 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, Object
         if ( !ok )
             throw new FsoFramework.PluginError.FACTORY_NOT_FOUND( "could not find symbol: %s".printf( Module.error() ) );
 
-        // call factory method to acquire name
         FsoFramework.FactoryFunc fso_factory_function = (FsoFramework.FactoryFunc) func;
+
+        // call factory method to acquire name
         pluginInfo.name = fso_factory_function();
 
+        if ( pluginInfo.name == null )
+        {
+            module = null;
+            throw new FsoFramework.PluginError.UNABLE_TO_INITIALIZE( "could not initialize module" );
+        }
+
+        // flag as loaded
         pluginInfo.loaded = true;
     }
 

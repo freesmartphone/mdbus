@@ -4,6 +4,7 @@
 	<errordomain name="FsoFrameworkPluginError">
 		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_LOAD"/>
 		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_FACTORY_NOT_FOUND"/>
+		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_INITIALIZE"/>
 	</errordomain>
 	<class name="AbstractLogger" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractLogger" glib:get-type="fso_framework_abstract_logger_get_type">
 		<implements>
@@ -417,7 +418,7 @@
 		<parameters>
 		</parameters>
 		<return-value transfer-ownership="full">
-			<type name="string"/>
+			<type name="string?"/>
 		</return-value>
 	</callback>
 	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_TYPE"/>

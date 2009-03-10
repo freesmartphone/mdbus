@@ -19,7 +19,7 @@
 
 using GLib;
 
-//triggers a bug in Vala
+//triggers a bug in Vala (_tmp0 already defined)
 //const FsoFramework.Logger logger = FsoFramework.theMasterLogger( "subsystem" );
 
 /**
@@ -57,6 +57,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         var names = FsoFramework.theMasterKeyFile().sectionsWithPrefix( _name + "." );
 
         var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "frameworkd", "plugin_path" );
+
         //logger.debug( "pluginpath is %s".printf( pluginpath ) );
 
         foreach ( var name in names )
