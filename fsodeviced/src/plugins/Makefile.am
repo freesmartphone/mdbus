@@ -3,7 +3,5 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
-	lib \
-	plugins \
-	bin \
+	kernel26_leds \
 	$(NULL)

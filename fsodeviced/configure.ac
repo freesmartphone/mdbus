@@ -22,19 +22,26 @@ FSO_REQUIRED=0.0.0.0
 PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
 
-PKG_CHECK_MODULES(DEPS,
-  fsoframework-2.0 >= $FSO_REQUIRED
+PKG_CHECK_MODULES(FSO,
+  fsoframework-2.0 >= $FSO_REQUIRED)
+  
+PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
   gobject-2.0 >= $GLIB_REQUIRED
   gio-2.0 >= $GLIB_REQUIRED)
-AC_SUBST(DEPS_CFLAGS)
-AC_SUBST(DEPS_LIBS)
+
+AC_SUBST(FSO_CFLAGS)
+AC_SUBST(FSO_LIBS)
+AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(GLIB_LIBS)
 
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
   src/lib/Makefile
   src/bin/Makefile
+  src/plugins/Makefile
+  src/plugins/kernel26_leds/Makefile
   tests/Makefile
 ])
 
