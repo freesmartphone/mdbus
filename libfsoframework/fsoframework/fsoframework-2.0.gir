@@ -431,7 +431,7 @@
 			<type name="FsoFramework.SmartKeyFile"/>
 		</return-value>
 	</method>
-	<method name="theMasterLogger" c:identifier="fso_framework_theMasterLogger">
+	<method name="createLogger" c:identifier="fso_framework_createLogger">
 		<parameters>
 			<parameter name="domain">
 				<type name="string"/>

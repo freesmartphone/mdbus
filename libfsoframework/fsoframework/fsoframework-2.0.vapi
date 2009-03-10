@@ -87,7 +87,7 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_TYPE;
 	[CCode (cheader_filename = "fsoframework/common.h")]
-	public static FsoFramework.SmartKeyFile theMasterKeyFile ();
+	public static FsoFramework.Logger createLogger (string domain);
 	[CCode (cheader_filename = "fsoframework/common.h")]
-	public static FsoFramework.Logger theMasterLogger (string domain);
+	public static FsoFramework.SmartKeyFile theMasterKeyFile ();
 }

@@ -83,10 +83,10 @@ void test_syslog_logger_new()
 }
 
 //===========================================================================
-void test_master_logger_new()
+void test_common_create_logger()
 //===========================================================================
 {
-    var logger = theMasterLogger( TEST_LOG_DOMAIN );
+    var logger = createLogger( TEST_LOG_DOMAIN );
     logger.debug( "debug" );
     logger.info( "info" );
     logger.warning( "warning" );
@@ -102,7 +102,7 @@ void main (string[] args)
     Test.add_func ("/Logger/conversions", test_logger_conversions);
     Test.add_func ("/FileLogger/new", test_file_logger_new);
     Test.add_func ("/SyslogLogger/new", test_syslog_logger_new);
-    Test.add_func ("/MasterLogger/new", test_master_logger_new);
+    Test.add_func ("/Common/createLogger", test_common_create_logger);
 
     Test.run ();
 }

@@ -44,7 +44,7 @@ public static SmartKeyFile theMasterKeyFile()
     return _masterkeyfile;
 }
 
-public static Logger theMasterLogger( string domain )
+public static Logger createLogger( string domain )
 {
     SmartKeyFile smk = theMasterKeyFile();
     var global_log_level = smk.stringValue( "frameworkd", "log_level", DEFAULT_LOG_LEVEL );
