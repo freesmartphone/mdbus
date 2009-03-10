@@ -13,13 +13,6 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
 #
-# Module architecture
-#
-MODULE_ARCH="$host_os-$host_cpu"
-AC_SUBST(MODULE_ARCH)
-AC_DEFINE_UNQUOTED(MODULE_ARCH, "$MODULE_ARCH", "Module architecture")
-
-#
 # pkg-config requirements
 #
 PKG_PROG_PKG_CONFIG

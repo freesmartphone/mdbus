@@ -39,7 +39,7 @@ EXTRA_DIST += $(testlogger_VALASOURCES)
 #
 # plugin for the plugin test
 #
-modlibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
+modlibexecdir = $(libdir)/cornucopia/modules/tests
 modlibexec_LTLIBRARIES = plugin.la
 plugin_la_SOURCES = plugin.c plugin.h
 plugin_la_VALASOURCES = plugin.vala
@@ -53,7 +53,7 @@ plugin_la_LIBTOOLFLAGS = --tag=disable-static
 #
 # plugin a for the subsystem test
 #
-modalibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
+modalibexecdir = $(libdir)/cornucopia/modules/tests
 modalibexec_LTLIBRARIES = plugina.la
 plugina_la_SOURCES = plugina.c plugina.h
 plugina_la_VALASOURCES = plugina.vala
@@ -67,7 +67,7 @@ plugina_la_LIBTOOLFLAGS = --tag=disable-static
 #
 # plugin b for the subsystem test
 #
-modblibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
+modblibexecdir = $(libdir)/cornucopia/modules/tests
 modblibexec_LTLIBRARIES = pluginb.la
 pluginb_la_SOURCES = pluginb.c pluginb.h
 pluginb_la_VALASOURCES = pluginb.vala
@@ -81,7 +81,7 @@ pluginb_la_LIBTOOLFLAGS = --tag=disable-static
 #
 # plugin c for the subsystem test
 #
-modclibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
+modclibexecdir = $(libdir)/cornucopia/modules/tests
 modclibexec_LTLIBRARIES = pluginc.la
 pluginc_la_SOURCES = pluginc.c pluginc.h
 pluginc_la_VALASOURCES = pluginc.vala

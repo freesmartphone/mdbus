@@ -19,8 +19,6 @@
 
 using GLib;
 
-FsoFramework.Logger logger;
-
 /**
  * Subsystem
  */
@@ -37,6 +35,7 @@ public interface FsoFramework.Subsystem : Object
  */
 public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, Object
 {
+    FsoFramework.Logger logger;
     string _name;
     List<FsoFramework.Plugin> _plugins;
 
@@ -65,7 +64,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         var names = FsoFramework.theMasterKeyFile().sectionsWithPrefix( _name + "." );
 
         // FIXME: grab from build system
-        var defaultpath = "/usr/local/lib/cornucopia/modules/%s/linux-gnu-i686".printf( _name );
+        var defaultpath = "/usr/local/lib/cornucopia/modules";
         var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "frameworkd", "plugin_path", defaultpath );
 
         logger.debug( "pluginpath is %s".printf( pluginpath ) );
@@ -74,7 +73,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         {
             var realname = name.replace( _name + ".", "" ); // cut subsystem name and dot
             string filename;
-            if ( "%s" in pluginpath )
+            if ( "./.libs" in pluginpath )
                 filename = pluginpath.printf( realname );
             else
                 filename = "%s/%s/%s".printf( pluginpath, _name, realname );
