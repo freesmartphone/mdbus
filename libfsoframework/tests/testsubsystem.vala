@@ -30,16 +30,18 @@ void test_subsystem_all()
     assert ( info.length() == 3 );
     var pinfo = info.nth_data(0);
     assert ( !pinfo.loaded );
+
     subsystem.loadPlugins();
+    info = subsystem.pluginsInfo();
     pinfo = info.nth_data( 0 );
     assert ( pinfo.loaded );
-    assert ( pinfo.name == "tests.plugin1" );
+    assert ( pinfo.name == "tests.plugina" );
     pinfo = info.nth_data( 1 );
     assert ( pinfo.loaded );
-    assert ( pinfo.name == "tests.plugin2" );
+    assert ( pinfo.name == "tests.pluginb" );
     pinfo = info.nth_data( 2 );
     assert ( pinfo.loaded );
-    assert ( pinfo.name == "tests.plugin3" );
+    assert ( pinfo.name == "tests.pluginc" );
 }
 
 //===========================================================================

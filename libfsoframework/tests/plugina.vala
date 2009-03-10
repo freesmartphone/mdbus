@@ -18,17 +18,17 @@
  */
 using GLib;
 
-class Test : Object
+class TestA : Object
 {
-    public Test( int foo )
+    public TestA( int foo )
     {
         //DBus.Connection conn;
         //conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-        message( "Test Plugin 3 is alive!" );
+        message( "Test Plugin A is alive!" );
     }
 }
 
-Test test;
+TestA test;
 
 /**
  * This function gets called on plugin initialization time.
@@ -38,6 +38,6 @@ Test test;
  **/
 string fso_factory_function()
 {
-    test = new Test( 42 );
-    return "tests.plugin3";
+    test = new TestA( 42 );
+    return "tests.plugina";
 }

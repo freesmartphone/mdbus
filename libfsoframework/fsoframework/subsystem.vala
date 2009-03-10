@@ -62,7 +62,6 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         foreach ( var name in names )
         {
             var realname = name.replace( _name + ".", "" ); // cut subsystem name and dot
-            debug( "dealing with name %s", realname );
             string filename;
             if ( "%s" in pluginpath )
                 filename = pluginpath.printf( realname );

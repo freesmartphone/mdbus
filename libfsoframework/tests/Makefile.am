@@ -12,9 +12,6 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = $(GLIB_LIBS) $(DBUS_LIBS) ../fsoframework/libfsoframework.la
 
-modlibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
-modlibexec_LTLIBRARIES =
-
 #
 # smartkeyfile test
 #
@@ -42,7 +39,8 @@ EXTRA_DIST += $(testlogger_VALASOURCES)
 #
 # plugin for the plugin test
 #
-modlibexec_LTLIBRARIES += plugin.la
+modlibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
+modlibexec_LTLIBRARIES = plugin.la
 plugin_la_SOURCES = plugin.c plugin.h
 plugin_la_VALASOURCES = plugin.vala
 $(plugin_la_SOURCES): $(plugin_la_VALASOURCES)
@@ -53,43 +51,46 @@ plugin_la_LDFLAGS = -no-undefined -module -avoid-version
 plugin_la_LIBTOOLFLAGS = --tag=disable-static
 
 #
-# plugin1 for the plugin1 test
+# plugin a for the subsystem test
 #
-modlibexec_LTLIBRARIES += plugin1.la
-plugin1_la_SOURCES = plugin1.c plugin1.h
-plugin1_la_VALASOURCES = plugin1.vala
-$(plugin1_la_SOURCES): $(plugin1_la_VALASOURCES)
+modalibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
+modalibexec_LTLIBRARIES = plugina.la
+plugina_la_SOURCES = plugina.c plugina.h
+plugina_la_VALASOURCES = plugina.vala
+$(plugina_la_SOURCES): $(plugina_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg fsoframework-2.0 $^
 	touch $@
-plugin1_la_LIBADD = $(progs_ldadd)
-plugin1_la_LDFLAGS = -no-undefined -module -avoid-version
-plugin1_la_LIBTOOLFLAGS = --tag=disable-static
+plugina_la_LIBADD = $(progs_ldadd)
+plugina_la_LDFLAGS = -no-undefined -module -avoid-version
+plugina_la_LIBTOOLFLAGS = --tag=disable-static
 
 #
-# plugin2 for the plugin2 test
+# plugin b for the subsystem test
 #
-modlibexec_LTLIBRARIES += plugin2.la
-plugin2_la_SOURCES = plugin2.c plugin2.h
-plugin2_la_VALASOURCES = plugin2.vala
-$(plugin2_la_SOURCES): $(plugin2_la_VALASOURCES)
+modblibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
+modblibexec_LTLIBRARIES = pluginb.la
+pluginb_la_SOURCES = pluginb.c pluginb.h
+pluginb_la_VALASOURCES = pluginb.vala
+$(pluginb_la_SOURCES): $(pluginb_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg fsoframework-2.0 $^
 	touch $@
-plugin2_la_LIBADD = $(progs_ldadd)
-plugin2_la_LDFLAGS = -no-undefined -module -avoid-version
-plugin2_la_LIBTOOLFLAGS = --tag=disable-static
+pluginb_la_LIBADD = $(progs_ldadd)
+pluginb_la_LDFLAGS = -no-undefined -module -avoid-version
+pluginb_la_LIBTOOLFLAGS = --tag=disable-static
 
 #
-# plugin3 for the plugin3 test
+# plugin c for the subsystem test
 #
-modlibexec_LTLIBRARIES += plugin3.la
-plugin3_la_SOURCES = plugin3.c plugin3.h
-plugin3_la_VALASOURCES = plugin3.vala
-$(plugin3_la_SOURCES): $(plugin3_la_VALASOURCES)
+modclibexecdir = $(libdir)/cornucopia/modules/tests/$(MODULE_ARCH)
+modclibexec_LTLIBRARIES = pluginc.la
+pluginc_la_SOURCES = pluginc.c pluginc.h
+pluginc_la_VALASOURCES = pluginc.vala
+$(pluginc_la_SOURCES): $(pluginc_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg fsoframework-2.0 $^
 	touch $@
-plugin3_la_LIBADD = $(progs_ldadd)
-plugin3_la_LDFLAGS = -no-undefined -module -avoid-version
-plugin3_la_LIBTOOLFLAGS = --tag=disable-static
+pluginc_la_LIBADD = $(progs_ldadd)
+pluginc_la_LDFLAGS = -no-undefined -module -avoid-version
+pluginc_la_LIBTOOLFLAGS = --tag=disable-static
 
 #
 # plugin test
@@ -150,4 +151,6 @@ CLEANFILES = \
 
 MAINTAINERCLEANFILES = \
   Makefile.in \
+  *.la \
+  *.lo \
   $(NULL)
