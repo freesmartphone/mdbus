@@ -57,6 +57,9 @@ void test_smartkeyfile_sections()
     var ok = smk.loadFromFile( TEST_FILE_NAME );
     assert( ok );
 
+    assert ( smk.hasSection( "section0" ) );
+    assert ( !smk.hasSection( "this.section.not.there" ) );
+
     var sections = smk.sectionsWithPrefix();
     assert ( sections.length() == 8 );
     assert ( sections.nth_data(0) == "section0" );

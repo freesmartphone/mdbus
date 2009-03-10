@@ -205,6 +205,19 @@
 				<type name="bool"/>
 			</return-value>
 		</method>
+		<method name="hasSection" c:identifier="fso_framework_smart_key_file_hasSection">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.SmartKeyFile"/>
+				</parameter>
+				<parameter name="section">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="bool"/>
+			</return-value>
+		</method>
 		<method name="sectionsWithPrefix" c:identifier="fso_framework_smart_key_file_sectionsWithPrefix">
 			<parameters>
 				<parameter name="self">

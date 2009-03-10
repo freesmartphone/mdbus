@@ -34,6 +34,7 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/smartkeyfile.h")]
 	public class SmartKeyFile : GLib.Object {
 		public bool boolValue (string section, string key, bool defaultvalue = false);
+		public bool hasSection (string section);
 		public int intValue (string section, string key, int defaultvalue = 0);
 		public bool loadFromFile (string filename);
 		public SmartKeyFile ();

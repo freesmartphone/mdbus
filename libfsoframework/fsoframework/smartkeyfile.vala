@@ -93,6 +93,11 @@ public class FsoFramework.SmartKeyFile : Object
         return value;
     }
 
+    public bool hasSection( string section )
+    {
+        return kf.has_group( section );
+    }
+
     public List<string> sectionsWithPrefix( string? prefix = null )
     {
         var list = new List<string>();

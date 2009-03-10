@@ -50,6 +50,18 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
     {
         assert ( _plugins == null ); // this method can only be called once
         _plugins = new List<FsoFramework.Plugin>();
+
+        if ( !FsoFramework.theMasterKeyFile().hasSection( _name ) )
+        {
+            logger.warning( "No section for %s in configuration file. Not looking for plugins." );
+            return;
+        }
+        if ( FsoFramework.theMasterKeyFile().boolValue( "fsodevice", "disabled", false ) )
+        {
+            logger.warning( "Subsystem has been disabled in configuration file. Not looking for plugins." );
+            return;
+        }
+
         var names = FsoFramework.theMasterKeyFile().sectionsWithPrefix( _name + "." );
 
         // FIXME: grab from build system
