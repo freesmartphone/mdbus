@@ -4,7 +4,8 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	$(DEPS_CFLAGS) \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
 
 BUILT_SOURCES = .vala.stamp fsodevice-2.0.vapi
@@ -40,7 +41,8 @@ $(BUILT_SOURCES): $(libfsodevice_la_VALASOURCES)
 	touch $@
 
 libfsodevice_la_LIBADD = \
-	$(DEPS_LIBS) \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi

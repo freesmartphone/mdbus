@@ -3,7 +3,8 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 INCLUDES = \
-	$(DEPS_CFLAGS) \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	$(NULL)
 
@@ -31,7 +32,8 @@ $(BUILT_SOURCES): $(fsodeviced_VALASOURCES)
 	touch $@
 
 fsodeviced_LDADD = \
-	$(DEPS_LIBS) \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
 	$(NULL)
 
 EXTRA_DIST += \

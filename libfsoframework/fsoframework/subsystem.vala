@@ -19,22 +19,17 @@
 
 using GLib;
 
-//triggers a bug in Vala (_tmp0 already defined)
-//const FsoFramework.Logger logger = FsoFramework.theMasterLogger( "subsystem" );
+FsoFramework.Logger logger;
 
 /**
  * Subsystem
  */
 public interface FsoFramework.Subsystem : Object
 {
-    /*
-    public abstract void setLevel( LogLevelFlags level );
-    public abstract void setDestination( string destination );
-    public abstract void debug( string message );
-    public abstract void info( string message );
-    public abstract void warning( string message );
-    public abstract void error( string message );
-    */
+    public abstract void registerPlugins();
+    public abstract uint loadPlugins();
+    public abstract string name();
+    public abstract List<FsoFramework.PluginInfo?> pluginsInfo();
 }
 
 /**
@@ -48,6 +43,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
     public AbstractSubsystem( string name )
     {
         _name = name;
+        logger = FsoFramework.createLogger( "subsystem" );
     }
 
     public void registerPlugins()
@@ -56,9 +52,11 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         _plugins = new List<FsoFramework.Plugin>();
         var names = FsoFramework.theMasterKeyFile().sectionsWithPrefix( _name + "." );
 
-        var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "frameworkd", "plugin_path" );
+        // FIXME: grab from build system
+        var defaultpath = "/usr/local/lib/cornucopia/modules/%s/linux-gnu-i686".printf( _name );
+        var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "frameworkd", "plugin_path", defaultpath );
 
-        //logger.debug( "pluginpath is %s".printf( pluginpath ) );
+        logger.debug( "pluginpath is %s".printf( pluginpath ) );
 
         foreach ( var name in names )
         {
@@ -72,16 +70,26 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
             _plugins.append( plugin );
         }
 
-        //logger.debug( "registered %d plugins".printf( _plugins.length() ) );
+        logger.debug( "registered %u plugins".printf( _plugins.length() ) );
     }
 
-    public void loadPlugins()
+    public uint loadPlugins()
     {
         assert ( _plugins != null ); // need to call registerPlugins before loadPlugins
+        uint counter = 0;
         foreach ( var plugin in _plugins )
         {
-            plugin.load();
+            try
+            {
+                plugin.load();
+                counter++;
+            }
+            catch ( FsoFramework.PluginError e )
+            {
+                logger.warning( "could not load plugin: %s".printf( e.message ) );
+            }
         }
+        return counter;
     }
 
     public string name()

@@ -240,46 +240,6 @@
 				<type name="FsoFramework.AbstractSubsystem"/>
 			</return-value>
 		</constructor>
-		<method name="registerPlugins" c:identifier="fso_framework_abstract_subsystem_registerPlugins">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractSubsystem"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="loadPlugins" c:identifier="fso_framework_abstract_subsystem_loadPlugins">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractSubsystem"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="name" c:identifier="fso_framework_abstract_subsystem_name">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractSubsystem"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="string"/>
-			</return-value>
-		</method>
-		<method name="pluginsInfo" c:identifier="fso_framework_abstract_subsystem_pluginsInfo">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractSubsystem"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="GLib.List<FsoFramework.PluginInfo?>"/>
-			</return-value>
-		</method>
 	</class>
 	<class name="BaseSubsystem" parent="FsoFramework.AbstractSubsystem" glib:type-name="FsoFrameworkBaseSubsystem" glib:get-type="fso_framework_base_subsystem_get_type">
 		<constructor name="new" c:identifier="fso_framework_base_subsystem_new">
@@ -405,6 +365,46 @@
 		<requires>
 			<object name="GLib.Object"/>
 		</requires>
+		<method name="registerPlugins" c:identifier="fso_framework_subsystem_registerPlugins">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Subsystem"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</method>
+		<method name="loadPlugins" c:identifier="fso_framework_subsystem_loadPlugins">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Subsystem"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="uint"/>
+			</return-value>
+		</method>
+		<method name="name" c:identifier="fso_framework_subsystem_name">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Subsystem"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="string"/>
+			</return-value>
+		</method>
+		<method name="pluginsInfo" c:identifier="fso_framework_subsystem_pluginsInfo">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Subsystem"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="GLib.List<FsoFramework.PluginInfo?>"/>
+			</return-value>
+		</method>
 	</interface>
 	<record name="PluginInfo">
 		<field name="name">

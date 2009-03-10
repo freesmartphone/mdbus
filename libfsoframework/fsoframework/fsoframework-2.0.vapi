@@ -15,11 +15,7 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public abstract class AbstractSubsystem : FsoFramework.Subsystem, GLib.Object {
-		public void loadPlugins ();
-		public string name ();
 		public AbstractSubsystem (string name);
-		public GLib.List<FsoFramework.PluginInfo?> pluginsInfo ();
-		public void registerPlugins ();
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.Object {
@@ -66,6 +62,10 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public interface Subsystem : GLib.Object {
+		public abstract uint loadPlugins ();
+		public abstract string name ();
+		public abstract GLib.List<FsoFramework.PluginInfo?> pluginsInfo ();
+		public abstract void registerPlugins ();
 	}
 	[CCode (type_id = "FSO_FRAMEWORK_TYPE_PLUGIN_INFO", cheader_filename = "fsoframework/plugin.h")]
 	public struct PluginInfo {
