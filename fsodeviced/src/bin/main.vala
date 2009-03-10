@@ -18,6 +18,7 @@
  */
 
 GLib.MainLoop mainloop;
+
 FsoFramework.Logger logger;
 
 public static void sighandler( int signum )

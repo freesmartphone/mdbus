@@ -13,7 +13,7 @@ progs_ldadd = $(GLIB_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
 #
 # plugin
 #
-modlibexecdir = $(libdir)/cornucopia/modules/fsodevice/$(MODULE_ARCH)
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = kernel26_leds.la
 kernel26_leds_la_SOURCES = plugin.c plugin.h
 kernel26_leds_la_VALASOURCES = plugin.vala

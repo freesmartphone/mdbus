@@ -8,3 +8,7 @@ install:
 
 clean:
 	for i in $(SUBDIRS); do $(MAKE) clean -C $$i; done
+
+test:
+	for i in $(SUBDIRS); do $(MAKE) test -C $$i; done
+
