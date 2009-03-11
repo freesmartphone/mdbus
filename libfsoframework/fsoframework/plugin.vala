@@ -32,7 +32,7 @@ public errordomain FsoFramework.PluginError
 /**
  * Delegates
  */
-public delegate string FsoFramework.FactoryFunc() throws Error;
+public delegate string FsoFramework.FactoryFunc( FsoFramework.Subsystem subsystem ) throws Error;
 
 /**
  * PluginInfo
@@ -60,10 +60,12 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, Object
     string filename;
     FsoFramework.PluginInfo pluginInfo;
     Module module;
+    FsoFramework.Subsystem subsystem;
 
-    public BasePlugin( string filename )
+    public BasePlugin( string filename, FsoFramework.Subsystem subsystem )
     {
         this.filename = "%s.%s".printf( filename, Module.SUFFIX );
+        this.subsystem = subsystem;
         pluginInfo = FsoFramework.PluginInfo() { name=null, loaded=false };
     }
 
@@ -85,7 +87,7 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, Object
         try
         {
             // call factory method to acquire name
-            pluginInfo.name = fso_factory_function();
+            pluginInfo.name = fso_factory_function( subsystem );
             // flag as loaded
             pluginInfo.loaded = true;
         }

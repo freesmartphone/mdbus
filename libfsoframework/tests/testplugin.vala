@@ -25,8 +25,9 @@ void test_plugin_all()
 //===========================================================================
 {
     Plugin p;
+    Subsystem s = new BaseSubsystem( "dummy" );
 
-    p = new BasePlugin( "./this/path/not/existing" );
+    p = new BasePlugin( "./this/path/not/existing", s );
     try
     {
         p.load();
@@ -39,7 +40,7 @@ void test_plugin_all()
 
     try
     {
-        ( new BasePlugin( "./.libs/pluginc" ) ).load();
+        ( new BasePlugin( "./.libs/pluginc", s ) ).load();
         //FIXME: Bug in Vala or glib
         //assert_not_reached();
     }
@@ -48,7 +49,7 @@ void test_plugin_all()
         assert ( e is PluginError.UNABLE_TO_INITIALIZE );
     }
 
-    p = new BasePlugin( "./.libs/plugin" );
+    p = new BasePlugin( "./.libs/plugin", s );
     p.load();
 
     var info = p.info();

@@ -28,6 +28,9 @@ public interface FsoFramework.Subsystem : Object
     public abstract uint loadPlugins();
     public abstract string name();
     public abstract List<FsoFramework.PluginInfo?> pluginsInfo();
+
+    public abstract bool registerServiceName( string servicename );
+    public abstract bool registerServiceObject( string servicename, string objectname, Object obj );
 }
 
 /**
@@ -35,7 +38,7 @@ public interface FsoFramework.Subsystem : Object
  */
 public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, Object
 {
-    FsoFramework.Logger logger;
+    protected FsoFramework.Logger logger;
     string _name;
     List<FsoFramework.Plugin> _plugins;
 
@@ -76,7 +79,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
                 filename = pluginpath.printf( realname );
             else
                 filename = "%s/%s/%s".printf( pluginpath, _name, realname );
-            var plugin = new FsoFramework.BasePlugin( filename );
+            var plugin = new FsoFramework.BasePlugin( filename, this );
             _plugins.append( plugin );
         }
 
@@ -116,6 +119,16 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         }
         return list;
     }
+
+    public virtual bool registerServiceName( string servicename )
+    {
+        return false;
+    }
+
+    public virtual bool registerServiceObject( string servicename, string objectname, Object obj )
+    {
+        return false;
+    }
 }
 
 /**
@@ -127,4 +140,74 @@ public class FsoFramework.BaseSubsystem : FsoFramework.AbstractSubsystem
     {
         base( name );
     }
+}
+
+/**
+ * DBusSubsystem
+ */
+public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
+{
+    DBus.Connection _dbusconn;
+    dynamic DBus.Object _dbusobj;
+
+    HashTable<string, DBus.Connection> _dbusconnections;
+    HashTable<string, Object> _dbusobjects;
+
+    public DBusSubsystem( string name )
+    {
+        base( name );
+        _dbusconnections = new HashTable<string, DBus.Connection>( str_hash, str_equal );
+        _dbusobjects = new HashTable<string, Object>( str_hash, str_equal );
+    }
+
+    ~DBusSubsystem()
+    {
+        foreach ( var name in _dbusconnections.get_keys() )
+        {
+            uint res = _dbusobj.release_name( name );
+        }
+    }
+
+    public override bool registerServiceName( string servicename )
+    {
+        var connection = _dbusconnections.lookup( servicename );
+        if ( connection != null )
+        {
+            logger.debug( "connection for '%s' found; ok.".printf( servicename ) );
+            return true;
+        }
+
+        logger.debug( "connection for '%s' not present yet; creating.".printf( servicename ) );
+
+        // get bus connection
+        if ( _dbusconn == null )
+        {
+            _dbusconn = DBus.Bus.get( DBus.BusType.SYSTEM );
+            _dbusobj = _dbusconn.get_object( DBUS_BUS_NAME, DBUS_BUS_PATH, DBUS_BUS_INTERFACE );
+        }
+        assert ( _dbusconn != null );
+        assert ( _dbusobj != null );
+
+        uint res = _dbusobj.request_name( servicename, (uint) 0 );
+        if ( res == DBus.RequestNameReply.PRIMARY_OWNER )
+        {
+            _dbusconnections.insert( servicename, _dbusconn );
+            return true;
+        }
+        else
+        {
+            error( "request servicename NOT ok" );
+            return false;
+        }
+    }
+
+    public override bool registerServiceObject( string servicename, string objectname, Object obj )
+    {
+        var conn = _dbusconnections.lookup( servicename );
+        assert ( conn != null );
+        conn.register_object( objectname, obj );
+        _dbusobjects.insert( objectname, obj );
+        return true;
+    }
+
 }

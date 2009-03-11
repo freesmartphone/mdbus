@@ -5,6 +5,7 @@ NULL =
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
+	$(DBUS_CFLAGS) \
 	$(NULL)
 
 BUILT_SOURCES = fsoframework.vala.stamp
@@ -41,6 +42,7 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	            --pkg glib-2.0 \
 	            --pkg gmodule-2.0 \
 	            --pkg gio-2.0 \
+	            --pkg dbus-glib-1 \
 	            --library fsoframework-2.0 $^
 	touch $@
 

@@ -128,6 +128,9 @@
 				<parameter name="filename">
 					<type name="string"/>
 				</parameter>
+				<parameter name="subsystem">
+					<type name="FsoFramework.Subsystem"/>
+				</parameter>
 			</parameters>
 			<return-value>
 				<type name="FsoFramework.BasePlugin"/>
@@ -243,6 +246,9 @@
 		<implements>
 			<interface name="FsoFramework.Subsystem"/>
 		</implements>
+		<field name="logger">
+			<type name="FsoFramework.Logger"/>
+		</field>
 		<constructor name="new" c:identifier="fso_framework_abstract_subsystem_new">
 			<parameters>
 				<parameter name="name">
@@ -253,6 +259,38 @@
 				<type name="FsoFramework.AbstractSubsystem"/>
 			</return-value>
 		</constructor>
+		<method name="registerServiceName" c:identifier="fso_framework_abstract_subsystem_registerServiceName">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractSubsystem"/>
+				</parameter>
+				<parameter name="servicename">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="bool"/>
+			</return-value>
+		</method>
+		<method name="registerServiceObject" c:identifier="fso_framework_abstract_subsystem_registerServiceObject">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.AbstractSubsystem"/>
+				</parameter>
+				<parameter name="servicename">
+					<type name="string"/>
+				</parameter>
+				<parameter name="objectname">
+					<type name="string"/>
+				</parameter>
+				<parameter name="obj">
+					<type name="GLib.Object"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="bool"/>
+			</return-value>
+		</method>
 	</class>
 	<class name="BaseSubsystem" parent="FsoFramework.AbstractSubsystem" glib:type-name="FsoFrameworkBaseSubsystem" glib:get-type="fso_framework_base_subsystem_get_type">
 		<constructor name="new" c:identifier="fso_framework_base_subsystem_new">
@@ -263,6 +301,18 @@
 			</parameters>
 			<return-value>
 				<type name="FsoFramework.BaseSubsystem"/>
+			</return-value>
+		</constructor>
+	</class>
+	<class name="DBusSubsystem" parent="FsoFramework.AbstractSubsystem" glib:type-name="FsoFrameworkDBusSubsystem" glib:get-type="fso_framework_dbus_subsystem_get_type">
+		<constructor name="new" c:identifier="fso_framework_dbus_subsystem_new">
+			<parameters>
+				<parameter name="name">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="FsoFramework.DBusSubsystem"/>
 			</return-value>
 		</constructor>
 	</class>
@@ -418,6 +468,38 @@
 				<type name="GLib.List<FsoFramework.PluginInfo?>"/>
 			</return-value>
 		</method>
+		<method name="registerServiceName" c:identifier="fso_framework_subsystem_registerServiceName">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Subsystem"/>
+				</parameter>
+				<parameter name="servicename">
+					<type name="string"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="bool"/>
+			</return-value>
+		</method>
+		<method name="registerServiceObject" c:identifier="fso_framework_subsystem_registerServiceObject">
+			<parameters>
+				<parameter name="self">
+					<type name="FsoFramework.Subsystem"/>
+				</parameter>
+				<parameter name="servicename">
+					<type name="string"/>
+				</parameter>
+				<parameter name="objectname">
+					<type name="string"/>
+				</parameter>
+				<parameter name="obj">
+					<type name="GLib.Object"/>
+				</parameter>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="bool"/>
+			</return-value>
+		</method>
 	</interface>
 	<record name="PluginInfo">
 		<field name="name">
@@ -429,6 +511,9 @@
 	</record>
 	<callback name="FsoFrameworkFactoryFunc">
 		<parameters>
+			<parameter name="subsystem">
+				<type name="FsoFramework.Subsystem"/>
+			</parameter>
 		</parameters>
 		<return-value transfer-ownership="full">
 			<type name="string"/>
@@ -455,4 +540,7 @@
 		</return-value>
 	</method>
 </namespace>
+<constant name="DBUS_BUS_NAME"/>
+<constant name="DBUS_BUS_PATH"/>
+<constant name="DBUS_BUS_INTERFACE"/>
 </repository>

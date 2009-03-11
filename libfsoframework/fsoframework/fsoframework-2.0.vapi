@@ -15,15 +15,24 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public abstract class AbstractSubsystem : FsoFramework.Subsystem, GLib.Object {
+		protected FsoFramework.Logger logger;
 		public AbstractSubsystem (string name);
+		public virtual bool registerServiceName (string servicename);
+		public virtual bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.Object {
-		public BasePlugin (string filename);
+		public BasePlugin (string filename, FsoFramework.Subsystem subsystem);
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public class BaseSubsystem : FsoFramework.AbstractSubsystem {
 		public BaseSubsystem (string name);
+	}
+	[CCode (cheader_filename = "fsoframework/subsystem.h")]
+	public class DBusSubsystem : FsoFramework.AbstractSubsystem {
+		public DBusSubsystem (string name);
+		public override bool registerServiceName (string servicename);
+		public override bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public class FileLogger : FsoFramework.AbstractLogger {
@@ -67,6 +76,8 @@ namespace FsoFramework {
 		public abstract string name ();
 		public abstract GLib.List<FsoFramework.PluginInfo?> pluginsInfo ();
 		public abstract void registerPlugins ();
+		public abstract bool registerServiceName (string servicename);
+		public abstract bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
 	[CCode (type_id = "FSO_FRAMEWORK_TYPE_PLUGIN_INFO", cheader_filename = "fsoframework/plugin.h")]
 	public struct PluginInfo {
@@ -80,7 +91,7 @@ namespace FsoFramework {
 		UNABLE_TO_INITIALIZE,
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
-	public delegate string FactoryFunc ();
+	public delegate string FactoryFunc (FsoFramework.Subsystem subsystem);
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_DESTINATION;
 	[CCode (cheader_filename = "fsoframework/common.h")]
@@ -92,3 +103,9 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public static FsoFramework.SmartKeyFile theMasterKeyFile ();
 }
+[CCode (cheader_filename = "fsoframework/common.h")]
+public const string DBUS_BUS_NAME;
+[CCode (cheader_filename = "fsoframework/common.h")]
+public const string DBUS_BUS_PATH;
+[CCode (cheader_filename = "fsoframework/common.h")]
+public const string DBUS_BUS_INTERFACE;

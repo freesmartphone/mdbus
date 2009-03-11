@@ -19,6 +19,10 @@
 
 using GLib;
 
+public const string DBUS_BUS_NAME = "org.freedesktop.DBus";
+public const string DBUS_BUS_PATH = "/org/freedesktop/DBus";
+public const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
+
 namespace FsoFramework
 {
 
