@@ -2,6 +2,26 @@
 
 [CCode (cprefix = "FsoFramework", lower_case_cprefix = "fso_framework_")]
 namespace FsoFramework {
+	[CCode (cprefix = "FsoFrameworkDevice", lower_case_cprefix = "fso_framework_device_")]
+	namespace Device {
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public interface LED {
+			public abstract string GetName ();
+			public abstract void SetBlinking (int delay_on, int delay_off);
+			public abstract void SetBrightness (int brightness);
+			public abstract void SetNetworking (string iface, string mode);
+		}
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public const string LedServiceFace;
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public const string LedServicePath;
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public const string ServiceDBusName;
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public const string ServiceFacePrefix;
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public const string ServicePathPrefix;
+	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public abstract class AbstractLogger : FsoFramework.Logger, GLib.Object {
 		protected string destination;
@@ -98,6 +118,12 @@ namespace FsoFramework {
 	public const string DEFAULT_LOG_LEVEL;
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_TYPE;
+	[CCode (cheader_filename = "fsoframework/interfaces.h")]
+	public const string ServiceDBusPrefix;
+	[CCode (cheader_filename = "fsoframework/interfaces.h")]
+	public const string ServiceFacePrefix;
+	[CCode (cheader_filename = "fsoframework/interfaces.h")]
+	public const string ServicePathPrefix;
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public static FsoFramework.Logger createLogger (string domain);
 	[CCode (cheader_filename = "fsoframework/common.h")]

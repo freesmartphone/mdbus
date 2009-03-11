@@ -16,6 +16,7 @@ lib_LTLIBRARIES = \
 
 libfsoframework_la_VALASOURCES = \
 	common.vala \
+	interfaces.vala \
 	logger.vala \
 	plugin.vala \
 	smartkeyfile.vala \
@@ -48,6 +49,7 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 
 libfsoframework_la_LIBADD = \
 	$(GLIB_LIBS) \
+	$(DBUS_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi

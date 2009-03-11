@@ -522,6 +522,9 @@
 	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_TYPE"/>
 	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_LEVEL"/>
 	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_DESTINATION"/>
+	<constant name="FSO_FRAMEWORK_ServiceDBusPrefix"/>
+	<constant name="FSO_FRAMEWORK_ServicePathPrefix"/>
+	<constant name="FSO_FRAMEWORK_ServiceFacePrefix"/>
 	<method name="theMasterKeyFile" c:identifier="fso_framework_theMasterKeyFile">
 		<parameters>
 		</parameters>
