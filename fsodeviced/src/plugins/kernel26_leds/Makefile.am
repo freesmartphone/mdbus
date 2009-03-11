@@ -2,13 +2,13 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	$(GLIB_CFLAGS) \
+	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(GLIB_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
+progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
 
 #
 # plugin
