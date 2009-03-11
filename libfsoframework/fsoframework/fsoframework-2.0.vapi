@@ -22,6 +22,15 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
 		public const string ServicePathPrefix;
 	}
+	[CCode (cprefix = "FsoFrameworkFileHandling", lower_case_cprefix = "fso_framework_file_handling_")]
+	namespace FileHandling {
+		[CCode (cheader_filename = "fsoframework/utilities.h")]
+		public static bool isPresent (string filename);
+		[CCode (cheader_filename = "fsoframework/utilities.h")]
+		public static string read (string filename);
+		[CCode (cheader_filename = "fsoframework/utilities.h")]
+		public static void write (string contents, string filename);
+	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public abstract class AbstractLogger : FsoFramework.Logger, GLib.Object {
 		protected string destination;

@@ -21,6 +21,7 @@ libfsoframework_la_VALASOURCES = \
 	plugin.vala \
 	smartkeyfile.vala \
 	subsystem.vala \
+	utilities.vala \
 	$(NULL)
 
 libfsoframework_la_SOURCES = \
