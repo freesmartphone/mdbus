@@ -32,7 +32,7 @@ public static int main( string[] args )
 {
     logger = FsoFramework.createLogger( "fsodevice" );
     logger.info( "fsodevice starting up..." );
-    var subsystem = new FsoFramework.BaseSubsystem( "fsodevice" );
+    var subsystem = new FsoFramework.DBusSubsystem( "fsodevice" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
     logger.info( "loaded %u plugins".printf( count ) );

@@ -19,20 +19,47 @@
 
 using GLib;
 
+namespace FsoFramework
+{
+    [DBus (name = "org.freesmartphone.Device.LED")]
+    public abstract interface LED
+    {
+        public abstract void SetOn();
+    }
+}
+
 namespace Kernel26
 {
 
 static const string SYS_CLASS_LEDS = "/sys/class/leds";
 
-class Led
+class Led : FsoFramework.LED, Object
 {
+    FsoFramework.Subsystem subsystem;
     static FsoFramework.Logger logger;
 
-    public Led( string filename )
+    string sysfsnode;
+
+    static uint counter;
+
+    public Led( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
+        this.subsystem = subsystem;
+        this.sysfsnode = sysfsnode;
+
         if ( logger == null )
             logger = FsoFramework.createLogger( "fsodevice.kernel26_leds" );
-        logger.info( "created new Led for %s".printf( filename ) );
+        logger.info( "created new Led for %s".printf( sysfsnode ) );
+
+        subsystem.registerServiceName( "org.freesmartphone.odeviced" );
+        subsystem.registerServiceObject( "org.freesmartphone.odeviced",
+                                         "/org/freesmartphone/Device/LED/%u".printf( counter++ ),
+                                         this );
+    }
+
+    public void SetOn()
+    {
+        //...
     }
 }
 
@@ -46,7 +73,7 @@ List<Kernel26.Led> instances;
  * @note that it needs to be a name in the format <subsystem>.<plugin>
  * else your module will be unloaded immediately.
  **/
-string fso_factory_function() throws Error
+string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     // scan sysfs path for leds
     var dir = new Dir( Kernel26.SYS_CLASS_LEDS );
@@ -54,7 +81,7 @@ string fso_factory_function() throws Error
     while ( entry != null )
     {
         var filename = Path.build_filename( Kernel26.SYS_CLASS_LEDS, entry );
-        instances.append( new Kernel26.Led( filename ) );
+        instances.append( new Kernel26.Led( subsystem, filename ) );
         entry = dir.read_name();
     }
     return "fsodevice.kernel26_leds";
