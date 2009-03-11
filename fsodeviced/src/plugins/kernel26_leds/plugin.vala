@@ -22,13 +22,18 @@ using GLib;
 // FIXME: For some reason the dbus interface code doesn't work, if not included here :(
 namespace XsoFramework { namespace Device
 {
+    public errordomain LedError
+    {
+        UNSUPPORTED,
+    }
+
     [DBus (name = "org.freesmartphone.Device.LED")]
     public abstract interface LED
     {
         public abstract string GetName();
         public abstract void SetBrightness( int brightness );
-        public abstract void SetBlinking( int delay_on, int delay_off );
-        public abstract void SetNetworking( string iface, string mode );
+        public abstract void SetBlinking( int delay_on, int delay_off ) throws Error;
+        public abstract void SetNetworking( string iface, string mode ) throws Error;
     }
 } }
 
@@ -43,22 +48,46 @@ class Led : XsoFramework.Device.LED, Object
     static FsoFramework.Logger logger;
 
     string sysfsnode;
+    string brightness;
+    string trigger;
+    string triggers;
 
     static uint counter;
 
     public Led( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
-        this.subsystem = subsystem;
-        this.sysfsnode = sysfsnode;
-
         if ( logger == null )
             logger = FsoFramework.createLogger( "fsodevice.kernel26_leds" );
         logger.info( "created new Led for %s".printf( sysfsnode ) );
+
+        this.subsystem = subsystem;
+        this.sysfsnode = sysfsnode;
+        this.brightness = sysfsnode + "/brightness";
+        this.trigger = sysfsnode + "/trigger";
+
+        if ( !FsoFramework.FileHandling.isPresent( this.brightness ) ||
+             !FsoFramework.FileHandling.isPresent( this.trigger ) )
+        {
+            logger.error( "^^^ sysfs class is damaged; skipping." );
+            return;
+        }
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          "%s/%u".printf( FsoFramework.Device.LedServicePath, counter++ ),
                                          this );
+
+        // FIXME: remove in release code, can be done lazily
+        initTriggers();
+    }
+
+    public void initTriggers()
+    {
+        if ( triggers == null )
+        {
+            triggers = FsoFramework.FileHandling.read( trigger );
+            logger.info( "^^^ supports the following triggers: '%s'".printf( triggers ) );
+        }
     }
 
     //
@@ -71,15 +100,29 @@ class Led : XsoFramework.Device.LED, Object
 
     public void SetBrightness( int brightness )
     {
-        //...
+        if ( brightness > 255 )
+            brightness = 255;
+        if ( brightness < 0 )
+            brightness = 0;
+
+        FsoFramework.FileHandling.write( brightness.to_string(), this.brightness );
     }
 
-    public void SetBlinking( int delay_on, int delay_off )
+    public void SetBlinking( int delay_on, int delay_off ) throws Error
     {
-        //...
+        initTriggers();
+        if ( !( "timer" in triggers ) )
+            throw new XsoFramework.Device.LedError.UNSUPPORTED( "kernel interface missing" );
+
+        FsoFramework.FileHandling.write( "timer", this.trigger );
+        FsoFramework.FileHandling.write( delay_on.to_string(), this.sysfsnode + "/delay_on" );
+        FsoFramework.FileHandling.write( delay_off.to_string(), this.sysfsnode + "/delay_off" );
+
     }
-    public void SetNetworking( string iface, string mode )
+
+    public void SetNetworking( string iface, string mode ) throws Error
     {
+        initTriggers();
         //...
     }
 }
