@@ -36,7 +36,7 @@ TestA test;
  * @note that it needs to be a name in the format <subsystem>.<plugin>
  * else your module will be unloaded immediately.
  **/
-string fso_factory_function()
+string fso_factory_function() throws Error
 {
     test = new TestA( 42 );
     return "tests.plugina";

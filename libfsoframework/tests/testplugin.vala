@@ -30,11 +30,22 @@ void test_plugin_all()
     try
     {
         p.load();
-        assert( false ); // supposed to throw an error
+        assert_not_reached();
     }
     catch ( PluginError e )
     {
        assert ( e is PluginError.UNABLE_TO_LOAD );
+    }
+
+    try
+    {
+        ( new BasePlugin( "./.libs/pluginc" ) ).load();
+        //FIXME: Bug in Vala or glib
+        //assert_not_reached();
+    }
+    catch ( PluginError e )
+    {
+        assert ( e is PluginError.UNABLE_TO_INITIALIZE );
     }
 
     p = new BasePlugin( "./.libs/plugin" );

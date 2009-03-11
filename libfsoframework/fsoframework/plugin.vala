@@ -32,7 +32,7 @@ public errordomain FsoFramework.PluginError
 /**
  * Delegates
  */
-public delegate string FsoFramework.FactoryFunc() throws FsoFramework.PluginError;
+public delegate string FsoFramework.FactoryFunc() throws Error;
 
 /**
  * PluginInfo
@@ -89,10 +89,11 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, Object
             // flag as loaded
             pluginInfo.loaded = true;
         }
-        catch ( FsoFramework.PluginError e )
+        catch ( Error e )
         {
+            error( "error" );
             module = null;
-            throw e;
+            throw new FsoFramework.PluginError.UNABLE_TO_INITIALIZE( "factory function error: %s".printf( e.message ) );
         }
     }
 

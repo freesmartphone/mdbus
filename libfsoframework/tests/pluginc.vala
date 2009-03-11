@@ -22,9 +22,7 @@ class TestC : Object
 {
     public TestC( int foo )
     {
-        //DBus.Connection conn;
-        //conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-        message( "Test Plugin C is alive!" );
+        message( "Test Plugin C is alive but should not be!" );
     }
 }
 
@@ -36,8 +34,9 @@ TestC test;
  * @note that it needs to be a name in the format <subsystem>.<plugin>
  * else your module will be unloaded immediately.
  **/
-string fso_factory_function()
+string fso_factory_function() throws Error
 {
+    throw new FileError.NAMETOOLONG( "can't initialize test plugin C" );
     test = new TestC( 42 );
     return "tests.pluginc";
 }
