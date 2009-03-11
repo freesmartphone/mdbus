@@ -19,21 +19,25 @@
 
 using GLib;
 
-namespace FsoFramework
+// FIXME: For some reason the dbus interface code doesn't work, if not included here :(
+namespace XsoFramework { namespace Device
 {
     [DBus (name = "org.freesmartphone.Device.LED")]
     public abstract interface LED
     {
-        public abstract void SetOn();
+        public abstract string GetName();
+        public abstract void SetBrightness( int brightness );
+        public abstract void SetBlinking( int delay_on, int delay_off );
+        public abstract void SetNetworking( string iface, string mode );
     }
-}
+} }
 
 namespace Kernel26
 {
 
 static const string SYS_CLASS_LEDS = "/sys/class/leds";
 
-class Led : FsoFramework.LED, Object
+class Led : XsoFramework.Device.LED, Object
 {
     FsoFramework.Subsystem subsystem;
     static FsoFramework.Logger logger;
@@ -51,13 +55,30 @@ class Led : FsoFramework.LED, Object
             logger = FsoFramework.createLogger( "fsodevice.kernel26_leds" );
         logger.info( "created new Led for %s".printf( sysfsnode ) );
 
-        subsystem.registerServiceName( "org.freesmartphone.odeviced" );
-        subsystem.registerServiceObject( "org.freesmartphone.odeviced",
-                                         "/org/freesmartphone/Device/LED/%u".printf( counter++ ),
+        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                                         "%s/%u".printf( FsoFramework.Device.LedServicePath, counter++ ),
                                          this );
     }
 
-    public void SetOn()
+    //
+    // FsoFramework.Device.LED
+    //
+    public string GetName()
+    {
+        return sysfsnode;
+    }
+
+    public void SetBrightness( int brightness )
+    {
+        //...
+    }
+
+    public void SetBlinking( int delay_on, int delay_off )
+    {
+        //...
+    }
+    public void SetNetworking( string iface, string mode )
     {
         //...
     }
