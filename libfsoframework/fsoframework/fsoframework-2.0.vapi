@@ -92,6 +92,7 @@ namespace FsoFramework {
 		public abstract void info (string message);
 		public abstract void setDestination (string destination);
 		public abstract void setLevel (GLib.LogLevelFlags level);
+		public abstract void setReprDelegate (ReprDelegate repr);
 		public abstract void warning (string message);
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
@@ -138,6 +139,8 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public static FsoFramework.SmartKeyFile theMasterKeyFile ();
 }
+[CCode (cheader_filename = "fsoframework/logger.h")]
+public delegate string ReprDelegate ();
 [CCode (cheader_filename = "fsoframework/common.h")]
 public const string DBUS_BUS_NAME;
 [CCode (cheader_filename = "fsoframework/common.h")]

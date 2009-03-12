@@ -72,6 +72,33 @@ void test_file_logger_new()
     assert ( "ERROR" in line4 && "eggs" in line4 );
 }
 
+class ReprDelegateTester
+{
+    public bool called;
+
+    public string repr()
+    {
+        called = true;
+        return "<representation>";
+    }
+}
+
+//===========================================================================
+void test_logger_reprdelegate()
+//===========================================================================
+{
+    var logger = new FileLogger( TEST_LOG_DOMAIN );
+    logger.setFile( "/dev/null", false );
+
+    var r = new ReprDelegateTester();
+    r.called = false;
+    logger.setReprDelegate( r.repr );
+
+    logger.warning( "foo" );
+
+    assert ( r.called );
+}
+
 //===========================================================================
 void test_syslog_logger_new()
 //===========================================================================
@@ -99,9 +126,10 @@ void main (string[] args)
 {
     Test.init (ref args);
 
-    Test.add_func ("/Logger/conversions", test_logger_conversions);
-    Test.add_func ("/FileLogger/new", test_file_logger_new);
-    Test.add_func ("/SyslogLogger/new", test_syslog_logger_new);
+    Test.add_func ("/Logger/Conversions", test_logger_conversions);
+    Test.add_func ("/Logger/ReprDelegate", test_logger_reprdelegate);
+    Test.add_func ("/FileLogger/New", test_file_logger_new);
+    Test.add_func ("/SyslogLogger/New", test_syslog_logger_new);
     Test.add_func ("/Common/createLogger", test_common_create_logger);
 
     Test.run ();

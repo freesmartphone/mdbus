@@ -20,12 +20,18 @@
 using GLib;
 
 /**
+ * Delegates
+ */
+public delegate string ReprDelegate();
+
+/**
  * Logger
  */
 public interface FsoFramework.Logger : Object
 {
     public abstract void setLevel( LogLevelFlags level );
     public abstract void setDestination( string destination );
+    public abstract void setReprDelegate( ReprDelegate repr );
     public abstract void debug( string message );
     public abstract void info( string message );
     public abstract void warning( string message );
@@ -41,14 +47,17 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     protected string domain;
     protected string destination;
 
+    ReprDelegate reprdelegate;
+
     protected virtual void write( string message )
     {
     }
 
     protected virtual string format( string message, string level )
     {
+        var repr = ( reprdelegate != null ? reprdelegate() : "" );
         var t = TimeVal();
-        var str = "%s %s [%s] %s\n".printf( t.to_iso8601(), domain, level, message );
+        var str = "%s %s [%s] %s: %s\n".printf( t.to_iso8601(), domain, level, repr, message );
         return str;
     }
 
@@ -65,6 +74,11 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     public void setDestination( string destination )
     {
         this.destination = destination;
+    }
+
+    public void setReprDelegate( ReprDelegate d )
+    {
+        this.reprdelegate = d;
     }
 
     public void debug( string message )
