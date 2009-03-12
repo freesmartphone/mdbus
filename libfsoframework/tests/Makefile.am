@@ -125,6 +125,18 @@ $(testsubsystem_SOURCES): $(testsubsystem_VALASOURCES)
 testsubsystem_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testsubsystem_VALASOURCES)
 
+#
+# utilities test
+#
+TEST_PROGS += testutilities
+testutilities_VALASOURCES = testutilities.vala
+testutilities_SOURCES = testutilities.c testutilities.h
+$(testutilities_SOURCES): $(testutilities_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testutilities_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testutilities_VALASOURCES)
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \

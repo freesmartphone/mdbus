@@ -32,12 +32,17 @@ void test_utilities_filehandling_presence()
 void test_utilities_filehandling_read()
 //===========================================================================
 {
+    var contents = FileHandling.read( "textfile.txt" );
+    assert ( contents.has_prefix( "GNU" ) );
 }
 
 //===========================================================================
 void test_utilities_filehandling_write()
 //===========================================================================
 {
+    FileHandling.write( "Dieser Satz kein Verb!", "nocontent.txt" );
+    var contents = FileHandling.read( "nocontent.txt" );
+    assert ( contents == "Dieser Satz kein Verb!" );
 }
 
 //===========================================================================
@@ -50,5 +55,5 @@ void main( string[] args )
     Test.add_func( "/Utilities/FileHandling/Read", test_utilities_filehandling_read );
     Test.add_func( "/Utilities/FileHandling/Write", test_utilities_filehandling_write );
 
-    Test.run ();
+    Test.run();
 }

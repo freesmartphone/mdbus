@@ -36,7 +36,7 @@ TestB test;
  * @note that it needs to be a name in the format <subsystem>.<plugin>
  * else your module will be unloaded immediately.
  **/
-string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
+public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     test = new TestB( 42 );
     return "tests.pluginb";

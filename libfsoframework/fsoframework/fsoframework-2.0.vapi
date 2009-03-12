@@ -104,7 +104,7 @@ namespace FsoFramework {
 		public abstract uint loadPlugins ();
 		public abstract string name ();
 		public abstract GLib.List<FsoFramework.PluginInfo?> pluginsInfo ();
-		public abstract void registerPlugins ();
+		public abstract uint registerPlugins ();
 		public abstract bool registerServiceName (string servicename);
 		public abstract bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
@@ -120,7 +120,7 @@ namespace FsoFramework {
 		UNABLE_TO_INITIALIZE,
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
-	public delegate string FactoryFunc (FsoFramework.Subsystem subsystem);
+	public static delegate string FactoryFunc (FsoFramework.Subsystem subsystem);
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_DESTINATION;
 	[CCode (cheader_filename = "fsoframework/common.h")]

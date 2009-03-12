@@ -32,7 +32,7 @@ public errordomain FsoFramework.PluginError
 /**
  * Delegates
  */
-public delegate string FsoFramework.FactoryFunc( FsoFramework.Subsystem subsystem ) throws Error;
+public static delegate string FsoFramework.FactoryFunc( FsoFramework.Subsystem subsystem ) throws Error;
 
 /**
  * PluginInfo
@@ -93,7 +93,6 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, Object
         }
         catch ( Error e )
         {
-            error( "error" );
             module = null;
             throw new FsoFramework.PluginError.UNABLE_TO_INITIALIZE( "factory function error: %s".printf( e.message ) );
         }

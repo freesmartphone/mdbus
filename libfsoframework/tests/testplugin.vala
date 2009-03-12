@@ -41,8 +41,7 @@ void test_plugin_all()
     try
     {
         ( new BasePlugin( "./.libs/pluginc", s ) ).load();
-        //FIXME: Bug in Vala or glib
-        //assert_not_reached();
+        assert_not_reached();
     }
     catch ( PluginError e )
     {

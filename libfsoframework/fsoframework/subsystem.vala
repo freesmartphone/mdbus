@@ -24,7 +24,7 @@ using GLib;
  */
 public interface FsoFramework.Subsystem : Object
 {
-    public abstract void registerPlugins();
+    public abstract uint registerPlugins();
     public abstract uint loadPlugins();
     public abstract string name();
     public abstract List<FsoFramework.PluginInfo?> pluginsInfo();
@@ -48,7 +48,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         logger = FsoFramework.createLogger( "subsystem" );
     }
 
-    public void registerPlugins()
+    public uint registerPlugins()
     {
         assert ( _plugins == null ); // this method can only be called once
         _plugins = new List<FsoFramework.Plugin>();
@@ -56,12 +56,12 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         if ( !FsoFramework.theMasterKeyFile().hasSection( _name ) )
         {
             logger.warning( "No section for %s in configuration file. Not looking for plugins.".printf( _name ) );
-            return;
+            return 0;
         }
         if ( FsoFramework.theMasterKeyFile().boolValue( _name, "disabled", false ) )
         {
             logger.info( "Subsystem %s has been disabled in configuration file. Not looking for plugins.".printf( _name ) );
-            return;
+            return 0;
         }
 
         var names = FsoFramework.theMasterKeyFile().sectionsWithPrefix( _name + "." );
@@ -84,6 +84,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         }
 
         logger.debug( "registered %u plugins".printf( _plugins.length() ) );
+        return _plugins.length();
     }
 
     public uint loadPlugins()

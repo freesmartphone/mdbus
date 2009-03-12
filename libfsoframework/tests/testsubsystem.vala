@@ -40,11 +40,10 @@ void test_subsystem_load()
 //===========================================================================
 {
     var subsystem = new BaseSubsystem( "tests" );
-    subsystem.registerPlugins();
+    var number = subsystem.registerPlugins();
     var info = subsystem.pluginsInfo();
-    //FIXME: plugin error bug in vala
+    assert ( number == 3 );
     assert ( info.length() == 3 );
-    //assert ( info.length() == 2 );
     var pinfo = info.nth_data(0);
     assert ( !pinfo.loaded );
 
@@ -56,6 +55,9 @@ void test_subsystem_load()
     pinfo = info.nth_data( 1 );
     assert ( pinfo.loaded );
     assert ( pinfo.name == "tests.pluginb" );
+    pinfo = info.nth_data( 2 );
+    assert ( !pinfo.loaded );
+    assert ( pinfo.name == null );
 }
 
 //===========================================================================

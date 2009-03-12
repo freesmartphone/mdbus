@@ -434,8 +434,8 @@
 					<type name="FsoFramework.Subsystem"/>
 				</parameter>
 			</parameters>
-			<return-value>
-				<type name="none"/>
+			<return-value transfer-ownership="full">
+				<type name="uint"/>
 			</return-value>
 		</method>
 		<method name="loadPlugins" c:identifier="fso_framework_subsystem_loadPlugins">
