@@ -7,9 +7,9 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
 		public interface LED {
 			public abstract string GetName ();
-			public abstract void SetBlinking (int delay_on, int delay_off);
+			public abstract void SetBlinking (int delay_on, int delay_off) throws DBus.Error;
 			public abstract void SetBrightness (int brightness);
-			public abstract void SetNetworking (string iface, string mode);
+			public abstract void SetNetworking (string iface, string mode) throws DBus.Error;
 		}
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
 		public const string LedServiceFace;

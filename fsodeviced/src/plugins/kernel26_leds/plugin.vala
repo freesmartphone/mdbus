@@ -19,30 +19,30 @@
 
 using GLib;
 
-// FIXME: For some reason the dbus interface code doesn't work, if not included here :(
-namespace XsoFramework { namespace Device
-{
-    public errordomain LedError
-    {
-        UNSUPPORTED,
-    }
-
-    [DBus (name = "org.freesmartphone.Device.LED")]
-    public abstract interface LED
-    {
-        public abstract string GetName();
-        public abstract void SetBrightness( int brightness );
-        public abstract void SetBlinking( int delay_on, int delay_off ) throws Error;
-        public abstract void SetNetworking( string iface, string mode ) throws Error;
-    }
-} }
+// // FIXME: For some reason the dbus interface code doesn't work, if not included here :(
+// namespace XsoFramework { namespace Device
+// {
+//     public errordomain LedError
+//     {
+//         UNSUPPORTED,
+//     }
+// 
+//     [DBus (name = "org.freesmartphone.Device.LED")]
+//     public abstract interface LED
+//     {
+//         public abstract string GetName();
+//         public abstract void SetBrightness( int brightness );
+//         public abstract void SetBlinking( int delay_on, int delay_off ) throws Error;
+//         public abstract void SetNetworking( string iface, string mode ) throws Error;
+//     }
+// } }
 
 namespace Kernel26
 {
 
 static const string SYS_CLASS_LEDS = "/sys/class/leds";
 
-class Led : XsoFramework.Device.LED, Object
+class Led : FsoFramework.Device.LED, Object
 {
     FsoFramework.Subsystem subsystem;
     static FsoFramework.Logger logger;
@@ -108,11 +108,11 @@ class Led : XsoFramework.Device.LED, Object
         FsoFramework.FileHandling.write( brightness.to_string(), this.brightness );
     }
 
-    public void SetBlinking( int delay_on, int delay_off ) throws Error
+    public void SetBlinking( int delay_on, int delay_off ) throws DBus.Error
     {
         initTriggers();
-        if ( !( "timer" in triggers ) )
-            throw new XsoFramework.Device.LedError.UNSUPPORTED( "kernel interface missing" );
+//         if ( !( "timer" in triggers ) )
+//             throw new XsoFramework.Device.LedError.UNSUPPORTED( "kernel interface missing" );
 
         FsoFramework.FileHandling.write( "timer", this.trigger );
         FsoFramework.FileHandling.write( delay_on.to_string(), this.sysfsnode + "/delay_on" );
@@ -120,7 +120,7 @@ class Led : XsoFramework.Device.LED, Object
 
     }
 
-    public void SetNetworking( string iface, string mode ) throws Error
+    public void SetNetworking( string iface, string mode ) throws DBus.Error
     {
         initTriggers();
         //...
@@ -137,7 +137,7 @@ List<Kernel26.Led> instances;
  * @note that it needs to be a name in the format <subsystem>.<plugin>
  * else your module will be unloaded immediately.
  **/
-string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
+public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     // scan sysfs path for leds
     var dir = new Dir( Kernel26.SYS_CLASS_LEDS );
@@ -149,4 +149,25 @@ string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
         entry = dir.read_name();
     }
     return "fsodevice.kernel26_leds";
+}
+
+/*
+public static delegate void RegisterFunc( TypeModule tm );
+
+[ModuleInit]
+public static void fso_register_types( TypeModule tm )
+{
+}
+*/
+
+/**
+ * This function gets called on plugin load time.
+ * @return false, if the plugin operating conditions are present.
+ * @note Some versions of glib contain a bug that leads to a SIGSEGV
+ * in g_module_open, if you return true here.
+ **/
+public static bool g_module_check_init( void* m )
+{
+    var ok = FsoFramework.FileHandling.isPresent( Kernel26.SYS_CLASS_LEDS );
+    return (!ok);
 }

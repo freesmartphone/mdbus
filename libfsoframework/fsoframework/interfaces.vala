@@ -38,8 +38,8 @@ namespace FsoFramework
         {
             public abstract string GetName();
             public abstract void SetBrightness( int brightness );
-            public abstract void SetBlinking( int delay_on, int delay_off );
-            public abstract void SetNetworking( string iface, string mode );
+            public abstract void SetBlinking( int delay_on, int delay_off ) throws DBus.Error;
+            public abstract void SetNetworking( string iface, string mode ) throws DBus.Error;
         }
     }
 }

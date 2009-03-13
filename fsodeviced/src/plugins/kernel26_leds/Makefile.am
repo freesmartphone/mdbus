@@ -10,6 +10,13 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
 
+VALAC_ARGS = \
+	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/fsoframework \
+	--pkg glib-2.0 \
+	--pkg dbus-glib-1 \
+	--pkg fsoframework-2.0
+
 #
 # plugin
 #
@@ -18,10 +25,7 @@ modlibexec_LTLIBRARIES = kernel26_leds.la
 kernel26_leds_la_SOURCES = plugin.c plugin.h
 kernel26_leds_la_VALASOURCES = plugin.vala
 $(kernel26_leds_la_SOURCES): $(kernel26_leds_la_VALASOURCES)
-	$(VALAC) -C --basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/fsoframework \
-	--pkg glib-2.0 \
-	--pkg fsoframework-2.0 $^
+	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
 kernel26_leds_la_LIBADD = $(progs_ldadd)
 kernel26_leds_la_LDFLAGS = -no-undefined -module -avoid-version
