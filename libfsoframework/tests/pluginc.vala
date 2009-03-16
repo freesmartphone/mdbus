@@ -40,3 +40,13 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     test = new TestC( 42 );
     return "tests.pluginc";
 }
+
+/**
+ * This (seemingly empty) function gets called on plugin load time
+ * for registering new gobject types. Do not remove or alter!
+ **/
+[ModuleInit]
+public static void fso_register_function( TypeModule module )
+{
+}
+

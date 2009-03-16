@@ -18,6 +18,9 @@
  */
 using GLib;
 
+namespace MyPlugin
+{
+
 class Test : Object
 {
     public Test( int foo )
@@ -28,7 +31,7 @@ class Test : Object
     }
 }
 
-Test test;
+}
 
 /**
  * This function gets called on plugin initialization time.
@@ -38,6 +41,16 @@ Test test;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    test = new Test( 42 );
+    var t = new MyPlugin.Test( 42 );
     return "test.plugin";
 }
+
+/**
+ * This (seemingly empty) function gets called on plugin load time
+ * for registering new gobject types. Do not remove or alter!
+ **/
+[ModuleInit]
+public static void fso_register_function( TypeModule module )
+{
+}
+

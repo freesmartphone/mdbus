@@ -30,7 +30,7 @@ void test_plugin_all()
     p = new BasePlugin( "./this/path/not/existing", s );
     try
     {
-        p.load();
+        p.loadAndInit();
         assert_not_reached();
     }
     catch ( PluginError e )
@@ -40,16 +40,18 @@ void test_plugin_all()
 
     try
     {
-        ( new BasePlugin( "./.libs/pluginc", s ) ).load();
+        ( new BasePlugin( "./.libs/pluginc", s ) ).loadAndInit();
         assert_not_reached();
     }
     catch ( PluginError e )
     {
+        if ( !( e is PluginError.UNABLE_TO_INITIALIZE ) )
+            warning( "got wrong pluginerror: %s", e.message );
         assert ( e is PluginError.UNABLE_TO_INITIALIZE );
     }
 
     p = new BasePlugin( "./.libs/plugin", s );
-    p.load();
+    p.loadAndInit();
 
     var info = p.info();
 

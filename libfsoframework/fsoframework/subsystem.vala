@@ -95,7 +95,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         {
             try
             {
-                plugin.load();
+                plugin.loadAndInit();
                 counter++;
             }
             catch ( FsoFramework.PluginError e )
@@ -142,6 +142,14 @@ public class FsoFramework.BaseSubsystem : FsoFramework.AbstractSubsystem
         base( name );
     }
 }
+
+/**
+ * subsystem query interface
+ */
+[DBus (name = "org.freesmartphone.DBus.Objects")]
+public abstract interface DBusObjects
+{
+    public abstract getNodes()
 
 /**
  * DBusSubsystem
@@ -206,6 +214,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
     {
         var conn = _dbusconnections.lookup( servicename );
         assert ( conn != null );
+
         conn.register_object( objectname, obj );
         _dbusobjects.insert( objectname, obj );
         return true;

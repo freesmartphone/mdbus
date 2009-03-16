@@ -3,6 +3,7 @@
 <namespace name="FsoFramework" version="1.0">
 	<errordomain name="FsoFrameworkPluginError">
 		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_LOAD"/>
+		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_REGISTER_NOT_FOUND"/>
 		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_FACTORY_NOT_FOUND"/>
 		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_INITIALIZE"/>
 	</errordomain>
@@ -119,7 +120,7 @@
 			</return-value>
 		</constructor>
 	</class>
-	<class name="BasePlugin" parent="GLib.Object" glib:type-name="FsoFrameworkBasePlugin" glib:get-type="fso_framework_base_plugin_get_type">
+	<class name="BasePlugin" parent="GLib.TypeModule" glib:type-name="FsoFrameworkBasePlugin" glib:get-type="fso_framework_base_plugin_get_type">
 		<implements>
 			<interface name="FsoFramework.Plugin"/>
 		</implements>
@@ -416,7 +417,7 @@
 		<requires>
 			<object name="GLib.Object"/>
 		</requires>
-		<method name="load" c:identifier="fso_framework_plugin_load">
+		<method name="loadAndInit" c:identifier="fso_framework_plugin_loadAndInit">
 			<parameters>
 				<parameter name="self">
 					<type name="FsoFramework.Plugin"/>
@@ -530,6 +531,16 @@
 		</parameters>
 		<return-value transfer-ownership="full">
 			<type name="string"/>
+		</return-value>
+	</callback>
+	<callback name="FsoFrameworkRegisterFunc">
+		<parameters>
+			<parameter name="bar">
+				<type name="GLib.TypeModule"/>
+			</parameter>
+		</parameters>
+		<return-value>
+			<type name="none"/>
 		</return-value>
 	</callback>
 	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_TYPE"/>

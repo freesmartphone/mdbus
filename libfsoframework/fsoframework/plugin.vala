@@ -25,6 +25,7 @@ using GLib;
 public errordomain FsoFramework.PluginError
 {
     UNABLE_TO_LOAD,
+    REGISTER_NOT_FOUND,
     FACTORY_NOT_FOUND,
     UNABLE_TO_INITIALIZE,
 }
@@ -33,6 +34,7 @@ public errordomain FsoFramework.PluginError
  * Delegates
  */
 public static delegate string FsoFramework.FactoryFunc( FsoFramework.Subsystem subsystem ) throws Error;
+public static delegate void FsoFramework.RegisterFunc( TypeModule bar );
 
 /**
  * PluginInfo
@@ -48,18 +50,18 @@ public struct FsoFramework.PluginInfo
  */
 public abstract interface FsoFramework.Plugin : Object
 {
-    public abstract void load() throws FsoFramework.PluginError;
+    public abstract void loadAndInit() throws FsoFramework.PluginError;
     public abstract FsoFramework.PluginInfo info();
 }
 
 /**
  * BasePlugin
  */
-public class FsoFramework.BasePlugin : FsoFramework.Plugin, Object
+public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
 {
     string filename;
-    FsoFramework.PluginInfo pluginInfo;
     Module module;
+    FsoFramework.PluginInfo pluginInfo;
     FsoFramework.Subsystem subsystem;
 
     public BasePlugin( string filename, FsoFramework.Subsystem subsystem )
@@ -67,27 +69,41 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, Object
         this.filename = "%s.%s".printf( filename, Module.SUFFIX );
         this.subsystem = subsystem;
         pluginInfo = FsoFramework.PluginInfo() { name=null, loaded=false };
+
+        // FIXME: bump ref so it doesn't get disposed. This works around a bug in
+        // Vala -- removing an unsolicitated call to g_object_dispose in TypeModule.
+        this.ref();
     }
 
-    public void load() throws FsoFramework.PluginError
+    public void loadAndInit() throws FsoFramework.PluginError
     {
         // try to load it
-        module = Module.open( filename, 0 );
+        module = Module.open( filename, ModuleFlags.BIND_LAZY | ModuleFlags.BIND_LOCAL );
         if ( module == null )
             throw new FsoFramework.PluginError.UNABLE_TO_LOAD( "could not load %s: %s".printf( filename, Module.error() ) );
 
+        // try to resolve register method
+        void* regfunc;
+        var ok = module.symbol( "fso_register_function", out regfunc );
+
+        if ( !ok )
+            throw new FsoFramework.PluginError.REGISTER_NOT_FOUND( "could not find symbol: %s".printf( Module.error() ) );
+
+        FsoFramework.RegisterFunc fso_register_function = (FsoFramework.RegisterFunc) regfunc;
+        fso_register_function( this );
+
         // try to resolve factory method
-        void* func;
-        var ok = module.symbol( "fso_factory_function", out func );
+        void* loadfunc;
+        ok = module.symbol( "fso_factory_function", out loadfunc );
         if ( !ok )
             throw new FsoFramework.PluginError.FACTORY_NOT_FOUND( "could not find symbol: %s".printf( Module.error() ) );
 
-        FsoFramework.FactoryFunc fso_factory_function = (FsoFramework.FactoryFunc) func;
+        FactoryFunc fso_factory_func = (FactoryFunc) loadfunc;
 
         try
         {
             // call factory method to acquire name
-            pluginInfo.name = fso_factory_function( subsystem );
+            pluginInfo.name = fso_factory_func( subsystem );
             // flag as loaded
             pluginInfo.loaded = true;
         }
@@ -102,5 +118,17 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, Object
     {
         return pluginInfo;
     }
+
+    public override bool load()
+    {
+        debug( "%s load", filename );
+        return true;
+    }
+
+    public override void unload()
+    {
+        debug( "%s unload", filename );
+    }
+
 }
 

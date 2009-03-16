@@ -5,7 +5,7 @@ namespace FsoFramework {
 	[CCode (cprefix = "FsoFrameworkDevice", lower_case_cprefix = "fso_framework_device_")]
 	namespace Device {
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
-		public interface LED {
+		public abstract class LED : GLib.Object {
 			public abstract string GetName ();
 			public abstract void SetBlinking (int delay_on, int delay_off) throws DBus.Error;
 			public abstract void SetBrightness (int brightness);
@@ -50,8 +50,10 @@ namespace FsoFramework {
 		public virtual bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
-	public class BasePlugin : FsoFramework.Plugin, GLib.Object {
+	public class BasePlugin : FsoFramework.Plugin, GLib.TypeModule {
+		public override bool load ();
 		public BasePlugin (string filename, FsoFramework.Subsystem subsystem);
+		public override void unload ();
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public class BaseSubsystem : FsoFramework.AbstractSubsystem {
@@ -98,7 +100,7 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public interface Plugin : GLib.Object {
 		public abstract FsoFramework.PluginInfo info ();
-		public abstract void load () throws FsoFramework.PluginError;
+		public abstract void loadAndInit () throws FsoFramework.PluginError;
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public interface Subsystem : GLib.Object {
@@ -117,11 +119,14 @@ namespace FsoFramework {
 	[CCode (cprefix = "FSO_FRAMEWORK_PLUGIN_ERROR_", cheader_filename = "fsoframework/plugin.h")]
 	public errordomain PluginError {
 		UNABLE_TO_LOAD,
+		REGISTER_NOT_FOUND,
 		FACTORY_NOT_FOUND,
 		UNABLE_TO_INITIALIZE,
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public static delegate string FactoryFunc (FsoFramework.Subsystem subsystem);
+	[CCode (cheader_filename = "fsoframework/plugin.h")]
+	public static delegate void RegisterFunc (GLib.TypeModule bar);
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_DESTINATION;
 	[CCode (cheader_filename = "fsoframework/common.h")]
