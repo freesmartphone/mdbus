@@ -19,30 +19,31 @@
 
 using GLib;
 
-// // FIXME: For some reason the dbus interface code doesn't work, if not included here :(
-// namespace XsoFramework { namespace Device
-// {
-//     public errordomain LedError
-//     {
-//         UNSUPPORTED,
-//     }
-// 
-//     [DBus (name = "org.freesmartphone.Device.LED")]
-//     public abstract interface LED
-//     {
-//         public abstract string GetName();
-//         public abstract void SetBrightness( int brightness );
-//         public abstract void SetBlinking( int delay_on, int delay_off ) throws Error;
-//         public abstract void SetNetworking( string iface, string mode ) throws Error;
-//     }
-// } }
+// FIXME: For some reason the dbus interface code doesn't work, if not included here :(
+namespace XsoFramework { namespace Device
+{
+    public errordomain LedError
+    {
+        UNSUPPORTED,
+    }
+
+    [DBus (name = "org.freesmartphone.Device.LED")]
+    public abstract interface LED
+    {
+        public abstract string GetName();
+        public abstract void SetBrightness( int brightness );
+        public abstract void SetBlinking( int delay_on, int delay_off ) throws Error;
+        public abstract void SetNetworking( string iface, string mode ) throws Error;
+    }
+} }
 
 namespace Kernel26
 {
 
 static const string SYS_CLASS_LEDS = "/sys/class/leds";
+static const string SYS_CLASS_NET = "/sys/class/net";
 
-class Led : FsoFramework.Device.LED, Object
+class Led : XsoFramework.Device.LED, GLib.Object
 {
     FsoFramework.Subsystem subsystem;
     static FsoFramework.Logger logger;
@@ -51,6 +52,7 @@ class Led : FsoFramework.Device.LED, Object
     string brightness;
     string trigger;
     string triggers;
+    string netdevs;
 
     static uint counter;
 
@@ -76,7 +78,6 @@ class Led : FsoFramework.Device.LED, Object
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          "%s/%u".printf( FsoFramework.Device.LedServicePath, counter++ ),
                                          this );
-
         // FIXME: remove in release code, can be done lazily
         initTriggers();
     }
@@ -123,7 +124,22 @@ class Led : FsoFramework.Device.LED, Object
     public void SetNetworking( string iface, string mode ) throws DBus.Error
     {
         initTriggers();
-        //...
+
+        if ( !FsoFramework.FileHandling.isPresent( "%s/%s".printf( Kernel26.SYS_CLASS_NET, iface ) ) )
+            return;
+            //throw new FsoFramework.InvalidParameter( "interface %s not present".printf( iface ) );
+
+            foreach ( var mode in mode.split( " " ) )
+            {
+            }
+            /*
+if m not in "link rx tx".split():
+                         raise InvalidParameter( "Mode element %s not known. Available elements are 'link rx tx'" % m )
+# do it
+                         writeToFile( "%s/trigger" % self.node, "netdev" )
+                         writeToFile( "%s/device_name" % self.node, str( interface.strip() ) )
+                         writeToFile( "%s/mode" % self.node, str( mode.strip() ) )
+        */
     }
 }
 
@@ -151,14 +167,11 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     return "fsodevice.kernel26_leds";
 }
 
-/*
-public static delegate void RegisterFunc( TypeModule tm );
-
 [ModuleInit]
-public static void fso_register_types( TypeModule tm )
+public static void fso_register_function( TypeModule module )
 {
+    debug( "yo" );
 }
-*/
 
 /**
  * This function gets called on plugin load time.
@@ -166,8 +179,9 @@ public static void fso_register_types( TypeModule tm )
  * @note Some versions of glib contain a bug that leads to a SIGSEGV
  * in g_module_open, if you return true here.
  **/
-public static bool g_module_check_init( void* m )
+/*public static bool g_module_check_init( void* m )
 {
     var ok = FsoFramework.FileHandling.isPresent( Kernel26.SYS_CLASS_LEDS );
     return (!ok);
 }
+*/
