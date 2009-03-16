@@ -150,6 +150,7 @@ public class FsoFramework.BaseSubsystem : FsoFramework.AbstractSubsystem
 public abstract interface DBusObjects
 {
     public abstract getNodes()
+}
 
 /**
  * DBusSubsystem
