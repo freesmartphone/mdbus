@@ -11,3 +11,7 @@ Indentation: -bad -bap -bbb -bl -bli0 -bs -cbi4 -cli4 -i4 -l100 -lp
              -nbbo -nbc -ncs -npcs -npsl -nut 
              -pi0 -prs-saf -sai -saw -sbi4 -st
 
+Note: This may need some Vala patches that have not been integrated into
+an upstream release yet. We have a Vala mirror at freesmartphone.org that
+can compile this library.
+
