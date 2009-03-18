@@ -172,6 +172,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
 
     ~DBusSubsystem()
     {
+        // FIXME: do we need to unregister the objects?
         foreach ( var name in _dbusconnections.get_keys() )
         {
             uint res = _dbusobj.release_name( name );

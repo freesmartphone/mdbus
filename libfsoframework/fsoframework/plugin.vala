@@ -121,13 +121,13 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
 
     public override bool load()
     {
-        debug( "%s load", filename );
+        message( "%s load (GType is in use)", filename );
         return true;
     }
 
     public override void unload()
     {
-        debug( "%s unload", filename );
+        message( "%s unload (GType is no longer in use)", filename );
     }
 
 }

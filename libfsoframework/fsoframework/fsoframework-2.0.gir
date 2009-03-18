@@ -567,6 +567,18 @@
 		</return-value>
 	</method>
 </namespace>
+<interface name="DBusObjects" glib:get-type="dbus_objects_get_type">
+	<method name="getNodes" c:identifier="dbus_objects_getNodes">
+		<parameters>
+			<parameter name="self">
+				<type name="DBusObjects"/>
+			</parameter>
+		</parameters>
+		<return-value>
+			<type name="none"/>
+		</return-value>
+	</method>
+</interface>
 <callback name="ReprDelegate">
 	<parameters>
 	</parameters>

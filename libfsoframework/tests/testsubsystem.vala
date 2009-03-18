@@ -20,6 +20,12 @@
 using GLib;
 using FsoFramework;
 
+const string DBUS_TEST_BUSNAME = "org.freesmartphone.testing";
+const string DBUS_TEST_OBJPATH = "/dummy/testing";
+const string DBUS_TEST_INTERFACE = "org.freesmartphone.Testing";
+
+MainLoop loop;
+
 //===========================================================================
 void test_subsystem_new()
 //===========================================================================
@@ -64,14 +70,20 @@ void test_subsystem_load()
 void test_subsystem_dbus_register_name()
 //===========================================================================
 {
+    // FIXME: Something is wrong in teardown handling here. If, instead of
+    // org.freesmartphone.ogsmd, you try to do this with DBUS_TEST_BUSNAME,
+    // you will get an assertion in gdbus_proxy moaning about "unassociated objects"
+    // This might as well be a bug in dbus-glib or dbus :/
     var subsystem = new DBusSubsystem( "tests" );
-    var ok1 = subsystem.registerServiceName( "org.freesmartphone.testing" );
+    var ok1 = subsystem.registerServiceName( "org.freesmartphone.ogsmd" );
     assert ( ok1 );
-    var ok2 = subsystem.registerServiceName( "org.freesmartphone.testing" );
+    var ok2 = subsystem.registerServiceName( "org.freesmartphone.ogsmd" );
     assert ( ok2 );
 }
 
+//===========================================================================
 [DBus (name = "org.freesmartphone.Testing")]
+//===========================================================================
 class DummyObject : Object
 {
     public int ThisMethodIsPresent( int value )
@@ -81,18 +93,54 @@ class DummyObject : Object
 }
 
 //===========================================================================
+class Pong : Object
+//===========================================================================
+{
+    public bool replied = false;
+    dynamic DBus.Object dbusobj;
+
+    public Pong( dynamic DBus.Object obj )
+    {
+        dbusobj = obj;
+    }
+
+    public void reply( int value, Error e )
+    {
+        replied = ( value == 42 );
+        if ( replied )
+            loop.quit();
+    }
+
+    public bool call()
+    {
+        dbusobj.ThisMethodIsPresent( 42, reply );
+        return false;
+    }
+}
+
+//===========================================================================
 void test_subsystem_dbus_register_objects()
 //===========================================================================
 {
+    // server side
     var subsystem = new DBusSubsystem( "tests" );
-    var ok = subsystem.registerServiceName( "org.freesmartphone.testing" );
+    var ok = subsystem.registerServiceName( DBUS_TEST_BUSNAME );
     assert ( ok );
     var obj = new DummyObject();
-    subsystem.registerServiceObject( "org.freesmartphone.testing", "/dummy/object", obj );
+    subsystem.registerServiceObject( DBUS_TEST_BUSNAME, DBUS_TEST_OBJPATH, obj );
 
-    //FIXME add test that object is actually present and correctly responding
-    //for( int i = 0; i < 1000; ++i )
-    //    MainContext.default().iteration( true );
+    // client side
+    var conn = DBus.Bus.get( DBus.BusType.SYSTEM );
+    dynamic DBus.Object dbusobj = conn.get_object( DBUS_TEST_BUSNAME, DBUS_TEST_OBJPATH, DBUS_TEST_INTERFACE );
+    assert( dbusobj != null );
+
+    var pong = new Pong( dbusobj );
+    loop = new MainLoop( null, false );
+
+    Idle.add( pong.call );
+    loop.run();
+
+    assert( pong.replied );
 }
 
 //===========================================================================

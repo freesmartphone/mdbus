@@ -144,6 +144,10 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public static FsoFramework.SmartKeyFile theMasterKeyFile ();
 }
+[CCode (cheader_filename = "fsoframework/subsystem.h")]
+public interface DBusObjects {
+	public abstract void getNodes ();
+}
 [CCode (cheader_filename = "fsoframework/logger.h")]
 public delegate string ReprDelegate ();
 [CCode (cheader_filename = "fsoframework/common.h")]
