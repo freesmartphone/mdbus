@@ -19,31 +19,13 @@
 
 using GLib;
 
-// FIXME: For some reason the dbus interface code doesn't work, if not included here :(
-namespace XsoFramework { namespace Device
-{
-    public errordomain LedError
-    {
-        UNSUPPORTED,
-    }
-
-    [DBus (name = "org.freesmartphone.Device.LED")]
-    public abstract interface LED
-    {
-        public abstract string GetName();
-        public abstract void SetBrightness( int brightness );
-        public abstract void SetBlinking( int delay_on, int delay_off ) throws Error;
-        public abstract void SetNetworking( string iface, string mode ) throws Error;
-    }
-} }
-
 namespace Kernel26
 {
 
 static const string SYS_CLASS_LEDS = "/sys/class/leds";
 static const string SYS_CLASS_NET = "/sys/class/net";
 
-class Led : XsoFramework.Device.LED, GLib.Object
+class Led : FsoFramework.Device.LED, GLib.Object
 {
     FsoFramework.Subsystem subsystem;
     static FsoFramework.Logger logger;
