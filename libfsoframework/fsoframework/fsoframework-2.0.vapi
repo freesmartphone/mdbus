@@ -5,7 +5,7 @@ namespace FsoFramework {
 	[CCode (cprefix = "FsoFrameworkDevice", lower_case_cprefix = "fso_framework_device_")]
 	namespace Device {
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
-		public abstract class LED : GLib.Object {
+		public interface LED : GLib.Object {
 			public abstract string GetName ();
 			public abstract void SetBlinking (int delay_on, int delay_off) throws DBus.Error;
 			public abstract void SetBrightness (int brightness);

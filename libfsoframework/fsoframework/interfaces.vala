@@ -34,7 +34,7 @@ namespace FsoFramework
         public const string LedServicePath = ServicePathPrefix + "/LED";
 
         [DBus (name = "org.freesmartphone.Device.LED")]
-        public abstract class LED : GLib.Object
+        public abstract interface LED : GLib.Object
         {
             public abstract string GetName();
             public abstract void SetBrightness( int brightness );
