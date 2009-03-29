@@ -17,14 +17,22 @@
  *
  */
 
-public errordomain AtCommandError
+using GLib;
+using FsoGsm;
+
+//===========================================================================
+void test_atcommand_create()
+//===========================================================================
 {
-    UNABLE_TO_PARSE,
+    
 }
 
-class FsoGsm.AtCommand : GLib.Object
+//===========================================================================
+void main( string[] args )
+//===========================================================================
 {
-    public void parse()
-    {
-    }
+    Test.init( ref args );
+
+    Test.add_func( "/AtCommand/Create", test_atcommand_create );
+    Test.run();
 }

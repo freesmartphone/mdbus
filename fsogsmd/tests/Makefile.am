@@ -4,22 +4,33 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	$(DEPS_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(DBUS_CFLAGS) \
+	$(FSO_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(DEPS_LIBS) ../fsogsmd/lib/libfsogsmd.la
+progs_ldadd = $(GLIB_LIBS) $(DBUS_LIBS) $(FSO_LIBS) ../src/lib/libfsogsm.la
 
-# TEST_PROGS += testsmartkeyfile
-# testsmartkeyfile_VALASOURCES = testsmartkeyfile.vala
-# testsmartkeyfile_SOURCES = testsmartkeyfile.c testsmartkeyfile.h
-# $(testsmartkeyfile_SOURCES): $(testsmartkeyfile_VALASOURCES)
-# 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg gio-2.0 --pkg fsoframework-2.0 $^
-# 	touch $@
-# testsmartkeyfile_LDADD = $(progs_ldadd)
-# EXTRA_DIST += $(testsmartkeyfile_VALASOURCES)
-# 
+VALAC_ARGS = \
+	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/src/lib \
+	--pkg glib-2.0 \
+	--pkg gio-2.0 \
+	--pkg dbus-glib-1 \
+	--pkg fsoframework-2.0 \
+	--pkg fsogsm-2.0
+
+TEST_PROGS += testatcommand
+testatcommand_VALASOURCES = testatcommand.vala
+testatcommand_SOURCES = testatcommand.c testatcommand.h
+$(testatcommand_SOURCES): $(testatcommand_VALASOURCES)
+	$(VALAC) -C $(VALAC_ARGS) $^
+	touch $@
+testatcommand_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testatcommand_VALASOURCES)
+
 # TEST_PROGS += testlogger
 # testlogger_VALASOURCES = testlogger.vala
 # testlogger_SOURCES = testlogger.c testlogger.h

@@ -30,21 +30,21 @@ public static void sighandler( int signum )
 
 public static int main( string[] args )
 {
-    logger = FsoFramework.createLogger( "fsodevice" );
-    logger.info( "fsodevice starting up..." );
-    var subsystem = new FsoFramework.DBusSubsystem( "fsodevice" );
+    logger = FsoFramework.createLogger( "fsogsm" );
+    logger.info( "fsogsm starting up..." );
+    var subsystem = new FsoFramework.DBusSubsystem( "fsogsm" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
     logger.info( "loaded %u plugins".printf( count ) );
     mainloop = new GLib.MainLoop( null, false );
-    logger.info( "fsodevice => mainloop" );
+    logger.info( "fsogsm => mainloop" );
     Posix.signal( Posix.SIGINT, sighandler );
     Posix.signal( Posix.SIGTERM, sighandler );
     // enable for release version?
     //Posix.signal( Posix.SIGBUS, sighandler );
     //Posix.signal( Posix.SIGSEGV, sighandler );
     mainloop.run();
-    logger.info( "mainloop => fsodevice" );
-    logger.info( "fsodevice shutdown." );
+    logger.info( "mainloop => fsogsm" );
+    logger.info( "fsogsm shutdown." );
     return 0;
 }
