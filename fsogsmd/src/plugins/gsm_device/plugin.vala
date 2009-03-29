@@ -19,12 +19,12 @@
 
 using GLib;
 
-const string GsmDevice.MODULE_NAME = "fsogsm.gsm_device";
-
 namespace GsmDevice
 {
+    const string MODULE_NAME = "fsogsm.gsm_device";
+}
 
-class Device : GLib.Object
+class GsmDevice.Device : GLib.Object
 {
     FsoFramework.Subsystem subsystem;
     static FsoFramework.Logger logger;
@@ -32,14 +32,12 @@ class Device : GLib.Object
     public Device( FsoFramework.Subsystem subsystem )
     {
         if ( logger == null )
-            logger = FsoFramework.createLogger( "fsogsm.gsm_device" );
+            logger = FsoFramework.createLogger( MODULE_NAME );
         //logger.info( "created new Led for %s".printf( sysfsnode ) );
 
     }
 
 }
-
-} /* namespace */
 
 List<GsmDevice.Device> instances;
 
@@ -51,16 +49,8 @@ List<GsmDevice.Device> instances;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    // scan sysfs path for leds
-    var dir = new Dir( Kernel26.SYS_CLASS_LEDS );
-    var entry = dir.read_name();
-    while ( entry != null )
-    {
-        var filename = Path.build_filename( Kernel26.SYS_CLASS_LEDS, entry );
-        instances.append( new Kernel26.Led( subsystem, filename ) );
-        entry = dir.read_name();
-    }
-    return "fsodevice.kernel26_leds";
+    instances.append( new GsmDevice.Device( subsystem ) );
+    return GsmDevice.MODULE_NAME;
 }
 
 [ModuleInit]

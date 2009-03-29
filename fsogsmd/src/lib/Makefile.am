@@ -15,7 +15,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsogsm_la_VALASOURCES = \
-	dummy.vala \
+	atcommand.vala \
 	$(NULL)
 
 libfsogsm_la_SOURCES = \

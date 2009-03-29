@@ -24,7 +24,7 @@ modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = gsm_device.la
 gsm_device_la_SOURCES = plugin.c plugin.h
 gsm_device_la_VALASOURCES = plugin.vala
-$(gsm_device_la_SOURCES): $(kernel26_leds_la_VALASOURCES)
+$(gsm_device_la_SOURCES): $(gsm_device_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
 gsm_device_la_LIBADD = $(progs_ldadd)

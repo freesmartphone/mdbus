@@ -52,7 +52,7 @@ AC_CONFIG_FILES([
   src/lib/Makefile
   src/bin/Makefile
   src/plugins/Makefile
-  src/plugins/kernel26_leds/Makefile
+  src/plugins/gsm_device/Makefile
   tests/Makefile
 ])
 
