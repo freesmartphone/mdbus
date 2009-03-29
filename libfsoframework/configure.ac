@@ -49,6 +49,7 @@ AC_SUBST(DBUS_LIBS)
 AC_CONFIG_FILES([Makefile
   fsoframework-2.0.pc
   fsoframework/Makefile
-  tests/Makefile])
+  tests/Makefile
+  vapi/Makefile])
 
 AC_OUTPUT

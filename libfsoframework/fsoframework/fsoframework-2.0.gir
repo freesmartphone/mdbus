@@ -1,411 +1,583 @@
 <?xml version="1.0"?>
-<repository version="1.0">
-<namespace name="FsoFramework" version="1.0">
-	<errordomain name="FsoFrameworkPluginError">
-		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_LOAD"/>
-		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_REGISTER_NOT_FOUND"/>
-		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_FACTORY_NOT_FOUND"/>
-		<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_INITIALIZE"/>
-	</errordomain>
-	<class name="AbstractLogger" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractLogger" glib:get-type="fso_framework_abstract_logger_get_type">
-		<implements>
-			<interface name="FsoFramework.Logger"/>
-		</implements>
-		<field name="level">
-			<type name="uint"/>
-		</field>
-		<field name="domain">
-			<type name="string"/>
-		</field>
-		<field name="destination">
-			<type name="string"/>
-		</field>
-		<method name="write" c:identifier="fso_framework_abstract_logger_write">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractLogger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="format" c:identifier="fso_framework_abstract_logger_format">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractLogger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
-				</parameter>
-				<parameter name="level">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
+<repository version="1.0" xmlns="http://www.gtk.org/introspection/core/1.0" xmlns:c="http://www.gtk.org/introspection/c/1.0" xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
+	<c:include name="fsoframework/subsystem.h"/>
+	<c:include name="fsoframework/plugin.h"/>
+	<c:include name="fsoframework/logger.h"/>
+	<c:include name="fsoframework/common.h"/>
+	<c:include name="fsoframework/interfaces.h"/>
+	<c:include name="fsoframework/smartkeyfile.h"/>
+	<namespace name="FsoFramework" version="1.0">
+		<errordomain name="FsoFrameworkPluginError">
+			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_LOAD"/>
+			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_REGISTER_NOT_FOUND"/>
+			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_FACTORY_NOT_FOUND"/>
+			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_INITIALIZE"/>
+		</errordomain>
+		<class name="AbstractLogger" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractLogger" glib:get-type="fso_framework_abstract_logger_get_type">
+			<implements>
+				<interface name="FsoFramework.Logger"/>
+			</implements>
+			<field name="level">
+				<type name="uint"/>
+			</field>
+			<field name="domain">
 				<type name="string"/>
-			</return-value>
-		</method>
-		<constructor name="new" c:identifier="fso_framework_abstract_logger_new">
-			<parameters>
-				<parameter name="domain">
+			</field>
+			<field name="destination">
+				<type name="string"/>
+			</field>
+			<method name="write" c:identifier="fso_framework_abstract_logger_write">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.AbstractLogger"/>
+					</parameter>
+					<parameter name="message">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="format" c:identifier="fso_framework_abstract_logger_format">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.AbstractLogger"/>
+					</parameter>
+					<parameter name="message">
+						<type name="string"/>
+					</parameter>
+					<parameter name="level">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
 					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="FsoFramework.AbstractLogger"/>
-			</return-value>
-		</constructor>
-		<method name="levelToString" c:identifier="fso_framework_abstract_logger_levelToString">
-			<parameters>
-				<parameter name="level">
+				</return-value>
+			</method>
+			<constructor name="new" c:identifier="fso_framework_abstract_logger_new">
+				<parameters>
+					<parameter name="domain">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.AbstractLogger"/>
+				</return-value>
+			</constructor>
+			<method name="levelToString" c:identifier="fso_framework_abstract_logger_levelToString">
+				<parameters>
+					<parameter name="level">
+						<type name="GLib.LogLevelFlags"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="string"/>
+				</return-value>
+			</method>
+			<method name="stringToLevel" c:identifier="fso_framework_abstract_logger_stringToLevel">
+				<parameters>
+					<parameter name="level">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
 					<type name="GLib.LogLevelFlags"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="string"/>
-			</return-value>
-		</method>
-		<method name="stringToLevel" c:identifier="fso_framework_abstract_logger_stringToLevel">
-			<parameters>
-				<parameter name="level">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="GLib.LogLevelFlags"/>
-			</return-value>
-		</method>
-	</class>
-	<class name="FileLogger" parent="FsoFramework.AbstractLogger" glib:type-name="FsoFrameworkFileLogger" glib:get-type="fso_framework_file_logger_get_type">
-		<constructor name="new" c:identifier="fso_framework_file_logger_new">
-			<parameters>
-				<parameter name="domain">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="FsoFramework.FileLogger"/>
-			</return-value>
-		</constructor>
-		<method name="setFile" c:identifier="fso_framework_file_logger_setFile">
-			<parameters>
-				<parameter name="self">
+				</return-value>
+			</method>
+		</class>
+		<class name="FileLogger" parent="FsoFramework.AbstractLogger" glib:type-name="FsoFrameworkFileLogger" glib:get-type="fso_framework_file_logger_get_type">
+			<constructor name="new" c:identifier="fso_framework_file_logger_new">
+				<parameters>
+					<parameter name="domain">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
 					<type name="FsoFramework.FileLogger"/>
-				</parameter>
-				<parameter name="filename">
-					<type name="string"/>
-				</parameter>
-				<parameter name="append">
+				</return-value>
+			</constructor>
+			<method name="setFile" c:identifier="fso_framework_file_logger_setFile">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.FileLogger"/>
+					</parameter>
+					<parameter name="filename">
+						<type name="string"/>
+					</parameter>
+					<parameter name="append">
+						<type name="bool"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+		</class>
+		<class name="SyslogLogger" parent="FsoFramework.AbstractLogger" glib:type-name="FsoFrameworkSyslogLogger" glib:get-type="fso_framework_syslog_logger_get_type">
+			<constructor name="new" c:identifier="fso_framework_syslog_logger_new">
+				<parameters>
+					<parameter name="domain">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.SyslogLogger"/>
+				</return-value>
+			</constructor>
+		</class>
+		<class name="BasePlugin" parent="GLib.TypeModule" glib:type-name="FsoFrameworkBasePlugin" glib:get-type="fso_framework_base_plugin_get_type">
+			<implements>
+				<interface name="FsoFramework.Plugin"/>
+			</implements>
+			<constructor name="new" c:identifier="fso_framework_base_plugin_new">
+				<parameters>
+					<parameter name="filename">
+						<type name="string"/>
+					</parameter>
+					<parameter name="subsystem">
+						<type name="FsoFramework.Subsystem"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.BasePlugin"/>
+				</return-value>
+			</constructor>
+		</class>
+		<class name="SmartKeyFile" parent="GLib.Object" glib:type-name="FsoFrameworkSmartKeyFile" glib:get-type="fso_framework_smart_key_file_get_type">
+			<method name="loadFromFile" c:identifier="fso_framework_smart_key_file_loadFromFile">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.SmartKeyFile"/>
+					</parameter>
+					<parameter name="filename">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
 					<type name="bool"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-	</class>
-	<class name="SyslogLogger" parent="FsoFramework.AbstractLogger" glib:type-name="FsoFrameworkSyslogLogger" glib:get-type="fso_framework_syslog_logger_get_type">
-		<constructor name="new" c:identifier="fso_framework_syslog_logger_new">
-			<parameters>
-				<parameter name="domain">
+				</return-value>
+			</method>
+			<method name="stringValue" c:identifier="fso_framework_smart_key_file_stringValue">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.SmartKeyFile"/>
+					</parameter>
+					<parameter name="section">
+						<type name="string"/>
+					</parameter>
+					<parameter name="key">
+						<type name="string"/>
+					</parameter>
+					<parameter name="defaultvalue">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
 					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="FsoFramework.SyslogLogger"/>
-			</return-value>
-		</constructor>
-	</class>
-	<class name="BasePlugin" parent="GLib.TypeModule" glib:type-name="FsoFrameworkBasePlugin" glib:get-type="fso_framework_base_plugin_get_type">
-		<implements>
-			<interface name="FsoFramework.Plugin"/>
-		</implements>
-		<constructor name="new" c:identifier="fso_framework_base_plugin_new">
-			<parameters>
-				<parameter name="filename">
+				</return-value>
+			</method>
+			<method name="intValue" c:identifier="fso_framework_smart_key_file_intValue">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.SmartKeyFile"/>
+					</parameter>
+					<parameter name="section">
+						<type name="string"/>
+					</parameter>
+					<parameter name="key">
+						<type name="string"/>
+					</parameter>
+					<parameter name="defaultvalue">
+						<type name="int"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="int"/>
+				</return-value>
+			</method>
+			<method name="boolValue" c:identifier="fso_framework_smart_key_file_boolValue">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.SmartKeyFile"/>
+					</parameter>
+					<parameter name="section">
+						<type name="string"/>
+					</parameter>
+					<parameter name="key">
+						<type name="string"/>
+					</parameter>
+					<parameter name="defaultvalue">
+						<type name="bool"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+			<method name="hasSection" c:identifier="fso_framework_smart_key_file_hasSection">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.SmartKeyFile"/>
+					</parameter>
+					<parameter name="section">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+			<method name="sectionsWithPrefix" c:identifier="fso_framework_smart_key_file_sectionsWithPrefix">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.SmartKeyFile"/>
+					</parameter>
+					<parameter name="prefix">
+						<type name="string?"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="GLib.List<string>"/>
+				</return-value>
+			</method>
+			<constructor name="new" c:identifier="fso_framework_smart_key_file_new">
+				<parameters>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.SmartKeyFile"/>
+				</return-value>
+			</constructor>
+		</class>
+		<class name="AbstractSubsystem" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractSubsystem" glib:get-type="fso_framework_abstract_subsystem_get_type">
+			<implements>
+				<interface name="FsoFramework.Subsystem"/>
+			</implements>
+			<field name="logger">
+				<type name="FsoFramework.Logger"/>
+			</field>
+			<constructor name="new" c:identifier="fso_framework_abstract_subsystem_new">
+				<parameters>
+					<parameter name="name">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.AbstractSubsystem"/>
+				</return-value>
+			</constructor>
+			<method name="registerServiceName" c:identifier="fso_framework_abstract_subsystem_registerServiceName">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.AbstractSubsystem"/>
+					</parameter>
+					<parameter name="servicename">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+			<method name="registerServiceObject" c:identifier="fso_framework_abstract_subsystem_registerServiceObject">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.AbstractSubsystem"/>
+					</parameter>
+					<parameter name="servicename">
+						<type name="string"/>
+					</parameter>
+					<parameter name="objectname">
+						<type name="string"/>
+					</parameter>
+					<parameter name="obj">
+						<type name="GLib.Object"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+		</class>
+		<class name="BaseSubsystem" parent="FsoFramework.AbstractSubsystem" glib:type-name="FsoFrameworkBaseSubsystem" glib:get-type="fso_framework_base_subsystem_get_type">
+			<constructor name="new" c:identifier="fso_framework_base_subsystem_new">
+				<parameters>
+					<parameter name="name">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.BaseSubsystem"/>
+				</return-value>
+			</constructor>
+		</class>
+		<class name="DBusSubsystem" parent="FsoFramework.AbstractSubsystem" glib:type-name="FsoFrameworkDBusSubsystem" glib:get-type="fso_framework_dbus_subsystem_get_type">
+			<constructor name="new" c:identifier="fso_framework_dbus_subsystem_new">
+				<parameters>
+					<parameter name="name">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.DBusSubsystem"/>
+				</return-value>
+			</constructor>
+		</class>
+		<interface name="Logger" glib:get-type="fso_framework_logger_get_type">
+			<requires>
+				<object name="GLib.Object"/>
+			</requires>
+			<method name="setLevel" c:identifier="fso_framework_logger_setLevel">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Logger"/>
+					</parameter>
+					<parameter name="level">
+						<type name="GLib.LogLevelFlags"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="setDestination" c:identifier="fso_framework_logger_setDestination">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Logger"/>
+					</parameter>
+					<parameter name="destination">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="setReprDelegate" c:identifier="fso_framework_logger_setReprDelegate">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Logger"/>
+					</parameter>
+					<parameter name="repr">
+						<type name="ReprDelegate"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="debug" c:identifier="fso_framework_logger_debug">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Logger"/>
+					</parameter>
+					<parameter name="message">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="info" c:identifier="fso_framework_logger_info">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Logger"/>
+					</parameter>
+					<parameter name="message">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="warning" c:identifier="fso_framework_logger_warning">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Logger"/>
+					</parameter>
+					<parameter name="message">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="error" c:identifier="fso_framework_logger_error">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Logger"/>
+					</parameter>
+					<parameter name="message">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+		</interface>
+		<interface name="Plugin" glib:get-type="fso_framework_plugin_get_type">
+			<requires>
+				<object name="GLib.Object"/>
+			</requires>
+			<method name="loadAndInit" c:identifier="fso_framework_plugin_loadAndInit">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Plugin"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="info" c:identifier="fso_framework_plugin_info">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Plugin"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="FsoFramework.PluginInfo"/>
+				</return-value>
+			</method>
+		</interface>
+		<interface name="Subsystem" glib:get-type="fso_framework_subsystem_get_type">
+			<requires>
+				<object name="GLib.Object"/>
+			</requires>
+			<method name="registerPlugins" c:identifier="fso_framework_subsystem_registerPlugins">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Subsystem"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="uint"/>
+				</return-value>
+			</method>
+			<method name="loadPlugins" c:identifier="fso_framework_subsystem_loadPlugins">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Subsystem"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="uint"/>
+				</return-value>
+			</method>
+			<method name="name" c:identifier="fso_framework_subsystem_name">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Subsystem"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
 					<type name="string"/>
-				</parameter>
+				</return-value>
+			</method>
+			<method name="pluginsInfo" c:identifier="fso_framework_subsystem_pluginsInfo">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Subsystem"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="GLib.List<FsoFramework.PluginInfo?>"/>
+				</return-value>
+			</method>
+			<method name="registerServiceName" c:identifier="fso_framework_subsystem_registerServiceName">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Subsystem"/>
+					</parameter>
+					<parameter name="servicename">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+			<method name="registerServiceObject" c:identifier="fso_framework_subsystem_registerServiceObject">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Subsystem"/>
+					</parameter>
+					<parameter name="servicename">
+						<type name="string"/>
+					</parameter>
+					<parameter name="objectname">
+						<type name="string"/>
+					</parameter>
+					<parameter name="obj">
+						<type name="GLib.Object"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+		</interface>
+		<record name="PluginInfo">
+			<field name="name">
+				<type name="string"/>
+			</field>
+			<field name="loaded">
+				<type name="bool"/>
+			</field>
+		</record>
+		<callback name="FsoFrameworkFactoryFunc">
+			<parameters>
 				<parameter name="subsystem">
 					<type name="FsoFramework.Subsystem"/>
 				</parameter>
 			</parameters>
-			<return-value>
-				<type name="FsoFramework.BasePlugin"/>
-			</return-value>
-		</constructor>
-	</class>
-	<class name="SmartKeyFile" parent="GLib.Object" glib:type-name="FsoFrameworkSmartKeyFile" glib:get-type="fso_framework_smart_key_file_get_type">
-		<method name="loadFromFile" c:identifier="fso_framework_smart_key_file_loadFromFile">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.SmartKeyFile"/>
-				</parameter>
-				<parameter name="filename">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="bool"/>
-			</return-value>
-		</method>
-		<method name="stringValue" c:identifier="fso_framework_smart_key_file_stringValue">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.SmartKeyFile"/>
-				</parameter>
-				<parameter name="section">
-					<type name="string"/>
-				</parameter>
-				<parameter name="key">
-					<type name="string"/>
-				</parameter>
-				<parameter name="defaultvalue">
-					<type name="string"/>
-				</parameter>
-			</parameters>
 			<return-value transfer-ownership="full">
 				<type name="string"/>
 			</return-value>
-		</method>
-		<method name="intValue" c:identifier="fso_framework_smart_key_file_intValue">
+		</callback>
+		<callback name="FsoFrameworkRegisterFunc">
 			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.SmartKeyFile"/>
+				<parameter name="bar">
+					<type name="GLib.TypeModule"/>
 				</parameter>
-				<parameter name="section">
-					<type name="string"/>
-				</parameter>
-				<parameter name="key">
-					<type name="string"/>
-				</parameter>
-				<parameter name="defaultvalue">
-					<type name="int"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="int"/>
-			</return-value>
-		</method>
-		<method name="boolValue" c:identifier="fso_framework_smart_key_file_boolValue">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.SmartKeyFile"/>
-				</parameter>
-				<parameter name="section">
-					<type name="string"/>
-				</parameter>
-				<parameter name="key">
-					<type name="string"/>
-				</parameter>
-				<parameter name="defaultvalue">
-					<type name="bool"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="bool"/>
-			</return-value>
-		</method>
-		<method name="hasSection" c:identifier="fso_framework_smart_key_file_hasSection">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.SmartKeyFile"/>
-				</parameter>
-				<parameter name="section">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="bool"/>
-			</return-value>
-		</method>
-		<method name="sectionsWithPrefix" c:identifier="fso_framework_smart_key_file_sectionsWithPrefix">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.SmartKeyFile"/>
-				</parameter>
-				<parameter name="prefix">
-					<type name="string?"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="GLib.List<string>"/>
-			</return-value>
-		</method>
-		<constructor name="new" c:identifier="fso_framework_smart_key_file_new">
-			<parameters>
 			</parameters>
 			<return-value>
+				<type name="none"/>
+			</return-value>
+		</callback>
+		<constant name="FSO_FRAMEWORK_DEFAULT_LOG_TYPE"/>
+		<constant name="FSO_FRAMEWORK_DEFAULT_LOG_LEVEL"/>
+		<constant name="FSO_FRAMEWORK_DEFAULT_LOG_DESTINATION"/>
+		<constant name="FSO_FRAMEWORK_ServiceDBusPrefix"/>
+		<constant name="FSO_FRAMEWORK_ServicePathPrefix"/>
+		<constant name="FSO_FRAMEWORK_ServiceFacePrefix"/>
+		<method name="theMasterKeyFile" c:identifier="fso_framework_theMasterKeyFile">
+			<parameters>
+			</parameters>
+			<return-value transfer-ownership="full">
 				<type name="FsoFramework.SmartKeyFile"/>
 			</return-value>
-		</constructor>
-	</class>
-	<class name="AbstractSubsystem" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractSubsystem" glib:get-type="fso_framework_abstract_subsystem_get_type">
-		<implements>
-			<interface name="FsoFramework.Subsystem"/>
-		</implements>
-		<field name="logger">
-			<type name="FsoFramework.Logger"/>
-		</field>
-		<constructor name="new" c:identifier="fso_framework_abstract_subsystem_new">
+		</method>
+		<method name="createLogger" c:identifier="fso_framework_createLogger">
 			<parameters>
-				<parameter name="name">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="FsoFramework.AbstractSubsystem"/>
-			</return-value>
-		</constructor>
-		<method name="registerServiceName" c:identifier="fso_framework_abstract_subsystem_registerServiceName">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.AbstractSubsystem"/>
-				</parameter>
-				<parameter name="servicename">
+				<parameter name="domain">
 					<type name="string"/>
 				</parameter>
 			</parameters>
 			<return-value transfer-ownership="full">
-				<type name="bool"/>
+				<type name="FsoFramework.Logger"/>
 			</return-value>
 		</method>
-		<method name="registerServiceObject" c:identifier="fso_framework_abstract_subsystem_registerServiceObject">
+	</namespace>
+	<interface name="DBusObjects" glib:get-type="dbus_objects_get_type">
+		<method name="getNodes" c:identifier="dbus_objects_getNodes">
 			<parameters>
 				<parameter name="self">
-					<type name="FsoFramework.AbstractSubsystem"/>
-				</parameter>
-				<parameter name="servicename">
-					<type name="string"/>
-				</parameter>
-				<parameter name="objectname">
-					<type name="string"/>
-				</parameter>
-				<parameter name="obj">
-					<type name="GLib.Object"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="bool"/>
-			</return-value>
-		</method>
-	</class>
-	<class name="BaseSubsystem" parent="FsoFramework.AbstractSubsystem" glib:type-name="FsoFrameworkBaseSubsystem" glib:get-type="fso_framework_base_subsystem_get_type">
-		<constructor name="new" c:identifier="fso_framework_base_subsystem_new">
-			<parameters>
-				<parameter name="name">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="FsoFramework.BaseSubsystem"/>
-			</return-value>
-		</constructor>
-	</class>
-	<class name="DBusSubsystem" parent="FsoFramework.AbstractSubsystem" glib:type-name="FsoFrameworkDBusSubsystem" glib:get-type="fso_framework_dbus_subsystem_get_type">
-		<constructor name="new" c:identifier="fso_framework_dbus_subsystem_new">
-			<parameters>
-				<parameter name="name">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="FsoFramework.DBusSubsystem"/>
-			</return-value>
-		</constructor>
-	</class>
-	<interface name="Logger" glib:get-type="fso_framework_logger_get_type">
-		<requires>
-			<object name="GLib.Object"/>
-		</requires>
-		<method name="setLevel" c:identifier="fso_framework_logger_setLevel">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Logger"/>
-				</parameter>
-				<parameter name="level">
-					<type name="GLib.LogLevelFlags"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="setDestination" c:identifier="fso_framework_logger_setDestination">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Logger"/>
-				</parameter>
-				<parameter name="destination">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="setReprDelegate" c:identifier="fso_framework_logger_setReprDelegate">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Logger"/>
-				</parameter>
-				<parameter name="repr">
-					<type name="ReprDelegate"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="debug" c:identifier="fso_framework_logger_debug">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Logger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="info" c:identifier="fso_framework_logger_info">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Logger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="warning" c:identifier="fso_framework_logger_warning">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Logger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="error" c:identifier="fso_framework_logger_error">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Logger"/>
-				</parameter>
-				<parameter name="message">
-					<type name="string"/>
+					<type name="DBusObjects"/>
 				</parameter>
 			</parameters>
 			<return-value>
@@ -413,180 +585,14 @@
 			</return-value>
 		</method>
 	</interface>
-	<interface name="Plugin" glib:get-type="fso_framework_plugin_get_type">
-		<requires>
-			<object name="GLib.Object"/>
-		</requires>
-		<method name="loadAndInit" c:identifier="fso_framework_plugin_loadAndInit">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Plugin"/>
-				</parameter>
-			</parameters>
-			<return-value>
-				<type name="none"/>
-			</return-value>
-		</method>
-		<method name="info" c:identifier="fso_framework_plugin_info">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Plugin"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="FsoFramework.PluginInfo"/>
-			</return-value>
-		</method>
-	</interface>
-	<interface name="Subsystem" glib:get-type="fso_framework_subsystem_get_type">
-		<requires>
-			<object name="GLib.Object"/>
-		</requires>
-		<method name="registerPlugins" c:identifier="fso_framework_subsystem_registerPlugins">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Subsystem"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="uint"/>
-			</return-value>
-		</method>
-		<method name="loadPlugins" c:identifier="fso_framework_subsystem_loadPlugins">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Subsystem"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="uint"/>
-			</return-value>
-		</method>
-		<method name="name" c:identifier="fso_framework_subsystem_name">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Subsystem"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="string"/>
-			</return-value>
-		</method>
-		<method name="pluginsInfo" c:identifier="fso_framework_subsystem_pluginsInfo">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Subsystem"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="GLib.List<FsoFramework.PluginInfo?>"/>
-			</return-value>
-		</method>
-		<method name="registerServiceName" c:identifier="fso_framework_subsystem_registerServiceName">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Subsystem"/>
-				</parameter>
-				<parameter name="servicename">
-					<type name="string"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="bool"/>
-			</return-value>
-		</method>
-		<method name="registerServiceObject" c:identifier="fso_framework_subsystem_registerServiceObject">
-			<parameters>
-				<parameter name="self">
-					<type name="FsoFramework.Subsystem"/>
-				</parameter>
-				<parameter name="servicename">
-					<type name="string"/>
-				</parameter>
-				<parameter name="objectname">
-					<type name="string"/>
-				</parameter>
-				<parameter name="obj">
-					<type name="GLib.Object"/>
-				</parameter>
-			</parameters>
-			<return-value transfer-ownership="full">
-				<type name="bool"/>
-			</return-value>
-		</method>
-	</interface>
-	<record name="PluginInfo">
-		<field name="name">
-			<type name="string"/>
-		</field>
-		<field name="loaded">
-			<type name="bool"/>
-		</field>
-	</record>
-	<callback name="FsoFrameworkFactoryFunc">
+	<callback name="ReprDelegate">
 		<parameters>
-			<parameter name="subsystem">
-				<type name="FsoFramework.Subsystem"/>
-			</parameter>
 		</parameters>
 		<return-value transfer-ownership="full">
 			<type name="string"/>
 		</return-value>
 	</callback>
-	<callback name="FsoFrameworkRegisterFunc">
-		<parameters>
-			<parameter name="bar">
-				<type name="GLib.TypeModule"/>
-			</parameter>
-		</parameters>
-		<return-value>
-			<type name="none"/>
-		</return-value>
-	</callback>
-	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_TYPE"/>
-	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_LEVEL"/>
-	<constant name="FSO_FRAMEWORK_DEFAULT_LOG_DESTINATION"/>
-	<constant name="FSO_FRAMEWORK_ServiceDBusPrefix"/>
-	<constant name="FSO_FRAMEWORK_ServicePathPrefix"/>
-	<constant name="FSO_FRAMEWORK_ServiceFacePrefix"/>
-	<method name="theMasterKeyFile" c:identifier="fso_framework_theMasterKeyFile">
-		<parameters>
-		</parameters>
-		<return-value transfer-ownership="full">
-			<type name="FsoFramework.SmartKeyFile"/>
-		</return-value>
-	</method>
-	<method name="createLogger" c:identifier="fso_framework_createLogger">
-		<parameters>
-			<parameter name="domain">
-				<type name="string"/>
-			</parameter>
-		</parameters>
-		<return-value transfer-ownership="full">
-			<type name="FsoFramework.Logger"/>
-		</return-value>
-	</method>
-</namespace>
-<interface name="DBusObjects" glib:get-type="dbus_objects_get_type">
-	<method name="getNodes" c:identifier="dbus_objects_getNodes">
-		<parameters>
-			<parameter name="self">
-				<type name="DBusObjects"/>
-			</parameter>
-		</parameters>
-		<return-value>
-			<type name="none"/>
-		</return-value>
-	</method>
-</interface>
-<callback name="ReprDelegate">
-	<parameters>
-	</parameters>
-	<return-value transfer-ownership="full">
-		<type name="string"/>
-	</return-value>
-</callback>
-<constant name="DBUS_BUS_NAME"/>
-<constant name="DBUS_BUS_PATH"/>
-<constant name="DBUS_BUS_INTERFACE"/>
+	<constant name="DBUS_BUS_NAME"/>
+	<constant name="DBUS_BUS_PATH"/>
+	<constant name="DBUS_BUS_INTERFACE"/>
 </repository>

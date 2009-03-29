@@ -5,6 +5,7 @@ namespace FsoFramework {
 	[CCode (cprefix = "FsoFrameworkDevice", lower_case_cprefix = "fso_framework_device_")]
 	namespace Device {
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		[DBus (name = "org.freesmartphone.Device.LED")]
 		public interface LED : GLib.Object {
 			public abstract string GetName ();
 			public abstract void SetBlinking (int delay_on, int delay_off) throws DBus.Error;
@@ -145,6 +146,7 @@ namespace FsoFramework {
 	public static FsoFramework.SmartKeyFile theMasterKeyFile ();
 }
 [CCode (cheader_filename = "fsoframework/subsystem.h")]
+[DBus (name = "org.freesmartphone.DBus.Objects")]
 public interface DBusObjects {
 	public abstract void getNodes ();
 }
