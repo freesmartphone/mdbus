@@ -24,7 +24,19 @@ using FsoGsm;
 void test_atcommand_create()
 //===========================================================================
 {
-    
+    var cmd = commandFactory( "PlusCPIN" );
+    cmd.parse( "+CPIN: \"SIM PIN\"" );
+    assert( cmd.to_string() == "SIM PIN" );
+    cmd.parse( "+CPIN: READY" );
+    assert( cmd.to_string() == "READY" );
+    try
+    {
+        cmd.parse( "+CPIN THIS FAILS" );
+        assert_not_reached();
+    }
+    catch ( Error e )
+    {
+    }
 }
 
 //===========================================================================
