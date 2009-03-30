@@ -20,59 +20,55 @@
 public errordomain AtCommandError
 {
     UNABLE_TO_PARSE,
+    TYPE_MISMATCH,
 }
 
 namespace FsoGsm
 {
-
-
 
 public abstract class AtCommand : GLib.Object
 {
     protected Regex re;
     protected MatchInfo mi;
 
-    public void parse( string response ) throws AtCommandError
+    public virtual void parse( string response ) throws AtCommandError
     {
         var match = re.match( response, 0, out mi );
         if ( !match || mi == null )
             throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, re.get_pattern() ) );
     }
 
-    public string to_string( int pos = 1 )
+    public string to_string( string name )
     {
-        var res = mi.fetch( pos );
+        var res = mi.fetch_named( name );
         return res;
     }
-}
 
-public class PlusCPIN : AtCommand
-{
-    public PlusCPIN()
+    public int to_int( string name )
     {
-        re = new Regex( """\+CPIN:\ "?(?P<string>[^"]*)"?""" );
+        var res = mi.fetch_named( name );
+        return res.to_int();
     }
-}
 
+}
 
 static GLib.HashTable<string, AtCommand> _commandTable;
 
-public AtCommand commandFactory( string command )
+public AtCommand atCommandFactory( string command )
 {
     if ( _commandTable == null )
-        initCommandFactory();
+        registerAtCommands();
+    assert( _commandTable != null );
     var cmd = _commandTable.lookup( command );
     assert( cmd != null );
     return cmd;
 }
 
-public void initCommandFactory()
+public void registerAtCommands()
 {
-    assert( _commandTable == null );
-    debug( "init command factory" );
     _commandTable = new GLib.HashTable<string, AtCommand>( GLib.str_hash, GLib.str_equal );
-
-    _commandTable.insert( "PlusCPIN", new PlusCPIN() );
+    // register local at commands
+    registerGeneratedAtCommands( _commandTable );
 }
 
 } /* namespace FsoGsm */

@@ -21,14 +21,33 @@ using GLib;
 using FsoGsm;
 
 //===========================================================================
-void test_atcommand_create()
+void test_atcommand_PlusCFUN()
 //===========================================================================
 {
-    var cmd = commandFactory( "PlusCPIN" );
+    FsoGsm.PlusCFUN cmd = (FsoGsm.PlusCFUN) atCommandFactory( "PlusCFUN" );
+    cmd.parse( "+CFUN: 0" );
+    assert( cmd.fun == 0 );
+    cmd.parse( "+CFUN: 1" );
+    assert( cmd.fun == 1 );
+    try
+    {
+        cmd.parse( "+CFUN: NOTANINTEGER" );
+        assert_not_reached();
+    }
+    catch ( Error e )
+    {
+    }
+}
+
+//===========================================================================
+void test_atcommand_PlusCPIN()
+//===========================================================================
+{
+    FsoGsm.PlusCPIN cmd = (FsoGsm.PlusCPIN) atCommandFactory( "PlusCPIN" );
     cmd.parse( "+CPIN: \"SIM PIN\"" );
-    assert( cmd.to_string() == "SIM PIN" );
+    assert( cmd.pin == "SIM PIN" );
     cmd.parse( "+CPIN: READY" );
-    assert( cmd.to_string() == "READY" );
+    assert( cmd.pin == "READY" );
     try
     {
         cmd.parse( "+CPIN THIS FAILS" );
@@ -45,6 +64,7 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/AtCommand/Create", test_atcommand_create );
+    Test.add_func( "/AtCommand/+CPIN", test_atcommand_PlusCPIN );
+    Test.add_func( "/AtCommand/+CFUN", test_atcommand_PlusCFUN );
     Test.run();
 }

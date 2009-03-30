@@ -14,8 +14,12 @@ lib_LTLIBRARIES = \
 	libfsogsm.la
 	$(NULL)
 
+atcommands.vala: genatcommands.py
+	python genatcommands.py >atcommands.vala
+
 libfsogsm_la_VALASOURCES = \
 	atcommand.vala \
+	atcommands.vala \
 	$(NULL)
 
 libfsogsm_la_SOURCES = \
