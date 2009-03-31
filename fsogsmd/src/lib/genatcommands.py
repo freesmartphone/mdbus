@@ -20,6 +20,9 @@
 
 import sys, types
 
+def log( string ):
+    sys.stderr.write( string + "\n" )
+
 #========================================================================#
 prefixmap = { \
     "+": "plus",
@@ -35,10 +38,15 @@ def nameToClassName( name ):
 
 #========================================================================#
 commands = { \
-     "+CFUN": [ "+CFUN: ", "<int:fun>" ],
-     "+CPIN": [ "+CPIN: ", "<string:pin>" ],
+     "+CFUN": [ "+CFUN: ", "<int=fun>" ],
+     "+CPIN": [ "+CPIN: ", "<string=pin>" ],
+     "+CGCLASS": [ "+CGCLASS: ", "<string=gprsclass>" ],
+     "+CGMI": [ "(+CGMI: )?", "<purestring=manufacturer>" ],
+     "+CGMM": [ "(+CGMM: )?", "<purestring=model>" ],
+     "+CGMR": [ "(+CGMR: )?", "<purestring=revision>" ],
+     "+CGSN": [ "(+CGSN: )?", "<purestring=imei>" ],
+     "+FCLASS": [ "<purestring=faxclass>" ],
      }
-
 
 #========================================================================#
 class CommandTranslator( object ):
@@ -72,6 +80,11 @@ public class %s : AtCommand
 
         self.args = []
 
+    def addArgument( self, typ, name ):
+        if typ == "purestring":
+            typ = "string"
+        self.args.append( ( typ, name ) )
+
     def className( self ):
         return nameToClassName( self.command )
 
@@ -87,28 +100,43 @@ public class %s : AtCommand
             expression += self.rePart( element )
         return expression
 
-    def translateSimpleType( self, typ, groupname ):
-        if typ == "string":
+    def translateSimpleNamedType( self, typ, groupname ):
+        if typ == "string" or typ == "purestring":
             return """"?(?P<%s>[^"]*)"?""" % groupname
         elif typ == "int":
             return """(?P<%s>\d+)""" % groupname
         else:
             assert( False )
 
-    def translateArgument( self, argument, optional = False ):
-        typ, name = argument.split( ':' )
-        assert( not optional )
+    def makeOptional( self, optional ):
+        typ, name = argument.split( '=' )
         self.args.append( ( typ, name ) )
-        return "%s" % self.translateSimpleType( typ, name )
+        value = self.translateSimpleNamedType( typ, name )
+        if optional:
+            value = "(%s)?" % value
+        return value
+
+    def translateArgument( self, argument, optional = False ):
+        typ, name = argument.split( '=' )
+        self.addArgument( typ, name )
+        value = self.translateSimpleNamedType( typ, name )
+        if optional:
+            value = "(%s)?" % value
+        return value
 
     def rePart( self, part ):
-        sys.stderr.write( "operating on %s" % part )
+        log( "operating on %s..." % part )
         if type( part ) == types.ListType:
             pass
         elif type( part ) == types.StringType:
-            if part[0] == "<" and part[-1] == ">":
-                return self.translateArgument( part[1:-1] )
+            optional = ( part[0] == "[" and part[-1] == "]" )
+            mandatory = ( part[0] == "<" and part[-1] == ">" )
+
+            if ( "=" in part ):
+                # argument
+                return self.translateArgument( part[1:-1], optional )
             else:
+                # no argument, treat as regexp
                 return part.replace( "+", "\+" ).replace( " ", "\ " )
         assert( False )
 
@@ -155,7 +183,7 @@ public void registerGeneratedAtCommands( GLib.HashTable<string, AtCommand> table
 """ )
 
         for key in commands:
-            fileobj.write( """    table.insert( "%s", new FsoGsm.%s() );""" % ( nameToClassName( key ), nameToClassName( key ) ) )
+            fileobj.write( """    table.insert( "%s", new FsoGsm.%s() );\n""" % ( nameToClassName( key ), nameToClassName( key ) ) )
 
         fileobj.write( """
 }
