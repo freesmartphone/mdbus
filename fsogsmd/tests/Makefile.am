@@ -35,6 +35,15 @@ $(testatcommand_SOURCES): $(testatcommand_VALASOURCES)
 testatcommand_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testatcommand_VALASOURCES)
 
+TEST_PROGS += testcommandqueue
+testcommandqueue_VALASOURCES = testcommandqueue.vala
+testcommandqueue_SOURCES = testcommandqueue.c testcommandqueue.h
+$(testcommandqueue_SOURCES): $(testcommandqueue_VALASOURCES)
+	$(VALAC) -C $(VALAC_ARGS) $^
+	touch $@
+testcommandqueue_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testcommandqueue_VALASOURCES)
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \

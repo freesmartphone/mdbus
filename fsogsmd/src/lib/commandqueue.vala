@@ -34,10 +34,12 @@ public abstract interface FsoGsm.CommandQueue : Object
 public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
 {
     protected Queue<Command?> q;
+    protected FsoFramework.Transport transport;
 
     public BaseCommandQueue( FsoFramework.Transport transport )
     {
         q = new Queue<Command?>();
+        this.transport = transport;
     }
 
     public void enqueue( Command command )
@@ -50,6 +52,8 @@ public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
 
     public void writeNextCommand()
     {
+        var command = q.peek_tail();
+        transport.write( command.command, (int)command.command.size() );
     }
 
 }
