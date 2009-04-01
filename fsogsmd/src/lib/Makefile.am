@@ -8,18 +8,28 @@ AM_CPPFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(NULL)
 
+VALAC_ARGS = \
+	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/vapi \
+	--pkg posix \
+	--pkg posixextra \
+	--pkg dbus-glib-1 \
+	--pkg glib-2.0 \
+	--pkg gio-2.0 \
+	--pkg fsoframework-2.0 \
+	--library fsogsm-2.0
+
 BUILT_SOURCES = .vala.stamp fsogsm-2.0.vapi
 
 lib_LTLIBRARIES = \
 	libfsogsm.la
 	$(NULL)
 
-atcommands.vala: genatcommands.py
-	python genatcommands.py >atcommands.vala
-
 libfsogsm_la_VALASOURCES = \
 	atcommand.vala \
 	atcommands.vala \
+	commandqueue.vala \
+	modem.vala \
 	$(NULL)
 
 libfsogsm_la_SOURCES = \
@@ -35,13 +45,7 @@ fsogsminclude_HEADERS = \
 	$(NULL)
 
 $(BUILT_SOURCES): $(libfsogsm_la_VALASOURCES)
-	$(VALAC) -C --basedir $(top_srcdir) \
-	            --vapidir $(top_srcdir)/vapi \
-	            --pkg posix \
-	            --pkg posixextra \
-	            --pkg glib-2.0 \
-	            --pkg gio-2.0 \
-	            --library fsogsm-2.0 $^
+	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
 
 libfsogsm_la_LIBADD = \

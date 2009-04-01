@@ -20,7 +20,6 @@
 public errordomain AtCommandError
 {
     UNABLE_TO_PARSE,
-    TYPE_MISMATCH,
 }
 
 namespace FsoGsm
@@ -33,7 +32,9 @@ public abstract class AtCommand : GLib.Object
 
     public virtual void parse( string response ) throws AtCommandError
     {
-        var match = re.match( response, 0, out mi );
+        bool match;
+        match = re.match( response, 0, out mi );
+
         if ( !match || mi == null )
             throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, re.get_pattern() ) );
     }
@@ -47,9 +48,10 @@ public abstract class AtCommand : GLib.Object
     public int to_int( string name )
     {
         var res = mi.fetch_named( name );
+        if ( res == null )
+            return -1; // indicates parameter not present
         return res.to_int();
     }
-
 }
 
 static GLib.HashTable<string, AtCommand> _commandTable;
@@ -67,7 +69,6 @@ public AtCommand atCommandFactory( string command )
 public void registerAtCommands()
 {
     _commandTable = new GLib.HashTable<string, AtCommand>( GLib.str_hash, GLib.str_equal );
-    // register local at commands
     registerGeneratedAtCommands( _commandTable );
 }
 

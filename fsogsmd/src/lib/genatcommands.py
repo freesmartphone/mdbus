@@ -38,14 +38,17 @@ def nameToClassName( name ):
 
 #========================================================================#
 commands = { \
-     "+CFUN": [ "+CFUN: ", "<int=fun>" ],
-     "+CPIN": [ "+CPIN: ", "<string=pin>" ],
-     "+CGCLASS": [ "+CGCLASS: ", "<string=gprsclass>" ],
-     "+CGMI": [ "(+CGMI: )?", "<purestring=manufacturer>" ],
-     "+CGMM": [ "(+CGMM: )?", "<purestring=model>" ],
-     "+CGMR": [ "(+CGMR: )?", "<purestring=revision>" ],
-     "+CGSN": [ "(+CGSN: )?", "<purestring=imei>" ],
-     "+FCLASS": [ "<purestring=faxclass>" ],
+     "+CFUN":       ( "standard", [ "+CFUN: ", "<int=fun>" ] ), 
+     #"+COPS":       ( "standard", [ "+COPS: ", "<digit=registration>", "[digit=mode]", "[string=provider]" ] ),
+     "+COPS":       ( "standard",  ( "+COPS: digit=opStatus,[digit=mode[,string=oper]]" ]
+     "+COPS":       ( "standard",  "+COPS: digit=opStatus,[digit=mode[,string=oper]]" ]
+     "+CPIN":       ( "standard", [ "+CPIN: ", "<string=pin>" ] ),
+     "+CGCLASS":    ( "standard", [ "+CGCLASS: ", "<string=gprsclass>" ] ),
+     "+CGMI":       ( "standard", [ "(+CGMI: )?", "<purestring=manufacturer>" ] ),
+     "+CGMM":       ( "standard", [ "(+CGMM: )?", "<purestring=model>" ] ),
+     "+CGMR":       ( "standard", [ "(+CGMR: )?", "<purestring=revision>" ] ),
+     "+CGSN":       ( "standard", [ "(+CGSN: )?", "<purestring=imei>" ] ),
+     "+FCLASS":     ( "standard", [ "<purestring=faxclass>" ] ),
      }
 
 #========================================================================#
@@ -74,8 +77,9 @@ public class %s : AtCommand
 }
 """
 
-    def __init__( self, command, format ):
+    def __init__( self, command, typ, format ):
         self.command = command
+        self.typ = typ
         self.format = format
 
         self.args = []
@@ -83,6 +87,8 @@ public class %s : AtCommand
     def addArgument( self, typ, name ):
         if typ == "purestring":
             typ = "string"
+        if typ == "digit":
+            typ = "int"
         self.args.append( ( typ, name ) )
 
     def className( self ):
@@ -105,6 +111,8 @@ public class %s : AtCommand
             return """"?(?P<%s>[^"]*)"?""" % groupname
         elif typ == "int":
             return """(?P<%s>\d+)""" % groupname
+        elif typ == "digit":
+            return """(?)<%s>\d)""" % groupname
         else:
             assert( False )
 
@@ -173,7 +181,8 @@ namespace FsoGsm
 {
 """ )
         for key, value in commands.iteritems():
-            ct = CommandTranslator( key, value )
+            typ, structure = value
+            ct = CommandTranslator( key, typ, structure )
             fileobj.write( ct.translate() )
 
         fileobj.write( """
