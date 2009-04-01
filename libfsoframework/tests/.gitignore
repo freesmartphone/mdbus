@@ -9,5 +9,6 @@ testlogger
 testplugin
 testsmartkeyfile
 testsubsystem
+testtransport
 testutilities
 

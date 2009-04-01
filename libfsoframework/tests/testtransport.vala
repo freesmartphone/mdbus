@@ -31,10 +31,12 @@ void test_transport_base()
 void test_transport_serial()
 //===========================================================================
 {
-    var t = new SerialTransport( "/dev/tty0", 115200 );
+    Posix.mkfifo( "./myfifo", Posix.S_IROTH|Posix.S_IWOTH|Posix.S_IXOTH );
+    var t = new SerialTransport( "./fifo", 115200 );
     t.open();
-    assert( t.getName() == "/dev/tty0" );
+    assert( t.getName() == "./fifo" );
     t.close();
+    Posix.unlink( "./myfifo" );
 }
 
 //===========================================================================
