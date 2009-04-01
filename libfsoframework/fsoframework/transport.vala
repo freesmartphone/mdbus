@@ -190,7 +190,12 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
 public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
 //===========================================================================
 {
-    public SerialTransport( string portname, uint portspeed, TransportHupFunc? hupfunc, TransportReadFunc? readfunc, int rp = 0, int wp = 0 )
+    public SerialTransport( string portname,
+                            uint portspeed,
+                            TransportHupFunc? hupfunc = null,
+                            TransportReadFunc? readfunc = null,
+                            int rp = 0,
+                            int wp = 0 )
     {
         base( portname, portspeed, hupfunc, readfunc, rp, wp );
     }
@@ -272,7 +277,10 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
 {
     private char[] ptyname = new char[1024]; // PATH_MAX?
 
-    public PtyTransport( TransportHupFunc? hupfunc, TransportReadFunc? readfunc, int rp = 0, int wp = 0 )
+    public PtyTransport( TransportHupFunc? hupfunc = null,
+                         TransportReadFunc? readfunc = null,
+                         int rp = 0,
+                         int wp = 0 )
     {
         base( "Pty", 115200, hupfunc, readfunc, rp, wp );
     }

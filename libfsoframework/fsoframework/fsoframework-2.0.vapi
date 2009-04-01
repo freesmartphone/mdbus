@@ -97,13 +97,13 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/transport.h")]
 	public class PtyTransport : FsoFramework.BaseTransport {
 		public override string getName ();
-		public PtyTransport (FsoFramework.TransportHupFunc? hupfunc, FsoFramework.TransportReadFunc? readfunc, int rp = 0, int wp = 0);
+		public PtyTransport (FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
 		public override bool open ();
 		public override string repr ();
 	}
 	[CCode (cheader_filename = "fsoframework/transport.h")]
 	public class SerialTransport : FsoFramework.BaseTransport {
-		public SerialTransport (string portname, uint portspeed, FsoFramework.TransportHupFunc? hupfunc, FsoFramework.TransportReadFunc? readfunc, int rp = 0, int wp = 0);
+		public SerialTransport (string portname, uint portspeed, FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
 		public override bool open ();
 		public override string repr ();
 	}
