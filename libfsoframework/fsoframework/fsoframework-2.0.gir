@@ -6,12 +6,23 @@
 	<c:include name="fsoframework/common.h"/>
 	<c:include name="fsoframework/interfaces.h"/>
 	<c:include name="fsoframework/smartkeyfile.h"/>
+	<c:include name="fsoframework/transport.h"/>
 	<namespace name="FsoFramework" version="1.0">
+		<enumeration name="TransportState" c:type="FsoFrameworkTransportState" glib:get-type="fso_framework_transport_state_get_type">
+			<member name="closed"/>
+			<member name="open"/>
+			<member name="alive"/>
+			<member name="dead"/>
+		</enumeration>
 		<errordomain name="FsoFrameworkPluginError">
 			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_LOAD"/>
 			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_REGISTER_NOT_FOUND"/>
 			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_FACTORY_NOT_FOUND"/>
 			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_INITIALIZE"/>
+		</errordomain>
+		<errordomain name="FsoFrameworkTransportError">
+			<member name="FSO_FRAMEWORK_TRANSPORT_ERROR_UNABLE_TO_OPEN"/>
+			<member name="FSO_FRAMEWORK_TRANSPORT_ERROR_UNABLE_TO_WRITE"/>
 		</errordomain>
 		<class name="AbstractLogger" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractLogger" glib:get-type="fso_framework_abstract_logger_get_type">
 			<implements>
@@ -323,6 +334,187 @@
 				</return-value>
 			</constructor>
 		</class>
+		<class name="BaseTransport" parent="GLib.Object" glib:type-name="FsoFrameworkBaseTransport" glib:get-type="fso_framework_base_transport_get_type">
+			<implements>
+				<interface name="FsoFramework.Transport"/>
+			</implements>
+			<field name="logger">
+				<type name="FsoFramework.Logger"/>
+			</field>
+			<field name="name">
+				<type name="string"/>
+			</field>
+			<field name="speed">
+				<type name="uint"/>
+			</field>
+			<field name="fd">
+				<type name="int"/>
+			</field>
+			<field name="hupfunc">
+				<type name="FsoFramework.TransportHupFunc"/>
+			</field>
+			<field name="readfunc">
+				<type name="FsoFramework.TransportReadFunc"/>
+			</field>
+			<field name="buffer">
+				<type name="GLib.ByteArray"/>
+			</field>
+			<method name="restartWriter" c:identifier="fso_framework_base_transport_restartWriter">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<constructor name="new" c:identifier="fso_framework_base_transport_new">
+				<parameters>
+					<parameter name="name">
+						<type name="string"/>
+					</parameter>
+					<parameter name="speed">
+						<type name="uint"/>
+					</parameter>
+					<parameter name="hupfunc">
+						<type name="FsoFramework.TransportHupFunc?"/>
+					</parameter>
+					<parameter name="readfunc">
+						<type name="FsoFramework.TransportReadFunc?"/>
+					</parameter>
+					<parameter name="rp">
+						<type name="int"/>
+					</parameter>
+					<parameter name="wp">
+						<type name="int"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.BaseTransport"/>
+				</return-value>
+			</constructor>
+			<method name="open" c:identifier="fso_framework_base_transport_open">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+			<method name="close" c:identifier="fso_framework_base_transport_close">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="isOpen" c:identifier="fso_framework_base_transport_isOpen">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+			<method name="repr" c:identifier="fso_framework_base_transport_repr">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="string"/>
+				</return-value>
+			</method>
+			<method name="read" c:identifier="fso_framework_base_transport_read">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+					<parameter name="data">
+						<type name="void*"/>
+					</parameter>
+					<parameter name="len">
+						<type name="int"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="int"/>
+				</return-value>
+			</method>
+			<method name="_write" c:identifier="_fso_framework_base_transport_write">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+					<parameter name="data">
+						<type name="void*"/>
+					</parameter>
+					<parameter name="len">
+						<type name="int"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="int"/>
+				</return-value>
+			</method>
+			<method name="write" c:identifier="fso_framework_base_transport_write">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+					<parameter name="data">
+						<type name="void*"/>
+					</parameter>
+					<parameter name="len">
+						<type name="int"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="int"/>
+				</return-value>
+			</method>
+			<method name="actionCallback" c:identifier="fso_framework_base_transport_actionCallback">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+					<parameter name="source">
+						<type name="GLib.IOChannel"/>
+					</parameter>
+					<parameter name="condition">
+						<type name="GLib.IOCondition"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+			<method name="writeCallback" c:identifier="fso_framework_base_transport_writeCallback">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+					<parameter name="source">
+						<type name="GLib.IOChannel"/>
+					</parameter>
+					<parameter name="condition">
+						<type name="GLib.IOCondition"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+		</class>
 		<interface name="Logger" glib:get-type="fso_framework_logger_get_type">
 			<requires>
 				<object name="GLib.Object"/>
@@ -521,6 +713,11 @@
 				</return-value>
 			</method>
 		</interface>
+		<interface name="Transport" glib:get-type="fso_framework_transport_get_type">
+			<requires>
+				<object name="GLib.Object"/>
+			</requires>
+		</interface>
 		<record name="PluginInfo">
 			<field name="name">
 				<type name="string"/>
@@ -543,6 +740,26 @@
 			<parameters>
 				<parameter name="bar">
 					<type name="GLib.TypeModule"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</callback>
+		<callback name="FsoFrameworkTransportReadFunc">
+			<parameters>
+				<parameter name="transport">
+					<type name="FsoFramework.Transport"/>
+				</parameter>
+			</parameters>
+			<return-value>
+				<type name="none"/>
+			</return-value>
+		</callback>
+		<callback name="FsoFrameworkTransportHupFunc">
+			<parameters>
+				<parameter name="transport">
+					<type name="FsoFramework.Transport"/>
 				</parameter>
 			</parameters>
 			<return-value>

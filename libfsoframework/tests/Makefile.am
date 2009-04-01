@@ -126,6 +126,18 @@ testsubsystem_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testsubsystem_VALASOURCES)
 
 #
+# transport test
+#
+TEST_PROGS += testtransport
+testtransport_VALASOURCES = testtransport.vala
+testtransport_SOURCES = testtransport.c testtransport.h
+$(testtransport_SOURCES): $(testtransport_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testtransport_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testtransport_VALASOURCES)
+
+#
 # utilities test
 #
 TEST_PROGS += testutilities

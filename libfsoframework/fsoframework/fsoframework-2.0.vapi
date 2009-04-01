@@ -60,6 +60,27 @@ namespace FsoFramework {
 	public class BaseSubsystem : FsoFramework.AbstractSubsystem {
 		public BaseSubsystem (string name);
 	}
+	[CCode (cheader_filename = "fsoframework/transport.h")]
+	public class BaseTransport : FsoFramework.Transport, GLib.Object {
+		protected GLib.ByteArray buffer;
+		protected int fd;
+		protected FsoFramework.TransportHupFunc hupfunc;
+		protected FsoFramework.Logger logger;
+		protected string name;
+		protected FsoFramework.TransportReadFunc readfunc;
+		protected uint speed;
+		public int _write (void* data, int len);
+		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
+		public void close ();
+		public bool isOpen ();
+		public BaseTransport (string name, uint speed = 0, FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
+		public virtual bool open ();
+		public int read (void* data, int len);
+		public virtual string repr ();
+		protected void restartWriter ();
+		public int write (void* data, int len);
+		public bool writeCallback (GLib.IOChannel source, GLib.IOCondition condition);
+	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public class DBusSubsystem : FsoFramework.AbstractSubsystem {
 		public DBusSubsystem (string name);
@@ -112,10 +133,20 @@ namespace FsoFramework {
 		public abstract bool registerServiceName (string servicename);
 		public abstract bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
+	[CCode (cheader_filename = "fsoframework/transport.h")]
+	public interface Transport : GLib.Object {
+	}
 	[CCode (type_id = "FSO_FRAMEWORK_TYPE_PLUGIN_INFO", cheader_filename = "fsoframework/plugin.h")]
 	public struct PluginInfo {
 		public string name;
 		public bool loaded;
+	}
+	[CCode (cprefix = "FSO_FRAMEWORK_TRANSPORT_STATE_", cheader_filename = "fsoframework/transport.h")]
+	public enum TransportState {
+		CLOSED,
+		OPEN,
+		ALIVE,
+		DEAD
 	}
 	[CCode (cprefix = "FSO_FRAMEWORK_PLUGIN_ERROR_", cheader_filename = "fsoframework/plugin.h")]
 	public errordomain PluginError {
@@ -124,10 +155,19 @@ namespace FsoFramework {
 		FACTORY_NOT_FOUND,
 		UNABLE_TO_INITIALIZE,
 	}
+	[CCode (cprefix = "FSO_FRAMEWORK_TRANSPORT_ERROR_", cheader_filename = "fsoframework/transport.h")]
+	public errordomain TransportError {
+		UNABLE_TO_OPEN,
+		UNABLE_TO_WRITE,
+	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public static delegate string FactoryFunc (FsoFramework.Subsystem subsystem);
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public static delegate void RegisterFunc (GLib.TypeModule bar);
+	[CCode (cheader_filename = "fsoframework/transport.h")]
+	public delegate void TransportHupFunc (FsoFramework.Transport transport);
+	[CCode (cheader_filename = "fsoframework/transport.h")]
+	public delegate void TransportReadFunc (FsoFramework.Transport transport);
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_DESTINATION;
 	[CCode (cheader_filename = "fsoframework/common.h")]
