@@ -90,6 +90,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
         logger.debug( "created" );
     }
 
+    public virtual string getName()
+    {
+        return name;
+    }
+
     public virtual bool open()
     {
         assert( fd != -1 );
@@ -181,14 +186,180 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
     }
 }
 
+//===========================================================================
+public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
+//===========================================================================
+{
+    public SerialTransport( string portname, uint portspeed, TransportHupFunc? hupfunc, TransportReadFunc? readfunc, int rp = 0, int wp = 0 )
+    {
+        base( portname, portspeed, hupfunc, readfunc, rp, wp );
+    }
+
+    public override bool open()
+    {
+        fd = Posix.open( name, Posix.O_RDWR | Posix.O_NOCTTY | Posix.O_NONBLOCK );
+        if ( fd == -1 )
+        {
+            logger.warning( "could not open %s: %s".printf( name, Posix.strerror( Posix.errno ) ) );
+            return false;
+        }
+
+        Posix.fcntl( fd, Posix.F_SETFL, 0 );
+        PosixExtra.TermIOs termios = {};
+        PosixExtra.tcgetattr( fd, termios );
+
+        if ( speed == 115200 )
+        {
+            // 115200
+            PosixExtra.cfsetispeed( termios, PosixExtra.B115200 );
+            PosixExtra.cfsetospeed( termios, PosixExtra.B115200 );
+        }
+        else
+            logger.warning( "portspeed != 115200" );
+
+        // local read
+        termios.c_cflag |= (PosixExtra.CLOCAL | PosixExtra.CREAD);
+
+        // 8n1
+        termios.c_cflag &= ~PosixExtra.PARENB;
+        termios.c_cflag &= ~PosixExtra.CSTOPB;
+        termios.c_cflag &= ~PosixExtra.CSIZE;
+        termios.c_cflag |= PosixExtra.CS8;
+
+        // hardware flow control
+        //termios.c_cflag |= PosixExtra.CRTSCTS;
+
+        // software flow control off
+        //termios.c_iflag &= ~(PosixExtra.IXON | PosixExtra.IXOFF | PosixExtra.IXANY);
+
+        // raw input
+        termios.c_lflag &= ~(PosixExtra.ICANON | PosixExtra.ECHO | PosixExtra.ECHOE | PosixExtra.ISIG);
+        termios.c_iflag &= ~(PosixExtra.INLCR | PosixExtra.ICRNL | PosixExtra.IGNCR);
+
+        // raw output
+        termios.c_oflag &= ~(PosixExtra.OPOST | PosixExtra.OLCUC | PosixExtra.ONLRET | PosixExtra.ONOCR | PosixExtra.OCRNL );
+
+        /*
+        // no special character handling
+        termios.c_cc[PosixExtra.VMIN] = 0;
+        termios.c_cc[PosixExtra.VTIME] = 2;
+        termios.c_cc[PosixExtra.VINTR] = 0;
+        termios.c_cc[PosixExtra.VQUIT] = 0;
+        termios.c_cc[PosixExtra.VSTART] = 0;
+        termios.c_cc[PosixExtra.VSTOP] = 0;
+        termios.c_cc[PosixExtra.VSUSP] = 0;
+        */
+        PosixExtra.tcsetattr( fd, PosixExtra.TCSANOW, termios);
+
+        /*
+        _v24 = PosixExtra.TIOCM_DTR | PosixExtra.TIOCM_RTS;
+        Posix.ioctl( _fd, PosixExtra.TIOCMBIS, &_v24 );
+        */
+
+        return base.open();
+    }
+
+    public override string repr()
+    {
+        return "<Serial Transport %s @ %u (fd %d)>".printf( name, speed, fd );
+    }
+
+}
+
+//===========================================================================
+public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
+//===========================================================================
+{
+    private char[] ptyname = new char[1024]; // PATH_MAX?
+
+    public PtyTransport( TransportHupFunc? hupfunc, TransportReadFunc? readfunc, int rp = 0, int wp = 0 )
+    {
+        base( "Pty", 115200, hupfunc, readfunc, rp, wp );
+    }
+
+    public override string getName()
+    {
+        return (string)ptyname;
+    }
+
+    public override string repr()
+    {
+        return "<Pseudo TTY %s (fd %d)>".printf( getName(), fd );
+    }
+
+    public override bool open()
+    {
+        fd = PosixExtra.posix_openpt( Posix.O_RDWR | Posix.O_NOCTTY | Posix.O_NONBLOCK );
+        if ( fd == -1 )
+        {
+            logger.warning( "could not open %s: %s".printf( name, Posix.strerror( Posix.errno ) ) );
+            return false;
+        }
+
+        PosixExtra.grantpt( fd );
+        PosixExtra.unlockpt( fd );
+        PosixExtra.ptsname_r( fd, ptyname );
+
+        int flags = Posix.fcntl( fd, Posix.F_GETFL );
+        int res = Posix.fcntl( fd, Posix.F_SETFL, flags | Posix.O_NONBLOCK );
+        if ( res < 0 )
+            logger.warning( "can't set pty master to NONBLOCK: %s".printf( Posix.strerror( Posix.errno ) ) );
+
+        Posix.fcntl( fd, Posix.F_SETFL, 0 );
+
+        PosixExtra.TermIOs termios = {};
+        PosixExtra.tcgetattr( fd, termios );
+
+        // local read
+        termios.c_cflag |= (PosixExtra.CLOCAL | PosixExtra.CREAD);
+
+        // 8n1
+        termios.c_cflag &= ~PosixExtra.PARENB;
+        termios.c_cflag &= ~PosixExtra.CSTOPB;
+        termios.c_cflag &= ~PosixExtra.CSIZE;
+        termios.c_cflag |= PosixExtra.CS8;
+
+        // hardware flow control
+        //termios.c_cflag |= PosixExtra.CRTSCTS;
+
+        // software flow control off
+        //termios.c_iflag &= ~(PosixExtra.IXON | PosixExtra.IXOFF | PosixExtra.IXANY);
+
+        // raw input
+        termios.c_lflag &= ~(PosixExtra.ICANON | PosixExtra.ECHO | PosixExtra.ECHOE | PosixExtra.ISIG);
+        termios.c_iflag &= ~(PosixExtra.INLCR | PosixExtra.ICRNL | PosixExtra.IGNCR);
+
+        // raw output
+        termios.c_oflag &= ~(PosixExtra.OPOST | PosixExtra.OLCUC | PosixExtra.ONLRET | PosixExtra.ONOCR | PosixExtra.OCRNL );
+
+        /*
+        // no special character handling
+        termios.c_cc[PosixExtra.VMIN] = 0;
+        termios.c_cc[PosixExtra.VTIME] = 2;
+        termios.c_cc[PosixExtra.VINTR] = 0;
+        termios.c_cc[PosixExtra.VQUIT] = 0;
+        termios.c_cc[PosixExtra.VSTART] = 0;
+        termios.c_cc[PosixExtra.VSTOP] = 0;
+        termios.c_cc[PosixExtra.VSUSP] = 0;
+        */
+        PosixExtra.tcsetattr( fd, PosixExtra.TCSANOW, termios);
+
+        /*
+        _v24 = PosixExtra.TIOCM_DTR | PosixExtra.TIOCM_RTS;
+        Posix.ioctl( _fd, PosixExtra.TIOCMBIS, &_v24 );
+        */
+        return base.open();
+    }
+}
+
 /*
 //===========================================================================
-public class TransportLibGsm0710mux : TransportLibGsm0710mux
+public class LibGsm0710muxTransport : FsoFramework.BaseTransport
 {
     Gsm0710mux.Manager manager;
     Gsm0710mux.ChannelInfo channelinfo;
 
-    public TransportLibGsm0710mux()
+    public LibGsm0710muxTransport()
     {
         manager = new Gsm0710mux.Manager();
         var version = manager.getVersion();

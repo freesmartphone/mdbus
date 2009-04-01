@@ -2,9 +2,9 @@
 <repository version="1.0" xmlns="http://www.gtk.org/introspection/core/1.0" xmlns:c="http://www.gtk.org/introspection/c/1.0" xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
 	<c:include name="fsoframework/subsystem.h"/>
 	<c:include name="fsoframework/plugin.h"/>
-	<c:include name="fsoframework/logger.h"/>
-	<c:include name="fsoframework/common.h"/>
 	<c:include name="fsoframework/interfaces.h"/>
+	<c:include name="fsoframework/common.h"/>
+	<c:include name="fsoframework/logger.h"/>
 	<c:include name="fsoframework/smartkeyfile.h"/>
 	<c:include name="fsoframework/transport.h"/>
 	<namespace name="FsoFramework" version="1.0">
@@ -394,6 +394,16 @@
 					<type name="FsoFramework.BaseTransport"/>
 				</return-value>
 			</constructor>
+			<method name="getName" c:identifier="fso_framework_base_transport_getName">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseTransport"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="string"/>
+				</return-value>
+			</method>
 			<method name="open" c:identifier="fso_framework_base_transport_open">
 				<parameters>
 					<parameter name="self">
@@ -514,6 +524,54 @@
 					<type name="bool"/>
 				</return-value>
 			</method>
+		</class>
+		<class name="SerialTransport" parent="FsoFramework.BaseTransport" glib:type-name="FsoFrameworkSerialTransport" glib:get-type="fso_framework_serial_transport_get_type">
+			<constructor name="new" c:identifier="fso_framework_serial_transport_new">
+				<parameters>
+					<parameter name="portname">
+						<type name="string"/>
+					</parameter>
+					<parameter name="portspeed">
+						<type name="uint"/>
+					</parameter>
+					<parameter name="hupfunc">
+						<type name="FsoFramework.TransportHupFunc?"/>
+					</parameter>
+					<parameter name="readfunc">
+						<type name="FsoFramework.TransportReadFunc?"/>
+					</parameter>
+					<parameter name="rp">
+						<type name="int"/>
+					</parameter>
+					<parameter name="wp">
+						<type name="int"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.SerialTransport"/>
+				</return-value>
+			</constructor>
+		</class>
+		<class name="PtyTransport" parent="FsoFramework.BaseTransport" glib:type-name="FsoFrameworkPtyTransport" glib:get-type="fso_framework_pty_transport_get_type">
+			<constructor name="new" c:identifier="fso_framework_pty_transport_new">
+				<parameters>
+					<parameter name="hupfunc">
+						<type name="FsoFramework.TransportHupFunc?"/>
+					</parameter>
+					<parameter name="readfunc">
+						<type name="FsoFramework.TransportReadFunc?"/>
+					</parameter>
+					<parameter name="rp">
+						<type name="int"/>
+					</parameter>
+					<parameter name="wp">
+						<type name="int"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.PtyTransport"/>
+				</return-value>
+			</constructor>
 		</class>
 		<interface name="Logger" glib:get-type="fso_framework_logger_get_type">
 			<requires>

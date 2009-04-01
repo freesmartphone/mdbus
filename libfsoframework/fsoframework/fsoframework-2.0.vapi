@@ -72,6 +72,7 @@ namespace FsoFramework {
 		public int _write (void* data, int len);
 		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
 		public void close ();
+		public virtual string getName ();
 		public bool isOpen ();
 		public BaseTransport (string name, uint speed = 0, FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
 		public virtual bool open ();
@@ -92,6 +93,19 @@ namespace FsoFramework {
 		public FileLogger (string domain);
 		public void setFile (string filename, bool append = false);
 		protected override void write (string message);
+	}
+	[CCode (cheader_filename = "fsoframework/transport.h")]
+	public class PtyTransport : FsoFramework.BaseTransport {
+		public override string getName ();
+		public PtyTransport (FsoFramework.TransportHupFunc? hupfunc, FsoFramework.TransportReadFunc? readfunc, int rp = 0, int wp = 0);
+		public override bool open ();
+		public override string repr ();
+	}
+	[CCode (cheader_filename = "fsoframework/transport.h")]
+	public class SerialTransport : FsoFramework.BaseTransport {
+		public SerialTransport (string portname, uint portspeed, FsoFramework.TransportHupFunc? hupfunc, FsoFramework.TransportReadFunc? readfunc, int rp = 0, int wp = 0);
+		public override bool open ();
+		public override string repr ();
 	}
 	[CCode (cheader_filename = "fsoframework/smartkeyfile.h")]
 	public class SmartKeyFile : GLib.Object {
