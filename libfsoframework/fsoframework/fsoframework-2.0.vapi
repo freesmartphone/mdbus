@@ -79,7 +79,6 @@ namespace FsoFramework {
 		public int read (void* data, int len);
 		public virtual string repr ();
 		protected void restartWriter ();
-		public int write (void* data, int len);
 		public bool writeCallback (GLib.IOChannel source, GLib.IOCondition condition);
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
@@ -149,6 +148,7 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework/transport.h")]
 	public interface Transport : GLib.Object {
+		public abstract int write (void* data, int length);
 	}
 	[CCode (type_id = "FSO_FRAMEWORK_TYPE_PLUGIN_INFO", cheader_filename = "fsoframework/plugin.h")]
 	public struct PluginInfo {

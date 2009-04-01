@@ -38,7 +38,7 @@ public enum FsoFramework.TransportState
 //===========================================================================
 public abstract interface FsoFramework.Transport : Object
 {
-    //public abstract void write( void* data, uint length ) throws TransportError;
+    public abstract int write( void* data, int length );
 }
 
 //===========================================================================
@@ -78,6 +78,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
                           int wp = 0 )
     {
         this.name = name;
+        this.speed = speed;
         this.hupfunc = hupfunc;
         this.readfunc = readfunc;
         readpriority = rp;
@@ -98,12 +99,13 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
     public virtual bool open()
     {
         assert( fd != -1 );
+        // construct IO channel
+        channel = new IOChannel.unix_new( fd );
+        channel.set_encoding( null );
+        channel.set_buffer_size( 32768 );
         // setup watches, if we have delegates
         if ( hupfunc != null || readfunc != null )
         {
-            channel = new IOChannel.unix_new( fd );
-            channel.set_encoding( null );
-            channel.set_buffer_size( 32768 );
             readwatch = channel.add_watch_full( readpriority, IOCondition.IN | IOCondition.HUP, actionCallback );
         }
         // we might have already queued something up in the buffer
@@ -161,7 +163,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
 
     public bool actionCallback( IOChannel source, IOCondition condition )
     {
-        //debug( "actionCallback, condition = %d", condition );
+        logger.debug( "actionCallback called with condition = %d".printf( condition ) );
         if ( IOCondition.IN == condition && readfunc != null )
         {
             readfunc( this );
@@ -174,12 +176,14 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
 
     public bool writeCallback( IOChannel source, IOCondition condition )
     {
-        //debug( "writeCallback, condition = %d", condition );
-
+        logger.debug( "writeCallback called with %u bytes in buffer".printf( buffer.len ) );
+        /*
+        for( int i = 0; i < buffer.len; ++i )
+            logger.debug( "byte: 0x%02x".printf( buffer.data[i] ) );
+        */
         int len = 64 > buffer.len? (int)buffer.len : 64;
-
-        var byteswritten = write( buffer.data, len  );
-        //debug( "writeCallback: wrote %d bytes", (int)byteswritten );
+        var byteswritten = _write( buffer.data, len );
+        logger.debug( "writeCallback wrote %d bytes".printf( (int)byteswritten ) );
         buffer.remove_range( 0, (int)byteswritten );
 
         return ( buffer.len != 0 );
