@@ -98,16 +98,13 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
 
     public virtual bool open()
     {
-        assert( fd != -1 );
+        assert( fd != -1 ); // fail, if trying to open the 2nd time
         // construct IO channel
         channel = new IOChannel.unix_new( fd );
         channel.set_encoding( null );
         channel.set_buffer_size( 32768 );
-        // setup watches, if we have delegates
-        if ( hupfunc != null || readfunc != null )
-        {
-            readwatch = channel.add_watch_full( readpriority, IOCondition.IN | IOCondition.HUP, actionCallback );
-        }
+        // setup watch
+        readwatch = channel.add_watch_full( readpriority, IOCondition.IN | IOCondition.HUP, actionCallback );
         // we might have already queued something up in the buffer
         if ( buffer.len > 0 )
             restartWriter();
@@ -135,6 +132,20 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
         return "<BaseTransport fd %d>".printf( fd );
     }
 
+    public void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc )
+    {
+        this.readfunc = readfunc;
+        this.hupfunc = hupfunc;
+    }
+
+    /* triggers a bug in Vala
+    public void getDelegates( out TransportReadFunc? readfun, out TransportHupFunc? hupfun )
+    {
+        readfun = this.readfunc;
+        hupfun = this.hupfunc;
+    }
+    */
+
     public int read( void* data, int len )
     {
         assert( fd != -1 );
@@ -142,7 +153,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
         return (int)bytesread;
     }
 
-    public int _write( void* data, int len )
+    internal int _write( void* data, int len )
     {
         assert( fd != -1 );
         ssize_t byteswritten = Posix.write( fd, data, len );

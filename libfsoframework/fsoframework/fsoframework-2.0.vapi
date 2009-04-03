@@ -69,7 +69,6 @@ namespace FsoFramework {
 		protected string name;
 		protected FsoFramework.TransportReadFunc readfunc;
 		protected uint speed;
-		public int _write (void* data, int len);
 		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
 		public void close ();
 		public virtual string getName ();
@@ -79,6 +78,7 @@ namespace FsoFramework {
 		public int read (void* data, int len);
 		public virtual string repr ();
 		protected void restartWriter ();
+		public void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
 		public bool writeCallback (GLib.IOChannel source, GLib.IOCondition condition);
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]

@@ -20,11 +20,26 @@
 using GLib;
 using FsoFramework;
 
+void transport_read_func( Transport transport )
+{
+}
+void transport_hup_func( Transport transport )
+{
+}
+
 //===========================================================================
 void test_transport_base()
 //===========================================================================
 {
     var t = new BaseTransport( "testing" );
+    TransportHupFunc hupfunc;
+    TransportReadFunc readfunc;
+//    t.getDelegates( out readfunc, out hupfunc );
+//    assert( readfunc == null && hupfunc == null );
+
+    t.setDelegates( transport_read_func, transport_hup_func );
+//    t.getDelegates( out readfunc, out hupfunc );
+//    assert( readfunc == read_func && hupfunc == hup_func );
 }
 
 //===========================================================================

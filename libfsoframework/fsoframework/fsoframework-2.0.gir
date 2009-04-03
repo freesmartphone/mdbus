@@ -444,23 +444,23 @@
 					<type name="string"/>
 				</return-value>
 			</method>
-			<method name="read" c:identifier="fso_framework_base_transport_read">
+			<method name="setDelegates" c:identifier="fso_framework_base_transport_setDelegates">
 				<parameters>
 					<parameter name="self">
 						<type name="FsoFramework.BaseTransport"/>
 					</parameter>
-					<parameter name="data">
-						<type name="void*"/>
+					<parameter name="readfunc">
+						<type name="FsoFramework.TransportReadFunc?"/>
 					</parameter>
-					<parameter name="len">
-						<type name="int"/>
+					<parameter name="hupfunc">
+						<type name="FsoFramework.TransportHupFunc?"/>
 					</parameter>
 				</parameters>
-				<return-value transfer-ownership="full">
-					<type name="int"/>
+				<return-value>
+					<type name="none"/>
 				</return-value>
 			</method>
-			<method name="_write" c:identifier="_fso_framework_base_transport_write">
+			<method name="read" c:identifier="fso_framework_base_transport_read">
 				<parameters>
 					<parameter name="self">
 						<type name="FsoFramework.BaseTransport"/>
