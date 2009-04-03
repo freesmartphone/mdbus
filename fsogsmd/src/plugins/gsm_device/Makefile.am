@@ -14,10 +14,11 @@ progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/fsoframework \
+	--vapidir ../../lib \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
-	--pkg fsoframework-2.0
+	--pkg fsoframework-2.0 \
+	--pkg fsogsm-2.0
 
 #
 # plugin

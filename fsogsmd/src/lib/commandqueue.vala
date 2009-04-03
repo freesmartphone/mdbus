@@ -36,6 +36,9 @@ public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
     protected Queue<Command?> q;
     protected FsoFramework.Transport transport;
 
+    /**
+     * create new command queue using @a transport.
+     **/
     public BaseCommandQueue( FsoFramework.Transport transport )
     {
         q = new Queue<Command?>();

@@ -53,6 +53,7 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/gsm_device/Makefile
+  src/plugins/modem_ti_calypso/Makefile
   tests/Makefile
 ])
 

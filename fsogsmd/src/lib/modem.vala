@@ -17,10 +17,17 @@
  *
  */
 
+HashTable<string, FsoGsm.Modem> _modems;
+
 public abstract interface FsoGsm.Modem : GLib.Object
 {
 }
 
 public class FsoGsm.BaseModem : FsoGsm.Modem, GLib.Object
 {
+    // read configuration
+    // create necessary amount of transports
+    // create necessary amount of at command queues
+
+    // init status signals
 }

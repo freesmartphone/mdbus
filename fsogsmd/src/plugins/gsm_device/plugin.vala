@@ -19,22 +19,50 @@
 
 using GLib;
 
-namespace GsmDevice
-{
-    const string MODULE_NAME = "fsogsm.gsm_device";
-}
+namespace GsmDevice { const string MODULE_NAME = "fsogsm.gsm_device"; }
 
 class GsmDevice.Device : GLib.Object
 {
     FsoFramework.Subsystem subsystem;
+    FsoGsm.Modem modem;
     static FsoFramework.Logger logger;
+    static FsoFramework.SmartKeyFile config;
+
+    static construct
+    {
+        logger = FsoFramework.createLogger( MODULE_NAME );
+        config = FsoFramework.theMasterKeyFile();
+    }
 
     public Device( FsoFramework.Subsystem subsystem )
     {
-        if ( logger == null )
-            logger = FsoFramework.createLogger( MODULE_NAME );
-        //logger.info( "created new Led for %s".printf( sysfsnode ) );
+        logger.setReprDelegate( this.repr );
+        logger.debug( "ready" );
 
+        var modemtype = config.stringValue( MODULE_NAME, "modem_type", "DummyModem" );
+        assert( modemtype != "DummyModem" ); // dummy modem not implemented yet
+
+        //TODO gather type automatically
+
+        switch ( modemtype )
+        {
+            case "ti_calypso":
+                Type t = Type.from_name( "TiCalypsoModem" );
+                assert( t != Type.INVALID );
+                debug( "type has id %p", (void*)t );
+/*                var typeclass = type.class_ref();
+                debug( "typeclass name is '%s'", type.name() );
+                assert( type.is_interface() );
+                modem = (FsoGsm.Modem) Object.new( Type.from_name( "TiCalypsoModem" ) ); //TiCalypso.Modem();*/
+                break;
+            default:
+                assert_not_reached();
+        }
+    }
+
+    public string repr()
+    {
+        return "<GsmDevice>";
     }
 
 }
