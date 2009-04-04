@@ -260,6 +260,21 @@
 				</return-value>
 			</constructor>
 		</class>
+		<class name="SmartKeyFileSection" parent="GLib.Object" glib:type-name="FsoFrameworkSmartKeyFileSection" glib:get-type="fso_framework_smart_key_file_section_get_type">
+			<method name="openSection" c:identifier="fso_framework_smart_key_file_section_openSection">
+				<parameters>
+					<parameter name="kf">
+						<type name="FsoFramework.SmartKeyFile"/>
+					</parameter>
+					<parameter name="section">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="FsoFramework.SmartKeyFileSection?"/>
+				</return-value>
+			</method>
+		</class>
 		<class name="AbstractSubsystem" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractSubsystem" glib:get-type="fso_framework_abstract_subsystem_get_type">
 			<implements>
 				<interface name="FsoFramework.Subsystem"/>

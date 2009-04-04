@@ -42,6 +42,7 @@ public class FsoFramework.SmartKeyFile : Object
         }
         catch ( Error e )
         {
+            message( "can't load keyfile from '%s': %s".printf( filename, e.message ) );
             return false;
         }
         loaded = true;
@@ -113,5 +114,27 @@ public class FsoFramework.SmartKeyFile : Object
         }
         return list;
     }
+}
 
+/**
+ * SmartKeyFileSection
+ */
+public class FsoFramework.SmartKeyFileSection : Object
+{
+    private FsoFramework.SmartKeyFile kf;
+    private string section;
+
+    private SmartKeyFileSection( FsoFramework.SmartKeyFile kf, string section )
+    {
+        this.kf = kf;
+        this.section = section;
+    }
+
+    public static SmartKeyFileSection? openSection( FsoFramework.SmartKeyFile kf, string section )
+    {
+        if ( kf.hasSection( section ) )
+            return new SmartKeyFileSection( kf, section );
+        else
+            return null;
+    }
 }

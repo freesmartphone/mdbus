@@ -37,13 +37,21 @@ public static SmartKeyFile theMasterKeyFile()
     if ( _masterkeyfile == null )
     {
         _masterkeyfile = new SmartKeyFile();
-        var try0 = "./frameworkd.conf";
-        var try1 = "%s/.frameworkd.conf".printf( Environment.get_home_dir() );
-        var try2 = "/etc/frameworkd.conf";
-        if ( !_masterkeyfile.loadFromFile( try0 ) && !_masterkeyfile.loadFromFile( try1 ) && !_masterkeyfile.loadFromFile( try2 ) )
+
+        string[] locations = { "./frameworkd.conf",
+                               "%s/.frameworkd.conf".printf( Environment.get_home_dir() ),
+                               "/etc/frameworkd.conf" };
+
+        foreach ( var location in locations )
         {
-            warning( "could not load %s nor %s nor %s", try0, try1, try2 );
+            if ( _masterkeyfile.loadFromFile( location ) )
+            {
+                message( "Using framework configuration file at '%s'", location );
+                return _masterkeyfile;
+            }
         }
+        warning( "could not find framework configuration file." );
+        return _masterkeyfile;
     }
     return _masterkeyfile;
 }

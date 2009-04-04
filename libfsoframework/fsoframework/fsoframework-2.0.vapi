@@ -116,6 +116,10 @@ namespace FsoFramework {
 		public GLib.List<string> sectionsWithPrefix (string? prefix = null);
 		public string stringValue (string section, string key, string defaultvalue = "");
 	}
+	[CCode (cheader_filename = "fsoframework/smartkeyfile.h")]
+	public class SmartKeyFileSection : GLib.Object {
+		public static FsoFramework.SmartKeyFileSection? openSection (FsoFramework.SmartKeyFile kf, string section);
+	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public class SyslogLogger : FsoFramework.AbstractLogger {
 		protected override string format (string message, string level);
