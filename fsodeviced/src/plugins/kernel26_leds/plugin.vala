@@ -22,9 +22,6 @@ using GLib;
 namespace Kernel26
 {
 
-static const string SYS_CLASS_LEDS = "/sys/class/leds";
-static const string SYS_CLASS_NET = "/sys/class/net";
-
 class Led : FsoFramework.Device.LED, GLib.Object
 {
     FsoFramework.Subsystem subsystem;
@@ -107,7 +104,7 @@ class Led : FsoFramework.Device.LED, GLib.Object
     {
         initTriggers();
 
-        if ( !FsoFramework.FileHandling.isPresent( "%s/%s".printf( Kernel26.SYS_CLASS_NET, iface ) ) )
+        if ( !FsoFramework.FileHandling.isPresent( "%s/%s".printf( sys_class_net, iface ) ) )
             return;
             //throw new FsoFramework.InvalidParameter( "interface %s not present".printf( iface ) );
 
@@ -127,6 +124,9 @@ if m not in "link rx tx".split():
 
 } /* namespace */
 
+static string sysfs_root;
+static string sys_class_net;
+static string sys_class_leds;
 List<Kernel26.Led> instances;
 
 /**
@@ -137,12 +137,18 @@ List<Kernel26.Led> instances;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
+    // grab sysfs paths
+    var config = FsoFramework.theMasterKeyFile();
+    sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+    sys_class_leds = "%s/class/leds".printf( sysfs_root );
+    sys_class_net = "%s/class/net".printf( sysfs_root );
+
     // scan sysfs path for leds
-    var dir = new Dir( Kernel26.SYS_CLASS_LEDS );
+    var dir = Dir.open( sys_class_leds );
     var entry = dir.read_name();
     while ( entry != null )
     {
-        var filename = Path.build_filename( Kernel26.SYS_CLASS_LEDS, entry );
+        var filename = Path.build_filename( sys_class_leds, entry );
         instances.append( new Kernel26.Led( subsystem, filename ) );
         entry = dir.read_name();
     }
