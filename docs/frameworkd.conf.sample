@@ -1,0 +1,23 @@
+[frameworkd]
+version = 1
+log_level = DEBUG
+log_to = stderr
+log_destination = /tmp/frameworkd.log
+
+#
+# FSO2
+#
+[cornucopia]
+# Use this for development
+#sysfs_root = /mnt/neo/sys
+
+[fsodevice]
+
+[fsodevice.kernel26_leds]
+
+[fsogsm]
+
+[fsogsm.modem_ti_calypso]
+
+[fsogsm.gsm_device]
+
