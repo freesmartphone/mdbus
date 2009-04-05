@@ -24,40 +24,58 @@ namespace GsmDevice { const string MODULE_NAME = "fsogsm.gsm_device"; }
 class GsmDevice.Device : GLib.Object
 {
     FsoFramework.Subsystem subsystem;
-    FsoGsm.Modem modem;
+    static FsoGsm.Modem modem;
     static FsoFramework.Logger logger;
     static FsoFramework.SmartKeyFile config;
 
     static construct
     {
-        logger = FsoFramework.createLogger( MODULE_NAME );
         config = FsoFramework.theMasterKeyFile();
+        logger = FsoFramework.createLogger( MODULE_NAME );
+    }
+
+    static FsoGsm.Modem theModem()
+    {
+        return modem;
     }
 
     public Device( FsoFramework.Subsystem subsystem )
     {
         logger.setReprDelegate( this.repr );
-        logger.debug( "ready" );
-
         var modemtype = config.stringValue( MODULE_NAME, "modem_type", "DummyModem" );
         assert( modemtype != "DummyModem" ); // dummy modem not implemented yet
-
-        //TODO gather type automatically
+        string typename;
 
         switch ( modemtype )
         {
             case "ti_calypso":
-                Type t = Type.from_name( "TiCalypsoModem" );
-                assert( t != Type.INVALID );
-                debug( "type has id %p", (void*)t );
-/*                var typeclass = type.class_ref();
-                debug( "typeclass name is '%s'", type.name() );
-                assert( type.is_interface() );
-                modem = (FsoGsm.Modem) Object.new( Type.from_name( "TiCalypsoModem" ) ); //TiCalypso.Modem();*/
+                typename = "TiCalypsoModem";
+                break;
+            case "qualcomm_msm":
+                typename = "QualcommMsmModem";
+                break;
+            case "freescale_neptune":
+                typename = "FreescaleNeptuneModem";
+                break;
+            case "cinterion_mc75":
+                typename = "CinterionMc75Modem";
                 break;
             default:
-                assert_not_reached();
+                warning( "Invalid modem_type '%s'; corresponding modem plugin loaded?".printf( modemtype ) );
+                return;
         }
+
+        var modemclass = Type.from_name( typename );
+        if ( modemclass == Type.INVALID  )
+        {
+            logger.warning( "Can't find modem for modem_type = '%s'".printf( modemtype ) );
+            return;
+        }
+
+        modem = (FsoGsm.Modem) Object.new( modemclass );
+        logger.info( "Ready. Using modem '%s".printf( modemtype ) );
+
+        // TODO: Register dbus service and object
     }
 
     public string repr()
@@ -84,7 +102,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "yo" );
+    debug( "gsm_device fso_register_function" );
 }
 
 /**
