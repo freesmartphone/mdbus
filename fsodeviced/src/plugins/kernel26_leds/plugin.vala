@@ -31,7 +31,6 @@ class Led : FsoFramework.Device.LED, GLib.Object
     string brightness;
     string trigger;
     string triggers;
-    string netdevs;
 
     static uint counter;
 
@@ -85,6 +84,7 @@ class Led : FsoFramework.Device.LED, GLib.Object
         if ( brightness < 0 )
             brightness = 0;
 
+        FsoFramework.FileHandling.write( "none", this.trigger );
         FsoFramework.FileHandling.write( brightness.to_string(), this.brightness );
     }
 
@@ -92,7 +92,7 @@ class Led : FsoFramework.Device.LED, GLib.Object
     {
         initTriggers();
 //         if ( !( "timer" in triggers ) )
-//             throw new XsoFramework.Device.LedError.UNSUPPORTED( "kernel interface missing" );
+//             throw new FsoFramework.Unsupported( "Kernel interface missing" );
 
         FsoFramework.FileHandling.write( "timer", this.trigger );
         FsoFramework.FileHandling.write( delay_on.to_string(), this.sysfsnode + "/delay_on" );
@@ -106,19 +106,17 @@ class Led : FsoFramework.Device.LED, GLib.Object
 
         if ( !FsoFramework.FileHandling.isPresent( "%s/%s".printf( sys_class_net, iface ) ) )
             return;
-            //throw new FsoFramework.InvalidParameter( "interface %s not present".printf( iface ) );
+            //throw new FsoFramework.InvalidParameter( "Interface '%s' not present".printf( iface ) );
 
-            foreach ( var mode in mode.split( " " ) )
+            foreach ( var element in mode.split( " " ) )
             {
+                if ( element != "link" && element != "rx" && element != "tx" )
+                    return;
+                    //throw new FsoFramework.InvalidParameter( "Element '%s' not allowed.".printf( element ) );
             }
-            /*
-if m not in "link rx tx".split():
-                         raise InvalidParameter( "Mode element %s not known. Available elements are 'link rx tx'" % m )
-# do it
-                         writeToFile( "%s/trigger" % self.node, "netdev" )
-                         writeToFile( "%s/device_name" % self.node, str( interface.strip() ) )
-                         writeToFile( "%s/mode" % self.node, str( mode.strip() ) )
-        */
+            FsoFramework.FileHandling.write( "netdev", this.trigger );
+            FsoFramework.FileHandling.write( iface, this.sysfsnode + "/device_name" );
+            FsoFramework.FileHandling.write( mode, this.sysfsnode + "/mode" );
     }
 }
 
