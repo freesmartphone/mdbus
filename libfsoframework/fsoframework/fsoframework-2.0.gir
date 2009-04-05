@@ -145,6 +145,16 @@
 			<field name="logger">
 				<type name="FsoFramework.Logger"/>
 			</field>
+			<method name="repr" c:identifier="fso_framework_base_object_repr">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.BaseObject"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="string"/>
+				</return-value>
+			</method>
 			<constructor name="new" c:identifier="fso_framework_base_object_new">
 				<parameters>
 				</parameters>

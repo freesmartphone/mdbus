@@ -20,7 +20,7 @@
 /**
  * @class FsoFramework.BaseObject
  **/
-public class FsoFramework.BaseObject : GLib.Object
+public abstract class FsoFramework.AbstractObject : GLib.Object
 {
     protected FsoFramework.SmartKeyFile config;
     protected FsoFramework.Logger logger;
@@ -29,8 +29,11 @@ public class FsoFramework.BaseObject : GLib.Object
     construct
     {
         classname = Type.from_instance( this ).name();
-        logger = FsoFramework.createLogger( classname );
         config = FsoFramework.theMasterKeyFile();
+        logger = FsoFramework.createLogger( classname );
+        logger.setReprDelegate( repr );
     }
+
+    public abstract string repr();
 }
 

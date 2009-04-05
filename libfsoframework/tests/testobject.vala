@@ -20,26 +20,33 @@
 using GLib;
 using FsoFramework;
 
-public class Foo : BaseObject
+public class Foo : AbstractObject
 {
+    public override string repr()
+    {
+        return "<Foo>";
+    }
 }
 
-public class FooBar : BaseObject
+public class FooBar : AbstractObject
 {
+    public override string repr()
+    {
+        return "<FooBar>";
+    }
 }
 
 //===========================================================================
 void test_object_creation()
 //===========================================================================
 {
-    var obj = new BaseObject();
-    assert( obj.classname == "FsoFrameworkBaseObject" );
-
     var foo = new Foo();
     assert( foo.classname == "Foo" );
+    assert( foo.repr() == "<Foo>" );
 
     var foobar = new FooBar();
     assert( foobar.classname == "FooBar" );
+    assert( foobar.repr() == "<FooBar>" );
 }
 
 //===========================================================================

@@ -55,6 +55,7 @@ namespace FsoFramework {
 		protected FsoFramework.SmartKeyFile config;
 		protected FsoFramework.Logger logger;
 		public BaseObject ();
+		public virtual string repr ();
 		public string classname { get; construct; }
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
