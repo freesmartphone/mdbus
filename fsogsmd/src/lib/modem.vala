@@ -23,7 +23,7 @@ public abstract interface FsoGsm.Modem : GLib.Object
     public abstract bool close();
 }
 
-struct FsoGsm.Channel
+public struct FsoGsm.Channel
 {
     public FsoFramework.Transport transport;
     public FsoGsm.CommandQueue queue;
@@ -43,6 +43,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "file:/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
+
+        channels = new HashTable<string, FsoGsm.Channel?>( GLib.str_hash, GLib.str_equal );
 
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
     }

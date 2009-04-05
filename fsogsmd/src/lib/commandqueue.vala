@@ -29,6 +29,7 @@ public struct FsoGsm.Command
 
 public abstract interface FsoGsm.CommandQueue : Object
 {
+    public abstract void enqueue( Command command );
 }
 
 public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
@@ -43,20 +44,32 @@ public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
     {
         q = new Queue<Command?>();
         this.transport = transport;
+        transport.setDelegates( onReadFromTransport, onHupFromTransport );
     }
 
     public void enqueue( Command command )
     {
+        debug( "enqueuing %s", command.command );
         var retriggerWriting = ( q.length == 0 );
         q.push_head( command );
         if ( retriggerWriting )
             writeNextCommand();
     }
 
-    public void writeNextCommand()
+    protected void writeNextCommand()
     {
         var command = q.peek_tail();
         transport.write( command.command, (int)command.command.size() );
+    }
+
+    protected void onReadFromTransport( FsoFramework.Transport transport )
+    {
+        debug( "read from transport" );
+    }
+
+    protected void onHupFromTransport( FsoFramework.Transport transport )
+    {
+        debug( "HUP from transport" );
     }
 
 }

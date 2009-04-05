@@ -35,7 +35,21 @@ class Singleline.Modem : FsoGsm.AbstractModem
 
     public override bool open()
     {
-        //...
+        Channel channel = Channel();
+
+        switch ( modem_transport )
+        {
+            case "serial":
+                channel.transport = new FsoFramework.SerialTransport( modem_port, modem_speed );
+                break;
+            default:
+                assert_not_reached();
+        }
+
+        channel.queue = new BaseCommandQueue( channel.transport );
+
+        channel.queue.enqueue( Command() { command="AT\r\n" } );
+
         return false;
     }
 

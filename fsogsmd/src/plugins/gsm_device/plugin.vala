@@ -69,7 +69,15 @@ class GsmDevice.Device : FsoFramework.AbstractObject
         modem = (FsoGsm.Modem) Object.new( modemclass );
         logger.info( "Ready. Using modem '%s".printf( modemtype ) );
 
+        Idle.add( onInitFromMainloop );
+
         // TODO: Register dbus service and object
+    }
+
+    public bool onInitFromMainloop()
+    {
+        modem.open();
+        return false; // don't call me again
     }
 
     public override string repr()
