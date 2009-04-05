@@ -207,7 +207,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         }
         else
         {
-            error( "request servicename NOT ok" );
+            logger.warning( "can't request request dbus service name '%s'; service already running or not allowed in dbus configuration.".printf( servicename ) );
             return false;
         }
     }
