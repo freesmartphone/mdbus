@@ -30,6 +30,7 @@ libfsogsm_la_VALASOURCES = \
 	atcommands.vala \
 	commandqueue.vala \
 	modem.vala \
+	parser.vala \
 	$(NULL)
 
 libfsogsm_la_SOURCES = \

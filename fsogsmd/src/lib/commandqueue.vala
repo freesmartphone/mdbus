@@ -30,6 +30,8 @@ public struct FsoGsm.Command
 public abstract interface FsoGsm.CommandQueue : Object
 {
     public abstract void enqueue( Command command );
+    public abstract void freeze( bool drain = false );
+    public abstract void thaw();
 }
 
 public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
@@ -37,9 +39,35 @@ public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
     protected Queue<Command?> q;
     protected FsoFramework.Transport transport;
 
-    /**
-     * create new command queue using @a transport.
-     **/
+    protected void writeNextCommand()
+    {
+        debug( "writing next command" );
+        var command = q.peek_tail();
+        if ( !transport.isOpen() )
+        {
+            var ok = transport.open();
+            if ( !ok )
+                error( "can't open transport" );
+        }
+        assert( transport.isOpen() );
+        transport.write( command.command, (int)command.command.size() );
+    }
+
+    protected void onReadFromTransport( FsoFramework.Transport transport )
+    {
+        debug( "read from transport" );
+        //TODO: read from transport, feed to parser, then back
+    }
+
+    protected void onHupFromTransport( FsoFramework.Transport transport )
+    {
+        debug( "HUP from transport" );
+    }
+
+    //=====================================================================//
+    // PUBLIC API
+    //=====================================================================//
+
     public BaseCommandQueue( FsoFramework.Transport transport )
     {
         q = new Queue<Command?>();
@@ -56,20 +84,14 @@ public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
             writeNextCommand();
     }
 
-    protected void writeNextCommand()
+    public void freeze( bool drain = false )
     {
-        var command = q.peek_tail();
-        transport.write( command.command, (int)command.command.size() );
+        assert_not_reached();
     }
 
-    protected void onReadFromTransport( FsoFramework.Transport transport )
+    public void thaw()
     {
-        debug( "read from transport" );
-    }
-
-    protected void onHupFromTransport( FsoFramework.Transport transport )
-    {
-        debug( "HUP from transport" );
+        assert_not_reached();
     }
 
 }
