@@ -5,6 +5,15 @@ namespace FsoFramework {
 	[CCode (cprefix = "FsoFrameworkDevice", lower_case_cprefix = "fso_framework_device_")]
 	namespace Device {
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		[DBus (name = "org.freesmartphone.Device.Display")]
+		public interface Display : GLib.Object {
+			public abstract bool GetBacklightPower ();
+			public abstract int GetBrightness ();
+			public abstract GLib.HashTable<string,GLib.Value?> GetInfo ();
+			public abstract void SetBacklightPower (bool power);
+			public abstract void SetBrightness (int brightness);
+		}
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
 		[DBus (name = "org.freesmartphone.Device.LED")]
 		public interface LED : GLib.Object {
 			public abstract string GetName ();
@@ -12,6 +21,10 @@ namespace FsoFramework {
 			public abstract void SetBrightness (int brightness);
 			public abstract void SetNetworking (string iface, string mode) throws DBus.Error;
 		}
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public const string DisplayServiceFace;
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public const string DisplayServicePath;
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
 		public const string LedServiceFace;
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]

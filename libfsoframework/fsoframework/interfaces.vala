@@ -33,6 +33,10 @@ namespace FsoFramework
         public const string LedServiceFace = ServiceFacePrefix + ".LED";
         public const string LedServicePath = ServicePathPrefix + "/LED";
 
+	 public const string DisplayServiceFace = ServiceFacePrefix + ".Display";
+	 public const string DisplayServicePath = ServicePathPrefix + "/Display";
+
+
         [DBus (name = "org.freesmartphone.Device.LED")]
         public abstract interface LED : GLib.Object
         {
@@ -41,5 +45,15 @@ namespace FsoFramework
             public abstract void SetBlinking( int delay_on, int delay_off ) throws DBus.Error;
             public abstract void SetNetworking( string iface, string mode ) throws DBus.Error;
         }
+
+	 [DBus (name = "org.freesmartphone.Device.Display")]
+	 public abstract interface Display : GLib.Object
+	 {
+	     public abstract void SetBrightness(int brightness);
+	     public abstract int GetBrightness();
+	     public abstract bool GetBacklightPower();
+	     public abstract void SetBacklightPower(bool power);
+	     public abstract HashTable<string, Value?> GetInfo();
+	 }
     }
 }
