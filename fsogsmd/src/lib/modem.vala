@@ -21,13 +21,23 @@ HashTable<string, FsoGsm.Modem> _modems;
 
 public abstract interface FsoGsm.Modem : GLib.Object
 {
+    // TODO: define interface
 }
 
-public class FsoGsm.BaseModem : FsoGsm.Modem, GLib.Object
+public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
 {
-    // read configuration
-    // create necessary amount of transports
-    // create necessary amount of at command queues
+    protected string modem_type;
+    protected string modem_port;
+    protected int modem_speed;
 
-    // init status signals
+    construct
+    {
+        modem_port = config.stringValue( "fsogsm", "modem_port", "file:/dev/null" );
+        modem_speed= config.intValue( "fsogsm", "modem_speed", 115200 );
+    }
+
+    // TODO: create necessary amount of transports
+    // TODO: create necessary amount of at command queues
+
+    // TODO: init status signals
 }

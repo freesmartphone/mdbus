@@ -26,7 +26,7 @@ namespace CinterionMc75
     const string MODULE_NAME = "fsogsm.modem_cinterion_mc75";
 }
 
-class CinterionMc75.Modem : FsoGsm.BaseModem
+class CinterionMc75.Modem : FsoGsm.AbstractModem
 {
     static FsoFramework.Subsystem subsystem;
     static FsoFramework.Logger logger;
@@ -36,6 +36,11 @@ class CinterionMc75.Modem : FsoGsm.BaseModem
         debug( "cinterion_mc75_modem_construct" );
         logger = FsoFramework.createLogger( MODULE_NAME );
         logger.info( "registrating new modem type: CINTERION MC75(i)" );
+    }
+
+    public override string repr()
+    {
+        return "<Cinterion MC 75>";
     }
 
 }

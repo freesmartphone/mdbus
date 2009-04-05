@@ -21,18 +21,10 @@ using GLib;
 
 namespace GsmDevice { const string MODULE_NAME = "fsogsm.gsm_device"; }
 
-class GsmDevice.Device : GLib.Object
+class GsmDevice.Device : FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
     static FsoGsm.Modem modem;
-    static FsoFramework.Logger logger;
-    static FsoFramework.SmartKeyFile config;
-
-    static construct
-    {
-        config = FsoFramework.theMasterKeyFile();
-        logger = FsoFramework.createLogger( MODULE_NAME );
-    }
 
     static FsoGsm.Modem theModem()
     {
@@ -41,8 +33,7 @@ class GsmDevice.Device : GLib.Object
 
     public Device( FsoFramework.Subsystem subsystem )
     {
-        logger.setReprDelegate( this.repr );
-        var modemtype = config.stringValue( MODULE_NAME, "modem_type", "DummyModem" );
+        var modemtype = config.stringValue( "fsogsm", "modem_type", "DummyModem" );
         assert( modemtype != "DummyModem" ); // dummy modem not implemented yet
         string typename;
 
@@ -78,7 +69,7 @@ class GsmDevice.Device : GLib.Object
         // TODO: Register dbus service and object
     }
 
-    public string repr()
+    public override string repr()
     {
         return "<GsmDevice>";
     }

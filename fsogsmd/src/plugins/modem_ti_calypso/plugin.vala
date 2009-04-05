@@ -26,7 +26,7 @@ namespace TiCalypso
     const string MODULE_NAME = "fsogsm.modem_ti_calypso";
 }
 
-class TiCalypso.Modem : FsoGsm.BaseModem
+class TiCalypso.Modem : FsoGsm.AbstractModem
 {
     static FsoFramework.Subsystem subsystem;
     static FsoFramework.Logger logger;
@@ -36,6 +36,11 @@ class TiCalypso.Modem : FsoGsm.BaseModem
         debug( "ti_calypso_modem_construct" );
         logger = FsoFramework.createLogger( MODULE_NAME );
         logger.info( "registrating new modem type: TI CALYPSO" );
+    }
+
+    public override string repr()
+    {
+        return "<Ti Calypso>";
     }
 
 }
