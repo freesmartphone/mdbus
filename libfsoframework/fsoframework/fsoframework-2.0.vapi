@@ -77,9 +77,7 @@ namespace FsoFramework {
 		protected FsoFramework.TransportReadFunc readfunc;
 		protected uint speed;
 		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
-		public void close ();
 		public virtual string getName ();
-		public bool isOpen ();
 		public BaseTransport (string name, uint speed = 0, FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
 		public virtual bool open ();
 		public int read (void* data, int len);
@@ -158,6 +156,10 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework/transport.h")]
 	public interface Transport : GLib.Object {
+		public abstract void close ();
+		public static FsoFramework.Transport? create (string type, string name = "", uint speed = 0);
+		public abstract bool isOpen ();
+		public abstract bool open ();
 		public abstract void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
 		public abstract int write (void* data, int length);
 	}

@@ -38,8 +38,41 @@ public enum FsoFramework.TransportState
 //===========================================================================
 public abstract interface FsoFramework.Transport : Object
 {
-    public abstract int write( void* data, int length );
+    /**
+     * @returns true, if the @a transport is open. False, otherwise.
+     */
+    public abstract bool isOpen();
+    /**
+     * Open the transport. Returns true, if successful. False, otherwise.
+     */
+    public abstract bool open();
+    /**
+     * Set delegates being called when there is something to read or there has been an exception.
+     **/
     public abstract void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc );
+    /**
+     * Write data to the transport. The data may or may not be written immediately.
+     **/
+    public abstract int write( void* data, int length );
+    /**
+     * Close the transport. Closing an already closed transport is allowed.
+     **/
+    public abstract void close();
+    /**
+     * Create @a FsoFramework.Transport as indicated by @a type
+     **/
+    public static Transport? create( string type, string name = "", uint speed = 0 )
+    {
+        switch ( type )
+        {
+            case "serial":
+                return new FsoFramework.SerialTransport( name, speed );
+            case "pty":
+                return new FsoFramework.PtyTransport();
+            default:
+                return null;
+        }
+    }
 }
 
 //===========================================================================
@@ -68,9 +101,10 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
         writewatch = channel.add_watch_full( writepriority, IOCondition.OUT, writeCallback );
     }
 
-    //
-    // public API
-    //
+    //=====================================================================//
+    // PUBLIC API
+    //=====================================================================//
+
     public BaseTransport( string name,
                           uint speed = 0,
                           TransportHupFunc? hupfunc = null,
@@ -163,6 +197,9 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
 
     public int write( void* data, int len )
     {
+        logger.debug( "writing %d bytes".printf( len ) );
+        if ( fd == -1 )
+            warning( "writing although transport still closed; buffering." );
         var restart = ( fd != -1 && buffer.len == 0 );
         var temp = new uint8[len];
         Memory.copy( temp, data, len );

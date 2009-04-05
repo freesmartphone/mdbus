@@ -451,26 +451,6 @@
 					<type name="bool"/>
 				</return-value>
 			</method>
-			<method name="close" c:identifier="fso_framework_base_transport_close">
-				<parameters>
-					<parameter name="self">
-						<type name="FsoFramework.BaseTransport"/>
-					</parameter>
-				</parameters>
-				<return-value>
-					<type name="none"/>
-				</return-value>
-			</method>
-			<method name="isOpen" c:identifier="fso_framework_base_transport_isOpen">
-				<parameters>
-					<parameter name="self">
-						<type name="FsoFramework.BaseTransport"/>
-					</parameter>
-				</parameters>
-				<return-value transfer-ownership="full">
-					<type name="bool"/>
-				</return-value>
-			</method>
 			<method name="repr" c:identifier="fso_framework_base_transport_repr">
 				<parameters>
 					<parameter name="self">
@@ -780,20 +760,24 @@
 			<requires>
 				<object name="GLib.Object"/>
 			</requires>
-			<method name="write" c:identifier="fso_framework_transport_write">
+			<method name="isOpen" c:identifier="fso_framework_transport_isOpen">
 				<parameters>
 					<parameter name="self">
 						<type name="FsoFramework.Transport"/>
 					</parameter>
-					<parameter name="data">
-						<type name="void*"/>
-					</parameter>
-					<parameter name="length">
-						<type name="int"/>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+			<method name="open" c:identifier="fso_framework_transport_open">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Transport"/>
 					</parameter>
 				</parameters>
 				<return-value transfer-ownership="full">
-					<type name="int"/>
+					<type name="bool"/>
 				</return-value>
 			</method>
 			<method name="setDelegates" c:identifier="fso_framework_transport_setDelegates">
@@ -810,6 +794,48 @@
 				</parameters>
 				<return-value>
 					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="write" c:identifier="fso_framework_transport_write">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Transport"/>
+					</parameter>
+					<parameter name="data">
+						<type name="void*"/>
+					</parameter>
+					<parameter name="length">
+						<type name="int"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="int"/>
+				</return-value>
+			</method>
+			<method name="close" c:identifier="fso_framework_transport_close">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Transport"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="create" c:identifier="fso_framework_transport_create">
+				<parameters>
+					<parameter name="type">
+						<type name="string"/>
+					</parameter>
+					<parameter name="name">
+						<type name="string"/>
+					</parameter>
+					<parameter name="speed">
+						<type name="uint"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="FsoFramework.Transport?"/>
 				</return-value>
 			</method>
 		</interface>
