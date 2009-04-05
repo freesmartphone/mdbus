@@ -144,7 +144,7 @@ public class FsoFramework.BaseSubsystem : FsoFramework.AbstractSubsystem
 }
 
 /**
- * subsystem query interface
+ * Subsystem query interface
  */
 [DBus (name = "org.freesmartphone.DBus.Objects")]
 public abstract interface DBusObjects

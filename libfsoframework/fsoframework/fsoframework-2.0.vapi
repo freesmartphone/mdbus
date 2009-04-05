@@ -50,6 +50,13 @@ namespace FsoFramework {
 		public virtual bool registerServiceName (string servicename);
 		public virtual bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
+	[CCode (cheader_filename = "fsoframework/object.h")]
+	public class BaseObject : GLib.Object {
+		protected FsoFramework.SmartKeyFile config;
+		protected FsoFramework.Logger logger;
+		public BaseObject ();
+		public string classname { get; construct; }
+	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.TypeModule {
 		public override bool load ();

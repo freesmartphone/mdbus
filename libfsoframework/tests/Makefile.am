@@ -150,6 +150,18 @@ $(testutilities_SOURCES): $(testutilities_VALASOURCES)
 testutilities_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testutilities_VALASOURCES)
 
+#
+# object test
+#
+TEST_PROGS += testobject
+testobject_VALASOURCES = testobject.vala
+testobject_SOURCES = testobject.c testobject.h
+$(testobject_SOURCES): $(testobject_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testobject_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testobject_VALASOURCES)
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \

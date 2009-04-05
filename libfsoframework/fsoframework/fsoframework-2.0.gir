@@ -2,6 +2,7 @@
 <repository version="1.0" xmlns="http://www.gtk.org/introspection/core/1.0" xmlns:c="http://www.gtk.org/introspection/c/1.0" xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
 	<c:include name="fsoframework/subsystem.h"/>
 	<c:include name="fsoframework/plugin.h"/>
+	<c:include name="fsoframework/object.h"/>
 	<c:include name="fsoframework/interfaces.h"/>
 	<c:include name="fsoframework/common.h"/>
 	<c:include name="fsoframework/logger.h"/>
@@ -136,6 +137,24 @@
 					<type name="FsoFramework.SyslogLogger"/>
 				</return-value>
 			</constructor>
+		</class>
+		<class name="BaseObject" parent="GLib.Object" glib:type-name="FsoFrameworkBaseObject" glib:get-type="fso_framework_base_object_get_type">
+			<field name="config">
+				<type name="FsoFramework.SmartKeyFile"/>
+			</field>
+			<field name="logger">
+				<type name="FsoFramework.Logger"/>
+			</field>
+			<constructor name="new" c:identifier="fso_framework_base_object_new">
+				<parameters>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.BaseObject"/>
+				</return-value>
+			</constructor>
+			<property name="classname" readable="1" writable="1">
+				<type name="string"/>
+			</property>
 		</class>
 		<class name="BasePlugin" parent="GLib.TypeModule" glib:type-name="FsoFrameworkBasePlugin" glib:get-type="fso_framework_base_plugin_get_type">
 			<implements>
