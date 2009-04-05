@@ -43,20 +43,19 @@ namespace FsoFramework {
 		public static GLib.LogLevelFlags stringToLevel (string level);
 		protected virtual void write (string message);
 	}
+	[CCode (cheader_filename = "fsoframework/object.h")]
+	public abstract class AbstractObject : GLib.Object {
+		protected FsoFramework.SmartKeyFile config;
+		protected FsoFramework.Logger logger;
+		public abstract string repr ();
+		public string classname { get; construct; }
+	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public abstract class AbstractSubsystem : FsoFramework.Subsystem, GLib.Object {
 		protected FsoFramework.Logger logger;
 		public AbstractSubsystem (string name);
 		public virtual bool registerServiceName (string servicename);
 		public virtual bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
-	}
-	[CCode (cheader_filename = "fsoframework/object.h")]
-	public class BaseObject : GLib.Object {
-		protected FsoFramework.SmartKeyFile config;
-		protected FsoFramework.Logger logger;
-		public BaseObject ();
-		public virtual string repr ();
-		public string classname { get; construct; }
 	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.TypeModule {
@@ -86,7 +85,6 @@ namespace FsoFramework {
 		public int read (void* data, int len);
 		public virtual string repr ();
 		protected void restartWriter ();
-		public void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
 		public bool writeCallback (GLib.IOChannel source, GLib.IOCondition condition);
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
@@ -160,6 +158,7 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework/transport.h")]
 	public interface Transport : GLib.Object {
+		public abstract void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
 		public abstract int write (void* data, int length);
 	}
 	[CCode (type_id = "FSO_FRAMEWORK_TYPE_PLUGIN_INFO", cheader_filename = "fsoframework/plugin.h")]

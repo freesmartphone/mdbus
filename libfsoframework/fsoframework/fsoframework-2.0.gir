@@ -138,30 +138,23 @@
 				</return-value>
 			</constructor>
 		</class>
-		<class name="BaseObject" parent="GLib.Object" glib:type-name="FsoFrameworkBaseObject" glib:get-type="fso_framework_base_object_get_type">
+		<class name="AbstractObject" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractObject" glib:get-type="fso_framework_abstract_object_get_type">
 			<field name="config">
 				<type name="FsoFramework.SmartKeyFile"/>
 			</field>
 			<field name="logger">
 				<type name="FsoFramework.Logger"/>
 			</field>
-			<method name="repr" c:identifier="fso_framework_base_object_repr">
+			<method name="repr" c:identifier="fso_framework_abstract_object_repr">
 				<parameters>
 					<parameter name="self">
-						<type name="FsoFramework.BaseObject"/>
+						<type name="FsoFramework.AbstractObject"/>
 					</parameter>
 				</parameters>
 				<return-value transfer-ownership="full">
 					<type name="string"/>
 				</return-value>
 			</method>
-			<constructor name="new" c:identifier="fso_framework_base_object_new">
-				<parameters>
-				</parameters>
-				<return-value>
-					<type name="FsoFramework.BaseObject"/>
-				</return-value>
-			</constructor>
 			<property name="classname" readable="1" writable="1">
 				<type name="string"/>
 			</property>
@@ -488,22 +481,6 @@
 					<type name="string"/>
 				</return-value>
 			</method>
-			<method name="setDelegates" c:identifier="fso_framework_base_transport_setDelegates">
-				<parameters>
-					<parameter name="self">
-						<type name="FsoFramework.BaseTransport"/>
-					</parameter>
-					<parameter name="readfunc">
-						<type name="FsoFramework.TransportReadFunc?"/>
-					</parameter>
-					<parameter name="hupfunc">
-						<type name="FsoFramework.TransportHupFunc?"/>
-					</parameter>
-				</parameters>
-				<return-value>
-					<type name="none"/>
-				</return-value>
-			</method>
 			<method name="read" c:identifier="fso_framework_base_transport_read">
 				<parameters>
 					<parameter name="self">
@@ -817,6 +794,22 @@
 				</parameters>
 				<return-value transfer-ownership="full">
 					<type name="int"/>
+				</return-value>
+			</method>
+			<method name="setDelegates" c:identifier="fso_framework_transport_setDelegates">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Transport"/>
+					</parameter>
+					<parameter name="readfunc">
+						<type name="FsoFramework.TransportReadFunc?"/>
+					</parameter>
+					<parameter name="hupfunc">
+						<type name="FsoFramework.TransportHupFunc?"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
 				</return-value>
 			</method>
 		</interface>

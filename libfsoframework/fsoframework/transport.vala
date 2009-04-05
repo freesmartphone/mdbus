@@ -39,6 +39,7 @@ public enum FsoFramework.TransportState
 public abstract interface FsoFramework.Transport : Object
 {
     public abstract int write( void* data, int length );
+    public abstract void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc );
 }
 
 //===========================================================================
