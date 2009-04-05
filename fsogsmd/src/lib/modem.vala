@@ -17,27 +17,48 @@
  *
  */
 
-HashTable<string, FsoGsm.Modem> _modems;
-
 public abstract interface FsoGsm.Modem : GLib.Object
 {
-    // TODO: define interface
+    public abstract bool open();
+    public abstract bool close();
+}
+
+struct FsoGsm.Channel
+{
+    public FsoFramework.Transport transport;
+    public FsoGsm.CommandQueue queue;
 }
 
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
 {
     protected string modem_type;
+    protected string modem_transport;
     protected string modem_port;
     protected int modem_speed;
 
+    HashTable<string, FsoGsm.Channel?> channels;
+
     construct
     {
+        modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "file:/dev/null" );
-        modem_speed= config.intValue( "fsogsm", "modem_speed", 115200 );
+        modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
+
+        logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
     }
 
     // TODO: create necessary amount of transports
     // TODO: create necessary amount of at command queues
 
     // TODO: init status signals
+
+    public virtual bool open()
+    {
+        return false;
+    }
+
+    public virtual bool close()
+    {
+        return false;
+    }
 }

@@ -54,6 +54,7 @@ AC_CONFIG_FILES([
   src/plugins/Makefile
   src/plugins/gsm_device/Makefile
   src/plugins/modem_cinterion_mc75/Makefile
+  src/plugins/modem_singleline/Makefile
   src/plugins/modem_ti_calypso/Makefile
   tests/Makefile
 ])

@@ -39,6 +39,9 @@ class GsmDevice.Device : FsoFramework.AbstractObject
 
         switch ( modemtype )
         {
+            case "singleline":
+                typename = "SinglelineModem";
+                break;
             case "ti_calypso":
                 typename = "TiCalypsoModem";
                 break;
