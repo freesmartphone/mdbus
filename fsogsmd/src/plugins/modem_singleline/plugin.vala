@@ -55,14 +55,14 @@ class Singleline.Modem : FsoGsm.AbstractModem
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "calypso fso_factory_function" );
+    debug( "singleline fso_factory_function" );
     return "fsogsmd.modem_singleline";
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "calypso fso_register_function" );
+    debug( "singleline fso_register_function" );
     // do not remove this function
 }
 

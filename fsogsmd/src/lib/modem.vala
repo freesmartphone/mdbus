@@ -21,6 +21,8 @@ public abstract interface FsoGsm.Modem : GLib.Object
 {
     public abstract bool open();
     public abstract bool close();
+
+    public abstract FsoGsm.AtCommand atCommandFactory( string command );
 }
 
 public struct FsoGsm.Channel
@@ -36,7 +38,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected string modem_port;
     protected int modem_speed;
 
-    HashTable<string, FsoGsm.Channel?> channels;
+    GLib.HashTable<string, FsoGsm.Channel?> channels;
+    GLib.HashTable<string, FsoGsm.AtCommand> commands;
 
     construct
     {
@@ -46,6 +49,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         channels = new HashTable<string, FsoGsm.Channel?>( GLib.str_hash, GLib.str_equal );
 
+        registerAtCommands();
+
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
     }
 
@@ -53,6 +58,29 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     // TODO: create necessary amount of at command queues
 
     // TODO: init status signals
+
+
+    public AtCommand atCommandFactory( string command )
+    {
+        var cmd = commands.lookup( command );
+        assert( cmd != null );
+        return cmd;
+    }
+
+    protected void registerAtCommands()
+    {
+        commands = new HashTable<string, FsoGsm.AtCommand>( GLib.str_hash, GLib.str_equal );
+        registerGenericAtCommands( commands );
+        registerCustomAtCommands( commands );
+    }
+
+    /**
+     * Override this to register additional AT commands specific to your modem or
+     * override generic AT commands with modme-specific versions.
+     **/
+    protected virtual void registerCustomAtCommands( HashTable<string, FsoGsm.AtCommand> commands )
+    {
+    }
 
     public virtual bool open()
     {

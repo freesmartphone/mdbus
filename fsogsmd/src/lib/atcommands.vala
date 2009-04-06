@@ -1,18 +1,33 @@
+/**
+ * Copyright (C) 2009 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+ *
+ */
 namespace FsoGsm
 {
 
 public class PlusCGMM : AtCommand
 {
-    // declare instance vars
     public string model;
 
-    // construction
     public PlusCGMM()
     {
         re = new Regex( """(\+CGMM:\ )?"?(?P<model>[^"]*)"?""" );
     }
 
-    // parse
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
@@ -23,20 +38,16 @@ public class PlusCGMM : AtCommand
 
 public class PlusCGMI : AtCommand
 {
-    // declare instance vars
     public string manufacturer;
 
-    // construction
     public PlusCGMI()
     {
         re = new Regex( """(\+CGMI:\ )?"?(?P<manufacturer>[^"]*)"?""" );
     }
 
-    // parse
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        // populate instance vars
         manufacturer = to_string( "manufacturer" );
     }
 }
@@ -55,6 +66,7 @@ public class PlusCOPS_Test : AtCommand
     public PlusCOPS_Test()
     {
         re = new Regex( """\((?<status>\d),"(?P<longname>[^"]*)","(?P<shortname>[^"]*)","(?P<mccmnc>[^"]*)"\)""" );
+        prefix = { "+COPS: " };
     }
 
     public override void parse( string response ) throws AtCommandError
@@ -71,85 +83,115 @@ public class PlusCOPS_Test : AtCommand
         }
         while ( mi.next() );
     }
+
+    public string issue()
+    {
+        return "+COPS=?";
+    }
 }
 
 public class PlusCPIN : AtCommand
 {
-    // declare instance vars
     public string pin;
 
-    // construction
     public PlusCPIN()
     {
         re = new Regex( """\+CPIN:\ "?(?P<pin>[^"]*)"?""" );
+        prefix = { "+CPIN: " };
     }
 
-    // parse
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        // populate instance vars
         pin = to_string( "pin" );
+    }
+
+    public string issue( string pin, string? new_pin = null )
+    {
+        if ( new_pin == null )
+            return "+CPIN=\"%s\"".printf( pin );
+        else
+            return "+CPIN=\"%s\",\"%s\"".printf( pin, new_pin );
+    }
+
+    public string query()
+    {
+        return "+COPS?";
     }
 }
 
 public class PlusFCLASS : AtCommand
 {
-    // declare instance vars
     public string faxclass;
 
-    // construction
     public PlusFCLASS()
     {
         re = new Regex( """"?(?P<faxclass>[^"]*)"?""" );
     }
 
-    // parse
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        // populate instance vars
         faxclass = to_string( "faxclass" );
+    }
+
+    public string query()
+    {
+        return "+FCLASS?";
     }
 }
 
 public class PlusCGCLASS : AtCommand
 {
-    // declare instance vars
     public string gprsclass;
 
-    // construction
     public PlusCGCLASS()
     {
         re = new Regex( """\+CGCLASS:\ "?(?P<gprsclass>[^"]*)"?""" );
+        prefix = { "+CGCLASS: " };
     }
 
-    // parse
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        // populate instance vars
         gprsclass = to_string( "gprsclass" );
+    }
+
+    public string query()
+    {
+        return "+CGCLASS?";
     }
 }
 
 public class PlusCFUN : AtCommand
 {
-    // declare instance vars
     public int fun;
 
-    // construction
     public PlusCFUN()
     {
         re = new Regex( """\+CFUN:\ (?P<fun>\d)""" );
+        prefix = { "+CFUN: " };
     }
 
-    // parse
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        // populate instance vars
         fun = to_int( "fun" );
+    }
+
+    public string issue( int fun )
+    {
+        return "+CFUN=%d".printf( fun );
+    }
+
+    public string query()
+    {
+        return "+CFUN?";
+    }
+
+    public string test()
+    {
+        return "+CFUN=?";
     }
 }
 
@@ -162,6 +204,7 @@ public class PlusCOPS : AtCommand
     public PlusCOPS()
     {
         re = new Regex( """\+COPS:\ (?P<status>\d)(,(?P<mode>\d)?(,"(?P<oper>[^"]*)")?)?""" );
+        prefix = { "+COPS: " };
     }
 
     public override void parse( string response ) throws AtCommandError
@@ -171,49 +214,64 @@ public class PlusCOPS : AtCommand
         mode = to_int( "mode" );
         oper = to_string( "oper" );
     }
+
+    public string issue( int mode, int format, int oper = 0 )
+    {
+        if ( oper == 0 )
+            return "+CFUN=%d,%d".printf( mode, format );
+        else
+            return "+CFUN=%d,%d,\"%d\"".printf( mode, format, oper );
+    }
+
+    public string query()
+    {
+        return "+COPS?";
+    }
 }
 
 public class PlusCGSN : AtCommand
 {
-    // declare instance vars
     public string imei;
 
-    // construction
     public PlusCGSN()
     {
         re = new Regex( """(\+CGSN:\ )?"?(?P<imei>[^"]*)"?""" );
     }
 
-    // parse
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        // populate instance vars
         imei = to_string( "imei" );
+    }
+
+    public string query()
+    {
+        return "+CGSN";
     }
 }
 
 public class PlusCGMR : AtCommand
 {
-    // declare instance vars
     public string revision;
 
-    // construction
     public PlusCGMR()
     {
         re = new Regex( """(\+CGMR:\ )?"?(?P<revision>[^"]*)"?""" );
     }
 
-    // parse
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        // populate instance vars
         revision = to_string( "revision" );
+    }
+
+    public string query()
+    {
+        return "+CGMR";
     }
 }
 
-public void registerGeneratedAtCommands( GLib.HashTable<string, AtCommand> table )
+public void registerGenericAtCommands( GLib.HashTable<string, AtCommand> table )
 {
     // register commands
     table.insert( "PlusCGMM",           new FsoGsm.PlusCGMM() );
@@ -226,7 +284,6 @@ public void registerGeneratedAtCommands( GLib.HashTable<string, AtCommand> table
     table.insert( "PlusCOPS",           new FsoGsm.PlusCOPS() );
     table.insert( "PlusCGSN",           new FsoGsm.PlusCGSN() );
     table.insert( "PlusCGMR",           new FsoGsm.PlusCGMR() );
-
 }
 
 } /* namespace FsoGsm */

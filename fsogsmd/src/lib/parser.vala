@@ -132,6 +132,9 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
         return State.INVALID;
     }
 
+    //
+    // Here comes the states
+    //
     public State start( char c )
     {
         switch (c)
@@ -178,6 +181,9 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
         return State.INVALID;
     }
 
+    //
+    // Here comes the type of line computation on end of line
+    //
     public State endofline()
     {
         curline += 0x0; // we want to treat it as a string
@@ -195,6 +201,7 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
     public State endoflinePerhapsSolicited()
     {
+        debug( "endoflinePerhapsSolicited" );
         if ( isFinalResponse() )
         {
             return endoflineSurelySolicited();
@@ -219,6 +226,7 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
     public State endoflineSurelySolicited()
     {
+        debug( "endoflineSurelySolicited" );
         solicited += (string)curline;
 
         debug( "is final response. solicited response with %d lines", solicited.length );
@@ -228,6 +236,7 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
     public State endoflineSurelyUnsolicited()
     {
+        debug( "endoflineSurelyUnsolicited" );
         unsolicited += (string)curline;
 
         if ( pendingPDU )
@@ -281,6 +290,5 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
         }
         return state;
     }
-
 }
 

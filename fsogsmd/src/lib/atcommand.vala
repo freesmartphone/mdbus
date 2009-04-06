@@ -17,18 +17,16 @@
  *
  */
 
-public errordomain AtCommandError
+public errordomain FsoGsm.AtCommandError
 {
     UNABLE_TO_PARSE,
 }
 
-namespace FsoGsm
-{
-
-public abstract class AtCommand : GLib.Object
+public abstract class FsoGsm.AtCommand : GLib.Object
 {
     protected Regex re;
     protected MatchInfo mi;
+    protected string[] prefix;
 
     public virtual void parse( string response ) throws AtCommandError
     {
@@ -52,24 +50,16 @@ public abstract class AtCommand : GLib.Object
             return -1; // indicates parameter not present
         return res.to_int();
     }
+
+    public bool is_valid_prefix( string line )
+    {
+        if ( prefix == null ) // free format
+            return true;
+        for ( int i = 0; i < prefix.length; ++i )
+        {
+            if ( line.has_prefix( prefix[i] ) )
+                return true;
+        }
+        return false;
+    }
 }
-
-static GLib.HashTable<string, AtCommand> _commandTable;
-
-public AtCommand atCommandFactory( string command )
-{
-    if ( _commandTable == null )
-        registerAtCommands();
-    assert( _commandTable != null );
-    var cmd = _commandTable.lookup( command );
-    assert( cmd != null );
-    return cmd;
-}
-
-public void registerAtCommands()
-{
-    _commandTable = new GLib.HashTable<string, AtCommand>( GLib.str_hash, GLib.str_equal );
-    registerGeneratedAtCommands( _commandTable );
-}
-
-} /* namespace FsoGsm */
