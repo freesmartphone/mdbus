@@ -16,6 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
  */
+
+/**
+ * This file contains AT command specifications defined the official 3GPP GSM
+ * specifications, such as 05.05 and 07.07.
+ *
+ * Do _not_ add vendor-specific commands here, instead add them to your modem plugin.
+ **/
+
 namespace FsoGsm
 {
 

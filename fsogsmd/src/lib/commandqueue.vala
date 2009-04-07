@@ -19,7 +19,7 @@
 
 using GLib;
 
-public delegate void FsoGsm.ResponseHandler( string response );
+public delegate void FsoGsm.ResponseHandler( FsoGsm.AtCommand command, string response );
 
 public struct FsoGsm.Command
 {

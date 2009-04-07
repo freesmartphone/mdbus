@@ -29,6 +29,8 @@ libfsogsm_la_VALASOURCES = \
 	atcommand.vala \
 	atcommands.vala \
 	commandqueue.vala \
+	mediator.vala \
+	mediators.vala \
 	modem.vala \
 	parser.vala \
 	$(NULL)

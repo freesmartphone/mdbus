@@ -17,6 +17,10 @@
  *
  */
 
+/**
+ * AT Command Interface and Base Class
+ **/
+
 public errordomain FsoGsm.AtCommandError
 {
     UNABLE_TO_PARSE,

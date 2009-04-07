@@ -17,6 +17,8 @@
  *
  */
 
+namespace FsoGsm { FsoGsm.Modem theModem; }
+
 public abstract interface FsoGsm.Modem : GLib.Object
 {
     public abstract bool open();
@@ -43,6 +45,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     construct
     {
+        // only one modem allowed per process
+        assert( FsoGsm.theModem == null );
+        FsoGsm.theModem = this;
+
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "file:/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
@@ -82,6 +88,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
     }
 
+    /**
+     * Override this to populate modem setup sequences specific to your modem.
+     **/
+    protected virtual void populateModemSetupCommands( HashTable<string, FsoGsm.AtCommand> commands )
+    {
+    }
+
     public virtual bool open()
     {
         return false;
@@ -91,4 +104,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         return false;
     }
+}
+
+public abstract class FsoGsm.AbstractGsmModem : FsoGsm.AbstractModem
+{
+    protected override void populateModemSetupCommands( HashTable<string, FsoGsm.AtCommand> commands )
+    {
+    }
+}
+
+public abstract class FsoGsm.AbstractCdmaModem : FsoGsm.AbstractModem
+{
 }
