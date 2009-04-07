@@ -40,7 +40,7 @@ AtCommand atCommandFactory( string command )
 void test_atcommand_PlusCFUN()
 //===========================================================================
 {
-    FsoGsm.PlusCFUN cmd = (FsoGsm.PlusCFUN) atCommandFactory( "PlusCFUN" );
+    FsoGsm.PlusCFUN cmd = (FsoGsm.PlusCFUN) atCommandFactory( "+CFUN" );
     cmd.parse( "+CFUN: 0" );
     assert( cmd.fun == 0 );
 
@@ -61,7 +61,7 @@ void test_atcommand_PlusCFUN()
 void test_atcommand_PlusCGCLASS()
 //===========================================================================
 {
-    FsoGsm.PlusCGCLASS cmd = (FsoGsm.PlusCGCLASS) atCommandFactory( "PlusCGCLASS" );
+    FsoGsm.PlusCGCLASS cmd = (FsoGsm.PlusCGCLASS) atCommandFactory( "+CGCLASS" );
 
     cmd.parse( "+CGCLASS: \"A\"" );
     assert( cmd.gprsclass == "A" );
@@ -83,7 +83,7 @@ void test_atcommand_PlusCGCLASS()
 void test_atcommand_PlusCGMI()
 //===========================================================================
 {
-    FsoGsm.PlusCGMI cmd = (FsoGsm.PlusCGMI) atCommandFactory( "PlusCGMI" );
+    FsoGsm.PlusCGMI cmd = (FsoGsm.PlusCGMI) atCommandFactory( "+CGMI" );
 
     cmd.parse( "+CGMI: FIC/OpenMoko" );
     assert( cmd.manufacturer == "FIC/OpenMoko" );
@@ -99,7 +99,7 @@ void test_atcommand_PlusCGMI()
 void test_atcommand_PlusCGMM()
 //===========================================================================
 {
-    FsoGsm.PlusCGMM cmd = (FsoGsm.PlusCGMM) atCommandFactory( "PlusCGMM" );
+    FsoGsm.PlusCGMM cmd = (FsoGsm.PlusCGMM) atCommandFactory( "+CGMM" );
 
     cmd.parse( "+CGMM: \"Neo1973 GTA01/GTA02 Embedded GSM Modem\"" );
     assert( cmd.model == "Neo1973 GTA01/GTA02 Embedded GSM Modem" );
@@ -115,7 +115,7 @@ void test_atcommand_PlusCGMM()
 void test_atcommand_PlusCGMR()
 //===========================================================================
 {
-    FsoGsm.PlusCGMR cmd = (FsoGsm.PlusCGMR) atCommandFactory( "PlusCGMR" );
+    FsoGsm.PlusCGMR cmd = (FsoGsm.PlusCGMR) atCommandFactory( "+CGMR" );
 
     cmd.parse( "+CGMR: \"GSM: gsm_ac_gp_fd_pu_em_cph_ds_vc_cal35_ri_36_amd8_ts0-Moko11b1\"" );
     assert( cmd.revision == "GSM: gsm_ac_gp_fd_pu_em_cph_ds_vc_cal35_ri_36_amd8_ts0-Moko11b1" );
@@ -131,7 +131,7 @@ void test_atcommand_PlusCGMR()
 void test_atcommand_PlusCGSN()
 //===========================================================================
 {
-    FsoGsm.PlusCGSN cmd = (FsoGsm.PlusCGSN) atCommandFactory( "PlusCGSN" );
+    FsoGsm.PlusCGSN cmd = (FsoGsm.PlusCGSN) atCommandFactory( "+CGSN" );
     cmd.parse( "+CGSN: 1234567890" );
     assert( cmd.imei == "1234567890" );
 
@@ -146,7 +146,7 @@ void test_atcommand_PlusCGSN()
 void test_atcommand_PlusCOPS()
 //===========================================================================
 {
-    FsoGsm.PlusCOPS cmd = (FsoGsm.PlusCOPS) atCommandFactory( "PlusCOPS" );
+    FsoGsm.PlusCOPS cmd = (FsoGsm.PlusCOPS) atCommandFactory( "+COPS" );
     cmd.parse( "+COPS: 2" );
     assert( cmd.status == 2 );
     assert( cmd.mode == -1 ); // not present
@@ -162,7 +162,7 @@ void test_atcommand_PlusCOPS()
 void test_atcommand_PlusCOPS_Test()
 //===========================================================================
 {
-    FsoGsm.PlusCOPS_Test cmd = (FsoGsm.PlusCOPS_Test) atCommandFactory( "PlusCOPS_Test" );
+    FsoGsm.PlusCOPS_Test cmd = (FsoGsm.PlusCOPS_Test) atCommandFactory( "+COPS=?" );
 
     cmd.parse( """+COPS: (2,"E-Plus","E-Plus","26203"),(3,"Vodafone.de","Vodafone","26202"),(3,"T-Mobile D","TMO D","26201")""" );
 
@@ -188,7 +188,7 @@ void test_atcommand_PlusCOPS_Test()
 void test_atcommand_PlusCPIN()
 //===========================================================================
 {
-    FsoGsm.PlusCPIN cmd = (FsoGsm.PlusCPIN) atCommandFactory( "PlusCPIN" );
+    FsoGsm.PlusCPIN cmd = (FsoGsm.PlusCPIN) atCommandFactory( "+CPIN" );
     cmd.parse( "+CPIN: \"SIM PIN\"" );
     assert( cmd.pin == "SIM PIN" );
     cmd.parse( "+CPIN: READY" );
@@ -207,7 +207,7 @@ void test_atcommand_PlusCPIN()
 void test_atcommand_PlusFCLASS()
 //===========================================================================
 {
-    FsoGsm.PlusFCLASS cmd = (FsoGsm.PlusFCLASS) atCommandFactory( "PlusFCLASS" );
+    FsoGsm.PlusFCLASS cmd = (FsoGsm.PlusFCLASS) atCommandFactory( "+FCLASS" );
     cmd.parse( "0" );
     assert( cmd.faxclass == "0" );
     cmd.parse( "2.0" );

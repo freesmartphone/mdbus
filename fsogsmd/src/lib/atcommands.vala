@@ -27,7 +27,7 @@
 namespace FsoGsm
 {
 
-public class PlusCGMM : AtCommand
+public class PlusCGMM : AbstractAtCommand
 {
     public string model;
 
@@ -39,12 +39,16 @@ public class PlusCGMM : AtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        // populate instance vars
         model = to_string( "model" );
+    }
+
+    public string query()
+    {
+        return "+CGMM";
     }
 }
 
-public class PlusCGMI : AtCommand
+public class PlusCGMI : AbstractAtCommand
 {
     public string manufacturer;
 
@@ -58,9 +62,14 @@ public class PlusCGMI : AtCommand
         base.parse( response );
         manufacturer = to_string( "manufacturer" );
     }
+
+    public string query()
+    {
+        return "+CGMI";
+    }
 }
 
-public class PlusCOPS_Test : AtCommand
+public class PlusCOPS_Test : AbstractAtCommand
 {
     public struct Info
     {
@@ -98,7 +107,7 @@ public class PlusCOPS_Test : AtCommand
     }
 }
 
-public class PlusCPIN : AtCommand
+public class PlusCPIN : AbstractAtCommand
 {
     public string pin;
 
@@ -128,7 +137,7 @@ public class PlusCPIN : AtCommand
     }
 }
 
-public class PlusFCLASS : AtCommand
+public class PlusFCLASS : AbstractAtCommand
 {
     public string faxclass;
 
@@ -149,7 +158,7 @@ public class PlusFCLASS : AtCommand
     }
 }
 
-public class PlusCGCLASS : AtCommand
+public class PlusCGCLASS : AbstractAtCommand
 {
     public string gprsclass;
 
@@ -171,7 +180,7 @@ public class PlusCGCLASS : AtCommand
     }
 }
 
-public class PlusCFUN : AtCommand
+public class PlusCFUN : AbstractAtCommand
 {
     public int fun;
 
@@ -203,7 +212,7 @@ public class PlusCFUN : AtCommand
     }
 }
 
-public class PlusCOPS : AtCommand
+public class PlusCOPS : AbstractAtCommand
 {
     public int status;
     public int mode;
@@ -237,7 +246,7 @@ public class PlusCOPS : AtCommand
     }
 }
 
-public class PlusCGSN : AtCommand
+public class PlusCGSN : AbstractAtCommand
 {
     public string imei;
 
@@ -258,7 +267,7 @@ public class PlusCGSN : AtCommand
     }
 }
 
-public class PlusCGMR : AtCommand
+public class PlusCGMR : AbstractAtCommand
 {
     public string revision;
 
@@ -282,16 +291,16 @@ public class PlusCGMR : AtCommand
 public void registerGenericAtCommands( GLib.HashTable<string, AtCommand> table )
 {
     // register commands
-    table.insert( "PlusCGMM",           new FsoGsm.PlusCGMM() );
-    table.insert( "PlusCGMI",           new FsoGsm.PlusCGMI() );
-    table.insert( "PlusCOPS_Test",      new FsoGsm.PlusCOPS_Test() );
-    table.insert( "PlusCPIN",           new FsoGsm.PlusCPIN() );
-    table.insert( "PlusFCLASS",         new FsoGsm.PlusFCLASS() );
-    table.insert( "PlusCGCLASS",        new FsoGsm.PlusCGCLASS() );
-    table.insert( "PlusCFUN",           new FsoGsm.PlusCFUN() );
-    table.insert( "PlusCOPS",           new FsoGsm.PlusCOPS() );
-    table.insert( "PlusCGSN",           new FsoGsm.PlusCGSN() );
-    table.insert( "PlusCGMR",           new FsoGsm.PlusCGMR() );
+    table.insert( "+CGMM",           new FsoGsm.PlusCGMM() );
+    table.insert( "+CGMI",           new FsoGsm.PlusCGMI() );
+    table.insert( "+COPS=?",         new FsoGsm.PlusCOPS_Test() );
+    table.insert( "+CPIN",           new FsoGsm.PlusCPIN() );
+    table.insert( "+FCLASS",         new FsoGsm.PlusFCLASS() );
+    table.insert( "+CGCLASS",        new FsoGsm.PlusCGCLASS() );
+    table.insert( "+CFUN",           new FsoGsm.PlusCFUN() );
+    table.insert( "+COPS",           new FsoGsm.PlusCOPS() );
+    table.insert( "+CGSN",           new FsoGsm.PlusCGSN() );
+    table.insert( "+CGMR",           new FsoGsm.PlusCGMR() );
 }
 
 } /* namespace FsoGsm */

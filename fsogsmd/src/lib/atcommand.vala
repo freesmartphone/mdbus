@@ -18,7 +18,12 @@
  */
 
 /**
- * AT Command Interface and Base Class
+ * AT Command Interface and Abstract Base Class.
+ *
+ * The AtCommand class encapsulate generation and parsing of every kind of AT
+ * command strings. To generate a command, use issue() or query(). The response
+ * is to be fed into the parse() method. At commands are parsed using regular
+ * expressions. The resulting fields are then picked into member variables.
  **/
 
 public errordomain FsoGsm.AtCommandError
@@ -26,7 +31,13 @@ public errordomain FsoGsm.AtCommandError
     UNABLE_TO_PARSE,
 }
 
-public abstract class FsoGsm.AtCommand : GLib.Object
+public abstract interface FsoGsm.AtCommand : GLib.Object
+{
+    public abstract void parse( string response ) throws AtCommandError;
+    public abstract bool is_valid_prefix( string line );
+}
+
+public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
 {
     protected Regex re;
     protected MatchInfo mi;
@@ -41,13 +52,13 @@ public abstract class FsoGsm.AtCommand : GLib.Object
             throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, re.get_pattern() ) );
     }
 
-    public string to_string( string name )
+    protected string to_string( string name )
     {
         var res = mi.fetch_named( name );
         return res;
     }
 
-    public int to_int( string name )
+    protected int to_int( string name )
     {
         var res = mi.fetch_named( name );
         if ( res == null )
