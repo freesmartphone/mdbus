@@ -20,142 +20,156 @@
  */
 
 using GLib;
-using DisplayHelpers;
 
 namespace Kernel26
 {
-    static const string SYS_CLASS_DISPLAY = "/sys/class/backlight";
 
-    class Display : FsoFramework.Device.Display, GLib.Object
+class Display : FsoFramework.Device.Display, FsoFramework.AbstractObject
+{
+    private FsoFramework.Subsystem subsystem;
+    static uint counter;
+
+    private int max_brightness;
+    private int current_brightness;
+    private string sysfsnode;
+    private int fb_fd = -1;
+
+    const int FBIOBLANK = 0x4611;
+    const int FB_BLANK_UNBLANK = 0;
+    const int FB_BLANK_POWERDOWN = 4;
+
+    public Display(FsoFramework.Subsystem subsystem, string sysfsnode)
     {
-        private FsoFramework.Subsystem subsystem;
-        static FsoFramework.Logger logger;
-        static uint counter;
+        this.subsystem = subsystem;
+        this.sysfsnode = sysfsnode;
+        this.max_brightness = FsoFramework.FileHandling.read( this.sysfsnode + "/max_brightness" ).to_int();
 
-        private int max_brightness;
-        private int curr_brightness;
-        private string sysfsnode;
-        private int fb_fd;
+        this.current_brightness = GetBrightness();
 
-        public Display(FsoFramework.Subsystem subsystem, string sysfsnode)
+        fb_fd = Posix.open( dev_fb0, Posix.O_RDONLY );
+        if ( fb_fd == -1 )
+            logger.warning( "Can't open %s. Full display power control not available.".printf( dev_fb0 ) );
+
+        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                        "%s/%u".printf( FsoFramework.Device.DisplayServicePath, counter++ ),
+                        this );
+
+        logger.info( "Created new Display object, max brightness = %d".printf( max_brightness ) );
+    }
+
+    public override string repr()
+    {
+        return "<FsoFramework.Device.Display @ %s>".printf( this.sysfsnode );
+    }
+
+    private void _setBacklightPower( bool on )
+    {
+        if ( fb_fd != -1 )
+            Posix.ioctl( fb_fd, FBIOBLANK, on ? FB_BLANK_UNBLANK : FB_BLANK_POWERDOWN );
+    }
+
+    private int _valueToPercent( int value )
+    {
+        double max = max_brightness;
+        double v = value;
+        return (int)(100.0 / max * v);
+    }
+
+    private int _percentToValue( int percent )
+    {
+        double p = percent;
+        double max = max_brightness;
+        double value;
+        if ( percent >= 100 )
+            value = max_brightness;
+        else if ( percent <= 0 )
+            value = 0;
+        else
+            value = p / 100.0 * max;
+        return (int)value;
+    }
+
+    public void SetBrightness( int brightness )
+    {
+        var value = _percentToValue( brightness );
+
+        if ( current_brightness != value )
         {
-            if (logger == null)
-                logger = FsoFramework.createLogger( "fsodevice.kernel26_leds" );
-            logger.info( "Created new Display for %s".printf( sysfsnode ) );
-
-            this.subsystem = subsystem;
-            this.sysfsnode = sysfsnode;
-            this.max_brightness = FsoFramework.FileHandling.read(this.sysfsnode + "/max_brightness").to_int();
-
-            this.curr_brightness = this.GetBrightness();
-            try
-            {
-                var _fb = new IOChannel.file ("/dev/fb0", "r");
-                this.fb_fd = _fb.unix_get_fd();
-            }
-            catch (GLib.Error error)
-            {
-                this.fb_fd = -1;
-                logger.warning (error.message);
-            }
-
-
-            subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-            subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                            "%s/%u".printf( FsoFramework.Device.DisplayServicePath, counter++ ),
-                            this );
-
+            FsoFramework.FileHandling.write( value.to_string(), this.sysfsnode + "/brightness" );
+            if ( current_brightness == 0 ) // previously we were off
+                _setBacklightPower( true );
+            else if ( value == 0 ) // now we are off
+                _setBacklightPower( false );
+            current_brightness = value;
         }
+        logger.debug( "Brightness set to %d".printf( brightness ) );
+    }
 
+    public int GetBrightness()
+    {
+        var value = FsoFramework.FileHandling.read( this.sysfsnode + "/actual_brightness" ).to_int();
+        return _valueToPercent( value );
+    }
 
-        public void SetBrightness(int brightness)
+    public bool GetBacklightPower()
+    {
+        return FsoFramework.FileHandling.read( this.sysfsnode + "/bl_power" ).to_int() == 0;
+    }
+
+    public void SetBacklightPower( bool power )
+    {
+        var value = power ? "0" : "1";
+        FsoFramework.FileHandling.write( value, this.sysfsnode + "/bl_power" );
+    }
+
+    public HashTable<string, Value?> GetInfo()
+    {
+        string _leaf;
+        var val = Value( typeof(string) );
+        HashTable<string, Value?> info_table = new HashTable<string, Value?>( str_hash, str_equal );
+        /* Just read all the files in the sysfs path and return it as a{ss} */
+        try
         {
-            int value = GetBrightness();
-
-            if(brightness > this.max_brightness)
+            Dir dir = Dir.open( this.sysfsnode, 0 );
+            while ((_leaf = dir.read_name()) != null)
             {
-                logger.warning("Required brightness %d is greater than the maximum brighness supported by the display : %s".printf(brightness, this.sysfsnode));
-                return;
-            }
-
-            if(this.curr_brightness!=value)
-            {
-                FsoFramework.FileHandling.write(brightness.to_string(), this.sysfsnode + "/brightness");
-                if (this.curr_brightness == 0)
-                    DisplayHelpers.set_fb(true, this.fb_fd);
-                else if(value == 0)
-                    DisplayHelpers.set_fb(false, this.fb_fd);
-                this.curr_brightness = value;
-            }
-            logger.debug("Brightness set to %d".printf(brightness));
-        }
-
-
-        public int GetBrightness()
-        {
-            return FsoFramework.FileHandling.read(this.sysfsnode + "/actual_brightness").to_int();
-        }
-
-
-        public bool GetBacklightPower()
-        {
-            return FsoFramework.FileHandling.read(this.sysfsnode + "/bl_power").to_int() == 0;
-        }
-
-
-        public void SetBacklightPower(bool power)
-        {
-            int _val;
-            if (power)
-            _val = 0;
-            else
-                _val = 1;
-            FsoFramework.FileHandling.write(_val.to_string(), this.sysfsnode + "/bl_power");
-        }
-
-
-        public HashTable<string, Value?> GetInfo()
-        {
-            string _leaf;
-            Value val = new Value(typeof(string));
-            HashTable<string, Value?> info_table = new HashTable<string, Value?>((HashFunc)str_hash,
-                                                                                (EqualFunc)str_equal);
-            /* Just read all the files in the sysfs path and return it as a{ss} */
-            try
-            {
-                Dir dir = Dir.open (this.sysfsnode, 0);
-                while ((_leaf = dir.read_name()) != null)
+                if( FileUtils.test (this.sysfsnode + "/" + _leaf, FileTest.IS_REGULAR) && _leaf != "uevent" )
                 {
-                    if(FileUtils.test (this.sysfsnode + "/" + _leaf, FileTest.IS_REGULAR) && _leaf != "uevent")
-                    {
-                        val.take_string(FsoFramework.FileHandling.read(this.sysfsnode + "/" + _leaf).strip());
-                        info_table.insert (_leaf, val);
-                    }
+                    val.take_string(FsoFramework.FileHandling.read(this.sysfsnode + "/" + _leaf).strip());
+                    info_table.insert (_leaf, val);
                 }
             }
-            catch (GLib.Error error)
-            {
-                logger.warning (error.message);
-            }
-            return info_table;
         }
-
+        catch ( GLib.Error error )
+        {
+            logger.warning( error.message );
+        }
+        return info_table;
     }
+}
 
 }
 
-
+static string dev_fb0;
+static string sys_class_backlight;
 List<Kernel26.Display> instances;
-
 
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
+    // grab sysfs and dev paths
+    var config = FsoFramework.theMasterKeyFile();
+    var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+    sys_class_backlight = "%s/class/backlight".printf( sysfs_root );
+    var dev_root = config.stringValue( "cornucopia", "dev_root", "/dev" );
+    dev_fb0 = "%s/fb0".printf( dev_root );
+
     // scan sysfs path for leds
-    Dir dir = Dir.open( Kernel26.SYS_CLASS_DISPLAY, 0 );
+    var dir = Dir.open( sys_class_backlight, 0 );
     string entry = dir.read_name();
     while ( entry != null )
     {
-        var filename = Path.build_filename( Kernel26.SYS_CLASS_DISPLAY, entry );
+        var filename = Path.build_filename( sys_class_backlight, entry );
         instances.append( new Kernel26.Display( subsystem, filename ) );
         entry = dir.read_name();
     }

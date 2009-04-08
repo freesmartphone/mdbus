@@ -16,15 +16,14 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg fsoframework-2.0 \
-	--vapidir ./ \
-	--pkg display-helpers
+	--pkg posix
 
 #
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = kernel26_display.la
-kernel26_display_la_SOURCES = plugin.c plugin.h display.c
+kernel26_display_la_SOURCES = plugin.c plugin.h
 kernel26_display_la_VALASOURCES = plugin.vala
 $(kernel26_display_la_SOURCES): $(kernel26_display_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
