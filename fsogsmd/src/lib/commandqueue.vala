@@ -20,23 +20,28 @@
 using GLib;
 
 public delegate void FsoGsm.ResponseHandler( FsoGsm.AtCommand command, string response );
+public delegate string FsoGsm.RequestHandler( FsoGsm.AtCommand command );
 
-public struct FsoGsm.Command
+[CompactClass]
+public class FsoGsm.CommandBundle
 {
-    public string command;
+    public FsoGsm.AtCommand command;
+    public string request;
+    public RequestHandler getRequest;
     public ResponseHandler handler;
 }
 
 public abstract interface FsoGsm.CommandQueue : Object
 {
-    public abstract void enqueue( Command command );
+    public abstract void enqueue( AtCommand command, string request, ResponseHandler? handler );
+    public abstract void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler );
     public abstract void freeze( bool drain = false );
     public abstract void thaw();
 }
 
 public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
 {
-    protected Queue<Command?> q;
+    protected Queue<CommandBundle> q;
     protected FsoFramework.Transport transport;
 
     protected void writeNextCommand()
@@ -50,7 +55,7 @@ public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
                 error( "can't open transport" );
         }
         assert( transport.isOpen() );
-        transport.write( command.command, (int)command.command.size() );
+        transport.write( command.request, (int)command.request.size() );
     }
 
     protected void onReadFromTransport( FsoFramework.Transport transport )
@@ -70,16 +75,25 @@ public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
 
     public BaseCommandQueue( FsoFramework.Transport transport )
     {
-        q = new Queue<Command?>();
+        q = new Queue<CommandBundle>();
         this.transport = transport;
         transport.setDelegates( onReadFromTransport, onHupFromTransport );
     }
 
-    public void enqueue( Command command )
+    public void enqueue( AtCommand command, string request, ResponseHandler? handler )
     {
-        debug( "enqueuing %s", command.command );
+        debug( "enqueuing %s", request );
         var retriggerWriting = ( q.length == 0 );
-        q.push_head( command );
+        q.push_head( new CommandBundle() { command=command, request=request, getRequest=null, handler=handler } );
+        if ( retriggerWriting )
+            writeNextCommand();
+    }
+
+    public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler )
+    {
+        debug( "enqueuing deferred request %s", getRequest( command ) );
+        var retriggerWriting = ( q.length == 0 );
+        q.push_head( new CommandBundle() { command=command, request=null, getRequest=getRequest, handler=handler } );
         if ( retriggerWriting )
             writeNextCommand();
     }

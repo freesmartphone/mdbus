@@ -29,15 +29,15 @@ public class FsoGsm.DeviceGetAntennaPower : FsoGsm.AbstractMediator
     public DeviceGetAntennaPower()
     {
         debug( "DeviceGetAntennaPower()" );
-        FsoGsm.PlusCFUN cfun = FsoGsm.theModem.atCommandFactory( "PlusCFUN" ) as FsoGsm.PlusCFUN;
+        PlusCFUN cfun = theModem.atCommandFactory( "PlusCFUN" ) as PlusCFUN;
         enqueue( cfun, cfun.query(), onResponse );
     }
 
-    public void onResponse( FsoGsm.AtCommand command, string response )
+    public void onResponse( AtCommand command, string response )
     {
         debug( "DeviceGetAntennaPower.onResponse( '%s' )", response );
 
-        var cfun = command as FsoGsm.PlusCFUN;
+        var cfun = command as PlusCFUN;
         cfun.parse( response );
 
         debug( "calling dbus answer with '%d'", cfun.fun );
