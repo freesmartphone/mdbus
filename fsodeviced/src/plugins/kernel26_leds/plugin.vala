@@ -22,10 +22,9 @@ using GLib;
 namespace Kernel26
 {
 
-class Led : FsoFramework.Device.LED, GLib.Object
+class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
-    static FsoFramework.Logger logger;
 
     string sysfsnode;
     string brightness;
@@ -36,10 +35,6 @@ class Led : FsoFramework.Device.LED, GLib.Object
 
     public Led( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
-        if ( logger == null )
-            logger = FsoFramework.createLogger( "fsodevice.kernel26_leds" );
-        logger.info( "created new Led for %s".printf( sysfsnode ) );
-
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
         this.brightness = sysfsnode + "/brightness";
@@ -58,6 +53,13 @@ class Led : FsoFramework.Device.LED, GLib.Object
                                          this );
         // FIXME: remove in release code, can be done lazily
         initTriggers();
+
+        logger.info( "created new Led object." );
+    }
+
+    public override string repr()
+    {
+        return "<FsoFramework.Device.Led @ %s>".printf( sysfsnode );
     }
 
     public void initTriggers()
