@@ -76,7 +76,7 @@ class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
     //
     public string GetName()
     {
-        return sysfsnode;
+        return Path.get_basename( sysfsnode );
     }
 
     public void SetBrightness( int brightness )

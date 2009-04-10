@@ -90,6 +90,14 @@ class Display : FsoFramework.Device.Display, FsoFramework.AbstractObject
         return (int)value;
     }
 
+    //
+    // FsoFramework.Device.Display
+    //
+    public string GetName()
+    {
+        return Path.get_basename( sysfsnode );
+    }
+
     public void SetBrightness( int brightness )
     {
         var value = _percentToValue( brightness );
