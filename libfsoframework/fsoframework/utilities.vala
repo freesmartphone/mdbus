@@ -36,7 +36,7 @@ public string read( string filename )
     var fd = Posix.open( filename, Posix.O_RDONLY );
     if ( fd == -1 )
     {
-        warning( "can't read from file: %s".printf( Posix.strerror( Posix.errno ) ) );
+        warning( "%s", "can't read from file: %s".printf( Posix.strerror( Posix.errno ) ) );
     }
     else
     {
@@ -60,7 +60,7 @@ public void write( string contents, string filename )
     var fd = Posix.open( filename, Posix.O_WRONLY );
     if ( fd == -1 )
     {
-        warning( "can't write to file: %s".printf( Posix.strerror( Posix.errno ) ) );
+        warning( "%s", "can't write to file: %s".printf( Posix.strerror( Posix.errno ) ) );
     }
     else
     {
@@ -73,3 +73,56 @@ public void write( string contents, string filename )
 }
 
 } }
+
+namespace FsoFramework { namespace UserGroupHandling {
+
+public Posix.uid_t uidForUser( string user )
+{
+    Posix.setpwent();
+    unowned Posix.Passwd pw = Posix.getpwent();
+    while ( pw != null )
+    {
+        if ( pw.pw_name == user )
+            return pw.pw_uid;
+        pw = Posix.getpwent();
+    }
+    return -1;
+}
+
+public Posix.gid_t gidForGroup( string group )
+{
+    Posix.setgrent();
+    unowned Posix.Group gr = Posix.getgrent();
+    while ( gr != null )
+    {
+        if ( gr.gr_name == group )
+            return gr.gr_gid;
+        gr = Posix.getgrent();
+    }
+    return -1;
+}
+
+public bool switchToUserAndGroup( string user, string group )
+{
+    var uid = uidForUser( user );
+    var gid = gidForGroup( group );
+    if ( uid == -1 || gid == -1 )
+        return false;
+    var ok = Posix.setgid( gid );
+    if ( ok != 0 )
+    {
+        warning( "%s", "can't set group id: %s".printf( Posix.strerror( Posix.errno ) ) );
+        return false;
+    }
+    ok = Posix.setuid( uid );
+    if ( ok != 0 )
+    {
+        warning( "%s", "can't set user id: %s".printf( Posix.strerror( Posix.errno ) ) );
+        return false;
+    }
+    return true;
+}
+
+} }
+
+

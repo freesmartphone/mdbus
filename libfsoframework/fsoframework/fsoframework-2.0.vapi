@@ -45,6 +45,15 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework/utilities.h")]
 		public static void write (string contents, string filename);
 	}
+	[CCode (cprefix = "FsoFrameworkUserGroupHandling", lower_case_cprefix = "fso_framework_user_group_handling_")]
+	namespace UserGroupHandling {
+		[CCode (cheader_filename = "fsoframework/utilities.h")]
+		public static Posix.gid_t gidForGroup (string group);
+		[CCode (cheader_filename = "fsoframework/utilities.h")]
+		public static bool switchToUserAndGroup (string user, string group);
+		[CCode (cheader_filename = "fsoframework/utilities.h")]
+		public static Posix.uid_t uidForUser (string user);
+	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public abstract class AbstractLogger : FsoFramework.Logger, GLib.Object {
 		protected string destination;
