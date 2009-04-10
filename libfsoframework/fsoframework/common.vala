@@ -31,7 +31,11 @@ public const string DEFAULT_LOG_LEVEL = "INFO";
 public const string DEFAULT_LOG_DESTINATION = "/tmp/frameworkd.log";
 
 internal static SmartKeyFile _masterkeyfile = null;
+internal static string _prefix = null;
 
+/**
+ * Return frameworkd.conf
+ **/
 public static SmartKeyFile theMasterKeyFile()
 {
     if ( _masterkeyfile == null )
@@ -56,6 +60,9 @@ public static SmartKeyFile theMasterKeyFile()
     return _masterkeyfile;
 }
 
+/**
+ * Create a logger configured as requested in frameworkd.conf
+ **/
 public static Logger createLogger( string domain )
 {
     SmartKeyFile smk = theMasterKeyFile();
@@ -89,7 +96,28 @@ public static Logger createLogger( string domain )
 
     theLogger.setLevel( AbstractLogger.stringToLevel( log_level ) );
     return theLogger;
+}
 
+/**
+ * Return the prefix for the running program.
+ **/
+public static string getPrefixForExecutable()
+{
+    if ( _prefix == null )
+    {
+        var cmd = FileHandling.read( "/proc/self/cmdline" );
+        var pte = Environment.find_program_in_path( cmd );
+        _prefix = "";
+        //var builder = new StringBuilder();
+        foreach ( var component in pte.split( "/" ) )
+        {
+            debug( "dealing with component '%s', prefix = '%s'", component, _prefix );
+            if ( component == "bin" )
+                break;
+            _prefix += "%s%c".printf( component, Path.DIR_SEPARATOR );
+        }
+    }
+    return _prefix;
 }
 
 } /* namespace */

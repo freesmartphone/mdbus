@@ -910,6 +910,13 @@
 				<type name="FsoFramework.Logger"/>
 			</return-value>
 		</method>
+		<method name="getPrefixForExecutable" c:identifier="fso_framework_getPrefixForExecutable">
+			<parameters>
+			</parameters>
+			<return-value transfer-ownership="full">
+				<type name="string"/>
+			</return-value>
+		</method>
 	</namespace>
 	<interface name="DBusObjects" glib:get-type="dbus_objects_get_type">
 		<method name="getNodes" c:identifier="dbus_objects_getNodes">

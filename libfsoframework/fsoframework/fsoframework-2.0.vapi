@@ -223,6 +223,8 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public static FsoFramework.Logger createLogger (string domain);
 	[CCode (cheader_filename = "fsoframework/common.h")]
+	public static string getPrefixForExecutable ();
+	[CCode (cheader_filename = "fsoframework/common.h")]
 	public static FsoFramework.SmartKeyFile theMasterKeyFile ();
 }
 [CCode (cheader_filename = "fsoframework/subsystem.h")]

@@ -66,8 +66,8 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
 
         var names = FsoFramework.theMasterKeyFile().sectionsWithPrefix( _name + "." );
 
-        var defaultpath = "/usr/local/lib/cornucopia/modules";
-        var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "frameworkd", "plugin_path", defaultpath );
+        var defaultpath = "%s/lib/cornucopia/modules".printf( getPrefixForExecutable() );
+        var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "cornucopia", "plugin_path", defaultpath );
 
         logger.debug( "pluginpath is %s".printf( pluginpath ) );
 
