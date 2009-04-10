@@ -51,6 +51,10 @@ public abstract interface FsoFramework.Transport : Object
      **/
     public abstract void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc );
     /**
+     * Read data from the transport into buffer provided and owned by caller.
+     **/
+    public abstract int read( void* data, int len );
+    /**
      * Write data to the transport. The data may or may not be written immediately.
      **/
     public abstract int write( void* data, int length );
@@ -184,7 +188,9 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
     public int read( void* data, int len )
     {
         assert( fd != -1 );
+        assert( data != null );
         ssize_t bytesread = Posix.read( fd, data, len );
+        //TODO: what to do if we got 0 bytes?
         return (int)bytesread;
     }
 
@@ -198,9 +204,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
     public int write( void* data, int len )
     {
         logger.debug( "writing %d bytes".printf( len ) );
+        assert( data != null );
         if ( fd == -1 )
             warning( "writing although transport still closed; buffering." );
         var restart = ( fd != -1 && buffer.len == 0 );
+        //TODO: avoid copying the buffer
         var temp = new uint8[len];
         Memory.copy( temp, data, len );
         buffer.append( temp );
@@ -285,7 +293,7 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
         termios.c_cflag |= PosixExtra.CS8;
 
         // hardware flow control
-        //termios.c_cflag |= PosixExtra.CRTSCTS;
+        termios.c_cflag |= PosixExtra.CRTSCTS;
 
         // software flow control off
         //termios.c_iflag &= ~(PosixExtra.IXON | PosixExtra.IXOFF | PosixExtra.IXANY);
@@ -305,14 +313,13 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
         termios.c_cc[PosixExtra.VQUIT] = 0;
         termios.c_cc[PosixExtra.VSTART] = 0;
         termios.c_cc[PosixExtra.VSTOP] = 0;
-        termios.c_cc[PosixExtra.VSUSP] = 0;
         */
+
+        termios.c_cc[PosixExtra.VSUSP] = 0;
         PosixExtra.tcsetattr( fd, PosixExtra.TCSANOW, termios);
 
-        /*
-        _v24 = PosixExtra.TIOCM_DTR | PosixExtra.TIOCM_RTS;
-        Posix.ioctl( _fd, PosixExtra.TIOCMBIS, &_v24 );
-        */
+        var v24 = PosixExtra.TIOCM_DTR | PosixExtra.TIOCM_RTS;
+        Posix.ioctl( fd, PosixExtra.TIOCMBIS, &v24 );
 
         return base.open();
     }

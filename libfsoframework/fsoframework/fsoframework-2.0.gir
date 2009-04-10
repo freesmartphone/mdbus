@@ -461,22 +461,6 @@
 					<type name="string"/>
 				</return-value>
 			</method>
-			<method name="read" c:identifier="fso_framework_base_transport_read">
-				<parameters>
-					<parameter name="self">
-						<type name="FsoFramework.BaseTransport"/>
-					</parameter>
-					<parameter name="data">
-						<type name="void*"/>
-					</parameter>
-					<parameter name="len">
-						<type name="int"/>
-					</parameter>
-				</parameters>
-				<return-value transfer-ownership="full">
-					<type name="int"/>
-				</return-value>
-			</method>
 			<method name="actionCallback" c:identifier="fso_framework_base_transport_actionCallback">
 				<parameters>
 					<parameter name="self">
@@ -794,6 +778,22 @@
 				</parameters>
 				<return-value>
 					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="read" c:identifier="fso_framework_transport_read">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Transport"/>
+					</parameter>
+					<parameter name="data">
+						<type name="void*"/>
+					</parameter>
+					<parameter name="len">
+						<type name="int"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="int"/>
 				</return-value>
 			</method>
 			<method name="write" c:identifier="fso_framework_transport_write">

@@ -102,7 +102,6 @@ namespace FsoFramework {
 		public virtual string getName ();
 		public BaseTransport (string name, uint speed = 0, FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
 		public virtual bool open ();
-		public int read (void* data, int len);
 		public virtual string repr ();
 		protected void restartWriter ();
 		public bool writeCallback (GLib.IOChannel source, GLib.IOCondition condition);
@@ -182,6 +181,7 @@ namespace FsoFramework {
 		public static FsoFramework.Transport? create (string type, string name = "", uint speed = 0);
 		public abstract bool isOpen ();
 		public abstract bool open ();
+		public abstract int read (void* data, int len);
 		public abstract void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
 		public abstract int write (void* data, int length);
 	}
