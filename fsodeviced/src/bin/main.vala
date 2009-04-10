@@ -43,6 +43,13 @@ public static int main( string[] args )
     // enable for release version?
     //Posix.signal( Posix.SIGBUS, sighandler );
     //Posix.signal( Posix.SIGSEGV, sighandler );
+
+    /*
+    var ok = FsoFramework.UserGroupHandling.switchToUserAndGroup( "nobody", "nogroup" );
+    if ( !ok )
+        logger.warning( "Unable to drop privileges." );
+    */
+
     mainloop.run();
     logger.info( "mainloop => fsodevice" );
     logger.info( "fsodevice shutdown." );
