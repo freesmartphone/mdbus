@@ -21,10 +21,8 @@ using GLib;
 
 using FsoGsm;
 
-class Singleline.Modem : FsoGsm.AbstractModem
+class Singleline.Modem : FsoGsm.AbstractGsmModem
 {
-    Channel c;
-
     construct
     {
         logger.info( "registrating new modem type: SINGLELINE" );
@@ -35,23 +33,21 @@ class Singleline.Modem : FsoGsm.AbstractModem
         return "<Singleline>";
     }
 
-    public override bool open()
+    protected override bool createChannels()
     {
-        c = new Channel();
-        c.transport =  FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
-        c.parser = new FsoGsm.StateBasedAtParser();
-        c.queue = new AtCommandQueue( c.transport, c.parser );
-
-        channels.insert( "main", #c );
-        weak Channel chan = channels.lookup( "main" );
+        var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+        var parser = new FsoGsm.StateBasedAtParser();
+        var chan = new Channel( "main", transport, parser );
 
         var cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
-        chan.queue.enqueue( cfun, cfun.query() );
+        chan.enqueue( cfun, cfun.query() );
 
         var cops = theModem.atCommandFactory( "+COPS" ) as PlusCOPS;
-        chan.queue.enqueue( cops, cops.query() );
+        chan.enqueue( cops, cops.query() );
 
-        return false;
+        assert( chan.open() );
+
+        return true;
     }
 
     public void responseHandler( FsoGsm.AtCommand command, string[] response )
@@ -59,7 +55,6 @@ class Singleline.Modem : FsoGsm.AbstractModem
         debug( "handler called with '%s'", response[0] );
         assert_not_reached();
     }
-
 }
 
 /**

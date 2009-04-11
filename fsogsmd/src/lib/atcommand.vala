@@ -78,3 +78,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         return false;
     }
 }
+
+public class FsoGsm.NullAtCommand : FsoGsm.AbstractAtCommand
+{
+}

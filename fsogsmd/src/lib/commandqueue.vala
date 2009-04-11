@@ -22,6 +22,9 @@ using GLib;
 public delegate void FsoGsm.ResponseHandler( FsoGsm.AtCommand command, string[] response );
 public delegate string FsoGsm.RequestHandler( FsoGsm.AtCommand command );
 
+public delegate void FsoGsm.UnsolicitedHandler( FsoGsm.AtCommand command, string response );
+public delegate void FsoGsm.UnsolicitedHandlerPDU( FsoGsm.AtCommand command, string response, string pdu );
+
 const int COMMAND_QUEUE_BUFFER_SIZE = 4096;
 const string COMMAND_QUEUE_COMMAND_PREFIX = "AT";
 const string COMMAND_QUEUE_COMMAND_POSTFIX = "\r\n";
@@ -33,6 +36,22 @@ public class FsoGsm.CommandBundle
     public string request;
     public RequestHandler getRequest;
     public ResponseHandler handler;
+}
+
+[Compact]
+public class FsoGsm.UnsolicitedBundle
+{
+    public FsoGsm.AtCommand command;
+    public string prefix;
+    public UnsolicitedHandler handler;
+}
+
+[Compact]
+public class FsoGsm.UnsolicitedBundlePDU
+{
+    public FsoGsm.AtCommand command;
+    public string prefix;
+    public UnsolicitedHandlerPDU handler;
 }
 
 public abstract interface FsoGsm.CommandQueue : Object
@@ -65,17 +84,13 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
     protected FsoGsm.Parser parser;
     protected char* buffer;
 
+    protected HashTable<string, FsoGsm.UnsolicitedBundle> urcs;
+    protected HashTable<string, FsoGsm.UnsolicitedBundlePDU> urcs_pdu;
+
     protected void writeNextCommand()
     {
         debug( "writing next command" );
         unowned CommandBundle command = q.peek_tail();
-        if ( !transport.isOpen() )
-        {
-            var ok = transport.open();
-            if ( !ok )
-                error( "can't open transport" );
-        }
-        assert( transport.isOpen() );
         writeRequestToTransport( command.request );
     }
 
@@ -139,6 +154,28 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
     protected void _unsolicitedCompleted( string[] response )
     {
         debug( "UNsolicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
+        if ( response.length == 1 ) // simple URCs
+        {
+            assert( ":" in response[0] ); // free-form URCs not yet supported
+
+            var strings = response[0].split( ":" );
+            assert( strings.length == 2 ); // multiple ':' in URC not yet supported
+
+            weak UnsolicitedBundle bundle = urcs.lookup( strings[0] );
+
+            if ( bundle == null )
+            {
+                warning( "unregistered URC. Please report!" );
+            }
+            else
+            {
+                bundle.handler( bundle.command, strings[1] );
+            }
+        }
+        else
+        {
+            assert_not_reached();
+        }
     }
 
     //=====================================================================//
@@ -154,11 +191,27 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
         parser.setDelegates( _haveCommand, _expectedPrefix, _solicitedCompleted, _unsolicitedCompleted );
 
         buffer = malloc( COMMAND_QUEUE_BUFFER_SIZE );
+        urcs = new HashTable<string, FsoGsm.UnsolicitedBundle>( str_hash, str_equal );
+        urcs_pdu = new HashTable<string, FsoGsm.UnsolicitedBundlePDU>( str_hash, str_equal );
     }
 
     ~AtCommandQueue()
     {
         free( buffer );
+    }
+
+    public void registerUnsolicited( AtCommand command, string prefix, UnsolicitedHandler handler )
+    {
+        debug( "registering unsolicited handler for prefix '%s'", prefix );
+        assert( urcs.lookup( prefix ) == null ); // not allowed to register twice for one prefix
+        urcs.insert( prefix, new UnsolicitedBundle() { command=command, prefix=prefix, handler=handler } );
+    }
+
+    public void registerUnsolicitedPDU( AtCommand command, string prefix, UnsolicitedHandlerPDU handler )
+    {
+        debug( "registering unsolicited PDU handler for prefix '%s'", prefix );
+        assert( urcs_pdu.lookup( prefix ) == null ); // not allowed to register twice for one prefix
+        urcs_pdu.insert( prefix, new UnsolicitedBundlePDU() { command=command, prefix=prefix, handler=handler } );
     }
 
     public void enqueue( AtCommand command, string request, ResponseHandler? handler = null )
@@ -179,6 +232,17 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
             writeNextCommand();
     }
 
+    public bool open()
+    {
+        // open transport
+        assert( !transport.isOpen() );
+        if ( !transport.open() )
+            return false;
+        else
+            return true;
+        //TODO: more initialization necessary?
+    }
+
     public void freeze( bool drain = false )
     {
         assert_not_reached();
@@ -189,17 +253,10 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
         assert_not_reached();
     }
 
-    /*
-    public virtual void onReadFromTransport( void* data, int len )
+    public void close()
     {
-        message( "READ from transport" );
+        transport.close();
     }
-
-    public virtual void onHupFromTransport()
-    {
-        message( "HUP from transport" );
-    }
-    */
 
 }
 
