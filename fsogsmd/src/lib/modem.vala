@@ -17,7 +17,7 @@
  *
  */
 
-namespace FsoGsm { FsoGsm.Modem theModem; }
+namespace FsoGsm { public FsoGsm.Modem theModem; }
 
 public abstract interface FsoGsm.Modem : GLib.Object
 {
@@ -27,7 +27,8 @@ public abstract interface FsoGsm.Modem : GLib.Object
     public abstract FsoGsm.AtCommand atCommandFactory( string command );
 }
 
-public struct FsoGsm.Channel
+[Compact]
+public class FsoGsm.Channel
 {
     public FsoFramework.Transport transport;
     public FsoGsm.CommandQueue queue;
@@ -40,8 +41,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected string modem_port;
     protected int modem_speed;
 
-    GLib.HashTable<string, FsoGsm.Channel?> channels;
-    GLib.HashTable<string, FsoGsm.AtCommand> commands;
+    protected GLib.HashTable<string, FsoGsm.Channel> channels;
+    protected GLib.HashTable<string, FsoGsm.AtCommand> commands;
 
     construct
     {
@@ -53,7 +54,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_port = config.stringValue( "fsogsm", "modem_port", "file:/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
 
-        channels = new HashTable<string, FsoGsm.Channel?>( GLib.str_hash, GLib.str_equal );
+        channels = new HashTable<string, FsoGsm.Channel>( GLib.str_hash, GLib.str_equal );
 
         registerAtCommands();
 

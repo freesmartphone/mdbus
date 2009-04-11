@@ -28,13 +28,15 @@ void test_commandqueue_enqueue()
     transport.open();
     assert( transport.isOpen() );
 
-    var q = new BaseCommandQueue( transport );
+    var q = new AtCommandQueue( transport );
 
+    /*
     var cmd = Command() { command = "AT+CGMR\r\n", handler = null };
 
     q.enqueue( cmd );
 
     transport.writeCallback( new IOChannel(), IOCondition.OUT ); // usually only called in mainloop
+    */
 
 }
 

@@ -23,6 +23,8 @@ using FsoGsm;
 
 class Singleline.Modem : FsoGsm.AbstractModem
 {
+    Channel c;
+
     construct
     {
         logger.info( "registrating new modem type: SINGLELINE" );
@@ -35,14 +37,24 @@ class Singleline.Modem : FsoGsm.AbstractModem
 
     public override bool open()
     {
-        Channel channel = Channel();
-        channel.transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
-        assert( channel.transport != null );
-        channel.queue = new BaseCommandQueue( channel.transport );
+        c = new Channel();
+        c.transport =  FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+        c.queue = new AtCommandQueue( c.transport );
 
-        channel.queue.enqueue( Command() { command="AT\r\n" } );
+        channels.insert( "main", #c );
+        weak Channel chan = channels.lookup( "main" );
+
+        var cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
+
+        chan.queue.enqueue( cfun, cfun.query(), responseHandler );
 
         return false;
+    }
+
+    public void responseHandler( FsoGsm.AtCommand command, string response )
+    {
+        debug( "handler called with '%s'", response );
+        assert_not_reached();
     }
 
 }

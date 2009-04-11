@@ -33,4 +33,3 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
     }
 }
 
-    

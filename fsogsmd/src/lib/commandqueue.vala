@@ -22,7 +22,11 @@ using GLib;
 public delegate void FsoGsm.ResponseHandler( FsoGsm.AtCommand command, string response );
 public delegate string FsoGsm.RequestHandler( FsoGsm.AtCommand command );
 
-[CompactClass]
+const int COMMAND_QUEUE_BUFFER_SIZE = 4096;
+const string COMMAND_QUEUE_COMMAND_PREFIX = "AT";
+const string COMMAND_QUEUE_COMMAND_POSTFIX = "\r\n";
+
+[Compact]
 public class FsoGsm.CommandBundle
 {
     public FsoGsm.AtCommand command;
@@ -39,15 +43,16 @@ public abstract interface FsoGsm.CommandQueue : Object
     public abstract void thaw();
 }
 
-public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
+public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 {
     protected Queue<CommandBundle> q;
     protected FsoFramework.Transport transport;
+    protected char* buffer;
 
     protected void writeNextCommand()
     {
         debug( "writing next command" );
-        var command = q.peek_tail();
+        unowned CommandBundle command = q.peek_tail();
         if ( !transport.isOpen() )
         {
             var ok = transport.open();
@@ -55,29 +60,62 @@ public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
                 error( "can't open transport" );
         }
         assert( transport.isOpen() );
-        transport.write( command.request, (int)command.request.size() );
+        writeRequestToTransport( command.request );
     }
 
-    protected void onReadFromTransport( FsoFramework.Transport transport )
+    protected void writeRequestToTransport( string request )
     {
-        debug( "read from transport" );
-        //TODO: read from transport, feed to parser, then back
+        transport.write( COMMAND_QUEUE_COMMAND_PREFIX, 2 );
+        transport.write( request, (int)request.size() );
+        transport.write( COMMAND_QUEUE_COMMAND_POSTFIX, 2 );
     }
 
-    protected void onHupFromTransport( FsoFramework.Transport transport )
+    protected void onResponseFromTransport( string response )
     {
-        debug( "HUP from transport" );
+        debug( "response = %s", response.escape( "" ) );
+    }
+
+    protected void onHupFromTransport()
+    {
+        debug( "hup from transport. closing." );
+        transport.close();
+    }
+
+    protected void _onReadFromTransport( FsoFramework.Transport t )
+    {
+        debug( "this = %p", this );
+        debug( "this.transport = %p", this.transport );
+        var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
+        buffer[bytesread] = 0;
+        onResponseFromTransport( (string)buffer );
+    }
+
+    protected void _onHupFromTransport( FsoFramework.Transport t )
+    {
+        debug( "this = %p", this );
+        debug( "this.transport = %p", this.transport );
+        onHupFromTransport();
     }
 
     //=====================================================================//
     // PUBLIC API
     //=====================================================================//
 
-    public BaseCommandQueue( FsoFramework.Transport transport )
+    public AtCommandQueue( FsoFramework.Transport transport )
     {
+        debug( "at command queue: %p", this );
         q = new Queue<CommandBundle>();
         this.transport = transport;
-        transport.setDelegates( onReadFromTransport, onHupFromTransport );
+        debug( "this.transport = %p", this.transport );
+        assert( this.transport != null );
+        transport.setDelegates( _onReadFromTransport, _onHupFromTransport );
+
+        buffer = malloc( COMMAND_QUEUE_BUFFER_SIZE );
+    }
+
+    ~AtCommandQueue()
+    {
+        free( buffer );
     }
 
     public void enqueue( AtCommand command, string request, ResponseHandler? handler )
@@ -108,4 +146,19 @@ public class FsoGsm.BaseCommandQueue : FsoGsm.CommandQueue, Object
         assert_not_reached();
     }
 
+    /*
+    public virtual void onReadFromTransport( void* data, int len )
+    {
+        message( "READ from transport" );
+    }
+
+    public virtual void onHupFromTransport()
+    {
+        message( "HUP from transport" );
+    }
+    */
+
 }
+
+}
+
