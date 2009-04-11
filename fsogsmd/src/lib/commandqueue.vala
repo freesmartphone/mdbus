@@ -41,12 +41,12 @@ public abstract interface FsoGsm.CommandQueue : Object
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * The @a ResponseHandler handler will be called with the response from the peer.
      **/
-    public abstract void enqueue( AtCommand command, string request, ResponseHandler? handler );
+    public abstract void enqueue( AtCommand command, string request, ResponseHandler? handler = null );
     /**
      * Enqueue new @a AtCommand command. When the command is due for sending, the
      * @a RequestHandler getRequest will be called to gather the request string.
      **/
-    public abstract void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler );
+    public abstract void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null );
     /**
      * Halt the Queue operation. Stop accepting any more commands. If drain is true, send
      * all commands that are in the Queue at this point.
@@ -101,7 +101,8 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
     protected void onSolicitedResponse( CommandBundle bundle, string[] response )
     {
         debug( "on solicited response" );
-        bundle.handler( bundle.command, response );
+        if ( bundle.handler != null )
+            bundle.handler( bundle.command, response );
     }
 
     protected void _onReadFromTransport( FsoFramework.Transport t )
@@ -160,7 +161,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
         free( buffer );
     }
 
-    public void enqueue( AtCommand command, string request, ResponseHandler? handler )
+    public void enqueue( AtCommand command, string request, ResponseHandler? handler = null )
     {
         debug( "enqueuing %s", request );
         var retriggerWriting = ( q.length == 0 );
@@ -169,7 +170,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
             writeNextCommand();
     }
 
-    public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler )
+    public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null )
     {
         debug( "enqueuing deferred request %s", getRequest( command ) );
         var retriggerWriting = ( q.length == 0 );

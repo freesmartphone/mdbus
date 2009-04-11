@@ -46,10 +46,10 @@ class Singleline.Modem : FsoGsm.AbstractModem
         weak Channel chan = channels.lookup( "main" );
 
         var cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
-        chan.queue.enqueue( cfun, cfun.query(), responseHandler );
+        chan.queue.enqueue( cfun, cfun.query() );
 
         var cops = theModem.atCommandFactory( "+COPS" ) as PlusCOPS;
-        chan.queue.enqueue( cops, cops.query(), responseHandler );
+        chan.queue.enqueue( cops, cops.query() );
 
         return false;
     }
