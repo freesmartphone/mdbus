@@ -128,11 +128,8 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     protected void _solicitedCompleted( string[] response )
     {
-        debug( "solicited completed: " );
-        foreach ( var line in response )
-        {
-            debug( "line: %s", line );
-        }
+        debug( "solicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
+
         onSolicitedResponse( q.pop_tail(), response );
         if ( q.length > 0 )
             writeNextCommand();
@@ -140,11 +137,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     protected void _unsolicitedCompleted( string[] response )
     {
-        debug( "UNsolicited completed: " );
-        foreach ( var line in response )
-        {
-            debug( "line: %s", line );
-        }
+        debug( "UNsolicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
     }
 
     //=====================================================================//

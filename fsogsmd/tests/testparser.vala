@@ -134,6 +134,22 @@ void test_parser_2_unsolicited_pdu()
 }
 
 //===========================================================================
+void test_parser_multiline_solicited()
+//===========================================================================
+{
+    Parser parser = new StateBasedAtParser();
+    parser.setDelegates( hcf, epf, soli, unsoli );
+
+    haveCommand = true;
+    expectedPrefix = true;
+    solicitedResponse = { "+FOO: 123456", "+BAR: 123456", "OK" };
+    unsolicitedResponse = {};
+    parser.feed( "\r\n+FOO: 123456", 14 );
+    parser.feed( "\r\n+BAR: 123456", 14 );
+    parser.feed( "\r\nOK\r\n", 6 );
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -144,6 +160,7 @@ void main( string[] args )
     Test.add_func( "/Parser/2/Solicited", test_parser_2_solicited );
     Test.add_func( "/Parser/2/Unsolicited", test_parser_2_unsolicited );
     Test.add_func( "/Parser/2/Unsolicited/PDU", test_parser_2_unsolicited_pdu );
+    Test.add_func( "/Parser/Multiline/Solicited", test_parser_multiline_solicited );
 
     Test.run();
 }

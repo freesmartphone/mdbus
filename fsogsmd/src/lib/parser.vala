@@ -128,13 +128,13 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
         unsolicited = {};
         if ( soli )
             solicited = {};
-        return resetLine();
+        return resetLine( true );
     }
 
-    public State resetLine( bool pending_pdu = false )
+    public State resetLine( bool end = false )
     {
         curline = {};
-        return pending_pdu ? State.INLINE : State.START;
+        return end ? State.START : State.INLINE;
     }
 
     //FIXME: This works around a problem in Vala as we can't define a HashTable full with function pointers atm.
@@ -211,6 +211,10 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
     //
     public State endofline()
     {
+        // skip empty lines
+        if ( curline.length == 0 )
+            return State.INLINE;
+
         curline += 0x0; // we want to treat it as a string
         debug( "line completed: '%s'", (string)curline );
 
@@ -246,7 +250,7 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
         pendingPDU = hasSolicitedPdu();
         solicited += (string)curline;
-        return resetLine( pendingPDU );
+        return resetLine();
     }
 
     public State endoflineSurelySolicited()
@@ -276,7 +280,7 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
         {
             debug( "unsolicited response pending PDU..." );
             pendingPDU = true;
-            return resetLine( pendingPDU );
+            return resetLine();
         }
 
         debug( "unsolicited response completed." );
