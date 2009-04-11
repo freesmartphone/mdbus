@@ -167,7 +167,9 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         channel = null;
         if ( fd != -1 )
             Posix.close( fd );
+        fd = -1; // mark closed
         logger.debug( "closed" );
+
     }
 
     public override bool isOpen()

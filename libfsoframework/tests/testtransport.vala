@@ -21,12 +21,26 @@ using GLib;
 using FsoFramework;
 
 const char[] TRANSPORT_TEST_STRING = "\r\n+DATA: FOO\r\n";
+const char[] TRANSPORT_READ_STRING = "\r\n+CMS ERROR: YO KURT\r\n";
+
+char[] buffer;
+string readline;
+bool gotHup;
 
 void transport_read_func( Transport transport )
 {
+    message( "read delegate called" );
+    buffer = new char[512];
+    var bytesread = transport.read( (void*)buffer, 512 );
+    buffer[bytesread] = 0;
+    readline = (string)buffer;
 }
+
 void transport_hup_func( Transport transport )
 {
+    message( "hup delegate called" );
+    gotHup = true;
+    transport.close();
 }
 
 //===========================================================================
@@ -93,11 +107,58 @@ void test_transport_pty_write()
     var length = Posix.read( fd, buf, 512 );
     buf[length] = 0;
 
-    //debug( "read %d bytes: %s", (int)length, (string)buf );
     assert( length == TRANSPORT_TEST_STRING.length );
-
     assert( Memory.cmp( TRANSPORT_TEST_STRING, buf, TRANSPORT_TEST_STRING.length ) == 0 );
 
+}
+
+//===========================================================================
+void test_transport_pty_read()
+//===========================================================================
+{
+    readline = "";
+    var t = new PtyTransport();
+    t.setDelegates( transport_read_func, transport_hup_func );
+    t.open();
+
+    // open pts and write something to it, so the other side can pick it up
+    var fd = Posix.open( t.getName(), Posix.O_RDWR );
+    assert( fd != -1 );
+    var written = Posix.write( fd, TRANSPORT_READ_STRING, TRANSPORT_READ_STRING.length );
+
+    // transport reads only from mainloop, so give time to do it
+    while ( readline == "" )
+    {
+        MainContext.default().iteration( false );
+    }
+
+    for( int i = 0; i < TRANSPORT_READ_STRING.length; ++i )
+    {
+        assert( readline[i] == TRANSPORT_READ_STRING[i] );
+    }
+}
+
+//===========================================================================
+void test_transport_pty_hup()
+//===========================================================================
+{
+    gotHup = false;
+    var t = new PtyTransport();
+    t.setDelegates( transport_read_func, transport_hup_func );
+    t.open();
+
+    // open pts and close it again
+    var fd = Posix.open( t.getName(), Posix.O_RDWR );
+    assert( fd != -1 );
+    Posix.close( fd );
+
+    // transport should pick up a HUP change from within mainloop
+    while ( !gotHup )
+    {
+        MainContext.default().iteration( false );
+    }
+
+    assert( !t.isOpen() );
 }
 
 //===========================================================================
@@ -110,6 +171,8 @@ void main( string[] args )
     Test.add_func( "/Transport/Serial/OpenClose", test_transport_serial );
     Test.add_func( "/Transport/Pty/OpenClose", test_transport_pty );
     Test.add_func( "/Transport/Pty/Write", test_transport_pty_write );
+    Test.add_func( "/Transport/Pty/Read", test_transport_pty_read );
+    Test.add_func( "/Transport/Pty/Hup", test_transport_pty_hup );
 
     Test.run();
 }
