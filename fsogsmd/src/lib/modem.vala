@@ -50,11 +50,12 @@ public abstract interface FsoGsm.Modem : GLib.Object
     }
 
     public abstract bool open();
-    public abstract bool close();
+    public abstract void close();
     //FIXME: Should be Status with Vala >= 0.7
     public abstract int status();
 
     public abstract FsoGsm.AtCommand atCommandFactory( string command );
+    public abstract void registerChannel( string name, FsoGsm.Channel channel );
 }
 
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
@@ -82,7 +83,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         channels = new HashTable<string, FsoGsm.Channel>( GLib.str_hash, GLib.str_equal );
 
         registerAtCommands();
+        debug( "creating channels now" );
         createChannels();
+        debug( "channels created" );
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
     }
 
@@ -104,9 +107,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     /**
      * Override this to create your channels and transports. @return true, if successful. False, otherwise.
      **/
-    protected virtual bool createChannels()
+    protected virtual void createChannels()
     {
-        return false;
+        assert_not_reached();
     }
 
     //=====================================================================//
@@ -115,12 +118,21 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual bool open()
     {
-        return false;
+        var channels = this.channels.get_values();
+        logger.info( "will open %u channels...".printf( channels.length() ) );
+        foreach( var channel in channels )
+        {
+            if (!channel.open())
+                return false;
+        }
+        return true;
     }
 
-    public virtual bool close()
+    public virtual void close()
     {
-        return false;
+        var channels = this.channels.get_values();
+        foreach( var channel in channels )
+            channel.close();
     }
 
     public int /* FsoGsm.Modem.Status */ status()
@@ -135,6 +147,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return cmd;
     }
 
+    public void registerChannel( string name, FsoGsm.Channel channel )
+    {
+        if ( channels == null )
+        {
+            channels = new HashTable<string, FsoGsm.Channel>( str_hash, str_equal );
+        }
+        assert( channels.lookup( name ) == null );
+        channels.insert( name, channel );
+    }
     /**
      * The only reason for this to be public is that the only authorized source to call this
      * is the command queues / channels and there are no friend classes in Vala. However,

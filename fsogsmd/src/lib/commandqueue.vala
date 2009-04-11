@@ -77,7 +77,7 @@ public abstract interface FsoGsm.CommandQueue : Object
     public abstract void thaw();
 }
 
-public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
+public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractObject
 {
     protected Queue<CommandBundle> q;
     protected FsoFramework.Transport transport;
@@ -89,7 +89,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     protected void writeNextCommand()
     {
-        debug( "writing next command" );
+        logger.debug( "writing next command" );
         unowned CommandBundle command = q.peek_tail();
         writeRequestToTransport( command.request );
     }
@@ -103,13 +103,13 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     protected void onResponseFromTransport( string response )
     {
-        debug( "response = %s", response.escape( "" ) );
+        logger.debug( "response = %s".printf( response.escape( "" ) ) );
         parser.feed( response, (int)response.length );
     }
 
     protected void onHupFromTransport()
     {
-        debug( "hup from transport. closing." );
+        logger.debug( "hup from transport. closing." );
         transport.close();
     }
 
@@ -144,7 +144,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     protected void _solicitedCompleted( string[] response )
     {
-        debug( "solicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
+        logger.debug( "solicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
 
         onSolicitedResponse( q.pop_tail(), response );
         if ( q.length > 0 )
@@ -153,7 +153,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     protected void _unsolicitedCompleted( string[] response )
     {
-        debug( "UNsolicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
+        logger.debug( "UNsolicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
         if ( response.length == 1 ) // simple URCs
         {
             assert( ":" in response[0] ); // free-form URCs not yet supported
@@ -165,7 +165,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
             if ( bundle == null )
             {
-                warning( "unregistered URC. Please report!" );
+                logger.warning( "unregistered URC. Please report!" );
             }
             else
             {
@@ -200,23 +200,28 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
         free( buffer );
     }
 
+    public override string repr()
+    {
+        return "<Unnamed AtCommandQueue>";
+    }
+
     public void registerUnsolicited( AtCommand command, string prefix, UnsolicitedHandler handler )
     {
-        debug( "registering unsolicited handler for prefix '%s'", prefix );
+        logger.debug( "registering unsolicited handler for prefix '%s'".printf( prefix ) );
         assert( urcs.lookup( prefix ) == null ); // not allowed to register twice for one prefix
         urcs.insert( prefix, new UnsolicitedBundle() { command=command, prefix=prefix, handler=handler } );
     }
 
     public void registerUnsolicitedPDU( AtCommand command, string prefix, UnsolicitedHandlerPDU handler )
     {
-        debug( "registering unsolicited PDU handler for prefix '%s'", prefix );
+        logger.debug( "registering unsolicited PDU handler for prefix '%s'".printf( prefix ) );
         assert( urcs_pdu.lookup( prefix ) == null ); // not allowed to register twice for one prefix
         urcs_pdu.insert( prefix, new UnsolicitedBundlePDU() { command=command, prefix=prefix, handler=handler } );
     }
 
     public void enqueue( AtCommand command, string request, ResponseHandler? handler = null )
     {
-        debug( "enqueuing %s", request );
+        logger.debug( "enqueuing %s".printf( request ) );
         var retriggerWriting = ( q.length == 0 );
         q.push_head( new CommandBundle() { command=command, request=request, getRequest=null, handler=handler } );
         if ( retriggerWriting )
@@ -225,7 +230,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null )
     {
-        debug( "enqueuing deferred request %s", getRequest( command ) );
+        logger.debug( "enqueuing deferred request %s".printf( getRequest( command ) ) );
         var retriggerWriting = ( q.length == 0 );
         q.push_head( new CommandBundle() { command=command, request=null, getRequest=getRequest, handler=handler } );
         if ( retriggerWriting )

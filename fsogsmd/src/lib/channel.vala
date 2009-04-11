@@ -21,21 +21,20 @@ using GLib;
 
 public class FsoGsm.Channel : FsoGsm.AtCommandQueue
 {
-    static HashTable<string, FsoGsm.Channel> channels;
-
-    static construct
-    {
-        channels = new HashTable<string, FsoGsm.Channel>( str_hash, str_equal );
-    }
-
     protected string name;
 
     public Channel( string name, FsoFramework.Transport transport, FsoGsm.Parser parser )
     {
         base( transport, parser );
-        channels.insert( name, this );
+        this.name = name;
+        theModem.registerChannel( name, this );
 
         registerUnsolicited( new NullAtCommand(), "+FOO", onPlusFOO );
+    }
+
+    public override string repr()
+    {
+        return "<Channel '%s'>".printf( name );
     }
 
     public void onPlusFOO( FsoGsm.AtCommand command, string response )

@@ -76,7 +76,10 @@ class GsmDevice.Device : FsoFramework.AbstractObject
 
     public bool onInitFromMainloop()
     {
-        modem.open();
+        if ( !modem.open() )
+            logger.error( "Can't open modem" );
+        else
+            logger.info( "Modem opened successfully" );
         return false; // don't call me again
     }
 

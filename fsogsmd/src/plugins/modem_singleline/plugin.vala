@@ -21,7 +21,7 @@ using GLib;
 
 using FsoGsm;
 
-class Singleline.Modem : FsoGsm.AbstractGsmModem
+class Singleline.Modem : FsoGsm.AbstractModem
 {
     construct
     {
@@ -33,7 +33,7 @@ class Singleline.Modem : FsoGsm.AbstractGsmModem
         return "<Singleline>";
     }
 
-    protected override bool createChannels()
+    protected override void createChannels()
     {
         var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
         var parser = new FsoGsm.StateBasedAtParser();
@@ -44,10 +44,6 @@ class Singleline.Modem : FsoGsm.AbstractGsmModem
 
         var cops = theModem.atCommandFactory( "+COPS" ) as PlusCOPS;
         chan.enqueue( cops, cops.query() );
-
-        assert( chan.open() );
-
-        return true;
     }
 
     public void responseHandler( FsoGsm.AtCommand command, string[] response )
