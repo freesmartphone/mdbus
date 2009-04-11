@@ -30,11 +30,27 @@ public class FsoGsm.Channel : FsoGsm.AtCommandQueue
         theModem.registerChannel( name, this );
 
         registerUnsolicited( new NullAtCommand(), "+FOO", onPlusFOO );
+
+        theModem.signalStatusChanged += onModemStatusChanged;
     }
 
     public override string repr()
     {
         return "<Channel '%s'>".printf( name );
+    }
+
+    public void onModemStatusChanged( FsoGsm.Modem modem, int status )
+    {
+        if ( status == FsoGsm.Modem.Status.INITIALIZING )
+        {
+            var cmds = modem.commandSequence( "init" );
+            foreach( var cmd in cmds )
+            {
+                debug( "sending cmd '%s'", cmd );
+                enqueue( new NullAtCommand(), cmd );
+            }
+        }
+
     }
 
     public void onPlusFOO( FsoGsm.AtCommand command, string response )

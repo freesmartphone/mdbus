@@ -25,9 +25,7 @@ public abstract interface FsoGsm.Modem : GLib.Object
     {
         /** Initial state, Transport is closed **/
         CLOSED,
-        /** Transport has been successfully opened **/
-        OPENED,
-        /** Initialization commands are being sent **/
+        /** Transport open, initialization commands are being sent **/
         INITIALIZING,
         /** Initialized, SIM status unknown **/
         ALIVE,
@@ -56,6 +54,10 @@ public abstract interface FsoGsm.Modem : GLib.Object
 
     public abstract FsoGsm.AtCommand atCommandFactory( string command );
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
+
+    public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
+
+    public abstract string[] commandSequence( string purpose );
 }
 
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
@@ -64,6 +66,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected string modem_transport;
     protected string modem_port;
     protected int modem_speed;
+
+    protected string[] modem_init;
 
     protected FsoGsm.Modem.Status modem_status;
 
@@ -79,13 +83,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "file:/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
+        modem_init = config.stringListValue( "fsogsm", "modem_init", { "Z" } );
 
         channels = new HashTable<string, FsoGsm.Channel>( GLib.str_hash, GLib.str_equal );
 
         registerAtCommands();
-        debug( "creating channels now" );
         createChannels();
-        debug( "channels created" );
+
+        modem_status = Status.CLOSED;
+
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
     }
 
@@ -105,12 +111,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     }
 
     /**
-     * Override this to create your channels and transports. @return true, if successful. False, otherwise.
+     * Override this to create your channels and assorted transports.
      **/
-    protected virtual void createChannels()
-    {
-        assert_not_reached();
-    }
+    protected abstract void createChannels();
 
     //=====================================================================//
     // PUBLIC API
@@ -118,13 +121,18 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual bool open()
     {
+        ensureStatus( Status.CLOSED );
+
         var channels = this.channels.get_values();
-        logger.info( "will open %u channels...".printf( channels.length() ) );
+        logger.info( "will open %u channel(s)...".printf( channels.length() ) );
         foreach( var channel in channels )
         {
             if (!channel.open())
                 return false;
         }
+
+        advanceStatus( Status.CLOSED, Status.INITIALIZING );
+
         return true;
     }
 
@@ -156,6 +164,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         assert( channels.lookup( name ) == null );
         channels.insert( name, channel );
     }
+
+    public void ensureStatus( int current )
+    {
+        assert( modem_status == current );
+    }
+
     /**
      * The only reason for this to be public is that the only authorized source to call this
      * is the command queues / channels and there are no friend classes in Vala. However,
@@ -164,13 +178,19 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     public void advanceStatus( int current, int next )
     {
         assert( modem_status == current );
+        modem_status = (Modem.Status)next;
+        signalStatusChanged( next );
+    }
 
-        switch ( next )
+    public string[] commandSequence( string purpose )
+    {
+        if ( purpose == "init" )
         {
-            case FsoGsm.Modem.Status.OPENED:
-                break;
-            default:
-                assert_not_reached();
+            return modem_init;
+        }
+        else
+        {
+            return { "" };
         }
     }
 }

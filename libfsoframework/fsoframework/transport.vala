@@ -157,6 +157,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( buffer.len > 0 )
             restartWriter();
 
+        logger.debug( "opened" );
         return true;
     }
 

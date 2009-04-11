@@ -38,12 +38,6 @@ class Singleline.Modem : FsoGsm.AbstractModem
         var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
         var parser = new FsoGsm.StateBasedAtParser();
         var chan = new Channel( "main", transport, parser );
-
-        var cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
-        chan.enqueue( cfun, cfun.query() );
-
-        var cops = theModem.atCommandFactory( "+COPS" ) as PlusCOPS;
-        chan.enqueue( cops, cops.query() );
     }
 
     public void responseHandler( FsoGsm.AtCommand command, string[] response )
