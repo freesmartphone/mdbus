@@ -217,7 +217,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         logger.debug( "writing %d bytes".printf( len ) );
         assert( data != null );
         if ( fd == -1 )
-            warning( "writing although transport still closed; buffering." );
+            logger.warning( "writing although transport still closed; buffering." );
         var restart = ( fd != -1 && buffer.len == 0 );
         //TODO: avoid copying the buffer
         var temp = new uint8[len];
