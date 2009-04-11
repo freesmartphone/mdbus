@@ -39,7 +39,8 @@ class Singleline.Modem : FsoGsm.AbstractModem
     {
         c = new Channel();
         c.transport =  FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
-        c.queue = new AtCommandQueue( c.transport );
+        c.parser = new FsoGsm.StateBasedAtParser();
+        c.queue = new AtCommandQueue( c.transport, c.parser );
 
         channels.insert( "main", #c );
         weak Channel chan = channels.lookup( "main" );

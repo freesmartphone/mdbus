@@ -24,11 +24,13 @@ using FsoGsm;
 void test_commandqueue_enqueue()
 //===========================================================================
 {
-    var transport = new FsoFramework.SerialTransport( "/tmp/fifo", 115200 );
-    transport.open();
-    assert( transport.isOpen() );
+    var t = new FsoFramework.PtyTransport();
+    t.open();
+    assert( t.isOpen() );
 
-    var q = new AtCommandQueue( transport );
+    var p = new FsoGsm.NullParser();
+
+    var q = new AtCommandQueue( t, p );
 
     /*
     var cmd = Command() { command = "AT+CGMR\r\n", handler = null };

@@ -47,6 +47,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 {
     protected Queue<CommandBundle> q;
     protected FsoFramework.Transport transport;
+    protected FsoGsm.Parser parser;
     protected char* buffer;
 
     protected void writeNextCommand()
@@ -83,8 +84,6 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     protected void _onReadFromTransport( FsoFramework.Transport t )
     {
-        debug( "this = %p", this );
-        debug( "this.transport = %p", this.transport );
         var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
         buffer[bytesread] = 0;
         onResponseFromTransport( (string)buffer );
@@ -92,23 +91,38 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     protected void _onHupFromTransport( FsoFramework.Transport t )
     {
-        debug( "this = %p", this );
-        debug( "this.transport = %p", this.transport );
         onHupFromTransport();
+    }
+
+    protected bool _haveCommand()
+    {
+        return false;
+    }
+
+    protected bool _expectedPrefix( string line )
+    {
+        return false;
+    }
+
+    protected void _solicitedCompleted( string[] response )
+    {
+    }
+
+    protected void _unsolicitedCompleted( string[] response )
+    {
     }
 
     //=====================================================================//
     // PUBLIC API
     //=====================================================================//
 
-    public AtCommandQueue( FsoFramework.Transport transport )
+    public AtCommandQueue( FsoFramework.Transport transport, FsoGsm.Parser parser )
     {
-        debug( "at command queue: %p", this );
         q = new Queue<CommandBundle>();
         this.transport = transport;
-        debug( "this.transport = %p", this.transport );
-        assert( this.transport != null );
+        this.parser = parser;
         transport.setDelegates( _onReadFromTransport, _onHupFromTransport );
+        parser.setDelegates( _haveCommand, _expectedPrefix, _solicitedCompleted, _unsolicitedCompleted );
 
         buffer = malloc( COMMAND_QUEUE_BUFFER_SIZE );
     }

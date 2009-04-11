@@ -31,6 +31,7 @@ public abstract interface FsoGsm.Modem : GLib.Object
 public class FsoGsm.Channel
 {
     public FsoFramework.Transport transport;
+    public FsoGsm.Parser parser;
     public FsoGsm.CommandQueue queue;
 }
 

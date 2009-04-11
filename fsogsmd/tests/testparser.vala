@@ -62,7 +62,8 @@ public void unsoli( string[] response )
 void test_parser_1_solicited()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser( hcf, epf, soli, unsoli );
+    Parser parser = new StateBasedAtParser();
+    parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = true;
     expectedPrefix = false; // irrelevant for terminal lines
@@ -75,7 +76,8 @@ void test_parser_1_solicited()
 void test_parser_1_unsolicited()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser( hcf, epf, soli, unsoli );
+    Parser parser = new StateBasedAtParser();
+    parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = false;
     expectedPrefix = false;
@@ -88,7 +90,8 @@ void test_parser_1_unsolicited()
 void test_parser_2_solicited()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser( hcf, epf, soli, unsoli );
+    Parser parser = new StateBasedAtParser();
+    parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = true;
     expectedPrefix = true;
@@ -102,7 +105,8 @@ void test_parser_2_solicited()
 void test_parser_2_unsolicited()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser( hcf, epf, soli, unsoli );
+    Parser parser = new StateBasedAtParser();
+    parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = false;
     expectedPrefix = false;
@@ -118,7 +122,8 @@ void test_parser_2_unsolicited()
 void test_parser_2_unsolicited_pdu()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser( hcf, epf, soli, unsoli );
+    Parser parser = new StateBasedAtParser();
+    parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = false;
     expectedPrefix = false;
