@@ -54,9 +54,9 @@ class Singleline.Modem : FsoGsm.AbstractModem
         return false;
     }
 
-    public void responseHandler( FsoGsm.AtCommand command, string response )
+    public void responseHandler( FsoGsm.AtCommand command, string[] response )
     {
-        debug( "handler called with '%s'", response );
+        debug( "handler called with '%s'", response[0] );
         assert_not_reached();
     }
 

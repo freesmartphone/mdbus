@@ -33,12 +33,12 @@ public class FsoGsm.DeviceGetAntennaPower : FsoGsm.AbstractMediator
         enqueue( cfun, cfun.query(), onResponse );
     }
 
-    public void onResponse( AtCommand command, string response )
+    public void onResponse( AtCommand command, string[] response )
     {
-        debug( "DeviceGetAntennaPower.onResponse( '%s' )", response );
+        debug( "DeviceGetAntennaPower.onResponse( '%s' )", response[0] );
 
         var cfun = command as PlusCFUN;
-        cfun.parse( response );
+        cfun.parse( response[0] );
 
         debug( "calling dbus answer with '%d'", cfun.fun );
     }

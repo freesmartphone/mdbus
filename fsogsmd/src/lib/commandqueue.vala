@@ -19,7 +19,7 @@
 
 using GLib;
 
-public delegate void FsoGsm.ResponseHandler( FsoGsm.AtCommand command, string response );
+public delegate void FsoGsm.ResponseHandler( FsoGsm.AtCommand command, string[] response );
 public delegate string FsoGsm.RequestHandler( FsoGsm.AtCommand command );
 
 const int COMMAND_QUEUE_BUFFER_SIZE = 4096;
@@ -37,9 +37,24 @@ public class FsoGsm.CommandBundle
 
 public abstract interface FsoGsm.CommandQueue : Object
 {
+    /**
+     * Enqueue new @a AtCommand command, sending the request as @a string request.
+     * The @a ResponseHandler handler will be called with the response from the peer.
+     **/
     public abstract void enqueue( AtCommand command, string request, ResponseHandler? handler );
+    /**
+     * Enqueue new @a AtCommand command. When the command is due for sending, the
+     * @a RequestHandler getRequest will be called to gather the request string.
+     **/
     public abstract void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler );
+    /**
+     * Halt the Queue operation. Stop accepting any more commands. If drain is true, send
+     * all commands that are in the Queue at this point.
+     **/
     public abstract void freeze( bool drain = false );
+    /**
+     * Resume the Queue operation.
+     **/
     public abstract void thaw();
 }
 
@@ -86,6 +101,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
     protected void onSolicitedResponse( CommandBundle bundle, string[] response )
     {
         debug( "on solicited response" );
+        bundle.handler( bundle.command, response );
     }
 
     protected void _onReadFromTransport( FsoFramework.Transport t )
