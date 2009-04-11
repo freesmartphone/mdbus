@@ -90,7 +90,7 @@ namespace FsoFramework {
 		public BaseSubsystem (string name);
 	}
 	[CCode (cheader_filename = "fsoframework/transport.h")]
-	public class BaseTransport : FsoFramework.Transport, GLib.Object {
+	public class BaseTransport : FsoFramework.Transport {
 		protected GLib.ByteArray buffer;
 		protected int fd;
 		protected FsoFramework.TransportHupFunc hupfunc;
@@ -99,11 +99,16 @@ namespace FsoFramework {
 		protected FsoFramework.TransportReadFunc readfunc;
 		protected uint speed;
 		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
-		public virtual string getName ();
+		public override void close ();
+		public override string getName ();
+		public override bool isOpen ();
 		public BaseTransport (string name, uint speed = 0, FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
-		public virtual bool open ();
+		public override bool open ();
+		public override int read (void* data, int len);
 		public virtual string repr ();
 		protected void restartWriter ();
+		public override void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
+		public override int write (void* data, int len);
 		public bool writeCallback (GLib.IOChannel source, GLib.IOCondition condition);
 	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
@@ -151,6 +156,17 @@ namespace FsoFramework {
 		public SyslogLogger (string domain);
 		protected override void write (string message);
 	}
+	[CCode (cheader_filename = "fsoframework/transport.h")]
+	public abstract class Transport : GLib.Object {
+		public abstract void close ();
+		public static FsoFramework.Transport create (string type, string name = "", uint speed = 0);
+		public abstract string getName ();
+		public abstract bool isOpen ();
+		public abstract bool open ();
+		public abstract int read (void* data, int len);
+		public abstract void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
+		public abstract int write (void* data, int length);
+	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public interface Logger : GLib.Object {
 		public abstract void debug (string message);
@@ -174,16 +190,6 @@ namespace FsoFramework {
 		public abstract uint registerPlugins ();
 		public abstract bool registerServiceName (string servicename);
 		public abstract bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
-	}
-	[CCode (cheader_filename = "fsoframework/transport.h")]
-	public interface Transport : GLib.Object {
-		public abstract void close ();
-		public static FsoFramework.Transport? create (string type, string name = "", uint speed = 0);
-		public abstract bool isOpen ();
-		public abstract bool open ();
-		public abstract int read (void* data, int len);
-		public abstract void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
-		public abstract int write (void* data, int length);
 	}
 	[CCode (type_id = "FSO_FRAMEWORK_TYPE_PLUGIN_INFO", cheader_filename = "fsoframework/plugin.h")]
 	public struct PluginInfo {

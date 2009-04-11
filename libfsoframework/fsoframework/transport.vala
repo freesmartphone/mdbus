@@ -36,7 +36,7 @@ public enum FsoFramework.TransportState
 }
 
 //===========================================================================
-public abstract interface FsoFramework.Transport : Object
+public abstract class FsoFramework.Transport : Object
 {
     /**
      * @returns true, if the @a transport is open. False, otherwise.
@@ -46,6 +46,10 @@ public abstract interface FsoFramework.Transport : Object
      * Open the transport. Returns true, if successful. False, otherwise.
      */
     public abstract bool open();
+    /**
+     * @returns the name of the transport.
+     **/
+    public abstract string getName();
     /**
      * Set delegates being called when there is something to read or there has been an exception.
      **/
@@ -65,7 +69,7 @@ public abstract interface FsoFramework.Transport : Object
     /**
      * Create @a FsoFramework.Transport as indicated by @a type
      **/
-    public static Transport? create( string type, string name = "", uint speed = 0 )
+    public static Transport create( string type, string name = "", uint speed = 0 )
     {
         switch ( type )
         {
@@ -80,7 +84,7 @@ public abstract interface FsoFramework.Transport : Object
 }
 
 //===========================================================================
-public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
+public class FsoFramework.BaseTransport : FsoFramework.Transport
 {
     protected Logger logger;
 
@@ -130,12 +134,17 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
         logger.debug( "created" );
     }
 
-    public virtual string getName()
+    ~BaseTransport()
+    {
+        logger.debug( "destroyed" );
+    }
+
+    public override string getName()
     {
         return name;
     }
 
-    public virtual bool open()
+    public override bool open()
     {
         assert( fd != -1 ); // fail, if trying to open the 2nd time
         // construct IO channel
@@ -151,7 +160,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
         return true;
     }
 
-    public void close()
+    public override void close()
     {
         if ( readwatch != 0 )
             Source.remove( readwatch );
@@ -161,7 +170,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
         logger.debug( "closed" );
     }
 
-    public bool isOpen()
+    public override bool isOpen()
     {
         return ( fd != -1 );
     }
@@ -171,7 +180,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
         return "<BaseTransport fd %d>".printf( fd );
     }
 
-    public void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc )
+    public override void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc )
     {
         this.readfunc = readfunc;
         this.hupfunc = hupfunc;
@@ -185,7 +194,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
     }
     */
 
-    public int read( void* data, int len )
+    public override int read( void* data, int len )
     {
         assert( fd != -1 );
         assert( data != null );
@@ -201,7 +210,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport, Object
         return (int)byteswritten;
     }
 
-    public int write( void* data, int len )
+    public override int write( void* data, int len )
     {
         logger.debug( "writing %d bytes".printf( len ) );
         assert( data != null );
@@ -305,7 +314,6 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
         // raw output
         termios.c_oflag &= ~(PosixExtra.OPOST | PosixExtra.OLCUC | PosixExtra.ONLRET | PosixExtra.ONOCR | PosixExtra.OCRNL );
 
-        /*
         // no special character handling
         termios.c_cc[PosixExtra.VMIN] = 0;
         termios.c_cc[PosixExtra.VTIME] = 2;
@@ -313,7 +321,6 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
         termios.c_cc[PosixExtra.VQUIT] = 0;
         termios.c_cc[PosixExtra.VSTART] = 0;
         termios.c_cc[PosixExtra.VSTOP] = 0;
-        */
 
         termios.c_cc[PosixExtra.VSUSP] = 0;
         PosixExtra.tcsetattr( fd, PosixExtra.TCSANOW, termios);
