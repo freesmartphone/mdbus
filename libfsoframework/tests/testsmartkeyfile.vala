@@ -47,6 +47,23 @@ void test_smartkeyfile_values()
 
     var boolvar2 = smk.boolValue( "section3", "notpresent", true );
     assert ( boolvar2 );
+
+    var stringlistvar = smk.stringListValue( "section4", "keypresent", { "these", "values", "irrelevant" } );
+    assert ( stringlistvar.length == 4 );
+    assert ( stringlistvar[0] == "foo" );
+    assert ( stringlistvar[1] == "bar" );
+    assert ( stringlistvar[2] == "yo" );
+    assert ( stringlistvar[3] == "kurt" );
+
+    var stringlistvar2 = smk.stringListValue( "section4", "notpresent", { "these", "values", "default" } );
+    assert ( stringlistvar2.length == 3 );
+    assert ( stringlistvar2[0] == "these" );
+    assert ( stringlistvar2[1] == "values" );
+    assert ( stringlistvar2[2] == "default" );
+
+    var stringlistvar3 = smk.stringListValue( "section4", "stillNotPresent" );
+    assert ( stringlistvar3 == null );
+
 }
 
 //===========================================================================
@@ -61,9 +78,9 @@ void test_smartkeyfile_sections()
     assert ( !smk.hasSection( "this.section.not.there" ) );
 
     var sections = smk.sectionsWithPrefix();
-    assert ( sections.length() == 8 );
+    assert ( sections.length() == 9 );
     assert ( sections.nth_data(0) == "section0" );
-    assert ( sections.nth_data(7) == "foo.bar" );
+    assert ( sections.nth_data(8) == "foo.bar" );
 
     var foosections = smk.sectionsWithPrefix( "foo" );
     foreach ( var section in foosections )

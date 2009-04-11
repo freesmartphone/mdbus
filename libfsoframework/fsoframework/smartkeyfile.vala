@@ -49,6 +49,7 @@ public class FsoFramework.SmartKeyFile : Object
         return true;
     }
 
+    //TODO: Rewrite this once Vala has generics
     public string stringValue( string section, string key, string defaultvalue = "" )
     {
         string value;
@@ -86,6 +87,21 @@ public class FsoFramework.SmartKeyFile : Object
         try
         {
             value = kf.get_boolean( section, key );
+        }
+        catch ( KeyFileError e )
+        {
+            value = defaultvalue;
+        }
+        return value;
+    }
+
+    public string[]? stringListValue( string section, string key, string[]? defaultvalue = null )
+    {
+        string[] value;
+
+        try
+        {
+            value = kf.get_string_list( section, key );
         }
         catch ( KeyFileError e )
         {

@@ -149,6 +149,7 @@ namespace FsoFramework {
 		public bool loadFromFile (string filename);
 		public SmartKeyFile ();
 		public GLib.List<string> sectionsWithPrefix (string? prefix = null);
+		public string[]? stringListValue (string section, string key, string[]? defaultvalue = null);
 		public string stringValue (string section, string key, string defaultvalue = "");
 	}
 	[CCode (cheader_filename = "fsoframework/smartkeyfile.h")]

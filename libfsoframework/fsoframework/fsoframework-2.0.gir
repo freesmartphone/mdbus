@@ -248,6 +248,29 @@
 					<type name="bool"/>
 				</return-value>
 			</method>
+			<method name="stringListValue" c:identifier="fso_framework_smart_key_file_stringListValue">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.SmartKeyFile"/>
+					</parameter>
+					<parameter name="section">
+						<type name="string"/>
+					</parameter>
+					<parameter name="key">
+						<type name="string"/>
+					</parameter>
+					<parameter name="defaultvalue">
+						<array>
+							<type name="string"/>
+						</array>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<array>
+						<type name="string"/>
+					</array>
+				</return-value>
+			</method>
 			<method name="hasSection" c:identifier="fso_framework_smart_key_file_hasSection">
 				<parameters>
 					<parameter name="self">
