@@ -286,14 +286,109 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
         PosixExtra.TermIOs termios = {};
         PosixExtra.tcgetattr( fd, termios );
 
-        if ( speed == 115200 )
+        int tspeed;
+
+        switch ( speed )
         {
-            // 115200
-            PosixExtra.cfsetispeed( termios, PosixExtra.B115200 );
-            PosixExtra.cfsetospeed( termios, PosixExtra.B115200 );
+            case 0:
+                tspeed = PosixExtra.B0;
+                break;
+            case 50:
+                tspeed = PosixExtra.B50;
+                break;
+            case 75:
+                tspeed = PosixExtra.B75;
+                break;
+            case 110:
+                tspeed = PosixExtra.B110;
+                break;
+            case 134:
+                tspeed = PosixExtra.B134;
+                break;
+            case 150:
+                tspeed = PosixExtra.B150;
+                break;
+            case 200:
+                tspeed = PosixExtra.B200;
+                break;
+            case 300:
+                tspeed = PosixExtra.B300;
+                break;
+            case 600:
+                tspeed = PosixExtra.B600;
+                break;
+            case 1200:
+                tspeed = PosixExtra.B1200;
+                break;
+            case 1800:
+                tspeed = PosixExtra.B1800;
+                break;
+            case 2400:
+                tspeed = PosixExtra.B2400;
+                break;
+            case 4800:
+                tspeed = PosixExtra.B4800;
+                break;
+            case 9600:
+                tspeed = PosixExtra.B9600;
+                break;
+            case 19200:
+                tspeed = PosixExtra.B19200;
+                break;
+            case 38400:
+                tspeed = PosixExtra.B38400;
+                break;
+            case 57600:
+                tspeed = PosixExtra.B57600;
+                break;
+            case 115200:
+                tspeed = PosixExtra.B115200;
+                break;
+            case 230400:
+                tspeed = PosixExtra.B230400;
+                break;
+            case 460800:
+                tspeed = PosixExtra.B460800;
+                break;
+            case 500000:
+                tspeed = PosixExtra.B500000;
+                break;
+            case 576000:
+                tspeed = PosixExtra.B576000;
+                break;
+            case 921600:
+                tspeed = PosixExtra.B921600;
+                break;
+            case 1000000:
+                tspeed = PosixExtra.B1000000;
+                break;
+            case 1152000:
+                tspeed = PosixExtra.B1152000;
+                break;
+            case 1500000:
+                tspeed = PosixExtra.B1500000;
+                break;
+            case 2000000:
+                tspeed = PosixExtra.B2000000;
+                break;
+            case 2500000:
+                tspeed = PosixExtra.B2500000;
+                break;
+            case 3000000:
+                tspeed = PosixExtra.B3000000;
+                break;
+            case 3500000:
+                tspeed = PosixExtra.B3500000;
+                break;
+            case 4000000:
+                tspeed = PosixExtra.B4000000;
+                break;
+            default:
+                assert_not_reached();
         }
-        else
-            logger.warning( "portspeed != 115200" );
+
+        PosixExtra.cfsetispeed( termios, tspeed );
+        PosixExtra.cfsetospeed( termios, tspeed );
 
         // local read
         termios.c_cflag |= (PosixExtra.CLOCAL | PosixExtra.CREAD);
