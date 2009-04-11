@@ -20,6 +20,8 @@
 using GLib;
 using FsoFramework;
 
+const char[] TRANSPORT_TEST_STRING = "\r\n+DATA: FOO\r\n";
+
 void transport_read_func( Transport transport )
 {
 }
@@ -74,6 +76,31 @@ void test_transport_pty()
 }
 
 //===========================================================================
+void test_transport_pty_write()
+//===========================================================================
+{
+    var t = new PtyTransport();
+    t.open();
+    t.write( TRANSPORT_TEST_STRING, TRANSPORT_TEST_STRING.length );
+
+    // transport writes only from mainloop, so give time to do it
+    var loop = new MainLoop( null, false );
+    MainContext.default().iteration( false );
+
+    var fd = Posix.open( t.getName(), Posix.O_RDONLY );
+    assert( fd != -1 );
+    var buf = new char[512];
+    var length = Posix.read( fd, buf, 512 );
+    buf[length] = 0;
+
+    //debug( "read %d bytes: %s", (int)length, (string)buf );
+    assert( length == TRANSPORT_TEST_STRING.length );
+
+    assert( Memory.cmp( TRANSPORT_TEST_STRING, buf, TRANSPORT_TEST_STRING.length ) == 0 );
+
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -82,6 +109,7 @@ void main( string[] args )
     Test.add_func( "/Transport/Base/Create", test_transport_base );
     Test.add_func( "/Transport/Serial/OpenClose", test_transport_serial );
     Test.add_func( "/Transport/Pty/OpenClose", test_transport_pty );
+    Test.add_func( "/Transport/Pty/Write", test_transport_pty_write );
 
     Test.run();
 }
