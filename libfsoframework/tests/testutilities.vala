@@ -24,8 +24,8 @@ using FsoFramework;
 void test_utilities_filehandling_presence()
 //===========================================================================
 {
-    assert ( FileHandling.isPresent( "this.file.not.present" ) == false );
-    assert ( FileHandling.isPresent( "textfile.txt" ) == true );
+    assert( FileHandling.isPresent( "this.file.not.present" ) == false );
+    assert( FileHandling.isPresent( "textfile.txt" ) == true );
 }
 
 //===========================================================================
@@ -33,7 +33,7 @@ void test_utilities_filehandling_read()
 //===========================================================================
 {
     var contents = FileHandling.read( "textfile.txt" );
-    assert ( contents.has_prefix( "GNU" ) );
+    assert( contents.has_prefix( "GNU" ) );
 }
 
 //===========================================================================
@@ -42,7 +42,16 @@ void test_utilities_filehandling_write()
 {
     FileHandling.write( "Dieser Satz kein Verb!", "nocontent.txt" );
     var contents = FileHandling.read( "nocontent.txt" );
-    assert ( contents == "Dieser Satz kein Verb!" );
+    assert( contents == "Dieser Satz kein Verb!" );
+}
+
+//===========================================================================
+void test_utilities_stringhandling_list()
+//===========================================================================
+{
+    string[] list = { "Dieser", "Satz", "kein", "Verb!" };
+    var line = StringHandling.stringListToString( list );
+    assert( line == "[ \"Dieser\", \"Satz\", \"kein\", \"Verb!\" ]" );
 }
 
 //===========================================================================
@@ -54,6 +63,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/FileHandling/Presence", test_utilities_filehandling_presence );
     Test.add_func( "/Utilities/FileHandling/Read", test_utilities_filehandling_read );
     Test.add_func( "/Utilities/FileHandling/Write", test_utilities_filehandling_write );
+    Test.add_func( "/Utilities/StringHandling/List", test_utilities_stringhandling_list );
 
     Test.run();
 }

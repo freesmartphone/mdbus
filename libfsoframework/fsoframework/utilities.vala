@@ -125,4 +125,22 @@ public bool switchToUserAndGroup( string user, string group )
 
 } }
 
+namespace FsoFramework { namespace StringHandling {
 
+//TODO: make this a generic, once Vala supports it
+public string stringListToString( string[] list )
+{
+    var res = "[ ";
+
+    for( int i = 0; i < list.length; ++i )
+    {
+        res += "\"%s\"".printf( list[i] );
+        if ( i < list.length-1 )
+            res += ", ";
+        else
+            res += " ]";
+    }
+    return res;
+}
+
+} }
