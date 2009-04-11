@@ -74,12 +74,18 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
     protected void onResponseFromTransport( string response )
     {
         debug( "response = %s", response.escape( "" ) );
+        parser.feed( response, (int)response.length );
     }
 
     protected void onHupFromTransport()
     {
         debug( "hup from transport. closing." );
         transport.close();
+    }
+
+    protected void onSolicitedResponse( CommandBundle bundle, string[] response )
+    {
+        debug( "on solicited response" );
     }
 
     protected void _onReadFromTransport( FsoFramework.Transport t )
@@ -96,20 +102,33 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, Object
 
     protected bool _haveCommand()
     {
-        return false;
+        return ( q.length > 0 );
     }
 
     protected bool _expectedPrefix( string line )
     {
-        return false;
+        return true;
     }
 
     protected void _solicitedCompleted( string[] response )
     {
+        debug( "solicited completed: " );
+        foreach ( var line in response )
+        {
+            debug( "line: %s", line );
+        }
+        onSolicitedResponse( q.pop_tail(), response );
+        if ( q.length > 0 )
+            writeNextCommand();
     }
 
     protected void _unsolicitedCompleted( string[] response )
     {
+        debug( "UNsolicited completed: " );
+        foreach ( var line in response )
+        {
+            debug( "line: %s", line );
+        }
     }
 
     //=====================================================================//
