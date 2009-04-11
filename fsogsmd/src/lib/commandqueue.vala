@@ -154,28 +154,32 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     protected void _unsolicitedCompleted( string[] response )
     {
         logger.debug( "UNsolicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
+
+        assert( ":" in response[0] ); // free-form URCs not yet supported
+
+        var strings = response[0].split( ":" );
+        assert( strings.length == 2 ); // multiple ':' in URC not yet supported
+
         if ( response.length == 1 ) // simple URCs
         {
-            assert( ":" in response[0] ); // free-form URCs not yet supported
-
-            var strings = response[0].split( ":" );
-            assert( strings.length == 2 ); // multiple ':' in URC not yet supported
-
             weak UnsolicitedBundle bundle = urcs.lookup( strings[0] );
 
             if ( bundle == null )
-            {
                 logger.warning( "unregistered URC. Please report!" );
-            }
             else
-            {
                 bundle.handler( bundle.command, strings[1] );
-            }
+        }
+        else if ( response.length == 2 ) // PDU URC
+        {
+            weak UnsolicitedBundlePDU bundle = urcs_pdu.lookup( strings[0] );
+
+            if ( bundle == null )
+                logger.warning( "unregistered URC w/ PDU. Please report!" );
+            else
+                bundle.handler( bundle.command, strings[1], response[1] );
         }
         else
-        {
             assert_not_reached();
-        }
     }
 
     //=====================================================================//
