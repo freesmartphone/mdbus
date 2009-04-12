@@ -15,6 +15,7 @@ VALAC_ARGS = \
 	--vapidir $(top_srcdir)/fsoframework \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
+	--pkg posix \
 	--pkg fsoframework-2.0
 
 #
