@@ -26,10 +26,12 @@ const char[] TRANSPORT_READ_STRING = "\r\n+CMS ERROR: YO KURT\r\n";
 char[] buffer;
 string readline;
 bool gotHup;
+bool frozen;
 
 void transport_read_func( Transport transport )
 {
     message( "read delegate called" );
+    assert( !frozen );
     buffer = new char[512];
     var bytesread = transport.read( (void*)buffer, 512 );
     buffer[bytesread] = 0;
@@ -162,6 +164,43 @@ void test_transport_pty_hup()
 }
 
 //===========================================================================
+void test_transport_pty_freeze_thaw()
+//===========================================================================
+{
+    var t = new PtyTransport();
+    t.setDelegates( transport_read_func, transport_hup_func );
+    t.open();
+
+    readline = "";
+
+    // freeze transport
+    t.freeze();
+    frozen = true;
+
+    // open pts and write something to it, so the other side can pick it up
+    var fd = Posix.open( t.getName(), Posix.O_RDWR );
+    assert( fd != -1 );
+    var written = Posix.write( fd, "HELLO WORLD", 11 );
+
+    // give time to pick up (which would be an error, since we're frozen)
+    MainContext.default().iteration( false );
+    MainContext.default().iteration( false );
+    MainContext.default().iteration( false );
+
+    // thaw transport
+    frozen = false;
+    t.thaw();
+
+    // transport reads only from mainloop, so give time to do it
+    while ( readline == "" )
+    {
+        MainContext.default().iteration( false );
+    }
+
+    assert( readline == "HELLO WORLD" );
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -173,6 +212,7 @@ void main( string[] args )
     Test.add_func( "/Transport/Pty/Write", test_transport_pty_write );
     Test.add_func( "/Transport/Pty/Read", test_transport_pty_read );
     Test.add_func( "/Transport/Pty/Hup", test_transport_pty_hup );
+    Test.add_func( "/Transport/Pty/FreezeThaw", test_transport_pty_freeze_thaw );
 
     Test.run();
 }
