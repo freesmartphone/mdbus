@@ -32,6 +32,7 @@ public enum FsoFramework.TransportState
     CLOSED,
     OPEN,
     ALIVE,
+    FROZEN,
     DEAD,
 }
 
@@ -59,7 +60,15 @@ public abstract class FsoFramework.Transport : Object
      **/
     public abstract int read( void* data, int len );
     /**
-     * Write data to the transport. The data may or may not be written immediately.
+     * Pause reading and writing from/to the transport.
+     **/
+    public abstract void freeze();
+    /**
+     * Resume reading and writing from/to the transport.
+     **/
+    public abstract void thaw();
+    /**
+     * Close the transport. Closing an already closed transport is allowed.
      **/
     public abstract int write( void* data, int length );
     /**
@@ -228,6 +237,27 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( restart )
             restartWriter();
         return len;
+    }
+
+    public override void freeze()
+    {
+        if ( buffer.len > 0 )
+            logger.warning( "freeze called while buffer not yet empty" );
+        if ( readwatch != 0 )
+            Source.remove( readwatch );
+        if ( writewatch != 0 )
+            Source.remove( writewatch );
+        logger.debug( "frozen" );
+    }
+
+    public override void thaw()
+    {
+        // setup watch
+        readwatch = channel.add_watch_full( readpriority, IOCondition.IN | IOCondition.HUP, actionCallback );
+        // we might have already queued something up in the buffer
+        if ( buffer.len > 0 )
+            restartWriter();
+        logger.debug( "thawn" );
     }
 
     public bool actionCallback( IOChannel source, IOCondition condition )

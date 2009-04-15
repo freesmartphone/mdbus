@@ -14,6 +14,11 @@ namespace FsoFramework {
 			public abstract void SetBrightness (int brightness);
 		}
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		[DBus (name = "org.freesmartphone.Device.Info")]
+		public interface Info : GLib.Object {
+			public abstract GLib.HashTable<string,GLib.Value?> GetCpuInfo ();
+		}
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
 		[DBus (name = "org.freesmartphone.Device.LED")]
 		public interface LED : GLib.Object {
 			public abstract string GetName ();
@@ -25,6 +30,10 @@ namespace FsoFramework {
 		public const string DisplayServiceFace;
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
 		public const string DisplayServicePath;
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public const string InfoServiceFace;
+		[CCode (cheader_filename = "fsoframework/interfaces.h")]
+		public const string InfoServicePath;
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
 		public const string LedServiceFace;
 		[CCode (cheader_filename = "fsoframework/interfaces.h")]
@@ -105,6 +114,7 @@ namespace FsoFramework {
 		protected uint speed;
 		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
 		public override void close ();
+		public override void freeze ();
 		public override string getName ();
 		public override bool isOpen ();
 		public BaseTransport (string name, uint speed = 0, FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
@@ -113,6 +123,7 @@ namespace FsoFramework {
 		public virtual string repr ();
 		protected void restartWriter ();
 		public override void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
+		public override void thaw ();
 		public override int write (void* data, int len);
 		public bool writeCallback (GLib.IOChannel source, GLib.IOCondition condition);
 	}
@@ -166,11 +177,13 @@ namespace FsoFramework {
 	public abstract class Transport : GLib.Object {
 		public abstract void close ();
 		public static FsoFramework.Transport create (string type, string name = "", uint speed = 0);
+		public abstract void freeze ();
 		public abstract string getName ();
 		public abstract bool isOpen ();
 		public abstract bool open ();
 		public abstract int read (void* data, int len);
 		public abstract void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
+		public abstract void thaw ();
 		public abstract int write (void* data, int length);
 	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
@@ -207,6 +220,7 @@ namespace FsoFramework {
 		CLOSED,
 		OPEN,
 		ALIVE,
+		FROZEN,
 		DEAD
 	}
 	[CCode (cprefix = "FSO_FRAMEWORK_PLUGIN_ERROR_", cheader_filename = "fsoframework/plugin.h")]

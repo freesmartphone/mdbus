@@ -13,6 +13,7 @@
 			<member name="closed"/>
 			<member name="open"/>
 			<member name="alive"/>
+			<member name="frozen"/>
 			<member name="dead"/>
 		</enumeration>
 		<errordomain name="FsoFrameworkPluginError">
@@ -455,6 +456,26 @@
 				</parameters>
 				<return-value transfer-ownership="full">
 					<type name="int"/>
+				</return-value>
+			</method>
+			<method name="freeze" c:identifier="fso_framework_transport_freeze">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Transport"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="thaw" c:identifier="fso_framework_transport_thaw">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.Transport"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
 				</return-value>
 			</method>
 			<method name="write" c:identifier="fso_framework_transport_write">
