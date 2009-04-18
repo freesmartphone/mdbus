@@ -107,9 +107,11 @@ namespace FsoFramework {
 	public class BaseTransport : FsoFramework.Transport {
 		protected GLib.ByteArray buffer;
 		protected int fd;
+		protected bool hard;
 		protected FsoFramework.TransportHupFunc hupfunc;
 		protected FsoFramework.Logger logger;
 		protected string name;
+		protected bool raw;
 		protected FsoFramework.TransportReadFunc readfunc;
 		protected uint speed;
 		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
@@ -117,7 +119,7 @@ namespace FsoFramework {
 		public override void freeze ();
 		public override string getName ();
 		public override bool isOpen ();
-		public BaseTransport (string name, uint speed = 0, FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
+		public BaseTransport (string name, uint speed = 0, bool raw = true, bool hard = true);
 		public override bool open ();
 		public override int read (void* data, int len);
 		public virtual string repr ();
@@ -142,13 +144,13 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/transport.h")]
 	public class PtyTransport : FsoFramework.BaseTransport {
 		public override string getName ();
-		public PtyTransport (FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
+		public PtyTransport ();
 		public override bool open ();
 		public override string repr ();
 	}
 	[CCode (cheader_filename = "fsoframework/transport.h")]
 	public class SerialTransport : FsoFramework.BaseTransport {
-		public SerialTransport (string portname, uint portspeed, FsoFramework.TransportHupFunc? hupfunc = null, FsoFramework.TransportReadFunc? readfunc = null, int rp = 0, int wp = 0);
+		public SerialTransport (string portname, uint portspeed, bool raw = true, bool hard = true);
 		public override bool open ();
 		public override string repr ();
 	}
@@ -176,7 +178,7 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework/transport.h")]
 	public abstract class Transport : GLib.Object {
 		public abstract void close ();
-		public static FsoFramework.Transport create (string type, string name = "", uint speed = 0);
+		public static FsoFramework.Transport create (string type, string name = "", uint speed = 0, bool raw = true, bool hard = true);
 		public abstract void freeze ();
 		public abstract string getName ();
 		public abstract bool isOpen ();

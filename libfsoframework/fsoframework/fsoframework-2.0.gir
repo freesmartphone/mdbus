@@ -515,6 +515,12 @@
 					<parameter name="speed">
 						<type name="uint"/>
 					</parameter>
+					<parameter name="raw">
+						<type name="bool"/>
+					</parameter>
+					<parameter name="hard">
+						<type name="bool"/>
+					</parameter>
 				</parameters>
 				<return-value transfer-ownership="full">
 					<type name="FsoFramework.Transport"/>
@@ -530,6 +536,12 @@
 			</field>
 			<field name="speed">
 				<type name="uint"/>
+			</field>
+			<field name="raw">
+				<type name="bool"/>
+			</field>
+			<field name="hard">
+				<type name="bool"/>
 			</field>
 			<field name="fd">
 				<type name="int"/>
@@ -561,17 +573,11 @@
 					<parameter name="speed">
 						<type name="uint"/>
 					</parameter>
-					<parameter name="hupfunc">
-						<type name="FsoFramework.TransportHupFunc?"/>
+					<parameter name="raw">
+						<type name="bool"/>
 					</parameter>
-					<parameter name="readfunc">
-						<type name="FsoFramework.TransportReadFunc?"/>
-					</parameter>
-					<parameter name="rp">
-						<type name="int"/>
-					</parameter>
-					<parameter name="wp">
-						<type name="int"/>
+					<parameter name="hard">
+						<type name="bool"/>
 					</parameter>
 				</parameters>
 				<return-value>
@@ -630,17 +636,11 @@
 					<parameter name="portspeed">
 						<type name="uint"/>
 					</parameter>
-					<parameter name="hupfunc">
-						<type name="FsoFramework.TransportHupFunc?"/>
+					<parameter name="raw">
+						<type name="bool"/>
 					</parameter>
-					<parameter name="readfunc">
-						<type name="FsoFramework.TransportReadFunc?"/>
-					</parameter>
-					<parameter name="rp">
-						<type name="int"/>
-					</parameter>
-					<parameter name="wp">
-						<type name="int"/>
+					<parameter name="hard">
+						<type name="bool"/>
 					</parameter>
 				</parameters>
 				<return-value>
@@ -651,18 +651,6 @@
 		<class name="PtyTransport" parent="FsoFramework.BaseTransport" glib:type-name="FsoFrameworkPtyTransport" glib:get-type="fso_framework_pty_transport_get_type">
 			<constructor name="new" c:identifier="fso_framework_pty_transport_new">
 				<parameters>
-					<parameter name="hupfunc">
-						<type name="FsoFramework.TransportHupFunc?"/>
-					</parameter>
-					<parameter name="readfunc">
-						<type name="FsoFramework.TransportReadFunc?"/>
-					</parameter>
-					<parameter name="rp">
-						<type name="int"/>
-					</parameter>
-					<parameter name="wp">
-						<type name="int"/>
-					</parameter>
 				</parameters>
 				<return-value>
 					<type name="FsoFramework.PtyTransport"/>

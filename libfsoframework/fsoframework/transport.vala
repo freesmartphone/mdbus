@@ -40,15 +40,15 @@ public enum FsoFramework.TransportState
 public abstract class FsoFramework.Transport : Object
 {
     /**
-     * @returns true, if the @a transport is open. False, otherwise.
+     * @returns true, if the @a transport is open; else false.
      */
     public abstract bool isOpen();
     /**
-     * Open the transport. Returns true, if successful. False, otherwise.
+     * Open the transport. @returns true, if successful; else false.
      */
     public abstract bool open();
     /**
-     * @returns the name of the transport.
+     * Transport Configure the transport. @returns true, if successful; else false.
      **/
     public abstract string getName();
     /**
@@ -78,12 +78,12 @@ public abstract class FsoFramework.Transport : Object
     /**
      * Create @a FsoFramework.Transport as indicated by @a type
      **/
-    public static Transport create( string type, string name = "", uint speed = 0 )
+    public static Transport create( string type, string name = "", uint speed = 0, bool raw = true, bool hard = true )
     {
         switch ( type )
         {
             case "serial":
-                return new FsoFramework.SerialTransport( name, speed );
+                return new FsoFramework.SerialTransport( name, speed, raw, hard );
             case "pty":
                 return new FsoFramework.PtyTransport();
             default:
@@ -99,6 +99,8 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     protected string name;
     protected uint speed;
+    protected bool raw;
+    protected bool hard;
     protected int fd = -1;
 
     private IOChannel channel;
@@ -124,17 +126,13 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public BaseTransport( string name,
                           uint speed = 0,
-                          TransportHupFunc? hupfunc = null,
-                          TransportReadFunc? readfunc = null,
-                          int rp = 0,
-                          int wp = 0 )
+                          bool raw = true,
+                          bool hard = true )
     {
         this.name = name;
         this.speed = speed;
-        this.hupfunc = hupfunc;
-        this.readfunc = readfunc;
-        readpriority = rp;
-        writepriority = wp;
+        this.raw = raw;
+        this.hard = hard;
         buffer = new ByteArray();
 
         // create and configure the logger
@@ -151,6 +149,177 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     public override string getName()
     {
         return name;
+    }
+
+    internal void configure()
+    {
+        Posix.fcntl( fd, Posix.F_SETFL, 0 );
+        PosixExtra.TermIOs termios = {};
+        PosixExtra.tcgetattr( fd, termios );
+
+        int tspeed;
+
+        switch ( speed )
+        {
+            case 0:
+                tspeed = PosixExtra.B0;
+                break;
+            case 50:
+                tspeed = PosixExtra.B50;
+                break;
+            case 75:
+                tspeed = PosixExtra.B75;
+                break;
+            case 110:
+                tspeed = PosixExtra.B110;
+                break;
+            case 134:
+                tspeed = PosixExtra.B134;
+                break;
+            case 150:
+                tspeed = PosixExtra.B150;
+                break;
+            case 200:
+                tspeed = PosixExtra.B200;
+                break;
+            case 300:
+                tspeed = PosixExtra.B300;
+                break;
+            case 600:
+                tspeed = PosixExtra.B600;
+                break;
+            case 1200:
+                tspeed = PosixExtra.B1200;
+                break;
+            case 1800:
+                tspeed = PosixExtra.B1800;
+                break;
+            case 2400:
+                tspeed = PosixExtra.B2400;
+                break;
+            case 4800:
+                tspeed = PosixExtra.B4800;
+                break;
+            case 9600:
+                tspeed = PosixExtra.B9600;
+                break;
+            case 19200:
+                tspeed = PosixExtra.B19200;
+                break;
+            case 38400:
+                tspeed = PosixExtra.B38400;
+                break;
+            case 57600:
+                tspeed = PosixExtra.B57600;
+                break;
+            case 115200:
+                tspeed = PosixExtra.B115200;
+                break;
+            case 230400:
+                tspeed = PosixExtra.B230400;
+                break;
+            case 460800:
+                tspeed = PosixExtra.B460800;
+                break;
+            case 500000:
+                tspeed = PosixExtra.B500000;
+                break;
+            case 576000:
+                tspeed = PosixExtra.B576000;
+                break;
+            case 921600:
+                tspeed = PosixExtra.B921600;
+                break;
+            case 1000000:
+                tspeed = PosixExtra.B1000000;
+                break;
+            case 1152000:
+                tspeed = PosixExtra.B1152000;
+                break;
+            case 1500000:
+                tspeed = PosixExtra.B1500000;
+                break;
+            case 2000000:
+                tspeed = PosixExtra.B2000000;
+                break;
+            case 2500000:
+                tspeed = PosixExtra.B2500000;
+                break;
+            case 3000000:
+                tspeed = PosixExtra.B3000000;
+                break;
+            case 3500000:
+                tspeed = PosixExtra.B3500000;
+                break;
+            case 4000000:
+                tspeed = PosixExtra.B4000000;
+                break;
+            default:
+                logger.warning( "invalid speed '%u' selected. using '0'".printf( speed ) );
+                tspeed = PosixExtra.B0;
+                break;
+        }
+
+        PosixExtra.cfsetispeed( termios, tspeed );
+        PosixExtra.cfsetospeed( termios, tspeed );
+
+        // local read
+        termios.c_cflag |= (PosixExtra.CLOCAL | PosixExtra.CREAD);
+
+        // 8n1
+        termios.c_cflag &= ~PosixExtra.PARENB;
+        termios.c_cflag &= ~PosixExtra.CSTOPB;
+        termios.c_cflag &= ~PosixExtra.CSIZE;
+        termios.c_cflag |= PosixExtra.CS8;
+
+        if ( hard )
+        {
+            // hardware flow control ON
+            termios.c_cflag |= PosixExtra.CRTSCTS;
+
+            // software flow control OFF
+            termios.c_iflag &= ~(PosixExtra.IXON | PosixExtra.IXOFF | PosixExtra.IXANY);
+        }
+        else
+        {
+            // hardware flow control OFF
+            termios.c_cflag &= PosixExtra.CRTSCTS;
+
+            // software flow control ON
+            termios.c_iflag |= ~(PosixExtra.IXON | PosixExtra.IXOFF | PosixExtra.IXANY);
+        }
+
+        if ( raw )
+        {
+            // raw input
+            termios.c_lflag &= ~(PosixExtra.ICANON | PosixExtra.ECHO | PosixExtra.ECHOE | PosixExtra.ISIG);
+            termios.c_iflag &= ~(PosixExtra.INLCR | PosixExtra.ICRNL | PosixExtra.IGNCR);
+
+            // raw output
+            termios.c_oflag &= ~(PosixExtra.OPOST | PosixExtra.OLCUC | PosixExtra.ONLRET | PosixExtra.ONOCR | PosixExtra.OCRNL );
+
+            // no special character handling
+            termios.c_cc[PosixExtra.VMIN] = 0;
+            termios.c_cc[PosixExtra.VTIME] = 2;
+            termios.c_cc[PosixExtra.VINTR] = 0;
+            termios.c_cc[PosixExtra.VQUIT] = 0;
+            termios.c_cc[PosixExtra.VSTART] = 0;
+            termios.c_cc[PosixExtra.VSTOP] = 0;
+
+            termios.c_cc[PosixExtra.VSUSP] = 0;
+        }
+        var ok = PosixExtra.tcsetattr( fd, PosixExtra.TCSANOW, termios);
+        if ( ok == -1 )
+        {
+            logger.warning( "could not configure fd %d: %s".printf( fd, Posix.strerror( Posix.errno ) ) );
+        }
+
+        if ( hard )
+        {
+            // set ready to read/write
+            var v24 = PosixExtra.TIOCM_DTR | PosixExtra.TIOCM_RTS;
+            Posix.ioctl( fd, PosixExtra.TIOCMBIS, &v24 );
+        }
     }
 
     public override bool open()
@@ -295,12 +464,10 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
 {
     public SerialTransport( string portname,
                             uint portspeed,
-                            TransportHupFunc? hupfunc = null,
-                            TransportReadFunc? readfunc = null,
-                            int rp = 0,
-                            int wp = 0 )
+                            bool raw = true,
+                            bool hard = true )
     {
-        base( portname, portspeed, hupfunc, readfunc, rp, wp );
+        base( portname, portspeed, raw, hard );
     }
 
     public override bool open()
@@ -312,149 +479,7 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
             return false;
         }
 
-        Posix.fcntl( fd, Posix.F_SETFL, 0 );
-        PosixExtra.TermIOs termios = {};
-        PosixExtra.tcgetattr( fd, termios );
-
-        int tspeed;
-
-        switch ( speed )
-        {
-            case 0:
-                tspeed = PosixExtra.B0;
-                break;
-            case 50:
-                tspeed = PosixExtra.B50;
-                break;
-            case 75:
-                tspeed = PosixExtra.B75;
-                break;
-            case 110:
-                tspeed = PosixExtra.B110;
-                break;
-            case 134:
-                tspeed = PosixExtra.B134;
-                break;
-            case 150:
-                tspeed = PosixExtra.B150;
-                break;
-            case 200:
-                tspeed = PosixExtra.B200;
-                break;
-            case 300:
-                tspeed = PosixExtra.B300;
-                break;
-            case 600:
-                tspeed = PosixExtra.B600;
-                break;
-            case 1200:
-                tspeed = PosixExtra.B1200;
-                break;
-            case 1800:
-                tspeed = PosixExtra.B1800;
-                break;
-            case 2400:
-                tspeed = PosixExtra.B2400;
-                break;
-            case 4800:
-                tspeed = PosixExtra.B4800;
-                break;
-            case 9600:
-                tspeed = PosixExtra.B9600;
-                break;
-            case 19200:
-                tspeed = PosixExtra.B19200;
-                break;
-            case 38400:
-                tspeed = PosixExtra.B38400;
-                break;
-            case 57600:
-                tspeed = PosixExtra.B57600;
-                break;
-            case 115200:
-                tspeed = PosixExtra.B115200;
-                break;
-            case 230400:
-                tspeed = PosixExtra.B230400;
-                break;
-            case 460800:
-                tspeed = PosixExtra.B460800;
-                break;
-            case 500000:
-                tspeed = PosixExtra.B500000;
-                break;
-            case 576000:
-                tspeed = PosixExtra.B576000;
-                break;
-            case 921600:
-                tspeed = PosixExtra.B921600;
-                break;
-            case 1000000:
-                tspeed = PosixExtra.B1000000;
-                break;
-            case 1152000:
-                tspeed = PosixExtra.B1152000;
-                break;
-            case 1500000:
-                tspeed = PosixExtra.B1500000;
-                break;
-            case 2000000:
-                tspeed = PosixExtra.B2000000;
-                break;
-            case 2500000:
-                tspeed = PosixExtra.B2500000;
-                break;
-            case 3000000:
-                tspeed = PosixExtra.B3000000;
-                break;
-            case 3500000:
-                tspeed = PosixExtra.B3500000;
-                break;
-            case 4000000:
-                tspeed = PosixExtra.B4000000;
-                break;
-            default:
-                assert_not_reached();
-        }
-
-        PosixExtra.cfsetispeed( termios, tspeed );
-        PosixExtra.cfsetospeed( termios, tspeed );
-
-        // local read
-        termios.c_cflag |= (PosixExtra.CLOCAL | PosixExtra.CREAD);
-
-        // 8n1
-        termios.c_cflag &= ~PosixExtra.PARENB;
-        termios.c_cflag &= ~PosixExtra.CSTOPB;
-        termios.c_cflag &= ~PosixExtra.CSIZE;
-        termios.c_cflag |= PosixExtra.CS8;
-
-        // hardware flow control
-        termios.c_cflag |= PosixExtra.CRTSCTS;
-
-        // software flow control off
-        //termios.c_iflag &= ~(PosixExtra.IXON | PosixExtra.IXOFF | PosixExtra.IXANY);
-
-        // raw input
-        termios.c_lflag &= ~(PosixExtra.ICANON | PosixExtra.ECHO | PosixExtra.ECHOE | PosixExtra.ISIG);
-        termios.c_iflag &= ~(PosixExtra.INLCR | PosixExtra.ICRNL | PosixExtra.IGNCR);
-
-        // raw output
-        termios.c_oflag &= ~(PosixExtra.OPOST | PosixExtra.OLCUC | PosixExtra.ONLRET | PosixExtra.ONOCR | PosixExtra.OCRNL );
-
-        // no special character handling
-        termios.c_cc[PosixExtra.VMIN] = 0;
-        termios.c_cc[PosixExtra.VTIME] = 2;
-        termios.c_cc[PosixExtra.VINTR] = 0;
-        termios.c_cc[PosixExtra.VQUIT] = 0;
-        termios.c_cc[PosixExtra.VSTART] = 0;
-        termios.c_cc[PosixExtra.VSTOP] = 0;
-
-        termios.c_cc[PosixExtra.VSUSP] = 0;
-        PosixExtra.tcsetattr( fd, PosixExtra.TCSANOW, termios);
-
-        var v24 = PosixExtra.TIOCM_DTR | PosixExtra.TIOCM_RTS;
-        Posix.ioctl( fd, PosixExtra.TIOCMBIS, &v24 );
+        configure();
 
         return base.open();
     }
@@ -472,12 +497,9 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
 {
     private char[] ptyname = new char[1024]; // PATH_MAX?
 
-    public PtyTransport( TransportHupFunc? hupfunc = null,
-                         TransportReadFunc? readfunc = null,
-                         int rp = 0,
-                         int wp = 0 )
+    public PtyTransport()
     {
-        base( "Pty", 115200, hupfunc, readfunc, rp, wp );
+        base( "Pty", 115200 );
     }
 
     public override string getName()
@@ -508,49 +530,8 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
         if ( res < 0 )
             logger.warning( "can't set pty master to NONBLOCK: %s".printf( Posix.strerror( Posix.errno ) ) );
 
-        Posix.fcntl( fd, Posix.F_SETFL, 0 );
+        configure();
 
-        PosixExtra.TermIOs termios = {};
-        PosixExtra.tcgetattr( fd, termios );
-
-        // local read
-        termios.c_cflag |= (PosixExtra.CLOCAL | PosixExtra.CREAD);
-
-        // 8n1
-        termios.c_cflag &= ~PosixExtra.PARENB;
-        termios.c_cflag &= ~PosixExtra.CSTOPB;
-        termios.c_cflag &= ~PosixExtra.CSIZE;
-        termios.c_cflag |= PosixExtra.CS8;
-
-        // hardware flow control
-        //termios.c_cflag |= PosixExtra.CRTSCTS;
-
-        // software flow control off
-        //termios.c_iflag &= ~(PosixExtra.IXON | PosixExtra.IXOFF | PosixExtra.IXANY);
-
-        // raw input
-        termios.c_lflag &= ~(PosixExtra.ICANON | PosixExtra.ECHO | PosixExtra.ECHOE | PosixExtra.ISIG);
-        termios.c_iflag &= ~(PosixExtra.INLCR | PosixExtra.ICRNL | PosixExtra.IGNCR);
-
-        // raw output
-        termios.c_oflag &= ~(PosixExtra.OPOST | PosixExtra.OLCUC | PosixExtra.ONLRET | PosixExtra.ONOCR | PosixExtra.OCRNL );
-
-        /*
-        // no special character handling
-        termios.c_cc[PosixExtra.VMIN] = 0;
-        termios.c_cc[PosixExtra.VTIME] = 2;
-        termios.c_cc[PosixExtra.VINTR] = 0;
-        termios.c_cc[PosixExtra.VQUIT] = 0;
-        termios.c_cc[PosixExtra.VSTART] = 0;
-        termios.c_cc[PosixExtra.VSTOP] = 0;
-        termios.c_cc[PosixExtra.VSUSP] = 0;
-        */
-        PosixExtra.tcsetattr( fd, PosixExtra.TCSANOW, termios);
-
-        /*
-        _v24 = PosixExtra.TIOCM_DTR | PosixExtra.TIOCM_RTS;
-        Posix.ioctl( _fd, PosixExtra.TIOCMBIS, &_v24 );
-        */
         return base.open();
     }
 }
