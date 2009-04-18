@@ -43,6 +43,11 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         return "<Ti Calypso>";
     }
 
+    protected override void createChannels()
+    {
+        //TODO: create channels here
+    }
+
 }
 
 /**

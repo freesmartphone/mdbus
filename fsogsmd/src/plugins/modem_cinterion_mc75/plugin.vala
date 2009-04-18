@@ -43,6 +43,11 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         return "<Cinterion MC 75>";
     }
 
+    protected override void createChannels()
+    {
+        //TODO: create channels here
+    }
+
 }
 
 /**
