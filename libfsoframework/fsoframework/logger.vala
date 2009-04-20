@@ -138,6 +138,21 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
 }
 
 /**
+ * NullLogger
+ */
+public class FsoFramework.NullLogger : FsoFramework.AbstractLogger
+{
+    public NullLogger( string domain )
+    {
+        base( domain );
+    }
+
+    protected override void write( string message )
+    {
+    }
+}
+
+/**
  * FileLogger
  */
 public class FsoFramework.FileLogger : FsoFramework.AbstractLogger

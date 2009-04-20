@@ -141,6 +141,11 @@ namespace FsoFramework {
 		public void setFile (string filename, bool append = false);
 		protected override void write (string message);
 	}
+	[CCode (cheader_filename = "fsoframework/logger.h")]
+	public class NullLogger : FsoFramework.AbstractLogger {
+		public NullLogger (string domain);
+		protected override void write (string message);
+	}
 	[CCode (cheader_filename = "fsoframework/transport.h")]
 	public class PtyTransport : FsoFramework.BaseTransport {
 		public override string getName ();

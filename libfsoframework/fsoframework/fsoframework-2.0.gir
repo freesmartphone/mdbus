@@ -99,6 +99,18 @@
 				</return-value>
 			</method>
 		</class>
+		<class name="NullLogger" parent="FsoFramework.AbstractLogger" glib:type-name="FsoFrameworkNullLogger" glib:get-type="fso_framework_null_logger_get_type">
+			<constructor name="new" c:identifier="fso_framework_null_logger_new">
+				<parameters>
+					<parameter name="domain">
+						<type name="string"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.NullLogger"/>
+				</return-value>
+			</constructor>
+		</class>
 		<class name="FileLogger" parent="FsoFramework.AbstractLogger" glib:type-name="FsoFrameworkFileLogger" glib:get-type="fso_framework_file_logger_get_type">
 			<constructor name="new" c:identifier="fso_framework_file_logger_new">
 				<parameters>

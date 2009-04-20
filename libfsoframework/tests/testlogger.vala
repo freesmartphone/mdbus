@@ -44,6 +44,19 @@ void test_logger_conversions()
 }
 
 //===========================================================================
+void test_null_logger_new()
+//===========================================================================
+{
+    var logger = new NullLogger( TEST_LOG_DOMAIN );
+    logger.setLevel( LogLevelFlags.LEVEL_DEBUG );
+
+    logger.debug( "foo" );
+    logger.info( "bar" );
+    logger.warning( "ham" );
+    logger.error( "eggs" );
+}
+
+//===========================================================================
 void test_file_logger_new()
 //===========================================================================
 {
@@ -128,6 +141,7 @@ void main (string[] args)
 
     Test.add_func ("/Logger/Conversions", test_logger_conversions);
     Test.add_func ("/Logger/ReprDelegate", test_logger_reprdelegate);
+    Test.add_func ("/NullLogger/New", test_null_logger_new);
     Test.add_func ("/FileLogger/New", test_file_logger_new);
     Test.add_func ("/SyslogLogger/New", test_syslog_logger_new);
     Test.add_func ("/Common/createLogger", test_common_create_logger);
