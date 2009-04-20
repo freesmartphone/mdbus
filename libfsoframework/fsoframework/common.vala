@@ -26,9 +26,11 @@ public const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
 namespace FsoFramework
 {
 
-public const string DEFAULT_LOG_TYPE = "syslog";
+public const string DEFAULT_LOG_TYPE = "none";
 public const string DEFAULT_LOG_LEVEL = "INFO";
 public const string DEFAULT_LOG_DESTINATION = "/tmp/frameworkd.log";
+
+internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
 
 internal static SmartKeyFile _masterkeyfile = null;
 internal static string _prefix = null;
@@ -89,6 +91,10 @@ public static Logger createLogger( string domain )
             var logger = new SyslogLogger( domain );
             theLogger = logger;
             break;
+        case "none":
+            var logger = new NullLogger( domain );
+            theLogger = logger;
+            break;
         default:
             assert( false );
             break;
@@ -105,13 +111,13 @@ public static string getPrefixForExecutable()
 {
     if ( _prefix == null )
     {
-        var cmd = FileHandling.read( "/proc/self/cmdline" );
+        var cmd = FileHandling.read( PROC_SELF_CMDLINE );
         var pte = Environment.find_program_in_path( cmd );
         _prefix = "";
-        //var builder = new StringBuilder();
+
         foreach ( var component in pte.split( "/" ) )
         {
-            debug( "dealing with component '%s', prefix = '%s'", component, _prefix );
+            //debug( "dealing with component '%s', prefix = '%s'", component, _prefix );
             if ( component == "bin" )
                 break;
             _prefix += "%s%c".printf( component, Path.DIR_SEPARATOR );
