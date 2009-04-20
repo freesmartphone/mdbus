@@ -432,13 +432,21 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     public bool actionCallback( IOChannel source, IOCondition condition )
     {
         logger.debug( "actionCallback called with condition = %d".printf( condition ) );
-        if ( IOCondition.IN == condition && readfunc != null )
+
+        if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
+        {
+            hupfunc( this );
+            return false;
+        }
+
+        if ( ( condition & IOCondition.IN ) == IOCondition.IN )
         {
             readfunc( this );
             return true;
         }
-        if ( IOCondition.HUP == condition && hupfunc != null )
-            hupfunc( this );
+
+        logger.warning( "actionCallback called with unknown condition" );
+
         return false;
     }
 
