@@ -19,9 +19,13 @@
 
 using GLib;
 
-public const string DBUS_BUS_NAME = "org.freedesktop.DBus";
-public const string DBUS_BUS_PATH = "/org/freedesktop/DBus";
-public const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
+internal const string DBUS_BUS_NAME = "org.freedesktop.DBus";
+internal const string DBUS_BUS_PATH = "/org/freedesktop/DBus";
+internal const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
+
+internal const string ENV_OVERRIDE_LOG_TO = "FSO_LOG_TO";
+internal const string ENV_OVERRIDE_LOG_DESTINATION = "FSO_LOG_DESTINATION";
+internal const string ENV_OVERRIDE_LOG_LEVEL = "FSO_LOG_LEVEL";
 
 namespace FsoFramework
 {
@@ -36,7 +40,7 @@ internal static SmartKeyFile _masterkeyfile = null;
 internal static string _prefix = null;
 
 /**
- * Return frameworkd.conf
+ * @returns @a SmartKeyFile for frameworkd.conf
  **/
 public static SmartKeyFile theMasterKeyFile()
 {
@@ -63,14 +67,24 @@ public static SmartKeyFile theMasterKeyFile()
 }
 
 /**
- * Create a logger configured as requested in frameworkd.conf
+ * @returns @a Logger configured as requested in frameworkd.conf
  **/
 public static Logger createLogger( string domain )
 {
     SmartKeyFile smk = theMasterKeyFile();
-    var global_log_level = smk.stringValue( "frameworkd", "log_level", DEFAULT_LOG_LEVEL );
+
+    string global_log_level = Environment.get_variable( ENV_OVERRIDE_LOG_LEVEL );
+    if ( global_log_level == null )
+        global_log_level = smk.stringValue( "frameworkd", "log_level", DEFAULT_LOG_LEVEL );
     var log_level = smk.stringValue( domain, "log_level", global_log_level );
-    var log_to = smk.stringValue( "frameworkd", "log_to", DEFAULT_LOG_TYPE );
+
+    string log_to = Environment.get_variable( ENV_OVERRIDE_LOG_TO );
+    if ( log_to == null )
+        log_to = smk.stringValue( "frameworkd", "log_to", DEFAULT_LOG_TYPE );
+
+    string log_destination = Environment.get_variable( ENV_OVERRIDE_LOG_DESTINATION );
+    if ( log_destination == null )
+        log_destination = smk.stringValue( "frameworkd", "log_destination", DEFAULT_LOG_DESTINATION );
 
     Logger theLogger = null;
 
@@ -83,7 +97,6 @@ public static Logger createLogger( string domain )
             break;
         case "file":
             var logger = new FileLogger( domain );
-            var log_destination = smk.stringValue( "frameworkd", "log_destination", DEFAULT_LOG_DESTINATION );
             logger.setFile( log_destination );
             theLogger = logger;
             break;

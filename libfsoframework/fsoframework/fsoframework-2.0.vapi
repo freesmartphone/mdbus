@@ -276,9 +276,3 @@ public interface DBusObjects {
 }
 [CCode (cheader_filename = "fsoframework/logger.h")]
 public delegate string ReprDelegate ();
-[CCode (cheader_filename = "fsoframework/common.h")]
-public const string DBUS_BUS_NAME;
-[CCode (cheader_filename = "fsoframework/common.h")]
-public const string DBUS_BUS_PATH;
-[CCode (cheader_filename = "fsoframework/common.h")]
-public const string DBUS_BUS_INTERFACE;

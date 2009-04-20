@@ -1,7 +1,13 @@
 [frameworkd]
 version = 1
+# Log level: DEBUG, INFO (default), WARNING, ERROR
+# Override via environment as FSO_LOG_LEVEL
 log_level = DEBUG
+# Where to log to: none (default), stderr, file, syslog
+# Override via environment as FSO_LOG_TO
 log_to = stderr
+# Log Destination (valid only for log_to = file)
+# Override via environment as FSO_LOG_DESTINATION
 log_destination = /tmp/frameworkd.log
 
 #

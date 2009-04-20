@@ -965,7 +965,4 @@
 			<type name="string"/>
 		</return-value>
 	</callback>
-	<constant name="DBUS_BUS_NAME"/>
-	<constant name="DBUS_BUS_PATH"/>
-	<constant name="DBUS_BUS_INTERFACE"/>
 </repository>
