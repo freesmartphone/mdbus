@@ -435,13 +435,15 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
-            hupfunc( this );
+            if ( hupfunc != null )
+                hupfunc( this );
             return false;
         }
 
         if ( ( condition & IOCondition.IN ) == IOCondition.IN )
         {
-            readfunc( this );
+            if ( readfunc != null )
+                readfunc( this );
             return true;
         }
 
