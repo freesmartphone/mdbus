@@ -41,6 +41,7 @@ fsotransport-1.0.vapi .vala.stamp: $(libfsotransport_la_VALASOURCES)
 
 libfsotransport_la_LIBADD = \
 	$(GLIB_LIBS) \
+	-lutil \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi
