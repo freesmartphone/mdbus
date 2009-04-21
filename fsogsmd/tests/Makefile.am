@@ -25,6 +25,7 @@ VALAC_ARGS = \
 	--pkg gio-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg fsoframework-2.0 \
+	--pkg fsotransport-2.0 \
 	--pkg fsogsm-2.0
 
 TEST_PROGS += testatcommand

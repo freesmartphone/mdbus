@@ -18,7 +18,9 @@ VALAC_ARGS = \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
+	--pkg gsm0710mux-1.0 \
 	--pkg fsoframework-2.0 \
+	--pkg fsotransport-2.0 \
 	--pkg fsogsm-2.0
 
 #

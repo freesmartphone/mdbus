@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(GSMMUX_CFLAGS) \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -16,7 +17,9 @@ VALAC_ARGS = \
 	--pkg dbus-glib-1 \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
+	--pkg gsm0710mux-1.0 \
 	--pkg fsoframework-2.0 \
+	--pkg fsotransport-2.0 \
 	--library fsogsm-2.0
 
 BUILT_SOURCES = .vala.stamp fsogsm-2.0.vapi
@@ -34,6 +37,7 @@ libfsogsm_la_VALASOURCES = \
 	mediators.vala \
 	modem.vala \
 	parser.vala \
+	transport.vala \
 	$(NULL)
 
 libfsogsm_la_SOURCES = \
@@ -55,6 +59,7 @@ $(BUILT_SOURCES): $(libfsogsm_la_VALASOURCES)
 libfsogsm_la_LIBADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
+	$(GSMMUX_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi
