@@ -56,6 +56,10 @@ public abstract class FsoFramework.Transport : Object
      **/
     public abstract void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc );
     /**
+     * Set priorities for reading and writing
+     **/
+    public abstract void setPriorities( int rp, int wp );
+    /**
      * Read data from the transport into buffer provided and owned by caller.
      **/
     public abstract int read( void* data, int len );
@@ -360,6 +364,12 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     {
         this.readfunc = readfunc;
         this.hupfunc = hupfunc;
+    }
+
+    public override void setPriorities( int rp, int wp )
+    {
+        this.readpriority = rp;
+        this.writepriority = wp;
     }
 
     /* triggers a bug in Vala
