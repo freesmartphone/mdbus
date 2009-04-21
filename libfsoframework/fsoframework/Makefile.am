@@ -22,7 +22,6 @@ libfsoframework_la_VALASOURCES = \
 	plugin.vala \
 	smartkeyfile.vala \
 	subsystem.vala \
-	transport.vala \
 	utilities.vala \
 	$(NULL)
 

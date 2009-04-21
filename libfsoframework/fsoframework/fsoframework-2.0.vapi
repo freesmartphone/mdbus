@@ -103,32 +103,6 @@ namespace FsoFramework {
 	public class BaseSubsystem : FsoFramework.AbstractSubsystem {
 		public BaseSubsystem (string name);
 	}
-	[CCode (cheader_filename = "fsoframework/transport.h")]
-	public class BaseTransport : FsoFramework.Transport {
-		protected GLib.ByteArray buffer;
-		protected int fd;
-		protected bool hard;
-		protected FsoFramework.TransportHupFunc hupfunc;
-		protected FsoFramework.Logger logger;
-		protected string name;
-		protected bool raw;
-		protected FsoFramework.TransportReadFunc readfunc;
-		protected uint speed;
-		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
-		public override void close ();
-		public override void freeze ();
-		public override string getName ();
-		public override bool isOpen ();
-		public BaseTransport (string name, uint speed = 0, bool raw = true, bool hard = true);
-		public override bool open ();
-		public override int read (void* data, int len);
-		public virtual string repr ();
-		protected void restartWriter ();
-		public override void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
-		public override void thaw ();
-		public override int write (void* data, int len);
-		public bool writeCallback (GLib.IOChannel source, GLib.IOCondition condition);
-	}
 	[CCode (cheader_filename = "fsoframework/subsystem.h")]
 	public class DBusSubsystem : FsoFramework.AbstractSubsystem {
 		public DBusSubsystem (string name);
@@ -145,19 +119,6 @@ namespace FsoFramework {
 	public class NullLogger : FsoFramework.AbstractLogger {
 		public NullLogger (string domain);
 		protected override void write (string message);
-	}
-	[CCode (cheader_filename = "fsoframework/transport.h")]
-	public class PtyTransport : FsoFramework.BaseTransport {
-		public override string getName ();
-		public PtyTransport ();
-		public override bool open ();
-		public override string repr ();
-	}
-	[CCode (cheader_filename = "fsoframework/transport.h")]
-	public class SerialTransport : FsoFramework.BaseTransport {
-		public SerialTransport (string portname, uint portspeed, bool raw = true, bool hard = true);
-		public override bool open ();
-		public override string repr ();
 	}
 	[CCode (cheader_filename = "fsoframework/smartkeyfile.h")]
 	public class SmartKeyFile : GLib.Object {
@@ -179,19 +140,6 @@ namespace FsoFramework {
 		protected override string format (string message, string level);
 		public SyslogLogger (string domain);
 		protected override void write (string message);
-	}
-	[CCode (cheader_filename = "fsoframework/transport.h")]
-	public abstract class Transport : GLib.Object {
-		public abstract void close ();
-		public static FsoFramework.Transport create (string type, string name = "", uint speed = 0, bool raw = true, bool hard = true);
-		public abstract void freeze ();
-		public abstract string getName ();
-		public abstract bool isOpen ();
-		public abstract bool open ();
-		public abstract int read (void* data, int len);
-		public abstract void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
-		public abstract void thaw ();
-		public abstract int write (void* data, int length);
 	}
 	[CCode (cheader_filename = "fsoframework/logger.h")]
 	public interface Logger : GLib.Object {
@@ -222,14 +170,6 @@ namespace FsoFramework {
 		public string name;
 		public bool loaded;
 	}
-	[CCode (cprefix = "FSO_FRAMEWORK_TRANSPORT_STATE_", cheader_filename = "fsoframework/transport.h")]
-	public enum TransportState {
-		CLOSED,
-		OPEN,
-		ALIVE,
-		FROZEN,
-		DEAD
-	}
 	[CCode (cprefix = "FSO_FRAMEWORK_PLUGIN_ERROR_", cheader_filename = "fsoframework/plugin.h")]
 	public errordomain PluginError {
 		UNABLE_TO_LOAD,
@@ -237,19 +177,10 @@ namespace FsoFramework {
 		FACTORY_NOT_FOUND,
 		UNABLE_TO_INITIALIZE,
 	}
-	[CCode (cprefix = "FSO_FRAMEWORK_TRANSPORT_ERROR_", cheader_filename = "fsoframework/transport.h")]
-	public errordomain TransportError {
-		UNABLE_TO_OPEN,
-		UNABLE_TO_WRITE,
-	}
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public static delegate string FactoryFunc (FsoFramework.Subsystem subsystem);
 	[CCode (cheader_filename = "fsoframework/plugin.h")]
 	public static delegate void RegisterFunc (GLib.TypeModule bar);
-	[CCode (cheader_filename = "fsoframework/transport.h")]
-	public delegate void TransportHupFunc (FsoFramework.Transport transport);
-	[CCode (cheader_filename = "fsoframework/transport.h")]
-	public delegate void TransportReadFunc (FsoFramework.Transport transport);
 	[CCode (cheader_filename = "fsoframework/common.h")]
 	public const string DEFAULT_LOG_DESTINATION;
 	[CCode (cheader_filename = "fsoframework/common.h")]
