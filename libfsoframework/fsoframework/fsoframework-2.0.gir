@@ -1,12 +1,6 @@
 <?xml version="1.0"?>
 <repository version="1.0" xmlns="http://www.gtk.org/introspection/core/1.0" xmlns:c="http://www.gtk.org/introspection/c/1.0" xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
-	<c:include name="fsoframework/subsystem.h"/>
-	<c:include name="fsoframework/plugin.h"/>
-	<c:include name="fsoframework/object.h"/>
-	<c:include name="fsoframework/interfaces.h"/>
-	<c:include name="fsoframework/common.h"/>
-	<c:include name="fsoframework/logger.h"/>
-	<c:include name="fsoframework/smartkeyfile.h"/>
+	<c:include name="fsoframework.h"/>
 	<namespace name="FsoFramework" version="1.0">
 		<errordomain name="FsoFrameworkPluginError">
 			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_LOAD"/>

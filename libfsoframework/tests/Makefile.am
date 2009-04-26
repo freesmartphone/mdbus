@@ -4,9 +4,13 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
+	-I../fsoframework \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(NULL)
+
+INCLUDES = \
+	-I../fsoframework
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
@@ -27,7 +31,7 @@ VALAC_ARGS = \
 #
 TEST_PROGS += testsmartkeyfile
 testsmartkeyfile_VALASOURCES = testsmartkeyfile.vala
-testsmartkeyfile_SOURCES = testsmartkeyfile.c testsmartkeyfile.h
+testsmartkeyfile_SOURCES = testsmartkeyfile.c
 $(testsmartkeyfile_SOURCES): $(testsmartkeyfile_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
@@ -39,7 +43,7 @@ EXTRA_DIST += $(testsmartkeyfile_VALASOURCES)
 #
 TEST_PROGS += testlogger
 testlogger_VALASOURCES = testlogger.vala
-testlogger_SOURCES = testlogger.c testlogger.h
+testlogger_SOURCES = testlogger.c
 $(testlogger_SOURCES): $(testlogger_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
@@ -51,7 +55,7 @@ EXTRA_DIST += $(testlogger_VALASOURCES)
 #
 modlibexecdir = $(libdir)/cornucopia/modules/tests
 modlibexec_LTLIBRARIES = plugin.la
-plugin_la_SOURCES = plugin.c plugin.h
+plugin_la_SOURCES = plugin.c
 plugin_la_VALASOURCES = plugin.vala
 $(plugin_la_SOURCES): $(plugin_la_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
@@ -65,7 +69,7 @@ plugin_la_LIBTOOLFLAGS = --tag=disable-static
 #
 modalibexecdir = $(libdir)/cornucopia/modules/tests
 modalibexec_LTLIBRARIES = plugina.la
-plugina_la_SOURCES = plugina.c plugina.h
+plugina_la_SOURCES = plugina.c
 plugina_la_VALASOURCES = plugina.vala
 $(plugina_la_SOURCES): $(plugina_la_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
@@ -79,7 +83,7 @@ plugina_la_LIBTOOLFLAGS = --tag=disable-static
 #
 modblibexecdir = $(libdir)/cornucopia/modules/tests
 modblibexec_LTLIBRARIES = pluginb.la
-pluginb_la_SOURCES = pluginb.c pluginb.h
+pluginb_la_SOURCES = pluginb.c
 pluginb_la_VALASOURCES = pluginb.vala
 $(pluginb_la_SOURCES): $(pluginb_la_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
@@ -93,7 +97,7 @@ pluginb_la_LIBTOOLFLAGS = --tag=disable-static
 #
 modclibexecdir = $(libdir)/cornucopia/modules/tests
 modclibexec_LTLIBRARIES = pluginc.la
-pluginc_la_SOURCES = pluginc.c pluginc.h
+pluginc_la_SOURCES = pluginc.c
 pluginc_la_VALASOURCES = pluginc.vala
 $(pluginc_la_SOURCES): $(pluginc_la_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
@@ -107,7 +111,7 @@ pluginc_la_LIBTOOLFLAGS = --tag=disable-static
 #
 TEST_PROGS += testplugin
 testplugin_VALASOURCES = testplugin.vala
-testplugin_SOURCES = testplugin.c testplugin.h
+testplugin_SOURCES = testplugin.c
 $(testplugin_SOURCES): $(testplugin_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
@@ -119,7 +123,7 @@ EXTRA_DIST += $(testplugin_VALASOURCES)
 #
 TEST_PROGS += testsubsystem
 testsubsystem_VALASOURCES = testsubsystem.vala
-testsubsystem_SOURCES = testsubsystem.c testsubsystem.h
+testsubsystem_SOURCES = testsubsystem.c
 $(testsubsystem_SOURCES): $(testsubsystem_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
@@ -131,7 +135,7 @@ EXTRA_DIST += $(testsubsystem_VALASOURCES)
 #
 TEST_PROGS += testutilities
 testutilities_VALASOURCES = testutilities.vala
-testutilities_SOURCES = testutilities.c testutilities.h
+testutilities_SOURCES = testutilities.c
 $(testutilities_SOURCES): $(testutilities_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
@@ -143,7 +147,7 @@ EXTRA_DIST += $(testutilities_VALASOURCES)
 #
 TEST_PROGS += testobject
 testobject_VALASOURCES = testobject.vala
-testobject_SOURCES = testobject.c testobject.h
+testobject_SOURCES = testobject.c
 $(testobject_SOURCES): $(testobject_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@

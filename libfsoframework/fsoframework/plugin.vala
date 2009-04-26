@@ -51,7 +51,7 @@ public struct FsoFramework.PluginInfo
 public abstract interface FsoFramework.Plugin : Object
 {
     public abstract void loadAndInit() throws FsoFramework.PluginError;
-    public abstract FsoFramework.PluginInfo info();
+    public abstract PluginInfo info();
 }
 
 /**

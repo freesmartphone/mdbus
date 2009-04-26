@@ -30,7 +30,7 @@ libfsoframework_la_SOURCES = \
 	$(libfsoframework_la_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-fsoframeworkincludedir = $(includedir)/fsoframework-2.0/fsoframework
+fsoframeworkincludedir = $(includedir)/fsoframework-2.0
 fsoframeworkinclude_HEADERS = fsoframework.h
 
 fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
@@ -42,7 +42,7 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	            --pkg gmodule-2.0 \
 	            --pkg gio-2.0 \
 	            --pkg dbus-glib-1 \
-	            --header fsoframework.h
+	            --header fsoframework.h \
 	            --library fsoframework-2.0 $^
 	touch $@
 
