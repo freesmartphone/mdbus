@@ -44,19 +44,20 @@ public class LibGsm0710muxTransport : FsoFramework.BaseTransport
         assert( hupfunc != null );
 
         channelinfo.type = Gsm0710mux.ChannelType.DELEGATE;
-        /*
         channelinfo.readfunc = readfunc;
         channelinfo.hupfunc = hupfunc;
-        */
 
-        /*
         try
         {
             manager.allocChannel( ref channelinfo );
-        // ...
-        */
+        }
+        catch ( FsoFramework.TransportError e )
+        {
+            debug( "error: %s", e.message );
+            return false;
+        }
 
-        return false;
+        return true;
     }
 
     public override string repr()

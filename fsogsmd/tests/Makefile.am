@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
+	-I$(top_srcdir)/src/lib \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(FSO_CFLAGS) \
@@ -30,7 +30,7 @@ VALAC_ARGS = \
 
 TEST_PROGS += testatcommand
 testatcommand_VALASOURCES = testatcommand.vala
-testatcommand_SOURCES = testatcommand.c testatcommand.h
+testatcommand_SOURCES = testatcommand.c
 $(testatcommand_SOURCES): $(testatcommand_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
@@ -39,7 +39,7 @@ EXTRA_DIST += $(testatcommand_VALASOURCES)
 
 TEST_PROGS += testcommandqueue
 testcommandqueue_VALASOURCES = testcommandqueue.vala
-testcommandqueue_SOURCES = testcommandqueue.c testcommandqueue.h
+testcommandqueue_SOURCES = testcommandqueue.c
 $(testcommandqueue_SOURCES): $(testcommandqueue_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
@@ -48,7 +48,7 @@ EXTRA_DIST += $(testcommandqueue_VALASOURCES)
 
 TEST_PROGS += testparser
 testparser_VALASOURCES = testparser.vala
-testparser_SOURCES = testparser.c testparser.h
+testparser_SOURCES = testparser.c
 $(testparser_SOURCES): $(testparser_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@

@@ -20,6 +20,7 @@ VALAC_ARGS = \
 	--pkg gsm0710mux-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
+	--header fsogsm.h \
 	--library fsogsm-2.0
 
 BUILT_SOURCES = .vala.stamp fsogsm-2.0.vapi
@@ -43,14 +44,10 @@ libfsogsm_la_VALASOURCES = \
 libfsogsm_la_SOURCES = \
 	$(BUILT_SOURCES) \
 	$(libfsogsm_la_VALASOURCES:.vala=.c) \
-	$(libfsogsm_la_VALASOURCES:.vala=.h) \
 	$(NULL)
 
-fsogsmincludedir = $(includedir)/fsoframework-2.0/fsogsm
-
-fsogsminclude_HEADERS = \
-	$(libfsogsm_la_VALASOURCES:.vala=.h) \
-	$(NULL)
+fsogsmincludedir = $(includedir)/fsoframework-2.0
+fsogsminclude_HEADERS = fsogsm.h
 
 $(BUILT_SOURCES): $(libfsogsm_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
@@ -66,6 +63,7 @@ vapidir = $(datadir)/vala/vapi
 
 dist_vapi_DATA = \
 	fsogsm-2.0.vapi \
+	fsogsm-2.0.deps \
 	$(NULL)
 
 EXTRA_DIST += \

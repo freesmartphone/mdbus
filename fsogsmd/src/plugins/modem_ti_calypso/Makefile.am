@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
+	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(NULL)
@@ -27,7 +27,7 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_ti_calypso.la
-modem_ti_calypso_la_SOURCES = plugin.c plugin.h
+modem_ti_calypso_la_SOURCES = plugin.c
 modem_ti_calypso_la_VALASOURCES = plugin.vala
 $(modem_ti_calypso_la_SOURCES): $(modem_ti_calypso_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^

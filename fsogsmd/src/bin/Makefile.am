@@ -18,7 +18,6 @@ fsogsmd_VALASOURCES = \
 
 fsogsmd_SOURCES = \
 	$(fsogsmd_VALASOURCES:.vala=.c) \
-	$(fsogsmd_VALASOURCES:.vala=.h) \
 	$(NULL)
 
 $(BUILT_SOURCES): $(fsogsmd_VALASOURCES)

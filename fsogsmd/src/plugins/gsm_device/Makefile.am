@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
+	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(NULL)
@@ -28,7 +28,7 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = gsm_device.la
-gsm_device_la_SOURCES = plugin.c plugin.h
+gsm_device_la_SOURCES = plugin.c
 gsm_device_la_VALASOURCES = plugin.vala
 $(gsm_device_la_SOURCES): $(gsm_device_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
