@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
+	-I../fsotransport \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -26,7 +27,7 @@ VALAC_ARGS = \
 #
 TEST_PROGS += testtransport
 testtransport_VALASOURCES = testtransport.vala
-testtransport_SOURCES = testtransport.c testtransport.h
+testtransport_SOURCES = testtransport.c
 $(testtransport_SOURCES): $(testtransport_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@

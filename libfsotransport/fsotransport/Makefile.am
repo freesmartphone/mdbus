@@ -20,14 +20,11 @@ libfsotransport_la_VALASOURCES = \
 libfsotransport_la_SOURCES = \
 	$(BUILT_SOURCES) \
 	$(libfsotransport_la_VALASOURCES:.vala=.c) \
-	$(libfsotransport_la_VALASOURCES:.vala=.h) \
 	$(NULL)
 
 fsotransportincludedir = $(includedir)/fsoframework-2.0/fsotransport
 
-fsotransportinclude_HEADERS = \
-	$(libfsotransport_la_VALASOURCES:.vala=.h) \
-	$(NULL)
+fsotransportinclude_HEADERS = fsotransport.h
 
 fsotransport-1.0.vapi .vala.stamp: $(libfsotransport_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) \
@@ -36,6 +33,7 @@ fsotransport-1.0.vapi .vala.stamp: $(libfsotransport_la_VALASOURCES)
 	            --pkg posixextra \
 	            --pkg glib-2.0 \
 	            --pkg gio-2.0 \
+	            --header fsotransport.h \
 	            --library fsotransport-2.0 $^
 	touch $@
 
@@ -48,6 +46,7 @@ vapidir = $(datadir)/vala/vapi
 
 dist_vapi_DATA = \
 	fsotransport-2.0.vapi \
+	fsotransport-2.0.deps \
 	$(NULL)
 
 EXTRA_DIST += \
