@@ -23,7 +23,7 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = kernel26_leds.la
-kernel26_leds_la_SOURCES = plugin.c plugin.h
+kernel26_leds_la_SOURCES = plugin.c
 kernel26_leds_la_VALASOURCES = plugin.vala
 $(kernel26_leds_la_SOURCES): $(kernel26_leds_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^

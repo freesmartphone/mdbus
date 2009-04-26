@@ -18,7 +18,6 @@ fsodeviced_VALASOURCES = \
 
 fsodeviced_SOURCES = \
 	$(fsodeviced_VALASOURCES:.vala=.c) \
-	$(fsodeviced_VALASOURCES:.vala=.h) \
 	$(NULL)
 
 $(BUILT_SOURCES): $(fsodeviced_VALASOURCES)

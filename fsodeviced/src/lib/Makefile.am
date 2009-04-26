@@ -21,14 +21,11 @@ libfsodevice_la_VALASOURCES = \
 libfsodevice_la_SOURCES = \
 	$(BUILT_SOURCES) \
 	$(libfsodevice_la_VALASOURCES:.vala=.c) \
-	$(libfsodevice_la_VALASOURCES:.vala=.h) \
 	$(NULL)
 
-fsodeviceincludedir = $(includedir)/fsoframework-2.0/fsodevice
+fsodeviceincludedir = $(includedir)/fsoframework-2.0
 
-fsodeviceinclude_HEADERS = \
-	$(libfsodevice_la_VALASOURCES:.vala=.h) \
-	$(NULL)
+fsodeviceinclude_HEADERS = fsodevice.h
 
 $(BUILT_SOURCES): $(libfsodevice_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) \
@@ -37,6 +34,7 @@ $(BUILT_SOURCES): $(libfsodevice_la_VALASOURCES)
 	            --pkg posixextra \
 	            --pkg glib-2.0 \
 	            --pkg gio-2.0 \
+	            --header fsodevice.h \
 	            --library fsodevice-2.0 $^
 	touch $@
 
@@ -49,6 +47,7 @@ vapidir = $(datadir)/vala/vapi
 
 dist_vapi_DATA = \
 	fsodevice-2.0.vapi \
+	fsodevice-2.0.deps \
 	$(NULL)
 
 EXTRA_DIST += \

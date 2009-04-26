@@ -16,17 +16,14 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg gio-2.0 \
-	--pkg fsoframework-2.0 \
-	--pkg posix
-
-
+	--pkg fsoframework-2.0
 
 #
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = info.la
-info_la_SOURCES = plugin.c plugin.h
+info_la_SOURCES = plugin.c
 info_la_VALASOURCES = plugin.vala
 $(info_la_SOURCES): $(info_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
