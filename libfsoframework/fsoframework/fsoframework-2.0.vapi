@@ -94,16 +94,11 @@ namespace FsoFramework {
 		public virtual bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
-	public class AsyncWorkerQueue<T> : GLib.Object {
-		[CCode (cheader_filename = "fsoframework.h")]
-		public delegate void WorkerFunc (T element);
+	public class AsyncWorkerQueue<T> : FsoFramework.AbstractWorkerQueue<T>, GLib.Object {
 		protected GLib.Queue<T> q;
-		protected FsoFramework.AsyncWorkerQueue.WorkerFunc worker;
+		protected FsoFramework.AbstractWorkerQueue.WorkerFunc worker;
 		protected bool _onIdle ();
-		public void enqueue (T element);
 		public AsyncWorkerQueue ();
-		public void setDelegate (FsoFramework.AsyncWorkerQueue.WorkerFunc worker);
-		public void trigger ();
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.TypeModule {
@@ -152,6 +147,14 @@ namespace FsoFramework {
 		protected override string format (string message, string level);
 		public SyslogLogger (string domain);
 		protected override void write (string message);
+	}
+	[CCode (cheader_filename = "fsoframework.h")]
+	public interface AbstractWorkerQueue<T> : GLib.Object {
+		[CCode (cheader_filename = "fsoframework.h")]
+		public delegate void WorkerFunc (T element);
+		public abstract void enqueue (T element);
+		public abstract void setDelegate (FsoFramework.AbstractWorkerQueue.WorkerFunc worker);
+		public abstract void trigger ();
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public interface Logger : GLib.Object {

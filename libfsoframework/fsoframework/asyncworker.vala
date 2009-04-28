@@ -18,14 +18,24 @@
  */
 
 /**
- * @class FsoFramework.AsyncWorkerQueue
+ * @class FsoFramework.AbstractWorkerQueue
  **/
-public class FsoFramework.AsyncWorkerQueue<T> : GLib.Object
+public abstract interface FsoFramework.AbstractWorkerQueue<T> : GLib.Object
 {
     public delegate void WorkerFunc( T element );
 
+    public abstract void setDelegate( WorkerFunc worker );
+    public abstract void enqueue( T element );
+    public abstract void trigger();
+}
+
+/**
+ * @class FsoFramework.AsyncWorkerQueue
+ **/
+public class FsoFramework.AsyncWorkerQueue<T> : FsoFramework.AbstractWorkerQueue<T>, GLib.Object
+{
     protected GLib.Queue<T> q;
-    protected WorkerFunc worker;
+    protected AbstractWorkerQueue.WorkerFunc worker;
     uint watch;
 
     protected bool _onIdle()
@@ -42,7 +52,7 @@ public class FsoFramework.AsyncWorkerQueue<T> : GLib.Object
         q = new GLib.Queue<T>();
     }
 
-    public void setDelegate( WorkerFunc worker )
+    public void setDelegate( AbstractWorkerQueue.WorkerFunc worker )
     {
         this.worker = worker;
         trigger();

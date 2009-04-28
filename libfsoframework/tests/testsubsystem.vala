@@ -21,7 +21,7 @@ using GLib;
 using FsoFramework;
 
 const string DBUS_TEST_BUSNAME = "org.freesmartphone.testing";
-const string DBUS_TEST_OBJPATH = "/dummy/testing";
+const string DBUS_TEST_OBJPATH = "/org/freesmartphone/Testing";
 const string DBUS_TEST_INTERFACE = "org.freesmartphone.Testing";
 
 MainLoop loop;
@@ -113,7 +113,14 @@ class Pong : Object
 
     public bool call()
     {
-        dbusobj.ThisMethodIsPresent( 42, reply );
+        try
+        {
+            dbusobj.ThisMethodIsPresent( 42, reply );
+        }
+        catch ( DBus.Error e )
+        {
+            error( "%s", e.message );
+        }
         return false;
     }
 }
@@ -153,7 +160,7 @@ void main (string[] args)
     Test.add_func( "/Subsystem/RegisterPlugins", test_subsystem_register );
     Test.add_func( "/Subsystem/LoadPlugins", test_subsystem_load );
     Test.add_func( "/Subsystem/DBusName", test_subsystem_dbus_register_name );
-    //Test.add_func( "/Subsystem/DBusObjects", test_subsystem_dbus_register_objects );
+    Test.add_func( "/Subsystem/DBusObjects", test_subsystem_dbus_register_objects );
 
     Test.run ();
 }
