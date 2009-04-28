@@ -8,6 +8,77 @@
 			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_FACTORY_NOT_FOUND"/>
 			<member name="FSO_FRAMEWORK_PLUGIN_ERROR_UNABLE_TO_INITIALIZE"/>
 		</errordomain>
+		<class name="AsyncWorkerQueue" parent="GLib.Object" glib:type-name="FsoFrameworkAsyncWorkerQueue" glib:get-type="fso_framework_async_worker_queue_get_type">
+			<field name="q">
+				<type name="GLib.Queue<T>"/>
+			</field>
+			<field name="worker">
+				<type name="FsoFramework.AsyncWorkerQueue.WorkerFunc"/>
+			</field>
+			<method name="_onIdle" c:identifier="_fso_framework_async_worker_queue_onIdle">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.AsyncWorkerQueue"/>
+					</parameter>
+				</parameters>
+				<return-value transfer-ownership="full">
+					<type name="bool"/>
+				</return-value>
+			</method>
+			<method name="setDelegate" c:identifier="fso_framework_async_worker_queue_setDelegate">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.AsyncWorkerQueue"/>
+					</parameter>
+					<parameter name="worker">
+						<type name="FsoFramework.AsyncWorkerQueue.WorkerFunc"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="enqueue" c:identifier="fso_framework_async_worker_queue_enqueue">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.AsyncWorkerQueue"/>
+					</parameter>
+					<parameter name="element">
+						<type name="T"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<method name="trigger" c:identifier="fso_framework_async_worker_queue_trigger">
+				<parameters>
+					<parameter name="self">
+						<type name="FsoFramework.AsyncWorkerQueue"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</method>
+			<constructor name="new" c:identifier="fso_framework_async_worker_queue_new">
+				<parameters>
+				</parameters>
+				<return-value>
+					<type name="FsoFramework.AsyncWorkerQueue"/>
+				</return-value>
+			</constructor>
+			<callback name="FsoFrameworkAsyncWorkerQueueWorkerFunc">
+				<parameters>
+					<parameter name="element">
+						<type name="T"/>
+					</parameter>
+				</parameters>
+				<return-value>
+					<type name="none"/>
+				</return-value>
+			</callback>
+		</class>
 		<class name="AbstractLogger" parent="GLib.Object" glib:type-name="FsoFrameworkAbstractLogger" glib:get-type="fso_framework_abstract_logger_get_type">
 			<implements>
 				<interface name="FsoFramework.Logger"/>

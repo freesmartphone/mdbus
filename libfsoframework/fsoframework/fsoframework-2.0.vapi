@@ -94,6 +94,18 @@ namespace FsoFramework {
 		public virtual bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
+	public class AsyncWorkerQueue<T> : GLib.Object {
+		[CCode (cheader_filename = "fsoframework.h")]
+		public delegate void WorkerFunc (T element);
+		protected GLib.Queue<T> q;
+		protected FsoFramework.AsyncWorkerQueue.WorkerFunc worker;
+		protected bool _onIdle ();
+		public void enqueue (T element);
+		public AsyncWorkerQueue ();
+		public void setDelegate (FsoFramework.AsyncWorkerQueue.WorkerFunc worker);
+		public void trigger ();
+	}
+	[CCode (cheader_filename = "fsoframework.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.TypeModule {
 		public override bool load ();
 		public BasePlugin (string filename, FsoFramework.Subsystem subsystem);

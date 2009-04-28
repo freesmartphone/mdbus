@@ -153,7 +153,7 @@ void main (string[] args)
     Test.add_func( "/Subsystem/RegisterPlugins", test_subsystem_register );
     Test.add_func( "/Subsystem/LoadPlugins", test_subsystem_load );
     Test.add_func( "/Subsystem/DBusName", test_subsystem_dbus_register_name );
-    Test.add_func( "/Subsystem/DBusObjects", test_subsystem_dbus_register_objects );
+    //Test.add_func( "/Subsystem/DBusObjects", test_subsystem_dbus_register_objects );
 
     Test.run ();
 }

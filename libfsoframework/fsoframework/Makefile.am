@@ -15,6 +15,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsoframework_la_VALASOURCES = \
+	asyncworker.vala \
 	common.vala \
 	interfaces.vala \
 	logger.vala \

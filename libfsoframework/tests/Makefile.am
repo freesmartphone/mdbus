@@ -154,6 +154,18 @@ $(testobject_SOURCES): $(testobject_VALASOURCES)
 testobject_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testobject_VALASOURCES)
 
+#
+# asyncworker test
+#
+TEST_PROGS += testasyncworker
+testasyncworker_VALASOURCES = testasyncworker.vala
+testasyncworker_SOURCES = testasyncworker.c
+$(testasyncworker_SOURCES): $(testasyncworker_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testasyncworker_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testasyncworker_VALASOURCES)
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \
