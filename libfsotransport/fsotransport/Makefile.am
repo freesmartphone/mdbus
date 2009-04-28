@@ -22,7 +22,7 @@ libfsotransport_la_SOURCES = \
 	$(libfsotransport_la_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-fsotransportincludedir = $(includedir)/fsoframework-2.0/fsotransport
+fsotransportincludedir = $(includedir)/fsoframework-2.0
 
 fsotransportinclude_HEADERS = fsotransport.h
 
