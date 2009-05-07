@@ -31,7 +31,8 @@ namespace FsoFramework
     public errordomain OrgFreesmartphone
     {
         Unsupported,
-        InvalidParameter
+        InvalidParameter,
+        SystemError
     }
 
     namespace Device
@@ -82,10 +83,10 @@ namespace FsoFramework
         public abstract interface RTC : GLib.Object
         {
             public abstract string GetName() throws DBus.Error;
-            public abstract int GetCurrentTime() throws DBus.Error;
-            public abstract void SetCurrentTime( int seconds_since_epoch ) throws DBus.Error;
-            public abstract int GetWakeupTime() throws DBus.Error;
-            public abstract void SetWakeupTime( int seconds_since_epoch ) throws DBus.Error;
+            public abstract int GetCurrentTime() throws OrgFreesmartphone, DBus.Error;
+            public abstract void SetCurrentTime( int seconds_since_epoch ) throws OrgFreesmartphone, DBus.Error;
+            public abstract int GetWakeupTime() throws OrgFreesmartphone, DBus.Error;
+            public abstract void SetWakeupTime( int seconds_since_epoch ) throws OrgFreesmartphone, DBus.Error;
         }
 
     }
