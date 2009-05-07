@@ -74,12 +74,12 @@ class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
     //
     // FsoFramework.Device.LED
     //
-    public string GetName()
+    public string GetName() throws DBus.Error
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public void SetBrightness( int brightness )
+    public void SetBrightness( int brightness ) throws DBus.Error
     {
         if ( brightness > 255 )
             brightness = 255;
@@ -90,25 +90,26 @@ class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( brightness.to_string(), this.brightness );
     }
 
-    public void SetBlinking( int delay_on, int delay_off ) throws DBus.Error
+    public void SetBlinking( int delay_on, int delay_off ) throws FsoFramework.OrgFreesmartphone, DBus.Error
     {
         initTriggers();
-//         if ( !( "timer" in triggers ) )
-//             throw new FsoFramework.Unsupported( "Kernel interface missing" );
+        if ( !( "timer" in triggers ) )
+            throw new FsoFramework.OrgFreesmartphone.Unsupported( "Kernel support for timer led class trigger missing" );
 
         FsoFramework.FileHandling.write( "timer", this.trigger );
         FsoFramework.FileHandling.write( delay_on.to_string(), this.sysfsnode + "/delay_on" );
         FsoFramework.FileHandling.write( delay_off.to_string(), this.sysfsnode + "/delay_off" );
-
     }
 
-    public void SetNetworking( string iface, string mode ) throws DBus.Error
+    public void SetNetworking( string iface, string mode ) throws FsoFramework.OrgFreesmartphone, DBus.Error
     {
         initTriggers();
 
+        if ( !( "netdev" in triggers ) )
+            throw new FsoFramework.OrgFreesmartphone.Unsupported( "Kernel support for netdev led class trigger missing" );
+
         if ( !FsoFramework.FileHandling.isPresent( "%s/%s".printf( sys_class_net, iface ) ) )
-            return;
-            //throw new FsoFramework.InvalidParameter( "Interface '%s' not present".printf( iface ) );
+            throw new FsoFramework.OrgFreesmartphone.InvalidParameter( "Interface '%s' not present".printf( iface ) );
 
             foreach ( var element in mode.split( " " ) )
             {
