@@ -27,6 +27,15 @@ namespace FsoFramework {
 			public abstract void SetNetworking (string iface, string mode) throws FsoFramework.OrgFreesmartphone, DBus.Error;
 		}
 		[CCode (cheader_filename = "fsoframework.h")]
+		[DBus (name = "org.freesmartphone.Device.RTC")]
+		public interface RTC : GLib.Object {
+			public abstract int GetCurrentTime () throws DBus.Error;
+			public abstract string GetName () throws DBus.Error;
+			public abstract int GetWakeupTime () throws DBus.Error;
+			public abstract void SetCurrentTime (int seconds_since_epoch) throws DBus.Error;
+			public abstract void SetWakeupTime (int seconds_since_epoch) throws DBus.Error;
+		}
+		[CCode (cheader_filename = "fsoframework.h")]
 		public const string DisplayServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string DisplayServicePath;
