@@ -112,12 +112,16 @@ class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
         if ( !FsoFramework.FileHandling.isPresent( "%s/%s".printf( sys_class_net, iface ) ) )
             throw new FsoFramework.OrgFreesmartphone.InvalidParameter( "Interface '%s' not present".printf( iface ) );
 
+        string cleanmode = "";
+
         foreach ( var element in mode.split( " " ) )
         {
             if ( element != "link" && element != "rx" && element != "tx" )
                 throw new FsoFramework.OrgFreesmartphone.InvalidParameter( "Element '%s' not allowed. Valid elements are 'link', 'rx', 'tx'.".printf( element ) );
+            else
+                cleanmode += element;
         }
-        if ( mode == "" )
+        if ( cleanmode == "" )
         {
             SetBrightness( 0 );
         }
@@ -125,7 +129,7 @@ class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
         {
             FsoFramework.FileHandling.write( "netdev", this.trigger );
             FsoFramework.FileHandling.write( iface, this.sysfsnode + "/device_name" );
-            FsoFramework.FileHandling.write( mode, this.sysfsnode + "/mode" );
+            FsoFramework.FileHandling.write( cleanmode, this.sysfsnode + "/mode" );
         }
     }
 }
