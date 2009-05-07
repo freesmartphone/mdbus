@@ -93,6 +93,7 @@ class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
     public void SetBlinking( int delay_on, int delay_off ) throws FsoFramework.OrgFreesmartphone, DBus.Error
     {
         initTriggers();
+
         if ( !( "timer" in triggers ) )
             throw new FsoFramework.OrgFreesmartphone.Unsupported( "Kernel support for timer led class trigger missing" );
 
@@ -111,15 +112,21 @@ class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
         if ( !FsoFramework.FileHandling.isPresent( "%s/%s".printf( sys_class_net, iface ) ) )
             throw new FsoFramework.OrgFreesmartphone.InvalidParameter( "Interface '%s' not present".printf( iface ) );
 
-            foreach ( var element in mode.split( " " ) )
-            {
-                if ( element != "link" && element != "rx" && element != "tx" )
-                    return;
-                    //throw new FsoFramework.InvalidParameter( "Element '%s' not allowed.".printf( element ) );
-            }
+        foreach ( var element in mode.split( " " ) )
+        {
+            if ( element != "link" && element != "rx" && element != "tx" )
+                throw new FsoFramework.OrgFreesmartphone.InvalidParameter( "Element '%s' not allowed. Valid elements are 'link', 'rx', 'tx'.".printf( element ) );
+        }
+        if ( mode == "" )
+        {
+            SetBrightness( 0 );
+        }
+        else
+        {
             FsoFramework.FileHandling.write( "netdev", this.trigger );
             FsoFramework.FileHandling.write( iface, this.sysfsnode + "/device_name" );
             FsoFramework.FileHandling.write( mode, this.sysfsnode + "/mode" );
+        }
     }
 }
 
