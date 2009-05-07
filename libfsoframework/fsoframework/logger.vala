@@ -199,6 +199,8 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
  */
 public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
 {
+    static string basename; // needs to be static, since openlog does not copy
+
     protected override void write( string message )
     {
         PosixExtra.syslog( PosixExtra.LOG_DEBUG, "%s", message );
@@ -216,7 +218,8 @@ public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
     public SyslogLogger( string domain )
     {
         base( domain );
-        string basename = Path.get_basename( Environment.get_prgname() );
+        if ( basename == null )
+            basename = "%s".printf( FsoFramework.Utility.programName() );
         PosixExtra.openlog( basename, PosixExtra.LOG_PID | PosixExtra.LOG_CONS, PosixExtra.LOG_DAEMON );
     }
 }

@@ -68,6 +68,11 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework.h")]
 		public static Posix.uid_t uidForUser (string user);
 	}
+	[CCode (cprefix = "FsoFrameworkUtility", lower_case_cprefix = "fso_framework_utility_")]
+	namespace Utility {
+		[CCode (cheader_filename = "fsoframework.h")]
+		public static string programName ();
+	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public abstract class AbstractLogger : FsoFramework.Logger, GLib.Object {
 		protected string destination;

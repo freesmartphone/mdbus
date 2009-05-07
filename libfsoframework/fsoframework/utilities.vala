@@ -144,3 +144,21 @@ public string stringListToString( string[] list )
 }
 
 } }
+
+namespace FsoFramework { namespace Utility {
+
+    const uint BUF_SIZE = 1024; // should be Posix.PATH_MAX
+
+    public string programName()
+    {
+        string res = GLib.Environment.get_prgname();
+        if ( res != null )
+            return res;
+
+        char[] buf = new char[BUF_SIZE];
+        var length = PosixExtra.readlink( "/proc/self/exe", buf );
+        buf[length] = 0;
+        assert( length != 0 );
+        return GLib.Path.get_basename( (string) buf );
+    }
+} }

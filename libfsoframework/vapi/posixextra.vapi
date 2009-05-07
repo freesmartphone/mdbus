@@ -474,6 +474,9 @@ namespace PosixExtra {
 
     /* ------------- unistd --------------- */
     [CCode (cheader_filename = "unistd.h")]
+    ssize_t readlink (string path, char[] buf);
+
+    [CCode (cheader_filename = "unistd.h")]
     int ttyname_r (int fd, char[] buf);
 
     [CCode (cheader_filename = "unistd.h")]
