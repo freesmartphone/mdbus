@@ -149,7 +149,7 @@ public class FsoFramework.BaseSubsystem : FsoFramework.AbstractSubsystem
 [DBus (name = "org.freesmartphone.DBus.Objects")]
 public abstract interface DBusObjects
 {
-    public abstract void getNodes();
+    public abstract void getNodes() throws DBus.Error;
 }
 
 /**

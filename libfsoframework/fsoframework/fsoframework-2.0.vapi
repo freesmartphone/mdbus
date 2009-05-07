@@ -7,24 +7,24 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework.h")]
 		[DBus (name = "org.freesmartphone.Device.Display")]
 		public interface Display : GLib.Object {
-			public abstract bool GetBacklightPower ();
-			public abstract int GetBrightness ();
-			public abstract GLib.HashTable<string,GLib.Value?> GetInfo ();
-			public abstract void SetBacklightPower (bool power);
-			public abstract void SetBrightness (int brightness);
+			public abstract bool GetBacklightPower () throws DBus.Error;
+			public abstract int GetBrightness () throws DBus.Error;
+			public abstract GLib.HashTable<string,GLib.Value?> GetInfo () throws DBus.Error;
+			public abstract void SetBacklightPower (bool power) throws DBus.Error;
+			public abstract void SetBrightness (int brightness) throws DBus.Error;
 		}
 		[CCode (cheader_filename = "fsoframework.h")]
 		[DBus (name = "org.freesmartphone.Device.Info")]
 		public interface Info : GLib.Object {
-			public abstract GLib.HashTable<string,GLib.Value?> GetCpuInfo ();
+			public abstract GLib.HashTable<string,GLib.Value?> GetCpuInfo () throws DBus.Error;
 		}
 		[CCode (cheader_filename = "fsoframework.h")]
 		[DBus (name = "org.freesmartphone.Device.LED")]
 		public interface LED : GLib.Object {
-			public abstract string GetName ();
-			public abstract void SetBlinking (int delay_on, int delay_off) throws DBus.Error;
-			public abstract void SetBrightness (int brightness);
-			public abstract void SetNetworking (string iface, string mode) throws DBus.Error;
+			public abstract string GetName () throws DBus.Error;
+			public abstract void SetBlinking (int delay_on, int delay_off) throws FsoFramework.OrgFreesmartphone, DBus.Error;
+			public abstract void SetBrightness (int brightness) throws DBus.Error;
+			public abstract void SetNetworking (string iface, string mode) throws FsoFramework.OrgFreesmartphone, DBus.Error;
 		}
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string DisplayServiceFace;
@@ -185,6 +185,12 @@ namespace FsoFramework {
 		public string name;
 		public bool loaded;
 	}
+	[CCode (cprefix = "FSO_FRAMEWORK_ORG_FREESMARTPHONE_", cheader_filename = "fsoframework.h")]
+	[DBus (name = "org.freesmartphone")]
+	public errordomain OrgFreesmartphone {
+		Unsupported,
+		InvalidParameter,
+	}
 	[CCode (cprefix = "FSO_FRAMEWORK_PLUGIN_ERROR_", cheader_filename = "fsoframework.h")]
 	public errordomain PluginError {
 		UNABLE_TO_LOAD,
@@ -218,7 +224,7 @@ namespace FsoFramework {
 [CCode (cheader_filename = "fsoframework.h")]
 [DBus (name = "org.freesmartphone.DBus.Objects")]
 public interface DBusObjects {
-	public abstract void getNodes ();
+	public abstract void getNodes () throws DBus.Error;
 }
 [CCode (cheader_filename = "fsoframework.h")]
 public delegate string ReprDelegate ();

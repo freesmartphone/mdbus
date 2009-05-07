@@ -23,6 +23,14 @@ namespace FsoFramework
     public const string ServicePathPrefix = "/org/freesmartphone";
     public const string ServiceFacePrefix = "org.freesmartphone";
 
+    // generic errors
+    [DBus (name = "org.freesmartphone")]
+    public errordomain OrgFreesmartphone
+    {
+        Unsupported,
+        InvalidParameter
+    }
+
     namespace Device
     {
         public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".odeviced";
@@ -39,30 +47,29 @@ namespace FsoFramework
         public const string InfoServiceFace = ServiceFacePrefix + ".Info";
         public const string InfoServicePath = ServicePathPrefix + "/Info";
 
-
         [DBus (name = "org.freesmartphone.Device.LED")]
         public abstract interface LED : GLib.Object
         {
-            public abstract string GetName();
-            public abstract void SetBrightness( int brightness );
-            public abstract void SetBlinking( int delay_on, int delay_off ) throws DBus.Error;
-            public abstract void SetNetworking( string iface, string mode ) throws DBus.Error;
+            public abstract string GetName() throws DBus.Error;
+            public abstract void SetBrightness( int brightness ) throws DBus.Error;
+            public abstract void SetBlinking( int delay_on, int delay_off ) throws OrgFreesmartphone, DBus.Error;
+            public abstract void SetNetworking( string iface, string mode ) throws OrgFreesmartphone, DBus.Error;
         }
 
         [DBus (name = "org.freesmartphone.Device.Display")]
         public abstract interface Display : GLib.Object
         {
-            public abstract void SetBrightness(int brightness);
-            public abstract int GetBrightness();
-            public abstract bool GetBacklightPower();
-            public abstract void SetBacklightPower(bool power);
-            public abstract HashTable<string, Value?> GetInfo();
+            public abstract void SetBrightness(int brightness) throws DBus.Error;
+            public abstract int GetBrightness() throws DBus.Error;
+            public abstract bool GetBacklightPower() throws DBus.Error;
+            public abstract void SetBacklightPower(bool power) throws DBus.Error;
+            public abstract HashTable<string, Value?> GetInfo() throws DBus.Error;
         }
 
         [DBus (name = "org.freesmartphone.Device.Info")]
         public abstract interface Info : GLib.Object
         {
-            public abstract HashTable<string, Value?> GetCpuInfo();
+            public abstract HashTable<string, Value?> GetCpuInfo() throws DBus.Error;
         }
     }
 }

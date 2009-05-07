@@ -86,7 +86,7 @@ void test_subsystem_dbus_register_name()
 //===========================================================================
 class DummyObject : Object
 {
-    public int ThisMethodIsPresent( int value )
+    public int ThisMethodIsPresent( int value ) throws DBus.Error
     {
         return value;
     }
