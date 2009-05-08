@@ -24,8 +24,7 @@ namespace Linux26 {
     namespace Rtc {
 
         [CCode (cname = "struct rtc_wkalrm", cheader_filename = "linux/rtc.h")]
-        public struct WakeAlarm
-        {
+        public struct WakeAlarm {
             public char enabled;
             public char pending;
             public GLib.Time time;
@@ -40,4 +39,48 @@ namespace Linux26 {
         [CCode (cheader_filename = "linux/rtc.h,sys/ioctl.h")]
         public const int RTC_WKALM_SET;
     }
+
+    [CCode (cprefix = "", lower_case_cprefix = "")]
+    namespace Netlink {
+
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_ROUTE;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_UNUSED;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_USERSOCK;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_FIREWALL;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_INET_DIAG;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_NFLOG;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_XFRM;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_SELINUX;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_ISCSI;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_AUDIT;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_FIB_LOOKUP;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_CONNECTOR;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_NETFILTER;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_IP6_FW;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_DNRTMSG;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_KOBJECT_UEVENT;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_GENERIC;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_SCSITRANSPORT;
+        [CCode (cheader_filename = "linux/netlink.h")]
+        public const int NETLINK_ECRYPTFS;
+    }
+
 }
