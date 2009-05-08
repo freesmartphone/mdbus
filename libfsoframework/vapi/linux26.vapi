@@ -81,6 +81,24 @@ namespace Linux26 {
         public const int NETLINK_SCSITRANSPORT;
         [CCode (cheader_filename = "linux/netlink.h")]
         public const int NETLINK_ECRYPTFS;
+
+        // additions to the socket interface
+        [CCode (cheader_filename = "sys/socket.h")]
+        public const int AF_NETLINK;
+
+        [CCode (cname = "struct sockaddr_nl", cheader_filename = "linux/netlink.h", destroy_function = "")]
+        public struct SockAddrNl
+        {
+            public int nl_family;
+            public ushort nl_pad;
+            public uint32 nl_pid;
+            public uint32 nl_groups;
+        }
+
+        /*
+        [CCode (cheader_filename = "sys/socket.h", sentinel = "")]
+        public int bind (int sockfd, SockAddrNl addr, ulong length );
+        */
     }
 
 }

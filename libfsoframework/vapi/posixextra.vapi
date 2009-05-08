@@ -2,6 +2,9 @@
  *
  * Scheduled for inclusion in posix.vapi
  */
+
+using Posix;
+
 [CCode (cprefix = "", lower_case_cprefix = "")]
 namespace PosixExtra {
 
@@ -59,11 +62,14 @@ namespace PosixExtra {
         public InAddr sin_addr;
     }
 
-    [CCode (cheader_filename = "sys/socket.h")]
-    public uint32 inet_addr (string host); /* in_addr_t */
+    [CCode (cheader_filename = "sys/socket.h", sentinel = "")]
+    public int bind (int sockfd, ...);
 
     [CCode (cheader_filename = "sys/socket.h")]
     public uint16 htons (uint16 hostshort);
+
+    [CCode (cheader_filename = "sys/socket.h")]
+    public uint32 inet_addr (string host); /* in_addr_t */
 
     [CCode (cheader_filename = "sys/socket.h")]
     public int listen (int s, int backlog);
@@ -81,14 +87,11 @@ namespace PosixExtra {
     [CCode (cheader_filename = "stdlib.h")]
     public int unlockpt (int fd);
 
-    /* ---------------------------- */
+    /* ----------- unistd -------------- */
 
-	[CCode (cheader_filename = "unistd.h")]
-	public int close (int fd);
-	[CCode (cheader_filename = "unistd.h")]
-	public ssize_t read (int fd, void* buf, size_t count);
-	[CCode (cheader_filename = "unistd.h")]
-	public ssize_t write (int fd, void* buf, size_t count);
+    [CCode (cheader_filename = "unistd.h")]
+    public pid_t getpid ();
+    public pid_t getppid ();
 
     /* ------------- termios --------------- */
 

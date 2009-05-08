@@ -24,7 +24,16 @@ using FsoFramework;
 void test_kobjectnotifier_create()
 //===========================================================================
 {
-    var kn = new BaseKObjectNotifier() as KObjectNotifier;
+    var kn = new BaseKObjectNotifier();
+}
+
+//===========================================================================
+void test_kobjectnotifier_add_match()
+//===========================================================================
+{
+    var kn = new BaseKObjectNotifier();
+
+    ( new MainLoop( null, false ) ).run();
 }
 
 //===========================================================================
@@ -33,7 +42,8 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/KObjectNotifier/Create", test_kobjectnotifier_create );
+    //Test.add_func( "/KObjectNotifier/Create", test_kobjectnotifier_create );
+    Test.add_func( "/KObjectNotifier/AddMatch", test_kobjectnotifier_add_match );
 
     Test.run();
 }
