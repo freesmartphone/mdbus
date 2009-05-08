@@ -203,7 +203,7 @@ public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
 
     protected override void write( string message )
     {
-        PosixExtra.syslog( PosixExtra.LOG_DEBUG, "%s", message );
+        Posix.syslog( Posix.LOG_DEBUG, "%s", message );
     }
 
     /**
@@ -220,7 +220,7 @@ public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
         base( domain );
         if ( basename == null )
             basename = "%s".printf( FsoFramework.Utility.programName() );
-        PosixExtra.openlog( basename, PosixExtra.LOG_PID | PosixExtra.LOG_CONS, PosixExtra.LOG_DAEMON );
+        Posix.openlog( basename, Posix.LOG_PID | Posix.LOG_CONS, Posix.LOG_DAEMON );
     }
 }
 
