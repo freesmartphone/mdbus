@@ -20,18 +20,16 @@
 using GLib;
 using FsoFramework;
 
-//===========================================================================
-void test_kobjectnotifier_create()
-//===========================================================================
+public void callback( HashTable<string, string> properties )
 {
-    var kn = new BaseKObjectNotifier();
+    debug( "got callback for subsystem '%s' with device path '%s'", properties.lookup( "SUBSYSTEM" ), properties.lookup( "DEVPATH" ) );
 }
 
 //===========================================================================
 void test_kobjectnotifier_add_match()
 //===========================================================================
 {
-    var kn = new BaseKObjectNotifier();
+    BaseKObjectNotifier.addMatch( "remove", "usb", callback );
 
     ( new MainLoop( null, false ) ).run();
 }
@@ -42,7 +40,6 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    //Test.add_func( "/KObjectNotifier/Create", test_kobjectnotifier_create );
     Test.add_func( "/KObjectNotifier/AddMatch", test_kobjectnotifier_add_match );
 
     Test.run();

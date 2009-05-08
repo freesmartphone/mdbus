@@ -120,9 +120,12 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class BaseKObjectNotifier : GLib.Object {
-		public void addMatch ();
+		public static FsoFramework.BaseKObjectNotifier instance;
+		protected void _addMatch (string action, string subsystem, FsoFramework.KObjectNotifierFunc callback);
+		public static void addMatch (string action, string path, FsoFramework.KObjectNotifierFunc callback);
+		public void handleMessage (string[] parts);
 		public BaseKObjectNotifier ();
-		public bool onActionFromSocket (GLib.IOChannel source, GLib.IOCondition condition);
+		protected bool onActionFromSocket (GLib.IOChannel source, GLib.IOCondition condition);
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.TypeModule {
@@ -225,6 +228,8 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework.h", has_target = false)]
 	public delegate string FactoryFunc (FsoFramework.Subsystem subsystem);
+	[CCode (cheader_filename = "fsoframework.h")]
+	public delegate void KObjectNotifierFunc (GLib.HashTable<string,string> properties);
 	[CCode (cheader_filename = "fsoframework.h", has_target = false)]
 	public delegate void RegisterFunc (GLib.TypeModule bar);
 	[CCode (cheader_filename = "fsoframework.h")]
