@@ -31,8 +31,6 @@ namespace Linux26 {
             public GLib.Time time;
         }
 
-        /* RTC_ and friends are actually macros ... How to bind these?
-
         [CCode (cheader_filename = "linux/rtc.h")]
         public const int RTC_RD_TIME;
         [CCode (cheader_filename = "linux/rtc.h")]
@@ -41,15 +39,5 @@ namespace Linux26 {
         public const int RTC_WKALM_RD;
         [CCode (cheader_filename = "linux/rtc.h")]
         public const int RTC_WKALM_SET;
-
-        Until we find out, we just work around by giving the magic constants on our own... they are like that:
-
-        public const int IOCTL_RTC_RD_TIME = 0x80247009;
-        public const int IOCTL_RTC_SET_TIME = 0x4024700a;
-        public const int IOCTL_RTC_WKALM_RD = 0x80287010;
-        public const int IOCTL_RTC_WKALM_SET = 0x4028700f;
-        */
     }
 }
-
-

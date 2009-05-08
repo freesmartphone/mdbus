@@ -29,11 +29,11 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework.h")]
 		[DBus (name = "org.freesmartphone.Device.RTC")]
 		public interface RTC : GLib.Object {
-			public abstract int GetCurrentTime () throws DBus.Error;
+			public abstract int GetCurrentTime () throws FsoFramework.OrgFreesmartphone, DBus.Error;
 			public abstract string GetName () throws DBus.Error;
-			public abstract int GetWakeupTime () throws DBus.Error;
-			public abstract void SetCurrentTime (int seconds_since_epoch) throws DBus.Error;
-			public abstract void SetWakeupTime (int seconds_since_epoch) throws DBus.Error;
+			public abstract int GetWakeupTime () throws FsoFramework.OrgFreesmartphone, DBus.Error;
+			public abstract void SetCurrentTime (int seconds_since_epoch) throws FsoFramework.OrgFreesmartphone, DBus.Error;
+			public abstract void SetWakeupTime (int seconds_since_epoch) throws FsoFramework.OrgFreesmartphone, DBus.Error;
 		}
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string DisplayServiceFace;
@@ -208,6 +208,7 @@ namespace FsoFramework {
 	public errordomain OrgFreesmartphone {
 		Unsupported,
 		InvalidParameter,
+		SystemError,
 	}
 	[CCode (cprefix = "FSO_FRAMEWORK_PLUGIN_ERROR_", cheader_filename = "fsoframework.h")]
 	public errordomain PluginError {
