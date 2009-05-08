@@ -31,13 +31,13 @@ namespace Linux26 {
             public GLib.Time time;
         }
 
-        [CCode (cheader_filename = "linux/rtc.h")]
+        [CCode (cheader_filename = "linux/rtc.h,sys/ioctl.h")]
         public const int RTC_RD_TIME;
-        [CCode (cheader_filename = "linux/rtc.h")]
+        [CCode (cheader_filename = "linux/rtc.h,sys/ioctl.h")]
         public const int RTC_SET_TIME;
-        [CCode (cheader_filename = "linux/rtc.h")]
+        [CCode (cheader_filename = "linux/rtc.h,sys/ioctl.h")]
         public const int RTC_WKALM_RD;
-        [CCode (cheader_filename = "linux/rtc.h")]
+        [CCode (cheader_filename = "linux/rtc.h,sys/ioctl.h")]
         public const int RTC_WKALM_SET;
     }
 }
