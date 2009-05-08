@@ -56,6 +56,10 @@ public abstract class FsoFramework.Transport : Object
      **/
     public abstract void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc );
     /**
+     * Get delegates
+     **/
+    public abstract void getDelegates( out TransportReadFunc? readfun, out TransportHupFunc? hupfun );
+    /**
      * Set priorities for reading and writing
      **/
     public abstract void setPriorities( int rp, int wp );
@@ -82,7 +86,7 @@ public abstract class FsoFramework.Transport : Object
     /**
      * Create @a FsoFramework.Transport as indicated by @a type
      **/
-    public static Transport create( string type, string name = "", uint speed = 0, bool raw = true, bool hard = true )
+    public static Transport? create( string type, string name = "", uint speed = 0, bool raw = true, bool hard = true )
     {
         switch ( type )
         {
@@ -326,7 +330,14 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         assert( fd != -1 ); // fail, if trying to open the 2nd time
         // construct IO channel
         channel = new IOChannel.unix_new( fd );
-        channel.set_encoding( null );
+        try
+        {
+            channel.set_encoding( null );
+        }
+        catch ( GLib.IOChannelError e )
+        {
+            debug( "error while setting encoding");
+        }
         channel.set_buffer_size( 32768 );
         // setup watch
         readwatch = channel.add_watch_full( readpriority, IOCondition.IN | IOCondition.HUP, actionCallback );
@@ -372,13 +383,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         this.writepriority = wp;
     }
 
-    /* triggers a bug in Vala
-    public void getDelegates( out TransportReadFunc? readfun, out TransportHupFunc? hupfun )
+    public override void getDelegates( out TransportReadFunc? readfun, out TransportHupFunc? hupfun )
     {
         readfun = this.readfunc;
         hupfun = this.hupfunc;
     }
-    */
 
     public override int read( void* data, int len )
     {

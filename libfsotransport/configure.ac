@@ -1,4 +1,4 @@
-AC_INIT([libfsotransport], [0.9.0], [smartphones-userland@linuxtogo.org], [libfsotransport])
+AC_INIT([libfsotransport], [0.9.1], [smartphones-userland@linuxtogo.org], [libfsotransport])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -17,7 +17,7 @@ AC_SUBST(LDFLAGS)
 #
 PKG_PROG_PKG_CONFIG
 
-VALA_REQUIRED=0.7.1
+VALA_REQUIRED=0.7.2
 GLIB_REQUIRED=2.18.0
 
 # vala

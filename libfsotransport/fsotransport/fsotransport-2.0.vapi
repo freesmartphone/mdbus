@@ -15,6 +15,7 @@ namespace FsoFramework {
 		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
 		public override void close ();
 		public override void freeze ();
+		public override void getDelegates (out FsoFramework.TransportReadFunc? readfun, out FsoFramework.TransportHupFunc? hupfun);
 		public override string getName ();
 		public override bool isOpen ();
 		public BaseTransport (string name, uint speed = 0, bool raw = true, bool hard = true);
@@ -44,8 +45,9 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsotransport.h")]
 	public abstract class Transport : GLib.Object {
 		public abstract void close ();
-		public static FsoFramework.Transport create (string type, string name = "", uint speed = 0, bool raw = true, bool hard = true);
+		public static FsoFramework.Transport? create (string type, string name = "", uint speed = 0, bool raw = true, bool hard = true);
 		public abstract void freeze ();
+		public abstract void getDelegates (out FsoFramework.TransportReadFunc? readfun, out FsoFramework.TransportHupFunc? hupfun);
 		public abstract string getName ();
 		public abstract bool isOpen ();
 		public abstract bool open ();
