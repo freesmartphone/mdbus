@@ -16,21 +16,22 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg posix \
+	--pkg linux26 \
 	--pkg fsoframework-2.0
 
 #
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = kernel26_leds.la
-kernel26_leds_la_SOURCES = plugin.c
-kernel26_leds_la_VALASOURCES = plugin.vala
-$(kernel26_leds_la_SOURCES): $(kernel26_leds_la_VALASOURCES)
+modlibexec_LTLIBRARIES = kernel26_rtc.la
+kernel26_rtc_la_SOURCES = plugin.c
+kernel26_rtc_la_VALASOURCES = plugin.vala
+$(kernel26_rtc_la_SOURCES): $(kernel26_rtc_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-kernel26_leds_la_LIBADD = $(progs_ldadd)
-kernel26_leds_la_LDFLAGS = -no-undefined -module -avoid-version
-kernel26_leds_la_LIBTOOLFLAGS = --tag=disable-static
+kernel26_rtc_la_LIBADD = $(progs_ldadd)
+kernel26_rtc_la_LDFLAGS = -no-undefined -module -avoid-version
+kernel26_rtc_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

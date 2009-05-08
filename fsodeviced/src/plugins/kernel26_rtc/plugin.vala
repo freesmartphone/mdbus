@@ -22,124 +22,119 @@ using GLib;
 namespace Kernel26
 {
 
-class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
+/**
+ * Magic ioctl constants for RTC.
+ **/
+public const int IOCTL_RTC_RD_TIME = 0x80247009;
+public const int IOCTL_RTC_SET_TIME = 0x4024700a;
+public const int IOCTL_RTC_WKALM_RD = 0x80287010;
+public const int IOCTL_RTC_WKALM_SET = 0x4028700f;
+
+/**
+ * Implementation of org.freesmartphone.Device.RTC for the Kernel26 Real-Time-Clock interface
+ **/
+class Rtc : FsoFramework.Device.RTC, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
-    string sysfsnode;
-    string brightness;
-    string trigger;
-    string triggers;
+    private string sysfsnode;
+    private string devnode;
+    private int rtc_fd;
+    private static uint counter;
 
-    static uint counter;
-
-    public Led( FsoFramework.Subsystem subsystem, string sysfsnode )
+    public Rtc( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
-        this.brightness = sysfsnode + "/brightness";
-        this.trigger = sysfsnode + "/trigger";
+        this.devnode = sysfsnode.replace( "/sys/class/rtc/", "/dev/" );
 
-        if ( !FsoFramework.FileHandling.isPresent( this.brightness ) ||
-             !FsoFramework.FileHandling.isPresent( this.trigger ) )
-        {
-            logger.error( "^^^ sysfs class is damaged; skipping." );
-            return;
-        }
+        rtc_fd = Posix.open( this.devnode, Posix.O_RDONLY );
+        if ( rtc_fd == -1 )
+            logger.warning( "Can't open %s (%s). Full RTC control not available.".printf( devnode, Posix.strerror( Posix.errno ) ) );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.LedServicePath, counter++ ),
+                                         "%s/%u".printf( FsoFramework.Device.RtcServicePath, counter++ ),
                                          this );
-        // FIXME: remove in release code, can be done lazily
-        initTriggers();
 
-        logger.info( "created new Led object." );
+        logger.info( "created new Rtc object." );
     }
 
     public override string repr()
     {
-        return "<FsoFramework.Device.Led @ %s>".printf( sysfsnode );
-    }
-
-    public void initTriggers()
-    {
-        if ( triggers == null )
-        {
-            triggers = FsoFramework.FileHandling.read( trigger );
-            logger.info( "^^^ supports the following triggers: '%s'".printf( triggers ) );
-        }
+        return "<FsoFramework.Device.Rtc @ %s : %s>".printf( sysfsnode, devnode );
     }
 
     //
-    // FsoFramework.Device.LED
+    // FsoFramework.Device.RTC
     //
     public string GetName() throws DBus.Error
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public void SetBrightness( int brightness ) throws DBus.Error
+    public int GetCurrentTime() throws FsoFramework.OrgFreesmartphone, DBus.Error
     {
-        if ( brightness > 255 )
-            brightness = 255;
-        if ( brightness < 0 )
-            brightness = 0;
+        GLib.Time time = {};
+        var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_RD_TIME, &time );
+        if ( res == -1 )
+            throw new FsoFramework.OrgFreesmartphone.SystemError( Posix.strerror( Posix.errno ) );
 
-        FsoFramework.FileHandling.write( "none", this.trigger );
-        FsoFramework.FileHandling.write( brightness.to_string(), this.brightness );
+        return (int) time.mktime();
     }
 
-    public void SetBlinking( int delay_on, int delay_off ) throws FsoFramework.OrgFreesmartphone, DBus.Error
+    public void SetCurrentTime( int seconds_since_epoch ) throws FsoFramework.OrgFreesmartphone, DBus.Error
     {
-        initTriggers();
-
-        if ( !( "timer" in triggers ) )
-            throw new FsoFramework.OrgFreesmartphone.Unsupported( "Kernel support for timer led class trigger missing" );
-
-        FsoFramework.FileHandling.write( "timer", this.trigger );
-        FsoFramework.FileHandling.write( delay_on.to_string(), this.sysfsnode + "/delay_on" );
-        FsoFramework.FileHandling.write( delay_off.to_string(), this.sysfsnode + "/delay_off" );
+        var time = GLib.Time.gm( (time_t) seconds_since_epoch ); // VALABUG: cast is necessary here, otherwise things go havoc
+        var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_SET_TIME, &time );
+        if ( res == -1 )
+            throw new FsoFramework.OrgFreesmartphone.SystemError( Posix.strerror( Posix.errno ) );
     }
 
-    public void SetNetworking( string iface, string mode ) throws FsoFramework.OrgFreesmartphone, DBus.Error
+    public int GetWakeupTime() throws FsoFramework.OrgFreesmartphone, DBus.Error
     {
-        initTriggers();
+        Linux26.Rtc.WakeAlarm alarm = {};
+        var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_WKALM_RD, &alarm );
+        if ( res == -1 )
+            throw new FsoFramework.OrgFreesmartphone.SystemError( Posix.strerror( Posix.errno ) );
 
-        if ( !( "netdev" in triggers ) )
-            throw new FsoFramework.OrgFreesmartphone.Unsupported( "Kernel support for netdev led class trigger missing" );
-
-        if ( !FsoFramework.FileHandling.isPresent( "%s/%s".printf( sys_class_net, iface ) ) )
-            throw new FsoFramework.OrgFreesmartphone.InvalidParameter( "Interface '%s' not present".printf( iface ) );
-
-        string cleanmode = "";
-
-        foreach ( var element in mode.split( " " ) )
-        {
-            if ( element != "link" && element != "rx" && element != "tx" )
-                throw new FsoFramework.OrgFreesmartphone.InvalidParameter( "Element '%s' not allowed. Valid elements are 'link', 'rx', 'tx'.".printf( element ) );
-            else
-                cleanmode += element;
-        }
-        if ( cleanmode == "" )
-        {
-            SetBrightness( 0 );
-        }
-        else
-        {
-            FsoFramework.FileHandling.write( "netdev", this.trigger );
-            FsoFramework.FileHandling.write( iface, this.sysfsnode + "/device_name" );
-            FsoFramework.FileHandling.write( cleanmode, this.sysfsnode + "/mode" );
-        }
+        GLib.Time time = {};
+        Memory.copy( &time, &alarm.time, sizeof( GLib.Time ) );
+        return ( alarm.enabled == 1 ) ? (int) time.mktime() : 0;
     }
+
+    public void SetWakeupTime( int seconds_since_epoch ) throws FsoFramework.OrgFreesmartphone, DBus.Error
+    {
+        Linux26.Rtc.WakeAlarm alarm = {};
+        var time = GLib.Time.gm( (time_t) seconds_since_epoch );
+
+        // VALABUG 1: var time and var time in two different clauses
+        // VALABUG 2: Memory.copy goes havok!
+
+        alarm.time.second = time.second;
+        alarm.time.minute = time.minute;
+        alarm.time.hour = time.hour;
+        alarm.time.day = time.day;
+        alarm.time.month = time.month;
+        alarm.time.year = time.year;
+        alarm.time.weekday = time.weekday;
+        alarm.time.day_of_year = time.day_of_year;
+        alarm.time.isdst = time.isdst;
+
+        alarm.enabled = seconds_since_epoch > 0 ? 1 : 0;
+
+        var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_WKALM_SET, &alarm );
+        if ( res == -1 )
+            throw new FsoFramework.OrgFreesmartphone.SystemError( Posix.strerror( Posix.errno ) );
+    }
+
 }
 
 } /* namespace */
 
 static string sysfs_root;
-static string sys_class_net;
-static string sys_class_leds;
-List<Kernel26.Led> instances;
+static string sys_class_rtcs;
+List<Kernel26.Rtc> instances;
 
 /**
  * This function gets called on plugin initialization time.
@@ -152,25 +147,24 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     // grab sysfs paths
     var config = FsoFramework.theMasterKeyFile();
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
-    sys_class_leds = "%s/class/leds".printf( sysfs_root );
-    sys_class_net = "%s/class/net".printf( sysfs_root );
+    sys_class_rtcs = "%s/class/rtc".printf( sysfs_root );
 
-    // scan sysfs path for leds
-    var dir = Dir.open( sys_class_leds );
+    // scan sysfs path for rtcs
+    var dir = Dir.open( sys_class_rtcs );
     var entry = dir.read_name();
     while ( entry != null )
     {
-        var filename = Path.build_filename( sys_class_leds, entry );
-        instances.append( new Kernel26.Led( subsystem, filename ) );
+        var filename = Path.build_filename( sys_class_rtcs, entry );
+        instances.append( new Kernel26.Rtc( subsystem, filename ) );
         entry = dir.read_name();
     }
-    return "fsodevice.kernel26_leds";
+    return "fsodevice.kernel26_rtc";
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "kernel26_leds fso_register_function()" );
+    debug( "kernel26_rtc fso_register_function()" );
 }
 
 /**

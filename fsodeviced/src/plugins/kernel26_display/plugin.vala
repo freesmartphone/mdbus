@@ -48,7 +48,7 @@ class Display : FsoFramework.Device.Display, FsoFramework.AbstractObject
 
         fb_fd = Posix.open( dev_fb0, Posix.O_RDONLY );
         if ( fb_fd == -1 )
-            logger.warning( "Can't open %s. Full display power control not available.".printf( dev_fb0 ) );
+            logger.warning( "Can't open %s (%s). Full display power control not available.".printf( dev_fb0, Posix.strerror( Posix.errno ) ) );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,

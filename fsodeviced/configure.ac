@@ -15,7 +15,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-VALA_REQUIRED=0.5.8
+VALA_REQUIRED=0.7.2
 GLIB_REQUIRED=2.18.0
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
@@ -52,8 +52,9 @@ AC_CONFIG_FILES([
   src/lib/Makefile
   src/bin/Makefile
   src/plugins/Makefile
-  src/plugins/kernel26_leds/Makefile
   src/plugins/kernel26_display/Makefile
+  src/plugins/kernel26_leds/Makefile
+  src/plugins/kernel26_rtc/Makefile
   src/plugins/info/Makefile
   tests/Makefile
 ])
