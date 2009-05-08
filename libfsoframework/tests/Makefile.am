@@ -166,6 +166,18 @@ $(testasyncworker_SOURCES): $(testasyncworker_VALASOURCES)
 testasyncworker_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testasyncworker_VALASOURCES)
 
+#
+# kobjectnotifier test
+#
+TEST_PROGS += testkobjectnotifier
+testkobjectnotifier_VALASOURCES = testkobjectnotifier.vala
+testkobjectnotifier_SOURCES = testkobjectnotifier.c
+$(testkobjectnotifier_SOURCES): $(testkobjectnotifier_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testkobjectnotifier_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testkobjectnotifier_VALASOURCES)
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \

@@ -19,6 +19,7 @@ libfsoframework_la_VALASOURCES = \
 	common.vala \
 	interfaces.vala \
 	logger.vala \
+	kobjectnotifier.vala \
 	object.vala \
 	plugin.vala \
 	smartkeyfile.vala \

@@ -119,6 +119,10 @@ namespace FsoFramework {
 		public AsyncWorkerQueue ();
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
+	public class BaseKObjectNotifier : FsoFramework.KObjectNotifier, GLib.Object {
+		public BaseKObjectNotifier ();
+	}
+	[CCode (cheader_filename = "fsoframework.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.TypeModule {
 		public override bool load ();
 		public BasePlugin (string filename, FsoFramework.Subsystem subsystem);
@@ -173,6 +177,9 @@ namespace FsoFramework {
 		public abstract void enqueue (T element);
 		public abstract void setDelegate (FsoFramework.AbstractWorkerQueue.WorkerFunc worker);
 		public abstract void trigger ();
+	}
+	[CCode (cheader_filename = "fsoframework.h")]
+	public interface KObjectNotifier : GLib.Object {
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public interface Logger : GLib.Object {
