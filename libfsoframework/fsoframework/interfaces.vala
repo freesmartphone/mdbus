@@ -90,8 +90,9 @@ namespace FsoFramework
         {
             public abstract string GetName() throws DBus.Error;
             public abstract string GetPowerStatus() throws DBus.Error;
-            public abstract int GetCapacity() throws DBus.Error;
             public signal void PowerStatus( string power_status );
+            public abstract int GetCapacity() throws DBus.Error;
+            public signal void Capacity( int capacity );
         }
 
         [DBus (name = "org.freesmartphone.Device.RTC")]

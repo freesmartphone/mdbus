@@ -29,7 +29,7 @@ public void callback( HashTable<string, string> properties )
 void test_kobjectnotifier_add_match()
 //===========================================================================
 {
-    BaseKObjectNotifier.addMatch( "remove", "usb", callback );
+    BaseKObjectNotifier.addMatch( "remove", "power_supply", callback );
 
     ( new MainLoop( null, false ) ).run();
 }
