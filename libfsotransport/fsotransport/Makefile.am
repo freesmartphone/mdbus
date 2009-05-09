@@ -28,7 +28,6 @@ fsotransportinclude_HEADERS = fsotransport.h
 
 fsotransport-1.0.vapi .vala.stamp: $(libfsotransport_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) \
-	            --vapidir ../vapi \
 	            --pkg posix \
 	            --pkg posixextra \
 	            --pkg glib-2.0 \

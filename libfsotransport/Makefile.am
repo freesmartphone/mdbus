@@ -5,7 +5,6 @@ NULL =
 SUBDIRS = \
   fsotransport \
   tests \
-  vapi \
   $(NULL)
 
 pkgconfigdir = $(libdir)/pkgconfig
@@ -13,7 +12,7 @@ pkgconfig_DATA = fsotransport-2.0.pc
 
 EXTRA_DIST += \
   MAINTAINERS \
-  fsoframework-2.0.pc.in \
+  fsotransport-2.0.pc.in \
   $(NULL)
 
 MAINTAINERCLEANFILES = \

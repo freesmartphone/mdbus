@@ -1,4 +1,4 @@
-AC_INIT([libfsotransport], [0.9.1], [smartphones-userland@linuxtogo.org], [libfsotransport])
+AC_INIT([libfsotransport], [0.9.2], [smartphones-userland@linuxtogo.org], [libfsotransport])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -19,6 +19,7 @@ PKG_PROG_PKG_CONFIG
 
 VALA_REQUIRED=0.7.2
 GLIB_REQUIRED=2.18.0
+FSO_REQUIRED=0.0.0.0
 
 # vala
 AC_PATH_PROG(VALAC, valac, valac)
@@ -33,6 +34,12 @@ PKG_CHECK_MODULES(GLIB,
   gio-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
+
+#
+# FSO (for posixextra.vapi)
+#
+PKG_CHECK_MODULES(FSO,
+  fsoframework-2.0 >= $FSO_REQUIRED)
 
 #
 # output
