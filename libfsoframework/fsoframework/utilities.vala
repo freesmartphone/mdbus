@@ -36,7 +36,7 @@ public string read( string filename )
     var fd = Posix.open( filename, Posix.O_RDONLY );
     if ( fd == -1 )
     {
-        warning( "%s", "can't read from file: %s".printf( Posix.strerror( Posix.errno ) ) );
+        warning( "%s", "can't open for reading to %s: %s".printf( filename, Posix.strerror( Posix.errno ) ) );
     }
     else
     {
@@ -60,7 +60,7 @@ public void write( string contents, string filename )
     var fd = Posix.open( filename, Posix.O_WRONLY );
     if ( fd == -1 )
     {
-        warning( "%s", "can't write to file: %s".printf( Posix.strerror( Posix.errno ) ) );
+        warning( "%s", "can't open for writing to %s: %s".printf( filename, Posix.strerror( Posix.errno ) ) );
     }
     else
     {
