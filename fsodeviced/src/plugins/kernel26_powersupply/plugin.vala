@@ -52,6 +52,7 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
                 break;
             case "Battery":
                 this.typ = "battery";
+                Idle.add( onIdle );
                 break;
             default:
                 logger.error( "^^^ sysfs class is damaged; skipping." );
@@ -63,8 +64,6 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
                                          "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, counter++ ),
                                          this );
 
-        Idle.add( onIdle );
-
         logger.info( "created new PowerSupply object." );
     }
 
@@ -75,7 +74,7 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
 
     public bool onIdle()
     {
-        // trigger coldplug change notification
+        // trigger initial coldplug change notification
         FsoFramework.FileHandling.write( "change", "%s/uevent".printf( sysfsnode ) );
         return false; // mainloop: don't call again
     }
@@ -128,11 +127,14 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
  **/
 class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
 {
-    FsoFramework.Subsystem subsystem;
+    private const uint POWER_SUPPLY_CAPACITY_CHECK_INTERVAL = 5 * 60;
 
+    private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
-    private string[] supplies;
+
+    private HashTable<string,string> supplystatus;
     private string status = "unknown";
+    private int capacity = -1;
 
     public AggregatePowerSupply( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
@@ -146,6 +148,10 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
 
         FsoFramework.BaseKObjectNotifier.addMatch( "change", "power_supply", onPowerSupplyChangeNotification );
 
+        supplystatus = new HashTable<string,string>( str_hash, str_equal );
+
+        Idle.add( onIdle );
+
         logger.info( "created new AggregatePowerSupply object." );
     }
 
@@ -154,26 +160,49 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
         return "<FsoFramework.Device.AggregatePowerSupply @ %s>".printf( sysfsnode );
     }
 
+    public bool onIdle()
+    {
+        onTimeout();
+        Timeout.add_seconds( POWER_SUPPLY_CAPACITY_CHECK_INTERVAL, onTimeout );
+        return false;
+    }
+
+    public bool onTimeout()
+    {
+        sendCapacityIfChanged( getCapacity() );
+        return true;
+    }
+
     public void onPowerSupplyChangeNotification( HashTable<string,string> properties )
     {
         var name = properties.lookup( "POWER_SUPPLY_NAME" );
-        logger.info( "got power supply change notification for '%s'".printf( name ) );
+        assert( name != null );
+        var status = properties.lookup( "POWER_SUPPLY_STATUS" ).down();
+        assert( status != null );
 
-        var status = properties.lookup( "POWER_SUPPLY_STATUS" );
-        if ( status != null )
-            sendStatusIfChanged( status.down() );
+        var oldstatus = supplystatus.lookup( name );
+        if ( oldstatus == null || oldstatus != status )
+        {
+            supplystatus.replace( name, status );
+        }
+
+        logger.info( "got power status change notification for %s: %s".printf( name, status ) );
+
+        sendStatusIfChanged( status );
     }
 
     public void sendStatusIfChanged( string status )
     {
-        logger.debug( "sendStatusIfChanged '%s'".printf( status ) );
+        logger.debug( "sendStatusIfChanged old %s new %s".printf( this.status, status ) );
 
         // some power supply classes (Thinkpad) have a bug where after
         // 'discharging' you shortly get a 'full' before 'charging'
         // when you insert the AC plug.
-        if ( this.status == "discharging" && status == "full" ):
+        if ( ( this.status == "discharging" ) && ( status == "full" ) )
+        {
             logger.warning( "BUG: power supply class sent 'full' after 'discharging'" );
             return;
+        }
 
         if ( this.status == status )
             return;
@@ -182,17 +211,32 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
         PowerStatus( status );
     }
 
-    /*
     public void sendCapacityIfChanged( int capacity )
     {
-    if ( this.capacity == capacity )
-    return;
+        if ( this.capacity == capacity )
+        return;
 
-    this.capity = capacity;
-    Capacity( capacity );
+        this.capacity = capacity;
+        Capacity( capacity );
     }
 
-    */
+    public int getCapacity()
+    {
+        var amount = 0;
+        var numValues = 0;
+        // walk through all power nodes and compute arithmetic mean
+        foreach( var supply in instances )
+        {
+            var v = supply.getCapacity();
+            if ( v != -1 )
+            {
+                amount += v;
+                numValues++;
+            }
+        }
+        return amount / numValues;
+    }
+
     //
     // FsoFramework.Device.PowerSupply
     //
@@ -209,28 +253,16 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
 
     public int GetCapacity() throws DBus.Error
     {
-        int amount = 0;
-        int numValues = 0;
-        // walk through all power nodes and compute arithmetic mean
-        foreach( var supply in instances )
-        {
-            var v = supply.getCapacity();
-            if ( v != -1 )
-            {
-                amount += v;
-                numValues++;
-            }
-        }
-        return amount / numValues;
+        return getCapacity();
     }
 }
 
 } /* namespace */
 
-static string sysfs_root;
-static string sys_class_powersupplies;
-List<Kernel26.PowerSupply> instances;
-Kernel26.AggregatePowerSupply aggregate;
+internal static string sysfs_root;
+internal static string sys_class_powersupplies;
+internal List<Kernel26.PowerSupply> instances;
+internal Kernel26.AggregatePowerSupply aggregate;
 
 /**
  * This function gets called on plugin initialization time.
