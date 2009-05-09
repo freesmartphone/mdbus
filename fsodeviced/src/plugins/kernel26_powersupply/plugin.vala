@@ -69,11 +69,58 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
     }
 }
 
+/**
+ * Implementation of org.freesmartphone.Device.PowerSupply as aggregated Kernel26 Power-Class Devices
+ **/
+class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
+{
+    FsoFramework.Subsystem subsystem;
+
+    private string sysfsnode;
+
+    public AggregatePowerSupply( FsoFramework.Subsystem subsystem, string sysfsnode )
+    {
+        this.subsystem = subsystem;
+        this.sysfsnode = sysfsnode;
+
+        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                                         FsoFramework.Device.PowerSupplyServicePath,
+                                         this );
+
+        logger.info( "created new AggregatePowerSupply object." );
+    }
+
+    public override string repr()
+    {
+        return "<FsoFramework.Device.AggregatePowerSupply @ %s>".printf( sysfsnode );
+    }
+
+    //
+    // FsoFramework.Device.PowerSupply
+    //
+    public string GetName() throws DBus.Error
+    {
+        return Path.get_basename( sysfsnode );
+    }
+
+    public string GetPowerStatus() throws DBus.Error
+    {
+        return "unknown";
+    }
+
+    public int GetCapacity() throws DBus.Error
+    {
+        return 0;
+    }
+}
+
 } /* namespace */
 
 static string sysfs_root;
 static string sys_class_powersupplies;
 List<Kernel26.PowerSupply> instances;
+Kernel26.AggregatePowerSupply aggregate;
 
 /**
  * This function gets called on plugin initialization time.
@@ -87,6 +134,9 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var config = FsoFramework.theMasterKeyFile();
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     sys_class_powersupplies = "%s/class/power_supply".printf( sysfs_root );
+
+    // always create aggregated object
+    aggregate = new Kernel26.AggregatePowerSupply( subsystem, sys_class_powersupplies );
 
     // scan sysfs path for rtcs
     var dir = Dir.open( sys_class_powersupplies );
