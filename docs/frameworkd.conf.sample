@@ -14,14 +14,34 @@ log_destination = /tmp/frameworkd.log
 # FSO2
 #
 [cornucopia]
-# Use this for development
+# Can use this to inject another sysfs root, e.g. for development
 #sysfs_root = /mnt/neo/sys
 
 [fsodevice]
 
+[fsodevice.info]
+
+[fsodevice.kernel26_display]
+
 [fsodevice.kernel26_leds]
 
+[fsodevice.kernel26_powersupply]
+
+[fsodevice.kernel26_rtc]
+
 [fsogsm]
+# Which modem to use: singleline, ti_calypso, freescale_neptune, cinterion_mc75, qualcomm_msm
+modem_type = singleline
+# Which transport channel: serial, pty
+modem_transport = serial
+# Which port to communicate with: <serial port> or <filename>
+modem_port = /dev/ttyUSB0
+# Which speed to use for the transport and the port
+modem_speed = 115200
+
+[fsogsm.modem_singleline]
+
+[fsogsm.modem_cinterion_mc75]
 
 [fsogsm.modem_ti_calypso]
 
