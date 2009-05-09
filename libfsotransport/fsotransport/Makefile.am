@@ -51,7 +51,7 @@ dist_vapi_DATA = \
 EXTRA_DIST += \
 	$(libfsotransport_la_VALASOURCES) \
 	fsotransport-2.0.vapi \
-	fsotransport.vala.stamp
+	.vala.stamp
 
 CLEANFILES = \
     $(BUILT_SOURCES) \
