@@ -128,6 +128,8 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
 class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
 {
     private const uint POWER_SUPPLY_CAPACITY_CHECK_INTERVAL = 5 * 60;
+    private const uint POWER_SUPPLY_CAPACITY_CRITICAL = 7;
+    private const uint POWER_SUPPLY_CAPACITY_EMPTY = 3;
 
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
@@ -169,7 +171,19 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
 
     public bool onTimeout()
     {
-        sendCapacityIfChanged( getCapacity() );
+        var capacity = getCapacity();
+        sendCapacityIfChanged( capacity );
+        if ( status == "discharging" )
+        {
+            if ( capacity <= POWER_SUPPLY_CAPACITY_EMPTY )
+            {
+                sendStatusIfChanged( "empty" );
+            }
+            else if ( capacity <= POWER_SUPPLY_CAPACITY_CRITICAL )
+            {
+                sendStatusIfChanged( "critical" );
+            }
+        }
         return true;
     }
 
