@@ -47,8 +47,7 @@ PKG_CHECK_MODULES(FSO,
 AC_CONFIG_FILES([Makefile
   fsotransport-2.0.pc
   fsotransport/Makefile
-  tests/Makefile
-  vapi/Makefile])
+  tests/Makefile])
 
 AC_OUTPUT
 
