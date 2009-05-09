@@ -27,6 +27,14 @@ namespace FsoFramework {
 			public abstract void SetNetworking (string iface, string mode) throws FsoFramework.OrgFreesmartphone, DBus.Error;
 		}
 		[CCode (cheader_filename = "fsoframework.h")]
+		[DBus (name = "org.freesmartphone.Device.PowerSupply")]
+		public interface PowerSupply : GLib.Object {
+			public abstract int GetCapacity () throws DBus.Error;
+			public abstract string GetName () throws DBus.Error;
+			public abstract string GetPowerStatus () throws DBus.Error;
+			public signal void PowerStatus (string power_status);
+		}
+		[CCode (cheader_filename = "fsoframework.h")]
 		[DBus (name = "org.freesmartphone.Device.RTC")]
 		public interface RTC : GLib.Object {
 			public abstract int GetCurrentTime () throws FsoFramework.OrgFreesmartphone, DBus.Error;
@@ -47,6 +55,10 @@ namespace FsoFramework {
 		public const string LedServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string LedServicePath;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string PowerSupplyServiceFace;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string PowerSupplyServicePath;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string RtcServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
@@ -123,7 +135,7 @@ namespace FsoFramework {
 		public static FsoFramework.BaseKObjectNotifier instance;
 		protected void _addMatch (string action, string subsystem, FsoFramework.KObjectNotifierFunc callback);
 		public static void addMatch (string action, string path, FsoFramework.KObjectNotifierFunc callback);
-		public void handleMessage (string[] parts);
+		protected void handleMessage (string[] parts);
 		public BaseKObjectNotifier ();
 		protected bool onActionFromSocket (GLib.IOChannel source, GLib.IOCondition condition);
 	}

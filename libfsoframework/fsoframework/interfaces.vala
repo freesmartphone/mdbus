@@ -30,8 +30,11 @@ namespace FsoFramework
     [DBus (name = "org.freesmartphone")]
     public errordomain OrgFreesmartphone
     {
+        [DBus (name = "Unsupported")]
         Unsupported,
+        [DBus (name = "InvalidParameter")]
         InvalidParameter,
+        [DBus (name = "SystemError")]
         SystemError
     }
 
@@ -50,6 +53,9 @@ namespace FsoFramework
 
         public const string LedServiceFace = ServiceFacePrefix + ".LED";
         public const string LedServicePath = ServicePathPrefix + "/LED";
+
+        public const string PowerSupplyServiceFace = ServiceFacePrefix + ".PowerSupply";
+        public const string PowerSupplyServicePath = ServicePathPrefix + "/PowerSupply";
 
         public const string RtcServiceFace = ServiceFacePrefix + ".RTC";
         public const string RtcServicePath = ServicePathPrefix + "/RTC";
@@ -77,6 +83,15 @@ namespace FsoFramework
             public abstract void SetBrightness( int brightness ) throws DBus.Error;
             public abstract void SetBlinking( int delay_on, int delay_off ) throws OrgFreesmartphone, DBus.Error;
             public abstract void SetNetworking( string iface, string mode ) throws OrgFreesmartphone, DBus.Error;
+        }
+
+        [DBus (name = "org.freesmartphone.Device.PowerSupply")]
+        public abstract interface PowerSupply : GLib.Object
+        {
+            public abstract string GetName() throws DBus.Error;
+            public abstract string GetPowerStatus() throws DBus.Error;
+            public abstract int GetCapacity() throws DBus.Error;
+            public signal void PowerStatus( string power_status );
         }
 
         [DBus (name = "org.freesmartphone.Device.RTC")]
