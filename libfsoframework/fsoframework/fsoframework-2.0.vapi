@@ -32,6 +32,7 @@ namespace FsoFramework {
 			public abstract int GetCapacity () throws DBus.Error;
 			public abstract string GetName () throws DBus.Error;
 			public abstract string GetPowerStatus () throws DBus.Error;
+			public abstract string GetType () throws DBus.Error;
 			public signal void Capacity (int capacity);
 			public signal void PowerStatus (string power_status);
 		}

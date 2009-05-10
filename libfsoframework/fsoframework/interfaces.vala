@@ -89,6 +89,7 @@ namespace FsoFramework
         public abstract interface PowerSupply : GLib.Object
         {
             public abstract string GetName() throws DBus.Error;
+            public abstract string GetType() throws DBus.Error;
             public abstract string GetPowerStatus() throws DBus.Error;
             public signal void PowerStatus( string power_status );
             public abstract int GetCapacity() throws DBus.Error;
