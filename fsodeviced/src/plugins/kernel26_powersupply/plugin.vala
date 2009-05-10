@@ -158,7 +158,8 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
 
         FsoFramework.BaseKObjectNotifier.addMatch( "change", "power_supply", onPowerSupplyChangeNotification );
 
-        Idle.add( onIdle );
+        if ( instances.length() > 0 )
+            Idle.add( onIdle );
 
         logger.info( "created new AggregatePowerSupply object." );
     }
