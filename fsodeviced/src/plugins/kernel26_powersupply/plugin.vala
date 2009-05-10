@@ -31,12 +31,18 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
 
     private string sysfsnode;
     private static uint counter;
-    private string typ;
+
+    // internal, so it can be accessable from aggregate power supply
+    internal string name;
+    internal string typ;
+    internal string status = "unknown";
+    internal bool present;
 
     public PowerSupply( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
+        this.name = Path.get_basename( sysfsnode );
 
         if ( !FsoFramework.FileHandling.isPresent( "%s/type".printf( sysfsnode ) ) )
         {
@@ -44,20 +50,9 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
             return;
         }
 
-        var typ = FsoFramework.FileHandling.read( "%s/type".printf( sysfsnode ) );
-        switch ( typ )
-        {
-            case "Mains":
-                this.typ = "mains";
-                break;
-            case "Battery":
-                this.typ = "battery";
-                Idle.add( onIdle );
-                break;
-            default:
-                logger.error( "^^^ sysfs class is damaged; skipping." );
-                return;
-        }
+        this.typ = FsoFramework.FileHandling.read( "%s/type".printf( sysfsnode ) ).down();
+
+        Idle.add( onIdle );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
@@ -79,9 +74,23 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
         return false; // mainloop: don't call again
     }
 
+    public bool isBattery()
+    {
+        return typ == "battery";
+    }
+
+    public bool isPresent()
+    {
+        var node = isBattery() ? "%s/present" : "%s/online";
+        var value = FsoFramework.FileHandling.read( node.printf( sysfsnode ) );
+        return ( value != null && value.to_bool() );
+    }
+
     public int getCapacity()
     {
-        if ( typ == "mains" )
+        if ( !isBattery() )
+            return -1;
+        if ( !isPresent() )
             return -1;
 
         // try the capacity node first, this one is not supported by all power class devices
@@ -103,7 +112,7 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
     //
     public string GetName() throws DBus.Error
     {
-        return Path.get_basename( sysfsnode );
+        return name;
     }
 
     public string GetType() throws DBus.Error
@@ -113,12 +122,12 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
 
     public string GetPowerStatus() throws DBus.Error
     {
-        return "unknown";
+        return status;
     }
 
     public int GetCapacity() throws DBus.Error
     {
-        return 0;
+        return getCapacity();
     }
 }
 
@@ -134,7 +143,6 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
 
-    private HashTable<string,string> supplystatus;
     private string status = "unknown";
     private int capacity = -1;
 
@@ -149,8 +157,6 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
                                          this );
 
         FsoFramework.BaseKObjectNotifier.addMatch( "change", "power_supply", onPowerSupplyChangeNotification );
-
-        supplystatus = new HashTable<string,string>( str_hash, str_equal );
 
         Idle.add( onIdle );
 
@@ -191,18 +197,88 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
     {
         var name = properties.lookup( "POWER_SUPPLY_NAME" );
         assert( name != null );
-        var status = properties.lookup( "POWER_SUPPLY_STATUS" ).down();
-        assert( status != null );
+        var typ = properties.lookup( "POWER_SUPPLY_TYPE" ).down();
+        assert( typ != null );
 
-        var oldstatus = supplystatus.lookup( name );
-        if ( oldstatus == null || oldstatus != status )
+        var status = "unknown";
+        var present = false;
+
+        if ( typ != "battery" )
         {
-            supplystatus.replace( name, status );
+            present = properties.lookup( "POWER_SUPPLY_ONLINE" ).to_bool();
+            status = present ? "online" : "offline";
         }
+        else
+        {
+            status = properties.lookup( "POWER_SUPPLY_STATUS" ).down();
+            present = properties.lookup( "POWER_SUPPLY_PRESENT" ).to_bool();
+
+            if ( status == "not charging" )
+            {
+                status = present ? "error" : "removed";
+            }
+        }
+
+        assert( status != null );
 
         logger.info( "got power status change notification for %s: %s".printf( name, status ) );
 
-        sendStatusIfChanged( status );
+        // set status in instance
+        foreach ( var supply in instances )
+        {
+            if ( supply.name == name )
+            {
+                supply.status = status;
+                supply.present = present;
+                break;
+            }
+        }
+
+        computeNewStatus();
+    }
+
+    public void computeNewStatus()
+    {
+        var statusForAll = true;
+        PowerSupply battery = null;
+        PowerSupply charger = null;
+
+        // first, check whether we have enough information to compute the status at all
+        foreach ( var supply in instances )
+        {
+            logger.debug( "supply %s status = %s".printf( supply.name, supply.status ) );
+            logger.debug( "supply %s type = %s".printf( supply.name, supply.typ ) );
+
+            if ( supply.status == "unknown" )
+                statusForAll = false;
+
+            if ( supply.typ == "battery" ) // FIXME: revisit to handle multiple batteries
+            {
+                battery = supply;
+            }
+            else
+            {
+                if ( supply.status == "online" ) // FIXME: revisit to handle multiple chargers
+                    charger = supply;
+            }
+        }
+
+        if ( !statusForAll )
+        {
+            logger.debug( "^^^ not enough information present to compute overall status" );
+            return;
+        }
+
+        // if we have a battery and it is inserted, this is our aggregate status
+        if ( battery != null && battery.status != "removed" )
+        {
+            sendStatusIfChanged( battery.status );
+        }
+        // if we don't have a battery, return the name of the power supply providing power
+        else
+        {
+            sendStatusIfChanged( charger.name );
+        }
     }
 
     public void sendStatusIfChanged( string status )
@@ -236,7 +312,7 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
 
     public int getCapacity()
     {
-        var amount = 0;
+        var amount = -1;
         var numValues = 0;
         // walk through all power nodes and compute arithmetic mean
         foreach( var supply in instances )
@@ -257,6 +333,11 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
     public string GetName() throws DBus.Error
     {
         return Path.get_basename( sysfsnode );
+    }
+
+    public string GetType() throws DBus.Error
+    {
+        return "aggregate";
     }
 
     public string GetPowerStatus() throws DBus.Error
