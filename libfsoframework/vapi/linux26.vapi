@@ -20,6 +20,9 @@
 [CCode (cprefix = "", lower_case_cprefix = "")]
 namespace Linux26 {
 
+    /*
+     * Input subsystem
+     */
     [CCode (cprefix = "", lower_case_cprefix = "")]
     namespace Input {
 
@@ -130,6 +133,8 @@ namespace Linux26 {
         public const int EV_PWR;
         [CCode (cheader_filename = "linux/input.h")]
         public const int EV_FF_STATUS;
+        [CCode (cheader_filename = "linux/input.h")]
+        public const int EV_MAX;
 
         /*
          * synchronization events
@@ -643,6 +648,9 @@ namespace Linux26 {
         [CCode (cheader_filename = "linux/input.h")]
         public const int KEY_WIMAX;
 
+        [CCode (cheader_filename = "linux/input.h")]
+        public const int KEY_MAX;
+
         /* Range 248 - 255 is reserved for special needs of AT keyboard driver */
 
         [CCode (cheader_filename = "linux/input.h")]
@@ -1087,6 +1095,7 @@ namespace Linux26 {
         [CCode (cheader_filename = "linux/input.h")]
         public const int REL_MISC;
         [CCode (cheader_filename = "linux/input.h")]
+        public const int REL_MAX;
 
         /*
          * Absolute axes
@@ -1144,6 +1153,8 @@ namespace Linux26 {
         public const int ABS_VOLUME;
         [CCode (cheader_filename = "linux/input.h")]
         public const int ABS_MISC;
+        [CCode (cheader_filename = "linux/input.h")]
+        public const int ABS_MAX;
 
         /*
          * Switch events
@@ -1164,6 +1175,7 @@ namespace Linux26 {
         [CCode (cheader_filename = "linux/input.h")]
         public const int SW_DOCK;
         [CCode (cheader_filename = "linux/input.h")]
+        public const int SW_MAX;
 
         /*
          * Misc events
@@ -1179,6 +1191,8 @@ namespace Linux26 {
         public const int MSC_RAW;
         [CCode (cheader_filename = "linux/input.h")]
         public const int MSC_SCAN;
+        [CCode (cheader_filename = "linux/input.h")]
+        public const int MSC_MAX;
 
         /*
          * LEDs
@@ -1206,6 +1220,8 @@ namespace Linux26 {
         public const int LED_MAIL;
         [CCode (cheader_filename = "linux/input.h")]
         public const int LED_CHARGING;
+        [CCode (cheader_filename = "linux/input.h")]
+        public const int LED_MAX;
 
         /*
          * Autorepeat values
@@ -1215,6 +1231,8 @@ namespace Linux26 {
         public const int REP_DELAY;
         [CCode (cheader_filename = "linux/input.h")]
         public const int REP_PERIOD;
+        [CCode (cheader_filename = "linux/input.h")]
+        public const int REP_MAX;
 
         /*
          * Sounds
@@ -1227,6 +1245,7 @@ namespace Linux26 {
         [CCode (cheader_filename = "linux/input.h")]
         public const int SND_TONE;
         [CCode (cheader_filename = "linux/input.h")]
+        public const int SND_MAX;
 
         /*
          * IDs.
@@ -1280,6 +1299,9 @@ namespace Linux26 {
         public const int BUS_ATARI;
     }
 
+    /*
+     * Netlink subsystem
+     */
     [CCode (cprefix = "", lower_case_cprefix = "")]
     namespace Netlink {
 
@@ -1340,6 +1362,10 @@ namespace Linux26 {
         public int bind (int sockfd, SockAddrNl addr, ulong length );
         */
     }
+
+    /*
+     * Real time clock subsystem
+     */
 
     [CCode (cprefix = "", lower_case_cprefix = "")]
     namespace Rtc {
