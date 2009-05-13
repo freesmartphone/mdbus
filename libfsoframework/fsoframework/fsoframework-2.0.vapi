@@ -22,9 +22,8 @@ namespace FsoFramework {
 		[DBus (name = "org.freesmartphone.Device.Input")]
 		public interface Input : GLib.Object {
 			public abstract string GetCapabilities () throws DBus.Error;
-			public abstract string GetManufacturer () throws DBus.Error;
+			public abstract string GetId () throws DBus.Error;
 			public abstract string GetName () throws DBus.Error;
-			public abstract string GetPath () throws DBus.Error;
 			public signal void Event (string name, int seconds);
 		}
 		[CCode (cheader_filename = "fsoframework.h")]
