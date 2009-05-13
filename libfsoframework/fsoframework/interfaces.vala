@@ -51,6 +51,9 @@ namespace FsoFramework
         public const string InfoServiceFace = ServiceFacePrefix + ".Info";
         public const string InfoServicePath = ServicePathPrefix + "/Info";
 
+        public const string InputServiceFace = ServiceFacePrefix + ".Input";
+        public const string InputServicePath = ServicePathPrefix + "/Input";
+
         public const string LedServiceFace = ServiceFacePrefix + ".LED";
         public const string LedServicePath = ServicePathPrefix + "/LED";
 
@@ -74,6 +77,16 @@ namespace FsoFramework
         public abstract interface Info : GLib.Object
         {
             public abstract HashTable<string, Value?> GetCpuInfo() throws DBus.Error;
+        }
+
+        [DBus (name = "org.freesmartphone.Device.Input")]
+        public abstract interface Input : GLib.Object
+        {
+            public abstract string GetName() throws DBus.Error;
+            public abstract string GetCapabilities() throws DBus.Error;
+            public abstract string GetManufacturer() throws DBus.Error;
+            public abstract string GetPath() throws DBus.Error;
+            public signal void Event( string name, int seconds );
         }
 
         [DBus (name = "org.freesmartphone.Device.LED")]

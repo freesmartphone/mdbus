@@ -19,6 +19,15 @@ namespace FsoFramework {
 			public abstract GLib.HashTable<string,GLib.Value?> GetCpuInfo () throws DBus.Error;
 		}
 		[CCode (cheader_filename = "fsoframework.h")]
+		[DBus (name = "org.freesmartphone.Device.Input")]
+		public interface Input : GLib.Object {
+			public abstract string GetCapabilities () throws DBus.Error;
+			public abstract string GetManufacturer () throws DBus.Error;
+			public abstract string GetName () throws DBus.Error;
+			public abstract string GetPath () throws DBus.Error;
+			public signal void Event (string name, int seconds);
+		}
+		[CCode (cheader_filename = "fsoframework.h")]
 		[DBus (name = "org.freesmartphone.Device.LED")]
 		public interface LED : GLib.Object {
 			public abstract string GetName () throws DBus.Error;
@@ -53,6 +62,10 @@ namespace FsoFramework {
 		public const string InfoServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string InfoServicePath;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string InputServiceFace;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string InputServicePath;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string LedServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
