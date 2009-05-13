@@ -15,22 +15,22 @@ VALAC_ARGS = \
 	--vapidir $(top_srcdir)/fsoframework \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
-	--pkg gio-2.0 \
+	--pkg linux26 \
 	--pkg fsoframework-2.0
 
 #
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = info.la
-info_la_SOURCES = plugin.c
-info_la_VALASOURCES = plugin.vala
-$(info_la_SOURCES): $(info_la_VALASOURCES)
+modlibexec_LTLIBRARIES = kernel_info.la
+kernel_info_la_SOURCES = plugin.c
+kernel_info_la_VALASOURCES = plugin.vala
+$(kernel_info_la_SOURCES): $(kernel_info_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-info_la_LIBADD = $(progs_ldadd)
-info_la_LDFLAGS = -no-undefined -module -avoid-version
-info_la_LIBTOOLFLAGS = --tag=disable-static00
+kernel_info_la_LIBADD = $(progs_ldadd)
+kernel_info_la_LDFLAGS = -no-undefined -module -avoid-version
+kernel_info_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

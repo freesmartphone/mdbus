@@ -21,6 +21,9 @@
 
 using GLib;
 
+namespace Kernel
+{
+
 class Info : FsoFramework.Device.Info, FsoFramework.AbstractObject
 {
 
@@ -76,12 +79,14 @@ class Info : FsoFramework.Device.Info, FsoFramework.AbstractObject
 
 }
 
-Info instance;
+} /* namespace Kernel */
+
+Kernel.Info instance;
 
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    instance = new Info( subsystem );
-    return "fsodevice.info";
+    instance = new Kernel.Info( subsystem );
+    return "fsodevice.kernel_info";
 }
 
 

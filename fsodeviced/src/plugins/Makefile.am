@@ -6,6 +6,7 @@ SUBDIRS = \
 	kernel26_display \
 	kernel26_leds \
 	kernel26_powersupply \
-	kernel26_rtc
-	info \
+	kernel26_rtc \
+	kernel_info \
+	kernel_input \
 	$(NULL)
