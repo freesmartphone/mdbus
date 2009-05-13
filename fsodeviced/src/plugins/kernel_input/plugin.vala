@@ -25,7 +25,7 @@ namespace Kernel
 /**
  * Implementation of org.freesmartphone.Device.Input for the Kernel Input Device
  **/
-class InputDevice : FsoFramework.AbstractObject
+class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
@@ -107,22 +107,20 @@ class InputDevice : FsoFramework.AbstractObject
         return name;
     }
 
-    /*
-    public string GetType() throws DBus.Error
+    public string GetPath() throws DBus.Error
     {
-        return typ;
+        return "foo";
     }
 
-    public string GetPowerStatus() throws DBus.Error
+    public string GetManufacturer() throws DBus.Error
     {
-        return status;
+        return "bar";
     }
 
-    public int GetCapacity() throws DBus.Error
+    public string GetCapabilities() throws DBus.Error
     {
-        return getCapacity();
+        return "none";
     }
-    */
 }
 
 /**
@@ -369,15 +367,18 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     // grab sysfs paths
     var config = FsoFramework.theMasterKeyFile();
     dev_root = config.stringValue( "cornucopia", "dev_root", "/dev" );
-    dev_input = "%s/input".printf( dev_input );
+    dev_input = "%s/input".printf( dev_root );
 
     // scan sysfs path for rtcs
     var dir = Dir.open( dev_input );
     var entry = dir.read_name();
     while ( entry != null )
     {
-        var filename = Path.build_filename( dev_input, entry );
-        instances.append( new Kernel.InputDevice( subsystem, filename ) );
+        if ( entry.has_prefix( "event" ) )
+        {
+            var filename = Path.build_filename( dev_input, entry );
+            instances.append( new Kernel.InputDevice( subsystem, filename ) );
+        }
         entry = dir.read_name();
     }
 
