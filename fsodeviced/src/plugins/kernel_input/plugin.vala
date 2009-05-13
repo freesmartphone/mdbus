@@ -21,6 +21,8 @@ using GLib;
 
 namespace Kernel
 {
+    internal char[] buffer;
+    internal const uint BUFFER_SIZE = 512;
 
 /**
  * Implementation of org.freesmartphone.Device.Input for the Kernel Input Device
@@ -31,16 +33,35 @@ class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
 
     private string sysfsnode;
     private static uint counter;
+    private int input_fd = -1;
 
-    // internal, so it can be accessable from aggregate input supply
+    // internal, so it can be accessable from aggregate input device
     internal string name;
-    internal string typ;
+    internal string product;
+    internal string phys;
+    internal string uniq;
+
+    static construct
+    {
+        buffer = new char[BUFFER_SIZE];
+    }
 
     public InputDevice( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
+
+        input_fd = Posix.open( sysfsnode, Posix.O_RDONLY );
+        if ( input_fd == -1 )
+            logger.warning( "Can't open %s (%s). Full input device control not available.".printf( sysfsnode, Posix.strerror( Posix.errno ) ) );
+        else
+        {
+            Posix.ioctl( input_fd, Linux26.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
+            product = (string)buffer;
+
+            logger.debug( "^^^ product id '%s'".printf( product ) );
+        }
 
         //Idle.add( onIdle );
 
@@ -107,14 +128,9 @@ class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
         return name;
     }
 
-    public string GetPath() throws DBus.Error
+    public string GetId() throws DBus.Error
     {
-        return "foo";
-    }
-
-    public string GetManufacturer() throws DBus.Error
-    {
-        return "bar";
+        return product;
     }
 
     public string GetCapabilities() throws DBus.Error
