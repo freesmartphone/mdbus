@@ -183,8 +183,10 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class SmartKeyFile : GLib.Object {
 		public bool boolValue (string section, string key, bool defaultvalue = false);
+		public bool hasKey (string section, string key);
 		public bool hasSection (string section);
 		public int intValue (string section, string key, int defaultvalue = 0);
+		public GLib.List<string> keysWithPrefix (string section, string? prefix = null);
 		public bool loadFromFile (string filename);
 		public SmartKeyFile ();
 		public GLib.List<string> sectionsWithPrefix (string? prefix = null);
