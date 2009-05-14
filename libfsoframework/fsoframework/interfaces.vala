@@ -85,7 +85,7 @@ namespace FsoFramework
             public abstract string GetName() throws DBus.Error;
             public abstract string GetId() throws DBus.Error;
             public abstract string GetCapabilities() throws DBus.Error;
-            public signal void Event( string name, int seconds );
+            public signal void Event( string name, string action, int seconds );
         }
 
         [DBus (name = "org.freesmartphone.Device.LED")]

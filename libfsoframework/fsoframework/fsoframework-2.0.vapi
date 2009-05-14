@@ -24,7 +24,7 @@ namespace FsoFramework {
 			public abstract string GetCapabilities () throws DBus.Error;
 			public abstract string GetId () throws DBus.Error;
 			public abstract string GetName () throws DBus.Error;
-			public signal void Event (string name, int seconds);
+			public signal void Event (string name, string action, int seconds);
 		}
 		[CCode (cheader_filename = "fsoframework.h")]
 		[DBus (name = "org.freesmartphone.Device.LED")]
