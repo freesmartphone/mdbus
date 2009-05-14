@@ -114,6 +114,40 @@ class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
 }
 
 /**
+ * Helper class
+ **/
+[Compact]
+public class EventStatus
+{
+    public EventStatus( string name, bool reportheld )
+    {
+        this.name = name;
+        this.reportheld = reportheld;
+        pressed = false;
+        timeout = 0;
+    }
+    public bool pressed;
+    public bool reportheld;
+    public TimeVal timestamp;
+    public uint timeout;
+    public string name;
+
+    public uint age()
+    {
+        var now = TimeVal();
+        var diff = ( now.tv_sec - timestamp.tv_sec ) * 1000000 + ( now.tv_usec - timestamp.tv_usec );
+        return (uint) diff / 1000000;
+    }
+
+    public bool onTimeout()
+    {
+        aggregate.Event( name, "held", (int) age() );
+        return true;
+    }
+}
+
+
+/**
  * Implementation of org.freesmartphone.Device.InputDevice as aggregated Kernel Input Device
  **/
 
@@ -123,8 +157,12 @@ class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObj
     private string sysfsnode;
     private IOChannel[] channels;
 
-    private HashTable<int,string> keys;
-    private HashTable<int,string> switches;
+    private HashTable<int,EventStatus> keys;
+    private HashTable<int,EventStatus> switches;
+
+    private const int KEY_RELEASE = 0;
+    private const int KEY_PRESS = 1;
+    private const int KEY_REPEAT = 2;
 
     public AggregateInputDevice( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
@@ -169,9 +207,9 @@ class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObj
             var name = values[0];
             var type = values[1].down();
             int code = values[2].to_int();
-            var reportheld = values[3].to_bool();
+            var reportheld = values[3] == "1";
 
-            HashTable<int,string> table;
+            HashTable<int,EventStatus> table;
 
             switch ( type )
             {
@@ -189,13 +227,14 @@ class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObj
                     logger.warning( "config option %s has unknown type element. Ignoring".printf( entry ) );
                     continue;
             }
-            table.insert( code, reportheld ? "+%s".printf( name ) : "-%s".printf( name ) );
+
+            table.insert( code, new EventStatus( name, reportheld ) );
         }
     }
 
     private void _handleInputEvent( ref Linux26.Input.Event ev )
     {
-        HashTable<int,string> table = null;
+        HashTable<int,EventStatus> table = null;
 
         switch ( ev.type )
         {
@@ -212,11 +251,52 @@ class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObj
         if ( table == null )
             return;
 
-        weak string value = table.lookup( ev.code );
-        if ( value == null )
+        weak EventStatus es = table.lookup( ev.code );
+        if ( es == null )
             return;
 
-        message( "DO SOMETHING..." );
+        switch ( ev.value )
+        {
+            case ( KEY_PRESS ):
+                es.timestamp.tv_sec = ev.time.tv_sec;
+                es.timestamp.tv_usec = ev.time.tv_usec;
+                es.pressed = true;
+
+                //logger.debug( "%s pressed".printf( es.name ) );
+
+                if ( es.reportheld )
+                {
+                    es.timeout = Timeout.add( 1050, es.onTimeout );
+                }
+                this.Event( es.name, "pressed", 0 );
+                break;
+
+            case ( KEY_RELEASE ):
+                //logger.debug( "%s released".printf( es.name ) );
+                if ( !es.pressed )
+                {
+                    logger.warning( "received release event before pressed event!?" );
+                    this.Event( es.name, "released", 0 );
+                }
+                else
+                {
+                    es.pressed = false;
+                    if ( es.timeout > 0 )
+                    {
+                        Source.remove( es.timeout );
+                    }
+                    this.Event( es.name, "released", (int) es.age() );
+                }
+                break;
+
+            case ( KEY_REPEAT ):
+                //logger.debug( "%s autorepeat (ignoring)".printf( es.name ) );
+                break;
+
+            default:
+                logger.debug( "%s unknown action %d; please report.".printf( es.name, ev.value ) );
+                break;
+        }
     }
 
     public override string repr()
@@ -236,7 +316,7 @@ class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObj
 
         if ( ev.type != Linux26.Input.EV_SYN )
         {
-            logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
+            //logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
             _handleInputEvent( ref ev );
         }
 
