@@ -24,6 +24,8 @@ namespace Kernel
     internal char[] buffer;
     internal const uint BUFFER_SIZE = 512;
 
+    internal const string CONFIG_SECTION = "fsodevice.kernel_input";
+
 /**
  * Implementation of org.freesmartphone.Device.Input for the Kernel Input Device
  **/
@@ -33,13 +35,11 @@ class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
 
     private string sysfsnode;
     private static uint counter;
-    private int input_fd = -1;
 
     // internal, so it can be accessable from aggregate input device
     internal string name;
-    internal string product;
-    internal string phys;
-    internal string uniq;
+    internal string product = "<Unknown Product>";
+    internal int fd = -1;
 
     static construct
     {
@@ -52,15 +52,24 @@ class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
 
-        input_fd = Posix.open( sysfsnode, Posix.O_RDONLY );
-        if ( input_fd == -1 )
+        fd = Posix.open( sysfsnode, Posix.O_RDONLY );
+        if ( fd == -1 )
             logger.warning( "Can't open %s (%s). Full input device control not available.".printf( sysfsnode, Posix.strerror( Posix.errno ) ) );
         else
         {
-            Posix.ioctl( input_fd, Linux26.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
-            product = (string)buffer;
-
-            logger.debug( "^^^ product id '%s'".printf( product ) );
+            var length = Posix.ioctl( fd, Linux26.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
+            if ( length > 0 )
+            {
+                // work around bug in dbus(-glib?) which crashes when marshalling \xae which is the (C) symbol
+                for ( int i = 0; i < length; ++i )
+                {
+                    if ( buffer[i] > 0x7f )
+                        buffer[i] = '?';
+                }
+                // end work around
+                product = (string)buffer;
+                logger.debug( "^^^ product id '%s'".printf( product ) );
+            }
         }
 
         //Idle.add( onIdle );
@@ -85,41 +94,6 @@ class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
         return false; // mainloop: don't call again
     }
 
-    /*
-    public bool isBattery()
-    {
-        return typ == "battery";
-    }
-
-    public bool isPresent()
-    {
-        var node = isBattery() ? "%s/present" : "%s/online";
-        var value = FsoFramework.FileHandling.read( node.printf( sysfsnode ) );
-        return ( value != null && value.to_bool() );
-    }
-
-    public int getCapacity()
-    {
-        if ( !isBattery() )
-            return -1;
-        if ( !isPresent() )
-            return -1;
-
-        // try the capacity node first, this one is not supported by all power class devices
-        var value = FsoFramework.FileHandling.read( "%s/capacity".printf( sysfsnode ) );
-        if ( value != "" )
-            return value.to_int();
-
-        // fall back to energy_full and energy_now, this one seems to be present always
-        var energy_full = FsoFramework.FileHandling.read( "%s/energy_full".printf( sysfsnode ) );
-        var energy_now = FsoFramework.FileHandling.read( "%s/energy_now".printf( sysfsnode ) );
-        if ( energy_full != "" && energy_now != "" )
-            return (int) ( ( energy_now.to_double()  / energy_full.to_double() ) * 100.0 );
-
-        return -1;
-    }
-    */
-
     //
     // FsoFramework.Device.Input
     //
@@ -143,19 +117,14 @@ class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
  * Implementation of org.freesmartphone.Device.InputDevice as aggregated Kernel Input Device
  **/
 
-/*
-
-class AggregateInputDevice : FsoFramework.Device.InputDevice, FsoFramework.AbstractObject
+class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
 {
-    private const uint POWER_SUPPLY_CAPACITY_CHECK_INTERVAL = 5 * 60;
-    private const uint POWER_SUPPLY_CAPACITY_CRITICAL = 7;
-    private const uint POWER_SUPPLY_CAPACITY_EMPTY = 3;
-
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
+    private IOChannel[] channels;
 
-    private string status = "unknown";
-    private int capacity = -1;
+    private HashTable<int,string> keys;
+    private HashTable<int,string> switches;
 
     public AggregateInputDevice( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
@@ -164,15 +133,90 @@ class AggregateInputDevice : FsoFramework.Device.InputDevice, FsoFramework.Abstr
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         FsoFramework.Device.InputDeviceServicePath,
+                                         FsoFramework.Device.InputServicePath,
                                          this );
 
-        FsoFramework.BaseKObjectNotifier.addMatch( "change", "power_supply", onInputDeviceChangeNotification );
-
-        if ( instances.length() > 0 )
-            Idle.add( onIdle );
+        _registerInputWatches();
+        _parseConfig();
 
         logger.info( "created new AggregateInputDevice object." );
+    }
+
+    private void _registerInputWatches()
+    {
+        channels = new IOChannel[] {};
+        foreach ( var input in instances )
+        {
+            var channel = new IOChannel.unix_new( input.fd );
+            channel.add_watch( IOCondition.IN, onInputEvent );
+            channels += channel;
+        }
+    }
+
+    private void _parseConfig()
+    {
+        var entries = config.keysWithPrefix( CONFIG_SECTION, "report" );
+        foreach ( var entry in entries )
+        {
+            var value = config.stringValue( CONFIG_SECTION, entry );
+            message( "got value '%s'", value );
+            var values = value.split( "," );
+            if ( values.length != 4 )
+            {
+                logger.warning( "config option %s has not 4 elements. Ignoring.".printf( entry ) );
+                continue;
+            }
+            var name = values[0];
+            var type = values[1].down();
+            int code = values[2].to_int();
+            var reportheld = values[3].to_bool();
+
+            HashTable<int,string> table;
+
+            switch ( type )
+            {
+                case "key":
+                    if ( keys == null )
+                        keys = new HashTable<int,string>( direct_hash, direct_equal );
+                    table = keys;
+                    break;
+                case "switch":
+                    if ( switches == null )
+                        switches = new HashTable<int,string>( direct_hash, direct_equal );
+                    table = switches;
+                    break;
+                default:
+                    logger.warning( "config option %s has unknown type element. Ignoring".printf( entry ) );
+                    continue;
+            }
+            table.insert( code, reportheld ? "+%s".printf( name ) : "-%s".printf( name ) );
+        }
+    }
+
+    private void _handleInputEvent( ref Linux26.Input.Event ev )
+    {
+        HashTable<int,string> table = null;
+
+        switch ( ev.type )
+        {
+            case Linux26.Input.EV_KEY:
+                table = keys;
+                break;
+            case Linux26.Input.EV_SW:
+                table = switches;
+                break;
+            default:
+                break;
+        }
+
+        if ( table == null )
+            return;
+
+        weak string value = table.lookup( ev.code );
+        if ( value == null )
+            return;
+
+        message( "DO SOMETHING..." );
     }
 
     public override string repr()
@@ -180,197 +224,51 @@ class AggregateInputDevice : FsoFramework.Device.InputDevice, FsoFramework.Abstr
         return "<FsoFramework.Device.AggregateInputDevice @ %s>".printf( sysfsnode );
     }
 
-    public bool onIdle()
+    public bool onInputEvent( IOChannel source, IOCondition condition )
     {
-        onTimeout();
-        Timeout.add_seconds( POWER_SUPPLY_CAPACITY_CHECK_INTERVAL, onTimeout );
-        return false;
-    }
-
-    public bool onTimeout()
-    {
-        var capacity = getCapacity();
-        sendCapacityIfChanged( capacity );
-        if ( status == "discharging" )
+        Linux26.Input.Event ev = {};
+        var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux26.Input.Event) );
+        if ( bytesread == 0 )
         {
-            if ( capacity <= POWER_SUPPLY_CAPACITY_EMPTY )
-            {
-                sendStatusIfChanged( "empty" );
-            }
-            else if ( capacity <= POWER_SUPPLY_CAPACITY_CRITICAL )
-            {
-                sendStatusIfChanged( "critical" );
-            }
+            logger.warning( "could not read from input device fd %d.".printf( source.unix_get_fd() ) );
+            return false;
         }
+
+        if ( ev.type != Linux26.Input.EV_SYN )
+        {
+            logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
+            _handleInputEvent( ref ev );
+        }
+
         return true;
     }
 
-    public void onInputDeviceChangeNotification( HashTable<string,string> properties )
-    {
-        var name = properties.lookup( "POWER_SUPPLY_NAME" );
-        assert( name != null );
-        var typ = properties.lookup( "POWER_SUPPLY_TYPE" ).down();
-        assert( typ != null );
-
-        var status = "unknown";
-        var present = false;
-
-        if ( typ != "battery" )
-        {
-            present = properties.lookup( "POWER_SUPPLY_ONLINE" ).to_bool();
-            status = present ? "online" : "offline";
-        }
-        else
-        {
-            status = properties.lookup( "POWER_SUPPLY_STATUS" ).down();
-            present = properties.lookup( "POWER_SUPPLY_PRESENT" ).to_bool();
-
-            if ( status == "not charging" )
-            {
-                status = present ? "error" : "removed";
-            }
-        }
-
-        assert( status != null );
-
-        logger.info( "got power status change notification for %s: %s".printf( name, status ) );
-
-        // set status in instance
-        foreach ( var supply in instances )
-        {
-            if ( supply.name == name )
-            {
-                supply.status = status;
-                supply.present = present;
-                break;
-            }
-        }
-
-        computeNewStatus();
-    }
-
-    public void computeNewStatus()
-    {
-        var statusForAll = true;
-        InputDevice battery = null;
-        InputDevice charger = null;
-
-        // first, check whether we have enough information to compute the status at all
-        foreach ( var supply in instances )
-        {
-            logger.debug( "supply %s status = %s".printf( supply.name, supply.status ) );
-            logger.debug( "supply %s type = %s".printf( supply.name, supply.typ ) );
-
-            if ( supply.status == "unknown" )
-                statusForAll = false;
-
-            if ( supply.typ == "battery" ) // FIXME: revisit to handle multiple batteries
-            {
-                battery = supply;
-            }
-            else
-            {
-                if ( supply.status == "online" ) // FIXME: revisit to handle multiple chargers
-                    charger = supply;
-            }
-        }
-
-        if ( !statusForAll )
-        {
-            logger.debug( "^^^ not enough information present to compute overall status" );
-            return;
-        }
-
-        // if we have a battery and it is inserted, this is our aggregate status
-        if ( battery != null && battery.status != "removed" )
-        {
-            sendStatusIfChanged( battery.status );
-        }
-        // if we don't have a battery, return the name of the power supply providing power
-        else
-        {
-            sendStatusIfChanged( charger.name );
-        }
-    }
-
-    public void sendStatusIfChanged( string status )
-    {
-        logger.debug( "sendStatusIfChanged old %s new %s".printf( this.status, status ) );
-
-        // some power supply classes (Thinkpad) have a bug where after
-        // 'discharging' you shortly get a 'full' before 'charging'
-        // when you insert the AC plug.
-        if ( ( this.status == "discharging" ) && ( status == "full" ) )
-        {
-            logger.warning( "BUG: power supply class sent 'full' after 'discharging'" );
-            return;
-        }
-
-        if ( this.status == status )
-            return;
-
-        this.status = status;
-        PowerStatus( status );
-    }
-
-    public void sendCapacityIfChanged( int capacity )
-    {
-        if ( this.capacity == capacity )
-        return;
-
-        this.capacity = capacity;
-        Capacity( capacity );
-    }
-
-    public int getCapacity()
-    {
-        var amount = -1;
-        var numValues = 0;
-        // walk through all power nodes and compute arithmetic mean
-        foreach( var supply in instances )
-        {
-            var v = supply.getCapacity();
-            if ( v != -1 )
-            {
-                amount += v;
-                numValues++;
-            }
-        }
-        return amount / numValues;
-    }
-
     //
-    // FsoFramework.Device.InputDevice
+    // FsoFramework.Device.Input
     //
     public string GetName() throws DBus.Error
     {
-        return Path.get_basename( sysfsnode );
+        return dev_input;
     }
 
-    public string GetType() throws DBus.Error
+    public string GetId() throws DBus.Error
     {
         return "aggregate";
     }
 
-    public string GetPowerStatus() throws DBus.Error
+    public string GetCapabilities() throws DBus.Error
     {
-        // walk through all power nodes and get
-        return "unknown";
+        return "none";
     }
 
-    public int GetCapacity() throws DBus.Error
-    {
-        return getCapacity();
-    }
 }
-*/
 
 } /* namespace */
 
 internal static string dev_root;
 internal static string dev_input;
 internal List<Kernel.InputDevice> instances;
-//internal Kernel.AggregateInputDevice aggregate;
+internal Kernel.AggregateInputDevice aggregate;
 
 /**
  * This function gets called on plugin initialization time.
@@ -398,10 +296,8 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         entry = dir.read_name();
     }
 
-    /*
     // always create aggregated object
     aggregate = new Kernel.AggregateInputDevice( subsystem, dev_input );
-    */
 
     return "fsodevice.kernel_input";
 }
