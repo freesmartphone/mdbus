@@ -1386,4 +1386,183 @@ namespace Linux26 {
         [CCode (cheader_filename = "linux/rtc.h,sys/ioctl.h")]
         public const int RTC_WKALM_SET;
     }
+
+    /*
+     * Terminal input/output
+     */
+    [CCode (cprefix = "", lower_case_cprefix = "")]
+    namespace Termios {
+
+        /*
+         * non-posix flags
+         */
+        [CCode (cheader_filename = "termios.h")]
+        public const int OLCUC;
+
+        /*
+         * ioctls
+         */
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCGETS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETSW;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETSF;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCGETA;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETA;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETAW;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETAF;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSBRK;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCXONC;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCFLSH;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCEXCL;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCNXCL;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSCTTY;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGPGRP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSPGRP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCOUTQ;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSTI;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGWINSZ;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSWINSZ;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCMGET;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCMBIS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCMBIC;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCMSET;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGSOFTCAR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSSOFTCAR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int FIONREAD;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCINQ;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCLINUX;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCCONS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGSERIAL;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSSERIAL;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCPKT;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int FIONBIO;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCNOTTY;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSETD;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGETD;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSBRKP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSBRK;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCCBRK;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGSID;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCGETS2;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETS2;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETSW2;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETSF2;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGRS485;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSRS485;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGPTN;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSPTLCK;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCGETX;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETX;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETXF;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TCSETXW;
+
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int FIONCLEX;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int FIOCLEX;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int FIOASYNC;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSERCONFIG;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSERGWILD;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSERSWILD;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGLCKTRMIOS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSLCKTRMIOS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSERGSTRUCT;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSERGETLSR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSERGETMULTI;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSERSETMULTI;
+
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCMIWAIT;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGICOUNT;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCGHAYESESP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSHAYESESP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int FIOQSIZE;
+
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCPKT_DATA;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCPKT_FLUSHREAD;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCPKT_FLUSHWRITE;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCPKT_STOP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCPKT_START;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCPKT_NOSTOP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCPKT_DOSTOP;
+
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int TIOCSER_TEMT;
+    }
 }

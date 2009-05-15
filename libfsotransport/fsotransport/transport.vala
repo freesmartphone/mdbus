@@ -157,161 +157,161 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     internal void configure()
     {
         Posix.fcntl( fd, Posix.F_SETFL, 0 );
-        PosixExtra.TermIOs termios = {};
-        PosixExtra.tcgetattr( fd, termios );
+        Posix.termios termios = {};
+        Posix.tcgetattr( fd, termios );
 
-        int tspeed;
+        Posix.speed_t tspeed;
 
         switch ( speed )
         {
             case 0:
-                tspeed = PosixExtra.B0;
+                tspeed = Posix.B0;
                 break;
             case 50:
-                tspeed = PosixExtra.B50;
+                tspeed = Posix.B50;
                 break;
             case 75:
-                tspeed = PosixExtra.B75;
+                tspeed = Posix.B75;
                 break;
             case 110:
-                tspeed = PosixExtra.B110;
+                tspeed = Posix.B110;
                 break;
             case 134:
-                tspeed = PosixExtra.B134;
+                tspeed = Posix.B134;
                 break;
             case 150:
-                tspeed = PosixExtra.B150;
+                tspeed = Posix.B150;
                 break;
             case 200:
-                tspeed = PosixExtra.B200;
+                tspeed = Posix.B200;
                 break;
             case 300:
-                tspeed = PosixExtra.B300;
+                tspeed = Posix.B300;
                 break;
             case 600:
-                tspeed = PosixExtra.B600;
+                tspeed = Posix.B600;
                 break;
             case 1200:
-                tspeed = PosixExtra.B1200;
+                tspeed = Posix.B1200;
                 break;
             case 1800:
-                tspeed = PosixExtra.B1800;
+                tspeed = Posix.B1800;
                 break;
             case 2400:
-                tspeed = PosixExtra.B2400;
+                tspeed = Posix.B2400;
                 break;
             case 4800:
-                tspeed = PosixExtra.B4800;
+                tspeed = Posix.B4800;
                 break;
             case 9600:
-                tspeed = PosixExtra.B9600;
+                tspeed = Posix.B9600;
                 break;
             case 19200:
-                tspeed = PosixExtra.B19200;
+                tspeed = Posix.B19200;
                 break;
             case 38400:
-                tspeed = PosixExtra.B38400;
+                tspeed = Posix.B38400;
                 break;
             case 57600:
-                tspeed = PosixExtra.B57600;
+                tspeed = Posix.B57600;
                 break;
             case 115200:
-                tspeed = PosixExtra.B115200;
+                tspeed = Posix.B115200;
                 break;
             case 230400:
-                tspeed = PosixExtra.B230400;
+                tspeed = Posix.B230400;
                 break;
             case 460800:
-                tspeed = PosixExtra.B460800;
+                tspeed = Posix.B460800;
                 break;
             case 500000:
-                tspeed = PosixExtra.B500000;
+                tspeed = Posix.B500000;
                 break;
             case 576000:
-                tspeed = PosixExtra.B576000;
+                tspeed = Posix.B576000;
                 break;
             case 921600:
-                tspeed = PosixExtra.B921600;
+                tspeed = Posix.B921600;
                 break;
             case 1000000:
-                tspeed = PosixExtra.B1000000;
+                tspeed = Posix.B1000000;
                 break;
             case 1152000:
-                tspeed = PosixExtra.B1152000;
+                tspeed = Posix.B1152000;
                 break;
             case 1500000:
-                tspeed = PosixExtra.B1500000;
+                tspeed = Posix.B1500000;
                 break;
             case 2000000:
-                tspeed = PosixExtra.B2000000;
+                tspeed = Posix.B2000000;
                 break;
             case 2500000:
-                tspeed = PosixExtra.B2500000;
+                tspeed = Posix.B2500000;
                 break;
             case 3000000:
-                tspeed = PosixExtra.B3000000;
+                tspeed = Posix.B3000000;
                 break;
             case 3500000:
-                tspeed = PosixExtra.B3500000;
+                tspeed = Posix.B3500000;
                 break;
             case 4000000:
-                tspeed = PosixExtra.B4000000;
+                tspeed = Posix.B4000000;
                 break;
             default:
                 warning( "invalid speed '%u' selected. using '0'".printf( speed ) );
-                tspeed = PosixExtra.B0;
+                tspeed = Posix.B0;
                 break;
         }
 
-        PosixExtra.cfsetispeed( termios, tspeed );
-        PosixExtra.cfsetospeed( termios, tspeed );
+        Posix.cfsetispeed( termios, tspeed );
+        Posix.cfsetospeed( termios, tspeed );
 
         // local read
-        termios.c_cflag |= (PosixExtra.CLOCAL | PosixExtra.CREAD);
+        termios.c_cflag |= (Posix.CLOCAL | Posix.CREAD);
 
         // 8n1
-        termios.c_cflag &= ~PosixExtra.PARENB;
-        termios.c_cflag &= ~PosixExtra.CSTOPB;
-        termios.c_cflag &= ~PosixExtra.CSIZE;
-        termios.c_cflag |= PosixExtra.CS8;
+        termios.c_cflag &= ~Posix.PARENB;
+        termios.c_cflag &= ~Posix.CSTOPB;
+        termios.c_cflag &= ~Posix.CSIZE;
+        termios.c_cflag |= Posix.CS8;
 
         if ( hard )
         {
             // hardware flow control ON
-            termios.c_cflag |= PosixExtra.CRTSCTS;
+            termios.c_cflag |= Posix.CRTSCTS;
 
             // software flow control OFF
-            termios.c_iflag &= ~(PosixExtra.IXON | PosixExtra.IXOFF | PosixExtra.IXANY);
+            termios.c_iflag &= ~(Posix.IXON | Posix.IXOFF | Posix.IXANY);
         }
         else
         {
             // hardware flow control OFF
-            termios.c_cflag &= PosixExtra.CRTSCTS;
+            termios.c_cflag &= Posix.CRTSCTS;
 
             // software flow control ON
-            termios.c_iflag |= ~(PosixExtra.IXON | PosixExtra.IXOFF | PosixExtra.IXANY);
+            termios.c_iflag |= ~(Posix.IXON | Posix.IXOFF | Posix.IXANY);
         }
 
         if ( raw )
         {
             // raw input
-            termios.c_lflag &= ~(PosixExtra.ICANON | PosixExtra.ECHO | PosixExtra.ECHOE | PosixExtra.ISIG);
-            termios.c_iflag &= ~(PosixExtra.INLCR | PosixExtra.ICRNL | PosixExtra.IGNCR);
+            termios.c_lflag &= ~(Posix.ICANON | Posix.ECHO | Posix.ECHOE | Posix.ISIG);
+            termios.c_iflag &= ~(Posix.INLCR | Posix.ICRNL | Posix.IGNCR);
 
             // raw output
-            termios.c_oflag &= ~(PosixExtra.OPOST | PosixExtra.OLCUC | PosixExtra.ONLRET | PosixExtra.ONOCR | PosixExtra.OCRNL );
+            termios.c_oflag &= ~(Posix.OPOST | Linux26.Termios.OLCUC | Posix.ONLRET | Posix.ONOCR | Posix.OCRNL );
 
             // no special character handling
-            termios.c_cc[PosixExtra.VMIN] = 0;
-            termios.c_cc[PosixExtra.VTIME] = 2;
-            termios.c_cc[PosixExtra.VINTR] = 0;
-            termios.c_cc[PosixExtra.VQUIT] = 0;
-            termios.c_cc[PosixExtra.VSTART] = 0;
-            termios.c_cc[PosixExtra.VSTOP] = 0;
+            termios.c_cc[Posix.VMIN] = 0;
+            termios.c_cc[Posix.VTIME] = 2;
+            termios.c_cc[Posix.VINTR] = 0;
+            termios.c_cc[Posix.VQUIT] = 0;
+            termios.c_cc[Posix.VSTART] = 0;
+            termios.c_cc[Posix.VSTOP] = 0;
 
-            termios.c_cc[PosixExtra.VSUSP] = 0;
+            termios.c_cc[Posix.VSUSP] = 0;
         }
-        var ok = PosixExtra.tcsetattr( fd, PosixExtra.TCSANOW, termios);
+        var ok = Posix.tcsetattr( fd, Posix.TCSANOW, termios);
         if ( ok == -1 )
         {
             message( "could not configure fd %d: %s".printf( fd, Posix.strerror( Posix.errno ) ) );
@@ -320,8 +320,8 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( hard )
         {
             // set ready to read/write
-            var v24 = PosixExtra.TIOCM_DTR | PosixExtra.TIOCM_RTS;
-            Posix.ioctl( fd, PosixExtra.TIOCMBIS, &v24 );
+            var v24 = Posix.TIOCM_DTR | Posix.TIOCM_RTS;
+            Posix.ioctl( fd, Linux26.Termios.TIOCMBIS, &v24 );
         }
     }
 
@@ -538,16 +538,16 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
 
     public override bool open()
     {
-        fd = PosixExtra.posix_openpt( Posix.O_RDWR | Posix.O_NOCTTY | Posix.O_NONBLOCK );
+        fd = Posix.posix_openpt( Posix.O_RDWR | Posix.O_NOCTTY | Posix.O_NONBLOCK );
         if ( fd == -1 )
         {
             warning( "could not open %s: %s".printf( name, Posix.strerror( Posix.errno ) ) );
             return false;
         }
 
-        PosixExtra.grantpt( fd );
-        PosixExtra.unlockpt( fd );
-        PosixExtra.ptsname_r( fd, ptyname );
+        Posix.grantpt( fd );
+        Posix.unlockpt( fd );
+        Posix.ptsname_r( fd, ptyname );
 
         int flags = Posix.fcntl( fd, Posix.F_GETFL );
         int res = Posix.fcntl( fd, Posix.F_SETFL, flags | Posix.O_NONBLOCK );
