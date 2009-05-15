@@ -156,7 +156,7 @@ namespace FsoFramework { namespace Utility {
             return res;
 
         char[] buf = new char[BUF_SIZE];
-        var length = PosixExtra.readlink( "/proc/self/exe", buf );
+        var length = Posix.readlink( "/proc/self/exe", buf );
         buf[length] = 0;
         assert( length != 0 );
         return GLib.Path.get_basename( (string) buf );
