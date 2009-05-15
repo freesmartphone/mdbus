@@ -8,29 +8,6 @@ using Posix;
 [CCode (cprefix = "", lower_case_cprefix = "")]
 namespace PosixExtra {
 
-    /* ------------- select --------------- */
-
-    [CCode (cname = "fd_set", cheader_filename = "sys/select.h", free_function = "")]
-    [Compact]
-    public struct FdSet
-    {
-        [CCode (cname = "FD_CLR", instance_pos=1.1)]
-        public void clear (int fd);
-        [CCode (cname = "FD_ISSET", instance_pos=1.1)]
-        public bool isSet (int fd);
-        [CCode (cname = "FD_SET", instance_pos=1.1)]
-        public void set (int fd);
-        [CCode (cname = "FD_ZERO")]
-        public void zero ();
-    }
-
-    [CCode (cname = "struct timeval", cheader_filename = "time.h", destroy_function = "")]
-    public struct TimeVal
-    {
-        public long tv_sec;
-        public long tv_usec;
-    }
-
     /* ------------- pty --------------- */
 
     [CCode (cheader_filename = "pty.h")]
@@ -38,10 +15,7 @@ namespace PosixExtra {
                         out int aslave,
                         [CCode (array_length=false, array_null_terminated=true)] char[] name,
                         termios? termp,
-                        WinSize? winp);
-
-    [CCode (cheader_filename = "sys/select.h")]
-    public int select (int nfds, FdSet readfds, FdSet writefds, FdSet exceptfds, TimeVal timeval);
+                        winsize? winp);
 
     /* --------- socket --------------- */
 
@@ -68,27 +42,10 @@ namespace PosixExtra {
     [CCode (cheader_filename = "sys/socket.h")]
     public int listen (int s, int backlog);
 
-    /* --------- stdlib --------------- */
-    [CCode (cheader_filename = "stdlib.h")]
-    public int posix_openpt (int flags);
-
-    [CCode (cheader_filename = "stdlib.h")]
-    int ptsname_r (int fd, char[] buf);
-
-    [CCode (cheader_filename = "stdlib.h")]
-    public int grantpt (int fd);
-
-    [CCode (cheader_filename = "stdlib.h")]
-    public int unlockpt (int fd);
-
     /* ----------- unistd -------------- */
 
-    [CCode (cheader_filename = "unistd.h")]
-    public pid_t getpid ();
-    public pid_t getppid ();
-
     [CCode (cname = "struct winsize", cheader_filename = "termios.h", destroy_function = "")]
-    public struct WinSize
+    public struct winsize
     {
         public ushort ws_row;
         public ushort ws_col;
