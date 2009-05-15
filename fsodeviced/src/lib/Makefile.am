@@ -15,7 +15,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsodevice_la_VALASOURCES = \
-	dummy.vala \
+	dispatcher.vala \
 	$(NULL)
 
 libfsodevice_la_SOURCES = \

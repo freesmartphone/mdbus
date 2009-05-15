@@ -63,7 +63,7 @@ class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
                 // work around bug in dbus(-glib?) which crashes when marshalling \xae which is the (C) symbol
                 for ( int i = 0; i < length; ++i )
                 {
-                    if ( buffer[i] > 0x7f )
+                    if ( buffer[i] < 0 )
                         buffer[i] = '?';
                 }
                 // end work around
