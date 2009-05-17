@@ -1,5 +1,5 @@
 /* 
- * sharing.vala
+ * plugin.vala
  * Written by Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
  * All Rights Reserved
  *
@@ -21,15 +21,18 @@
 
 
 using GLib;
-using Sharing;
-using Posix;
-using PosixExtra;
+
+namespace Sharing
+{
 
 public class ConnectionSharing : FsoFramework.Network.ConnectionSharing, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
     private List<string> ifaces = new List<string>();
     private const string NETWORK_CLASS = "/sys/class/net";
+    private const string IP_FORWARD    = "/proc/sys/net/ipv4/ip_forward";
+    private const string ETC_RESOLV_CONF = "/etc/resolv.conf";
+    private const string ETC_UDHCPD_CONF = "/etc/udhcpd.conf";
 
     public ConnectionSharing( FsoFramework.Subsystem subsystem )
     {
@@ -38,7 +41,7 @@ public class ConnectionSharing : FsoFramework.Network.ConnectionSharing, FsoFram
         this.subsystem.registerServiceObject( FsoFramework.Network.ServiceDBusName, 
                                               FsoFramework.Network.NetworkServicePath, this );
 
-        Idle.add(this.sync);
+        this.sync();
     }
 
 
@@ -48,16 +51,31 @@ public class ConnectionSharing : FsoFramework.Network.ConnectionSharing, FsoFram
     }
 
 
+
+    public bool contains( string iface )
+    {
+        foreach ( string _i in this.ifaces )
+            if ( _i == iface )
+                return true;
+
+        return false;
+    }
+
+
     private bool sync()
     {
-        try {
+        try
+        {
             GLib.Dir sysclass_dir = GLib.Dir.open( NETWORK_CLASS );
-            this.ifaces = null;
+            int i = 0;
             string iface = sysclass_dir.read_name();
-            while ( iface != null )
+            while ( true )
             {
-                this.ifaces.append( iface );
+                if ( iface == null )
+                    break;
                 iface = sysclass_dir.read_name();
+                this.ifaces.append( iface );
+                i++;
             }
 
         }
@@ -68,23 +86,110 @@ public class ConnectionSharing : FsoFramework.Network.ConnectionSharing, FsoFram
     }
 
 
+    private string get_nameservers() 
+    {
+        File file = File.new_for_path( ETC_RESOLV_CONF );
+        string nameservers = "";
+        DataInputStream stream = new DataInputStream( file.read(null) );
+        string line = new string();
+
+        try
+        {
+            line = stream.read_line( null, null );
+            while (( line = stream.read_line( null, null ) ) != null)
+            {
+                if ( line == "\n" || line == "" )
+                    continue;
+
+                if ( "nameserver" in line ) 
+                {
+                    string[] _list = line.split(" ");
+                    if ( (_list[1] != "") && (_list[0] != "") )
+                        nameservers = nameservers + " " + _list[1];
+
+                }
+            }
+        }
+        catch (GLib.Error error) {
+            logger.warning( error.message );
+        }
+        return nameservers;
+    }
+
+
+
+    /* DBus methods follow */
     public void StartConnectionSharingWithInterface( string iface )
     {
         this.sync();
+        if (!( iface in this )) 
+        {
+            logger.warning( "No such interface %s".printf( iface ));
+            return;
+        }
+        
         string ip = Sharing.get_ip( iface );
-        logger.info ("Hang on. Work in progress. %s".printf( ip ));
+        if (ip == null) 
+        {
+            logger.warning( "%s not active".printf( iface ));
+            return;
+        }
+        
+
+        string[] commands = {
+            "iptables -I INPUT 1 -s 192.168.0.0/24 -j ACCEPT",
+            "iptables -I OUTPUT 1 -s %s -j ACCEPT".printf( ip ),
+            "iptables -A POSTROUTING -t nat -j MASQUERADE -s 192.168.0.0/24"
+        };
+
+        try 
+        {
+            foreach( string command in commands ) 
+            {
+                Process.spawn_command_line_async( command );            
+                logger.debug ("executing %s".printf( command ));
+            }
+            FsoFramework.FileHandling.write( "1", IP_FORWARD );
+
+            string nameservers = get_nameservers();
+            FsoFramework.FileHandling.write( UDHCPD_TEMPLATE.printf( iface, nameservers, ip ), ETC_UDHCPD_CONF );
+            
+            /* Re-launch udhcpd */
+            Process.spawn_command_line_async( "killall udhcpd" );
+            Process.spawn_command_line_async( "udhcpd" );
+            
+        
+        }
+        catch( GLib.SpawnError error )
+        {
+            logger.warning( error.message );
+        }
     }
 
 }
 
 
-ConnectionSharing instance;
+private const string UDHCPD_TEMPLATE = "# freesmartphone.org /etc/udhcpd.conf\n \
+start           192.168.0.20  # lease range\n \
+end             192.168.0.199 # lease range\n \
+interface       %s            # listen on interface\n \
+option dns      %s            # grab from resolv.conf\n \
+option  subnet  255.255.255.0 \n \
+opt     router  %s            # address of interface\n \
+option  lease   864000        # 10 days of seconds\n";
+
+} /* end namespace */
+
+
+
+Sharing.ConnectionSharing instance;
 
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    instance = new ConnectionSharing( subsystem );
+    instance = new Sharing.ConnectionSharing( subsystem );
     return "fsodevice.sharing";
 }
+
 
 
 [ModuleInit]

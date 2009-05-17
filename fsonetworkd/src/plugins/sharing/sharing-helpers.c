@@ -49,7 +49,6 @@ gchar * get_ip(const char * device) {
         return NULL;
     strncpy(ifr.ifr_name, device, sizeof(device) + 1);
 
-    g_print( "%s", ifr.ifr_name);
     result = ioctl(sockfd, SIOCGIFADDR, &ifr);
     close(sockfd);
     if(result < 0)
