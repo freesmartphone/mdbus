@@ -21,14 +21,15 @@
 
 
 using GLib;
-
+using Sharing;
+using Posix;
+using PosixExtra;
 
 public class ConnectionSharing : FsoFramework.Network.ConnectionSharing, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
     private List<string> ifaces = new List<string>();
     private const string NETWORK_CLASS = "/sys/class/net";
-    private const int SIOCGIFADDR = 0x8915;
 
     public ConnectionSharing( FsoFramework.Subsystem subsystem )
     {
@@ -46,10 +47,11 @@ public class ConnectionSharing : FsoFramework.Network.ConnectionSharing, FsoFram
         return "<FsoFramework.Network.ConnectionSharing @ %s>".printf( FsoFramework.Network.NetworkServicePath );
     }
 
+
     private bool sync()
     {
         try {
-            Dir sysclass_dir = Dir.open( NETWORK_CLASS );
+            GLib.Dir sysclass_dir = GLib.Dir.open( NETWORK_CLASS );
             this.ifaces = null;
             string iface = sysclass_dir.read_name();
             while ( iface != null )
@@ -68,7 +70,9 @@ public class ConnectionSharing : FsoFramework.Network.ConnectionSharing, FsoFram
 
     public void StartConnectionSharingWithInterface( string iface )
     {
-        logger.info ("Hang on. Work in progress");
+        this.sync();
+        string ip = Sharing.get_ip( iface );
+        logger.info ("Hang on. Work in progress. %s".printf( ip ));
     }
 
 }

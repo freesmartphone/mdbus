@@ -41,21 +41,21 @@
 
 gchar * get_ip(const char * device) {
     struct ifreq ifr;
-	gchar *ip;
-	int result;
+    gchar *ip;
+    int result;
     int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
     if(sockfd < 0)
         return NULL;
     strncpy(ifr.ifr_name, device, sizeof(device) + 1);
 
-	g_print( "%s", ifr.ifr_name);
+    g_print( "%s", ifr.ifr_name);
     result = ioctl(sockfd, SIOCGIFADDR, &ifr);
     close(sockfd);
     if(result < 0)
         return NULL;
 
-	ip = (gchar *)inet_ntoa(((struct sockaddr_in*)&ifr.ifr_addr)->sin_addr);
-	return g_strdup(ip);
+    ip = (gchar *)inet_ntoa(((struct sockaddr_in*)&ifr.ifr_addr)->sin_addr);
+    return g_strdup(ip);
     
 }
