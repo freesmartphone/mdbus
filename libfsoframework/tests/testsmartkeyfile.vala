@@ -94,6 +94,34 @@ void test_smartkeyfile_sections()
 }
 
 //===========================================================================
+void test_smartkeyfile_keys()
+//===========================================================================
+{
+    var smk = new SmartKeyFile();
+    var ok = smk.loadFromFile( TEST_FILE_NAME );
+    assert( ok );
+
+    assert ( smk.hasKey( "section1", "keypresent" ) );
+    assert ( !smk.hasKey( "section.not.present", "this.key.not.there" ) );
+    assert ( !smk.hasKey( "section1", "this.key.not.there" ) );
+
+    var keys = smk.keysWithPrefix( "section4" );
+    assert ( keys.length() == 5 );
+    assert ( keys.nth_data(0) == "keypresent" );
+    assert ( keys.nth_data(4) == "yo4" );
+
+    var yokeys = smk.keysWithPrefix( "section4", "yo" );
+    foreach ( var key in yokeys )
+        assert ( key.has_prefix( "yo" ) );
+    assert ( yokeys.length() == 4 );
+    assert ( yokeys.nth_data(0) == "yo1" );
+    assert ( yokeys.nth_data(3) == "yo4" );
+
+    var nokeys = smk.keysWithPrefix( "this.key.not.present" );
+    assert ( nokeys.length() == 0 );
+}
+
+//===========================================================================
 void test_masterkeyfile_all()
 //===========================================================================
 {
@@ -110,6 +138,7 @@ void main (string[] args)
 
     Test.add_func ("/SmartKeyFile/Values", test_smartkeyfile_values);
     Test.add_func ("/SmartKeyFile/Sections", test_smartkeyfile_sections);
+    Test.add_func ("/SmartKeyFile/Keys", test_smartkeyfile_keys);
     Test.add_func ("/MasterKeyFile/all", test_masterkeyfile_all);
 
     Test.run ();

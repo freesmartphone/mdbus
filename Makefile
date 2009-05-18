@@ -1,4 +1,4 @@
-SUBDIRS = libfsoframework fsodeviced fsogsmd
+SUBDIRS = libfsoframework fsodeviced fsogsmd fsonetworkd
 
 all:
 	for i in $(SUBDIRS); do $(MAKE) -C $$i; done

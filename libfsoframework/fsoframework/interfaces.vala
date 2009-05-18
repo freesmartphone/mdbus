@@ -83,10 +83,9 @@ namespace FsoFramework
         public abstract interface Input : GLib.Object
         {
             public abstract string GetName() throws DBus.Error;
+            public abstract string GetId() throws DBus.Error;
             public abstract string GetCapabilities() throws DBus.Error;
-            public abstract string GetManufacturer() throws DBus.Error;
-            public abstract string GetPath() throws DBus.Error;
-            public signal void Event( string name, int seconds );
+            public signal void Event( string name, string action, int seconds );
         }
 
         [DBus (name = "org.freesmartphone.Device.LED")]

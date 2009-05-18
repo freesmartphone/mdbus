@@ -61,9 +61,9 @@ public class FsoFramework.BaseKObjectNotifier : Object
         fd = Posix.socket( Linux26.Netlink.AF_NETLINK, Posix.SOCK_DGRAM, Linux26.Netlink.NETLINK_KOBJECT_UEVENT );
         assert( fd != -1 );
 
-        Linux26.Netlink.SockAddrNl addr = { Linux26.Netlink.AF_NETLINK, 0, PosixExtra.getpid(), 1 };
+        Linux26.Netlink.SockAddrNl addr = { Linux26.Netlink.AF_NETLINK, 0, Posix.getpid(), 1 };
 
-        var res = PosixExtra.bind( fd, &addr, sizeof( Linux26.Netlink.SockAddrNl ) );
+        var res = Posix.bind( fd, &addr, sizeof( Linux26.Netlink.SockAddrNl ) );
         assert( res != -1 );
 
         channel = new IOChannel.unix_new( fd );

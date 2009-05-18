@@ -130,6 +130,43 @@ public class FsoFramework.SmartKeyFile : Object
         }
         return list;
     }
+
+    public bool hasKey( string section, string key )
+    {
+        try
+        {
+            return kf.has_key( section, key );
+        }
+        catch ( KeyFileError e )
+        {
+            return false;
+        }
+    }
+
+    public List<string> keysWithPrefix( string section, string? prefix = null )
+    {
+        var list = new List<string>();
+        string[] keys;
+
+        try
+        {
+            keys = kf.get_keys( section );
+        }
+        catch ( KeyFileError e )
+        {
+            return list;
+        }
+
+        foreach ( var key in keys )
+        {
+            if ( prefix == null )
+                list.append( key );
+            else
+                if ( key.has_prefix( prefix ) )
+                    list.append( key );
+        }
+        return list;
+    }
 }
 
 /**
