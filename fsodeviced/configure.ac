@@ -1,4 +1,4 @@
-AC_INIT([fsodeviced], [0.0.0.0], [smartphones-userland@linuxtogo.org], [fsodeviced])
+AC_INIT([fsodeviced], [0.1.0.0], [smartphones-userland@linuxtogo.org], [fsodeviced])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -19,6 +19,7 @@ VALA_REQUIRED=0.7.2
 GLIB_REQUIRED=2.18.0
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
+FSO_GLIB_REQUIRED=0.1.0
 FSO_REQUIRED=0.0.0.0
 
 # vala
@@ -40,8 +41,9 @@ PKG_CHECK_MODULES(DBUS,
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
 
-# framework
+# fso-glib and framework
 PKG_CHECK_MODULES(FSO,
+  fso-glib-1.0 >= $FSO_GLIB_REQUIRED
   fsoframework-2.0 >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)

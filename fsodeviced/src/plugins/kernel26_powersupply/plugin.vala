@@ -25,7 +25,7 @@ namespace Kernel26
 /**
  * Implementation of org.freesmartphone.Device.PowerSupply for the Kernel26 Power-Class Device
  **/
-class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
+class PowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
@@ -35,7 +35,7 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
     // internal, so it can be accessable from aggregate power supply
     internal string name;
     internal string typ;
-    internal string status = "unknown";
+    internal FreeSmartphone.Device.PowerStatus status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
     internal bool present;
 
     public PowerSupply( FsoFramework.Subsystem subsystem, string sysfsnode )
@@ -98,7 +98,7 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
         if ( value != "" )
             return value.to_int();
 
-        // fall back to energy_full and energy_now, this one seems to be present always
+        // fall back to energy_full and energy_now
         var energy_full = FsoFramework.FileHandling.read( "%s/energy_full".printf( sysfsnode ) );
         var energy_now = FsoFramework.FileHandling.read( "%s/energy_now".printf( sysfsnode ) );
         if ( energy_full != "" && energy_now != "" )
@@ -108,24 +108,32 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
     }
 
     //
-    // FsoFramework.Device.PowerSupply
+    // DBUS API
     //
-    public string GetName() throws DBus.Error
+
+    /*
+    public string get_name() throws DBus.Error
     {
         return name;
     }
+    */
 
-    public string GetType() throws DBus.Error
+    public HashTable<string,Value?> get_info() throws DBus.Error
     {
-        return typ;
+        //FIXME: add more infos
+        var value = Value( typeof(string) );
+        var res = new HashTable<string,Value?>( str_hash, str_equal );
+        value.take_string( typ );
+        res.insert( "type", value );
+        return res;
     }
 
-    public string GetPowerStatus() throws DBus.Error
+    public FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
     {
         return status;
     }
 
-    public int GetCapacity() throws DBus.Error
+    public int get_capacity() throws DBus.Error
     {
         return getCapacity();
     }
@@ -134,7 +142,7 @@ class PowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
 /**
  * Implementation of org.freesmartphone.Device.PowerSupply as aggregated Kernel26 Power-Class Devices
  **/
-class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.AbstractObject
+class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObject
 {
     private const uint POWER_SUPPLY_CAPACITY_CHECK_INTERVAL = 5 * 60;
     private const uint POWER_SUPPLY_CAPACITY_CRITICAL = 7;
@@ -143,8 +151,8 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
 
-    private string status = "unknown";
-    private int capacity = -1;
+    private FreeSmartphone.Device.PowerStatus status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+    private int energy = -1;
 
     public AggregatePowerSupply( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
@@ -180,15 +188,15 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
     {
         var capacity = getCapacity();
         sendCapacityIfChanged( capacity );
-        if ( status == "discharging" )
+        if ( status == FreeSmartphone.Device.PowerStatus.DISCHARGING )
         {
             if ( capacity <= POWER_SUPPLY_CAPACITY_EMPTY )
             {
-                sendStatusIfChanged( "empty" );
+                sendStatusIfChanged( FreeSmartphone.Device.PowerStatus.EMPTY );
             }
             else if ( capacity <= POWER_SUPPLY_CAPACITY_CRITICAL )
             {
-                sendStatusIfChanged( "critical" );
+                sendStatusIfChanged( FreeSmartphone.Device.PowerStatus.CRITICAL );
             }
         }
         return true;
@@ -229,9 +237,30 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
         {
             if ( supply.name == name )
             {
-                supply.status = status;
                 supply.present = present;
-                break;
+                switch ( status )
+                {
+                    case "unknown":
+                        supply.status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+                        break;
+                    case "error":
+                        supply.status = FreeSmartphone.Device.PowerStatus.UNKNOWN; // unknown as well
+                        break;
+                    case "removed":
+                        supply.status = FreeSmartphone.Device.PowerStatus.REMOVED;
+                        break;
+                    case "charging":
+                        supply.status = FreeSmartphone.Device.PowerStatus.CHARGING;
+                        break;
+                    case "discharging":
+                        supply.status = FreeSmartphone.Device.PowerStatus.DISCHARGING;
+                        break;
+                    case "full":
+                        supply.status = FreeSmartphone.Device.PowerStatus.FULL;
+                        break;
+                    default:
+                        assert_not_reached();
+                }
             }
         }
 
@@ -247,11 +276,14 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
         // first, check whether we have enough information to compute the status at all
         foreach ( var supply in instances )
         {
-            logger.debug( "supply %s status = %s".printf( supply.name, supply.status ) );
+            logger.debug( "supply %s status = %d".printf( supply.name, supply.status ) );
             logger.debug( "supply %s type = %s".printf( supply.name, supply.typ ) );
 
-            if ( supply.status == "unknown" )
+            if ( supply.status == FreeSmartphone.Device.PowerStatus.UNKNOWN )
+            {
                 statusForAll = false;
+                break;
+            }
 
             if ( supply.typ == "battery" ) // FIXME: revisit to handle multiple batteries
             {
@@ -259,7 +291,7 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
             }
             else
             {
-                if ( supply.status == "online" ) // FIXME: revisit to handle multiple chargers
+                if ( supply.status == FreeSmartphone.Device.PowerStatus.ONLINE ) // FIXME: revisit to handle multiple chargers
                     charger = supply;
             }
         }
@@ -271,25 +303,26 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
         }
 
         // if we have a battery and it is inserted, this is our aggregate status
-        if ( battery != null && battery.status != "removed" )
+        if ( battery != null && battery.status != FreeSmartphone.Device.PowerStatus.REMOVED )
         {
             sendStatusIfChanged( battery.status );
         }
-        // if we don't have a battery, return the name of the power supply providing power
+        // if we don't have a battery, we're on AC
+        // FIXME: in that case we should give the name of the charger that charges us via get_info
         else
         {
-            sendStatusIfChanged( charger.name );
+            sendStatusIfChanged( FreeSmartphone.Device.PowerStatus.AC );
         }
     }
 
-    public void sendStatusIfChanged( string status )
+    public void sendStatusIfChanged( FreeSmartphone.Device.PowerStatus status )
     {
-        logger.debug( "sendStatusIfChanged old %s new %s".printf( this.status, status ) );
+        logger.debug( "sendStatusIfChanged old %d new %d".printf( this.status, status ) );
 
         // some power supply classes (Thinkpad) have a bug where after
         // 'discharging' you shortly get a 'full' before 'charging'
         // when you insert the AC plug.
-        if ( ( this.status == "discharging" ) && ( status == "full" ) )
+        if ( ( this.status == FreeSmartphone.Device.PowerStatus.DISCHARGING ) && ( status == FreeSmartphone.Device.PowerStatus.FULL ) )
         {
             logger.warning( "BUG: power supply class sent 'full' after 'discharging'" );
             return;
@@ -299,16 +332,16 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
             return;
 
         this.status = status;
-        PowerStatus( status );
+        power_status( status ); // DBUS SIGNAL
     }
 
-    public void sendCapacityIfChanged( int capacity )
+    public void sendCapacityIfChanged( int energy )
     {
-        if ( this.capacity == capacity )
+        if ( this.energy == energy )
         return;
 
-        this.capacity = capacity;
-        Capacity( capacity );
+        this.energy = energy;
+        capacity( energy ); // DBUS SIGNAL
     }
 
     public int getCapacity()
@@ -329,25 +362,30 @@ class AggregatePowerSupply : FsoFramework.Device.PowerSupply, FsoFramework.Abstr
     }
 
     //
-    // FsoFramework.Device.PowerSupply
+    // DBUS API
     //
-    public string GetName() throws DBus.Error
+    public string get_name() throws DBus.Error
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public string GetType() throws DBus.Error
+    public HashTable<string,Value?> get_info() throws DBus.Error
     {
-        return "aggregate";
+        //FIXME: add more infos
+        var value = Value( typeof(string) );
+        var res = new HashTable<string,Value?>( str_hash, str_equal );
+        value.take_string( "aggregate" );
+        res.insert( "type", value );
+        return res;
     }
 
-    public string GetPowerStatus() throws DBus.Error
+    public FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
     {
-        // walk through all power nodes and get
-        return "unknown";
+        //TODO: walk through all power nodes and get
+        return FreeSmartphone.Device.PowerStatus.UNKNOWN;
     }
 
-    public int GetCapacity() throws DBus.Error
+    public int get_capacity() throws DBus.Error
     {
         return getCapacity();
     }

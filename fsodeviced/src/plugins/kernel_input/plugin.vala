@@ -29,7 +29,7 @@ namespace Kernel
 /**
  * Implementation of org.freesmartphone.Device.Input for the Kernel Input Device
  **/
-class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
+class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
@@ -97,17 +97,17 @@ class InputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
     //
     // FsoFramework.Device.Input
     //
-    public string GetName() throws DBus.Error
+    public string get_name() throws DBus.Error
     {
         return name;
     }
 
-    public string GetId() throws DBus.Error
+    public string get_id() throws DBus.Error
     {
         return product;
     }
 
-    public string GetCapabilities() throws DBus.Error
+    public string get_capabilities() throws DBus.Error
     {
         return "none";
     }
@@ -141,7 +141,7 @@ public class EventStatus
 
     public bool onTimeout()
     {
-        aggregate.Event( name, "held", (int) age() );
+        aggregate.event( name, FreeSmartphone.Device.InputState.HELD, (int) age() ); // DBUS SIGNAL
         return true;
     }
 }
@@ -151,7 +151,7 @@ public class EventStatus
  * Implementation of org.freesmartphone.Device.InputDevice as aggregated Kernel Input Device
  **/
 
-class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObject
+class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
@@ -268,7 +268,7 @@ class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObj
                 {
                     es.timeout = Timeout.add( 1050, es.onTimeout );
                 }
-                this.Event( es.name, "pressed", 0 );
+                this.event( es.name, FreeSmartphone.Device.InputState.PRESSED, 0 ); // DBUS SIGNAL
                 break;
 
             case ( KEY_RELEASE ):
@@ -276,7 +276,7 @@ class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObj
                 if ( !es.pressed )
                 {
                     logger.warning( "received release event before pressed event!?" );
-                    this.Event( es.name, "released", 0 );
+                    this.event( es.name, FreeSmartphone.Device.InputState.RELEASED, 0 ); // DBUS SIGNAL
                 }
                 else
                 {
@@ -285,7 +285,7 @@ class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObj
                     {
                         Source.remove( es.timeout );
                     }
-                    this.Event( es.name, "released", (int) es.age() );
+                    this.event( es.name, FreeSmartphone.Device.InputState.RELEASED, (int) es.age() ); // DBUS SIGNAL
                 }
                 break;
 
@@ -324,19 +324,19 @@ class AggregateInputDevice : FsoFramework.Device.Input, FsoFramework.AbstractObj
     }
 
     //
-    // FsoFramework.Device.Input
+    // DBUS API
     //
-    public string GetName() throws DBus.Error
+    public string get_name() throws DBus.Error
     {
         return dev_input;
     }
 
-    public string GetId() throws DBus.Error
+    public string get_id() throws DBus.Error
     {
         return "aggregate";
     }
 
-    public string GetCapabilities() throws DBus.Error
+    public string get_capabilities() throws DBus.Error
     {
         return "none";
     }

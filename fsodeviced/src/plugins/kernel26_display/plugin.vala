@@ -24,7 +24,7 @@ using GLib;
 namespace Kernel26
 {
 
-class Display : FsoFramework.Device.Display, FsoFramework.AbstractObject
+class Display : FreeSmartphone.Device.Display, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
     static uint counter;
@@ -44,7 +44,7 @@ class Display : FsoFramework.Device.Display, FsoFramework.AbstractObject
         this.sysfsnode = sysfsnode;
         this.max_brightness = FsoFramework.FileHandling.read( this.sysfsnode + "/max_brightness" ).to_int();
 
-        this.current_brightness = GetBrightness();
+        this.current_brightness = get_brightness();
 
         fb_fd = Posix.open( dev_fb0, Posix.O_RDONLY );
         if ( fb_fd == -1 )
@@ -91,14 +91,14 @@ class Display : FsoFramework.Device.Display, FsoFramework.AbstractObject
     }
 
     //
-    // FsoFramework.Device.Display
+    // DBUS API
     //
-    public string GetName()
+    public string get_name()
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public void SetBrightness( int brightness )
+    public void set_brightness( int brightness )
     {
         var value = _percentToValue( brightness );
 
@@ -114,24 +114,24 @@ class Display : FsoFramework.Device.Display, FsoFramework.AbstractObject
         logger.debug( "Brightness set to %d".printf( brightness ) );
     }
 
-    public int GetBrightness()
+    public int get_brightness()
     {
         var value = FsoFramework.FileHandling.read( this.sysfsnode + "/actual_brightness" ).to_int();
         return _valueToPercent( value );
     }
 
-    public bool GetBacklightPower()
+    public bool get_backlight_power()
     {
         return FsoFramework.FileHandling.read( this.sysfsnode + "/bl_power" ).to_int() == 0;
     }
 
-    public void SetBacklightPower( bool power )
+    public void set_backlight_power( bool power )
     {
         var value = power ? "0" : "1";
         FsoFramework.FileHandling.write( value, this.sysfsnode + "/bl_power" );
     }
 
-    public HashTable<string, Value?> GetInfo()
+    public HashTable<string, Value?> get_info()
     {
         string _leaf;
         var val = Value( typeof(string) );

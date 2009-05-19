@@ -33,7 +33,7 @@ public const int IOCTL_RTC_WKALM_SET = 0x4028700f;
 /**
  * Implementation of org.freesmartphone.Device.RTC for the Kernel26 Real-Time-Clock interface
  **/
-class Rtc : FsoFramework.Device.RTC, FsoFramework.AbstractObject
+class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
@@ -66,44 +66,44 @@ class Rtc : FsoFramework.Device.RTC, FsoFramework.AbstractObject
     }
 
     //
-    // FsoFramework.Device.RTC
+    // DBUS API
     //
-    public string GetName() throws DBus.Error
+    public string get_name() throws DBus.Error
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public int GetCurrentTime() throws FsoFramework.OrgFreesmartphone, DBus.Error
+    public int get_current_time() throws FreeSmartphone.Error, DBus.Error
     {
         GLib.Time time = {};
         var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_RD_TIME, &time );
         if ( res == -1 )
-            throw new FsoFramework.OrgFreesmartphone.SystemError( Posix.strerror( Posix.errno ) );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
 
         return (int) time.mktime();
     }
 
-    public void SetCurrentTime( int seconds_since_epoch ) throws FsoFramework.OrgFreesmartphone, DBus.Error
+    public void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
         var time = GLib.Time.gm( (time_t) seconds_since_epoch ); // VALABUG: cast is necessary here, otherwise things go havoc
         var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_SET_TIME, &time );
         if ( res == -1 )
-            throw new FsoFramework.OrgFreesmartphone.SystemError( Posix.strerror( Posix.errno ) );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
     }
 
-    public int GetWakeupTime() throws FsoFramework.OrgFreesmartphone, DBus.Error
+    public int get_wakeup_time() throws FreeSmartphone.Error, DBus.Error
     {
         Linux26.Rtc.WakeAlarm alarm = {};
         var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_WKALM_RD, &alarm );
         if ( res == -1 )
-            throw new FsoFramework.OrgFreesmartphone.SystemError( Posix.strerror( Posix.errno ) );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
 
         GLib.Time time = {};
         Memory.copy( &time, &alarm.time, sizeof( GLib.Time ) );
         return ( alarm.enabled == 1 ) ? (int) time.mktime() : 0;
     }
 
-    public void SetWakeupTime( int seconds_since_epoch ) throws FsoFramework.OrgFreesmartphone, DBus.Error
+    public void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
         Linux26.Rtc.WakeAlarm alarm = {};
         var time = GLib.Time.gm( (time_t) seconds_since_epoch );
@@ -125,7 +125,7 @@ class Rtc : FsoFramework.Device.RTC, FsoFramework.AbstractObject
 
         var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_WKALM_SET, &alarm );
         if ( res == -1 )
-            throw new FsoFramework.OrgFreesmartphone.SystemError( Posix.strerror( Posix.errno ) );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
     }
 
 }

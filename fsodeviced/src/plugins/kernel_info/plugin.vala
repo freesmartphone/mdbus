@@ -1,4 +1,4 @@
-/* 
+/*
  * plugin.vala
  * Written by Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
  * All Rights Reserved
@@ -24,7 +24,7 @@ using GLib;
 namespace Kernel
 {
 
-class Info : FsoFramework.Device.Info, FsoFramework.AbstractObject
+class Info : FreeSmartphone.Device.Info, FsoFramework.AbstractObject
 {
 
     private FsoFramework.Subsystem subsystem;
@@ -37,7 +37,7 @@ class Info : FsoFramework.Device.Info, FsoFramework.AbstractObject
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                         FsoFramework.Device.InfoServicePath,
                                         this );
-        logger.info( "Created Info plugin @ %s".printf( FsoFramework.Device.InfoServicePath ) );
+        logger.info( "Created" );
     }
 
 
@@ -47,7 +47,10 @@ class Info : FsoFramework.Device.Info, FsoFramework.AbstractObject
     }
 
 
-    public HashTable<string, Value?> GetCpuInfo()
+    //
+    // DBUS API
+    //
+    public HashTable<string, Value?> get_cpu_info()
     {
         File node_file = File.new_for_path( PROC_NODE );
         string line = new string();

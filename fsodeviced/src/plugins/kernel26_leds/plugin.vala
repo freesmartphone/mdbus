@@ -22,7 +22,7 @@ using GLib;
 namespace Kernel26
 {
 
-class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
+class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
@@ -30,6 +30,8 @@ class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
     string brightness;
     string trigger;
     string triggers;
+
+    uint blinktimeoutwatch;
 
     static uint counter;
 
@@ -71,62 +73,96 @@ class Led : FsoFramework.Device.LED, FsoFramework.AbstractObject
         }
     }
 
+    public void cleanTimeout()
+    {
+        if ( blinktimeoutwatch > 0 )
+            Source.remove( blinktimeoutwatch );
+    }
+
+    public void setTimeout( int seconds )
+    {
+        cleanTimeout();
+        blinktimeoutwatch = Timeout.add_seconds( seconds, onTimeout );
+    }
+
+    public bool onTimeout()
+    {
+        set_brightness( 0 );
+        return false;
+    }
+
     //
-    // FsoFramework.Device.LED
+    // DBUS API from FreeSmartphone.Device
     //
-    public string GetName() throws DBus.Error
+    public string get_name() throws DBus.Error
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public void SetBrightness( int brightness ) throws DBus.Error
+    public void set_brightness( int brightness ) throws DBus.Error
     {
         if ( brightness > 255 )
             brightness = 255;
         if ( brightness < 0 )
             brightness = 0;
 
+        cleanTimeout();
+
         FsoFramework.FileHandling.write( "none", this.trigger );
         FsoFramework.FileHandling.write( brightness.to_string(), this.brightness );
     }
 
-    public void SetBlinking( int delay_on, int delay_off ) throws FsoFramework.OrgFreesmartphone, DBus.Error
+    public void set_blinking( int delay_on, int delay_off ) throws FreeSmartphone.Error, DBus.Error
     {
         initTriggers();
 
         if ( !( "timer" in triggers ) )
-            throw new FsoFramework.OrgFreesmartphone.Unsupported( "Kernel support for timer led class trigger missing" );
+            throw new FreeSmartphone.Error.UNSUPPORTED( "Kernel support for timer led class trigger missing." );
+
+        cleanTimeout();
 
         FsoFramework.FileHandling.write( "timer", this.trigger );
         FsoFramework.FileHandling.write( delay_on.to_string(), this.sysfsnode + "/delay_on" );
         FsoFramework.FileHandling.write( delay_off.to_string(), this.sysfsnode + "/delay_off" );
     }
 
-    public void SetNetworking( string iface, string mode ) throws FsoFramework.OrgFreesmartphone, DBus.Error
+    public void blink_seconds( int seconds, int delay_on, int delay_off ) throws FreeSmartphone.Error, DBus.Error
+    {
+        if ( seconds < 1 )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Blinking timeout needs to be at least 1 second." );
+
+        set_blinking( delay_on, delay_off );
+
+        setTimeout( seconds );
+    }
+
+    public void set_networking( string iface, string mode ) throws FreeSmartphone.Error, DBus.Error
     {
         initTriggers();
 
         if ( !( "netdev" in triggers ) )
-            throw new FsoFramework.OrgFreesmartphone.Unsupported( "Kernel support for netdev led class trigger missing" );
+            throw new FreeSmartphone.Error.UNSUPPORTED( "Kernel support for netdev led class trigger missing." );
 
         if ( !FsoFramework.FileHandling.isPresent( "%s/%s".printf( sys_class_net, iface ) ) )
-            throw new FsoFramework.OrgFreesmartphone.InvalidParameter( "Interface '%s' not present".printf( iface ) );
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Interface '%s' not present.".printf( iface ) );
 
         string cleanmode = "";
 
         foreach ( var element in mode.split( " " ) )
         {
             if ( element != "link" && element != "rx" && element != "tx" )
-                throw new FsoFramework.OrgFreesmartphone.InvalidParameter( "Element '%s' not allowed. Valid elements are 'link', 'rx', 'tx'.".printf( element ) );
+                throw new FreeSmartphone.Error.INVALID_PARAMETER( "Element '%s' not allowed. Valid elements are 'link', 'rx', 'tx'.".printf( element ) );
             else
                 cleanmode += element;
         }
         if ( cleanmode == "" )
         {
-            SetBrightness( 0 );
+            set_brightness( 0 );
         }
         else
         {
+            cleanTimeout();
+
             FsoFramework.FileHandling.write( "netdev", this.trigger );
             FsoFramework.FileHandling.write( iface, this.sysfsnode + "/device_name" );
             FsoFramework.FileHandling.write( cleanmode, this.sysfsnode + "/mode" );
