@@ -29,49 +29,81 @@ namespace Kernel
 /**
  * Helper class
  **/
-
-/*
 [Compact]
-public class EventStatus
+public class IdleStatus
 {
-    public EventStatus( string name, bool reportheld )
-    {
-        this.name = name;
-        this.reportheld = reportheld;
-        pressed = false;
-        timeout = 0;
-    }
-    public bool pressed;
-    public bool reportheld;
-    public TimeVal timestamp;
-    public uint timeout;
-    public string name;
+    public int[] timeouts;
+    public FreeSmartphone.Device.IdleState status = FreeSmartphone.Device.IdleState.AWAKE;
+    public uint watch;
 
-    public uint age()
+    public IdleStatus()
     {
-        var now = TimeVal();
-        var diff = ( now.tv_sec - timestamp.tv_sec ) * 1000000 + ( now.tv_usec - timestamp.tv_usec );
-        return (uint) diff / 1000000;
+        timeouts = new int[] {
+             0, /* awake to busy */
+             2, /* busy to idle */
+            10, /* idle to idle_dim */
+            20, /* idle_dim to idle_prelock */
+             2, /* idle_prelock to lock */
+            20, /* lock to suspend */
+            -1  /* suspend to awake */
+        };
+    }
+
+    private FreeSmartphone.Device.IdleState nextState()
+    {
+        if ( status == FreeSmartphone.Device.IdleState.AWAKE )
+            return 0;
+        else
+            return (FreeSmartphone.Device.IdleState) ( (int)status + 1 );
+    }
+
+    public void onState( FreeSmartphone.Device.IdleState status )
+    {
+        //debug( "onState transitioning from %d to %d", this.status, status );
+
+        if ( watch > 0 )
+            Source.remove( watch );
+
+        if ( this.status != status )
+        {
+            this.status = status;
+            instance.state( this.status ); // DBUS SIGNAL
+        }
+
+        var next = nextState();
+        if ( timeouts[next] > 0 )
+        {
+            watch = Timeout.add_seconds( timeouts[next], onTimeout );
+        }
+        else if ( timeouts[next] == 0 )
+        {
+            onState( nextState() );
+        }
+        else
+        {
+            debug( "Timeout for %d disabled, not falling into this state next.".printf( next ) );
+        }
     }
 
     public bool onTimeout()
     {
-        aggregate.event( name, FreeSmartphone.Device.InputState.HELD, (int) age() ); // DBUS SIGNAL
-        return true;
+        watch = 0;
+        onState( nextState() );
+        return false;
     }
 }
-*/
-
 
 /**
  * Implementation of org.freesmartphone.Device.IdleNotifier for Kernel Input Devices
  **/
-
 class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
+    private int[] fds;
     private IOChannel[] channels;
+
+    private IdleStatus idlestatus;
 
 //     private HashTable<int,EventStatus> keys;
 //     private HashTable<int,EventStatus> switches;
@@ -90,40 +122,55 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
                                          FsoFramework.Device.InputServicePath,
                                          this );
 
-        _registerInputWatches();
-        //_parseConfig();
+        syncNodesToWatch();
+        registerInputWatches();
 
+        Idle.add( onIdle );
         logger.info( "created new IdleNotifier." );
     }
 
-    private void _registerInputWatches()
+    public bool onIdle()
     {
-        channels = new IOChannel[] {};
-        /*
-        foreach ( var input in instances )
-        {
-            var channel = new IOChannel.unix_new( input.fd );
-            channel.add_watch( IOCondition.IN, onInputEvent );
-            channels += channel;
-        }
-        /*
-            // scan sysfs path for rtcs
-        var dir = Dir.open( dev_input );
+        idlestatus = new IdleStatus();
+        idlestatus.onState( FreeSmartphone.Device.IdleState.AWAKE );
+        return false;
+    }
+
+
+    private void syncNodesToWatch()
+    {
+        fds = new int[] {};
+        // scan sysfs path
+        var dir = Dir.open( sysfsnode );
         var entry = dir.read_name();
         while ( entry != null )
         {
             if ( entry.has_prefix( "event" ) )
             {
-                var filename = Path.build_filename( dev_input, entry );
-                instances.append( new Kernel.InputDevice( subsystem, filename ) );
+                // try to open
+                var fd = Posix.open( Path.build_filename( dev_input, entry ), Posix.O_RDONLY );
+                if ( fd == -1 )
+                    logger.warning( "could not open %s: %s (ignoring)".printf( entry, Posix.strerror( Posix.errno ) ) );
+                else
+                    fds += fd;
             }
             entry = dir.read_name();
         }
-        */
-
     }
 
-    private void _parseConfig()
+    private void registerInputWatches()
+    {
+        channels = new IOChannel[] {};
+
+        foreach ( var fd in fds )
+        {
+            var channel = new IOChannel.unix_new( fd );
+            channel.add_watch( IOCondition.IN, onInputEvent );
+            channels += channel;
+        }
+    }
+
+    private void parseConfig()
     {
         /*
         var entries = config.keysWithPrefix( CONFIG_SECTION, "report" );
@@ -168,6 +215,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     private void _handleInputEvent( ref Linux26.Input.Event ev )
     {
+        idlestatus.onState( FreeSmartphone.Device.IdleState.BUSY );
     }
 
     public override string repr()
@@ -185,7 +233,8 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
             return false;
         }
 
-        if ( ev.type != Linux26.Input.EV_SYN )
+        // only honor keys and buttons for now
+        if ( ev.type == Linux26.Input.EV_KEY )
         {
             //logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
             _handleInputEvent( ref ev );
