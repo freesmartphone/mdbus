@@ -5,55 +5,6 @@ namespace FsoFramework {
 	[CCode (cprefix = "FsoFrameworkDevice", lower_case_cprefix = "fso_framework_device_")]
 	namespace Device {
 		[CCode (cheader_filename = "fsoframework.h")]
-		[DBus (name = "org.freesmartphone.Device.Display")]
-		public interface Display : GLib.Object {
-			public abstract bool GetBacklightPower () throws DBus.Error;
-			public abstract int GetBrightness () throws DBus.Error;
-			public abstract GLib.HashTable<string,GLib.Value?> GetInfo () throws DBus.Error;
-			public abstract void SetBacklightPower (bool power) throws DBus.Error;
-			public abstract void SetBrightness (int brightness) throws DBus.Error;
-		}
-		[CCode (cheader_filename = "fsoframework.h")]
-		[DBus (name = "org.freesmartphone.Device.Info")]
-		public interface Info : GLib.Object {
-			public abstract GLib.HashTable<string,GLib.Value?> GetCpuInfo () throws DBus.Error;
-		}
-		[CCode (cheader_filename = "fsoframework.h")]
-		[DBus (name = "org.freesmartphone.Device.Input")]
-		public interface Input : GLib.Object {
-			public abstract string GetCapabilities () throws DBus.Error;
-			public abstract string GetId () throws DBus.Error;
-			public abstract string GetName () throws DBus.Error;
-			public signal void Event (string name, string action, int seconds);
-		}
-		[CCode (cheader_filename = "fsoframework.h")]
-		[DBus (name = "org.freesmartphone.Device.LED")]
-		public interface LED : GLib.Object {
-			public abstract string GetName () throws DBus.Error;
-			public abstract void SetBlinking (int delay_on, int delay_off) throws FsoFramework.OrgFreesmartphone, DBus.Error;
-			public abstract void SetBrightness (int brightness) throws DBus.Error;
-			public abstract void SetNetworking (string iface, string mode) throws FsoFramework.OrgFreesmartphone, DBus.Error;
-		}
-		[CCode (cheader_filename = "fsoframework.h")]
-		[DBus (name = "org.freesmartphone.Device.PowerSupply")]
-		public interface PowerSupply : GLib.Object {
-			public abstract int GetCapacity () throws DBus.Error;
-			public abstract string GetName () throws DBus.Error;
-			public abstract string GetPowerStatus () throws DBus.Error;
-			public abstract string GetType () throws DBus.Error;
-			public signal void Capacity (int capacity);
-			public signal void PowerStatus (string power_status);
-		}
-		[CCode (cheader_filename = "fsoframework.h")]
-		[DBus (name = "org.freesmartphone.Device.RTC")]
-		public interface RTC : GLib.Object {
-			public abstract int GetCurrentTime () throws FsoFramework.OrgFreesmartphone, DBus.Error;
-			public abstract string GetName () throws DBus.Error;
-			public abstract int GetWakeupTime () throws FsoFramework.OrgFreesmartphone, DBus.Error;
-			public abstract void SetCurrentTime (int seconds_since_epoch) throws FsoFramework.OrgFreesmartphone, DBus.Error;
-			public abstract void SetWakeupTime (int seconds_since_epoch) throws FsoFramework.OrgFreesmartphone, DBus.Error;
-		}
-		[CCode (cheader_filename = "fsoframework.h")]
 		public const string DisplayServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string DisplayServicePath;
@@ -239,13 +190,6 @@ namespace FsoFramework {
 	public struct PluginInfo {
 		public string name;
 		public bool loaded;
-	}
-	[CCode (cprefix = "FSO_FRAMEWORK_ORG_FREESMARTPHONE_", cheader_filename = "fsoframework.h")]
-	[DBus (name = "org.freesmartphone")]
-	public errordomain OrgFreesmartphone {
-		Unsupported,
-		InvalidParameter,
-		SystemError,
 	}
 	[CCode (cprefix = "FSO_FRAMEWORK_PLUGIN_ERROR_", cheader_filename = "fsoframework.h")]
 	public errordomain PluginError {

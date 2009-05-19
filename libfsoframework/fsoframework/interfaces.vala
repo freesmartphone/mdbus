@@ -17,26 +17,14 @@
  *
  */
 
-// NOTE: This file is only temporarily. It will be replaced with libfso-glib,
-// which are generated interfaces from actual spec files.
+// NOTE: This file only contains object paths and interface names.
+// The actual interfaces are implemented in libfso-glib.
 
 namespace FsoFramework
 {
     public const string ServiceDBusPrefix = "org.freesmartphone";
     public const string ServicePathPrefix = "/org/freesmartphone";
     public const string ServiceFacePrefix = "org.freesmartphone";
-
-    // generic errors
-    [DBus (name = "org.freesmartphone")]
-    public errordomain OrgFreesmartphone
-    {
-        [DBus (name = "Unsupported")]
-        Unsupported,
-        [DBus (name = "InvalidParameter")]
-        InvalidParameter,
-        [DBus (name = "SystemError")]
-        SystemError
-    }
 
     namespace Device
     {
@@ -62,61 +50,5 @@ namespace FsoFramework
 
         public const string RtcServiceFace = ServiceFacePrefix + ".RTC";
         public const string RtcServicePath = ServicePathPrefix + "/RTC";
-
-        [DBus (name = "org.freesmartphone.Device.Display")]
-        public abstract interface Display : GLib.Object
-        {
-            public abstract void SetBrightness(int brightness) throws DBus.Error;
-            public abstract int GetBrightness() throws DBus.Error;
-            public abstract bool GetBacklightPower() throws DBus.Error;
-            public abstract void SetBacklightPower(bool power) throws DBus.Error;
-            public abstract HashTable<string, Value?> GetInfo() throws DBus.Error;
-        }
-
-        [DBus (name = "org.freesmartphone.Device.Info")]
-        public abstract interface Info : GLib.Object
-        {
-            public abstract HashTable<string, Value?> GetCpuInfo() throws DBus.Error;
-        }
-
-        [DBus (name = "org.freesmartphone.Device.Input")]
-        public abstract interface Input : GLib.Object
-        {
-            public abstract string GetName() throws DBus.Error;
-            public abstract string GetId() throws DBus.Error;
-            public abstract string GetCapabilities() throws DBus.Error;
-            public signal void Event( string name, string action, int seconds );
-        }
-
-        [DBus (name = "org.freesmartphone.Device.LED")]
-        public abstract interface LED : GLib.Object
-        {
-            public abstract string GetName() throws DBus.Error;
-            public abstract void SetBrightness( int brightness ) throws DBus.Error;
-            public abstract void SetBlinking( int delay_on, int delay_off ) throws OrgFreesmartphone, DBus.Error;
-            public abstract void SetNetworking( string iface, string mode ) throws OrgFreesmartphone, DBus.Error;
-        }
-
-        [DBus (name = "org.freesmartphone.Device.PowerSupply")]
-        public abstract interface PowerSupply : GLib.Object
-        {
-            public abstract string GetName() throws DBus.Error;
-            public abstract string GetType() throws DBus.Error;
-            public abstract string GetPowerStatus() throws DBus.Error;
-            public signal void PowerStatus( string power_status );
-            public abstract int GetCapacity() throws DBus.Error;
-            public signal void Capacity( int capacity );
-        }
-
-        [DBus (name = "org.freesmartphone.Device.RTC")]
-        public abstract interface RTC : GLib.Object
-        {
-            public abstract string GetName() throws DBus.Error;
-            public abstract int GetCurrentTime() throws OrgFreesmartphone, DBus.Error;
-            public abstract void SetCurrentTime( int seconds_since_epoch ) throws OrgFreesmartphone, DBus.Error;
-            public abstract int GetWakeupTime() throws OrgFreesmartphone, DBus.Error;
-            public abstract void SetWakeupTime( int seconds_since_epoch ) throws OrgFreesmartphone, DBus.Error;
-        }
-
     }
 }
