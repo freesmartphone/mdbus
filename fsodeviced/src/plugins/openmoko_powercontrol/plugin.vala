@@ -23,17 +23,13 @@ namespace Openmoko
 {
 
 /**
- * Bluetooth power control
+ * Bluetooth power control for Openmoko GTA01 and Openmoko GTA02
  **/
 class BluetoothPowerControl : FsoDevice.BasePowerControl
 {
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
-    private static uint counter;
-
-    internal string name;
-    internal string product = "<Unknown Product>";
-    internal int fd = -1;
+    private string name;
 
     public BluetoothPowerControl( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
@@ -53,9 +49,47 @@ class BluetoothPowerControl : FsoDevice.BasePowerControl
     }
 }
 
+/**
+ * WiFi power control for Openmoko GTA02
+ **/
+class WiFiPowerControl : FsoDevice.BasePowerControl
+{
+    private FsoFramework.Subsystem subsystem;
+    private string sysfsnode;
+    private string name;
+
+    public WiFiPowerControl( FsoFramework.Subsystem subsystem, string sysfsnode )
+    {
+        base( Path.build_filename( sysfsnode, null ) );
+        this.subsystem = subsystem;
+        this.sysfsnode = sysfsnode;
+        this.name = Path.get_basename( sysfsnode );
+
+        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
+                                                 this );
+
+        logger.info( "created." );
+    }
+
+    public override bool getPower()
+    {
+        // WiFi is always eth0 on GTA02
+        return FsoFramework.FileHandling.isPresent( Path.build_filename( sysfs_root, "class", "net", "eth0" ) );
+    }
+
+    public override void setPower( bool on )
+    {
+        var powernode = on ? "bind" : "unbind";
+        FsoFramework.FileHandling.write( "s3c2440-sdi", Path.build_filename( sysfsnode, powernode ) );
+    }
+}
+
 } /* namespace */
 
 internal List<FsoDevice.BasePowerControl> instances;
+internal static string sysfs_root;
 
 /**
  * This function gets called on plugin initialization time.
@@ -67,16 +101,20 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 {
     // grab sysfs paths
     var config = FsoFramework.theMasterKeyFile();
-    var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+    sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     var devices = Path.build_filename( sysfs_root, "bus", "platform", "devices" );
+    var drivers = Path.build_filename( sysfs_root, "bus", "platform", "drivers" );
 
     var bluetooth = Path.build_filename( devices, "neo1973-pm-bt.0" );
-
-    assert( bluetooth != null );
-
     if ( FsoFramework.FileHandling.isPresent( bluetooth ) )
     {
         instances.append( new Openmoko.BluetoothPowerControl( subsystem, bluetooth ) );
+    }
+
+    var wifi = Path.build_filename( drivers, "s3c2440-sdi" );
+    if ( FsoFramework.FileHandling.isPresent( wifi ) )
+    {
+        instances.append( new Openmoko.WiFiPowerControl( subsystem, wifi ) );
     }
 
     //TODO: add other devices

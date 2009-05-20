@@ -28,7 +28,9 @@ public class BasePowerControl : FreeSmartphone.Device.PowerControl, FsoFramework
     private string offvalue;
     private uint switchtimeout;
 
-    public BasePowerControl( string powernode, string onvalue = "1", string offvalue = "0", uint switchtimeout = 3 )
+    protected static uint counter;
+
+    public BasePowerControl( string? powernode = null, string onvalue = "1", string offvalue = "0", uint switchtimeout = 3 )
     {
         this.powernode = powernode;
         this.onvalue = onvalue;
@@ -38,17 +40,19 @@ public class BasePowerControl : FreeSmartphone.Device.PowerControl, FsoFramework
 
     public override string repr()
     {
-        return "<via %s>".printf( powernode );
+        return "<@ powernode %s>".printf( powernode );
     }
 
-    public bool getPower()
+    public virtual bool getPower()
     {
+        assert( powernode != null );
         var value = FsoFramework.FileHandling.read( powernode );
         return value == onvalue;
     }
 
-    public void setPower( bool on )
+    public virtual void setPower( bool on )
     {
+        assert( powernode != null );
         if ( on == getPower() )
             return;
 
