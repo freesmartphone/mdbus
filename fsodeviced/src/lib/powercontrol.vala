@@ -38,7 +38,7 @@ public class BasePowerControl : FreeSmartphone.Device.PowerControl, FsoFramework
 
     public override string repr()
     {
-        return "<@ powernode %s>".printf( powernode );
+        return "<via %s>".printf( powernode );
     }
 
     public bool getPower()

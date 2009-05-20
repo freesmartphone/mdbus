@@ -27,30 +27,29 @@ namespace Openmoko
  **/
 class BluetoothPowerControl : FsoDevice.BasePowerControl
 {
-    FsoFramework.Subsystem subsystem;
-
+    private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
     private static uint counter;
 
-    // internal, so it can be accessable from aggregate input device
     internal string name;
     internal string product = "<Unknown Product>";
     internal int fd = -1;
 
     public BluetoothPowerControl( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
+        base( Path.build_filename( sysfsnode, "power_on" ) );
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
 
+
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.InputServicePath, counter++ ),
+                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
                                          this );
 
-        base( Path.build_filename( sysfsnode, "power_on" ) );
 
-        logger.info( "created new PowerControl object." );
+        logger.info( "created." );
     }
 }
 
@@ -72,6 +71,8 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var devices = Path.build_filename( sysfs_root, "bus", "platform", "devices" );
 
     var bluetooth = Path.build_filename( devices, "neo1973-pm-bt.0" );
+
+    assert( bluetooth != null );
 
     if ( FsoFramework.FileHandling.isPresent( bluetooth ) )
     {
