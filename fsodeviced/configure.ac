@@ -54,6 +54,7 @@ AC_CONFIG_FILES([
   src/lib/Makefile
   src/bin/Makefile
   src/plugins/Makefile
+  src/plugins/alsa_audio/Makefile
   src/plugins/kernel26_display/Makefile
   src/plugins/kernel26_leds/Makefile
   src/plugins/kernel26_powersupply/Makefile
