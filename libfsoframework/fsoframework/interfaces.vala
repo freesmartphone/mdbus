@@ -33,6 +33,9 @@ namespace FsoFramework
         public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Device";
         public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Device";
 
+        public const string AudioServiceFace = ServiceFacePrefix + ".Audio";
+        public const string AudioServicePath = ServicePathPrefix + "/Audio";
+
         public const string DisplayServiceFace = ServiceFacePrefix + ".Display";
         public const string DisplayServicePath = ServicePathPrefix + "/Display";
 
