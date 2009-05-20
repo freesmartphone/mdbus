@@ -21,6 +21,20 @@
 namespace Linux26 {
 
     /*
+     * Event Fd
+     */
+    [CCode (cprefix = "EFD_", cheader_filename = "sys/eventfd.h")]
+    public enum EventFlags {
+        CLOEXEC,
+        NONBLOCK
+    }
+
+    [CCode (cheader_filename = "sys/eventfd.h")]
+    public int eventfd (uint count, EventFlags flags);
+    public int eventfd_read (int fd, out uint64 value);
+    public int eventfd_write (int fd, uint64 value);
+
+    /*
      * Input subsystem
      */
     [CCode (cprefix = "", lower_case_cprefix = "")]
@@ -1349,8 +1363,7 @@ namespace Linux26 {
         public const int AF_NETLINK;
 
         [CCode (cname = "struct sockaddr_nl", cheader_filename = "linux/netlink.h", destroy_function = "")]
-        public struct SockAddrNl
-        {
+        public struct SockAddrNl {
             public int nl_family;
             public ushort nl_pad;
             public uint32 nl_pid;
@@ -1394,10 +1407,76 @@ namespace Linux26 {
     namespace Termios {
 
         /*
+         * non-posix functions
+         */
+        [CCode (cheader_filename = "stdlib.h")]
+        public int ptsname_r (int fd, char[] buf);
+
+        /*
          * non-posix flags
          */
         [CCode (cheader_filename = "termios.h")]
         public const int OLCUC;
+
+        /*
+         * non-posix constants
+         */
+
+        // flow control
+        [CCode (cheader_filename = "termios.h")]
+        public const int CRTSCTS;
+        // v24 modem lines
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_LE;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_DTR;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_RTS;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_ST;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_SR;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_CTS;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_CARM;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_RNG;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_DSR;
+        [CCode (cheader_filename = "termios.h")]
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_OUT1;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_OUT2;
+        [CCode (cheader_filename = "termios.h")]
+        public const int TIOCM_LOOP;
+        // baud rates
+        [CCode (cheader_filename = "termios.h")]
+        public const int B460800;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B500000;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B576000;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B921600;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B1000000;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B1152000;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B1500000;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B2000000;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B2500000;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B3000000;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B3500000;
+        [CCode (cheader_filename = "termios.h")]
+        public const int B4000000;
+
 
         /*
          * ioctls
