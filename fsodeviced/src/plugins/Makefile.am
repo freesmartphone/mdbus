@@ -11,5 +11,6 @@ SUBDIRS = \
 	kernel_info \
 	kernel_input \
 	\
+	thinkpad_powercontrol \
 	openmoko_powercontrol \
 	$(NULL)
