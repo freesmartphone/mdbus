@@ -8,6 +8,17 @@ AM_CPPFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(NULL)
 
+VALAC_ARGS = \
+	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/vapi \
+	--pkg posix \
+	--pkg glib-2.0 \
+	--pkg dbus-glib-1 \
+	--pkg fso-glib-1.0 \
+	--pkg fsoframework-2.0 \
+	--header fsodevice.h \
+	--library fsodevice-2.0
+
 BUILT_SOURCES = .vala.stamp fsodevice-2.0.vapi
 
 lib_LTLIBRARIES = \
@@ -16,6 +27,7 @@ lib_LTLIBRARIES = \
 
 libfsodevice_la_VALASOURCES = \
 	dispatcher.vala \
+	powercontrol.vala \
 	$(NULL)
 
 libfsodevice_la_SOURCES = \
@@ -28,14 +40,7 @@ fsodeviceincludedir = $(includedir)/fsoframework-2.0
 fsodeviceinclude_HEADERS = fsodevice.h
 
 $(BUILT_SOURCES): $(libfsodevice_la_VALASOURCES)
-	$(VALAC) -C --basedir $(top_srcdir) \
-	            --vapidir $(top_srcdir)/vapi \
-	            --pkg posix \
-	            --pkg posixextra \
-	            --pkg glib-2.0 \
-	            --pkg gio-2.0 \
-	            --header fsodevice.h \
-	            --library fsodevice-2.0 $^
+	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
 
 libfsodevice_la_LIBADD = \

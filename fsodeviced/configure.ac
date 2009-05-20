@@ -61,6 +61,7 @@ AC_CONFIG_FILES([
   src/plugins/kernel_idle/Makefile
   src/plugins/kernel_info/Makefile
   src/plugins/kernel_input/Makefile
+  src/plugins/openmoko_powercontrol/Makefile
   tests/Makefile
 ])
 

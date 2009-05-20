@@ -10,4 +10,6 @@ SUBDIRS = \
 	kernel_idle \
 	kernel_info \
 	kernel_input \
+	\
+	openmoko_powercontrol \
 	$(NULL)
