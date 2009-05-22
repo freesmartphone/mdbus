@@ -47,48 +47,55 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         return "<ALSA>";
     }
 
-    public string[] get_available_scenarios () throws DBus.Error
+    public string[] get_available_scenarios() throws DBus.Error
     {
         return {};
     }
 
-    public HashTable<string,Value?> get_info () throws DBus.Error
+    public HashTable<string,Value?> get_info() throws DBus.Error
     {
         return new HashTable<string,Value?>( str_hash, str_equal );
     }
 
-    public string get_scenario () throws DBus.Error
+    public string get_scenario() throws DBus.Error
     {
         return "unknown";
     }
 
-    public string[] get_supported_formats () throws DBus.Error
+    public string[] get_supported_formats() throws DBus.Error
     {
         return {};
     }
 
-    public void play_sound (string id, int loop, int length) throws DBus.Error
+    public void play_sound( string id, int loop, int length ) throws DBus.Error
     {
+        Canberra.Context c = null;
+        Canberra.Context.create( &c );
+        Canberra.Error res = c.play( 0, Canberra.PROP_MEDIA_FILENAME, id, null );
+        if ( res != Canberra.SUCCESS )
+        {
+            logger.error( "Can't play song %s: %s".printf( id, Canberra.strerror( res ) ) );
+        }
     }
 
-    public string pull_scenario () throws DBus.Error
+    public string pull_scenario() throws DBus.Error
     {
         return "unknown";
     }
 
-    public void push_scenario (string scenario) throws DBus.Error
+    public void push_scenario( string scenario ) throws DBus.Error
     {
     }
 
-    public void set_scenario (string scenario) throws DBus.Error
+    public void set_scenario( string scenario ) throws DBus.Error
     {
     }
 
-    public void stop_all_sounds () throws DBus.Error
+    public void stop_all_sounds() throws DBus.Error
     {
     }
 
-    public void stop_sound (string id) throws DBus.Error
+    public void stop_sound( string id ) throws DBus.Error
     {
     }
 
