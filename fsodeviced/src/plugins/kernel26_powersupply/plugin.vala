@@ -358,7 +358,7 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
                 numValues++;
             }
         }
-        return amount / numValues;
+        return numValues > 0 ? amount / numValues : -1;
     }
 
     //
