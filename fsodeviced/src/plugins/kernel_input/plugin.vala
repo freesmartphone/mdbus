@@ -185,9 +185,11 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         channels = new IOChannel[] {};
         foreach ( var input in instances )
         {
-            var channel = new IOChannel.unix_new( input.fd );
-            channel.add_watch( IOCondition.IN, onInputEvent );
-            channels += channel;
+            if ( input.fd != -1 )
+            {   var channel = new IOChannel.unix_new( input.fd );
+                channel.add_watch( IOCondition.IN, onInputEvent );
+                channels += channel;
+            }
         }
     }
 
