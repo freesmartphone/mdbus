@@ -28,6 +28,31 @@ namespace Alsa
 class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
+    private Canberra.Context context;
+
+    [Compact]
+    public class Sound
+    {
+        public Sound( string name, int loop, int length, int cid )
+        {
+            this.name = name;
+            this.loop = loop;
+            this.length = length;
+            this.cid = cid;
+            message( "%s %d create", name, cid );
+        }
+        ~Sound()
+        {
+            message( "%s %d destroy", name, cid );
+        }
+        public string name;
+        public int loop;
+        public int length;
+        public int cid;
+
+    }
+
+    private HashTable<string,Sound> sounds;
 
     public AudioPlayer( FsoFramework.Subsystem subsystem )
     {
@@ -38,6 +63,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
                                          FsoFramework.Device.AudioServicePath,
                                          this );
 
+        sounds = new HashTable<string,Sound>( str_hash, str_equal );
+        Canberra.Context.create( &context );
 
         logger.info( "created." );
     }
@@ -46,6 +73,19 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     {
         return "<ALSA>";
     }
+
+    public void onSoundFinished( Canberra.Context context, uint32 id, Canberra.Error code )
+    {
+        logger.debug( "sound finished with name %s, code %s".printf( (string)id, Canberra.strerror( code ) ) );
+        weak Sound sound = sounds.lookup( (string)id );
+        assert ( sound != null );
+        //FIXME send stopped signal
+        sounds.remove( (string)id );
+    }
+
+    //
+    // DBUS API
+    //
 
     public string[] get_available_scenarios() throws DBus.Error
     {
@@ -64,18 +104,27 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public string[] get_supported_formats() throws DBus.Error
     {
-        return {};
+        return { "*.wav" };
     }
 
-    public void play_sound( string id, int loop, int length ) throws DBus.Error
+    public void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, DBus.Error
     {
-        Canberra.Context c = null;
-        Canberra.Context.create( &c );
-        Canberra.Error res = c.play( 0, Canberra.PROP_MEDIA_FILENAME, id, null );
+        weak Sound sound = sounds.lookup( name );
+        if ( sound != null )
+            throw new FreeSmartphone.Device.AudioError.ALREADY_PLAYING( "%s is already playing".printf( name ) );
+
+        Canberra.Proplist p = null;
+        Canberra.Proplist.create( &p );
+        p.sets( Canberra.PROP_MEDIA_FILENAME, name );
+
+        Canberra.Error res = context.play_full( (uint32)name, p, onSoundFinished );
+
         if ( res != Canberra.SUCCESS )
         {
-            logger.error( "Can't play song %s: %s".printf( id, Canberra.strerror( res ) ) );
+            throw new FreeSmartphone.Device.AudioError.PLAYER_ERROR( "Can't play song %s: %s".printf( name, Canberra.strerror( res ) ) );
         }
+
+        sounds.insert( name, new Sound( name, loop, length, (int)name ) );
     }
 
     public string pull_scenario() throws DBus.Error
@@ -93,10 +142,18 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public void stop_all_sounds() throws DBus.Error
     {
+        foreach ( var name in sounds.get_keys() )
+            stop_sound( name );
     }
 
-    public void stop_sound( string id ) throws DBus.Error
+    public void stop_sound( string name ) throws DBus.Error
     {
+        weak Sound sound = sounds.lookup( name );
+        if ( sound == null )
+            return;
+
+        Canberra.Error res = context.cancel( sound.cid );
+        logger.debug( "cancelling %s (%d) result: %s".printf( sound.name, sound.cid, Canberra.strerror( res ) ) );
     }
 
 }
