@@ -23,6 +23,31 @@ namespace Alsa
 {
 
 /**
+ * Helper class, encapsulating a sound that's currently playing
+ **/
+[Compact]
+public class PlayingSound
+{
+    public PlayingSound( string name, int loop, int length, int cid )
+    {
+        this.name = name;
+        this.loop = loop;
+        this.length = length;
+        this.cid = cid;
+        message( "%s %d create", name, cid );
+    }
+    ~PlayingSound()
+    {
+        message( "%s %d destroy", name, cid );
+    }
+    public string name;
+    public int loop;
+    public int length;
+    public int cid;
+
+}
+
+/**
  * Alsa Audio Player
  **/
 class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
@@ -30,30 +55,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     private FsoFramework.Subsystem subsystem;
     private Sound.Scenario scenario;
     private Canberra.Context context;
-
-    [Compact]
-    public class PlayingSound
-    {
-        public PlayingSound( string name, int loop, int length, int cid )
-        {
-            this.name = name;
-            this.loop = loop;
-            this.length = length;
-            this.cid = cid;
-            message( "%s %d create", name, cid );
-        }
-        ~PlayingSound()
-        {
-            message( "%s %d destroy", name, cid );
-        }
-        public string name;
-        public int loop;
-        public int length;
-        public int cid;
-
-    }
-
     private HashTable<string,PlayingSound> sounds;
+    private Queue<string> scenarios;
 
     public AudioPlayer( FsoFramework.Subsystem subsystem )
     {
@@ -104,7 +107,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public string get_scenario() throws DBus.Error
     {
-        return "unknown";
+        return scenario.get_scn();
     }
 
     public string[] get_supported_formats() throws DBus.Error
@@ -134,15 +137,24 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public string pull_scenario() throws DBus.Error
     {
-        return "unknown";
+        var scenario = scenarios.pop_head();
+        if ( scenario == null )
+            throw new FreeSmartphone.Device.AudioError.SCENARIO_STACK_UNDERFLOW( "No scenario to pull" );
+            set_scenario( scenario );
+        return scenario;
     }
 
     public void push_scenario( string scenario ) throws DBus.Error
     {
+        scenarios.push_head( scenario );
+        set_scenario( scenario );
     }
 
     public void set_scenario( string scenario ) throws DBus.Error
     {
+        var res = this.scenario.set_scn( scenario );
+        if ( res < 0 )
+            throw new FreeSmartphone.Device.AudioError.SCENARIO_INVALID( "Could not find %s".printf( scenario ) );
     }
 
     public void stop_all_sounds() throws DBus.Error
