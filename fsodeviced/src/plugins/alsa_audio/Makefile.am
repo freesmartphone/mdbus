@@ -2,6 +2,7 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
+	$(ASCENARIO_CFLAGS) \
 	$(CANBERRA_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
@@ -9,7 +10,12 @@ AM_CPPFLAGS = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(CANBERRA_LIBS) $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
+progs_ldadd = $(ASCENARIO_LIBS) \
+	$(CANBERRA_LIBS) \
+	$(FSO_LIBS) \
+	$(DBUS_LIBS) \
+	$(top_srcdir)/src/lib/libfsodevice.la \
+	$(NULL)
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -19,7 +25,8 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsodevice-2.0 \
-	--pkg libcanberra
+	--pkg libcanberra \
+	--pkg libascenario
 
 #
 # plugin
