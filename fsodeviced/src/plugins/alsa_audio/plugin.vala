@@ -85,14 +85,25 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         logger.debug( "sound finished with name %s, code %s".printf( (string)id, Canberra.strerror( code ) ) );
         weak PlayingSound sound = sounds.lookup( (string)id );
         assert ( sound != null );
-        //FIXME send stopped signal
-        sounds.remove( (string)id );
+
+        if ( sound.loop-- > 0 )
+        {
+            Canberra.Proplist p = null;
+            Canberra.Proplist.create( &p );
+            p.sets( Canberra.PROP_MEDIA_FILENAME, sound.name );
+
+            Canberra.Error res = context.play_full( (uint32)id, p, onPlayingSoundFinished );
+        }
+        else
+        {
+            sounds.remove( (string)id );
+            //FIXME send stopped signal
+        }
     }
 
     //
     // DBUS API
     //
-
     public string[] get_available_scenarios() throws DBus.Error
     {
         string[] list;
