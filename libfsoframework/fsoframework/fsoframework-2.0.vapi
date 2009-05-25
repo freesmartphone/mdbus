@@ -5,6 +5,10 @@ namespace FsoFramework {
 	[CCode (cprefix = "FsoFrameworkDevice", lower_case_cprefix = "fso_framework_device_")]
 	namespace Device {
 		[CCode (cheader_filename = "fsoframework.h")]
+		public const string AudioServiceFace;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string AudioServicePath;
+		[CCode (cheader_filename = "fsoframework.h")]
 		public const string DisplayServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string DisplayServicePath;
@@ -20,6 +24,10 @@ namespace FsoFramework {
 		public const string LedServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string LedServicePath;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string PowerControlServiceFace;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string PowerControlServicePath;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string PowerSupplyServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]

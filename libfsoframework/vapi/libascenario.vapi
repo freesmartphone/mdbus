@@ -55,7 +55,8 @@ namespace Sound {
         public int reload ();
         public int set_scn (string scenario);
         public string get_scn();
-        public int list (out string[] scenarios);
+        [NoArrayLength]
+        public int list ([CCode (array_length = false)] out string[] scenarios);
         public int set_qos(Qos qos);
         public Qos get_qos();
         public int get_master_playback_volume();
