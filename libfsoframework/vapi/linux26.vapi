@@ -30,7 +30,7 @@ namespace Linux26 {
     }
 
     [CCode (cheader_filename = "sys/eventfd.h")]
-    public int eventfd (uint count, EventFlags flags);
+    public int eventfd (uint count = 0, EventFlags flags = 0);
     public int eventfd_read (int fd, out uint64 value);
     public int eventfd_write (int fd, uint64 value);
 

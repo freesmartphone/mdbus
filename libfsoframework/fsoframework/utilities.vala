@@ -162,3 +162,79 @@ namespace FsoFramework { namespace Utility {
         return GLib.Path.get_basename( (string) buf );
     }
 } }
+
+namespace FsoFramework { namespace Async {
+
+    [Compact]
+    public class EventFd
+    {
+        public GLib.IOChannel channel;
+        public uint watch;
+
+        public EventFd( uint initvalue, GLib.IOFunc callback )
+        {
+            channel = new GLib.IOChannel.unix_new( Linux26.eventfd( initvalue, 0 ) );
+            watch = channel.add_watch( GLib.IOCondition.IN, callback );
+        }
+
+        public void write( int count )
+        {
+            Linux26.eventfd_write( channel.unix_get_fd(), count );
+        }
+
+        public uint read()
+        {
+            uint64 result;
+            Linux26.eventfd_read( channel.unix_get_fd(), out result );
+            return (uint)result;
+        }
+
+        ~EventFd()
+        {
+            Source.remove( watch );
+            channel = null;
+        }
+    }
+
+    /*
+    [Compact]
+    class IOChannel
+    {
+        public int fd;
+        public uint watch;
+        public GLib.IOChannel channel;
+        public GLib.IOCondition condition;
+        public GLib.SourceFunc callback;
+
+        public IOChannel( int fd, GLib.IOCondition condition, GLib.SourceFunc callback )
+        {
+            if ( ( condition & GLib.IOCondition.IN ) == GLib.IOCondition.IN )
+            {
+                fd = Posix.open( fd, Posix.O_RDWR );
+            }
+            else
+            {
+                fd = Posix.open( fd, Posix.O_RDONLY );
+            }
+
+            _registerWatch();
+        }
+
+        ~IOChannel()
+        {
+            GLib.Source.remove( watch );
+            Posix.close( fd );
+        }
+
+        public void _registerWatch()
+        {
+            if ( fd != -1 )
+            {
+                channel = GLib.IOChannel.unix_new( fd );
+                channel.add_watch( fd, condition, callback );
+            }
+        }
+    }
+    */
+
+} }

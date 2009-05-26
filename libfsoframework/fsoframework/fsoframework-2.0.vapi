@@ -2,6 +2,18 @@
 
 [CCode (cprefix = "FsoFramework", lower_case_cprefix = "fso_framework_")]
 namespace FsoFramework {
+	[CCode (cprefix = "FsoFrameworkAsync", lower_case_cprefix = "fso_framework_async_")]
+	namespace Async {
+		[Compact]
+		[CCode (cheader_filename = "fsoframework.h")]
+		public class EventFd {
+			public GLib.IOChannel channel;
+			public uint watch;
+			public EventFd (uint initvalue, GLib.IOFunc callback);
+			public uint read ();
+			public void write (int count);
+		}
+	}
 	[CCode (cprefix = "FsoFrameworkDevice", lower_case_cprefix = "fso_framework_device_")]
 	namespace Device {
 		[CCode (cheader_filename = "fsoframework.h")]
