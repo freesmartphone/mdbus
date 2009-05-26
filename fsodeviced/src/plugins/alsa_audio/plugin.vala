@@ -28,23 +28,38 @@ namespace Alsa
 [Compact]
 public class PlayingSound
 {
+    public string name;
+    public int loop;
+    public int length;
+    public int cid;
+    public bool finished;
+
+    public uint watch;
+
     public PlayingSound( string name, int loop, int length, int cid )
     {
         this.name = name;
         this.loop = loop;
         this.length = length;
         this.cid = cid;
+
+        if ( length > 0 )
+            watch = Timeout.add_seconds( length, onTimeout );
         //message( "%s %d create", name, cid );
     }
+
+    public bool onTimeout()
+    {
+        instance.stop_sound( name );
+        return false;
+    }
+
     ~PlayingSound()
     {
+        if ( watch > 0 )
+            Source.remove( watch );
         //message( "%s %d destroy", name, cid );
     }
-    public string name;
-    public int loop;
-    public int length;
-    public int cid;
-    public bool finished;
 }
 
 /**
