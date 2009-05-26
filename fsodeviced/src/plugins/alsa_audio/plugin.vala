@@ -34,17 +34,17 @@ public class PlayingSound
         this.loop = loop;
         this.length = length;
         this.cid = cid;
-        message( "%s %d create", name, cid );
+        //message( "%s %d create", name, cid );
     }
     ~PlayingSound()
     {
-        message( "%s %d destroy", name, cid );
+        //message( "%s %d destroy", name, cid );
     }
     public string name;
     public int loop;
     public int length;
     public int cid;
-
+    public bool finished;
 }
 
 /**
@@ -57,6 +57,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     private Canberra.Context context;
     private HashTable<string,PlayingSound> sounds;
     private Queue<string> scenarios;
+
+    private FsoFramework.Async.EventFd eventfd;
 
     public AudioPlayer( FsoFramework.Subsystem subsystem )
     {
@@ -72,6 +74,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         Canberra.Context.create( &context );
         scenario = new Sound.Scenario();
 
+        eventfd = new FsoFramework.Async.EventFd( 0, onAsyncEvent );
+
         logger.info( "created." );
     }
 
@@ -80,25 +84,57 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         return "<ALSA>";
     }
 
+    /* CAUTION: Note the following quote from the libcanberra API documentation:
+     * "The context this callback is called in is undefined, it might or might not be
+     * called from a background thread, and from any stack frame. The code implementing
+     * this function may not call any libcanberra API call from this callback -- this
+     * might result in a deadlock. Instead it may only be used to asynchronously signal
+     * some kind of notification object (semaphore, message queue, ...).
+     */
     public void onPlayingSoundFinished( Canberra.Context context, uint32 id, Canberra.Error code )
     {
         logger.debug( "sound finished with name %s, code %s".printf( (string)id, Canberra.strerror( code ) ) );
         weak PlayingSound sound = sounds.lookup( (string)id );
         assert ( sound != null );
+        sound.finished = true;
 
-        if ( sound.loop-- > 0 )
+        if ( code == Canberra.Error.CANCELED || sound.loop == 0 )
         {
-            Canberra.Proplist p = null;
-            Canberra.Proplist.create( &p );
-            p.sets( Canberra.PROP_MEDIA_FILENAME, sound.name );
-
-            Canberra.Error res = context.play_full( (uint32)id, p, onPlayingSoundFinished );
+            sounds.remove( (string)id );
+            //FIXME send signal
         }
         else
         {
-            sounds.remove( (string)id );
-            //FIXME send stopped signal
+            // wake up mainloop to repeat
+            eventfd.write( (int)id );
         }
+    }
+
+    public bool onAsyncEvent( IOChannel channel, IOCondition condition )
+    {
+        //message( "async trigger" );
+        uint value = eventfd.read();
+        //message( "on async event: %u", value );
+        foreach ( var name in sounds.get_keys() )
+        {
+            weak PlayingSound sound = sounds.lookup( name );
+            if ( sound.finished && sound.loop-- > 0 )
+            {
+                sound.finished = false;
+
+                Canberra.Proplist p = null;
+                Canberra.Proplist.create( &p );
+                p.sets( Canberra.PROP_MEDIA_FILENAME, sound.name );
+
+                Canberra.Error res = context.play_full( sound.cid, p, onPlayingSoundFinished );
+            }
+            else
+            {
+                sounds.remove( name );
+            //FIXME send stopped signal
+            }
+        }
+        return true; // MainLoop: call me again
     }
 
     //
