@@ -18,6 +18,7 @@
  */
 
 using GLib;
+using Gee;
 
 namespace Alsa
 {
@@ -25,7 +26,6 @@ namespace Alsa
 /**
  * Helper class, encapsulating a sound that's currently playing
  **/
-[Compact]
 public class PlayingSound
 {
     public string name;
@@ -45,7 +45,7 @@ public class PlayingSound
 
         if ( length > 0 )
             watch = Timeout.add_seconds( length, onTimeout );
-        //message( "%s %d create", name, cid );
+        //message( "%s %d created", name, cid );
     }
 
     public bool onTimeout()
@@ -58,7 +58,7 @@ public class PlayingSound
     {
         if ( watch > 0 )
             Source.remove( watch );
-        //message( "%s %d destroy", name, cid );
+        //message( "%s %d destroyed", name, cid );
     }
 }
 
@@ -70,7 +70,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     private FsoFramework.Subsystem subsystem;
     private Sound.Scenario scenario;
     private Canberra.Context context;
-    private HashTable<string,PlayingSound> sounds;
+    private HashMap<string,PlayingSound> sounds;
     private Queue<string> scenarios;
 
     private FsoFramework.Async.EventFd eventfd;
@@ -84,7 +84,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
                                          FsoFramework.Device.AudioServicePath,
                                          this );
 
-        sounds = new HashTable<string,PlayingSound>( str_hash, str_equal );
+        sounds = new HashMap<string,PlayingSound>( str_hash, str_equal );
 
         Canberra.Context.create( &context );
         scenario = new Sound.Scenario();
@@ -109,7 +109,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     public void onPlayingSoundFinished( Canberra.Context context, uint32 id, Canberra.Error code )
     {
         logger.debug( "sound finished with name %s, code %s".printf( (string)id, Canberra.strerror( code ) ) );
-        weak PlayingSound sound = sounds.lookup( (string)id );
+        PlayingSound sound = sounds[(string)id];
         assert ( sound != null );
         sound.finished = true;
 
@@ -132,7 +132,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         //message( "on async event: %u", value );
         foreach ( var name in sounds.get_keys() )
         {
-            weak PlayingSound sound = sounds.lookup( name );
+            PlayingSound sound = sounds[name];
             if ( sound.finished && sound.loop-- > 0 )
             {
                 sound.finished = false;
@@ -179,7 +179,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, DBus.Error
     {
-        weak PlayingSound sound = sounds.lookup( name );
+        PlayingSound sound = sounds[name];
         if ( sound != null )
             throw new FreeSmartphone.Device.AudioError.ALREADY_PLAYING( "%s is already playing".printf( name ) );
 
@@ -194,7 +194,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
             throw new FreeSmartphone.Device.AudioError.PLAYER_ERROR( "Can't play song %s: %s".printf( name, Canberra.strerror( res ) ) );
         }
 
-        sounds.insert( name, new PlayingSound( name, loop, length, (int)name ) );
+        sounds[name] = new PlayingSound( name, loop, length, (int)name );
     }
 
     public string pull_scenario() throws DBus.Error
@@ -227,7 +227,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public void stop_sound( string name ) throws DBus.Error
     {
-        weak PlayingSound sound = sounds.lookup( name );
+        PlayingSound sound = sounds[name];
         if ( sound == null )
             return;
 
