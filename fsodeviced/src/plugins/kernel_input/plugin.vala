@@ -18,6 +18,7 @@
  */
 
 using GLib;
+using Gee;
 
 namespace Kernel
 {
@@ -116,7 +117,6 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
 /**
  * Helper class
  **/
-[Compact]
 public class EventStatus
 {
     public EventStatus( string name, bool reportheld )
@@ -125,7 +125,14 @@ public class EventStatus
         this.reportheld = reportheld;
         pressed = false;
         timeout = 0;
+        message( "event status for %s (held %d) created", name, (int)reportheld );
     }
+
+    ~EventStatus()
+    {
+        message( "event status for %s (held %d) destroyed", name, (int)reportheld );
+    }
+
     public bool pressed;
     public bool reportheld;
     public TimeVal timestamp;
@@ -157,8 +164,8 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
     private string sysfsnode;
     private IOChannel[] channels;
 
-    private HashTable<int,EventStatus> keys;
-    private HashTable<int,EventStatus> switches;
+    private HashMap<int,EventStatus> keys;
+    private HashMap<int,EventStatus> switches;
 
     private const int KEY_RELEASE = 0;
     private const int KEY_PRESS = 1;
@@ -169,13 +176,17 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
 
+        _registerInputWatches();
+
+        keys = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
+        switches = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
+
+        _parseConfig();
+
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          FsoFramework.Device.InputServicePath,
                                          this );
-
-        _registerInputWatches();
-        _parseConfig();
 
         logger.info( "created new AggregateInputDevice object." );
     }
@@ -211,32 +222,25 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
             int code = values[2].to_int();
             var reportheld = values[3] == "1";
 
-            HashTable<int,EventStatus> table;
-
             switch ( type )
             {
                 case "key":
-                    if ( keys == null )
-                        keys = new HashTable<int,string>( direct_hash, direct_equal );
-                    table = keys;
+                    keys[code] = new EventStatus( name, reportheld );
                     break;
                 case "switch":
-                    if ( switches == null )
-                        switches = new HashTable<int,string>( direct_hash, direct_equal );
-                    table = switches;
+                    switches[code] = new EventStatus( name, reportheld );
                     break;
                 default:
                     logger.warning( "config option %s has unknown type element. Ignoring".printf( entry ) );
                     continue;
             }
 
-            table.insert( code, new EventStatus( name, reportheld ) );
         }
     }
 
     private void _handleInputEvent( ref Linux26.Input.Event ev )
     {
-        HashTable<int,EventStatus> table = null;
+        HashMap<int,EventStatus> table = null;
 
         switch ( ev.type )
         {
@@ -253,7 +257,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         if ( table == null )
             return;
 
-        weak EventStatus es = table.lookup( ev.code );
+        EventStatus es = table[ev.code];
         if ( es == null )
             return;
 
@@ -349,7 +353,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
 
 internal static string dev_root;
 internal static string dev_input;
-internal List<Kernel.InputDevice> instances;
+internal GLib.List<Kernel.InputDevice> instances;
 internal Kernel.AggregateInputDevice aggregate;
 
 /**

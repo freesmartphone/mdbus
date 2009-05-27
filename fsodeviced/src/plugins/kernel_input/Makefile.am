@@ -4,16 +4,23 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
+	$(GEE_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
+progs_ldadd = \
+	$(top_srcdir)/src/lib/libfsodevice.la \
+	$(FSO_LIBS) \
+	$(DBUS_LIBS) \
+	$(GEE_LIBS) \
+	$(NULL)
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsoframework \
 	--pkg glib-2.0 \
+	--pkg gee-1.0 \
 	--pkg dbus-glib-1 \
 	--pkg linux26 \
 	--pkg fso-glib-1.0 \
