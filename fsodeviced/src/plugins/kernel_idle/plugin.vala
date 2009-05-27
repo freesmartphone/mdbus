@@ -105,27 +105,28 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     private IdleStatus idlestatus;
 
-//     private HashTable<int,EventStatus> keys;
-//     private HashTable<int,EventStatus> switches;
-
     private const int KEY_RELEASE = 0;
     private const int KEY_PRESS = 1;
     private const int KEY_REPEAT = 2;
+
+    private string[] states;
 
     public IdleNotifier( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         FsoFramework.Device.InputServicePath,
-                                         this );
-
         syncNodesToWatch();
         registerInputWatches();
 
         Idle.add( onIdle );
+
+        // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
+        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                                         "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ),
+                                         this );
+
         logger.info( "created new IdleNotifier." );
     }
 
@@ -133,9 +134,15 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     {
         idlestatus = new IdleStatus();
         idlestatus.onState( FreeSmartphone.Device.IdleState.AWAKE );
+
+        // read timeout configs
+        states = { "busy", "idle", "idle_dim", "idle_prelock", "lock", "suspend" };
+        for ( int i = 0; i < states.length; ++i )
+        {
+            idlestatus.timeouts[i] = config.intValue( CONFIG_SECTION, states[i], idlestatus.timeouts[i] );
+        }
         return false;
     }
-
 
     private void syncNodesToWatch()
     {
@@ -168,49 +175,6 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
             channel.add_watch( IOCondition.IN, onInputEvent );
             channels += channel;
         }
-    }
-
-    private void parseConfig()
-    {
-        /*
-        var entries = config.keysWithPrefix( CONFIG_SECTION, "report" );
-        foreach ( var entry in entries )
-        {
-            var value = config.stringValue( CONFIG_SECTION, entry );
-            message( "got value '%s'", value );
-            var values = value.split( "," );
-            if ( values.length != 4 )
-            {
-                logger.warning( "config option %s has not 4 elements. Ignoring.".printf( entry ) );
-                continue;
-            }
-            var name = values[0];
-            var type = values[1].down();
-            int code = values[2].to_int();
-            var reportheld = values[3] == "1";
-
-            HashTable<int,EventStatus> table;
-
-            switch ( type )
-            {
-                case "key":
-                    if ( keys == null )
-                        keys = new HashTable<int,string>( direct_hash, direct_equal );
-                    table = keys;
-                    break;
-                case "switch":
-                    if ( switches == null )
-                        switches = new HashTable<int,string>( direct_hash, direct_equal );
-                    table = switches;
-                    break;
-                default:
-                    logger.warning( "config option %s has unknown type element. Ignoring".printf( entry ) );
-                    continue;
-            }
-
-            table.insert( code, new EventStatus( name, reportheld ) );
-        }
-        */
     }
 
     private void _handleInputEvent( ref Linux26.Input.Event ev )
@@ -253,15 +217,23 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     public GLib.HashTable<string,int> get_timeouts() throws DBus.Error
     {
-        return new GLib.HashTable<string,int>( str_hash, str_equal );
+        var dict = new GLib.HashTable<string,int>( str_hash, str_equal );
+
+        for ( int i = 0; i < states.length; ++i )
+        {
+            dict.insert( states[i], config.intValue( CONFIG_SECTION, states[i], idlestatus.timeouts[i] ) );
+        }
+        return dict;
     }
 
-    public void set_state (FreeSmartphone.Device.IdleState status) throws DBus.Error
+    public void set_state( FreeSmartphone.Device.IdleState status ) throws DBus.Error
     {
+        idlestatus.onState( status );
     }
 
-    public void set_timeout (string state, int timeout) throws DBus.Error
+    public void set_timeout( FreeSmartphone.Device.IdleState status, int timeout ) throws DBus.Error
     {
+        idlestatus.timeouts[status] = timeout;
     }
 
 }
