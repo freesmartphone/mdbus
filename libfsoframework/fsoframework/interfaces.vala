@@ -39,6 +39,9 @@ namespace FsoFramework
         public const string DisplayServiceFace = ServiceFacePrefix + ".Display";
         public const string DisplayServicePath = ServicePathPrefix + "/Display";
 
+        public const string IdleNotifierServiceFace = ServiceFacePrefix + ".IdleNotifier";
+        public const string IdleNotifierServicePath = ServicePathPrefix + "/IdleNotifier";
+
         public const string InfoServiceFace = ServiceFacePrefix + ".Info";
         public const string InfoServicePath = ServicePathPrefix + "/Info";
 

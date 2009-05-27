@@ -25,6 +25,10 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string DisplayServicePath;
 		[CCode (cheader_filename = "fsoframework.h")]
+		public const string IdleNotifierServiceFace;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string IdleNotifierServicePath;
+		[CCode (cheader_filename = "fsoframework.h")]
 		public const string InfoServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string InfoServicePath;
