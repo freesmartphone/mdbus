@@ -1,5 +1,6 @@
 /*
- * plugin.vala
+ * Generic Resource Controller
+ *
  * Written by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  * All Rights Reserved
  *
@@ -42,37 +43,48 @@ public class Controller : FreeSmartphone.Usage, FsoFramework.AbstractObject
     }
 
     //
-    // DBUS API
+    // DBUS API (for providers)
     //
-    public string get_resource_policy( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    public void register_resource( DBus.BusName sender, string name, DBus.ObjectPath path ) throws FreeSmartphone.UsageError, DBus.Error
+    {
+    }
+
+    public void unregister_resource( DBus.BusName sender, string name ) throws DBus.Error
+    {
+    }
+
+    //
+    // DBUS API (for consumers)
+    //
+    public string get_resource_policy( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
         return "";
     }
 
-    public bool get_resource_state( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    public bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
         return false;
     }
 
-    public string[] get_resource_users( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    public string[] get_resource_users( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
         return {};
     }
 
-    public FreeSmartphone.ResourceName[] list_resources() throws DBus.Error
+    public string[] list_resources() throws DBus.Error
     {
         return {};
     }
 
-    public void release_resource( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    public void release_resource( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
     }
 
-    public void request_resource( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    public void request_resource( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
     }
 
-    public void set_resource_policy( FreeSmartphone.ResourceName name, string policy ) throws FreeSmartphone.UsageError, DBus.Error
+    public void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, DBus.Error
     {
     }
 
@@ -89,8 +101,8 @@ public class Controller : FreeSmartphone.Usage, FsoFramework.AbstractObject
     }
 
     /*
-    public signal void resource_available( FreeSmartphone.ResourceName name, bool availability );
-    public signal void resource_changed( FreeSmartphone.ResourceName name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
+    public signal void resource_available( string name, bool availability );
+    public signal void resource_changed( string name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
     public signal void system_action( string action );
     */
 }
