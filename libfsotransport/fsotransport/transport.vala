@@ -222,40 +222,40 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
                 tspeed = Posix.B230400;
                 break;
             case 460800:
-                tspeed = Posix.B460800;
+                tspeed = Linux26.Termios.B460800;
                 break;
             case 500000:
-                tspeed = Posix.B500000;
+                tspeed = Linux26.Termios.B500000;
                 break;
             case 576000:
-                tspeed = Posix.B576000;
+                tspeed = Linux26.Termios.B576000;
                 break;
             case 921600:
-                tspeed = Posix.B921600;
+                tspeed = Linux26.Termios.B921600;
                 break;
             case 1000000:
-                tspeed = Posix.B1000000;
+                tspeed = Linux26.Termios.B1000000;
                 break;
             case 1152000:
-                tspeed = Posix.B1152000;
+                tspeed = Linux26.Termios.B1152000;
                 break;
             case 1500000:
-                tspeed = Posix.B1500000;
+                tspeed = Linux26.Termios.B1500000;
                 break;
             case 2000000:
-                tspeed = Posix.B2000000;
+                tspeed = Linux26.Termios.B2000000;
                 break;
             case 2500000:
-                tspeed = Posix.B2500000;
+                tspeed = Linux26.Termios.B2500000;
                 break;
             case 3000000:
-                tspeed = Posix.B3000000;
+                tspeed = Linux26.Termios.B3000000;
                 break;
             case 3500000:
-                tspeed = Posix.B3500000;
+                tspeed = Linux26.Termios.B3500000;
                 break;
             case 4000000:
-                tspeed = Posix.B4000000;
+                tspeed = Linux26.Termios.B4000000;
                 break;
             default:
                 warning( "invalid speed '%u' selected. using '0'".printf( speed ) );
@@ -278,7 +278,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( hard )
         {
             // hardware flow control ON
-            termios.c_cflag |= Posix.CRTSCTS;
+            termios.c_cflag |= Linux26.Termios.CRTSCTS;
 
             // software flow control OFF
             termios.c_iflag &= ~(Posix.IXON | Posix.IXOFF | Posix.IXANY);
@@ -286,7 +286,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         else
         {
             // hardware flow control OFF
-            termios.c_cflag &= Posix.CRTSCTS;
+            termios.c_cflag &= Linux26.Termios.CRTSCTS;
 
             // software flow control ON
             termios.c_iflag |= ~(Posix.IXON | Posix.IXOFF | Posix.IXANY);
@@ -320,7 +320,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( hard )
         {
             // set ready to read/write
-            var v24 = Posix.TIOCM_DTR | Posix.TIOCM_RTS;
+            var v24 = Linux26.Termios.TIOCM_DTR | Linux26.Termios.TIOCM_RTS;
             Posix.ioctl( fd, Linux26.Termios.TIOCMBIS, &v24 );
         }
     }
@@ -547,7 +547,7 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
 
         Posix.grantpt( fd );
         Posix.unlockpt( fd );
-        Posix.ptsname_r( fd, ptyname );
+        Linux26.Termios.ptsname_r( fd, ptyname );
 
         int flags = Posix.fcntl( fd, Posix.F_GETFL );
         int res = Posix.fcntl( fd, Posix.F_SETFL, flags | Posix.O_NONBLOCK );
