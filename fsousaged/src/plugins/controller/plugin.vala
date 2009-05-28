@@ -47,6 +47,7 @@ public class Controller : FreeSmartphone.Usage, FsoFramework.AbstractObject
     //
     public void register_resource( DBus.BusName sender, string name, DBus.ObjectPath path ) throws FreeSmartphone.UsageError, DBus.Error
     {
+        message( "yo" );
     }
 
     public void unregister_resource( DBus.BusName sender, string name ) throws DBus.Error
