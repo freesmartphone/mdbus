@@ -21,17 +21,50 @@
  */
 
 using GLib;
+using Gee;
 
 namespace Usage
 {
 
-public class Controller : FreeSmartphone.Usage, FsoFramework.AbstractObject
+/**
+ * Helper class encapsulating a registered resource
+ **/
+public class Resource
+{
+    public string name;
+    public DBus.BusName busname;
+    public DBus.ObjectPath objectpath;
+
+    public Resource( string name, DBus.BusName busname, DBus.ObjectPath objectpath )
+    {
+        this.name = name;
+        this.busname = busname;
+        this.objectpath = objectpath;
+        message( "Resource %s served by %s @ %s created", name, busname, objectpath );
+    }
+
+    ~Resource()
+    {
+        message( "Resource %s served by %s @ %s destroyed", name, busname, objectpath );
+    }
+}
+
+/**
+ * Controller class implementing org.freesmartphone.Usage API
+ **/
+[DBus (name = "org.freesmartphone.Usage")]
+public class Controller : FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
+
+    HashMap<string,Resource> resources;
 
     public Controller( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
+
+        resources = new HashMap<string,Resource>( str_hash, str_equal, str_equal );
+
         this.subsystem.registerServiceName( FsoFramework.Usage.ServiceDBusName );
         this.subsystem.registerServiceObject( FsoFramework.Usage.ServiceDBusName,
                                               FsoFramework.Usage.ServicePathPrefix, this );
@@ -42,12 +75,25 @@ public class Controller : FreeSmartphone.Usage, FsoFramework.AbstractObject
         return "<%s>".printf( FsoFramework.ServicePathPrefix );
     }
 
+    private void onNewResource( Resource r )
+    {
+        logger.debug( "Resource %s served by %s @ %s has just been registered".printf( r.name, r.busname, (string)r.objectpath ) );
+        this.resource_available( r.name, true ); // DBUS SIGNAL
+    }
+
     //
     // DBUS API (for providers)
     //
     public void register_resource( DBus.BusName sender, string name, DBus.ObjectPath path ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        message( "yo" );
+        message( "register_resource called with parameters: %s %s %s", sender, name, path );
+        if ( name in resources )
+            throw new FreeSmartphone.UsageError.RESOURCE_EXISTS( "Resource %s already registered".printf( name ) );
+
+        var r = new Resource( name, sender, path );
+        resources[name] = r;
+
+        onNewResource( r );
     }
 
     public void unregister_resource( DBus.BusName sender, string name ) throws DBus.Error
@@ -101,11 +147,9 @@ public class Controller : FreeSmartphone.Usage, FsoFramework.AbstractObject
     {
     }
 
-    /*
     public signal void resource_available( string name, bool availability );
     public signal void resource_changed( string name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
     public signal void system_action( string action );
-    */
 }
 
 } /* end namespace */
