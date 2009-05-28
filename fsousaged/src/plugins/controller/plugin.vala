@@ -31,15 +31,69 @@ public class Controller : FreeSmartphone.Usage, FsoFramework.AbstractObject
     public Controller( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-        this.subsystem.registerServiceName( FsoFramework.Network.ServiceDBusName );
-        this.subsystem.registerServiceObject( FsoFramework.Network.ServiceDBusName, 
-                                              FsoFramework.Network.UsageServicePath, this );
+        this.subsystem.registerServiceName( FsoFramework.Usage.ServiceDBusName );
+        this.subsystem.registerServiceObject( FsoFramework.Usage.ServiceDBusName,
+                                              FsoFramework.Usage.ServicePathPrefix, this );
     }
 
     public override string repr()
     {
-        return "<%s>".printf( FsoFramework.UsageServicePath );
+        return "<%s>".printf( FsoFramework.ServicePathPrefix );
     }
+
+    //
+    // DBUS API
+    //
+    public string get_resource_policy( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    {
+        return "";
+    }
+
+    public bool get_resource_state( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    {
+        return false;
+    }
+
+    public string[] get_resource_users( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    {
+        return {};
+    }
+
+    public FreeSmartphone.ResourceName[] list_resources() throws DBus.Error
+    {
+        return {};
+    }
+
+    public void release_resource( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    {
+    }
+
+    public void request_resource( FreeSmartphone.ResourceName name ) throws FreeSmartphone.UsageError, DBus.Error
+    {
+    }
+
+    public void set_resource_policy( FreeSmartphone.ResourceName name, string policy ) throws FreeSmartphone.UsageError, DBus.Error
+    {
+    }
+
+    public void shutdown() throws DBus.Error
+    {
+    }
+
+    public void reboot() throws DBus.Error
+    {
+    }
+
+    public void suspend() throws DBus.Error
+    {
+    }
+
+    /*
+    public signal void resource_available( FreeSmartphone.ResourceName name, bool availability );
+    public signal void resource_changed( FreeSmartphone.ResourceName name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
+    public signal void system_action( string action );
+    */
+}
 
 } /* end namespace */
 

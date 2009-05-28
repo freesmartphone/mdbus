@@ -13,12 +13,12 @@ progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsousage.la
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ./ \
-	--vapidir $(top_srcdir)/fsoframework \
-	--pkg controller \
+	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
-	--pkg gio-2.0 \
-	--pkg fsoframework-2.0
+	--pkg fsoframework-2.0 \
+	--pkg fso-glib-1.0 \
+	--pkg fsousage-2.0
 
 #
 # plugin
