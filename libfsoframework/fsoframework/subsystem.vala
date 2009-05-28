@@ -222,4 +222,10 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         return true;
     }
 
+    public DBus.Connection dbusConnection()
+    {
+        assert( _dbusconn != null );
+        return _dbusconn;
+    }
+
 }

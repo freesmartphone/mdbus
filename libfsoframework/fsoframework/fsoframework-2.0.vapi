@@ -149,6 +149,7 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class DBusSubsystem : FsoFramework.AbstractSubsystem {
+		public DBus.Connection dbusConnection ();
 		public DBusSubsystem (string name);
 		public override bool registerServiceName (string servicename);
 		public override bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
