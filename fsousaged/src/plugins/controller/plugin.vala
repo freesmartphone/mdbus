@@ -23,6 +23,10 @@
 using GLib;
 using Gee;
 
+internal const string DBUS_BUS_NAME = "org.freedesktop.DBus";
+internal const string DBUS_BUS_PATH = "/org/freedesktop/DBus";
+internal const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
+
 namespace Usage
 {
 
@@ -51,13 +55,18 @@ public class Resource
 
 /**
  * Controller class implementing org.freesmartphone.Usage API
+ *
+ * Note: Unfortunately we can't just use libfso-glib (FreeSmartphone.Usage interface)
+ * here, since we do some tricks with the dbus sender name,
  **/
 [DBus (name = "org.freesmartphone.Usage")]
 public class Controller : FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-
     HashMap<string,Resource> resources;
+
+    DBus.Connection conn;
+    dynamic DBus.Object dbus;
 
     public Controller( FsoFramework.Subsystem subsystem )
     {
@@ -68,6 +77,10 @@ public class Controller : FsoFramework.AbstractObject
         this.subsystem.registerServiceName( FsoFramework.Usage.ServiceDBusName );
         this.subsystem.registerServiceObject( FsoFramework.Usage.ServiceDBusName,
                                               FsoFramework.Usage.ServicePathPrefix, this );
+
+        conn = DBus.Bus.get( DBus.BusType.SYSTEM );
+        dbus = conn.get_object( DBUS_BUS_NAME, DBUS_BUS_PATH, DBUS_BUS_INTERFACE );
+        dbus.NameOwnerChanged += onNameOwnerChanged;
     }
 
     public override string repr()
@@ -75,10 +88,34 @@ public class Controller : FsoFramework.AbstractObject
         return "<%s>".printf( FsoFramework.ServicePathPrefix );
     }
 
-    private void onNewResource( Resource r )
+    private void onResourceAppearing( Resource r )
     {
         logger.debug( "Resource %s served by %s @ %s has just been registered".printf( r.name, r.busname, (string)r.objectpath ) );
         this.resource_available( r.name, true ); // DBUS SIGNAL
+    }
+
+    private void onResourceVanishing( Resource r )
+    {
+        logger.debug( "Resource %s served by %s @ %s has just been unregistered".printf( r.name, r.busname, (string)r.objectpath ) );
+        this.resource_available( r.name, false ); // DBUS SIGNAL
+    }
+
+    private void onNameOwnerChanged( dynamic DBus.Object obj, string name, string oldowner, string newowner )
+    {
+        //message( "name owner changed: %s (%s => %s)", name, oldowner, newowner );
+        // we're only interested in services disappearing
+        if ( newowner != "" )
+            return;
+
+        logger.debug( "%s disappeared. checking whether resources are affected...".printf( name ) );
+        foreach ( var r in resources.get_values() )
+        {
+            if ( r.busname == name )
+            {
+                onResourceVanishing( r );
+                resources.remove( r.name );
+            }
+        }
     }
 
     //
@@ -93,11 +130,22 @@ public class Controller : FsoFramework.AbstractObject
         var r = new Resource( name, sender, path );
         resources[name] = r;
 
-        onNewResource( r );
+        onResourceAppearing( r );
     }
 
-    public void unregister_resource( DBus.BusName sender, string name ) throws DBus.Error
+    public void unregister_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
+        var r = resources[name];
+
+        if ( r == null )
+            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( "Resource %s had never been registered".printf( name ) );
+
+        if ( r.busname != sender )
+            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( "Resource %s not yours".printf( name ) );
+
+        onResourceVanishing( r );
+
+        resources.remove( name );
     }
 
     //
