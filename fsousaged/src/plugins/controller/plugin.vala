@@ -31,6 +31,9 @@ internal const string RESOURCE_INTERFACE = "org.freesmartphone.Resource";
 
 internal const string CONFIG_SECTION = "fsousage";
 
+//FIXME read from config
+internal const string SYSFS_SUSPEND_NODE = "/sys/power/state";
+
 namespace Usage
 {
 /**
@@ -48,13 +51,6 @@ public enum ResourceStatus
     DISABLED
 }
 
-public enum ResourcePolicy
-{
-    AUTO,
-    ENABLED,
-    DISABLED
-}
-
 /**
  * Helper class encapsulating a registered resource
  **/
@@ -64,7 +60,7 @@ public class Resource
     public DBus.BusName busname;
     public DBus.ObjectPath objectpath;
     public ResourceStatus status;
-    public ResourcePolicy policy;
+    public FreeSmartphone.UsageResourcePolicy policy;
     public ArrayList<string> users;
 
     private FreeSmartphone.Resource proxy;
@@ -75,7 +71,7 @@ public class Resource
         this.busname = busname;
         this.objectpath = objectpath;
         this.status = ResourceStatus.UNKNOWN;
-        this.policy = ResourcePolicy.AUTO;
+        this.policy = FreeSmartphone.UsageResourcePolicy.AUTO;
         this.users = new ArrayList<string>( str_equal );
 
         proxy = dbusconn.get_object( busname, objectpath, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
@@ -96,17 +92,42 @@ public class Resource
         return ( user in users );
     }
 
+    public void setPolicy( FreeSmartphone.UsageResourcePolicy policy )
+    {
+        if ( policy == this.policy )
+            return;
+
+        switch ( policy )
+        {
+            case FreeSmartphone.UsageResourcePolicy.DISABLED:
+                disable();
+                break;
+            case FreeSmartphone.UsageResourcePolicy.ENABLED:
+                enable();
+                break;
+            case FreeSmartphone.UsageResourcePolicy.AUTO:
+                if ( users.size > 0 )
+                    enable();
+                else
+                    disable();
+                break;
+            default:
+                assert_not_reached();
+
+        }
+    }
+
     public void addUser( string user ) throws FreeSmartphone.UsageError
     {
         if ( user in users )
             throw new FreeSmartphone.UsageError.USER_EXISTS( "Resource %s already requested by user %s".printf( name, user ) );
 
-        if ( policy == ResourcePolicy.DISABLED )
+        if ( policy == FreeSmartphone.UsageResourcePolicy.DISABLED )
             throw new FreeSmartphone.UsageError.POLICY_DISABLED( "Resource %s cannot be requested by %s per policy".printf( name, user ) );
 
         users.insert( 0, user );
 
-        if ( users.size == 1 )
+        if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 1 )
             enable();
     }
 
@@ -117,7 +138,7 @@ public class Resource
 
         users.remove( user );
 
-        if ( users.size == 0 )
+        if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 0 )
             disable();
     }
 
@@ -129,24 +150,42 @@ public class Resource
         return res;
     }
 
-    public void enable()
+    public void enable() throws DBus.Error
     {
         proxy.enable();
+        status = ResourceStatus.ENABLED;
     }
 
-    public void disable()
+    public void disable() throws DBus.Error
     {
         proxy.disable();
+        status = ResourceStatus.DISABLED;
     }
 
-    public void suspend()
+    public void suspend() throws DBus.Error
     {
-        proxy.suspend();
+        if ( status == ResourceStatus.ENABLED )
+        {
+            proxy.suspend();
+            status = ResourceStatus.SUSPENDED;
+        }
+        else
+        {
+            instance.logger.debug( "Resource %s not enabled: not suspending".printf( name ) );
+        }
     }
 
-    public void resume()
+    public void resume() throws DBus.Error
     {
-        proxy.resume();
+        if ( status == ResourceStatus.SUSPENDED )
+        {
+            proxy.resume();
+            status = ResourceStatus.ENABLED;
+        }
+        else
+        {
+            instance.logger.debug( "Resource %s not suspended: not resuming".printf( name ) );
+        }
     }
 
     ~Resource()
@@ -203,6 +242,9 @@ public class Controller : FsoFramework.AbstractObject
     {
         logger.debug( "Resource %s served by %s @ %s has just been unregistered".printf( r.name, r.busname, r.objectpath ) );
         this.resource_available( r.name, false ); // DBUS SIGNAL
+
+        // finishing status is disabled
+        r.disable();
     }
 
     private void onNameOwnerChanged( dynamic DBus.Object obj, string name, string oldowner, string newowner )
@@ -243,6 +285,50 @@ public class Controller : FsoFramework.AbstractObject
         return r;
     }
 
+    private void disableAllResources()
+    {
+        foreach ( var r in resources.get_values() )
+        {
+            try
+            {
+                r.disable();
+            }
+            catch ( DBus.Error e )
+            {
+                logger.warning( "Error while trying to disable resource %s: %s".printf( r.name, e.message ) );
+            }
+        }
+    }
+
+    private void suspendAllResources()
+    {
+        foreach ( var r in resources.get_values() )
+        {
+            try
+            {
+                r.suspend();
+            }
+            catch ( DBus.Error e )
+            {
+                logger.warning( "Error while trying to suspend resource %s: %s".printf( r.name, e.message ) );
+            }
+        }
+    }
+
+    private void resumeAllResources()
+    {
+        foreach ( var r in resources.get_values() )
+        {
+            try
+            {
+                r.resume();
+            }
+            catch ( DBus.Error e )
+            {
+                logger.warning( "Error while trying to resume resource %s: %s".printf( r.name, e.message ) );
+            }
+        }
+    }
 
     //
     // DBUS API (for providers)
@@ -274,9 +360,14 @@ public class Controller : FsoFramework.AbstractObject
     //
     // DBUS API (for consumers)
     //
-    public string get_resource_policy( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public FreeSmartphone.UsageResourcePolicy get_resource_policy( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        return "";
+        return getResource( name ).policy;
+    }
+
+    public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, DBus.Error
+    {
+        getResource( name ).setPolicy( policy );
     }
 
     public bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBus.Error
@@ -307,22 +398,35 @@ public class Controller : FsoFramework.AbstractObject
         getResource( name ).delUser( sender );
     }
 
-    public void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, DBus.Error
-    {
-    }
-
     public void shutdown() throws DBus.Error
     {
+        //FIXME: enum
+        this.system_action( "shutdown" ); // DBUS SIGNAL
+        disableAllResources();
+        Posix.system( "shutdown -h now" );
     }
 
     public void reboot() throws DBus.Error
     {
+        //FIXME: enum
+        this.system_action( "reboot" ); // DBUS SIGNAL
+        disableAllResources();
+        Posix.system( "reboot" );
     }
 
     public void suspend() throws DBus.Error
     {
+        //FIXME: enum
+        this.system_action( "suspend" ); // DBUS SIGNAL
+        suspendAllResources();
+        logger.debug( ">>>>>>> KERNEL SUSPEND" );
+        //FsoFramework.FileHandling.write( "mem\n", SYSFS_SUSPEND_NODE );
+        Posix.sleep( 5 );
+        logger.debug( "<<<<<<< KERNEL RESUME" );
+        resumeAllResources();
     }
 
+    // DBUS SIGNALS
     public signal void resource_available( string name, bool availability );
     public signal void resource_changed( string name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
     public signal void system_action( string action );
