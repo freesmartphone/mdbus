@@ -27,8 +27,33 @@ internal const string DBUS_BUS_NAME = "org.freedesktop.DBus";
 internal const string DBUS_BUS_PATH = "/org/freedesktop/DBus";
 internal const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
 
+internal const string RESOURCE_INTERFACE = "org.freesmartphone.Resource";
+
+internal const string CONFIG_SECTION = "fsousage";
+
 namespace Usage
 {
+/**
+ * Enum for resource status
+ **/
+public enum ResourceStatus
+{
+    UNKNOWN,
+    ENABLING,
+    ENABLED,
+    SUSPENDING,
+    SUSPENDED,
+    RESUMING,
+    DISABLING,
+    DISABLED
+}
+
+public enum ResourcePolicy
+{
+    AUTO,
+    ENABLED,
+    DISABLED
+}
 
 /**
  * Helper class encapsulating a registered resource
@@ -38,13 +63,90 @@ public class Resource
     public string name;
     public DBus.BusName busname;
     public DBus.ObjectPath objectpath;
+    public ResourceStatus status;
+    public ResourcePolicy policy;
+    public ArrayList<string> users;
+
+    private FreeSmartphone.Resource proxy;
 
     public Resource( string name, DBus.BusName busname, DBus.ObjectPath objectpath )
     {
         this.name = name;
         this.busname = busname;
         this.objectpath = objectpath;
+        this.status = ResourceStatus.UNKNOWN;
+        this.policy = ResourcePolicy.AUTO;
+        this.users = new ArrayList<string>( str_equal );
+
+        proxy = dbusconn.get_object( busname, objectpath, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
+
+        //FIXME: work around SIGSEGV in libdbus. Yes, it leaks now :(
+        proxy.ref();
+
         message( "Resource %s served by %s @ %s created", name, busname, objectpath );
+    }
+
+    public bool isEnabled()
+    {
+        return ( status == ResourceStatus.ENABLED );
+    }
+
+    public bool hasUser( string user )
+    {
+        return ( user in users );
+    }
+
+    public void addUser( string user ) throws FreeSmartphone.UsageError
+    {
+        if ( user in users )
+            throw new FreeSmartphone.UsageError.USER_EXISTS( "Resource %s already requested by user %s".printf( name, user ) );
+
+        if ( policy == ResourcePolicy.DISABLED )
+            throw new FreeSmartphone.UsageError.POLICY_DISABLED( "Resource %s cannot be requested by %s per policy".printf( name, user ) );
+
+        users.insert( 0, user );
+
+        if ( users.size == 1 )
+            enable();
+    }
+
+    public void delUser( string user ) throws FreeSmartphone.UsageError
+    {
+        if ( !(user in users) )
+            throw new FreeSmartphone.UsageError.USER_UNKNOWN( "Resource %s never been requested by user %s".printf( name, user ) );
+
+        users.remove( user );
+
+        if ( users.size == 0 )
+            disable();
+    }
+
+    public string[] allUsers()
+    {
+        string[] res = {};
+        foreach ( var user in users )
+            res += user;
+        return res;
+    }
+
+    public void enable()
+    {
+        proxy.enable();
+    }
+
+    public void disable()
+    {
+        proxy.disable();
+    }
+
+    public void suspend()
+    {
+        proxy.suspend();
+    }
+
+    public void resume()
+    {
+        proxy.resume();
     }
 
     ~Resource()
@@ -65,7 +167,6 @@ public class Controller : FsoFramework.AbstractObject
     private FsoFramework.Subsystem subsystem;
     HashMap<string,Resource> resources;
 
-    DBus.Connection conn;
     dynamic DBus.Object dbus;
 
     public Controller( FsoFramework.Subsystem subsystem )
@@ -78,8 +179,9 @@ public class Controller : FsoFramework.AbstractObject
         this.subsystem.registerServiceObject( FsoFramework.Usage.ServiceDBusName,
                                               FsoFramework.Usage.ServicePathPrefix, this );
 
-        conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-        dbus = conn.get_object( DBUS_BUS_NAME, DBUS_BUS_PATH, DBUS_BUS_INTERFACE );
+        // start listening for name owner changes
+        dbusconn = ( (FsoFramework.DBusSubsystem)subsystem ).dbusConnection();
+        dbus = dbusconn.get_object( DBUS_BUS_NAME, DBUS_BUS_PATH, DBUS_BUS_INTERFACE );
         dbus.NameOwnerChanged += onNameOwnerChanged;
     }
 
@@ -90,13 +192,16 @@ public class Controller : FsoFramework.AbstractObject
 
     private void onResourceAppearing( Resource r )
     {
-        logger.debug( "Resource %s served by %s @ %s has just been registered".printf( r.name, r.busname, (string)r.objectpath ) );
+        logger.debug( "Resource %s served by %s @ %s has just been registered".printf( r.name, r.busname, r.objectpath ) );
         this.resource_available( r.name, true ); // DBUS SIGNAL
+
+        // initial status is disabled
+        r.disable();
     }
 
     private void onResourceVanishing( Resource r )
     {
-        logger.debug( "Resource %s served by %s @ %s has just been unregistered".printf( r.name, r.busname, (string)r.objectpath ) );
+        logger.debug( "Resource %s served by %s @ %s has just been unregistered".printf( r.name, r.busname, r.objectpath ) );
         this.resource_available( r.name, false ); // DBUS SIGNAL
     }
 
@@ -108,15 +213,36 @@ public class Controller : FsoFramework.AbstractObject
             return;
 
         logger.debug( "%s disappeared. checking whether resources are affected...".printf( name ) );
+
+        //FIXME: Consider keeping the known busnames in a map as well, so we don't have to iterate through all values
         foreach ( var r in resources.get_values() )
         {
+            // first, check whether the resource provider might have vanished
             if ( r.busname == name )
             {
                 onResourceVanishing( r );
                 resources.remove( r.name );
             }
+            // second, check whether it was one of the users
+            else
+            {
+                if ( r.hasUser( name ) )
+                    r.delUser( name );
+            }
         }
     }
+
+    private Resource getResource( string name ) throws FreeSmartphone.UsageError
+    {
+        var r = resources[name];
+        if ( r == null )
+            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( "Resource %s had never been registered".printf( name ) );
+
+        logger.debug( "current users for %s = %s".printf( r.name, FsoFramework.StringHandling.stringListToString( r.allUsers() ) ) );
+
+        return r;
+    }
+
 
     //
     // DBUS API (for providers)
@@ -135,10 +261,7 @@ public class Controller : FsoFramework.AbstractObject
 
     public void unregister_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        var r = resources[name];
-
-        if ( r == null )
-            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( "Resource %s had never been registered".printf( name ) );
+        var r = getResource( name );
 
         if ( r.busname != sender )
             throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( "Resource %s not yours".printf( name ) );
@@ -158,25 +281,30 @@ public class Controller : FsoFramework.AbstractObject
 
     public bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        return false;
+        return getResource( name ).isEnabled();
     }
 
     public string[] get_resource_users( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        return {};
+        return getResource( name ).allUsers();
     }
 
     public string[] list_resources() throws DBus.Error
     {
-        return {};
+        string[] res = {};
+        foreach ( var key in resources.get_keys() )
+            res += key;
+        return res;
     }
 
-    public void release_resource( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public void request_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
+        getResource( name ).addUser( sender );
     }
 
-    public void request_resource( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public void release_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
+        getResource( name ).delUser( sender );
     }
 
     public void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, DBus.Error
@@ -203,6 +331,7 @@ public class Controller : FsoFramework.AbstractObject
 } /* end namespace */
 
 Usage.Controller instance;
+DBus.Connection dbusconn;
 
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
