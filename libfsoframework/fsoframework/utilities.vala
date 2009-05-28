@@ -130,6 +130,9 @@ namespace FsoFramework { namespace StringHandling {
 //TODO: make this a generic, once Vala supports it
 public string stringListToString( string[] list )
 {
+    if ( list.length == 0 )
+        return "[]";
+
     var res = "[ ";
 
     for( int i = 0; i < list.length; ++i )
