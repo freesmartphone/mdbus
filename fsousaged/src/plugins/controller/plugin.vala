@@ -274,6 +274,19 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
+    private bool onIdleForSuspend()
+    {
+        suspendAllResources();
+        logger.debug( ">>>>>>> KERNEL SUSPEND" );
+        //FsoFramework.FileHandling.write( "mem\n", SYSFS_SUSPEND_NODE );
+        Posix.sleep( 5 );
+        logger.debug( "<<<<<<< KERNEL RESUME" );
+        resumeAllResources();
+        //FIXME: enum
+        this.system_action( "suspend" ); // DBUS SIGNAL
+        return false; // MainLoop: Don't call again
+    }
+
     private Resource getResource( string name ) throws FreeSmartphone.UsageError
     {
         var r = resources[name];
@@ -367,6 +380,7 @@ public class Controller : FsoFramework.AbstractObject
 
     public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, DBus.Error
     {
+        message( "set resource policy for %s to %d", name, policy );
         getResource( name ).setPolicy( policy );
     }
 
@@ -418,12 +432,8 @@ public class Controller : FsoFramework.AbstractObject
     {
         //FIXME: enum
         this.system_action( "suspend" ); // DBUS SIGNAL
-        suspendAllResources();
-        logger.debug( ">>>>>>> KERNEL SUSPEND" );
-        //FsoFramework.FileHandling.write( "mem\n", SYSFS_SUSPEND_NODE );
-        Posix.sleep( 5 );
-        logger.debug( "<<<<<<< KERNEL RESUME" );
-        resumeAllResources();
+        // we need to suspend async, otherwise the dbus call would timeout
+        Idle.add( onIdleForSuspend );
     }
 
     // DBUS SIGNALS
