@@ -204,7 +204,9 @@ public class Resource
 public class Controller : FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-    HashMap<string,Resource> resources;
+    private HashMap<string,Resource> resources;
+    private string sys_power_state;
+    private bool do_not_suspend;
 
     dynamic DBus.Object dbus;
 
@@ -217,6 +219,12 @@ public class Controller : FsoFramework.AbstractObject
         this.subsystem.registerServiceName( FsoFramework.Usage.ServiceDBusName );
         this.subsystem.registerServiceObject( FsoFramework.Usage.ServiceDBusName,
                                               FsoFramework.Usage.ServicePathPrefix, this );
+
+        // grab sysfs paths
+        //var config = FsoFramework.theMasterKeyFile();
+        var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+        sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
+        do_not_suspend = config.boolValue( CONFIG_SECTION, "do_not_suspend", false );
 
         // start listening for name owner changes
         dbusconn = ( (FsoFramework.DBusSubsystem)subsystem ).dbusConnection();
@@ -278,8 +286,10 @@ public class Controller : FsoFramework.AbstractObject
     {
         suspendAllResources();
         logger.debug( ">>>>>>> KERNEL SUSPEND" );
-        //FsoFramework.FileHandling.write( "mem\n", SYSFS_SUSPEND_NODE );
-        Posix.sleep( 5 );
+        if ( !do_not_suspend )
+            FsoFramework.FileHandling.write( "mem\n", sys_power_state );
+        else
+            Posix.sleep( 5 );
         logger.debug( "<<<<<<< KERNEL RESUME" );
         resumeAllResources();
         //FIXME: enum
