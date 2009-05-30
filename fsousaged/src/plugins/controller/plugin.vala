@@ -152,22 +152,48 @@ public class Resource
 
     public void enable() throws DBus.Error
     {
-        proxy.enable();
-        status = ResourceStatus.ENABLED;
+        try
+        {
+            proxy.enable();
+            status = ResourceStatus.ENABLED;
+        }
+        catch ( DBus.Error e )
+        {
+            instance.logger.error( "Resource %s can't be enabled %s. Trying to disable instead".printf( name, e.message ) );
+            proxy.disable();
+            throw e;
+        }
     }
 
     public void disable() throws DBus.Error
     {
-        proxy.disable();
-        status = ResourceStatus.DISABLED;
+        try
+        {
+            proxy.disable();
+            status = ResourceStatus.DISABLED;
+        }
+        catch ( DBus.Error e )
+        {
+            instance.logger.error( "Resource %s can't be disabled: %s. Setting status to UNKNOWN".printf( name, e.message ) );
+            status = ResourceStatus.UNKNOWN;
+        }
     }
 
     public void suspend() throws DBus.Error
     {
         if ( status == ResourceStatus.ENABLED )
         {
-            proxy.suspend();
-            status = ResourceStatus.SUSPENDED;
+            try
+            {
+                proxy.suspend();
+                status = ResourceStatus.SUSPENDED;
+            }
+            catch ( DBus.Error e )
+            {
+                instance.logger.error( "Resource %s can't be suspended: %s. Trying to disable instead".printf( name, e.message ) );
+                proxy.disable();
+                throw e;
+            }
         }
         else
         {
@@ -179,8 +205,17 @@ public class Resource
     {
         if ( status == ResourceStatus.SUSPENDED )
         {
-            proxy.resume();
-            status = ResourceStatus.ENABLED;
+            try
+            {
+                proxy.resume();
+                status = ResourceStatus.ENABLED;
+            }
+            catch ( DBus.Error e )
+            {
+                instance.logger.error( "Resource %s can't be resumed: %s. Trying to disable instead".printf( name, e.message ) );
+                proxy.disable();
+                throw e;
+            }
         }
         else
         {
@@ -234,7 +269,7 @@ public class Controller : FsoFramework.AbstractObject
 
     public override string repr()
     {
-        return "<%s>".printf( FsoFramework.ServicePathPrefix );
+        return "<%s>".printf( FsoFramework.Usage.ServicePathPrefix );
     }
 
     private void onResourceAppearing( Resource r )
@@ -299,7 +334,7 @@ public class Controller : FsoFramework.AbstractObject
 
     private Resource getResource( string name ) throws FreeSmartphone.UsageError
     {
-        var r = resources[name];
+        Resource r = resources[name];
         if ( r == null )
             throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( "Resource %s had never been registered".printf( name ) );
 
