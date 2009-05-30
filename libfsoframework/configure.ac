@@ -44,13 +44,17 @@ AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
 
 #
+# eventfd
+#
+AC_CHECK_HEADER(sys/eventfd.h, , [AC_MSG_ERROR(
+[Couldn't find sys/eventfd.h... your glib is too old :(] )])
+
+#
 # default features
 #
 want_keyfile=yes
 want_logging=yes
 want_subsystem=yes
-want_transport=yes
-want_transportlibgsm0710mux=yes
 
 #
 # enable/disable features
@@ -76,20 +80,6 @@ AC_ARG_ENABLE([subsystem],
 AC_MSG_CHECKING([whether to build plugin and subsystem support])
 AC_MSG_RESULT([${want_subsystem}])
 
-AC_ARG_ENABLE([transport],
-   [AC_HELP_STRING([--disable-transport], [build transport suppport (default=yes)])],
-   [want_transport=$enableval]
-)
-AC_MSG_CHECKING([whether to build transport support])
-AC_MSG_RESULT([${want_transport}])
-
-AC_ARG_ENABLE([transport_libgsm0710mux],
-   [AC_HELP_STRING([--disable-transport-libgsm0710mux], [libgsm0710mux transport suppport (default=yes)])],
-   [want_transportlibgsm0710mux=$enableval]
-)
-AC_MSG_CHECKING([whether to build transport-libgsm0710mux support])
-AC_MSG_RESULT([${want_transportlibgsm0710mux}])
-
 #
 # compute conditionals
 #
@@ -103,14 +93,9 @@ if test "x${want_logging}" = "xyes" ; then
    AC_DEFINE(HAVE_LOGGING, 1, [Have logging support built in])
 fi
 
-if test "x${want_transport}" = "xyes" ; then
-   have_transport="yes"
-   AC_DEFINE(HAVE_TRANSPORT, 1, [Have transport support built in])
-
-   if test "x${want_transportlibgsm0710mux}" = "xyes" ; then
-   have_transportlibgsm0710mux="yes"
-   AC_DEFINE(HAVE_TRANSPORT_LIBGSM0710MUX, 1, [Have transport libgsm0710mux support built in])
-   fi
+if test "x${want_subsystem}" = "xyes" ; then
+   have_subsystem="yes"
+   AC_DEFINE(HAVE_SUBSYSTEM, 1, [Have subsystem and plugin support built in])
 fi
 
 #
@@ -141,9 +126,6 @@ echo
 echo "  Logging Support...........: ${want_logging}"
 echo
 echo "  Plugin & Subsystem........: ${want_subsystem}"
-echo
-echo "  Transport Support.........: ${want_transport}"
-echo "    - libgsm0710mux.........: ${want_transportlibgsm0710mux}"
 echo
 echo "  Compilation...............: make"
 echo
