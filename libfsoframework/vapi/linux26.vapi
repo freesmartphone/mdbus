@@ -118,8 +118,7 @@ namespace Linux26 {
 
         [CCode (cname = "struct input_event", cheader_filename = "linux/input.h")]
         public struct Event {
-            // FIXME: There should be a posix.TimeVal as well
-            public GLib.TimeVal time;
+            public Posix.timeval time;
             public uint16 type;
             public uint16 code;
             public int32 value;
