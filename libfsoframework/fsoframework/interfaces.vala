@@ -61,6 +61,14 @@ namespace FsoFramework
         public const string RtcServicePath = ServicePathPrefix + "/RTC";
     }
 
+    namespace Network
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".onetworkd";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Network";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Network";
+    }
+
     namespace Usage
     {
         public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ousaged";

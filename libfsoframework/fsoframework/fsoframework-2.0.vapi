@@ -68,6 +68,15 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework.h")]
 		public static void write (string contents, string filename);
 	}
+	[CCode (cprefix = "FsoFrameworkNetwork", lower_case_cprefix = "fso_framework_network_")]
+	namespace Network {
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string ServiceDBusName;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string ServiceFacePrefix;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string ServicePathPrefix;
+	}
 	[CCode (cprefix = "FsoFrameworkStringHandling", lower_case_cprefix = "fso_framework_string_handling_")]
 	namespace StringHandling {
 		[CCode (cheader_filename = "fsoframework.h")]
