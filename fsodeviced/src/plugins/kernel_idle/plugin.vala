@@ -116,9 +116,6 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
 
-        syncNodesToWatch();
-        registerInputWatches();
-
         Idle.add( onIdle );
 
         // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
@@ -141,6 +138,10 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         {
             idlestatus.timeouts[i] = config.intValue( CONFIG_SECTION, states[i], idlestatus.timeouts[i] );
         }
+
+        syncNodesToWatch();
+        registerInputWatches();
+
         return false;
     }
 
