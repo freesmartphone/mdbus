@@ -21,18 +21,30 @@
 namespace Linux26 {
 
     /*
-     * Event Fd
+     * EventFd
      */
     [CCode (cprefix = "EFD_", cheader_filename = "sys/eventfd.h")]
-    public enum EventFlags {
+    public enum EventFdFlags {
         CLOEXEC,
         NONBLOCK
     }
 
     [CCode (cheader_filename = "sys/eventfd.h")]
-    public int eventfd (uint count = 0, EventFlags flags = 0);
+    public int eventfd (uint count = 0, EventFdFlags flags = 0);
     public int eventfd_read (int fd, out uint64 value);
     public int eventfd_write (int fd, uint64 value);
+
+    /*
+     * SignalFd
+     */
+    [CCode (cprefix = "SFD_", cheader_filename = "sys/signalfd.h")]
+    public enum SignalFdFlags {
+        CLOEXEC,
+        NONBLOCK
+    }
+
+    [CCode (cheader_filename = "sys/signalfd.h")]
+    public int signalfd (int fd, Posix.sigset_t mask, SignalFdFlags flags = 0);
 
     /*
      * Input subsystem
