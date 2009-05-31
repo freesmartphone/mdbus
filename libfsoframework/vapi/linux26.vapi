@@ -80,6 +80,7 @@ namespace Linux26 {
     public int inotify_init (InotifyFlags flags = 0);
     public int inotify_add_watch (int fd, string pathname, InotifyMaskFlags mask);
     public int inotify_rm_watch (int fd, int wd);
+
     /*
      * SignalFd
      */
@@ -91,6 +92,19 @@ namespace Linux26 {
 
     [CCode (cheader_filename = "sys/signalfd.h")]
     public int signalfd (int fd, Posix.sigset_t mask, SignalFdFlags flags = 0);
+
+    /*
+     * Misc
+     */
+    [CCode (cprefix = "CLONE_", cheader_filename = "sched.h")]
+    public enum CloneFlags {
+        FILES,
+        FS,
+        NEWNS
+    }
+
+    [CCode (cheader_filename = "sched.h")]
+    public int unshare (CloneFlags flags);
 
     /*
      * Input subsystem
