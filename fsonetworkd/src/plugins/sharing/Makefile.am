@@ -2,13 +2,19 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
+	$(FSO_GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsonetwork.la
+progs_ldadd = \
+	$(FSO_GLIB_LIBS) \
+	$(FSO_LIBS) \
+	$(DBUS_LIBS) \
+	$(top_srcdir)/src/lib/libfsonetwork.la \
+	$(NULL)
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -17,8 +23,8 @@ VALAC_ARGS = \
 	--pkg sharing \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
-	--pkg gio-2.0 \
-	--pkg fsoframework-2.0
+	--pkg fsoframework-2.0 \
+	--pkg fso-glib-1.0
 
 #
 # plugin
