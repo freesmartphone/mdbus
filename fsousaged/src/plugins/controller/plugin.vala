@@ -31,9 +31,6 @@ internal const string RESOURCE_INTERFACE = "org.freesmartphone.Resource";
 
 internal const string CONFIG_SECTION = "fsousage";
 
-//FIXME read from config
-internal const string SYSFS_SUSPEND_NODE = "/sys/power/state";
-
 namespace Usage
 {
 /**
@@ -75,11 +72,15 @@ public class Resource
         this.users = new ArrayList<string>( str_equal );
 
         proxy = dbusconn.get_object( busname, objectpath, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
-
-        //FIXME: work around SIGSEGV in libdbus. Yes, it leaks now :(
+        // workaround until vala 0.7.4
         proxy.ref();
 
-        message( "Resource %s served by %s @ %s created", name, busname, objectpath );
+        //message( "Resource %s served by %s @ %s created", name, busname, objectpath );
+    }
+
+    ~Resource()
+    {
+        //message( "Resource %s served by %s @ %s destroyed", name, busname, objectpath );
     }
 
     public bool isEnabled()
@@ -222,11 +223,6 @@ public class Resource
             instance.logger.debug( "Resource %s not suspended: not resuming".printf( name ) );
         }
     }
-
-    ~Resource()
-    {
-        message( "Resource %s served by %s @ %s destroyed", name, busname, objectpath );
-    }
 }
 
 /**
@@ -256,7 +252,6 @@ public class Controller : FsoFramework.AbstractObject
                                               FsoFramework.Usage.ServicePathPrefix, this );
 
         // grab sysfs paths
-        //var config = FsoFramework.theMasterKeyFile();
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
         do_not_suspend = config.boolValue( CONFIG_SECTION, "do_not_suspend", false );
