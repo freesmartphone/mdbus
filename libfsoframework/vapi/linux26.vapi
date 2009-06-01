@@ -107,6 +107,122 @@ namespace Linux26 {
     public int unshare (CloneFlags flags);
 
     /*
+     * Network
+     */
+    [CCode (cprefix = "", lower_case_cprefix = "")]
+    namespace Network {
+        [CCode (cname = "struct ifreq", cheader_filename = "net/if.h", destroy_function = "")]
+        public struct IfReq {
+            public char[] ifr_name;
+            public PosixExtra.SockAddr ifr_addr;
+        }
+
+        /* ioctls */
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCADDRT;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCDELRT;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCRTMSG;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFNAME;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFLINK;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFCONF;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFFLAGS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFFLAGS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFADDR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFADDR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFDSTADDR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFDSTADDR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFBRDADDR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFBRDADDR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFNETMASK;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFNETMASK;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFMETRIC;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFMETRIC;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFMEM;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFMEM;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFMTU;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFMTU;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFNAME;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFHWADDR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFENCAP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFENCAP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFHWADDR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFSLAVE;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFSLAVE;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCADDMULTI;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCDELMULTI;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFINDEX;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFPFLAGS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFPFLAGS;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCDIFADDR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFHWBROADCAST;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFCOUNT;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFBR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFBR;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFTXQLEN;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFTXQLEN;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCDARP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGARP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSARP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCDRARP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGRARP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSRARP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCGIFMAP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCSIFMAP;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCADDDLCI;
+        [CCode (cheader_filename = "sys/ioctl.h")]
+        public const int SIOCDELDLCI;
+    }
+
+    /*
      * Input subsystem
      */
     [CCode (cprefix = "", lower_case_cprefix = "")]
@@ -1641,7 +1757,6 @@ namespace Linux26 {
         [CCode (cheader_filename = "sys/ioctl.h")]
         public const int TCSETSW2;
         [CCode (cheader_filename = "sys/ioctl.h")]
-        [CCode (cheader_filename = "sys/ioctl.h")]
         public const int TCSETSF2;
         [CCode (cheader_filename = "sys/ioctl.h")]
         public const int TIOCGRS485;
@@ -1649,7 +1764,6 @@ namespace Linux26 {
         public const int TIOCSRS485;
         [CCode (cheader_filename = "sys/ioctl.h")]
         public const int TIOCGPTN;
-        [CCode (cheader_filename = "sys/ioctl.h")]
         [CCode (cheader_filename = "sys/ioctl.h")]
         public const int TIOCSPTLCK;
         [CCode (cheader_filename = "sys/ioctl.h")]

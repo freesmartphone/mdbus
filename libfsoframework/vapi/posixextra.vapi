@@ -8,6 +8,20 @@ using Posix;
 [CCode (cprefix = "", lower_case_cprefix = "")]
 namespace PosixExtra {
 
+    [CCode (cheader_filename = "arpa/inet.h")]
+    public uint32 inet_addr (string host);
+    [CCode (cheader_filename = "arpa/inet.h")]
+    public weak string inet_ntoa (InAddr addr);
+    [CCode (cheader_filename = "arpa/inet.h")]
+    public uint32 htonl (uint32 hostlong);
+    [CCode (cheader_filename = "arpa/inet.h")]
+    public uint32 ntohl (uint32 netlong);
+    [CCode (cheader_filename = "arpa/inet.h")]
+    public uint16 htons (uint16 hostshort);
+    [CCode (cheader_filename = "arpa/inet.h")]
+    public uint16 ntohs (uint16 netshort);
+
+
     /* ------------- pty --------------- */
 
     [CCode (cheader_filename = "pty.h")]
@@ -19,10 +33,14 @@ namespace PosixExtra {
 
     /* --------- socket --------------- */
 
+    [SimpleType]
     [CCode (cname = "struct in_addr", cheader_filename = "sys/socket.h", destroy_function = "")]
-    public struct InAddr
-    {
-        public uint32 s_addr; /* in_addr_t */
+    public struct InAddr {
+        public uint32 s_addr;
+    }
+
+    [CCode (cname = "struct sock_addr", cheader_filename = "sys/socket.h", destroy_function = "")]
+    public struct SockAddr {
     }
 
     [CCode (cname = "struct sockaddr_in", cheader_filename = "netinet/in.h", destroy_function = "")]
@@ -33,14 +51,15 @@ namespace PosixExtra {
         public InAddr sin_addr;
     }
 
-    [CCode (cheader_filename = "sys/socket.h")]
-    public uint16 htons (uint16 hostshort);
+    [IntegerType]
+    [CCode (cname = "socklen_t", cheader_filename = "sys/socket.h", default_value = "0")]
+    public struct socklen_t {
+    }
 
     [CCode (cheader_filename = "sys/socket.h")]
-    public uint32 inet_addr (string host); /* in_addr_t */
-
+    public int listen (int sfd, int backlog);
     [CCode (cheader_filename = "sys/socket.h")]
-    public int listen (int s, int backlog);
+    public int accept (int sfd, SockAddr addr, ref socklen_t addrlen );
 
     /* ----------- unistd -------------- */
 
