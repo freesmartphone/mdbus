@@ -76,6 +76,8 @@ namespace FsoFramework {
 		public const string ServiceFacePrefix;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string ServicePathPrefix;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public static string ipv4AddressForInterface (string iface);
 	}
 	[CCode (cprefix = "FsoFrameworkStringHandling", lower_case_cprefix = "fso_framework_string_handling_")]
 	namespace StringHandling {
