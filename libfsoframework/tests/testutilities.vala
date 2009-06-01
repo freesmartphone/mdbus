@@ -55,6 +55,13 @@ void test_utilities_stringhandling_list()
 }
 
 //===========================================================================
+void test_utilities_network_ipv4address_for_interface()
+//===========================================================================
+{
+    assert( Network.ipv4AddressForInterface( "lo" ) == "127.0.0.1" );
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -64,6 +71,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/FileHandling/Read", test_utilities_filehandling_read );
     Test.add_func( "/Utilities/FileHandling/Write", test_utilities_filehandling_write );
     Test.add_func( "/Utilities/StringHandling/List", test_utilities_stringhandling_list );
+    Test.add_func( "/Utilities/Network/ipv4AddressForInterface", test_utilities_network_ipv4address_for_interface );
 
     Test.run();
 }
