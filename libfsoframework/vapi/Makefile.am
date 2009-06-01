@@ -9,6 +9,9 @@ dist_vapi_DATA = \
 	libcanberra.deps \
 	libcanberra.vapi \
 	\
+	libnl.deps \
+	libnl.vapi \
+	\
 	linux26.deps \
 	linux26.vapi \
 	\
