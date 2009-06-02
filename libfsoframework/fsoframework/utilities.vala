@@ -153,12 +153,13 @@ namespace FsoFramework { namespace Network {
     public string ipv4AddressForInterface( string iface )
     {
         var fd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
-        if ( fd == -1 )
-            return "unknown";
+        assert( fd != -1 );
 
         Linux26.Network.IfReq ifreq = {};
         Posix.memcpy( ifreq.ifr_name, iface, 16 );
-        Posix.ioctl( fd, Linux26.Network.SIOCGIFADDR, &ifreq );
+        var ok = Posix.ioctl( fd, Linux26.Network.SIOCGIFADDR, &ifreq );
+        if ( ok < 0 )
+            return "unknown";
 
         return "%s".printf( PosixExtra.inet_ntoa( ((PosixExtra.SockAddrIn*)(&ifreq.ifr_addr))->sin_addr ) );
     }

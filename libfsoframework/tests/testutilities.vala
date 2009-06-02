@@ -59,6 +59,7 @@ void test_utilities_network_ipv4address_for_interface()
 //===========================================================================
 {
     assert( Network.ipv4AddressForInterface( "lo" ) == "127.0.0.1" );
+    assert( Network.ipv4AddressForInterface( "murks1" ) == "unknown" );
 }
 
 //===========================================================================
