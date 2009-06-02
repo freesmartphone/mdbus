@@ -28,9 +28,7 @@ namespace Sharing
 public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-    private List<string> ifaces = new List<string>();
 
-    private const string NETWORK_CLASS = "/sys/class/net";
     private const string IP_FORWARD    = "/proc/sys/net/ipv4/ip_forward";
     private const string ETC_RESOLV_CONF = "/etc/resolv.conf";
     private const string ETC_UDHCPD_CONF = "/etc/udhcpd.conf";
@@ -41,48 +39,12 @@ public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractOb
         this.subsystem.registerServiceName( FsoFramework.Network.ServiceDBusName );
         this.subsystem.registerServiceObject( FsoFramework.Network.ServiceDBusName, 
                                               FsoFramework.Network.ServicePathPrefix, this );
-
-        this.sync();
     }
-
 
     public override string repr()
     {
         return "<%s>".printf( FsoFramework.Network.ServicePathPrefix );
     }
-
-    public bool contains( string iface )
-    {
-        foreach ( string _i in this.ifaces )
-            if ( _i == iface )
-                return true;
-
-        return false;
-    }
-
-
-    private bool sync()
-    {
-        try
-        {
-            GLib.Dir sysclass_dir = GLib.Dir.open( NETWORK_CLASS );
-            int i = 0;
-            string iface = sysclass_dir.read_name();
-            while ( true )
-            {
-                if ( iface == null )
-                    break;
-                iface = sysclass_dir.read_name();
-                this.ifaces.append( iface );
-                i++;
-            }
-        }
-        catch ( GLib.FileError error ) {
-            logger.warning(error.message);
-        }
-        return false;
-    }
-
 
     private string get_nameservers()
     {
@@ -108,8 +70,8 @@ public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractOb
                 }
             }
         }
-        catch (GLib.Error error) {
-            logger.warning( error.message );
+        catch ( GLib.Error e ) {
+            logger.warning( e.message );
         }
         return nameservers;
     }
@@ -118,21 +80,14 @@ public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractOb
     //
     // DBUS API
     //
-    public void start_connection_sharing_with_interface( string iface )
+    public void start_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBus.Error
     {
-        this.sync();
-        if (!( iface in this )) 
-        {
-            logger.warning( "No such interface %s".printf( iface ));
-            return;
-        }
+        if ( !(FsoFramework.FileHandling.isPresent( Path.build_filename( sys_class_net, iface ) ) ) )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Interface %s not present".printf( iface ) );
 
-        string ip = Sharing.get_ip( iface );
-        if (ip == null) 
-        {
-            logger.warning( "%s not active".printf( iface ));
-            return;
-        }
+        string ip = FsoFramework.Network.ipv4AddressForInterface( iface );
+        if (ip == "")
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Interface %s not ready".printf( iface ) );
 
         string[] commands = {
             "iptables -I INPUT 1 -s 192.168.0.0/24 -j ACCEPT",
@@ -156,9 +111,9 @@ public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractOb
             Process.spawn_command_line_async( "killall udhcpd" );
             Process.spawn_command_line_async( "udhcpd" );
         }
-        catch( GLib.SpawnError error )
+        catch ( GLib.SpawnError e )
         {
-            logger.warning( error.message );
+            logger.warning( e.message );
         }
     }
 
@@ -176,10 +131,16 @@ option  lease   864000        # 10 days of seconds\n";
 } /* end namespace */
 
 
+static string sys_class_net;
 Sharing.ConnectionSharing instance;
 
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
+    // grab sysfs and dev paths
+    var config = FsoFramework.theMasterKeyFile();
+    var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+    sys_class_net = "%s/class/net".printf( sysfs_root );
+    // create instance
     instance = new Sharing.ConnectionSharing( subsystem );
     return "fsonetwork.sharing";
 }

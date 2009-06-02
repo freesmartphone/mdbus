@@ -18,9 +18,7 @@ progs_ldadd = \
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ./ \
 	--vapidir $(top_srcdir)/fsoframework \
-	--pkg sharing \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg fsoframework-2.0 \
@@ -31,7 +29,7 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsonetwork
 modlibexec_LTLIBRARIES = sharing.la
-sharing_la_SOURCES = sharing-helpers.c plugin.c
+sharing_la_SOURCES = plugin.c
 sharing_la_VALASOURCES = plugin.vala
 $(sharing_la_SOURCES): $(sharing_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
