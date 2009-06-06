@@ -1545,9 +1545,13 @@ namespace Linux26 {
         [CCode (cheader_filename = "linux/netlink.h")]
         public const int NETLINK_ECRYPTFS;
 
-        // additions to the socket interface
+        // additions to the socket interface (non-posix)
         [CCode (cheader_filename = "sys/socket.h")]
         public const int AF_NETLINK;
+        [CCode (cheader_filename = "sys/socket.h")]
+        public const int SOCK_NONBLOCK;
+        [CCode (cheader_filename = "sys/socket.h")]
+        public const int SOCK_CLOEXEC;
 
         [CCode (cname = "struct sockaddr_nl", cheader_filename = "linux/netlink.h", destroy_function = "")]
         public struct SockAddrNl {
