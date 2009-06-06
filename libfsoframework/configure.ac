@@ -104,8 +104,7 @@ fi
 AC_CONFIG_FILES([Makefile
   fsoframework-2.0.pc
   fsoframework/Makefile
-  tests/Makefile
-  vapi/Makefile])
+  tests/Makefile])
 
 AC_OUTPUT
 
