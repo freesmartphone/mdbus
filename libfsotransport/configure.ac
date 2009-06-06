@@ -27,6 +27,15 @@ AC_SUBST(VALAC)
 PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
 
+#
+# vala vapi files
+#
+VALA_VAPIDIR=`$PKG_CONFIG --variable=vapidir vala-1.0`
+AC_SUBST(VALA_VAPIDIR)
+
+AC_CHECK_FILES([$VALA_VAPIDIR/posixextra.vapi],,
+               [AC_MSG_ERROR([posixextra.vapi not found.])])
+
 # glib and friends
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
@@ -34,12 +43,6 @@ PKG_CHECK_MODULES(GLIB,
   gio-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
-
-#
-# FSO (for posixextra.vapi)
-#
-PKG_CHECK_MODULES(FSO,
-  fsoframework-2.0 >= $FSO_REQUIRED)
 
 #
 # output
