@@ -33,8 +33,10 @@ PKG_CHECK_MODULES(VALA,
 VALA_VAPIDIR=`$PKG_CONFIG --variable=vapidir vala-1.0`
 AC_SUBST(VALA_VAPIDIR)
 
-AC_CHECK_FILES([$VALA_VAPIDIR/posixextra.vapi],,
-               [AC_MSG_ERROR([posixextra.vapi not found.])])
+AC_MSG_NOTICE([checking for posixextra.vapi...])
+if ! test -f "$VALA_VAPIDIR/posixextra.vapi"; then
+	AC_MSG_ERROR([posixextra.vapi not found.])
+fi
 
 # glib and friends
 PKG_CHECK_MODULES(GLIB,
