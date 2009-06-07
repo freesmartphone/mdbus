@@ -84,6 +84,19 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework.h")]
 		public static string stringListToString (string[] list);
 	}
+	[CCode (cprefix = "FsoFrameworkTime", lower_case_cprefix = "fso_framework_time_")]
+	namespace Time {
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string AlarmServiceFace;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string AlarmServicePath;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string ServiceDBusName;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string ServiceFacePrefix;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string ServicePathPrefix;
+	}
 	[CCode (cprefix = "FsoFrameworkUsage", lower_case_cprefix = "fso_framework_usage_")]
 	namespace Usage {
 		[CCode (cheader_filename = "fsoframework.h")]

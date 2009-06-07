@@ -77,4 +77,15 @@ namespace FsoFramework
         public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Usage";
     }
 
+    namespace Time
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".otimed";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Time";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Time";
+
+        public const string AlarmServiceFace = ServiceFacePrefix + ".Alarm";
+        public const string AlarmServicePath = ServicePathPrefix + "/Alarm";
+    }
+
 }
