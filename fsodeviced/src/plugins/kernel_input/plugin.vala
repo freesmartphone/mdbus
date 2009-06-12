@@ -125,12 +125,12 @@ public class EventStatus
         this.reportheld = reportheld;
         pressed = false;
         timeout = 0;
-        message( "event status for %s (held %d) created", name, (int)reportheld );
+        //message( "event status for %s (held %d) created", name, (int)reportheld );
     }
 
     ~EventStatus()
     {
-        message( "event status for %s (held %d) destroyed", name, (int)reportheld );
+        //message( "event status for %s (held %d) destroyed", name, (int)reportheld );
     }
 
     public bool pressed;
