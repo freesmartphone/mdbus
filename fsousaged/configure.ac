@@ -46,6 +46,14 @@ PKG_CHECK_MODULES(DBUS,
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
 
+DBUS_DATADIR="`$PKG_CONFIG --variable=sysconfdir dbus-1`"
+if (test -z "{DBUS_DATADIR}"); then
+  DBUS_DATADIR="${sysconfdir}/dbus-1/system.d"
+else
+  DBUS_DATADIR="$DBUS_DATADIR/dbus-1/system.d"
+fi
+AC_SUBST(DBUS_DATADIR)                
+
 # fso-glib and framework
 PKG_CHECK_MODULES(FSO,
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED
@@ -60,6 +68,7 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/controller/Makefile
+  data/Makefile
   tests/Makefile
 ])
 
