@@ -323,7 +323,7 @@ public class Controller : FsoFramework.AbstractObject
         logger.debug( "<<<<<<< KERNEL RESUME" );
         resumeAllResources();
         //FIXME: enum
-        this.system_action( "suspend" ); // DBUS SIGNAL
+        this.system_action( "resume" ); // DBUS SIGNAL
         return false; // MainLoop: Don't call again
     }
 
