@@ -2,6 +2,7 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
+	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(NULL)
@@ -12,7 +13,7 @@ progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/fsoframework \
+	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg linux26 \
