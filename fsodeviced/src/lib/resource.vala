@@ -27,7 +27,7 @@ namespace FsoDevice {
 public class AbstractSimpleResource : FreeSmartphone.Resource, FsoFramework.AbstractObject
 {
     private FsoFramework.DBusSubsystem subsystem;
-    private dynamic DBus.Object usage;
+    private dynamic DBus.Object usage; /* needs to be dynamic for async */
     private string name;
     private DBus.ObjectPath path;
 
@@ -35,7 +35,7 @@ public class AbstractSimpleResource : FreeSmartphone.Resource, FsoFramework.Abst
     {
         this.name = name;
         this.subsystem = subsystem as FsoFramework.DBusSubsystem;
-        this.path = new DBus.ObjectPath( "/org/freesmartphone/Resource/%s".printf( name ) );
+        this.path = new DBus.ObjectPath( "%s/%s".printf( FsoFramework.Resource.ServicePathPrefix, name ) );
 
         var conn = this.subsystem.dbusConnection();
         //FIXME: try/catch
@@ -54,7 +54,9 @@ public class AbstractSimpleResource : FreeSmartphone.Resource, FsoFramework.Abst
         if (usage == null)
         {
             var conn = subsystem.dbusConnection();
-            usage = conn.get_object( "org.freesmartphone.ousaged", "/org/freesmartphone/Usage", "org.freesmartphone.Usage" ) /* as FreeSmartphone.Usage */;
+            usage = conn.get_object( FsoFramework.Usage.ServiceDBusName,
+                                     FsoFramework.Usage.ServicePathPrefix,
+                                     FsoFramework.Usage.ServiceFacePrefix ); /* dynamic for async */
             usage.register_resource( name, path, onRegisterResourceReply );
         }
         return false; // MainLoop: don't call me again
