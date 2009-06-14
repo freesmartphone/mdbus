@@ -69,12 +69,12 @@ namespace FsoFramework
         public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Network";
     }
 
-    namespace Usage
+    namespace Resource
     {
-        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ousaged";
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".oresourced"; // dummy
 
-        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Usage";
-        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Usage";
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Resource";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Resource";
     }
 
     namespace Time
@@ -88,4 +88,11 @@ namespace FsoFramework
         public const string AlarmServicePath = ServicePathPrefix + "/Alarm";
     }
 
+    namespace Usage
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ousaged";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Usage";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Usage";
+    }
 }
