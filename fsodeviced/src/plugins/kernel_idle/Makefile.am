@@ -17,7 +17,8 @@ VALAC_ARGS = \
 	--pkg dbus-glib-1 \
 	--pkg linux26 \
 	--pkg fso-glib-1.0 \
-	--pkg fsoframework-2.0
+	--pkg fsoframework-2.0 \
+	--pkg fsodevice-2.0
 
 #
 # plugin

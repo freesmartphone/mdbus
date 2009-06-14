@@ -59,7 +59,7 @@ public class IdleStatus
 
     public void onState( FreeSmartphone.Device.IdleState status )
     {
-        //debug( "onState transitioning from %d to %d", this.status, status );
+        instance.logger.debug( "onState transitioning from s%d to s%d".printf( this.status, status ) );
 
         if ( watch > 0 )
             Source.remove( watch );
@@ -81,7 +81,7 @@ public class IdleStatus
         }
         else
         {
-            debug( "Timeout for %d disabled, not falling into this state next.".printf( next ) );
+            instance.logger.debug( "Timeout for s%d disabled, not falling into this state next.".printf( next ) );
         }
     }
 
@@ -127,18 +127,69 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         logger.info( "created new IdleNotifier." );
     }
 
-    public bool onIdle()
+    public override string repr()
     {
-        idlestatus = new IdleStatus();
-        idlestatus.onState( FreeSmartphone.Device.IdleState.AWAKE );
+        return "<FsoFramework.Device.IdleNotifier @ %s>".printf( sysfsnode );
+    }
 
-        // read timeout configs
+    public void onResourceChanged( FsoDevice.AbstractSimpleResource r, bool on )
+    {
+        if ( r is CpuResource )
+        {
+            logger.debug( "CPU resource changed status to %s".printf( on.to_string() ) );
+            if (on)
+            {
+                // prohibit sending of suspend
+                idlestatus.timeouts[FreeSmartphone.Device.IdleState.SUSPEND] = -1;
+            }
+            else
+            {
+                // allow sending of suspend
+                idlestatus.timeouts[FreeSmartphone.Device.IdleState.SUSPEND] = config.intValue( CONFIG_SECTION, states[FreeSmartphone.Device.IdleState.SUSPEND], 20 );
+                // relaunch timer, if necessary
+                if ( idlestatus.status == FreeSmartphone.Device.IdleState.LOCK )
+                    idlestatus.onState( FreeSmartphone.Device.IdleState.LOCK );
+            }
+        }
+
+        if ( r is DisplayResource )
+        {
+            logger.debug( "Display resource changed status to %s".printf( on.to_string() ) );
+            if (on)
+            {
+                // prohibit sending of idle_dim (and later)
+                idlestatus.timeouts[FreeSmartphone.Device.IdleState.IDLE_DIM] = -1;
+                // relaunch timer, if necessary
+                if ( (int)idlestatus.status > (int)FreeSmartphone.Device.IdleState.IDLE )
+                    idlestatus.onState( FreeSmartphone.Device.IdleState.IDLE );
+            }
+            else
+            {
+                // allow sending of idle_dim (and later)
+                idlestatus.timeouts[FreeSmartphone.Device.IdleState.IDLE_DIM] = config.intValue( CONFIG_SECTION, states[FreeSmartphone.Device.IdleState.IDLE_DIM], 10 );
+                // relaunch timer, if necessary
+                if ( idlestatus.status == FreeSmartphone.Device.IdleState.IDLE )
+                    idlestatus.onState( FreeSmartphone.Device.IdleState.IDLE );
+            }
+        }
+
+    }
+
+    public void resetTimeouts()
+    {
         states = { "busy", "idle", "idle_dim", "idle_prelock", "lock", "suspend" };
         for ( int i = 0; i < states.length; ++i )
         {
             idlestatus.timeouts[i] = config.intValue( CONFIG_SECTION, states[i], idlestatus.timeouts[i] );
         }
+    }
 
+    public bool onIdle()
+    {
+        idlestatus = new IdleStatus();
+        idlestatus.onState( FreeSmartphone.Device.IdleState.AWAKE );
+
+        resetTimeouts();
         syncNodesToWatch();
         registerInputWatches();
 
@@ -181,11 +232,6 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     private void _handleInputEvent( ref Linux26.Input.Event ev )
     {
         idlestatus.onState( FreeSmartphone.Device.IdleState.BUSY );
-    }
-
-    public override string repr()
-    {
-        return "<FsoFramework.Device.IdleNotifier @ %s>".printf( sysfsnode );
     }
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
@@ -239,11 +285,76 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
 }
 
+/**
+ * Implementation of org.freesmartphone.Resource for the Display Resource
+ **/
+class DisplayResource : FsoDevice.AbstractSimpleResource
+{
+    internal bool on;
+
+    public DisplayResource( FsoFramework.Subsystem subsystem )
+    {
+        base( "Display", subsystem );
+    }
+
+    public override void _enable()
+    {
+        if (on)
+            return;
+        logger.debug( "enabling..." );
+        instance.onResourceChanged( this, true );
+        on = true;
+    }
+
+    public override void _disable()
+    {
+        if (!on)
+            return;
+        logger.debug( "disabling..." );
+        instance.onResourceChanged( this, false );
+        on = false;
+    }
+}
+
+
+/**
+ * Implementation of org.freesmartphone.Resource for the CPU Resource
+ **/
+class CpuResource : FsoDevice.AbstractSimpleResource
+{
+    internal bool on;
+
+    public CpuResource( FsoFramework.Subsystem subsystem )
+    {
+        base( "CPU", subsystem );
+    }
+
+    public override void _enable()
+    {
+        if (on)
+            return;
+        logger.debug( "enabling..." );
+        instance.onResourceChanged( this, true );
+        on = true;
+    }
+
+    public override void _disable()
+    {
+        if (!on)
+            return;
+        logger.debug( "disabling..." );
+        instance.onResourceChanged( this, false );
+        on = false;
+    }
+}
+
 } /* namespace */
 
 internal static string dev_root;
 internal static string dev_input;
 internal Kernel.IdleNotifier instance;
+internal Kernel.CpuResource cpu;
+internal Kernel.DisplayResource display;
 
 /**
  * This function gets called on plugin initialization time.
@@ -259,6 +370,9 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     dev_input = "%s/input".printf( dev_root );
 
     instance = new Kernel.IdleNotifier( subsystem, dev_input );
+    // special resources
+    cpu = new Kernel.CpuResource( subsystem );
+    display = new Kernel.DisplayResource( subsystem );
 
     return "fsodevice.kernel_idle";
 }
