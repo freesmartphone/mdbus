@@ -88,6 +88,7 @@ class WiFiPowerControl : FsoDevice.BasePowerControl
 
 } /* namespace */
 
+internal List<FsoDevice.BasePowerControlResource> resources;
 internal List<FsoDevice.BasePowerControl> instances;
 internal static string sysfs_root;
 
@@ -108,13 +109,17 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var bluetooth = Path.build_filename( devices, "neo1973-pm-bt.0" );
     if ( FsoFramework.FileHandling.isPresent( bluetooth ) )
     {
-        instances.append( new Openmoko.BluetoothPowerControl( subsystem, bluetooth ) );
+        var o = new Openmoko.BluetoothPowerControl( subsystem, bluetooth );
+        instances.append( o );
+        resources.append( new FsoDevice.BasePowerControlResource( o, "Bluetooth", subsystem ) );
     }
 
     var wifi = Path.build_filename( drivers, "s3c2440-sdi" );
     if ( FsoFramework.FileHandling.isPresent( wifi ) )
     {
-        instances.append( new Openmoko.WiFiPowerControl( subsystem, wifi ) );
+        var o = new Openmoko.WiFiPowerControl( subsystem, wifi );
+        instances.append( o );
+        resources.append( new FsoDevice.BasePowerControlResource( o, "WiFi", subsystem ) );
     }
 
     //TODO: add other devices
