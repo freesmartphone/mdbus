@@ -229,7 +229,7 @@ public class Resource
  * Controller class implementing org.freesmartphone.Usage API
  *
  * Note: Unfortunately we can't just use libfso-glib (FreeSmartphone.Usage interface)
- * here, since we do some tricks with the dbus sender name,
+ * here, since we need access to the dbus sender name (which modifies the interface signature).
  **/
 [DBus (name = "org.freesmartphone.Usage")]
 public class Controller : FsoFramework.AbstractObject
@@ -322,8 +322,7 @@ public class Controller : FsoFramework.AbstractObject
             Posix.sleep( 5 );
         logger.debug( "<<<<<<< KERNEL RESUME" );
         resumeAllResources();
-        //FIXME: enum
-        this.system_action( "resume" ); // DBUS SIGNAL
+        this.system_action( FreeSmartphone.UsageSystemAction.RESUME ); // DBUS SIGNAL
         return false; // MainLoop: Don't call again
     }
 
@@ -454,24 +453,21 @@ public class Controller : FsoFramework.AbstractObject
 
     public void shutdown() throws DBus.Error
     {
-        //FIXME: enum
-        this.system_action( "shutdown" ); // DBUS SIGNAL
+        this.system_action( FreeSmartphone.UsageSystemAction.SHUTDOWN ); // DBUS SIGNAL
         disableAllResources();
         Posix.system( "shutdown -h now" );
     }
 
     public void reboot() throws DBus.Error
     {
-        //FIXME: enum
-        this.system_action( "reboot" ); // DBUS SIGNAL
+        this.system_action( FreeSmartphone.UsageSystemAction.REBOOT ); // DBUS SIGNAL
         disableAllResources();
         Posix.system( "reboot" );
     }
 
     public void suspend() throws DBus.Error
     {
-        //FIXME: enum
-        this.system_action( "suspend" ); // DBUS SIGNAL
+        this.system_action( FreeSmartphone.UsageSystemAction.SUSPEND ); // DBUS SIGNAL
         // we need to suspend async, otherwise the dbus call would timeout
         Idle.add( onIdleForSuspend );
     }
@@ -479,7 +475,7 @@ public class Controller : FsoFramework.AbstractObject
     // DBUS SIGNALS
     public signal void resource_available( string name, bool availability );
     public signal void resource_changed( string name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
-    public signal void system_action( string action );
+    public signal void system_action( FreeSmartphone.UsageSystemAction action );
 }
 
 } /* end namespace */
