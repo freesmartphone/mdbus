@@ -18,7 +18,7 @@
  *
  */
 
-[CCode (clower_case_prefix = "nl_", cheader_filename = "netlink/netlink.h")]
+[CCode (lower_case_cprefix = "nl_", cheader_filename = "netlink/netlink.h")]
 namespace Netlink {
 
     public delegate void Callback (Object obj, void* data);
