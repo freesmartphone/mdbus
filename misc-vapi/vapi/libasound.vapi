@@ -62,7 +62,7 @@ namespace Alsa {
         [CCode (cname = "snd_ctl_elem_id_malloc")]
         public static int alloc (out ElemId eid);
 
-        public string get_name();
+        public weak string get_name();
         public uint get_index();
         public uint get_device();
         public uint get_subdevice();
@@ -116,7 +116,7 @@ namespace Alsa {
         [CCode (cname = "snd_mixer_selem_id_malloc")]
         public static int alloc (out SimpleElementId eid);
 
-        public string get_name();
+        public weak string get_name();
         public uint get_index();
     }
 

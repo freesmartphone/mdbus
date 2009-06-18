@@ -32,8 +32,6 @@ int main( string[] args )
     message( "Mixer '%s'", info.get_mixername() );
     message( "Components '%s'", info.get_components() );
 
-    /*
-
     res = card.elem_list( list );
     message( "card elem_list: %s", Alsa.strerror( res ) );
     if (res < 0)
@@ -45,7 +43,11 @@ int main( string[] args )
     list.set_offset( 0 );
     res = list.alloc_space( count );
     message( "elemlist alloc_space: %s", Alsa.strerror( res ) );
+    if (res < 0)
+        return -1;
 
+    res = card.elem_list( list );
+    message( "card elem_list: %s", Alsa.strerror( res ) );
     if (res < 0)
         return -1;
 
@@ -59,7 +61,11 @@ int main( string[] args )
 
     list.free_space();
 
-    */
+    //
+    // SIMPLE API
+    //
+
+    /*
 
     Mixer mixer;
     res = Mixer.open( out mixer );
@@ -92,6 +98,8 @@ int main( string[] args )
         me.get_id( seid );
         message( "mixer element: %s:%u", seid.get_name(), seid.get_index() );
     }
+
+    */
 
     return 0;
 }
