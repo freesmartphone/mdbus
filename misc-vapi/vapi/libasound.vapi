@@ -53,6 +53,9 @@ namespace Alsa {
 
         public int card_info (CardInfo info);
         public int elem_list (ElemList list);
+        public int elem_info (ElemInfo info);
+        public int elem_read (ElemValue value);
+        public int elem_write (ElemValue value);
     }
 
     [Compact]
@@ -63,9 +66,64 @@ namespace Alsa {
         public static int alloc (out ElemId eid);
 
         public weak string get_name();
+        public uint get_numid();
         public uint get_index();
         public uint get_device();
         public uint get_subdevice();
+    }
+
+    [Compact]
+    [CCode (cprefix = "snd_ctl_elem_info_", cname = "snd_ctl_elem_info_t", free_function = "snd_ctl_elem_info_free")]
+    public class ElemInfo
+    {
+        [CCode (cname = "snd_ctl_elem_info_malloc")]
+        public static int alloc (out ElemInfo t);
+
+        public void set_id (ElemId eid);
+        public void set_numid (uint n);
+
+        public uint get_count ();
+        public ElemType get_type ();
+    }
+
+    [CCode (cprefix = "SND_CTL_ELEM_IFACE_", cname = "snd_ctl_elem_iface_t")]
+    public enum ElemInterface
+    {
+        CARD,
+        HWDEP,
+        MIXER,
+        PCM,
+        RAWMIDI,
+        TIMER,
+        SEQUENCER
+    }
+
+    [CCode (cprefix = "SND_CTL_ELEM_TYPE_", cname = "snd_ctl_elem_type_t")]
+    public enum ElemType
+    {
+        NONE,
+        BOOLEAN,
+        INTEGER,
+        ENUMERATED,
+        BYTES,
+        IEC958,
+        INTEGER64,
+    }
+
+    [Compact]
+    [CCode (cprefix = "snd_ctl_elem_value_", cname = "snd_ctl_elem_value_t", free_function = "snd_ctl_elem_value_free")]
+    public class ElemValue
+    {
+        [CCode (cname = "snd_ctl_elem_value_malloc")]
+        public static int alloc (out ElemValue t);
+
+        public void set_id (ElemId eid);
+
+        public bool get_boolean (uint idx);
+        public long get_integer (uint idx);
+        public int64 get_integer64 (uint idx);
+        public uint get_enumerated (uint idx);
+        public uchar get_byte (uint idx);
     }
 
     [Compact]
@@ -80,7 +138,7 @@ namespace Alsa {
         public void free_space ();
         public void set_offset (uint offset);
 
-        public int get_id (uint i, ElemId eid);
+        public int get_id (uint n, ElemId eid);
     }
 
     [Compact]
@@ -96,7 +154,6 @@ namespace Alsa {
 
         public MixerElement first_elem ();
         public MixerElement last_elem ();
-
     }
 
     [Compact]

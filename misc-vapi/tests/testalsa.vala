@@ -1,10 +1,57 @@
 using Alsa;
 
+Card card;
+
+void dump_control( ElemId eid )
+{
+    ElemInfo info;
+    ElemInfo.alloc( out info );
+    info.set_id( eid );
+    card.elem_info( info );
+
+    ElemValue value;
+    ElemValue.alloc( out value );
+    value.set_id( eid );
+    card.elem_read( value );
+
+    var infoline = "%u:'%s':%u:".printf( eid.get_numid(), eid.get_name(), info.get_count() );
+
+    var type = info.get_type();
+    var count = info.get_count();
+
+    switch (type)
+    {
+        case ElemType.BOOLEAN:
+            for ( var i = 0; i < count; ++i )
+                infoline += "%u,".printf( (uint)value.get_boolean( i ) );
+            break;
+        case ElemType.INTEGER:
+            for ( var i = 0; i < count; ++i )
+                infoline += "%ld,".printf( value.get_integer( i ) );
+            break;
+        case ElemType.INTEGER64:
+            for ( var i = 0; i < count; ++i )
+                infoline += "%ld,".printf( (long)value.get_integer64( i ) );
+            break;
+        case ElemType.ENUMERATED:
+            for ( var i = 0; i < count; ++i )
+                infoline += "%u,".printf( value.get_enumerated( i ) );
+            break;
+        case ElemType.BYTES:
+            for ( var i = 0; i < count; ++i )
+                infoline += "%2.2x,".printf( value.get_byte( i ) );
+            break;
+        default:
+            for ( var i = 0; i < count; ++i )
+                infoline += "???,";
+            break;
+    }
+    message( "%s", infoline );
+}
+
 int main( string[] args )
 {
     message( "alsa test starting" );
-
-    Card card;
 
     int res = Card.open( out card, args.length > 1 ? args[1] : "default" );
     message( "card open: %s", Alsa.strerror( res ) );
@@ -56,7 +103,7 @@ int main( string[] args )
         ElemId eid;
         ElemId.alloc( out eid );
         list.get_id( i, eid );
-        message( "querying control #%d - name: %s", i, eid.get_name() );
+        dump_control( eid );
     }
 
     list.free_space();
