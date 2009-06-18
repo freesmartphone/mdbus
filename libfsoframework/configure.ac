@@ -47,7 +47,7 @@ AC_SUBST(DBUS_LIBS)
 # eventfd
 #
 AC_CHECK_HEADER(sys/eventfd.h, , [AC_MSG_ERROR(
-[Couldn't find sys/eventfd.h... your glib is too old :(] )])
+[Couldn't find sys/eventfd.h... your glibc is too old :(] )])
 
 #
 # default features
