@@ -5,6 +5,7 @@ NULL =
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
+	$(ALSA_CFLAGS) \
 	$(NULL)
 
 INCLUDES = \
@@ -29,7 +30,7 @@ testalsa_SOURCES = testalsa.c
 $(testalsa_SOURCES): $(testalsa_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
-testalsa_LDADD = $(GLIB_LIBS) -lasound
+testalsa_LDADD = $(GLIB_LIBS) $(ALSA_LIBS)
 EXTRA_DIST += $(testalsa_VALASOURCES)
 
 
