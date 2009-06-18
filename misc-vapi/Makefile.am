@@ -5,6 +5,10 @@ NULL =
 SUBDIRS = \
   vapi \
   $(NULL)
+  
+if MAKE_TESTS
+  SUBDIRS += tests
+endif
 
 MAINTAINERCLEANFILES = \
   aclocal.m4 compile config.guess config.sub \
