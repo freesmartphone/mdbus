@@ -124,6 +124,12 @@ namespace Alsa {
         public int64 get_integer64 (uint idx);
         public uint get_enumerated (uint idx);
         public uchar get_byte (uint idx);
+
+        public void set_boolean (uint idx, bool b);
+        public void set_integer (uint idx, long l);
+        public void set_integer64 (uint idx, int64 i);
+        public void set_enumerated (uint idx, uint val);
+        public void set_byte (uint idx, uchar val);
     }
 
     [Compact]

@@ -1,6 +1,9 @@
 using Alsa;
+using GLib;
 
 Card card;
+FileStream stream;
+string command;
 
 void dump_control( ElemId eid )
 {
@@ -46,34 +49,82 @@ void dump_control( ElemId eid )
                 infoline += "???,";
             break;
     }
-    message( "%s", infoline );
+    stream.printf( "%s\n", infoline );
+}
+
+void set_control( ElemId eid, string[] params )
+{
+    ElemInfo info;
+    ElemInfo.alloc( out info );
+    info.set_id( eid );
+    card.elem_info( info );
+
+    ElemValue value;
+    ElemValue.alloc( out value );
+    value.set_id( eid );
+    card.elem_read( value );
+
+    var type = info.get_type();
+    var count = info.get_count();
+
+    switch (type)
+    {
+        case ElemType.BOOLEAN:
+            for ( var i = 0; i < count; ++i )
+                value.set_boolean( i, params[i] == "1" );
+            break;
+        case ElemType.INTEGER:
+            for ( var i = 0; i < count; ++i )
+                value.set_integer( i, params[i].to_int() );
+            break;
+        case ElemType.INTEGER64:
+            for ( var i = 0; i < count; ++i )
+                value.set_integer( i, params[i].to_long() );
+            break;
+        case ElemType.ENUMERATED:
+            for ( var i = 0; i < count; ++i )
+                value.set_enumerated( i, params[i].to_int() );
+            break;
+        case ElemType.BYTES:
+            for ( var i = 0; i < count; ++i )
+                value.set_byte( i, (uchar) params[i].to_int() );
+            break;
+        default:
+            // ignoring
+            break;
+    }
+
+    var res = card.elem_write( value );
+    message( "card elem_write: %s", Alsa.strerror( res ) );
 }
 
 int main( string[] args )
 {
-    message( "alsa test starting" );
+    if ( args.length != 4 || ( args[2] != "dump" ) && ( args[2] != "set" ) )
+    {
+        stdout.printf( "Usage: %s <card> <dump|set> <filename>\n".printf( args[0] ) );
+        return 1;
+    }
 
-    int res = Card.open( out card, args.length > 1 ? args[1] : "default" );
+    command = args[2];
+
+    int res = Card.open( out card, args[1] );
     message( "card open: %s", Alsa.strerror( res ) );
-    if (res < 0)
-        return -1;
+    assert (res >= 0 );
 
     CardInfo info;
     res = CardInfo.alloc( out info );
     message( "cardinfo alloc: %s", Alsa.strerror( res ) );
-    if (res < 0)
-        return -1;
+    assert (res >= 0 );
 
     ElemList list;
     res = ElemList.alloc( out list );
     message( "elemlist alloc: %s", Alsa.strerror( res ) );
-    if (res < 0)
-        return -1;
+    assert (res >= 0 );
 
     res = card.card_info( info );
     message( "card card_info: %s", Alsa.strerror( res ) );
-    if (res < 0)
-        return -1;
+    assert (res >= 0 );
 
     message( "Card '%s' / '%s'", info.get_id(), info.get_longname() );
     message( "Mixer '%s'", info.get_mixername() );
@@ -81,8 +132,7 @@ int main( string[] args )
 
     res = card.elem_list( list );
     message( "card elem_list: %s", Alsa.strerror( res ) );
-    if (res < 0)
-        return -1;
+    assert (res >= 0 );
 
     var count = list.get_count();
     message( "card elem_list has %u elements (%u used)", count, list.get_used() );
@@ -90,22 +140,49 @@ int main( string[] args )
     list.set_offset( 0 );
     res = list.alloc_space( count );
     message( "elemlist alloc_space: %s", Alsa.strerror( res ) );
-    if (res < 0)
-        return -1;
+    assert (res >= 0 );
 
     res = card.elem_list( list );
     message( "card elem_list: %s", Alsa.strerror( res ) );
-    if (res < 0)
-        return -1;
+    assert (res >= 0 );
 
-    for ( int i = 0; i < count; ++i )
+    char[] buf;
+    buf = new char[512];
+
+    if ( command == "set" )
     {
-        ElemId eid;
-        ElemId.alloc( out eid );
-        list.get_id( i, eid );
-        dump_control( eid );
-    }
+        stream = FileStream.open( args[3], "r" );
+        assert( stream != null );
+        for( int i = 0; i < count; ++i )
+        {
+            var line = stream.gets( buf );
+            var segments = line.split( ":" );
+            assert( segments.length == 4 );
+            uint idx = segments[0].to_int();
+            string name = segments[1].replace( "'", "" );
+            uint elements = segments[2].to_int();
+            var params = segments[3].strip().split( "," );
+            message( "%u:'%s':%u:'%s'", idx, name, elements, segments[3] );
 
+            ElemId eid;
+            ElemId.alloc( out eid );
+            list.get_id( i, eid );
+            set_control( eid, params );
+        }
+    }
+    else
+    {
+        stream = FileStream.open( args[3], "w" );
+
+        for ( int i = 0; i < count; ++i )
+        {
+            ElemId eid;
+            ElemId.alloc( out eid );
+            list.get_id( i, eid );
+            dump_control( eid );
+        }
+
+    }
     list.free_space();
 
     //
@@ -120,7 +197,7 @@ int main( string[] args )
     if (res < 0)
         return -1;
 
-    res = mixer.attach( args.length > 1 ? args[1] : "default" );
+    res = mixer.attach( args[1] );
     message( "mixer attach: %s", Alsa.strerror( res ) );
     if (res < 0)
         return -1;
