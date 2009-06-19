@@ -47,6 +47,7 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	            --pkg gmodule-2.0 \
 	            --pkg gio-2.0 \
 	            --pkg dbus-glib-1 \
+	            --pkg libasound \
 	            --header fsoframework.h \
 	            --library fsoframework-2.0 $^
 	touch $@

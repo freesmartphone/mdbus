@@ -193,6 +193,14 @@ namespace FsoFramework {
 		public void setFile (string filename, bool append = false);
 		protected override void write (string message);
 	}
+	[CCode (ref_function = "fso_framework_mixer_control_ref", unref_function = "fso_framework_mixer_control_unref", param_spec_function = "fso_framework_param_spec_mixer_control", cheader_filename = "fsoframework.h")]
+	public class MixerControl {
+		public Alsa.ElemId eid;
+		public Alsa.ElemInfo info;
+		public Alsa.ElemValue value;
+		public MixerControl (ref Alsa.ElemId eid, ref Alsa.ElemInfo info, ref Alsa.ElemValue value);
+		public string to_string ();
+	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class NullLogger : FsoFramework.AbstractLogger {
 		public NullLogger (string domain);
@@ -216,7 +224,17 @@ namespace FsoFramework {
 		public static FsoFramework.SmartKeyFileSection? openSection (FsoFramework.SmartKeyFile kf, string section);
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
-	public abstract class SoundSystem : GLib.Object {
+	public class SoundDevice : FsoFramework.AbstractObject {
+		public string fullname;
+		public string mixername;
+		public string name;
+		public FsoFramework.MixerControl controlForId (Alsa.ElemList list, uint idx);
+		public static FsoFramework.SoundDevice create (string cardname = "default") throws FsoFramework.SoundError;
+		public override string repr ();
+		public FsoFramework.MixerControl[] scenario () throws FsoFramework.SoundError;
+	}
+	[CCode (cheader_filename = "fsoframework.h")]
+	public abstract class SoundScenario : GLib.Object {
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class SyslogLogger : FsoFramework.AbstractLogger {
@@ -267,6 +285,11 @@ namespace FsoFramework {
 		REGISTER_NOT_FOUND,
 		FACTORY_NOT_FOUND,
 		UNABLE_TO_INITIALIZE,
+	}
+	[CCode (cprefix = "FSO_FRAMEWORK_SOUND_ERROR_", cheader_filename = "fsoframework.h")]
+	public errordomain SoundError {
+		NO_DEVICE,
+		DEVICE_ERROR,
 	}
 	[CCode (cheader_filename = "fsoframework.h", has_target = false)]
 	public delegate string FactoryFunc (FsoFramework.Subsystem subsystem);

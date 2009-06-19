@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	-I../fsoframework \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
+	$(ALSA_CFLAGS) \
 	$(NULL)
 
 INCLUDES = \
@@ -14,7 +15,11 @@ INCLUDES = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(GLIB_LIBS) $(DBUS_LIBS) ../fsoframework/libfsoframework.la
+progs_ldadd = \
+	$(GLIB_LIBS) \
+	$(DBUS_LIBS) \
+	$(ALSA_LIBS) \
+	../fsoframework/libfsoframework.la
 
 VALAC_ARGS = \
 	-C \
@@ -177,6 +182,18 @@ $(testkobjectnotifier_SOURCES): $(testkobjectnotifier_VALASOURCES)
 	touch $@
 testkobjectnotifier_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testkobjectnotifier_VALASOURCES)
+
+#
+# soundsystem test
+#
+TEST_PROGS += testsoundsystem
+testsoundsystem_VALASOURCES = testsoundsystem.vala
+testsoundsystem_SOURCES = testsoundsystem.c
+$(testsoundsystem_SOURCES): $(testsoundsystem_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testsoundsystem_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testsoundsystem_VALASOURCES)
 
 CLEANFILES = \
     $(TEST_PROGS) \
