@@ -6,6 +6,9 @@ dist_vapi_DATA = \
 	libascenario.deps \
 	libascenario.vapi \
 	\
+	libasound.deps \
+	libasound.vapi \
+	\
 	libcanberra.deps \
 	libcanberra.vapi \
 	\
