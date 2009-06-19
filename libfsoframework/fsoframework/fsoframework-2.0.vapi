@@ -216,6 +216,9 @@ namespace FsoFramework {
 		public static FsoFramework.SmartKeyFileSection? openSection (FsoFramework.SmartKeyFile kf, string section);
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
+	public abstract class SoundSystem : GLib.Object {
+	}
+	[CCode (cheader_filename = "fsoframework.h")]
 	public class SyslogLogger : FsoFramework.AbstractLogger {
 		protected override string format (string message, string level);
 		public SyslogLogger (string domain);

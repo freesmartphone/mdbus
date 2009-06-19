@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
+	$(ALSA_CFLAGS) \
 	$(NULL)
 
 BUILT_SOURCES = fsoframework.vala.stamp
@@ -15,6 +16,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsoframework_la_VALASOURCES = \
+	alsa.vala \
 	asyncworker.vala \
 	common.vala \
 	interfaces.vala \
@@ -52,6 +54,7 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 libfsoframework_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
+	$(ALSA_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi

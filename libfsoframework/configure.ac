@@ -21,12 +21,30 @@ VALA_REQUIRED=0.7.3
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
 GLIB_REQUIRED=2.18.0
+ALSA_REQUIRED=0.20
 
 # vala
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
+
+#
+# vala vapi files
+#
+VALA_VAPIDIR=`$PKG_CONFIG --variable=vapidir vala-1.0`
+AC_SUBST(VALA_VAPIDIR)
+
+AC_MSG_NOTICE([checking for misc-vapi...])
+if ! test -f "$VALA_VAPIDIR/linux26.vapi"; then
+  AC_MSG_ERROR([linux26.vapi not found.])
+fi
+if ! test -f "$VALA_VAPIDIR/libasound.vapi"; then
+  AC_MSG_ERROR([libasound.vapi not found.])
+fi
+if ! test -f "$VALA_VAPIDIR/libcanberra.vapi"; then
+  AC_MSG_ERROR([libcanberra.vapi not found.])
+fi
 
 # glib and friends
 PKG_CHECK_MODULES(GLIB,
@@ -43,8 +61,14 @@ PKG_CHECK_MODULES(DBUS,
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
 
+# alsa
+PKG_CHECK_MODULES(ALSA,
+  alsa >= $ALSA_REQUIRED)
+AC_SUBST(ALSA_CFLAGS)
+AC_SUBST(ALSA_LIBS)
+
 #
-# eventfd
+# we need eventfd
 #
 AC_CHECK_HEADER(sys/eventfd.h, , [AC_MSG_ERROR(
 [Couldn't find sys/eventfd.h... your glibc is too old :(] )])
