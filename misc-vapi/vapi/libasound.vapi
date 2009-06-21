@@ -23,6 +23,15 @@ namespace Alsa {
 
     public weak string strerror (int error);
 
+    [CCode (cname = "snd_aes_iec958_t", destroy_function = "")]
+    public struct AesIec958
+    {
+        public uchar[] status;
+        public uchar[] subcode;
+        public uchar pad;
+        public uchar[] dig_subframe;
+    }
+
     [CCode (cprefix = "SND_CTL_", cheader_filename = "alsa/control.h")]
     public enum CardOpenType
     {
@@ -124,15 +133,17 @@ namespace Alsa {
         public int64 get_integer64 (uint idx);
         public uint get_enumerated (uint idx);
         public uchar get_byte (uint idx);
+        public void get_iec958 (AesIec958 val);
 
         public void set_boolean (uint idx, bool b);
         public void set_integer (uint idx, long l);
         public void set_integer64 (uint idx, int64 i);
         public void set_enumerated (uint idx, uint val);
         public void set_byte (uint idx, uchar val);
+        public void set_iec958 (AesIec958 val);
     }
 
-    [Compact]
+    [Compact] 
     [CCode (cprefix = "snd_ctl_elem_list_", cname = "snd_ctl_elem_list_t", free_function = "snd_ctl_elem_list_free")]
     public class ElemList
     {
@@ -144,7 +155,7 @@ namespace Alsa {
         public void free_space ();
         public void set_offset (uint offset);
 
-        public int get_id (uint n, ElemId eid);
+        public void get_id (uint n, ElemId eid);
     }
 
     [Compact]
