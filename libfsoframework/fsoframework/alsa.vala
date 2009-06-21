@@ -32,13 +32,15 @@ public errordomain FsoFramework.SoundError
 public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
 {
     private Card card;
+    private ElemList list;
     public string name;
     public string fullname;
     public string mixername;
 
-    private SoundDevice( ref Card card, string name, string fullname, string mixername )
+    private SoundDevice( ref Card card, ref ElemList list, string name, string fullname, string mixername )
     {
         this.card = (owned) card;
+        this.list = (owned) list;
         this.name = name;
         this.fullname = fullname;
         this.mixername = mixername;
@@ -61,7 +63,25 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         if ( res < 0 )
             throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
 
-        return new SoundDevice( ref card, info.get_id(), info.get_longname(), info.get_mixername() );
+        ElemList list;
+        res = ElemList.alloc( out list );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        res = card.elem_list( list );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        list.set_offset( 0 );
+        res = list.alloc_space( list.get_count() );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        res = card.elem_list( list );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        return new SoundDevice( ref card, ref list, info.get_id(), info.get_longname(), info.get_mixername() );
     }
 
     public override string repr()
@@ -69,7 +89,7 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         return "<Device %s>".printf( name );
     }
 
-    private MixerControl controlForId( ElemList list, uint idx ) throws SoundError
+    private MixerControl controlForId( uint idx ) throws SoundError
     {
         ElemId eid;
         var res = ElemId.alloc( out eid );
@@ -103,7 +123,7 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         return new MixerControl( ref eid, ref info, ref value );
     }
 
-    private void setControlForId( ElemList list, uint idx, MixerControl control ) throws SoundError
+    private void setControlForId( uint idx, MixerControl control ) throws SoundError
     {
         var type = control.info.get_type();
         if ( type != ElemType.IEC958 )
@@ -120,62 +140,21 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
     public MixerControl[] allMixerControls() throws SoundError
     {
         MixerControl[] controls = {};
-
-        ElemList list;
-        int res = ElemList.alloc( out list );
-        if ( res < 0 )
-            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
-
-        res = card.elem_list( list );
-        if ( res < 0 )
-            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
-
         var count = list.get_count();
-
-        list.set_offset( 0 );
-        res = list.alloc_space( count );
-        if ( res < 0 )
-            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
-
-        res = card.elem_list( list );
-        if ( res < 0 )
-            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
 
         for ( int i = 0; i < count; ++i )
         {
-            controls += controlForId( list, i );
+            controls += controlForId( i );
         }
         return controls;
     }
 
     public void setAllMixerControls( MixerControl[] controls ) throws SoundError
     {
-        ElemList list;
-        int res = ElemList.alloc( out list );
-        if ( res < 0 )
-            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
-
-        res = card.elem_list( list );
-        if ( res < 0 )
-            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
-
         var count = list.get_count();
-
-        if ( count != controls.length )
-            throw new SoundError.NOT_ENOUGH_CONTROLS( "Expected %u, got %u".printf( count, controls.length ) );
-
-        list.set_offset( 0 );
-        res = list.alloc_space( count );
-        if ( res < 0 )
-            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
-
-        res = card.elem_list( list );
-        if ( res < 0 )
-            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
-
         for ( int i = 0; i < count; ++i )
         {
-            setControlForId( list, i, controls[i] );
+            setControlForId( i, controls[i] );
         }
     }
 }
@@ -195,6 +174,13 @@ public class FsoFramework.MixerControl
         this.info = (owned) info;
         this.value = (owned) value;
     }
+
+    /*
+    public static MixerControl from_string( string description )
+    {
+        message( "yo" );
+    }
+    */
 
     public string to_string()
     {
