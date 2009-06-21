@@ -229,12 +229,11 @@ namespace FsoFramework {
 		public string mixername;
 		public string name;
 		public FsoFramework.MixerControl[] allMixerControls () throws FsoFramework.SoundError;
+		public FsoFramework.MixerControl controlForString (string description) throws FsoFramework.SoundError;
 		public static FsoFramework.SoundDevice create (string cardname = "default") throws FsoFramework.SoundError;
 		public override string repr ();
 		public void setAllMixerControls (FsoFramework.MixerControl[] controls) throws FsoFramework.SoundError;
-	}
-	[CCode (cheader_filename = "fsoframework.h")]
-	public abstract class SoundScenario : GLib.Object {
+		public void setControl (FsoFramework.MixerControl control) throws FsoFramework.SoundError;
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class SyslogLogger : FsoFramework.AbstractLogger {
@@ -291,6 +290,7 @@ namespace FsoFramework {
 		NO_DEVICE,
 		DEVICE_ERROR,
 		NOT_ENOUGH_CONTROLS,
+		INVALID_DESCRIPTOR,
 	}
 	[CCode (cheader_filename = "fsoframework.h", has_target = false)]
 	public delegate string FactoryFunc (FsoFramework.Subsystem subsystem);

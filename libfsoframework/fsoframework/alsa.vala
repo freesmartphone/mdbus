@@ -19,11 +19,15 @@
 
 using Alsa;
 
+/**
+ * Errordomain
+ **/
 public errordomain FsoFramework.SoundError
 {
     NO_DEVICE,
     DEVICE_ERROR,
     NOT_ENOUGH_CONTROLS,
+    INVALID_DESCRIPTOR,
 }
 
 /**
@@ -46,7 +50,10 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         this.mixername = mixername;
     }
 
-    public static SoundDevice create( string cardname = "default" ) throws FsoFramework.SoundError
+    /**
+     * Create @a SoundDevice class, attached to a specific Alsa card.
+     **/
+    public static SoundDevice create( string cardname = "default" ) throws SoundError
     {
         Card card;
 
@@ -123,13 +130,15 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         return new MixerControl( ref eid, ref info, ref value );
     }
 
-    private void setControlForId( uint idx, MixerControl control ) throws SoundError
+    /**
+     * Set control to the value specified by @a MixerControl.
+     **/
+    public void setControl( MixerControl control ) throws SoundError
     {
         var type = control.info.get_type();
         if ( type != ElemType.IEC958 )
         {
             var res = card.elem_write( control.value );
-            message( "idx=%u, res=%d", idx, res );
             if ( res < 0 )
                 throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
         }
@@ -137,6 +146,9 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
             message( "ignoring IEC958 setting" );
     }
 
+    /**
+     * Get all controls (aka a scenario).
+     **/
     public MixerControl[] allMixerControls() throws SoundError
     {
         MixerControl[] controls = {};
@@ -149,13 +161,64 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         return controls;
     }
 
+    /**
+     * Set all controls (aka a scenario).
+     **/
     public void setAllMixerControls( MixerControl[] controls ) throws SoundError
     {
-        var count = list.get_count();
-        for ( int i = 0; i < count; ++i )
+        foreach ( var control in controls )
+            setControl( control );
+    }
+
+    /**
+     * Construct @a MixerControl from a string description.
+     **/
+    public MixerControl controlForString( string description ) throws SoundError
+    {
+        var strings = description.split( ":" );
+        if ( strings.length != 4 )
+            throw new SoundError.INVALID_DESCRIPTOR( "Expected 4 descriptor components, got %d".printf( strings.length ) );
+        var idx = strings[0].to_int();
+        var name = strings[1].replace( "'", "" );
+        var count = strings[2].to_int();
+        var segments = strings[3].strip().split( "," );
+        if ( segments.length != count )
+            throw new SoundError.INVALID_DESCRIPTOR( "Expected %d value parameters, got %d".printf( count, segments.length ) );
+
+        // populate defaults
+        var control = controlForId( idx );
+        // overwrite with values from string
+
+        switch ( control.info.get_type() )
         {
-            setControlForId( i, controls[i] );
+            case ElemType.BOOLEAN:
+                for ( var i = 0; i < count; ++i )
+                    control.value.set_boolean( i, segments[i] == "1" );
+                break;
+            case ElemType.INTEGER:
+                for ( var i = 0; i < count; ++i )
+                    control.value.set_integer( i, segments[i].to_int() );
+                break;
+            case ElemType.INTEGER64:
+                for ( var i = 0; i < count; ++i )
+                    control.value.set_integer64( i, segments[i].to_int64() );
+                break;
+            case ElemType.ENUMERATED:
+                for ( var i = 0; i < count; ++i )
+                    control.value.set_enumerated( i, segments[i].to_int() );
+                break;
+            case ElemType.BYTES:
+                for ( var i = 0; i < count; ++i )
+                    control.value.set_byte( i, (uchar) ( segments[i].to_int() & 0xff ) );
+                break;
+            case ElemType.IEC958:
+                message( "can't restore IEC958 element" );
+                break;
+            default:
+                message( "unknown type %d... ignoring".printf( control.info.get_type() ) );
+                break;
         }
+        return control;
     }
 }
 
@@ -174,13 +237,6 @@ public class FsoFramework.MixerControl
         this.info = (owned) info;
         this.value = (owned) value;
     }
-
-    /*
-    public static MixerControl from_string( string description )
-    {
-        message( "yo" );
-    }
-    */
 
     public string to_string()
     {
@@ -216,7 +272,6 @@ public class FsoFramework.MixerControl
                 value.get_iec958( iec958 );
                 infoline += "<IEC958>";
                 break;
-
             default:
                 for ( var i = 0; i < count; ++i )
                     infoline += "<unknown>,";
@@ -224,15 +279,5 @@ public class FsoFramework.MixerControl
         }
         return infoline;
     }
-}
-
-/**
- * @class FsoFramework.SoundScenario
- *
- * A sound scenario is just a bunch of mixer controls
- **/
-public abstract class FsoFramework.SoundScenario : GLib.Object
-{
-    
 }
 
