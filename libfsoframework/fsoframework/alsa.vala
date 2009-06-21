@@ -23,6 +23,7 @@ public errordomain FsoFramework.SoundError
 {
     NO_DEVICE,
     DEVICE_ERROR,
+    NOT_ENOUGH_CONTROLS,
 }
 
 /**
@@ -68,7 +69,55 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         return "<Device %s>".printf( name );
     }
 
-    public MixerControl[] scenario() throws SoundError
+    private MixerControl controlForId( ElemList list, uint idx ) throws SoundError
+    {
+        ElemId eid;
+        var res = ElemId.alloc( out eid );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        list.get_id( idx, eid );
+
+        ElemInfo info;
+        res = ElemInfo.alloc( out info );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        info.set_id( eid );
+
+        res = card.elem_info( info );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        ElemValue value;
+        res = ElemValue.alloc( out value );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        value.set_id( eid );
+
+        res = card.elem_read( value );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        return new MixerControl( ref eid, ref info, ref value );
+    }
+
+    private void setControlForId( ElemList list, uint idx, MixerControl control ) throws SoundError
+    {
+        var type = control.info.get_type();
+        if ( type != ElemType.IEC958 )
+        {
+            var res = card.elem_write( control.value );
+            message( "idx=%u, res=%d", idx, res );
+            if ( res < 0 )
+                throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+        }
+        else
+            message( "ignoring IEC958 setting" );
+    }
+
+    public MixerControl[] allMixerControls() throws SoundError
     {
         MixerControl[] controls = {};
 
@@ -99,23 +148,35 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         return controls;
     }
 
-    public MixerControl controlForId( ElemList list, uint idx )
+    public void setAllMixerControls( MixerControl[] controls ) throws SoundError
     {
-        ElemId eid;
-        ElemId.alloc( out eid );
-        list.get_id( idx, eid );
+        ElemList list;
+        int res = ElemList.alloc( out list );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
 
-        ElemInfo info;
-        ElemInfo.alloc( out info );
-        info.set_id( eid );
-        card.elem_info( info );
+        res = card.elem_list( list );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
 
-        ElemValue value;
-        ElemValue.alloc( out value );
-        value.set_id( eid );
-        card.elem_read( value );
+        var count = list.get_count();
 
-        return new MixerControl( ref eid, ref info, ref value );
+        if ( count != controls.length )
+            throw new SoundError.NOT_ENOUGH_CONTROLS( "Expected %u, got %u".printf( count, controls.length ) );
+
+        list.set_offset( 0 );
+        res = list.alloc_space( count );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        res = card.elem_list( list );
+        if ( res < 0 )
+            throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
+
+        for ( int i = 0; i < count; ++i )
+        {
+            setControlForId( list, i, controls[i] );
+        }
     }
 }
 
@@ -164,9 +225,15 @@ public class FsoFramework.MixerControl
                 for ( var i = 0; i < count; ++i )
                     infoline += "%2.2x,".printf( value.get_byte( i ) );
                 break;
+            case ElemType.IEC958:
+                AesIec958 iec958 = {};
+                value.get_iec958( iec958 );
+                infoline += "<IEC958>";
+                break;
+
             default:
                 for ( var i = 0; i < count; ++i )
-                    infoline += "???,";
+                    infoline += "<unknown>,";
                 break;
         }
         return infoline;

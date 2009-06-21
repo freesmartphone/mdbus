@@ -228,10 +228,10 @@ namespace FsoFramework {
 		public string fullname;
 		public string mixername;
 		public string name;
-		public FsoFramework.MixerControl controlForId (Alsa.ElemList list, uint idx);
+		public FsoFramework.MixerControl[] allMixerControls () throws FsoFramework.SoundError;
 		public static FsoFramework.SoundDevice create (string cardname = "default") throws FsoFramework.SoundError;
 		public override string repr ();
-		public FsoFramework.MixerControl[] scenario () throws FsoFramework.SoundError;
+		public void setAllMixerControls (FsoFramework.MixerControl[] controls) throws FsoFramework.SoundError;
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public abstract class SoundScenario : GLib.Object {
@@ -290,6 +290,7 @@ namespace FsoFramework {
 	public errordomain SoundError {
 		NO_DEVICE,
 		DEVICE_ERROR,
+		NOT_ENOUGH_CONTROLS,
 	}
 	[CCode (cheader_filename = "fsoframework.h", has_target = false)]
 	public delegate string FactoryFunc (FsoFramework.Subsystem subsystem);

@@ -24,13 +24,16 @@ using FsoFramework;
 void test_sound_system()
 //===========================================================================
 {
-    var sd = SoundDevice.create( "default" );
-    var controls = sd.scenario();
+    var sd = SoundDevice.create( "hw:0" );
+    var controls = sd.allMixerControls();
     debug( "# of controls = %d", controls.length );
     foreach ( var control in controls )
     {
         debug( "Control: %s", control.to_string() );
     }
+
+    sd.setAllMixerControls( controls );
+
 }
 
 //===========================================================================
