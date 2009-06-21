@@ -37,7 +37,7 @@ class Info : FreeSmartphone.Device.Info, FsoFramework.AbstractObject
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                         FsoFramework.Device.InfoServicePath,
                                         this );
-        logger.info( "Created" );
+        logger.info( "Created new Info Object" );
     }
 
 
