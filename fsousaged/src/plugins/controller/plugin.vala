@@ -412,15 +412,39 @@ public class Controller : FsoFramework.AbstractObject
     //
     // DBUS API (for consumers)
     //
-    public FreeSmartphone.UsageResourcePolicy get_resource_policy( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    //public FreeSmartphone.UsageResourcePolicy get_resource_policy( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public string get_resource_policy( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        return getResource( name ).policy;
+        switch ( getResource( name ).policy )
+        {
+            case FreeSmartphone.UsageResourcePolicy.ENABLED:
+                return "enabled";
+                break;
+            case FreeSmartphone.UsageResourcePolicy.DISABLED:
+                return "disabled";
+                break;
+            case FreeSmartphone.UsageResourcePolicy.AUTO:
+                return "auto";
+                break;
+            default:
+                assert_not_reached();
+                break;
+        }
     }
 
-    public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, DBus.Error
+    //public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, DBus.Error
+    public void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        message( "set resource policy for %s to %d", name, policy );
-        getResource( name ).setPolicy( policy );
+        message( "set resource policy for %s to %s", name, policy );
+
+        if ( policy == "enabled" )
+            getResource( name ).setPolicy( FreeSmartphone.UsageResourcePolicy.ENABLED );
+        else if ( policy == "disabled" )
+            getResource( name ).setPolicy( FreeSmartphone.UsageResourcePolicy.DISABLED );
+        else if ( policy == "auto" )
+            getResource( name ).setPolicy( FreeSmartphone.UsageResourcePolicy.AUTO );
+        else
+            assert( false );
     }
 
     public bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBus.Error
