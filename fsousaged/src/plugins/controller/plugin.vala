@@ -114,7 +114,7 @@ public class Resource
                 break;
             default:
                 assert_not_reached();
-
+                break;
         }
     }
 
@@ -412,8 +412,8 @@ public class Controller : FsoFramework.AbstractObject
     //
     // DBUS API (for consumers)
     //
-    //public FreeSmartphone.UsageResourcePolicy get_resource_policy( string name ) throws FreeSmartphone.UsageError, DBus.Error
-    public string get_resource_policy( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    //public FreeSmartphone.UsageResourcePolicy get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public string get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         switch ( getResource( name ).policy )
         {
@@ -427,13 +427,15 @@ public class Controller : FsoFramework.AbstractObject
                 return "auto";
                 break;
             default:
-                assert_not_reached();
+                var error = "unknown resource policy value %d for resource %s".printf( getResource( name ).policy, name );
+                logger.error( error );
+                throw new FreeSmartphone.Error.INTERNAL_ERROR( error );
                 break;
         }
     }
 
-    //public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, DBus.Error
-    public void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, DBus.Error
+    //public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         message( "set resource policy for %s to %s", name, policy );
 
@@ -444,7 +446,7 @@ public class Controller : FsoFramework.AbstractObject
         else if ( policy == "auto" )
             getResource( name ).setPolicy( FreeSmartphone.UsageResourcePolicy.AUTO );
         else
-            assert( false );
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "ResourcePolicy needs to be one of { \"enabled\", \"disabled\", \"auto\" }" );
     }
 
     public bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBus.Error
