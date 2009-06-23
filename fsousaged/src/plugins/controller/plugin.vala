@@ -114,7 +114,6 @@ public class Resource
                 break;
             default:
                 assert_not_reached();
-                break;
         }
     }
 
@@ -151,7 +150,7 @@ public class Resource
         return res;
     }
 
-    public void enable() throws DBus.Error
+    public void enable() throws FreeSmartphone.ResourceError, DBus.Error
     {
         try
         {
@@ -160,13 +159,13 @@ public class Resource
         }
         catch ( DBus.Error e )
         {
-            instance.logger.error( "Resource %s can't be enabled %s. Trying to disable instead".printf( name, e.message ) );
+            instance.logger.error( "Resource %s can't be enabled: %s. Trying to disable instead".printf( name, e.message ) );
             proxy.disable();
             throw e;
         }
     }
 
-    public void disable() throws DBus.Error
+    public void disable() throws FreeSmartphone.ResourceError, DBus.Error
     {
         try
         {
@@ -177,10 +176,11 @@ public class Resource
         {
             instance.logger.error( "Resource %s can't be disabled: %s. Setting status to UNKNOWN".printf( name, e.message ) );
             status = ResourceStatus.UNKNOWN;
+            throw e;
         }
     }
 
-    public void suspend() throws DBus.Error
+    public void suspend() throws FreeSmartphone.ResourceError, DBus.Error
     {
         if ( status == ResourceStatus.ENABLED )
         {
@@ -202,7 +202,7 @@ public class Resource
         }
     }
 
-    public void resume() throws DBus.Error
+    public void resume() throws FreeSmartphone.ResourceError, DBus.Error
     {
         if ( status == ResourceStatus.SUSPENDED )
         {
@@ -273,7 +273,18 @@ public class Controller : FsoFramework.AbstractObject
         this.resource_available( r.name, true ); // DBUS SIGNAL
 
         // initial status is disabled
-        r.disable();
+        try
+        {
+            r.disable();
+        }
+        catch ( FreeSmartphone.ResourceError e )
+        {
+            logger.warning( "Error while trying to (initially) disable resource %s: %s".printf( r.name, e.message ) );
+        }
+        catch ( DBus.Error e )
+        {
+            logger.warning( "Error while trying to (initially) disable resource %s: %s".printf( r.name, e.message ) );
+        }
     }
 
     private void onResourceVanishing( Resource r )
@@ -281,8 +292,18 @@ public class Controller : FsoFramework.AbstractObject
         logger.debug( "Resource %s served by %s @ %s has just been unregistered".printf( r.name, r.busname, r.objectpath ) );
         this.resource_available( r.name, false ); // DBUS SIGNAL
 
-        // finishing status is disabled
-        r.disable();
+        try
+        {
+            r.disable();
+        }
+        catch ( FreeSmartphone.ResourceError e )
+        {
+            logger.warning( "Error while trying to (initially) disable resource %s: %s".printf( r.name, e.message ) );
+        }
+        catch ( DBus.Error e )
+        {
+            logger.warning( "Error while trying to (finally) disable resource %s: %s".printf( r.name, e.message ) );
+        }
     }
 
     private void onNameOwnerChanged( dynamic DBus.Object obj, string name, string oldowner, string newowner )
@@ -307,7 +328,9 @@ public class Controller : FsoFramework.AbstractObject
             else
             {
                 if ( r.hasUser( name ) )
+                {
                     r.delUser( name );
+                }
             }
         }
     }
@@ -345,6 +368,10 @@ public class Controller : FsoFramework.AbstractObject
             {
                 r.disable();
             }
+            catch ( FreeSmartphone.ResourceError e )
+            {
+                logger.warning( "Error while trying to suspend resource %s: %s".printf( r.name, e.message ) );
+            }
             catch ( DBus.Error e )
             {
                 logger.warning( "Error while trying to disable resource %s: %s".printf( r.name, e.message ) );
@@ -360,6 +387,10 @@ public class Controller : FsoFramework.AbstractObject
             {
                 r.suspend();
             }
+            catch ( FreeSmartphone.ResourceError e )
+            {
+                logger.warning( "Error while trying to suspend resource %s: %s".printf( r.name, e.message ) );
+            }
             catch ( DBus.Error e )
             {
                 logger.warning( "Error while trying to suspend resource %s: %s".printf( r.name, e.message ) );
@@ -374,6 +405,10 @@ public class Controller : FsoFramework.AbstractObject
             try
             {
                 r.resume();
+            }
+            catch ( FreeSmartphone.ResourceError e )
+            {
+                logger.warning( "Error while trying to suspend resource %s: %s".printf( r.name, e.message ) );
             }
             catch ( DBus.Error e )
             {
@@ -419,18 +454,14 @@ public class Controller : FsoFramework.AbstractObject
         {
             case FreeSmartphone.UsageResourcePolicy.ENABLED:
                 return "enabled";
-                break;
             case FreeSmartphone.UsageResourcePolicy.DISABLED:
                 return "disabled";
-                break;
             case FreeSmartphone.UsageResourcePolicy.AUTO:
                 return "auto";
-                break;
             default:
                 var error = "unknown resource policy value %d for resource %s".printf( getResource( name ).policy, name );
                 logger.error( error );
                 throw new FreeSmartphone.Error.INTERNAL_ERROR( error );
-                break;
         }
     }
 
