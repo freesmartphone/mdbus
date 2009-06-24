@@ -109,7 +109,9 @@ public static Logger createLogger( string domain )
             theLogger = logger;
             break;
         default:
-            assert( false );
+            warning( "Don't know how to instanciate logger type '%s'. Using NullLogger.", log_to );
+            var logger = new NullLogger( domain );
+            theLogger = logger;
             break;
     }
 
