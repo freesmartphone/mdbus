@@ -68,9 +68,10 @@ public class PlayingSound
 class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-    private Sound.Scenario scenario;
+    //private Sound.Scenario scenario;
     private Canberra.Context context;
     private HashMap<string,PlayingSound> sounds;
+
     private Queue<string> scenarios;
 
     private FsoFramework.Async.EventFd eventfd;
@@ -87,7 +88,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         sounds = new HashMap<string,PlayingSound>( str_hash, str_equal );
 
         Canberra.Context.create( &context );
-        scenario = new Sound.Scenario();
+        //scenario = new Sound.Scenario();
 
         eventfd = new FsoFramework.Async.EventFd( 0, onAsyncEvent );
 
@@ -155,10 +156,14 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     //
     // DBUS API
     //
+
+    //
+    // Scenario
     public string[] get_available_scenarios() throws DBus.Error
     {
         string[] list;
-        scenario.list( out list );
+        //scenario.list( out list );
+        assert_not_reached();
         return list;
     }
 
@@ -169,9 +174,45 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public string get_scenario() throws DBus.Error
     {
-        return scenario.get_scn();
+        //return scenario.get_scn();
+        assert_not_reached();
+        return "<unknown";
     }
 
+    public string pull_scenario() throws DBus.Error
+    {
+        /*
+        var scenario = scenarios.pop_head();
+        if ( scenario == null )
+        throw new FreeSmartphone.Device.AudioError.SCENARIO_STACK_UNDERFLOW( "No scenario to pull" );
+        set_scenario( scenario );
+        return scenario;
+        */
+        assert_not_reached();
+    }
+
+    public void push_scenario( string scenario ) throws DBus.Error
+    {
+        /*
+        scenarios.push_head( scenario );
+        set_scenario( scenario );
+        */
+        assert_not_reached();
+    }
+
+    public void set_scenario( string scenario ) throws DBus.Error
+    {
+        /*
+        var res = this.scenario.set_scn( scenario );
+        if ( res < 0 )
+            throw new FreeSmartphone.Device.AudioError.SCENARIO_INVALID( "Could not find %s".printf( scenario ) );
+        */
+        assert_not_reached();
+
+    }
+
+    //
+    // Sound
     public string[] get_supported_formats() throws DBus.Error
     {
         return { "*.wav" };
@@ -195,28 +236,6 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         }
 
         sounds[name] = new PlayingSound( name, loop, length, (int)name );
-    }
-
-    public string pull_scenario() throws DBus.Error
-    {
-        var scenario = scenarios.pop_head();
-        if ( scenario == null )
-            throw new FreeSmartphone.Device.AudioError.SCENARIO_STACK_UNDERFLOW( "No scenario to pull" );
-            set_scenario( scenario );
-        return scenario;
-    }
-
-    public void push_scenario( string scenario ) throws DBus.Error
-    {
-        scenarios.push_head( scenario );
-        set_scenario( scenario );
-    }
-
-    public void set_scenario( string scenario ) throws DBus.Error
-    {
-        var res = this.scenario.set_scn( scenario );
-        if ( res < 0 )
-            throw new FreeSmartphone.Device.AudioError.SCENARIO_INVALID( "Could not find %s".printf( scenario ) );
     }
 
     public void stop_all_sounds() throws DBus.Error
