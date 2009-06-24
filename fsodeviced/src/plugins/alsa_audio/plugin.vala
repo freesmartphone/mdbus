@@ -20,6 +20,9 @@
 using GLib;
 using Gee;
 
+const string FSO_ALSA_CONF_PATH = "/etc/freesmartphone/alsa/default.conf";
+const string FSO_ALSA_DATA_PATH = "/etc/freesmartphone/alsa/default/";
+
 namespace Alsa
 {
 
@@ -63,18 +66,28 @@ public class PlayingSound
 }
 
 /**
+ * Scenario
+ **/
+class BunchOfMixerControls
+{
+    public FsoFramework.MixerControl[] controls;
+}
+
+/**
  * Alsa Audio Player
  **/
 class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-    //private Sound.Scenario scenario;
+
     private Canberra.Context context;
     private HashMap<string,PlayingSound> sounds;
-
-    private Queue<string> scenarios;
-
     private FsoFramework.Async.EventFd eventfd;
+
+    private FsoFramework.SoundDevice device;
+    private HashMap<string,BunchOfMixerControls> allscenarios;
+    private string currentscenario;
+    private Queue<string> scenarios;
 
     public AudioPlayer( FsoFramework.Subsystem subsystem )
     {
@@ -85,12 +98,14 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
                                          FsoFramework.Device.AudioServicePath,
                                          this );
 
+        // init sounds
         sounds = new HashMap<string,PlayingSound>( str_hash, str_equal );
-
         Canberra.Context.create( &context );
-        //scenario = new Sound.Scenario();
-
         eventfd = new FsoFramework.Async.EventFd( 0, onAsyncEvent );
+
+        initScenarios();
+
+        device.setAllMixerControls( allscenarios[currentscenario].controls );
 
         logger.info( "created." );
     }
@@ -153,6 +168,71 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         return true; // MainLoop: call me again
     }
 
+    private void addScenario( string scenario, File file )
+    {
+        FsoFramework.MixerControl[] controls = {};
+
+        try
+        {
+            // Open file for reading and wrap returned FileInputStream into a
+            // DataInputStream, so we can read line by line
+            var in_stream = new DataInputStream( file.read( null ) );
+            string line;
+            // Read lines until end of file (null) is reached
+            while ( ( line = in_stream.read_line( null, null ) ) != null )
+            {
+                message( "dealing with line '%s'", line );
+                var control = device.controlForString( line );
+                controls += control;
+            }
+            logger.debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
+            if ( allscenarios == null )
+                allscenarios = new HashMap<string,BunchOfMixerControls>( str_hash, str_equal );
+            var bunch = new BunchOfMixerControls();
+            bunch.controls = controls;
+            allscenarios[scenario] = bunch;
+        }
+        catch (IOError e)
+        {
+            logger.error( "%s".printf( e.message ) );
+        }
+    }
+
+    private void initScenarios()
+    {
+        // init scenarios
+        FsoFramework.SmartKeyFile alsaconf = new FsoFramework.SmartKeyFile();
+        if ( alsaconf.loadFromFile( FSO_ALSA_CONF_PATH ) )
+        {
+            device = FsoFramework.SoundDevice.create( alsaconf.stringValue( "alsa", "cardname", "default" ) );
+            currentscenario = alsaconf.stringValue( "alsa", "default_scenario", "stereoout" );
+
+            var sections = alsaconf.sectionsWithPrefix( "scenario." );
+            foreach ( var section in sections )
+            {
+                var scenario = section.split( "." )[1];
+                if ( scenario != "" )
+                {
+                    logger.debug( "Found scenario '%s'".printf( scenario ) );
+
+                    var file = File.new_for_path( Path.build_filename( FSO_ALSA_DATA_PATH, scenario ) );
+                    if ( !file.query_exists(null) )
+                    {
+                        logger.warning( "Scenario file %s doesn't exist. Ignoring.".printf( file.get_path() ) );
+                    }
+                    else
+                    {
+                        addScenario( scenario, file );
+                    }
+                }
+            }
+        }
+        else
+        {
+            logger.warning( "Could not load %s. No scenarios available.".printf( FSO_ALSA_CONF_PATH ) );
+        }
+    }
+
     //
     // DBUS API
     //
@@ -161,9 +241,9 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     // Scenario
     public string[] get_available_scenarios() throws DBus.Error
     {
-        string[] list;
-        //scenario.list( out list );
-        assert_not_reached();
+        string[] list = {};
+        foreach ( var key in allscenarios.get_keys() )
+            list += key;
         return list;
     }
 
@@ -174,41 +254,33 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public string get_scenario() throws DBus.Error
     {
-        //return scenario.get_scn();
-        assert_not_reached();
-        return "<unknown";
+        return currentscenario;
     }
 
     public string pull_scenario() throws DBus.Error
     {
-        /*
         var scenario = scenarios.pop_head();
         if ( scenario == null )
-        throw new FreeSmartphone.Device.AudioError.SCENARIO_STACK_UNDERFLOW( "No scenario to pull" );
+            throw new FreeSmartphone.Device.AudioError.SCENARIO_STACK_UNDERFLOW( "No scenario to pull" );
         set_scenario( scenario );
         return scenario;
-        */
-        assert_not_reached();
     }
 
     public void push_scenario( string scenario ) throws DBus.Error
     {
-        /*
         scenarios.push_head( scenario );
         set_scenario( scenario );
-        */
-        assert_not_reached();
     }
 
     public void set_scenario( string scenario ) throws DBus.Error
     {
-        /*
-        var res = this.scenario.set_scn( scenario );
-        if ( res < 0 )
+        //FIXME perhaps rather throw INVALID_PARAMETER?
+        if ( !( scenario in allscenarios.get_keys() ) )
             throw new FreeSmartphone.Device.AudioError.SCENARIO_INVALID( "Could not find %s".printf( scenario ) );
-        */
-        assert_not_reached();
 
+        assert ( device != null );
+
+        device.setAllMixerControls( allscenarios[scenario].controls );
     }
 
     //
