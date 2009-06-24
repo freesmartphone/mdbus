@@ -33,7 +33,6 @@ void test_sound_system()
     }
 
     sd.setAllMixerControls( controls );
-
 }
 
 //===========================================================================

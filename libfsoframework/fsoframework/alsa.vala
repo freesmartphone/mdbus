@@ -103,6 +103,7 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         if ( res < 0 )
             throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
 
+        assert( list != null );
         list.get_id( idx, eid );
 
         ElemInfo info;
@@ -186,7 +187,7 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
             throw new SoundError.INVALID_DESCRIPTOR( "Expected %d value parameters, got %d".printf( count, segments.length ) );
 
         // populate defaults
-        var control = controlForId( idx );
+        var control = controlForId( idx - 1 );
         // overwrite with values from string
 
         switch ( control.info.get_type() )
