@@ -124,7 +124,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
      */
     public void onPlayingSoundFinished( Canberra.Context context, uint32 id, Canberra.Error code )
     {
-        logger.debug( "sound finished with name %s, code %s".printf( (string)id, Canberra.strerror( code ) ) );
+        logger.debug( "Sound finished with name %s, code %s".printf( (string)id, Canberra.strerror( code ) ) );
         PlayingSound sound = sounds[(string)id];
         assert ( sound != null );
         sound.finished = true;
@@ -181,7 +181,6 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
             // Read lines until end of file (null) is reached
             while ( ( line = in_stream.read_line( null, null ) ) != null )
             {
-                message( "dealing with line '%s'", line );
                 var control = device.controlForString( line );
                 controls += control;
             }
@@ -274,9 +273,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public void set_scenario( string scenario ) throws DBus.Error
     {
-        //FIXME perhaps rather throw INVALID_PARAMETER?
         if ( !( scenario in allscenarios.get_keys() ) )
-            throw new FreeSmartphone.Device.AudioError.SCENARIO_INVALID( "Could not find %s".printf( scenario ) );
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not find scenario %s".printf( scenario ) );
 
         assert ( device != null );
 
