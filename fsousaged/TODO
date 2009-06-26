@@ -1,0 +1,2 @@
+* Suspend/Resume resources in parallel (pending async dbus)
+* Intermediate Resume Tasks
