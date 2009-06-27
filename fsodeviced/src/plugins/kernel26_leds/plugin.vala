@@ -50,9 +50,13 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
         }
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        /*
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          "%s/%u".printf( FsoFramework.Device.LedServicePath, counter++ ),
                                          this );
+        */
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                                         "%s/%s".printf( FsoFramework.Device.LedServicePath, Path.get_basename( sysfsnode ) ), this );
         // FIXME: remove in release code, can be done lazily
         initTriggers();
 
