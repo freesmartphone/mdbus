@@ -217,8 +217,11 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         var conn = _dbusconnections.lookup( servicename );
         assert ( conn != null );
 
-        conn.register_object( objectname, obj );
-        _dbusobjects.insert( objectname, obj );
+        // clean objectname
+        var cleanedname = objectname.replace( "-", "_" ).replace( ":", "_" );
+
+        conn.register_object( cleanedname, obj );
+        _dbusobjects.insert( cleanedname, obj );
         return true;
     }
 
