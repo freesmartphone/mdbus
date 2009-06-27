@@ -32,14 +32,14 @@ public static void sighandler( int signum )
 
 public static int main( string[] args )
 {
-    logger = FsoFramework.createLogger( "fsotimed" );
-    logger.info( "fsotimed starting up..." );
-    var subsystem = new FsoFramework.DBusSubsystem( "fsotimed" );
+	logger = FsoFramework.createLogger( "fsotime" );
+    logger.info( "fsotime starting up..." );
+    var subsystem = new FsoFramework.DBusSubsystem( "fsotime" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
     logger.info( "loaded %u plugins".printf( count ) );
     mainloop = new GLib.MainLoop( null, false );
-    logger.info( "fsotimed => mainloop" );
+    logger.info( "fsotime => mainloop" );
     Posix.signal( Posix.SIGINT, sighandler );
     Posix.signal( Posix.SIGTERM, sighandler );
     // enable for release version?
@@ -47,6 +47,6 @@ public static int main( string[] args )
     //Posix.signal( Posix.SIGSEGV, sighandler );
     mainloop.run();
     logger.info( "mainloop => fsotimed" );
-    logger.info( "fsotimed shutdown." );
+    logger.info( "fsotime shutdown." );
     return 0;
 }
