@@ -40,6 +40,8 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
     // internal, so it can be accessable from aggregate input device
     internal string name;
     internal string product = "<Unknown Product>";
+    internal string phys = "<Unknown Path>";
+    internal string caps = "<Unknown Caps>";
     internal int fd = -1;
 
     static construct
@@ -47,11 +49,29 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
         buffer = new char[BUFFER_SIZE];
     }
 
+    private string cleanBuffer( int length )
+    {
+        // work around bug in dbus(-glib?) which crashes when marshalling \xae which is the (C) symbol
+        for ( int i = 0; i < length; ++i )
+        {
+            if ( buffer[i] < 0 )
+                buffer[i] = '?';
+        }
+        return (string)buffer;
+    }
+
     public InputDevice( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
+
+        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                                         "%s/%u".printf( FsoFramework.Device.InputServicePath, counter++ ),
+                                         this );
+
+        logger.info( "created new InputDevice object." );
 
         fd = Posix.open( sysfsnode, Posix.O_RDONLY );
         if ( fd == -1 )
@@ -61,31 +81,62 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
             var length = Posix.ioctl( fd, Linux26.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
             if ( length > 0 )
             {
-                // work around bug in dbus(-glib?) which crashes when marshalling \xae which is the (C) symbol
-                for ( int i = 0; i < length; ++i )
-                {
-                    if ( buffer[i] < 0 )
-                        buffer[i] = '?';
-                }
-                // end work around
-                product = (string)buffer;
+                product = cleanBuffer( length );
                 logger.debug( "^^^ product id '%s'".printf( product ) );
             }
+            length = Posix.ioctl( fd, Linux26.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
+            if ( length > 0 )
+            {
+                phys = cleanBuffer( length );
+                logger.debug( "^^^ product path '%s'".printf( phys ) );
+            }
+            length = Posix.ioctl( fd, Linux26.Input.EVIOCGUNIQ( BUFFER_SIZE ), buffer );
+            if ( length > 0 )
+            {
+                logger.debug( "^^^ product uniq '%s'".printf( cleanBuffer( length ) ) );
+            }
+
+            short b = 0;
+            if ( Posix.ioctl( fd, Linux26.Input.EVIOCGBIT( 0, Linux26.Input.EV_MAX ), &b ) < 0 )
+            {
+                logger.error( "Can't inquire input device capabilities: %s".printf( strerror( errno ) ) );
+            }
+            else
+            {
+                caps = "";
+                if ( ( b & ( 1 << Linux26.Input.EV_SYN ) ) > 0 )
+                    caps += " SYN";
+                if ( ( b & ( 1 << Linux26.Input.EV_KEY ) ) > 0 )
+                    caps += " KEY";
+                if ( ( b & ( 1 << Linux26.Input.EV_REL ) ) > 0 )
+                    caps += " REL";
+                if ( ( b & ( 1 << Linux26.Input.EV_ABS ) ) > 0 )
+                    caps += " ABS";
+                if ( ( b & ( 1 << Linux26.Input.EV_MSC ) ) > 0 )
+                    caps += " MSC";
+                if ( ( b & ( 1 << Linux26.Input.EV_SW ) ) > 0 )
+                    caps += " SW";
+                if ( ( b & ( 1 << Linux26.Input.EV_LED ) ) > 0 )
+                    caps += " LED";
+                if ( ( b & ( 1 << Linux26.Input.EV_SND ) ) > 0 )
+                    caps += " SND";
+                if ( ( b & ( 1 << Linux26.Input.EV_REP ) ) > 0 )
+                    caps += " REP";
+                if ( ( b & ( 1 << Linux26.Input.EV_FF ) ) > 0 )
+                    caps += " FF";
+                if ( ( b & ( 1 << Linux26.Input.EV_PWR ) ) > 0 )
+                    caps += " PWR";
+                if ( ( b & ( 1 << Linux26.Input.EV_FF_STATUS ) ) > 0 )
+                    caps += " FF_STATUS";
+            }
+            caps = caps.strip();
+            logger.debug( "^^^ product caps '%s'".printf( caps ) );
         }
-
-        //Idle.add( onIdle );
-
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.InputServicePath, counter++ ),
-                                         this );
-
-        logger.info( "created new InputDevice object." );
     }
 
     public override string repr()
     {
-        return "<FsoFramework.Device.InputDevice @ %s>".printf( sysfsnode );
+        return "<%s>".printf( sysfsnode );
     }
 
     public bool onIdle()
@@ -108,9 +159,14 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
         return product;
     }
 
+    public string get_phys() throws DBus.Error
+    {
+        return phys;
+    }
+
     public string get_capabilities() throws DBus.Error
     {
-        return "none";
+        return caps;
     }
 }
 
@@ -307,7 +363,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
 
     public override string repr()
     {
-        return "<FsoFramework.Device.AggregateInputDevice @ %s>".printf( sysfsnode );
+        return "<%s>".printf( sysfsnode );
     }
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
@@ -340,6 +396,11 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
     public string get_id() throws DBus.Error
     {
         return "aggregate";
+    }
+
+    public string get_phys() throws DBus.Error
+    {
+        return "";
     }
 
     public string get_capabilities() throws DBus.Error

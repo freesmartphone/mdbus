@@ -56,7 +56,7 @@ dist_vapi_DATA = \
 	fsodevice-2.0.deps \
 	$(NULL)
 
-EXTRA_DIST += \
+EXTRA_DIST = \
 	$(libfsodevice_la_VALASOURCES) \
 	$(BUILT_SOURCES)
 
