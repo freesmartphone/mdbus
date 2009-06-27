@@ -24,7 +24,7 @@ namespace Kernel
     internal char[] buffer;
     internal const uint BUFFER_SIZE = 512;
 
-    internal const string CONFIG_SECTION = "fsodevice.kernel_idle";
+    internal const string KERNEL_IDLE_PLUGIN_NAME = "fsodevice.kernel_idle";
 
 /**
  * Helper class
@@ -111,6 +111,11 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     private string[] states;
 
+    static construct
+    {
+        buffer = new char[BUFFER_SIZE];
+    }
+
     public IdleNotifier( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
@@ -118,18 +123,58 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
         Idle.add( onIdle );
 
-        // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ),
-                                         this );
-
-        logger.info( "created new IdleNotifier." );
+            // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
+            subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+            subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                                            "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ),
+                                            this );
     }
 
     public override string repr()
     {
-        return "<FsoFramework.Device.IdleNotifier @ %s>".printf( sysfsnode );
+        return "<%s>".printf( sysfsnode );
+    }
+
+    private string _cleanBuffer( int length )
+    {
+        // work around bug in dbus(-glib?) which crashes when marshalling \xae which is the (C) symbol
+        for ( int i = 0; i < length; ++i )
+        {
+            if ( buffer[i] < 0 )
+                buffer[i] = '?';
+        }
+        return (string)buffer;
+    }
+
+    private bool _inquireAndCheckForIgnore( int fd )
+    {
+        var ignore = false;
+
+        var length = Posix.ioctl( fd, Linux26.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
+        if ( length > 0 )
+        {
+            var product = _cleanBuffer( length );
+            foreach ( var i in ignoreById )
+            {
+                if ( i in product )
+                {
+                    ignore = true;
+                }
+            }
+        }
+        length = Posix.ioctl( fd, Linux26.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
+        if ( length > 0 )
+        {
+            var phys = _cleanBuffer( length );
+            foreach ( var p in ignoreByPhys )
+            {
+                if ( p in phys )
+                {
+                    ignore = true;
+                }
+            }
+        }
+        return ignore;
     }
 
     public void onResourceChanged( FsoDevice.AbstractSimpleResource r, bool on )
@@ -145,7 +190,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
             else
             {
                 // allow sending of suspend
-                idlestatus.timeouts[FreeSmartphone.Device.IdleState.SUSPEND] = config.intValue( CONFIG_SECTION, states[FreeSmartphone.Device.IdleState.SUSPEND], 20 );
+                idlestatus.timeouts[FreeSmartphone.Device.IdleState.SUSPEND] = config.intValue( KERNEL_IDLE_PLUGIN_NAME, states[FreeSmartphone.Device.IdleState.SUSPEND], 20 );
                 // relaunch timer, if necessary
                 if ( idlestatus.status == FreeSmartphone.Device.IdleState.LOCK )
                     idlestatus.onState( FreeSmartphone.Device.IdleState.LOCK );
@@ -166,7 +211,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
             else
             {
                 // allow sending of idle_dim (and later)
-                idlestatus.timeouts[FreeSmartphone.Device.IdleState.IDLE_DIM] = config.intValue( CONFIG_SECTION, states[FreeSmartphone.Device.IdleState.IDLE_DIM], 10 );
+                idlestatus.timeouts[FreeSmartphone.Device.IdleState.IDLE_DIM] = config.intValue( KERNEL_IDLE_PLUGIN_NAME, states[FreeSmartphone.Device.IdleState.IDLE_DIM], 10 );
                 // relaunch timer, if necessary
                 if ( idlestatus.status == FreeSmartphone.Device.IdleState.IDLE )
                     idlestatus.onState( FreeSmartphone.Device.IdleState.IDLE );
@@ -180,7 +225,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         states = { "busy", "idle", "idle_dim", "idle_prelock", "lock", "suspend" };
         for ( int i = 0; i < states.length; ++i )
         {
-            idlestatus.timeouts[i] = config.intValue( CONFIG_SECTION, states[i], idlestatus.timeouts[i] );
+            idlestatus.timeouts[i] = config.intValue( KERNEL_IDLE_PLUGIN_NAME, states[i], idlestatus.timeouts[i] );
         }
     }
 
@@ -209,7 +254,14 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
                 // try to open
                 var fd = Posix.open( Path.build_filename( dev_input, entry ), Posix.O_RDONLY );
                 if ( fd == -1 )
-                    logger.warning( "could not open %s: %s (ignoring)".printf( entry, Posix.strerror( Posix.errno ) ) );
+                {
+                    logger.warning( "Could not open %s: %s (ignoring)".printf( entry, Posix.strerror( Posix.errno ) ) );
+                }
+                else if ( _inquireAndCheckForIgnore( fd ) )
+                {
+                    logger.info( "Skipping %s as instructed by configuration.".printf( entry ) );
+                    Posix.close( fd );
+                }
                 else
                     fds += fd;
             }
@@ -268,7 +320,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
         for ( int i = 0; i < states.length; ++i )
         {
-            dict.insert( states[i], config.intValue( CONFIG_SECTION, states[i], idlestatus.timeouts[i] ) );
+            dict.insert( states[i], config.intValue( KERNEL_IDLE_PLUGIN_NAME, states[i], idlestatus.timeouts[i] ) );
         }
         return dict;
     }
@@ -355,6 +407,8 @@ internal static string dev_input;
 internal Kernel.IdleNotifier instance;
 internal Kernel.CpuResource cpu;
 internal Kernel.DisplayResource display;
+internal string[] ignoreById;
+internal string[] ignoreByPhys;
 
 /**
  * This function gets called on plugin initialization time.
@@ -364,17 +418,23 @@ internal Kernel.DisplayResource display;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    // grab sysfs paths
+    // grab paths
     var config = FsoFramework.theMasterKeyFile();
     dev_root = config.stringValue( "cornucopia", "dev_root", "/dev" );
     dev_input = "%s/input".printf( dev_root );
 
+    // grab entry for ignore lists
+    ignoreById = config.stringListValue( Kernel.KERNEL_IDLE_PLUGIN_NAME, "ignore_by_id", new string[] {} );
+    ignoreByPhys = config.stringListValue( Kernel.KERNEL_IDLE_PLUGIN_NAME, "ignore_by_path", new string[] {} );
+
+    // create one and only instance
     instance = new Kernel.IdleNotifier( subsystem, dev_input );
-    // special resources
+
+    // create idle-notifier-aware resources
     cpu = new Kernel.CpuResource( subsystem );
     display = new Kernel.DisplayResource( subsystem );
 
-    return "fsodevice.kernel_idle";
+    return Kernel.KERNEL_IDLE_PLUGIN_NAME;
 }
 
 [ModuleInit]

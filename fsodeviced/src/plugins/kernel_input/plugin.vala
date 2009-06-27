@@ -49,17 +49,6 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
         buffer = new char[BUFFER_SIZE];
     }
 
-    private string cleanBuffer( int length )
-    {
-        // work around bug in dbus(-glib?) which crashes when marshalling \xae which is the (C) symbol
-        for ( int i = 0; i < length; ++i )
-        {
-            if ( buffer[i] < 0 )
-                buffer[i] = '?';
-        }
-        return (string)buffer;
-    }
-
     public InputDevice( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
@@ -83,6 +72,17 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
         return "<%s>".printf( sysfsnode );
     }
 
+    private string _cleanBuffer( int length )
+    {
+        // work around bug in dbus(-glib?) which crashes when marshalling \xae which is the (C) symbol
+        for ( int i = 0; i < length; ++i )
+        {
+            if ( buffer[i] < 0 )
+                buffer[i] = '?';
+        }
+        return (string)buffer;
+    }
+
     private bool _inquireAndCheckForIgnore()
     {
         var ignore = false;
@@ -95,7 +95,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
             var length = Posix.ioctl( fd, Linux26.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
             if ( length > 0 )
             {
-                product = cleanBuffer( length );
+                product = _cleanBuffer( length );
                 foreach ( var i in ignoreById )
                 {
                     if ( i in product )
@@ -107,7 +107,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
             length = Posix.ioctl( fd, Linux26.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
             if ( length > 0 )
             {
-                phys = cleanBuffer( length );
+                phys = _cleanBuffer( length );
                 foreach ( var p in ignoreByPhys )
                 {
                     if ( p in phys )

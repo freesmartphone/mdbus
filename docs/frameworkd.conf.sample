@@ -19,7 +19,7 @@ log_destination = /tmp/frameworkd.log
 
 [fsodevice]
 
-[fsodevice.info]
+[fsodevice.alsa_audio]
 
 [fsodevice.kernel26_display]
 
@@ -29,7 +29,19 @@ log_destination = /tmp/frameworkd.log
 
 [fsodevice.kernel26_rtc]
 
+[fsodevice.kernel_info]
+
 [fsodevice.kernel_input]
+# Which input objects to ignore (by product id substring)
+#ignore_by_id = Microsoft;Macintosh
+# Which input objects to ignore (by physical path substring)
+#ignore_by_path = usb
+# Which buttons/switches to report.
+# Format: <name>,<type>,<keycode>,<report hold events as well>
+#report1 = AUX,key,169,1
+#report4 = HEADSET,switch,2,0
+
+[fsodevice.kernel_idle]
 # Which input objects to ignore (by product id substring)
 #ignore_by_id = Microsoft;Macintosh
 # Which input objects to ignore (by physical path substring)
