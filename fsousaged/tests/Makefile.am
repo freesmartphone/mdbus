@@ -11,6 +11,8 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = $(DEPS_LIBS) ../fsodeviced/lib/libfsodeviced.la
 
+EXTRA_DIST = $(NULL)
+
 # TEST_PROGS += testsmartkeyfile
 # testsmartkeyfile_VALASOURCES = testsmartkeyfile.vala
 # testsmartkeyfile_SOURCES = testsmartkeyfile.c

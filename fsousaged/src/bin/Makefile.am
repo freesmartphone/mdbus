@@ -35,7 +35,7 @@ fsousaged_LDADD = \
 	$(GLIB_LIBS) \
 	$(NULL)
 
-EXTRA_DIST += \
+EXTRA_DIST = \
 	$(fsousaged_VALASOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
