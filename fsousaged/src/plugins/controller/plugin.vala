@@ -83,6 +83,18 @@ public class Resource
         //message( "Resource %s served by %s @ %s destroyed", name, busname, objectpath );
     }
 
+    private void updateStatus()
+    {
+        var info = new HashTable<string,Value?>( str_hash, str_equal );
+        var p = Value( typeof(int) );
+        p.set_int( policy );
+        info.insert( "policy", p );
+        var u = Value( typeof(int) );
+        u.set_int( users.size );
+        info.insert( "refcount", u );
+        instance.resource_changed( name, isEnabled(), info ); // DBUS SIGNAL
+    }
+
     public bool isEnabled()
     {
         return ( status == ResourceStatus.ENABLED );
@@ -97,6 +109,8 @@ public class Resource
     {
         if ( policy == this.policy )
             return;
+        else
+            ( this.policy = policy );
 
         switch ( policy )
         {
@@ -115,6 +129,8 @@ public class Resource
             default:
                 assert_not_reached();
         }
+
+        updateStatus();
     }
 
     public void addUser( string user ) throws FreeSmartphone.UsageError
@@ -129,6 +145,8 @@ public class Resource
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 1 )
             enable();
+
+        updateStatus();
     }
 
     public void delUser( string user ) throws FreeSmartphone.UsageError
@@ -140,6 +158,8 @@ public class Resource
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 0 )
             disable();
+
+        updateStatus();
     }
 
     public string[] allUsers()
@@ -156,6 +176,7 @@ public class Resource
         {
             proxy.enable();
             status = ResourceStatus.ENABLED;
+            updateStatus();
         }
         catch ( DBus.Error e )
         {
