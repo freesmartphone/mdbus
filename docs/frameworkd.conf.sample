@@ -29,6 +29,12 @@ log_destination = /tmp/frameworkd.log
 
 [fsodevice.kernel26_rtc]
 
+[fsodevice.kernel_input]
+# Which input objects to ignore (by product id substring)
+#ignore_by_id = Microsoft;Macintosh
+# Which input objects to ignore (by physical path substring)
+#ignore_by_path = usb
+
 [fsogsm]
 # Which modem to use: singleline, ti_calypso, freescale_neptune, cinterion_mc75, qualcomm_msm
 modem_type = singleline
