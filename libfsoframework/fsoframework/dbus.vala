@@ -1,0 +1,134 @@
+/**
+ * Copyright (C) 2009 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+ *
+ */
+
+// inject useful constants into namespace
+namespace DBus
+{
+    public const string DBUS_BUS_NAME = "org.freedesktop.DBus";
+    public const string DBUS_BUS_PATH = "/org/freedesktop/DBus";
+    public const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
+}
+
+public delegate void FsoFramework.DBusServiceEventFunc( string busname );
+
+[Compact]
+internal class DBusFuncDelegateHolder
+{
+    public FsoFramework.DBusServiceEventFunc func;
+    DBusFuncDelegateHolder( FsoFramework.DBusServiceEventFunc func )
+    {
+        this.func = func;
+    }
+}
+
+/**
+ * @class FsoFramework.DBusServiceNotifierDelegate
+ **/
+internal class FsoFramework.DBusServiceNotifierDelegate<T>
+{
+    private T t;
+
+    public DBusServiceNotifierDelegate( T t )
+    {
+        this.t = t;
+    }
+}
+
+/**
+ * @class FsoFramework.DBusServiceNotifier
+ *
+ **/
+public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
+{
+    private dynamic DBus.Object obj;
+
+    private HashTable<string, List<DBusFuncDelegateHolder>> appear;
+    private HashTable<string, List<DBusFuncDelegateHolder>> disappear;
+
+    public DBusServiceNotifier()
+    {
+        appear = new HashTable<string,List<DBusFuncDelegateHolder>>( str_hash, str_equal );
+        disappear = new HashTable<string,List<DBusFuncDelegateHolder>>( str_hash, str_equal );
+
+        obj = DBus.Bus.get( DBus.BusType.SYSTEM ).get_object( DBus.DBUS_BUS_NAME, DBus.DBUS_BUS_PATH, DBus.DBUS_BUS_INTERFACE );
+        obj.NameOwnerChanged += onNameOwnerChanged;
+    }
+
+    public override string repr()
+    {
+        return "<>";
+    }
+
+    private void onNameOwnerChanged( dynamic DBus.Object obj, string name, string oldowner, string newowner )
+    {
+        //message( "name owner changed: %s (%s => %s)", name, oldowner, newowner );
+
+        weak List<weak DBusFuncDelegateHolder> list;
+
+        // check for service appearing
+        if ( oldowner == "" && newowner != "" )
+            list = appear.lookup( name );
+        else if ( oldowner != "" && newowner == "" )
+            list = disappear.lookup( name );
+        else
+            return;
+
+        //message( "list = %p", list );
+
+        if ( list != null )
+        {
+            foreach ( var el in list )
+            {
+                //message( "calling a func" );
+                el.func( name );
+            }
+        }
+    }
+
+    public void notifyAppearing( string busname, DBusServiceEventFunc callback )
+    {
+        weak List<DBusFuncDelegateHolder> list = appear.lookup( busname );
+        if ( list == null )
+        {
+            var newlist = new List<DBusFuncDelegateHolder>();
+            newlist.append( new DBusFuncDelegateHolder( callback ) );
+            appear.insert( busname, (owned) newlist );
+        }
+        else
+        {
+        list.append( new DBusFuncDelegateHolder( callback ) );
+        }
+    }
+
+    public void notifyDisappearing( string busname, DBusServiceEventFunc callback )
+    {
+        weak List<DBusFuncDelegateHolder> list = disappear.lookup( busname );
+        if ( list == null )
+        {
+            var newlist = new List<DBusFuncDelegateHolder>();
+            newlist.append( new DBusFuncDelegateHolder( callback ) );
+            disappear.insert( busname, (owned) newlist );
+        }
+        else
+        {
+            list.append( new DBusFuncDelegateHolder( callback ) );
+        }
+    }
+
+}

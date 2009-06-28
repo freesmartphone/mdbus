@@ -39,6 +39,8 @@ internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
 internal static SmartKeyFile _masterkeyfile = null;
 internal static string _prefix = null;
 
+internal static DBusServiceNotifier _dbusservicenotifier = null;
+
 /**
  * @returns @a SmartKeyFile for frameworkd.conf
  **/
@@ -140,5 +142,18 @@ public static string getPrefixForExecutable()
     }
     return _prefix;
 }
+
+/**
+ * @returns @a DBusServiceNotifier
+ **/
+public static DBusServiceNotifier theDBusServiceNotifier()
+{
+    if ( _dbusservicenotifier == null )
+    {
+        _dbusservicenotifier = new DBusServiceNotifier();
+    }
+    return _dbusservicenotifier;
+}
+
 
 } /* namespace */

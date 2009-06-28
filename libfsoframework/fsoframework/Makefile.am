@@ -19,6 +19,7 @@ libfsoframework_la_VALASOURCES = \
 	alsa.vala \
 	asyncworker.vala \
 	common.vala \
+	dbus.vala \
 	interfaces.vala \
 	logger.vala \
 	kobjectnotifier.vala \
