@@ -1,4 +1,4 @@
-/* 
+/*
  * main.vala
  * Written by Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
  * All Rights Reserved
@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- */ 
+ */
 
 GLib.MainLoop mainloop;
 
@@ -26,13 +26,13 @@ FsoFramework.Logger logger;
 public static void sighandler( int signum )
 {
     Posix.signal( signum, null ); // restore original sighandler
-    logger.info( "received signal -%d, exiting.".printf( signum ) );
+    logger.info( "Received signal -%d, exiting.".printf( signum ) );
     mainloop.quit();
 }
 
 public static int main( string[] args )
 {
-	logger = FsoFramework.createLogger( "fsotime" );
+    logger = FsoFramework.createLogger( "fsotime" );
     logger.info( "fsotime starting up..." );
     var subsystem = new FsoFramework.DBusSubsystem( "fsotime" );
     subsystem.registerPlugins();
