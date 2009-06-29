@@ -17,12 +17,16 @@
  *
  */
 
-// inject useful constants into namespace
+// inject useful constants into namespace until they are in dbus-glib-1.vapi
 namespace DBus
 {
-    public const string DBUS_BUS_NAME = "org.freedesktop.DBus";
-    public const string DBUS_BUS_PATH = "/org/freedesktop/DBus";
-    public const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
+    public const string DBUS_SERVICE_DBUS             = "org.freedesktop.DBus";
+    public const string DBUS_PATH_DBUS                = "/org/freedesktop/DBus";
+    public const string DBUS_INTERFACE_DBUS           = "org.freedesktop.DBus";
+
+    public const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectable";
+    public const string DBUS_INTERFACE_PROPERTIES     = "org.freedesktop.DBus.Properties";
+    public const string DBUS_INTERFACE_PEER           = "org.freedesktop.DBus.Peer";
 }
 
 public delegate void FsoFramework.DBusServiceEventFunc( string busname );
@@ -66,7 +70,7 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
         appear = new HashTable<string,List<DBusFuncDelegateHolder>>( str_hash, str_equal );
         disappear = new HashTable<string,List<DBusFuncDelegateHolder>>( str_hash, str_equal );
 
-        obj = DBus.Bus.get( DBus.BusType.SYSTEM ).get_object( DBus.DBUS_BUS_NAME, DBus.DBUS_BUS_PATH, DBus.DBUS_BUS_INTERFACE );
+        obj = DBus.Bus.get( DBus.BusType.SYSTEM ).get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
         obj.NameOwnerChanged += onNameOwnerChanged;
     }
 

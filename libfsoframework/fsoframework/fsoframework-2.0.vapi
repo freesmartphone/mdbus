@@ -3,11 +3,17 @@
 [CCode (cprefix = "DBus", lower_case_cprefix = "dbus_")]
 namespace DBus {
 	[CCode (cheader_filename = "dbus/dbus-glib-lowlevel.h,dbus/dbus-glib.h")]
-	public const string DBUS_BUS_INTERFACE;
+	public const string DBUS_INTERFACE_DBUS;
 	[CCode (cheader_filename = "dbus/dbus-glib-lowlevel.h,dbus/dbus-glib.h")]
-	public const string DBUS_BUS_NAME;
+	public const string DBUS_INTERFACE_INTROSPECTABLE;
 	[CCode (cheader_filename = "dbus/dbus-glib-lowlevel.h,dbus/dbus-glib.h")]
-	public const string DBUS_BUS_PATH;
+	public const string DBUS_INTERFACE_PEER;
+	[CCode (cheader_filename = "dbus/dbus-glib-lowlevel.h,dbus/dbus-glib.h")]
+	public const string DBUS_INTERFACE_PROPERTIES;
+	[CCode (cheader_filename = "dbus/dbus-glib-lowlevel.h,dbus/dbus-glib.h")]
+	public const string DBUS_PATH_DBUS;
+	[CCode (cheader_filename = "dbus/dbus-glib-lowlevel.h,dbus/dbus-glib.h")]
+	public const string DBUS_SERVICE_DBUS;
 }
 [CCode (cprefix = "FsoFramework", lower_case_cprefix = "fso_framework_")]
 namespace FsoFramework {

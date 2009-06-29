@@ -19,10 +19,6 @@
 
 using GLib;
 
-internal const string DBUS_BUS_NAME = "org.freedesktop.DBus";
-internal const string DBUS_BUS_PATH = "/org/freedesktop/DBus";
-internal const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
-
 internal const string ENV_OVERRIDE_LOG_TO = "FSO_LOG_TO";
 internal const string ENV_OVERRIDE_LOG_DESTINATION = "FSO_LOG_DESTINATION";
 internal const string ENV_OVERRIDE_LOG_LEVEL = "FSO_LOG_LEVEL";
