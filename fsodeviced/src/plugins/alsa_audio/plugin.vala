@@ -104,8 +104,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         eventfd = new FsoFramework.Async.EventFd( 0, onAsyncEvent );
 
         initScenarios();
-
-        device.setAllMixerControls( allscenarios[currentscenario].controls );
+        if ( currentscenario != "" )
+            device.setAllMixerControls( allscenarios[currentscenario].controls );
 
         logger.info( "created." );
     }
@@ -185,8 +185,6 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
                 controls += control;
             }
             logger.debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
-            if ( allscenarios == null )
-                allscenarios = new HashMap<string,BunchOfMixerControls>( str_hash, str_equal );
             var bunch = new BunchOfMixerControls();
             bunch.controls = controls;
             allscenarios[scenario] = bunch;
@@ -199,6 +197,9 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     private void initScenarios()
     {
+        allscenarios = new HashMap<string,BunchOfMixerControls>( str_hash, str_equal );
+        currentscenario = "";
+
         // init scenarios
         FsoFramework.SmartKeyFile alsaconf = new FsoFramework.SmartKeyFile();
         if ( alsaconf.loadFromFile( FSO_ALSA_CONF_PATH ) )

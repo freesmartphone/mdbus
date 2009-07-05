@@ -37,7 +37,7 @@ public static int main( string[] args )
     uint count = subsystem.loadPlugins();
     logger.info( "loaded %u plugins".printf( count ) );
     mainloop = new GLib.MainLoop( null, false );
-    logger.info( "fsodevice => mainloop" );
+    logger.info( "fsodeviced => mainloop" );
     Posix.signal( Posix.SIGINT, sighandler );
     Posix.signal( Posix.SIGTERM, sighandler );
     // enable for release version?
@@ -51,7 +51,7 @@ public static int main( string[] args )
     */
 
     mainloop.run();
-    logger.info( "mainloop => fsodevice" );
-    logger.info( "fsodevice shutdown." );
+    logger.info( "mainloop => fsodevicde" );
+    logger.info( "fsodeviced shutdown." );
     return 0;
 }
