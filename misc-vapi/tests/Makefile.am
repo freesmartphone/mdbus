@@ -22,18 +22,28 @@ VALAC_ARGS = \
 	--pkg gio-2.0
 
 #
-# alsa test
+# alsa mixer test
 #
-TEST_PROGS += testalsa
-testalsa_VALASOURCES = testalsa.vala
-testalsa_SOURCES = testalsa.c
-$(testalsa_SOURCES): $(testalsa_VALASOURCES)
+TEST_PROGS += testalsamixer
+testalsamixer_VALASOURCES = testalsamixer.vala
+testalsamixer_SOURCES = testalsamixer.c
+$(testalsamixer_SOURCES): $(testalsamixer_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
-testalsa_LDADD = $(GLIB_LIBS) $(ALSA_LIBS)
-EXTRA_DIST += $(testalsa_VALASOURCES)
+testalsamixer_LDADD = $(GLIB_LIBS) $(ALSA_LIBS)
+EXTRA_DIST += $(testalsamixer_VALASOURCES)
 
-
+#
+# alsa pcm test
+#
+TEST_PROGS += testalsapcm
+testalsapcm_VALASOURCES = testalsapcm.vala
+testalsapcm_SOURCES = testalsapcm.c
+$(testalsapcm_SOURCES): $(testalsapcm_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testalsapcm_LDADD = $(GLIB_LIBS) $(ALSA_LIBS)
+EXTRA_DIST += $(testalsapcm_VALASOURCES)
 
 
 CLEANFILES = \
