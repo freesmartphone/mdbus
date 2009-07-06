@@ -85,6 +85,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     private string currentscenario;
     private Queue<string> scenarios;
 
+    //private Mutex mutex;
+
     public AudioPlayer( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
@@ -103,6 +105,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         if ( currentscenario != "" )
             device.setAllMixerControls( allscenarios[currentscenario].controls );
 
+        //mutex = new Mutex();
+
         logger.info( "created." );
     }
 
@@ -120,14 +124,20 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
      */
     public void onPlayingSoundFinished( Canberra.Context context, uint32 id, Canberra.Error code )
     {
+        message( "number of keys in hashmap = %d", sounds.size );
+        //mutex.lock();
+
+        message( "onPlayingSoundFinished w/ id: %0x", id );
         var name = ( (Quark) id ).to_string();
         logger.debug( "Sound finished with name %s (%0x), code %s".printf( name, id, Canberra.strerror( code ) ) );
         PlayingSound sound = sounds[name];
         assert ( sound != null );
+
         sound.finished = true;
 
         if ( code == Canberra.Error.CANCELED || sound.loop == 0 )
         {
+            message( "removing sound w/ id %0x", id );
             sounds.remove( name );
             //FIXME send signal
         }
@@ -136,31 +146,30 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
             // wake up mainloop to repeat
             eventfd.write( (int)id );
         }
+
+        //mutex.unlock();
     }
 
     public bool onAsyncEvent( IOChannel channel, IOCondition condition )
     {
-        //message( "async trigger" );
-        uint value = eventfd.read();
-        //message( "on async event: %u", value );
-        foreach ( var name in sounds.get_keys() )
+        uint id = eventfd.read();
+        var name = ( (Quark) id ).to_string();
+        PlayingSound sound = sounds[name];
+        if ( sound.finished && sound.loop-- > 0 )
         {
-            PlayingSound sound = sounds[name];
-            if ( sound.finished && sound.loop-- > 0 )
-            {
-                sound.finished = false;
+            sound.finished = false;
 
-                Canberra.Proplist p = null;
-                Canberra.Proplist.create( &p );
-                p.sets( Canberra.PROP_MEDIA_FILENAME, sound.name );
+            Canberra.Proplist p = null;
+            Canberra.Proplist.create( &p );
+            p.sets( Canberra.PROP_MEDIA_FILENAME, sound.name );
 
-                Canberra.Error res = context.play_full( Quark.from_string( sound.name ), p, onPlayingSoundFinished );
-            }
-            else
-            {
-                sounds.remove( name );
+            Canberra.Error res = context.play_full( Quark.from_string( sound.name ), p, onPlayingSoundFinished );
+        }
+        else
+        {
+            message( "removing sound w/ id %0x", id );
+            sounds.remove( name );
             //FIXME send stopped signal
-            }
         }
         return true; // MainLoop: call me again
     }
