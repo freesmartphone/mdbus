@@ -149,6 +149,7 @@ namespace FsoFramework {
 		protected string destination;
 		protected string domain;
 		protected uint level;
+		public void critical (string message);
 		protected virtual string format (string message, string level);
 		public static string levelToString (GLib.LogLevelFlags level);
 		public AbstractLogger (string domain);
