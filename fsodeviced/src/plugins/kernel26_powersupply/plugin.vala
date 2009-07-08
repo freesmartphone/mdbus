@@ -246,6 +246,9 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
                     case "error":
                         supply.status = FreeSmartphone.Device.PowerStatus.UNKNOWN; // unknown as well
                         break;
+                    case "offline":
+                        supply.status = FreeSmartphone.Device.PowerStatus.OFFLINE; // unknown as well
+                        break;
                     case "removed":
                         supply.status = FreeSmartphone.Device.PowerStatus.REMOVED;
                         break;
@@ -259,7 +262,8 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
                         supply.status = FreeSmartphone.Device.PowerStatus.FULL;
                         break;
                     default:
-                        assert_not_reached();
+                        logger.error( "Received unexpected power status" );
+                        break;
                 }
             }
         }
