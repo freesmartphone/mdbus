@@ -89,5 +89,8 @@ namespace PosixExtra {
         public ushort ws_xpixel;
         public ushort ws_ypixel;
     }
-}
+    
+    [CCode (cheader_filename = "unistd.h")]
+    public int nice (int inc);
 
+}
