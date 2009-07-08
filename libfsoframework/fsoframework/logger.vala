@@ -183,7 +183,7 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
         base( domain );
     }
 
-    public void setFile( string filename, bool append = false )
+    public void setFile( string filename, bool append = true )
     {
         if ( file != -1 )
         {
