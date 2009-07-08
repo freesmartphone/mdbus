@@ -62,7 +62,7 @@ public class FsoFramework.SmartKeyFile : Object
         {
             value = defaultvalue;
         }
-        return value;
+        return value.strip();
     }
 
     public int intValue( string section, string key, int defaultvalue = 0 )
