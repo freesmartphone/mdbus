@@ -143,7 +143,7 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
             case "ERROR":
                 return LogLevelFlags.LEVEL_ERROR;
             default:
-                assert_not_reached();
+                message( "Loglevel not defined, reverting to INFO\n" );
                 break;
         }
         return LogLevelFlags.LEVEL_INFO;
