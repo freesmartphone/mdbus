@@ -54,7 +54,7 @@ dist_vapi_DATA = \
 	fsousage-2.0.deps \
 	$(NULL)
 
-EXTRA_DIST = \
+EXTRA_DIST += \
 	$(libfsousage_la_VALASOURCES) \
 	$(BUILT_SOURCES)
 

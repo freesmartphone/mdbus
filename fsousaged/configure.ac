@@ -1,10 +1,11 @@
-AC_INIT([fsousaged], [0.9.0.0], [smartphones-userland@linuxtogo.org], [fsousaged])
+AC_INIT([fsousaged], [0.9.0.1], [smartphones-userland@linuxtogo.org], [fsousaged])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
+AC_GNU_SOURCE
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
