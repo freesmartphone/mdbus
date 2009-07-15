@@ -35,7 +35,7 @@ fsodeviced_LDADD = \
 	$(GLIB_LIBS) \
 	$(NULL)
 
-EXTRA_DIST = \
+EXTRA_DIST += \
 	$(fsodeviced_VALASOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
