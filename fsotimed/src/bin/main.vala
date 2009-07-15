@@ -30,8 +30,22 @@ public static void sighandler( int signum )
     mainloop.quit();
 }
 
+public void foo1( string name )
+{
+    message( "APPEARS %s", name );
+}
+
+public void foo2( string name )
+{
+    message( "DISAPPEARS %s", name );
+}
+
 public static int main( string[] args )
 {
+    FsoFramework.theDBusServiceNotifier().notifyAppearing( "org.freesmartphone.ousaged", foo1 );
+    FsoFramework.theDBusServiceNotifier().notifyDisappearing( "org.freesmartphone.ousaged", foo2 );
+    FsoFramework.theDBusServiceNotifier().notifyDisappearing( "org.freesmartphone.ousaged", foo2 );
+
     logger = FsoFramework.createLogger( "fsotime" );
     logger.info( "fsotime starting up..." );
     var subsystem = new FsoFramework.DBusSubsystem( "fsotime" );
