@@ -213,7 +213,7 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class FileLogger : FsoFramework.AbstractLogger {
 		public FileLogger (string domain);
-		public void setFile (string filename, bool append = false);
+		public void setFile (string filename, bool append = true);
 		protected override void write (string message);
 	}
 	[CCode (ref_function = "fso_framework_mixer_control_ref", unref_function = "fso_framework_mixer_control_unref", param_spec_function = "fso_framework_param_spec_mixer_control", cheader_filename = "fsoframework.h")]

@@ -66,7 +66,7 @@ dist_vapi_DATA = \
 	fsoframework-2.0.deps \
 	$(NULL)
 
-EXTRA_DIST = \
+EXTRA_DIST += \
 	$(libfsoframework_la_VALASOURCES) \
 	fsoframework-2.0.vapi \
 	fsoframework-2.0.deps \
