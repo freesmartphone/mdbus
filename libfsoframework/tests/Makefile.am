@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(ALSA_CFLAGS) \
+	$(FSOBASICS_CFLAGS) \
 	$(NULL)
 
 INCLUDES = \
@@ -19,6 +20,7 @@ progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
 	$(ALSA_LIBS) \
+	$(FSOBASICS_LIBS) \
 	../fsoframework/libfsoframework.la
 
 VALAC_ARGS = \
@@ -32,28 +34,16 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0
 
 #
-# smartkeyfile test
+# common test
 #
-TEST_PROGS += testsmartkeyfile
-testsmartkeyfile_VALASOURCES = testsmartkeyfile.vala
-testsmartkeyfile_SOURCES = testsmartkeyfile.c
-$(testsmartkeyfile_SOURCES): $(testsmartkeyfile_VALASOURCES)
+TEST_PROGS += testcommon
+testcommon_VALASOURCES = testcommon.vala
+testcommon_SOURCES = testcommon.c
+$(testcommon_SOURCES): $(testcommon_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
-testsmartkeyfile_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testsmartkeyfile_VALASOURCES)
-
-#
-# logger test
-#
-TEST_PROGS += testlogger
-testlogger_VALASOURCES = testlogger.vala
-testlogger_SOURCES = testlogger.c
-$(testlogger_SOURCES): $(testlogger_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testlogger_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testlogger_VALASOURCES)
+testcommon_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testcommon_VALASOURCES)
 
 #
 # plugin for the plugin test
@@ -134,18 +124,6 @@ $(testsubsystem_SOURCES): $(testsubsystem_VALASOURCES)
 	touch $@
 testsubsystem_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testsubsystem_VALASOURCES)
-
-#
-# utilities test
-#
-TEST_PROGS += testutilities
-testutilities_VALASOURCES = testutilities.vala
-testutilities_SOURCES = testutilities.c
-$(testutilities_SOURCES): $(testutilities_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testutilities_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testutilities_VALASOURCES)
 
 #
 # object test

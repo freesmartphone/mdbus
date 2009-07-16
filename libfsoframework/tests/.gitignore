@@ -5,9 +5,9 @@ Makefile.in
 *.lo
 *.so
 frameworkd.log
-testlogger
+testcommon
 testplugin
-testsmartkeyfile
+testsoundsystem
 testsubsystem
 testtransport
 testutilities

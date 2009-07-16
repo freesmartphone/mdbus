@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(ALSA_CFLAGS) \
+	$(FSOBASICS_CFLAGS) \
 	$(NULL)
 
 BUILT_SOURCES = fsoframework.vala.stamp
@@ -21,13 +22,10 @@ libfsoframework_la_VALASOURCES = \
 	common.vala \
 	dbus.vala \
 	interfaces.vala \
-	logger.vala \
 	kobjectnotifier.vala \
 	object.vala \
 	plugin.vala \
-	smartkeyfile.vala \
 	subsystem.vala \
-	utilities.vala \
 	$(NULL)
 
 libfsoframework_la_SOURCES = \
@@ -49,6 +47,7 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	            --pkg gio-2.0 \
 	            --pkg dbus-glib-1 \
 	            --pkg libasound \
+	            --pkg fsobasics-2.0 \
 	            --header fsoframework.h \
 	            --library fsoframework-2.0 $^
 	touch $@
@@ -57,6 +56,7 @@ libfsoframework_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
 	$(ALSA_LIBS) \
+	$(FSOBASICS_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi
