@@ -1,4 +1,4 @@
-SUBDIRS = libfsoframework fsodeviced fsousaged fsotimed fsogsmd fsonetworkd
+SUBDIRS = libfsobasics libfsotransport libfsoframework fsodeviced fsousaged fsotimed fsogsmd fsonetworkd
 
 all:
 	for i in $(SUBDIRS); do $(MAKE) -C $$i; done
@@ -12,3 +12,6 @@ clean:
 test:
 	for i in $(SUBDIRS); do $(MAKE) test -C $$i; done
 
+maintainer-clean:
+	for i in $(SUBDIRS); do $(MAKE) maintainer-clean -C $$i; done
+    
