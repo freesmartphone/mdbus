@@ -119,14 +119,14 @@ public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractOb
 
 }
 
-private const string UDHCPD_TEMPLATE = "# freesmartphone.org /etc/udhcpd.conf\n \
-start           192.168.0.20  # lease range\n \
-end             192.168.0.199 # lease range\n \
-interface       %s            # listen on interface\n \
-option dns      %s            # grab from resolv.conf\n \
-option  subnet  255.255.255.0 \n \
-opt     router  %s            # address of interface\n \
-option  lease   864000        # 10 days of seconds\n";
+private const string UDHCPD_TEMPLATE = """# freesmartphone.org /etc/udhcpd.conf
+start           192.168.0.20  # lease range
+end             192.168.0.199 # lease range
+interface       %s            # listen on interface
+option dns      %s            # grab from resolv.conf
+option  subnet  255.255.255.0
+opt     router  %s            # address of interface
+option  lease   864000        # 10 days of seconds""";
 
 } /* end namespace */
 
