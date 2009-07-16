@@ -97,6 +97,7 @@ namespace Canberra {
     //
     // callback
     //
+    [CCode (cname = "ca_finish_callback_t")]
     public delegate void FinishCallback( Context context, uint32 id, Error code );
 
     //
