@@ -21,7 +21,7 @@ fsodeviced_SOURCES = \
 	$(NULL)
 
 $(BUILT_SOURCES): $(fsodeviced_VALASOURCES)
-	$(VALAC) -c --vapidir vapi \
+	$(VALAC) -C --vapidir vapi \
 				--pkg posix \
 				--pkg gio-2.0 \
 				--pkg dbus-glib-1 \

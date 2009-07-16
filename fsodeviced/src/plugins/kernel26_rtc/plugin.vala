@@ -25,10 +25,10 @@ namespace Kernel26
 /**
  * Magic ioctl constants for RTC.
  **/
-public const int IOCTL_RTC_RD_TIME = 0x80247009;
-public const int IOCTL_RTC_SET_TIME = 0x4024700a;
-public const int IOCTL_RTC_WKALM_RD = 0x80287010;
-public const int IOCTL_RTC_WKALM_SET = 0x4028700f;
+public const uint IOCTL_RTC_RD_TIME = (uint)0x80247009;
+public const uint IOCTL_RTC_SET_TIME = 0x4024700a;
+public const uint IOCTL_RTC_WKALM_RD = (uint)0x80287010;
+public const uint IOCTL_RTC_WKALM_SET = 0x4028700f;
 
 /**
  * Implementation of org.freesmartphone.Device.RTC for the Kernel26 Real-Time-Clock interface
