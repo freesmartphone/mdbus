@@ -1,0 +1,16 @@
+Makefile.in
+*.c
+*.h
+*.la
+*.lo
+*.so
+frameworkd.log
+testlogger
+testplugin
+testsmartkeyfile
+testsubsystem
+testtransport
+testutilities
+testobject
+testasyncworker
+testkobjectnotifier
