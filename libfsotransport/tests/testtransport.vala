@@ -20,8 +20,8 @@
 using GLib;
 using FsoFramework;
 
-const char[] TRANSPORT_TEST_STRING = "\r\n+DATA: FOO\r\n";
-const char[] TRANSPORT_READ_STRING = "\r\n+CMS ERROR: YO KURT\r\n";
+const char[] TRANSPORT_TEST_STRING = (char[]) "\r\n+DATA: FOO\r\n";
+const char[] TRANSPORT_READ_STRING = (char[]) "\r\n+CMS ERROR: YO KURT\r\n";
 
 char[] buffer;
 string readline;
