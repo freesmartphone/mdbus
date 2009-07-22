@@ -180,7 +180,7 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
         if ( strings.length != 4 )
             throw new SoundError.INVALID_DESCRIPTOR( "Expected 4 descriptor components, got %d".printf( strings.length ) );
         var idx = strings[0].to_int();
-        var name = strings[1].replace( "'", "" );
+        //var name = strings[1].replace( "'", "" );
         var count = strings[2].to_int();
         var segments = strings[3].strip().split( "," );
         if ( segments.length != count )
