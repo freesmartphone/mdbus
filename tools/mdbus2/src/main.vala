@@ -31,37 +31,109 @@ const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectabl
 MainLoop mainloop;
 
 //===========================================================================
+public class Argument : Object
+{
+    public Argument( string name )
+    {
+        this.name = name;
+    }
+    public string name;
+    public string typ;
+}
+
+//===========================================================================
+public class Method : Object
+{
+    public Method( string name )
+    {
+        this.name = name;
+    }
+    public string name;
+    public List<Argument> inArgs;
+    public List<Argument> outArgs;
+}
+
+//===========================================================================
 public class Introspection : Object
 {
     private string[] _xmldata;
 
-    public List<string> interfaces;
     public List<string> nodes;
+    public List<string> interfaces;
+    public List<Method> methods;
+
+    private string iface;
+    private Method method;
 
     public Introspection( string xmldata )
     {
         message( "introspection object created" );
-        _xmldata = xmldata.split( "\n" );
 
-        foreach ( string line in _xmldata )
+        MarkupParser parser = { startElement, null, null, null, null };
+        var mpc = new MarkupParseContext( parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null );
+
+        foreach ( var line in xmldata.split( "\n" ) )
         {
-            //message( "dealing with line '%s'", line );
-            int res = 0;
-            string name;
-            res = line.scanf( "  <node name=\"%a[a-zA-Z0-9_]\"/>", out name );
-            if ( res == 1 )
+            if ( line[1] != '!' || line[0] != '"' )
             {
-                nodes.append( name );
-                message( "object has node '%s'", name );
-            }
-            res = line.scanf( "  <interface name=\"%a[a-zA-Z0-9_.]\">", out name );
-            if ( res == 1 )
-            {
-                message( "object supports interface '%s'", name );
-                interfaces.append( name );
+                //message( "dealing with line '%s'", line );
+                mpc.parse( line, line.length );
             }
         }
     }
+
+    public void startElement( MarkupParseContext context,
+                              string element_name,
+                              string[] attribute_names,
+                              string[] attribute_values ) throws MarkupError
+    {
+        //message( "start element '%s'", element_name );
+
+        foreach ( var attribute in attribute_names )
+        {
+            //message( "attribute name '%s'", attribute );
+        }
+        foreach ( var value in attribute_values )
+        {
+            //message( "attribute value '%s'", value );
+        }
+
+        switch ( element_name )
+        {
+            case "node":
+                if ( attribute_names != null &&
+                     attribute_names[0] == "name" &&
+                     attribute_values != null &&
+                     attribute_values[0][0] != '/' &&
+                     attribute_values[0] != "" )
+                {
+                    nodes.append( attribute_values[0] );
+                }
+                break;
+            case "interface":
+                interfaces.append( attribute_values[0] );
+                break;
+            case "method":
+                method = new Method( attribute_values[0] );
+                methods.append( method );
+                break;
+            case "signal":
+                method = new Method( attribute_values[0] );
+                methods.append( method );
+                break;
+            case "arg":
+                assert( method != null );
+
+                // ....
+
+                break;
+            default:
+                assert_not_reached();
+        }
+    }
+
+
+
 }
 
 //=========================================================================//
@@ -135,8 +207,10 @@ class Commands : Object
             var idata = new Introspection( o.Introspect() );
             foreach ( var node in idata.nodes )
             {
+                message ( "node = '%s'", node );
+
                 var nextnode = ( path == "/" ) ? "/%s".printf( node ) : "%s/%s".printf( path, node );
-                //message( "nextnode = '%s'", nextnode );
+                message( "nextnode = '%s'", nextnode );
                 listObjects( busname, nextnode );
             }
         }
