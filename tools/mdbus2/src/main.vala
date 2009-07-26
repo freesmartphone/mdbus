@@ -118,7 +118,7 @@ public class Introspection : Object
 
     public Introspection( string xmldata )
     {
-        message( "introspection object created" );
+        //message( "introspection object created w/ xmldata: %s", xmldata );
 
         MarkupParser parser = { startElement, null, null, null, null };
         var mpc = new MarkupParseContext( parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null );
@@ -309,8 +309,53 @@ class Commands : Object
         try
         {
             var idata = new Introspection( o.Introspect() );
+            if ( idata.entitys.length() == 0 )
+            {
+                stderr.printf( "Error: No introspection data at object '%s'\n", path );
+                return;
+            }
             foreach ( var entity in idata.entitys )
                 stdout.printf( "%s\n", entity.to_string() );
+        }
+        catch ( DBus.Error e )
+        {
+            stderr.printf( "Error: %s\n", e.message );
+            return;
+        }
+    }
+
+    private void _callMethod( string busname, string path, string iface, string method, string[] args)
+    {
+        message( "calling %s on interface %s on object %s served by %s", method, iface, path, busname );
+    }
+
+    public void callMethod( string busname, string path, string method, string[] args )
+    {
+        dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
+
+        try
+        {
+            var idata = new Introspection( o.Introspect() );
+            if ( idata.entitys.length() == 0 )
+            {
+                stderr.printf( "Error: No introspection data at object %s\n", path );
+                return;
+            }
+
+            foreach ( var entity in idata.entitys )
+            {
+                if ( entity.typ == Entity.Typ.METHOD && entity.name == method )
+                {
+                    var methodWithPoint = method.rchr( -1, '.' );
+                    var baseMethod = methodWithPoint.substring( 1 );
+                    var iface = method.substring( 0, baseMethod.length );
+
+                    _callMethod( busname, path, iface, baseMethod, {} );
+                    return;
+                }
+            }
+
+            stderr.printf( "Error: No method %s found at %s\n", method, path );
         }
         catch ( DBus.Error e )
         {
@@ -371,6 +416,14 @@ int main( string[] args )
 
         case 3:
             commands.listInterfaces( args[1], args[2] );
+            break;
+
+        default:
+            assert( args.length > 3 );
+            string[] restargs = {};
+            for ( int i = 4; i < args.length; ++i )
+                restargs += args[i];
+            commands.callMethod( args[1], args[2], args[3], restargs );
             break;
     }
 
