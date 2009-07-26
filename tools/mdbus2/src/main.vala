@@ -33,9 +33,10 @@ MainLoop mainloop;
 //===========================================================================
 public class Argument : Object
 {
-    public Argument( string name )
+    public Argument( string name, string typ )
     {
         this.name = name;
+        this.typ = typ;
     }
     public string name;
     public string typ;
@@ -44,11 +45,40 @@ public class Argument : Object
 //===========================================================================
 public class Method : Object
 {
-    public Method( string name )
+    public Method( string name, bool signal = false )
     {
         this.name = name;
+        this.signal = signal;
     }
+
+    public string to_string()
+    {
+        string line = signal ? "[SIGNAL]    %s(%s)" : "[METHOD]    %s(%s) -> (%s)";
+        string inargs = "";
+        string outargs = "";
+
+        foreach ( var arg in inArgs )
+        {
+            inargs += " %s:%s,".printf( arg.typ, arg.name );
+        }
+        if ( inArgs.length() > 0 )
+            ( (char[]) inargs )[inargs.length-1] = ' ';
+
+        if ( outArgs.length() > 0 )
+        {
+            foreach ( var arg in outArgs )
+            {
+                outargs += " %s:%s,".printf( arg.typ, arg.name );
+            }
+            ( (char[]) outargs )[outargs.length-1] = ' ';
+        }
+
+        line = line.printf( name, inargs, outargs );
+        return line;
+    }
+
     public string name;
+    public bool signal;
     public List<Argument> inArgs;
     public List<Argument> outArgs;
 }
@@ -111,29 +141,51 @@ public class Introspection : Object
                 }
                 break;
             case "interface":
-                interfaces.append( attribute_values[0] );
+                iface = attribute_values[0];
+                interfaces.append( iface );
                 break;
             case "method":
-                method = new Method( attribute_values[0] );
+                method = new Method( "%s.%s".printf( iface, attribute_values[0] ), false );
                 methods.append( method );
                 break;
             case "signal":
-                method = new Method( attribute_values[0] );
+                method = new Method( "%s.%s".printf( iface, attribute_values[0] ), true );
                 methods.append( method );
                 break;
             case "arg":
                 assert( method != null );
 
-                // ....
+                string name = "none";
+                string direction = "out";
+                string typ = "?";
 
+                for ( int i = 0; i < attribute_names.length; ++i )
+                {
+                    switch ( attribute_names[i] )
+                    {
+                        case "name":
+                            name = attribute_values[i];
+                            break;
+                        case "direction":
+                            direction = attribute_values[i];
+                            break;
+                        case "type":
+                            typ = attribute_values[i];
+                            break;
+                    }
+                }
+
+                var arg = new Argument( name, typ );
+                if ( direction == "out" )
+                    method.outArgs.append( arg );
+                else
+                    method.inArgs.append( arg );
                 break;
+
             default:
                 assert_not_reached();
         }
     }
-
-
-
 }
 
 //=========================================================================//
@@ -220,6 +272,24 @@ class Commands : Object
             return;
         }
     }
+
+    public void listInterfaces( string busname, string path )
+    {
+        dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
+
+        try
+        {
+            var idata = new Introspection( o.Introspect() );
+            foreach ( var method in idata.methods )
+                stdout.printf( "%s\n", method.to_string() );
+        }
+        catch ( DBus.Error e )
+        {
+            stderr.printf( "Error: %s\n", e.message );
+            return;
+        }
+    }
+
 }
 
 //=========================================================================//
@@ -270,12 +340,9 @@ int main( string[] args )
             commands.listObjects( args[1] );
             break;
 
-
-            /*
         case 3:
-            commands.listInterfaces();
+            commands.listInterfaces( args[1], args[2] );
             break;
-        */
     }
 
     /*
