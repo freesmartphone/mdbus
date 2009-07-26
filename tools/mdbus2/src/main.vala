@@ -43,19 +43,38 @@ public class Argument : Object
 }
 
 //===========================================================================
-public class Method : Object
+public class Entity : Object
 {
-    public Method( string name, bool signal = false )
+    public enum Typ
+    {
+        METHOD,
+        SIGNAL,
+        PROPERTY
+    }
+
+    public Entity( string name, Typ typ )
     {
         this.name = name;
-        this.signal = signal;
+        this.typ = typ;
     }
 
     public string to_string()
     {
-        string line = signal ? "[SIGNAL]    %s(%s)" : "[METHOD]    %s(%s) -> (%s)";
+        string line = "";
+
+        switch ( typ )
+        {
+            case Typ.METHOD:   line = "[METHOD]    %s(%s) -> (%s)";
+            break;
+            case Typ.SIGNAL:   line = "[SIGNAL]    %s(%s)";
+            break;
+            case Typ.PROPERTY: line = "[PROPERTY]  %s(%s)";
+            break;
+            default:
+                assert_not_reached();
+        }
+
         string inargs = "";
-        string outargs = "";
 
         foreach ( var arg in inArgs )
         {
@@ -63,6 +82,8 @@ public class Method : Object
         }
         if ( inArgs.length() > 0 )
             ( (char[]) inargs )[inargs.length-1] = ' ';
+
+        string outargs = "";
 
         if ( outArgs.length() > 0 )
         {
@@ -78,7 +99,7 @@ public class Method : Object
     }
 
     public string name;
-    public bool signal;
+    public Typ typ;
     public List<Argument> inArgs;
     public List<Argument> outArgs;
 }
@@ -90,10 +111,10 @@ public class Introspection : Object
 
     public List<string> nodes;
     public List<string> interfaces;
-    public List<Method> methods;
+    public List<Entity> entitys;
 
     private string iface;
-    private Method method;
+    private Entity entity;
 
     public Introspection( string xmldata )
     {
@@ -110,6 +131,35 @@ public class Introspection : Object
                 mpc.parse( line, line.length );
             }
         }
+    }
+
+    public void handleAttributes( string[] attribute_names, string[] attribute_values )
+    {
+        string name = "none";
+        string direction = "in";
+        string typ = "?";
+
+        for ( int i = 0; i < attribute_names.length; ++i )
+        {
+            switch ( attribute_names[i] )
+            {
+                case "name":
+                    name = attribute_values[i];
+                    break;
+                case "direction":
+                    direction = attribute_values[i];
+                    break;
+                case "type":
+                    typ = attribute_values[i];
+                    break;
+            }
+        }
+
+        var arg = new Argument( name, typ );
+        if ( direction == "in" )
+            entity.inArgs.append( arg );
+        else
+            entity.outArgs.append( arg );
     }
 
     public void startElement( MarkupParseContext context,
@@ -145,43 +195,22 @@ public class Introspection : Object
                 interfaces.append( iface );
                 break;
             case "method":
-                method = new Method( "%s.%s".printf( iface, attribute_values[0] ), false );
-                methods.append( method );
+                entity = new Entity( "%s.%s".printf( iface, attribute_values[0] ), Entity.Typ.METHOD );
+                entitys.append( entity );
                 break;
             case "signal":
-                method = new Method( "%s.%s".printf( iface, attribute_values[0] ), true );
-                methods.append( method );
+                entity = new Entity( "%s.%s".printf( iface, attribute_values[0] ), Entity.Typ.SIGNAL );
+                entitys.append( entity );
+                break;
+            case "property":
+                entity = new Entity( "%s.%s".printf( iface, attribute_values[0] ), Entity.Typ.PROPERTY );
+                entitys.append( entity );
+                handleAttributes( attribute_names, attribute_values );
                 break;
             case "arg":
-                assert( method != null );
-
-                string name = "none";
-                string direction = "out";
-                string typ = "?";
-
-                for ( int i = 0; i < attribute_names.length; ++i )
-                {
-                    switch ( attribute_names[i] )
-                    {
-                        case "name":
-                            name = attribute_values[i];
-                            break;
-                        case "direction":
-                            direction = attribute_values[i];
-                            break;
-                        case "type":
-                            typ = attribute_values[i];
-                            break;
-                    }
-                }
-
-                var arg = new Argument( name, typ );
-                if ( direction == "out" )
-                    method.outArgs.append( arg );
-                else
-                    method.inArgs.append( arg );
+                assert( entity != null );
+                handleAttributes( attribute_names, attribute_values );
                 break;
-
             default:
                 assert_not_reached();
         }
@@ -280,8 +309,8 @@ class Commands : Object
         try
         {
             var idata = new Introspection( o.Introspect() );
-            foreach ( var method in idata.methods )
-                stdout.printf( "%s\n", method.to_string() );
+            foreach ( var entity in idata.entitys )
+                stdout.printf( "%s\n", entity.to_string() );
         }
         catch ( DBus.Error e )
         {
