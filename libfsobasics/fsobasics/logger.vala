@@ -114,16 +114,20 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
 
     public static string levelToString( LogLevelFlags level )
     {
-    // FIXME: might use a static HashTable here, might also be overkill for 4 values
         switch ( level )
         {
-            case LogLevelFlags.LEVEL_DEBUG: return "DEBUG";
-            case LogLevelFlags.LEVEL_INFO: return "INFO";
-            case LogLevelFlags.LEVEL_WARNING: return "WARNING";
-            case LogLevelFlags.LEVEL_ERROR: return "ERROR";
-            default: assert_not_reached(); break;
+            case LogLevelFlags.LEVEL_DEBUG:
+                return "DEBUG";
+            case LogLevelFlags.LEVEL_INFO:
+                return "INFO";
+            case LogLevelFlags.LEVEL_WARNING:
+                return "WARNING";
+            case LogLevelFlags.LEVEL_ERROR:
+                return "ERROR";
+            default:
+                GLib.error( "logger: unknown log level value %d", level );
+                return "UNKNOWN";
         }
-        return "N/A";
     }
 
     public static LogLevelFlags stringToLevel( string level )
