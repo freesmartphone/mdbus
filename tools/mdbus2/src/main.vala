@@ -288,10 +288,9 @@ class Commands : Object
             var idata = new Introspection( o.Introspect() );
             foreach ( var node in idata.nodes )
             {
-                message ( "node = '%s'", node );
-
+                //message ( "node = '%s'", node );
                 var nextnode = ( path == "/" ) ? "/%s".printf( node ) : "%s/%s".printf( path, node );
-                message( "nextnode = '%s'", nextnode );
+                //message( "nextnode = '%s'", nextnode );
                 listObjects( busname, nextnode );
             }
         }
@@ -324,9 +323,19 @@ class Commands : Object
         }
     }
 
+    private void _parseArguments( string[] args )
+    {
+    }
+
     private void _callMethod( string busname, string path, string iface, string method, string[] args)
     {
+        dynamic DBus.Object o = bus.get_object( busname, path, iface );
+        Error e;
+        error( "calling methods not yet implemented" );
+        /*
+        var result = o.call( method, out e );
         message( "calling %s on interface %s on object %s served by %s", method, iface, path, busname );
+        */
     }
 
     public void callMethod( string busname, string path, string method, string[] args )
@@ -348,8 +357,16 @@ class Commands : Object
                 {
                     var methodWithPoint = method.rchr( -1, '.' );
                     var baseMethod = methodWithPoint.substring( 1 );
-                    var iface = method.substring( 0, baseMethod.length );
+                    var iface = method.substring( 0, method.length - baseMethod.length - 1 );
 
+                    // check number of input params
+                    if ( args.length != entity.inArgs.length() )
+                    {
+                        stderr.printf( "Error: Need %u params, supplied %u\n", entity.inArgs.length(), args.length );
+                        return;
+                    }
+
+                    // method ok to call
                     _callMethod( busname, path, iface, baseMethod, {} );
                     return;
                 }
@@ -362,6 +379,11 @@ class Commands : Object
             stderr.printf( "Error: %s\n", e.message );
             return;
         }
+    }
+
+    public void listenForSignals()
+    {
+        error( "listening for signals not yet implemented" );
     }
 
 }
@@ -407,7 +429,10 @@ int main( string[] args )
     switch ( args.length )
     {
         case 1:
-            commands.listBusNames();
+            if (!listenerMode)
+                commands.listBusNames();
+            else
+                commands.listenForSignals();
             break;
 
         case 2:
