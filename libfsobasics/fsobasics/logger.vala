@@ -20,6 +20,17 @@
 using GLib;
 
 /**
+ * Internal constants
+ */
+internal const string DEFAULT_LOG_TYPE = "none";
+internal const string DEFAULT_LOG_LEVEL = "INFO";
+internal const string DEFAULT_LOG_DESTINATION = "/tmp/frameworkd.log";
+
+internal const string ENV_OVERRIDE_LOG_TO = "FSO_LOG_TO";
+internal const string ENV_OVERRIDE_LOG_DESTINATION = "FSO_LOG_DESTINATION";
+internal const string ENV_OVERRIDE_LOG_LEVEL = "FSO_LOG_LEVEL";
+
+/**
  * Delegates
  */
 public delegate string ReprDelegate();
@@ -32,10 +43,65 @@ public interface FsoFramework.Logger : Object
     public abstract void setLevel( LogLevelFlags level );
     public abstract void setDestination( string destination );
     public abstract void setReprDelegate( ReprDelegate repr );
+
+    public abstract LogLevelFlags getLevel();
+    public abstract string getDestination();
+
     public abstract void debug( string message );
     public abstract void info( string message );
     public abstract void warning( string message );
     public abstract void error( string message );
+    public abstract void critical( string message );
+
+    public static Logger createFromKeyFile( FsoFramework.SmartKeyFile smk, string domain )
+    /**
+     * Configure the logger with data from @a FsoFramework.SmartKeyFile
+     **/
+    {
+        string global_log_level = Environment.get_variable( ENV_OVERRIDE_LOG_LEVEL );
+        if ( global_log_level == null )
+            global_log_level = smk.stringValue( domain, "log_level", DEFAULT_LOG_LEVEL );
+        var log_level = smk.stringValue( domain, "log_level", global_log_level );
+
+        string log_to = Environment.get_variable( ENV_OVERRIDE_LOG_TO );
+        if ( log_to == null )
+            log_to = smk.stringValue( domain, "log_to", DEFAULT_LOG_TYPE );
+
+        string log_destination = Environment.get_variable( ENV_OVERRIDE_LOG_DESTINATION );
+        if ( log_destination == null )
+            log_destination = smk.stringValue( domain, "log_destination", DEFAULT_LOG_DESTINATION );
+
+        FsoFramework.Logger theLogger = null;
+
+        switch ( log_to )
+        {
+            case "stderr":
+                var logger = new FileLogger( domain );
+                logger.setFile( log_to );
+                theLogger = logger;
+                break;
+            case "file":
+                var logger = new FileLogger( domain );
+                logger.setFile( log_destination );
+                theLogger = logger;
+                break;
+            case "syslog":
+                var logger = new SyslogLogger( domain );
+                theLogger = logger;
+                break;
+            case "none":
+                var logger = new NullLogger( domain );
+                theLogger = logger;
+                break;
+            default:
+                GLib.warning( "Don't know how to instanciate logger type '%s'. Using NullLogger.", log_to );
+                var logger = new NullLogger( domain );
+                theLogger = logger;
+                break;
+        }
+        theLogger.setLevel( AbstractLogger.stringToLevel( log_level ) );
+        return theLogger;
+    }
 }
 
 /**
@@ -66,14 +132,25 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
         this.domain = domain;
     }
 
+
     public void setLevel( LogLevelFlags level )
     {
         this.level = (uint)level;
     }
 
+    public LogLevelFlags getLevel()
+    {
+        return (LogLevelFlags) this.level;
+    }
+
     public void setDestination( string destination )
     {
         this.destination = destination;
+    }
+
+    public string getDestination()
+    {
+        return this.destination;
     }
 
     public void setReprDelegate( ReprDelegate d )
@@ -205,7 +282,7 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
             file = Posix.open( filename, flags, Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH);
         }
         if ( file == -1 )
-            GLib.error( "%s", Posix.strerror( Posix.errno ) );
+            GLib.error( "%s: %s", filename, Posix.strerror( Posix.errno ) );
 
         this.destination  = filename;
     }

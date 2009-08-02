@@ -23,6 +23,8 @@ using FsoFramework;
 const string TEST_FILE_NAME = "/tmp/logfile.txt";
 const string TEST_LOG_DOMAIN = "my.logging.domain";
 
+const string TEST_LOG_KEYFILE = "testlogger.ini";
+
 //===========================================================================
 void test_logger_conversions()
 //===========================================================================
@@ -123,6 +125,30 @@ void test_syslog_logger_new()
 }
 
 //===========================================================================
+void test_logger_create_from_keyfile()
+//===========================================================================
+{
+    var smk = new SmartKeyFile();
+    smk.loadFromFile( TEST_LOG_KEYFILE );
+
+    FsoFramework.Logger logger = Logger.createFromKeyFile( smk, "nologger" );
+    assert( Type.from_instance( logger ) == typeof( NullLogger ) );
+
+    logger = Logger.createFromKeyFile( smk, "stderr" );
+    assert( Type.from_instance( logger ) == typeof( FileLogger ) );
+    assert( logger.getLevel() == LogLevelFlags.LEVEL_DEBUG );
+
+    logger = Logger.createFromKeyFile( smk, "syslog" );
+    assert( Type.from_instance( logger ) == typeof( SyslogLogger ) );
+    assert( logger.getLevel() == LogLevelFlags.LEVEL_INFO );
+
+    logger = Logger.createFromKeyFile( smk, "file" );
+    assert( Type.from_instance( logger ) == typeof( FileLogger ) );
+    assert( logger.getLevel() == LogLevelFlags.LEVEL_WARNING );
+    assert( logger.getDestination() == "log.txt" );
+}
+
+//===========================================================================
 void main (string[] args)
 //===========================================================================
 {
@@ -133,6 +159,7 @@ void main (string[] args)
     Test.add_func ("/NullLogger/New", test_null_logger_new);
     Test.add_func ("/FileLogger/New", test_file_logger_new);
     Test.add_func ("/SyslogLogger/New", test_syslog_logger_new);
+    Test.add_func ("/Logger/CreateFromKeyFile", test_logger_create_from_keyfile);
 
     Test.run ();
 }
