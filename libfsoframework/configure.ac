@@ -1,4 +1,4 @@
-AC_INIT([libfsoframework], [0.2.0.0], [smartphones-userland@linuxtogo.org], [libfsoframework])
+AC_INIT([libfsoframework], [0.2.1.0], [smartphones-userland@linuxtogo.org], [libfsoframework])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -23,7 +23,7 @@ DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
 GLIB_REQUIRED=2.18.0
 ALSA_REQUIRED=0.20
-FSOBASICS_REQUIRED=0.8.0.0
+FSOBASICS_REQUIRED=0.8.1.0
 
 # vala
 AC_PATH_PROG(VALAC, valac, valac)

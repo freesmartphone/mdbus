@@ -226,12 +226,6 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework.h", has_target = false)]
 	public delegate void RegisterFunc (GLib.TypeModule bar);
 	[CCode (cheader_filename = "fsoframework.h")]
-	public const string DEFAULT_LOG_DESTINATION;
-	[CCode (cheader_filename = "fsoframework.h")]
-	public const string DEFAULT_LOG_LEVEL;
-	[CCode (cheader_filename = "fsoframework.h")]
-	public const string DEFAULT_LOG_TYPE;
-	[CCode (cheader_filename = "fsoframework.h")]
 	public const string ServiceDBusPrefix;
 	[CCode (cheader_filename = "fsoframework.h")]
 	public const string ServiceFacePrefix;
