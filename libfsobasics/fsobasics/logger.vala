@@ -31,6 +31,11 @@ internal const string ENV_OVERRIDE_LOG_DESTINATION = "FSO_LOG_DESTINATION";
 internal const string ENV_OVERRIDE_LOG_LEVEL = "FSO_LOG_LEVEL";
 
 /**
+ * First created logger will become default logger (one per process)
+ **/
+internal FsoFramework.Logger theDefaultLogger = null;
+
+/**
  * Delegates
  */
 public delegate string ReprDelegate();
@@ -53,11 +58,18 @@ public interface FsoFramework.Logger : Object
     public abstract void error( string message );
     public abstract void critical( string message );
 
-    public static Logger createFromKeyFile( FsoFramework.SmartKeyFile smk, string domain )
+    public static Logger defaultLogger()
+    {
+        return ( theDefaultLogger == null ? new NullLogger( "null" ) : theDefaultLogger );
+    }
+
     /**
      * Configure the logger with data from @a FsoFramework.SmartKeyFile
      **/
+    public static Logger createFromKeyFile( FsoFramework.SmartKeyFile smk, string domain )
     {
+        GLib.debug( "Logger.createFromKeyFile in domain '%s'", domain );
+
         string global_log_level = Environment.get_variable( ENV_OVERRIDE_LOG_LEVEL );
         if ( global_log_level == null )
             global_log_level = smk.stringValue( domain, "log_level", DEFAULT_LOG_LEVEL );
@@ -113,7 +125,7 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     protected string domain;
     protected string destination;
 
-    ReprDelegate reprdelegate;
+    protected ReprDelegate reprdelegate;
 
     protected virtual void write( string message )
     {
@@ -130,8 +142,9 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     public AbstractLogger( string domain )
     {
         this.domain = domain;
+        if ( theDefaultLogger == null )
+            theDefaultLogger = this;
     }
-
 
     public void setLevel( LogLevelFlags level )
     {
@@ -305,7 +318,8 @@ public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
      **/
     protected override string format( string message, string level )
     {
-        var str = "%s [%s] %s\n".printf( domain, level, message );
+        var repr = ( reprdelegate != null ? reprdelegate() : "" );
+        var str = "%s [%s] %s: %s\n".printf( domain, level, repr, message );
         return str;
     }
 

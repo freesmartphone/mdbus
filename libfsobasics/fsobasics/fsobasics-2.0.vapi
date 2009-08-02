@@ -52,6 +52,7 @@ namespace FsoFramework {
 		protected string destination;
 		protected string domain;
 		protected uint level;
+		protected ReprDelegate reprdelegate;
 		protected virtual string format (string message, string level);
 		public static string levelToString (GLib.LogLevelFlags level);
 		public AbstractLogger (string domain);
@@ -97,6 +98,7 @@ namespace FsoFramework {
 		public static FsoFramework.Logger createFromKeyFile (FsoFramework.SmartKeyFile smk, string domain);
 		public abstract void critical (string message);
 		public abstract void debug (string message);
+		public static FsoFramework.Logger defaultLogger ();
 		public abstract void error (string message);
 		public abstract string getDestination ();
 		public abstract GLib.LogLevelFlags getLevel ();
