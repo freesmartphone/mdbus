@@ -2,3 +2,19 @@ This is the Vala/C reference implementation of the freesmartphone.org APIs,
 codename 'Cornucopia'.
 
 Please see http://www.freesmartphone.org/index.php/Cornucopia
+
+=== The Cornucopia Libraries ===
+
+The Cornucopia libraries contain utility functions for freesmartphone.org API implementors.
+
+Paradigm: Test Driven Development
+
+Indentation: -bad -bap -bbb -bl -bli0 -bs -cbi4 -cli4 -i4 -l100 -lp
+             -nbbo -nbc -ncs -npcs -npsl -nut 
+             -pi0 -prs-saf -sai -saw -sbi4 -st
+
+Note: Some of this code may need several Vala patches that have not been integrated into
+an upstream Vala release yet. If you do not want to use our pregenerated source tarballs
+(available from http://www.freesmartphone.org/sources), feel free to use our Vala mirror
+at http://git.freesmartphone.org to compile the latest version of Cornucopia.
+
