@@ -18,3 +18,11 @@ an upstream Vala release yet. If you do not want to use our pregenerated source 
 (available from http://www.freesmartphone.org/sources), feel free to use our Vala mirror
 at http://git.freesmartphone.org to compile the latest version of Cornucopia.
 
+Build Order:
+
+0. misc-vapi
+1. libfsobasics
+2. libfsotransport
+3. libfsoframework
+4. libgsm0710
+5. libgsm0710mux
