@@ -126,6 +126,8 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         writewatch = channel.add_watch_full( writepriority, IOCondition.OUT, writeCallback );
     }
 
+    protected FsoFramework.Logger logger;
+
     //=====================================================================//
     // PUBLIC API
     //=====================================================================//
@@ -141,12 +143,26 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         this.hard = hard;
         buffer = new ByteArray();
 
-        debug( "created" );
+        // FIXME: Creating the debug logger may be better done in the global
+        // library initializer (e.g. void __attribute__ ((constructor)) my_init(void); )
+        var smk = new FsoFramework.SmartKeyFile();
+        // FIXME: Do not hardcode this
+        if ( smk.loadFromFile( "/etc/cornucopia.conf" ) )
+        {
+            logger = FsoFramework.Logger.createFromKeyFile( smk, "libfsotransport" );
+            logger.setReprDelegate( repr );
+        }
+        else
+        {
+            logger = new FsoFramework.NullLogger( "none" );
+        }
+
+        logger.debug( "created" );
     }
 
     ~BaseTransport()
     {
-        debug( "destroyed" );
+        logger.debug( "destroyed" );
     }
 
     public override string getName()
@@ -258,7 +274,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
                 tspeed = Linux26.Termios.B4000000;
                 break;
             default:
-                warning( "invalid speed '%u' selected. using '0'".printf( speed ) );
+                logger.warning( "invalid speed '%u' selected. using '0'".printf( speed ) );
                 tspeed = Posix.B0;
                 break;
         }
@@ -314,7 +330,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         var ok = Posix.tcsetattr( fd, Posix.TCSANOW, termios);
         if ( ok == -1 )
         {
-            message( "could not configure fd %d: %s".printf( fd, Posix.strerror( Posix.errno ) ) );
+            logger.error( "could not configure fd %d: %s".printf( fd, Posix.strerror( Posix.errno ) ) );
         }
 
         if ( hard )
@@ -336,7 +352,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         }
         catch ( GLib.IOChannelError e )
         {
-            debug( "error while setting encoding");
+            logger.warning( "error while setting channel encoding to null" );
         }
         channel.set_buffer_size( 32768 );
         // setup watch
@@ -345,7 +361,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( buffer.len > 0 )
             restartWriter();
 
-        debug( "opened" );
+        logger.debug( "opened" );
         return true;
     }
 
@@ -357,8 +373,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( fd != -1 )
             Posix.close( fd );
         fd = -1; // mark closed
-        debug( "closed" );
-
+        logger.debug( "closed" );
     }
 
     public override bool isOpen()
@@ -407,10 +422,10 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public override int write( void* data, int len )
     {
-        debug( "writing %d bytes".printf( len ) );
+        logger.debug( "writing %d bytes".printf( len ) );
         assert( data != null );
         if ( fd == -1 )
-            warning( "writing although transport still closed; buffering." );
+            logger.warning( "writing although transport still closed; buffering." );
         var restart = ( fd != -1 && buffer.len == 0 );
         //TODO: avoid copying the buffer
         var temp = new uint8[len];
@@ -425,12 +440,12 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     public override void freeze()
     {
         if ( buffer.len > 0 )
-            warning( "freeze called while buffer not yet empty" );
+            logger.warning( "freeze called while buffer not yet empty" );
         if ( readwatch != 0 )
             Source.remove( readwatch );
         if ( writewatch != 0 )
             Source.remove( writewatch );
-        debug( "frozen" );
+        logger.debug( "frozen" );
     }
 
     public override void thaw()
@@ -440,12 +455,12 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         // we might have already queued something up in the buffer
         if ( buffer.len > 0 )
             restartWriter();
-        debug( "thawn" );
+        logger.debug( "thawn" );
     }
 
     public bool actionCallback( IOChannel source, IOCondition condition )
     {
-        debug( "actionCallback called with condition = %d".printf( condition ) );
+        logger.debug( "actionCallback called with condition = %d".printf( condition ) );
 
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
@@ -461,21 +476,21 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             return true;
         }
 
-        warning( "actionCallback called with unknown condition" );
+        logger.warning( "actionCallback called with unknown condition %d".printf( condition ) );
 
         return false;
     }
 
     public bool writeCallback( IOChannel source, IOCondition condition )
     {
-        debug( "writeCallback called with %u bytes in buffer".printf( buffer.len ) );
+        logger.debug( "writeCallback called with %u bytes in buffer".printf( buffer.len ) );
         /*
         for( int i = 0; i < buffer.len; ++i )
-            debug( "byte: 0x%02x".printf( buffer.data[i] ) );
+            logger.debug( "byte: 0x%02x".printf( buffer.data[i] ) );
         */
         int len = 64 > buffer.len? (int)buffer.len : 64;
         var byteswritten = _write( buffer.data, len );
-        debug( "writeCallback wrote %d bytes".printf( (int)byteswritten ) );
+        logger.debug( "writeCallback wrote %d bytes".printf( (int)byteswritten ) );
         buffer.remove_range( 0, (int)byteswritten );
 
         return ( buffer.len != 0 );
@@ -499,7 +514,7 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
         fd = Posix.open( name, Posix.O_RDWR | Posix.O_NOCTTY | Posix.O_NONBLOCK );
         if ( fd == -1 )
         {
-            warning( "could not open %s: %s".printf( name, Posix.strerror( Posix.errno ) ) );
+            logger.warning( "could not open %s: %s".printf( name, Posix.strerror( Posix.errno ) ) );
             return false;
         }
 

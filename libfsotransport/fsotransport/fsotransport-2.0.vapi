@@ -8,6 +8,7 @@ namespace FsoFramework {
 		protected int fd;
 		protected bool hard;
 		protected FsoFramework.TransportHupFunc hupfunc;
+		protected FsoFramework.Logger logger;
 		protected string name;
 		protected bool raw;
 		protected FsoFramework.TransportReadFunc readfunc;
