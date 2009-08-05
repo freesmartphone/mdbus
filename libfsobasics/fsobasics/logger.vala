@@ -68,7 +68,9 @@ public interface FsoFramework.Logger : Object
      **/
     public static Logger createFromKeyFile( FsoFramework.SmartKeyFile smk, string domain )
     {
-        GLib.debug( "Logger.createFromKeyFile in domain '%s'", domain );
+#if DEBUG
+        GLib.debug( "creating for domain '%s'", domain );
+#endif
 
         string global_log_level = Environment.get_variable( ENV_OVERRIDE_LOG_LEVEL );
         if ( global_log_level == null )
@@ -84,7 +86,9 @@ public interface FsoFramework.Logger : Object
             log_destination = smk.stringValue( domain, "log_destination", DEFAULT_LOG_DESTINATION );
 
         FsoFramework.Logger theLogger = null;
-
+#if DEBUG
+        GLib.debug( "logging to %s", log_to );
+#endif
         switch ( log_to )
         {
             case "stderr":
