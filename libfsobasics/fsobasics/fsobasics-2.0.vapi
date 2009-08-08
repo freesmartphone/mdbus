@@ -95,8 +95,8 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsobasics.h")]
 	public interface Logger : GLib.Object {
-		public static FsoFramework.Logger createFromKeyFile (FsoFramework.SmartKeyFile smk, string domain);
-		public static FsoFramework.Logger createFromKeyFileName (string filename, string domain);
+		public static FsoFramework.Logger createFromKeyFile (FsoFramework.SmartKeyFile smk, string group, string domain);
+		public static FsoFramework.Logger createFromKeyFileName (string filename, string group, string domain);
 		public abstract void critical (string message);
 		public abstract void debug (string message);
 		public static FsoFramework.Logger defaultLogger ();

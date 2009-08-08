@@ -66,7 +66,7 @@ public interface FsoFramework.Logger : Object
     /**
      * @returns @a Logger configured as requested in a certain conf file
      **/
-    public static Logger createFromKeyFileName( string filename, string domain )
+    public static Logger createFromKeyFileName( string filename, string group, string domain )
     {
         var smk = new SmartKeyFile();
         string[] locations = { "./.%s".printf( filename ),
@@ -77,7 +77,7 @@ public interface FsoFramework.Logger : Object
         {
             if ( smk.loadFromFile( location ) )
             {
-                return Logger.createFromKeyFile( smk, domain );
+                return Logger.createFromKeyFile( smk, group, domain );
             }
         }
         GLib.warning( "could not find %s anywhere, returning NullLogger", filename );
@@ -87,24 +87,24 @@ public interface FsoFramework.Logger : Object
     /**
      * @returns a logger with data from @a FsoFramework.SmartKeyFile
      **/
-    public static Logger createFromKeyFile( FsoFramework.SmartKeyFile smk, string domain )
+    public static Logger createFromKeyFile( FsoFramework.SmartKeyFile smk, string group, string domain )
     {
 #if DEBUG
-        GLib.debug( "creating for domain '%s'", domain );
+        GLib.debug( "creating for domain '%s' from group '%s'", domain, group );
 #endif
 
         string global_log_level = Environment.get_variable( ENV_OVERRIDE_LOG_LEVEL );
         if ( global_log_level == null )
-            global_log_level = smk.stringValue( domain, "log_level", DEFAULT_LOG_LEVEL );
-        var log_level = smk.stringValue( domain, "log_level", global_log_level );
+            global_log_level = smk.stringValue( group, "log_level", DEFAULT_LOG_LEVEL );
+        var log_level = smk.stringValue( group, "log_level", global_log_level );
 
         string log_to = Environment.get_variable( ENV_OVERRIDE_LOG_TO );
         if ( log_to == null )
-            log_to = smk.stringValue( domain, "log_to", DEFAULT_LOG_TYPE );
+            log_to = smk.stringValue( group, "log_to", DEFAULT_LOG_TYPE );
 
         string log_destination = Environment.get_variable( ENV_OVERRIDE_LOG_DESTINATION );
         if ( log_destination == null )
-            log_destination = smk.stringValue( domain, "log_destination", DEFAULT_LOG_DESTINATION );
+            log_destination = smk.stringValue( group, "log_destination", DEFAULT_LOG_DESTINATION );
 
         FsoFramework.Logger theLogger = null;
 #if DEBUG

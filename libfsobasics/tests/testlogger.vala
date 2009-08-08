@@ -23,7 +23,8 @@ using FsoFramework;
 const string TEST_FILE_NAME = "/tmp/logfile.txt";
 const string TEST_LOG_DOMAIN = "my.logging.domain";
 
-const string TEST_LOG_KEYFILE = "testlogger.ini";
+const string TEST_LOG_KEYFILE_NAME = "testlogger.ini";
+const string TEST_LOG_KEYFILE = ".testlogger.ini";
 
 //===========================================================================
 void test_logger_conversions()
@@ -125,24 +126,45 @@ void test_syslog_logger_new()
 }
 
 //===========================================================================
+void test_logger_create_from_keyfilename()
+//===========================================================================
+{
+    FsoFramework.Logger logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "nologger", TEST_LOG_DOMAIN );
+    assert( Type.from_instance( logger ) == typeof( NullLogger ) );
+
+    logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "stderr", TEST_LOG_DOMAIN );
+    assert( Type.from_instance( logger ) == typeof( FileLogger ) );
+    assert( logger.getLevel() == LogLevelFlags.LEVEL_DEBUG );
+
+    logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "syslog", TEST_LOG_DOMAIN );
+    assert( Type.from_instance( logger ) == typeof( SyslogLogger ) );
+    assert( logger.getLevel() == LogLevelFlags.LEVEL_INFO );
+
+    logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "file", TEST_LOG_DOMAIN );
+    assert( Type.from_instance( logger ) == typeof( FileLogger ) );
+    assert( logger.getLevel() == LogLevelFlags.LEVEL_WARNING );
+    assert( logger.getDestination() == "log.txt" );
+}
+
+//===========================================================================
 void test_logger_create_from_keyfile()
 //===========================================================================
 {
     var smk = new SmartKeyFile();
     smk.loadFromFile( TEST_LOG_KEYFILE );
 
-    FsoFramework.Logger logger = Logger.createFromKeyFile( smk, "nologger" );
+    FsoFramework.Logger logger = Logger.createFromKeyFile( smk, "nologger", TEST_LOG_DOMAIN );
     assert( Type.from_instance( logger ) == typeof( NullLogger ) );
 
-    logger = Logger.createFromKeyFile( smk, "stderr" );
+    logger = Logger.createFromKeyFile( smk, "stderr", TEST_LOG_DOMAIN );
     assert( Type.from_instance( logger ) == typeof( FileLogger ) );
     assert( logger.getLevel() == LogLevelFlags.LEVEL_DEBUG );
 
-    logger = Logger.createFromKeyFile( smk, "syslog" );
+    logger = Logger.createFromKeyFile( smk, "syslog", TEST_LOG_DOMAIN );
     assert( Type.from_instance( logger ) == typeof( SyslogLogger ) );
     assert( logger.getLevel() == LogLevelFlags.LEVEL_INFO );
 
-    logger = Logger.createFromKeyFile( smk, "file" );
+    logger = Logger.createFromKeyFile( smk, "file", TEST_LOG_DOMAIN );
     assert( Type.from_instance( logger ) == typeof( FileLogger ) );
     assert( logger.getLevel() == LogLevelFlags.LEVEL_WARNING );
     assert( logger.getDestination() == "log.txt" );
@@ -159,6 +181,7 @@ void main (string[] args)
     Test.add_func ("/NullLogger/New", test_null_logger_new);
     Test.add_func ("/FileLogger/New", test_file_logger_new);
     Test.add_func ("/SyslogLogger/New", test_syslog_logger_new);
+    Test.add_func ("/Logger/CreateFromKeyFileName", test_logger_create_from_keyfilename);
     Test.add_func ("/Logger/CreateFromKeyFile", test_logger_create_from_keyfile);
 
     Test.run ();
