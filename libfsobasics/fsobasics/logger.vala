@@ -64,7 +64,28 @@ public interface FsoFramework.Logger : Object
     }
 
     /**
-     * Configure the logger with data from @a FsoFramework.SmartKeyFile
+     * @returns @a Logger configured as requested in a certain conf file
+     **/
+    public static Logger createFromKeyFileName( string filename, string domain )
+    {
+        var smk = new SmartKeyFile();
+        string[] locations = { "./.%s".printf( filename ),
+                               "%s/.%s".printf( Environment.get_home_dir(), filename ),
+                               "/etc/%s".printf( filename ) };
+
+        foreach ( var location in locations )
+        {
+            if ( smk.loadFromFile( location ) )
+            {
+                return Logger.createFromKeyFile( smk, domain );
+            }
+        }
+        GLib.warning( "could not find %s anywhere, returning NullLogger", filename );
+        return new NullLogger( domain );
+    }
+
+    /**
+     * @returns a logger with data from @a FsoFramework.SmartKeyFile
      **/
     public static Logger createFromKeyFile( FsoFramework.SmartKeyFile smk, string domain )
     {
