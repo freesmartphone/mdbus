@@ -30,7 +30,7 @@ public abstract class FsoFramework.AbstractObject : GLib.Object
     {
         classname = Type.from_instance( this ).name();
         config = FsoFramework.theMasterKeyFile();
-        logger = FsoFramework.createLogger( classname );
+        logger = FsoFramework.createLogger( FsoFramework.Utility.programName(), classname );
         logger.setReprDelegate( repr );
     }
 

@@ -45,7 +45,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
     public AbstractSubsystem( string name )
     {
         _name = name;
-        logger = FsoFramework.createLogger( "subsystem" );
+        logger = FsoFramework.createLogger( "libfsoframework", "subsystem" );
     }
 
     public uint registerPlugins()
@@ -66,7 +66,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
 
         var names = FsoFramework.theMasterKeyFile().sectionsWithPrefix( _name + "." );
 
-        var defaultpath = "%s/lib/cornucopia/modules".printf( getPrefixForExecutable() );
+        var defaultpath = "%s/lib/cornucopia/modules".printf( FsoFramework.Utility.prefixForExecutable() );
         var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "cornucopia", "plugin_path", defaultpath );
 
         logger.debug( "pluginpath is %s".printf( pluginpath ) );

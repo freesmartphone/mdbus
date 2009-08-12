@@ -232,9 +232,7 @@ namespace FsoFramework {
 	[CCode (cheader_filename = "fsoframework.h")]
 	public const string ServicePathPrefix;
 	[CCode (cheader_filename = "fsoframework.h")]
-	public static FsoFramework.Logger createLogger (string domain);
-	[CCode (cheader_filename = "fsoframework.h")]
-	public static string getPrefixForExecutable ();
+	public static FsoFramework.Logger createLogger (string group, string domain);
 	[CCode (cheader_filename = "fsoframework.h")]
 	public static FsoFramework.DBusServiceNotifier theDBusServiceNotifier ();
 	[CCode (cheader_filename = "fsoframework.h")]

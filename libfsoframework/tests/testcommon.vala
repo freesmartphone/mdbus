@@ -27,7 +27,7 @@ const string TEST_LOG_DOMAIN = "my.logging.domain";
 void test_common_create_logger()
 //===========================================================================
 {
-    var logger = createLogger( TEST_LOG_DOMAIN );
+    var logger = createLogger( "testcommon", TEST_LOG_DOMAIN );
     logger.debug( "debug" );
     logger.info( "info" );
     logger.warning( "warning" );

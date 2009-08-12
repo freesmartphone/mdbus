@@ -21,10 +21,7 @@ using GLib;
 
 namespace FsoFramework
 {
-internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
-
 internal static SmartKeyFile _masterkeyfile = null;
-internal static string _prefix = null;
 
 internal static DBusServiceNotifier _dbusservicenotifier = null;
 
@@ -58,31 +55,9 @@ public static SmartKeyFile theMasterKeyFile()
 /**
  * @returns @a Logger configured as requested in frameworkd.conf
  **/
-public static Logger createLogger( string domain )
+public static Logger createLogger( string group, string domain )
 {
-    return Logger.createFromKeyFile( theMasterKeyFile(), domain );
-}
-
-/**
- * Return the prefix for the running program.
- **/
-public static string getPrefixForExecutable()
-{
-    if ( _prefix == null )
-    {
-        var cmd = FileHandling.read( PROC_SELF_CMDLINE );
-        var pte = Environment.find_program_in_path( cmd );
-        _prefix = "";
-
-        foreach ( var component in pte.split( "/" ) )
-        {
-            //debug( "dealing with component '%s', prefix = '%s'", component, _prefix );
-            if ( component == "bin" )
-                break;
-            _prefix += "%s%c".printf( component, Path.DIR_SEPARATOR );
-        }
-    }
-    return _prefix;
+    return Logger.createFromKeyFile( theMasterKeyFile(), group, domain );
 }
 
 /**
