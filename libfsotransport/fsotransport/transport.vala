@@ -147,9 +147,9 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         // library initializer (e.g. void __attribute__ ((constructor)) my_init(void); )
         var smk = new FsoFramework.SmartKeyFile();
         // FIXME: Do not hardcode this
-        if ( smk.loadFromFile( "/etc/cornucopia.conf" ) )
+        if ( smk.loadFromFile( "/etc/frameworkd.conf" ) )
         {
-            logger = FsoFramework.Logger.createFromKeyFile( smk, "libfsotransport" );
+            logger = FsoFramework.Logger.createFromKeyFile( smk, "libfsotransport", "libfsotransport" );
             logger.setReprDelegate( repr );
         }
         else
