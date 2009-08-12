@@ -45,6 +45,8 @@ namespace FsoFramework {
 	[CCode (cprefix = "FsoFrameworkUtility", lower_case_cprefix = "fso_framework_utility_")]
 	namespace Utility {
 		[CCode (cheader_filename = "fsobasics.h")]
+		public static string prefixForExecutable ();
+		[CCode (cheader_filename = "fsobasics.h")]
 		public static string programName ();
 	}
 	[CCode (cheader_filename = "fsobasics.h")]

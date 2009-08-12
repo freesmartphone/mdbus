@@ -17,11 +17,14 @@
  *
  */
 
+internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
+internal const string PROC_SELF_EXE     = "/proc/self/exe";
+internal const uint READ_BUF_SIZE = 1024;
+internal static string _prefix = null;
+
 namespace FsoFramework { namespace FileHandling {
 
 //Logger logger = createLogger( "utilities" );
-
-const uint READ_BUF_SIZE = 1024;
 
 public bool isPresent( string filename )
 {
@@ -177,10 +180,29 @@ namespace FsoFramework { namespace Utility {
             return res;
 
         char[] buf = new char[BUF_SIZE];
-        var length = Posix.readlink( "/proc/self/exe", buf );
+        var length = Posix.readlink( PROC_SELF_EXE, buf );
         buf[length] = 0;
         assert( length != 0 );
         return GLib.Path.get_basename( (string) buf );
+    }
+
+    public string prefixForExecutable()
+    {
+        if ( _prefix == null )
+        {
+            var cmd = FileHandling.read( PROC_SELF_CMDLINE );
+            var pte = Environment.find_program_in_path( cmd );
+            _prefix = "";
+
+            foreach ( var component in pte.split( "/" ) )
+            {
+            //debug( "dealing with component '%s', prefix = '%s'", component, _prefix );
+                if ( component == "bin" )
+                    break;
+                _prefix += "%s%c".printf( component, Path.DIR_SEPARATOR );
+            }
+        }
+        return _prefix;
     }
 } }
 

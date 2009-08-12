@@ -63,6 +63,20 @@ void test_utilities_network_ipv4address_for_interface()
 }
 
 //===========================================================================
+void test_utilities_utility_program_name()
+//===========================================================================
+{
+    assert( Utility.programName().has_suffix( "lt-testutilities" ) );
+}
+
+//===========================================================================
+void test_utilities_utility_prefix_for_executable()
+//===========================================================================
+{
+    assert( Utility.prefixForExecutable().has_suffix( "lt-testutilities/" ) );
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -73,6 +87,8 @@ void main( string[] args )
     Test.add_func( "/Utilities/FileHandling/Write", test_utilities_filehandling_write );
     Test.add_func( "/Utilities/StringHandling/List", test_utilities_stringhandling_list );
     Test.add_func( "/Utilities/Network/ipv4AddressForInterface", test_utilities_network_ipv4address_for_interface );
+    Test.add_func( "/Utilities/Utility/programName", test_utilities_utility_program_name );
+    Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );
 
     Test.run();
 }
