@@ -21,6 +21,7 @@ internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
 internal const string PROC_SELF_EXE     = "/proc/self/exe";
 internal const uint READ_BUF_SIZE = 1024;
 internal static string _prefix = null;
+internal static string _program = null;
 
 namespace FsoFramework { namespace FileHandling {
 
@@ -175,15 +176,20 @@ namespace FsoFramework { namespace Utility {
 
     public string programName()
     {
-        string res = GLib.Environment.get_prgname();
-        if ( res != null )
-            return res;
+        if ( _program == null )
+        {
 
-        char[] buf = new char[BUF_SIZE];
-        var length = Posix.readlink( PROC_SELF_EXE, buf );
-        buf[length] = 0;
-        assert( length != 0 );
-        return GLib.Path.get_basename( (string) buf );
+            _program = GLib.Environment.get_prgname();
+            if ( _program == null )
+            {
+                char[] buf = new char[BUF_SIZE];
+                var length = Posix.readlink( PROC_SELF_EXE, buf );
+                buf[length] = 0;
+                assert( length != 0 );
+                _program = GLib.Path.get_basename( (string) buf );
+            }
+        }
+        return _program;
     }
 
     public string prefixForExecutable()
