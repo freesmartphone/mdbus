@@ -32,7 +32,7 @@ public static void sighandler( int signum )
 
 public static int main( string[] args )
 {
-    logger = FsoFramework.createLogger( "fsonetwork" );
+    logger = FsoFramework.createLogger( "fsonetwork", "fsonetwork" );
     logger.info( "fsonetworkd starting up..." );
     var subsystem = new FsoFramework.DBusSubsystem( "fsonetwork" );
     subsystem.registerPlugins();

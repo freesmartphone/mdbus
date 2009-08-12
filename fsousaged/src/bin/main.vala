@@ -30,7 +30,7 @@ public static void sighandler( int signum )
 
 public static int main( string[] args )
 {
-    logger = FsoFramework.createLogger( "fsousage" );
+    logger = FsoFramework.createLogger( "fsousage", "fsousage" );
     logger.info( "fsousaged starting up..." );
     var subsystem = new FsoFramework.DBusSubsystem( "fsousage" );
     subsystem.registerPlugins();

@@ -46,7 +46,7 @@ public static int main( string[] args )
     FsoFramework.theDBusServiceNotifier().notifyDisappearing( "org.freesmartphone.ousaged", foo2 );
     FsoFramework.theDBusServiceNotifier().notifyDisappearing( "org.freesmartphone.ousaged", foo2 );
 
-    logger = FsoFramework.createLogger( "fsotime" );
+    logger = FsoFramework.createLogger( "fsotime", "fsotime" );
     logger.info( "fsotime starting up..." );
     var subsystem = new FsoFramework.DBusSubsystem( "fsotime" );
     subsystem.registerPlugins();
