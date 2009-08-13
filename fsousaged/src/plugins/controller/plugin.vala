@@ -23,13 +23,9 @@
 using GLib;
 using Gee;
 
-internal const string DBUS_BUS_NAME = "org.freedesktop.DBus";
-internal const string DBUS_BUS_PATH = "/org/freedesktop/DBus";
-internal const string DBUS_BUS_INTERFACE = "org.freedesktop.DBus";
-
 internal const string RESOURCE_INTERFACE = "org.freesmartphone.Resource";
-
 internal const string CONFIG_SECTION = "fsousage";
+internal const string DEFAULT_LOWLEVEL_MODULE = "kernel26";
 
 namespace Usage
 {
@@ -278,7 +274,7 @@ public class Controller : FsoFramework.AbstractObject
 
         // start listening for name owner changes
         dbusconn = ( (FsoFramework.DBusSubsystem)subsystem ).dbusConnection();
-        dbus = dbusconn.get_object( DBUS_BUS_NAME, DBUS_BUS_PATH, DBUS_BUS_INTERFACE );
+        dbus = dbusconn.get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
         dbus.NameOwnerChanged += onNameOwnerChanged;
 
         // delayed init
@@ -293,7 +289,7 @@ public class Controller : FsoFramework.AbstractObject
     private bool onIdleForInit()
     {
         // check preferred low level suspend/resume plugin and instanciate
-        var lowleveltype = config.stringValue( "fsousage", "lowlevel_type", "none" );
+        var lowleveltype = config.stringValue( CONFIG_SECTION, "lowlevel_type", DEFAULT_LOWLEVEL_MODULE );
         string typename = "none";
 
         switch ( lowleveltype )
