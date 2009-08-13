@@ -77,6 +77,8 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/controller/Makefile
+  src/plugins/lowlevel_kernel26/Makefile
+  src/plugins/lowlevel_openmoko/Makefile
   data/org.freesmartphone.ousaged.service
   data/Makefile
   tests/Makefile

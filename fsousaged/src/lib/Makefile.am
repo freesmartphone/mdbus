@@ -26,7 +26,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsousage_la_VALASOURCES = \
-	dummy.vala \
+	lowlevel.vala \
 	$(NULL)
 
 libfsousage_la_SOURCES = \
