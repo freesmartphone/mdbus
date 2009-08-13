@@ -1,7 +1,7 @@
 NULL =
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
+	-I$(top_srcdir)/src/lib \
 	$(GEE_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
@@ -31,15 +31,15 @@ VALAC_ARGS = \
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsousage
-modlibexec_LTLIBRARIES = controller.la
-controller_la_SOURCES = plugin.c
-controller_la_VALASOURCES = plugin.vala
-$(controller_la_SOURCES): $(controller_la_VALASOURCES)
+modlibexec_LTLIBRARIES = lowlevel_openmoko.la
+lowlevel_openmoko_la_SOURCES = plugin.c
+lowlevel_openmoko_la_VALASOURCES = plugin.vala
+$(lowlevel_openmoko_la_SOURCES): $(lowlevel_openmoko_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-controller_la_LIBADD = $(progs_ldadd)
-controller_la_LDFLAGS = -no-undefined -module -avoid-version
-controller_la_LIBTOOLFLAGS = --tag=disable-static
+lowlevel_openmoko_la_LIBADD = $(progs_ldadd)
+lowlevel_openmoko_la_LDFLAGS = -no-undefined -module -avoid-version
+lowlevel_openmoko_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     plugin.c \

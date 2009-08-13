@@ -30,14 +30,15 @@ public static void sighandler( int signum )
 
 public static int main( string[] args )
 {
-    logger = FsoFramework.createLogger( "fsousage", "fsousage" );
-    logger.info( "fsousaged starting up..." );
+    var bin = FsoFramework.Utility.programName();
+    logger = FsoFramework.createLogger( bin, bin );
+    logger.info( "%s starting up...".printf( bin ) );
     var subsystem = new FsoFramework.DBusSubsystem( "fsousage" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
     logger.info( "loaded %u plugins".printf( count ) );
     mainloop = new GLib.MainLoop( null, false );
-    logger.info( "fsousaged => mainloop" );
+    logger.info( "%s => mainloop".printf( bin ) );
     Posix.signal( Posix.SIGINT, sighandler );
     Posix.signal( Posix.SIGTERM, sighandler );
     // enable for release version?
@@ -51,7 +52,7 @@ public static int main( string[] args )
     */
 
     mainloop.run();
-    logger.info( "mainloop => fsousaged" );
-    logger.info( "fsousaged shutdown." );
+    logger.info( "mainloop => %s".printf( bin ) );
+    logger.info( "%s shutdown.".printf( bin ) );
     return 0;
 }

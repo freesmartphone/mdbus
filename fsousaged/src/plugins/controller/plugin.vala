@@ -257,7 +257,8 @@ public class Controller : FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
     private HashMap<string,Resource> resources;
-    private string sys_power_state;
+
+    private FsoUsage.LowLevel lowlevel;
     private bool do_not_suspend;
 
     dynamic DBus.Object dbus;
@@ -272,20 +273,56 @@ public class Controller : FsoFramework.AbstractObject
         this.subsystem.registerServiceObject( FsoFramework.Usage.ServiceDBusName,
                                               FsoFramework.Usage.ServicePathPrefix, this );
 
-        // grab sysfs paths
-        var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
-        sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
+        // should we really suspend?
         do_not_suspend = config.boolValue( CONFIG_SECTION, "do_not_suspend", false );
 
         // start listening for name owner changes
         dbusconn = ( (FsoFramework.DBusSubsystem)subsystem ).dbusConnection();
         dbus = dbusconn.get_object( DBUS_BUS_NAME, DBUS_BUS_PATH, DBUS_BUS_INTERFACE );
         dbus.NameOwnerChanged += onNameOwnerChanged;
+
+        // delayed init
+        Idle.add( onIdleForInit );
     }
 
     public override string repr()
     {
         return "<%s>".printf( FsoFramework.Usage.ServicePathPrefix );
+    }
+
+    private bool onIdleForInit()
+    {
+        // check preferred low level suspend/resume plugin and instanciate
+        var lowleveltype = config.stringValue( "fsousage", "lowlevel_type", "none" );
+        string typename = "none";
+
+        switch ( lowleveltype )
+        {
+            case "kernel26":
+                typename = "LowLevelKernel26";
+                break;
+            case "openmoko":
+                typename = "LowLevelOpenmoko";
+                break;
+            default:
+                warning( "Invalid lowlevel_type '%s'; suspend/resume will NOT be available!".printf( lowleveltype ) );
+                return false; // don't call me again
+        }
+
+        if ( lowleveltype != "none" )
+        {
+            var lowlevelclass = Type.from_name( typename );
+            if ( lowlevelclass == Type.INVALID  )
+            {
+                logger.warning( "Can't find plugin for lowlevel_type = '%s'".printf( lowleveltype ) );
+                return false; // don't call me again
+            }
+
+            lowlevel = Object.new( lowlevelclass ) as FsoUsage.LowLevel;
+            logger.info( "Ready. Using lowlevel plugin '%s".printf( lowleveltype ) );
+        }
+
+        return false; // don't call me again
     }
 
     private void onResourceAppearing( Resource r )
@@ -361,10 +398,12 @@ public class Controller : FsoFramework.AbstractObject
         suspendAllResources();
         logger.debug( ">>>>>>> KERNEL SUSPEND" );
         if ( !do_not_suspend )
-            FsoFramework.FileHandling.write( "mem\n", sys_power_state );
+            lowlevel.suspend();
         else
             Posix.sleep( 5 );
         logger.debug( "<<<<<<< KERNEL RESUME" );
+        var reason = lowlevel.resume();
+        logger.info( "Resume reason seems to be '%s'".printf( reason) );
         resumeAllResources();
         this.system_action( FreeSmartphone.UsageSystemAction.RESUME ); // DBUS SIGNAL
         return false; // MainLoop: Don't call again

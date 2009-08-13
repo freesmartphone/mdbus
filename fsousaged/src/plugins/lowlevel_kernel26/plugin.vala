@@ -25,13 +25,29 @@ class LowLevel.Kernel26 : FsoUsage.LowLevel, FsoFramework.AbstractObject
 {
     public Kernel26()
     {
-        logger.info( "Registering generic low level suspend/resume handling" );
+        logger.info( "Registering kernel26 low level suspend/resume handling" );
+        // grab sysfs paths
+        var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+        sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
     }
+
     public override string repr()
     {
-        return "<Singleline>";
+        return "<>";
+    }
+
+    public void suspend()
+    {
+        FsoFramework.FileHandling.write( "mem\n", sys_power_state );
+    }
+
+    public string resume()
+    {
+        return "unknown";
     }
 }
+
+string sys_power_state;
 
 /**
  * This function gets called on plugin initialization time.
@@ -41,8 +57,8 @@ class LowLevel.Kernel26 : FsoUsage.LowLevel, FsoFramework.AbstractObject
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "lowlevel_generic fso_factory_function" );
-    return "fsousaged.lowlevel_generic";
+    debug( "lowlevel_kernel26 fso_factory_function" );
+    return "fsousaged.lowlevel_kernel26";
 }
 
 [ModuleInit]

@@ -21,10 +21,16 @@ using GLib;
 
 namespace FsoUsage {
 
-public abstract interface LowLevel
+public interface LowLevel : FsoFramework.AbstractObject
 {
-    public abstract void foo();
-    //FIXME: define interface
+    /**
+     * Suspend the device
+     **/
+    public abstract void suspend();
+    /**
+     * Resume the device, return the resume reason, if available
+     **/
+    public abstract string resume();
 }
 
 }
