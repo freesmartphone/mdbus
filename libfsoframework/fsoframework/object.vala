@@ -32,6 +32,9 @@ public abstract class FsoFramework.AbstractObject : GLib.Object
         config = FsoFramework.theMasterKeyFile();
         logger = FsoFramework.createLogger( FsoFramework.Utility.programName(), classname );
         logger.setReprDelegate( repr );
+#if DEBUG
+        message( "FsoFramework.AbstractObject: created logger for domain '%s'", classname );
+#endif
     }
 
     public abstract string repr();
