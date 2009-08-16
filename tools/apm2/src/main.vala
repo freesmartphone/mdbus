@@ -22,10 +22,9 @@
 using GLib;
 
 //=========================================================================//
-const string DBUS_BUS_NAME  = "org.freedesktop.DBus";
-const string DBUS_OBJ_PATH  = "/";
-const string DBUS_INTERFACE = "org.freedesktop.DBus";
-const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectable";
+const string FSO_USAGE_BUS   = "org.freesmartphone.ousaged";
+const string FSO_USAGE_PATH  = "/org/freesmartphone/Usage";
+const string FSO_USAGE_IFACE = "org.freesmartphone.Usage";
 
 //=========================================================================//
 MainLoop mainloop;
@@ -36,12 +35,11 @@ class Commands : Object
     DBus.Connection bus;
     dynamic DBus.Object busobj;
 
-    public Commands( DBus.BusType bustype )
+    public Commands()
     {
         try
         {
-            bus = DBus.Bus.get( bustype );
-            busobj = bus.get_object( DBUS_BUS_NAME, DBUS_OBJ_PATH, DBUS_INTERFACE );
+            bus = DBus.Bus.get( DBus.BusType.SYSTEM );
         }
         catch ( DBus.Error e )
         {
@@ -49,25 +47,32 @@ class Commands : Object
         }
     }
 
+    public void suspend()
+    {
+        busobj = bus.get_object( FSO_USAGE_BUS, FSO_USAGE_PATH, FSO_USAGE_IFACE );
+        try
+        {
+            busobj.Suspend();
+        }
+        catch ( DBus.Error e )
+        {
+            stderr.printf( "%s\n", e.message );
+        }
+    }
 
+    public void showPowerStatus()
+    {
+        // FIXME...
+        stdout.printf( "Sorry, NYI...\n" );
+    }
 }
 
 //=========================================================================//
-bool showAnonymous;
-bool listenerMode;
-bool showPIDs;
-bool useSystemBus;
+bool suspend;
 
 const OptionEntry[] options =
 {
-    { "show-anonymous", 'a', 0, OptionArg.NONE, ref showAnonymous, "Show anonymous names", null },
-    { "show-pids", 'p', 0, OptionArg.NONE, ref showPIDs, "Show unix process IDs", null },
-    { "listen", 'l', 0, OptionArg.NONE, ref listenerMode, "Listen for signals", null },
-    { "system", 's', 0, OptionArg.NONE, ref useSystemBus, "Use System Bus", null },
-        /*
-    { "listen", 0, 0, OptionArg.STRING, ref cc_command, "Use COMMAND as C compiler command", "COMMAND" },
-    { "", 0, 0, OptionArg.STRING_ARRAY, ref sources, null, "FILE..." },
-        */
+    { "suspend", 's', 0, OptionArg.NONE, ref suspend, "Suspend the device", null },
     { null }
 };
 
@@ -88,7 +93,11 @@ int main( string[] args )
         return 1;
     }
 
-    var commands = new Commands( useSystemBus ? DBus.BusType.SYSTEM : DBus.BusType.SESSION );
+    var commands = new Commands();
+    if ( suspend)
+        commands.suspend();
+    else
+        commands.showPowerStatus();
 
     return 0;
 }
