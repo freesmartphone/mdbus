@@ -26,6 +26,10 @@ const string FSO_USAGE_BUS   = "org.freesmartphone.ousaged";
 const string FSO_USAGE_PATH  = "/org/freesmartphone/Usage";
 const string FSO_USAGE_IFACE = "org.freesmartphone.Usage";
 
+const string FSO_DEVICE_BUS  = "org.freesmartphone.odeviced";
+const string FSO_DEVICE_PATH = "/org/freesmartphone/Device/PowerSupply";
+const string FSO_DEVICE_IFACE = "org.freesmartphone.Device.PowerSupply";
+
 //=========================================================================//
 MainLoop mainloop;
 
@@ -33,7 +37,7 @@ MainLoop mainloop;
 class Commands : Object
 {
     DBus.Connection bus;
-    dynamic DBus.Object busobj;
+    dynamic DBus.Object obj;
 
     public Commands()
     {
@@ -49,10 +53,10 @@ class Commands : Object
 
     public void suspend()
     {
-        busobj = bus.get_object( FSO_USAGE_BUS, FSO_USAGE_PATH, FSO_USAGE_IFACE );
+        obj = bus.get_object( FSO_USAGE_BUS, FSO_USAGE_PATH, FSO_USAGE_IFACE );
         try
         {
-            busobj.Suspend();
+            obj.Suspend();
         }
         catch ( DBus.Error e )
         {
@@ -62,8 +66,17 @@ class Commands : Object
 
     public void showPowerStatus()
     {
-        // FIXME...
-        stdout.printf( "Sorry, NYI...\n" );
+        obj = bus.get_object( FSO_DEVICE_BUS, FSO_DEVICE_PATH, FSO_DEVICE_IFACE );
+        try
+        {
+            int capacity = obj.GetCapacity();
+            string stats = obj.GetPowerStatus();
+            stdout.printf( "%d%% - %s\n", capacity, stats );
+        }
+        catch ( DBus.Error e )
+        {
+            stderr.printf( "%s\n", e.message );
+        }
     }
 }
 
