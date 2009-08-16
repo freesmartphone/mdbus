@@ -29,7 +29,7 @@ class LowLevel.Openmoko : FsoUsage.LowLevel, FsoFramework.AbstractObject
     private HashTable<string,string> intmap1;
     private HashTable<string,string> intmap2;
 
-    public Openmoko()
+    construct
     {
         logger.info( "Registering openmoko low level suspend/resume handling" );
         // grab sysfs paths
@@ -103,7 +103,6 @@ class LowLevel.Openmoko : FsoUsage.LowLevel, FsoFramework.AbstractObject
            }
            return subreasonvalue;
         }
-
         return reasonvalue;
     }
 }

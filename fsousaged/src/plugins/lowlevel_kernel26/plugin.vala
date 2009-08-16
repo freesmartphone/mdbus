@@ -23,7 +23,7 @@ using FsoUsage;
 
 class LowLevel.Kernel26 : FsoUsage.LowLevel, FsoFramework.AbstractObject
 {
-    public Kernel26()
+    construct
     {
         logger.info( "Registering kernel26 low level suspend/resume handling" );
         // grab sysfs paths
@@ -38,6 +38,7 @@ class LowLevel.Kernel26 : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
     public void suspend()
     {
+        message( "writing 'mem' to %s", sys_power_state );
         FsoFramework.FileHandling.write( "mem\n", sys_power_state );
     }
 

@@ -315,7 +315,7 @@ public class Controller : FsoFramework.AbstractObject
             }
 
             lowlevel = Object.new( lowlevelclass ) as FsoUsage.LowLevel;
-            logger.info( "Ready. Using lowlevel plugin '%s".printf( lowleveltype ) );
+            logger.info( "Ready. Using lowlevel plugin '%s' to handle suspend/resume".printf( lowleveltype ) );
         }
 
         return false; // don't call me again
