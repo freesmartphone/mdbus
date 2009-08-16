@@ -69,8 +69,29 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObje
 
     public bool onIdle()
     {
-        // trigger initial coldplug change notification
-        FsoFramework.FileHandling.write( "change", "%s/uevent".printf( sysfsnode ) );
+        // trigger initial coldplug change notification, if we are on a real sysfs
+        if ( sysfsnode.has_prefix( "/sys" ) )
+        {
+            logger.debug( "Triggering initial coldplug change notification" );
+            FsoFramework.FileHandling.write( "change", "%s/uevent".printf( sysfsnode ) );
+        }
+        else
+        {
+            logger.debug( "Synthesizing initial coldplug change notification" );
+            var uevent = FsoFramework.FileHandling.read( "%s/uevent".printf( sysfsnode ) );
+            var parts = uevent.split( "\n" );
+            var properties = new HashTable<string, string>( str_hash, str_equal );
+            foreach ( var part in parts )
+            {
+                message( "%s", part );
+                var elements = part.split( "=" );
+                if ( elements.length == 2 )
+                {
+                    properties.insert( elements[0], elements[1] );
+                }
+            }
+            aggregate.onPowerSupplyChangeNotification( properties );
+        }
         return false; // mainloop: don't call again
     }
 
@@ -121,10 +142,14 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObje
     public HashTable<string,Value?> get_info() throws DBus.Error
     {
         //FIXME: add more infos
-        var value = Value( typeof(string) );
         var res = new HashTable<string,Value?>( str_hash, str_equal );
+
+        var value = Value( typeof(string) );
         value.take_string( typ );
         res.insert( "type", value );
+
+        value.take_string( name );
+        res.insert( "name", value );
         return res;
     }
 
@@ -212,19 +237,21 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
         var status = "unknown";
         var present = false;
 
+        message( "name = %s, type = %s", name, typ );
+
         if ( typ != "battery" )
         {
-            present = properties.lookup( "POWER_SUPPLY_ONLINE" ).to_bool();
+            present = ( properties.lookup( "POWER_SUPPLY_ONLINE" ).down() == "1" );
             status = present ? "online" : "offline";
         }
         else
         {
             status = properties.lookup( "POWER_SUPPLY_STATUS" ).down();
-            present = properties.lookup( "POWER_SUPPLY_PRESENT" ).to_bool();
+            present = ( properties.lookup( "POWER_SUPPLY_PRESENT" ).down() == "1" );
 
             if ( status == "not charging" )
             {
-                status = present ? "error" : "removed";
+                status = present ? "full" : "removed";
             }
         }
 
@@ -246,8 +273,11 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
                     case "error":
                         supply.status = FreeSmartphone.Device.PowerStatus.UNKNOWN; // unknown as well
                         break;
+                    case "online":
+                        supply.status = FreeSmartphone.Device.PowerStatus.ONLINE;
+                        break;
                     case "offline":
-                        supply.status = FreeSmartphone.Device.PowerStatus.OFFLINE; // unknown as well
+                        supply.status = FreeSmartphone.Device.PowerStatus.OFFLINE;
                         break;
                     case "removed":
                         supply.status = FreeSmartphone.Device.PowerStatus.REMOVED;
@@ -303,6 +333,13 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
         if ( !statusForAll )
         {
             logger.debug( "^^^ not enough information present to compute overall status" );
+            return;
+        }
+
+        // if we have charger inserted and present, AC is our status
+        if ( charger != null && charger.status == FreeSmartphone.Device.PowerStatus.ONLINE )
+        {
+            sendStatusIfChanged( FreeSmartphone.Device.PowerStatus.AC );
             return;
         }
 
