@@ -38,7 +38,6 @@ class LowLevel.Kernel26 : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
     public void suspend()
     {
-        message( "writing 'mem' to %s", sys_power_state );
         FsoFramework.FileHandling.write( "mem\n", sys_power_state );
     }
 

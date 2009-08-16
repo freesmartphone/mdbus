@@ -21,7 +21,7 @@ using GLib;
 
 using FsoUsage;
 
-internal const string SYSFS_RESUME_REASON_PATH    = "/bus/platform/devices/neo1973-resume.0/resume_reason";
+internal const string SYSFS_RESUME_REASON_PATH    = "/class/i2c-adapter/i2c-0/0-0073/neo1973-resume.0/resume_reason";
 internal const string SYSFS_RESUME_SUBREASON_PATH = "/class/i2c-adapter/i2c-0/0-0073/resume_reason";
 
 class LowLevel.Openmoko : FsoUsage.LowLevel, FsoFramework.AbstractObject
@@ -79,7 +79,7 @@ class LowLevel.Openmoko : FsoUsage.LowLevel, FsoFramework.AbstractObject
         {
             if ( line.has_prefix( "*" ) )
             {
-                reasonkey = line.substring( 2, line.length - 3 );
+                reasonkey = line.substring( 2 );
                 break;
             }
         }
@@ -90,7 +90,7 @@ class LowLevel.Openmoko : FsoUsage.LowLevel, FsoFramework.AbstractObject
            return "unknown";
         }
 
-        if ( reasonvalue == "EINT09_PMU" )
+        if ( reasonvalue == "PMU" )
         {
            logger.debug( "PMU resume reason marked in %s".printf( sys_resume_reason ) );
 

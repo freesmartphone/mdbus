@@ -27,6 +27,10 @@ internal const string RESOURCE_INTERFACE = "org.freesmartphone.Resource";
 internal const string CONFIG_SECTION = "fsousage";
 internal const string DEFAULT_LOWLEVEL_MODULE = "kernel26";
 
+internal const string FSO_IDLENOTIFIER_BUS   = "org.freesmartphone.odeviced";
+internal const string FSO_IDLENOTIFIER_PATH  = "/org/freesmartphone/Device/IdleNotifier";
+internal const string FSO_IDLENOTIFIER_IFACE = "org.freesmartphone.Device.IdleNotifier";
+
 namespace Usage
 {
 /**
@@ -259,6 +263,8 @@ public class Controller : FsoFramework.AbstractObject
 
     dynamic DBus.Object dbus;
 
+    dynamic DBus.Object idlenotifier;
+
     public Controller( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
@@ -276,6 +282,9 @@ public class Controller : FsoFramework.AbstractObject
         dbusconn = ( (FsoFramework.DBusSubsystem)subsystem ).dbusConnection();
         dbus = dbusconn.get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
         dbus.NameOwnerChanged += onNameOwnerChanged;
+
+        // get handle to IdleNotifier
+        idlenotifier = dbusconn.get_object( FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH, FSO_IDLENOTIFIER_IFACE );
 
         // delayed init
         Idle.add( onIdleForInit );
@@ -398,10 +407,20 @@ public class Controller : FsoFramework.AbstractObject
         else
             Posix.sleep( 5 );
         logger.debug( "<<<<<<< KERNEL RESUME" );
-        var reason = lowlevel.resume();
+        var reason = lowlevel.resume().down();
         logger.info( "Resume reason seems to be '%s'".printf( reason) );
         resumeAllResources();
         this.system_action( FreeSmartphone.UsageSystemAction.RESUME ); // DBUS SIGNAL
+
+        var idlestate = ( "key" in reason ) ? "idle" : "busy";
+        try
+        {
+            idlenotifier.SetState( idlestate );
+        }
+        catch ( DBus.Error e )
+        {
+            logger.error( "DBus Error while talking to IdleNotifier: %s".printf( e.message ) );
+        }
         return false; // MainLoop: Don't call again
     }
 
