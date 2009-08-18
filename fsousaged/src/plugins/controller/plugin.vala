@@ -28,7 +28,7 @@ internal const string CONFIG_SECTION = "fsousage";
 internal const string DEFAULT_LOWLEVEL_MODULE = "kernel26";
 
 internal const string FSO_IDLENOTIFIER_BUS   = "org.freesmartphone.odeviced";
-internal const string FSO_IDLENOTIFIER_PATH  = "/org/freesmartphone/Device/IdleNotifier";
+internal const string FSO_IDLENOTIFIER_PATH  = "/org/freesmartphone/Device/IdleNotifier/0";
 internal const string FSO_IDLENOTIFIER_IFACE = "org.freesmartphone.Device.IdleNotifier";
 
 namespace Usage
