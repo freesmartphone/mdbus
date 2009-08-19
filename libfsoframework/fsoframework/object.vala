@@ -26,7 +26,7 @@ public abstract class FsoFramework.AbstractObject : GLib.Object
     protected FsoFramework.Logger logger;
     public string classname { get; construct; }
 
-    construct
+    public AbstractObject()
     {
         classname = Type.from_instance( this ).name();
         config = FsoFramework.theMasterKeyFile();

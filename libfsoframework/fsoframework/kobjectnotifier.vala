@@ -25,7 +25,7 @@ public delegate void FsoFramework.KObjectNotifierFunc( HashTable<string, string>
 internal class DelegateHolder
 {
     public FsoFramework.KObjectNotifierFunc func;
-    DelegateHolder( FsoFramework.KObjectNotifierFunc func )
+    public DelegateHolder( FsoFramework.KObjectNotifierFunc func )
     {
         this.func = func;
     }

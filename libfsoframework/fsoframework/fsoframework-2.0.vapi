@@ -106,6 +106,7 @@ namespace FsoFramework {
 	public abstract class AbstractObject : GLib.Object {
 		protected FsoFramework.SmartKeyFile config;
 		protected FsoFramework.Logger logger;
+		public AbstractObject ();
 		public abstract string repr ();
 		public string classname { get; construct; }
 	}
