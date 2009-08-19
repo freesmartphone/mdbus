@@ -111,15 +111,15 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         // VALABUG 1: var time and var time in two different clauses
         // VALABUG 2: Memory.copy goes havok!
 
-        alarm.time.second = time.second;
-        alarm.time.minute = time.minute;
-        alarm.time.hour = time.hour;
-        alarm.time.day = time.day;
-        alarm.time.month = time.month;
-        alarm.time.year = time.year;
-        alarm.time.weekday = time.weekday;
-        alarm.time.day_of_year = time.day_of_year;
-        alarm.time.isdst = time.isdst;
+        alarm.time.tm_sec = time.second;
+        alarm.time.tm_min = time.minute;
+        alarm.time.tm_hour = time.hour;
+        alarm.time.tm_mday = time.day;
+        alarm.time.tm_mon = time.month;
+        alarm.time.tm_year = time.year;
+        alarm.time.tm_wday = time.weekday;
+        alarm.time.tm_yday = time.day_of_year;
+        //alarm.time.tm_isdt = time.isdst;
 
         alarm.enabled = seconds_since_epoch > 0 ? 1 : 0;
 
