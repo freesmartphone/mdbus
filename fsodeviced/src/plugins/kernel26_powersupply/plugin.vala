@@ -104,7 +104,7 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObje
     {
         var node = isBattery() ? "%s/present" : "%s/online";
         var value = FsoFramework.FileHandling.read( node.printf( sysfsnode ) );
-        return ( value != null && value.to_bool() );
+        return ( value != null && value == "1" );
     }
 
     public int getCapacity()
@@ -118,6 +118,10 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObje
         var value = FsoFramework.FileHandling.read( "%s/capacity".printf( sysfsnode ) );
         if ( value != "" )
             return value.to_int();
+
+#if DEBUG
+        message( "capacity node not available, using energy_full and energy_now" );
+#endif
 
         // fall back to energy_full and energy_now
         var energy_full = FsoFramework.FileHandling.read( "%s/energy_full".printf( sysfsnode ) );
@@ -422,8 +426,7 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
 
     public FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
     {
-        //TODO: walk through all power nodes and get
-        return FreeSmartphone.Device.PowerStatus.UNKNOWN;
+        return status;
     }
 
     public int get_capacity() throws DBus.Error
