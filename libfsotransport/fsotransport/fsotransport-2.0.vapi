@@ -51,6 +51,7 @@ namespace FsoFramework {
 		public abstract void getDelegates (out FsoFramework.TransportReadFunc? readfun, out FsoFramework.TransportHupFunc? hupfun);
 		public abstract string getName ();
 		public abstract bool isOpen ();
+		public Transport ();
 		public abstract bool open ();
 		public abstract int read (void* data, int len);
 		public abstract void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);
