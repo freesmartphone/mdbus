@@ -104,11 +104,11 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public abstract class AbstractObject : GLib.Object {
+		public string classname;
 		protected FsoFramework.SmartKeyFile config;
 		protected FsoFramework.Logger logger;
 		public AbstractObject ();
 		public abstract string repr ();
-		public string classname { get; construct; }
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public abstract class AbstractSubsystem : FsoFramework.Subsystem, GLib.Object {
