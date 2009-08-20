@@ -311,31 +311,31 @@ namespace Linux26 {
          */
 
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_SYN;
+        public const uint16 EV_SYN;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_KEY;
+        public const uint16 EV_KEY;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_REL;
+        public const uint16 EV_REL;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_ABS;
+        public const uint16 EV_ABS;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_MSC;
+        public const uint16 EV_MSC;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_SW;
+        public const uint16 EV_SW;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_LED;
+        public const uint16 EV_LED;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_SND;
+        public const uint16 EV_SND;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_REP;
+        public const uint16 EV_REP;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_FF;
+        public const uint16 EV_FF;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_PWR;
+        public const uint16 EV_PWR;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_FF_STATUS;
+        public const uint16 EV_FF_STATUS;
         [CCode (cheader_filename = "linux/input.h")]
-        public const int EV_MAX;
+        public const uint16 EV_MAX;
 
         /*
          * synchronization events
@@ -1578,7 +1578,7 @@ namespace Linux26 {
         public struct WakeAlarm {
             public char enabled;
             public char pending;
-            public GLib.Time time;
+            public Posix.tm time;
         }
 
         [CCode (cheader_filename = "linux/rtc.h,sys/ioctl.h")]

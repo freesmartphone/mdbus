@@ -35,7 +35,7 @@ public delegate void FsoFramework.DBusServiceEventFunc( string busname );
 internal class DBusFuncDelegateHolder
 {
     public FsoFramework.DBusServiceEventFunc func;
-    DBusFuncDelegateHolder( FsoFramework.DBusServiceEventFunc func )
+    public DBusFuncDelegateHolder( FsoFramework.DBusServiceEventFunc func )
     {
         this.func = func;
     }

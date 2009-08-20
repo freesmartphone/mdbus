@@ -53,7 +53,7 @@ class Info : FreeSmartphone.Device.Info, FsoFramework.AbstractObject
     public HashTable<string, Value?> get_cpu_info()
     {
         File node_file = File.new_for_path( PROC_NODE );
-        string line = new string();
+        string line;
         var val = Value( typeof(string) );
         HashTable<string, Value?> _ret = new HashTable<string, Value?> ( (HashFunc)str_hash,
                                                                         (EqualFunc)str_equal );

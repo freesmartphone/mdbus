@@ -51,6 +51,7 @@ public class AbstractSimpleResource : FreeSmartphone.Resource, FsoFramework.Abst
 
     public bool registerWithUsage()
     {
+        message( "registering..." );
         if (usage == null)
         {
             var conn = subsystem.dbusConnection();
@@ -59,6 +60,7 @@ public class AbstractSimpleResource : FreeSmartphone.Resource, FsoFramework.Abst
                                      FsoFramework.Usage.ServiceFacePrefix ); /* dynamic for async */
             usage.register_resource( name, path, onRegisterResourceReply );
         }
+        message( "...OK" );
         return false; // MainLoop: don't call me again
     }
 
