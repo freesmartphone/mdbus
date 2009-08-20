@@ -26,10 +26,6 @@ const string FSO_USAGE_BUS   = "org.freesmartphone.ousaged";
 const string FSO_USAGE_PATH  = "/org/freesmartphone/Usage";
 const string FSO_USAGE_IFACE = "org.freesmartphone.Usage";
 
-const string FSO_DEVICE_BUS  = "org.freesmartphone.odeviced";
-const string FSO_DEVICE_PATH = "/org/freesmartphone/Device/PowerSupply";
-const string FSO_DEVICE_IFACE = "org.freesmartphone.Device.PowerSupply";
-
 //=========================================================================//
 MainLoop mainloop;
 
@@ -37,13 +33,14 @@ MainLoop mainloop;
 class Commands : Object
 {
     DBus.Connection bus;
-    dynamic DBus.Object obj;
+    dynamic DBus.Object usage;
 
     public Commands()
     {
         try
         {
             bus = DBus.Bus.get( DBus.BusType.SYSTEM );
+            usage = bus.get_object( FSO_USAGE_BUS, FSO_USAGE_PATH, FSO_USAGE_IFACE );
         }
         catch ( DBus.Error e )
         {
@@ -51,12 +48,13 @@ class Commands : Object
         }
     }
 
-    public void suspend()
+    public void listResources()
     {
-        obj = bus.get_object( FSO_USAGE_BUS, FSO_USAGE_PATH, FSO_USAGE_IFACE );
         try
         {
-            obj.Suspend();
+            string[] res = usage.ListResources();
+            foreach ( var r in res )
+                stdout.printf( "%s\n", r );
         }
         catch ( DBus.Error e )
         {
@@ -64,28 +62,41 @@ class Commands : Object
         }
     }
 
-    public void showPowerStatus()
+    public void allocateResources( string[] resources )
     {
-        obj = bus.get_object( FSO_DEVICE_BUS, FSO_DEVICE_PATH, FSO_DEVICE_IFACE );
-        try
+        foreach ( var resource in resources )
         {
-            int capacity = obj.GetCapacity();
-            string stats = obj.GetPowerStatus();
-            stdout.printf( "%d%% - %s\n", capacity, stats );
-        }
-        catch ( DBus.Error e )
-        {
-            stderr.printf( "%s\n", e.message );
+            try
+            {
+                usage.RequestResource( resource );
+            }
+            catch ( DBus.Error e )
+            {
+                if (force)
+                    warning( "Could not request resource '%s': %s", resource, e.message );
+                else
+                    critical( "Could not request resource '%s' : %s", resource, e.message );
+            }
         }
     }
 }
 
 //=========================================================================//
-bool suspend;
+static bool listresources;
+static bool force;
+static bool timeout;
+[NoArrayLength()]
+static string[] resources;
+[NoArrayLength()]
+static string[] command;
 
 const OptionEntry[] options =
 {
-    { "suspend", 's', 0, OptionArg.NONE, ref suspend, "Suspend the device", null },
+    { "listresources", 'l', 0, OptionArg.NONE, ref listresources, "List resources (do not mix with -r)", null },
+    { "resources", 'r', 0, OptionArg.STRING_ARRAY, ref resources, "Allocate resources during program execution", "RESOURCE..." },
+    { "force", 'f', 0, OptionArg.NONE, ref force, "Continue execution, even if (some) resources can't be allocated.", null },
+    { "timeout", 't', 0, OptionArg.INT, ref timeout, "Override default dbus timeout", "MSECS" },
+    { "", 0, 0, OptionArg.FILENAME_ARRAY, ref command, null, "[--] COMMAND [ARGS]..." },
     { null }
 };
 
@@ -94,7 +105,7 @@ int main( string[] args )
 {
     try
     {
-        var opt_context = new OptionContext( "- FSO APM Compatibility Utility V2" );
+        var opt_context = new OptionContext( "- FSO Resource Allocation Wrapper" );
         opt_context.set_help_enabled( true );
         opt_context.add_main_entries( options, null );
         opt_context.parse( ref args );
@@ -106,11 +117,67 @@ int main( string[] args )
         return 1;
     }
 
+    if ( listresources && resources != null )
+    {
+        stdout.printf( "ERROR: Listing resources is not possible in the same call as requesting resources.\n" );
+        return 1;
+    }
+
+    if ( !listresources && resources == null )
+    {
+        stdout.printf( "ERROR: Either one of '-l' or '-r' must be supplied.\n" );
+        return 1;
+    }
+
+    if ( resources != null && command == null )
+    {
+        stdout.printf( "ERROR: Need also a command when -r is supplied.\n" );
+        return 1;
+    }
+
     var commands = new Commands();
-    if ( suspend)
-        commands.suspend();
+    if ( listresources )
+    {
+        commands.listResources();
+        return 0;
+    }
+
+    // synthesize resource.length
+    var i = 0;
+    while ( resources[i] != null ) i++;
+    resources.length = i;
+
+    // also accept ',' form
+    if ( resources.length == 1 && "," in resources[0] )
+    {
+        resources = resources[0].split( "," );
+    }
+
+    commands.allocateResources( resources );
+
+    var child = Posix.fork();
+    if ( child < 0 )
+        critical( "Could not fork." );
+
+    if ( child > 0 )
+    {
+        int status;
+        var pid = Posix.wait( out status );
+        return 0;
+    }
     else
-        commands.showPowerStatus();
+    {
+        string cmdline = "";
+        i = 0;
+        while ( command[i++] != null )
+        {
+            cmdline += command[i-1];
+            cmdline += " ";
+        }
+        return Posix.system( cmdline );
+    }
+
+    // rely on automatic resource cleanup
 
     return 0;
 }
