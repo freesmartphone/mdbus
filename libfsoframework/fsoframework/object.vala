@@ -24,7 +24,7 @@ public abstract class FsoFramework.AbstractObject : GLib.Object
 {
     protected FsoFramework.SmartKeyFile config;
     protected FsoFramework.Logger logger;
-    public string classname { get; construct; }
+    public string classname;
 
     public AbstractObject()
     {
@@ -39,4 +39,3 @@ public abstract class FsoFramework.AbstractObject : GLib.Object
 
     public abstract string repr();
 }
-
