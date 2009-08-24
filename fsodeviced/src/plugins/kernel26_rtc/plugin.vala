@@ -75,18 +75,19 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
 
     public int get_current_time() throws FreeSmartphone.Error, DBus.Error
     {
-        GLib.Time time = {};
-        var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_RD_TIME, &time );
+        GLib.Time t = {};
+        var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_RD_TIME, &t );
         if ( res == -1 )
             throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
-
-        return (int) time.mktime();
+        logger.info( "RTC time equals %s".printf( t.to_string() ) );
+        return (int) t.mktime();
     }
 
     public void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
-        var time = GLib.Time.gm( (time_t) seconds_since_epoch ); // VALABUG: cast is necessary here, otherwise things go havoc
-        var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_SET_TIME, &time );
+        var t = GLib.Time.gm( (time_t) seconds_since_epoch ); // VALABUG: cast is necessary here, otherwise things go havoc
+        logger.info( "Setting RTC time to %s (dst=%d)".printf( t.to_string(), t.isdst ) );
+        var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_SET_TIME, &t );
         if ( res == -1 )
             throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
     }
@@ -98,36 +99,42 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         if ( res == -1 )
             throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
 
-        GLib.Time time = {};
-        Memory.copy( &time, &alarm.time, sizeof( GLib.Time ) );
-        return ( alarm.enabled == 1 ) ? (int) time.mktime() : 0;
+        GLib.Time t = {};
+        t.second = alarm.time.tm_sec;
+        t.minute = alarm.time.tm_min;
+        t.hour = alarm.time.tm_hour;
+        t.day = alarm.time.tm_mday;
+        t.month = alarm.time.tm_mon;
+        t.year = alarm.time.tm_year;
+        //t.isdst = alarm.time.tm_isdst;
+
+        logger.info( "RTC alarm equals %s. Enabled=%s, Pending=%s".printf( t.to_string(), ((bool)alarm.enabled).to_string(), ((bool)alarm.pending).to_string() ) );
+
+        return ( alarm.enabled == 1 ) ? (int) t.mktime() : 0;
     }
 
     public void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
         Linux26.Rtc.WakeAlarm alarm = {};
-        var time = GLib.Time.gm( (time_t) seconds_since_epoch );
+        var t = GLib.Time.gm( (time_t) seconds_since_epoch );
 
-        // VALABUG 1: var time and var time in two different clauses
-        // VALABUG 2: Memory.copy goes havok!
+        logger.info( "Setting RTC alarm to %s (dst=%d)".printf( t.to_string(), t.isdst ) );
 
-        alarm.time.tm_sec = time.second;
-        alarm.time.tm_min = time.minute;
-        alarm.time.tm_hour = time.hour;
-        alarm.time.tm_mday = time.day;
-        alarm.time.tm_mon = time.month;
-        alarm.time.tm_year = time.year;
-        alarm.time.tm_wday = time.weekday;
-        alarm.time.tm_yday = time.day_of_year;
-        //alarm.time.tm_isdt = time.isdst;
+        alarm.time.tm_sec = t.second;
+        alarm.time.tm_min = t.minute;
+        alarm.time.tm_hour = t.hour;
+        alarm.time.tm_mday = t.day;
+        alarm.time.tm_mon = t.month;
+        alarm.time.tm_year = t.year;
+        //alarm.time.tm_isdst = t.isdst;
 
         alarm.enabled = seconds_since_epoch > 0 ? 1 : 0;
+        alarm.pending = 0;
 
         var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_WKALM_SET, &alarm );
         if ( res == -1 )
             throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
     }
-
 }
 
 } /* namespace */
