@@ -80,7 +80,8 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         if ( res == -1 )
             throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
         logger.info( "RTC time equals %s".printf( t.to_string() ) );
-        return (int) t.mktime();
+
+        return (int)Linux26.timegm( t );
     }
 
     public void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
@@ -110,7 +111,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
 
         logger.info( "RTC alarm equals %s. Enabled=%s, Pending=%s".printf( t.to_string(), ((bool)alarm.enabled).to_string(), ((bool)alarm.pending).to_string() ) );
 
-        return ( alarm.enabled == 1 ) ? (int) t.mktime() : 0;
+        return ( alarm.enabled == 1 ) ? (int) Linux26.timegm( t ) : 0;
     }
 
     public void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
