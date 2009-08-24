@@ -94,7 +94,7 @@ namespace Linux26 {
     public int signalfd (int fd, Posix.sigset_t mask, SignalFdFlags flags = 0);
 
     /*
-     * Misc
+     * Misc non-posix additions
      */
     [CCode (cprefix = "CLONE_", cheader_filename = "sched.h")]
     public enum CloneFlags {
@@ -105,6 +105,9 @@ namespace Linux26 {
 
     [CCode (cheader_filename = "sched.h")]
     public int unshare (CloneFlags flags);
+
+    [CCode (cheader_filename = "time.h")]
+    public time_t timegm (GLib.Time t);
 
     /*
      * Network
