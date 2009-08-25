@@ -3,12 +3,26 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 
+MUSIC_DIR ?= "g_get_user_special_dir(G_USER_DIRECTORY_MUSIC)"
+CONFIG_DIR ?= "g_build_filename(g_get_user_config_dir(),\"fsomusicd\")"
+CONFIG_PATH ?= "g_build_filename(g_get_user_config_dir(),\"fsomusicd\",\"main.conf\")"  #$(CONFIG_DIR)"\"/main.conf\""
+PLAYLIST_DIR ?= "g_build_filename(g_get_user_config_dir(),\"fsomusicd\",\"playlists\")" #"\"/playlists\""
+
+INCLUDES = \
+	$(DEPS_CFLAGS) \
+	-include $(CONFIG_HEADER) \
+	$(NULL)
 
 BUILT_SOURCES = .vala.stamp
 
-sbin_PROGRAMS = fsomusicd
+bin_PROGRAMS = fsomusicd
 
 fsomusicd_VALASOURCES = \
+	playlist.vala \
+	musicplayer.vala \
+	main.vala \
+	interfaces.vala \
+	config.vala \
 	$(NULL)
 
 fsomusicd_SOURCES = \
@@ -16,13 +30,19 @@ fsomusicd_SOURCES = \
 	$(fsomusicd_VALASOURCES:.vala=.h) \
 	$(NULL)
 
-src/.vala.stamp: $(fsomuscd_VALASOURCES)
-	$(VALAC) -c --pkg  dbus-glib-1 gstreamer-0.10 --save-temps  $^
+.vala.stamp: $(fsomusicd_VALASOURCES)
+	$(VALAC) -C --pkg  dbus-glib-1 \
+	    --pkg gstreamer-0.10 \
+	    --vapidir=. \
+	    --save-temps  $^
 	touch $@
-
+fsomusicd_LDADD = \
+		    $(DEPS_LIBS) \
+		    $(NULL)
 
 EXTRA_DIST = \
-	$(fsommusicd_VALASOURCES) \
+	$(fsomusicd_VALASOURCES) \
 	src/.vala.stamp \
 	$(NULL)
 
+MAINTAINERCLEANFILE = Makefile.in

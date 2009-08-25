@@ -1,6 +1,6 @@
 AC_INIT([fsomusicd], [0.0.0], [frederik.sdun@googlemail.com], [fsomusicd])
 AC_CONFIG_SRCDIR([Makefile.am])
-AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_HEADERS(src/config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
 
 AC_PROG_CC
