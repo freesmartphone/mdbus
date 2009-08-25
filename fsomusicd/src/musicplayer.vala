@@ -31,9 +31,18 @@ namespace FreeSmartphone.MusicPlayer
         private Connection con;
         private ObjectPath path;
         private unowned KeyFile key_file;
-        private string current_song = "";
-        private HashTable<string,Playlist> playlists;
-        private string current_playlist;
+        private string current_song
+        {
+            get { return _current_song; }
+            set
+            {
+                this._current_song = value;
+                set_playing( value );
+            }
+        }
+        private string _current_song = "";
+        private HashTable<ObjectPath,Playlist> playlists;
+        private ObjectPath current_playlist;
         private string playlist_path;
         private Pipeline audio_pipeline;
         private Element playbin;
@@ -45,7 +54,6 @@ namespace FreeSmartphone.MusicPlayer
             {
                 if( value != cur_state )
                 {
-                    debug("State changed");
                     this.cur_state = value;
                     state( value );
                 }
@@ -64,7 +72,7 @@ namespace FreeSmartphone.MusicPlayer
         }
         construct
         {
-            playlists = new HashTable<string,Playlist>(str_hash, str_equal);
+            playlists = new HashTable<ObjectPath,Playlist>(str_hash, str_equal);
             audio_pipeline = new Pipeline( "audio" );
             playbin = ElementFactory.make( "playbin", "audio_player" );
             audio_pipeline.add( playbin );
@@ -74,93 +82,107 @@ namespace FreeSmartphone.MusicPlayer
         //
         // org.freesmartphone.MusicPlayer
         //
-        public HashTable<string,GLib.Value?> get_info_for_file( string file )
+        public HashTable<string,GLib.Value?> get_info_for_file( string file ) throws MusicPlayerError, DBus.Error
         {
             return new HashTable<string,GLib.Value?>( str_hash, str_equal );
         }
-        public string get_playing()
+        public string get_playing() throws MusicPlayerError, DBus.Error
         {
             return current_song;
         }
-        public void set_playing( string file )
+        public void set_playing( string file ) throws MusicPlayerError, DBus.Error
         {
-            this.current_song = file;
             this.audio_pipeline.set_state( Gst.State.READY );
             this.playbin.set( "uri", "file://" +  file );
             this._state = FreeSmartphone.MusicPlayer.State.STOPPED;
 
             this.cur_song_info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
             this.cur_song_info.insert( "filename", file );
+            playing_changed( file );
         }
-        public void play()
+        public void play() throws MusicPlayerError, DBus.Error
         {
             this.audio_pipeline.set_state( Gst.State.PLAYING );
             this._state = FreeSmartphone.MusicPlayer.State.PLAYING;
         }
-        public void pause()
+        public void pause() throws MusicPlayerError, DBus.Error
         {
             this.audio_pipeline.set_state( Gst.State.PAUSED );
             this._state = FreeSmartphone.MusicPlayer.State.PAUSED;
         }
-        public void stop()
+        public void stop() throws MusicPlayerError, DBus.Error
         {
             this.audio_pipeline.set_state( Gst.State.READY );
             this._state = FreeSmartphone.MusicPlayer.State.STOPPED;
         }
-        public void previous()
+        public void previous() throws MusicPlayerError, DBus.Error
+        {
+            var playlist = playlists.lookup( current_playlist );
+            if( current_playlist == null )
+                 throw new MusicPlayerError.NO_PLAYLIST_SELECTED( "No Playlist Selected" );
+            this.current_song = playlist.get_previous();
+            if( this.current_song == null )
+                 throw new MusicPlayerError.END_OF_LIST( "Playlist %s has no more elements".printf(this.current_playlist));
+            play();
+        }
+        public void next() throws MusicPlayerError, DBus.Error
+        {
+            if( current_playlist == null )
+                 throw new MusicPlayerError.NO_PLAYLIST_SELECTED( "No Playlist Selected" );
+            this.current_song = playlists.lookup( current_playlist ).get_next();
+            if( this.current_song == null )
+                 throw new MusicPlayerError.END_OF_LIST( "Playlist %s has no more elements".printf(this.current_playlist));
+            play();
+        }
+        public void seek_forward( int step ) throws MusicPlayerError, DBus.Error
         {
         }
-        public void next()
+        public void seek_backward( int step ) throws MusicPlayerError, DBus.Error
         {
-
         }
-        public void seek_forward( int step )
+        public void jump( int pos ) throws MusicPlayerError, DBus.Error
         {
-
-        }
-        public void seek_backward( int step )
-        {
-
-        }
-        public void jump( int pos )
-        {
-
         }
         public ObjectPath[] get_playlists()
         {
             var keys = this.playlists.get_keys();
+            ObjectPath[] paths = new ObjectPath[keys.length()];
             int i = 0;
-            ObjectPath[] songs = new ObjectPath[keys.length()];
-            foreach( var k in keys )
+            foreach( var key in keys)
             {
-                songs[i++] = new ObjectPath( playlist_path + k );
+                paths[i++] = key;
             }
-            return songs;
+            return paths;
         }
-        public ObjectPath get_current_playlist()
+        public ObjectPath get_current_playlist() throws MusicPlayerError, DBus.Error
         {
-            return new ObjectPath( playlist_path + current_playlist );
+            return current_playlist;
         }
-        public void delete_playlist( string list )
+        public void set_current_playlist( ObjectPath list )
+        {
+            if( playlists.lookup( list ) == null )
+                 throw new MusicPlayerError.UNKNOWN_PLAYLIST( "Playlist not found for %s".printf( list.rchr( list.len(),'/' ).next_char() ) );
+            current_playlist = list;
+        }
+        public void delete_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error
         {
             playlists.remove( list );
         }
-        public ObjectPath new_playlist( string name )
+        public ObjectPath new_playlist( string name ) throws MusicPlayerError, DBus.Error
         {
             var list = new Playlist( name, key_file );
-            this.con.register_object( playlist_path + name, list );
-            playlists.insert( name, list );
-            var obj_path = new ObjectPath(playlist_path + name);
-            playlist( obj_path );
-            return obj_path;
+            return add_playlist( name, list );
         }
         //
         // None DBus Interface methods
         //
-        public void add_playlist( string name, Playlist pl )
+        public ObjectPath add_playlist( string name, Playlist pl )
         {
-            playlists.insert( name, pl );
+            var obj_path = new ObjectPath(playlist_path + name);
+            playlists.insert( obj_path, pl );
+            playlist( obj_path );
             this.con.register_object( playlist_path + name, pl );
+            return obj_path;
         }
         public string[] search( string query )
         {
@@ -214,7 +236,6 @@ namespace FreeSmartphone.MusicPlayer
                     Gst.State newstate;
                     Gst.State pending;
                     message.parse_state_changed( out oldstate, out newstate, out pending );
-                    debug("Bus.State: %s %s %s", oldstate.to_string(), newstate.to_string(), pending.to_string() );
                     break;
             }
             return true;

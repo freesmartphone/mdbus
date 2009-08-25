@@ -32,6 +32,7 @@ namespace FreeSmartphone.MusicPlayer
         private List<string> files;
         private int position;
         private static string[] extensions = { ".mp3", ".ogg", ".flac" };
+        private weak List<string> current;
 
         public Playlist( string name, KeyFile kf )
         {
@@ -42,12 +43,19 @@ namespace FreeSmartphone.MusicPlayer
         {
             this( name, kf );
             insert_dir( 0, dir, true );
+            position = 0;
+            current = files;
+
         }
         construct 
         {
             files = new List<string>();
-            this.position = 0;
+            this.position = -1;
+            current = files;
         }
+        //
+        // org.freesmartphone.MusicPlayer.Playlist
+        //
         public string get_name() throws PlaylistError, DBus.Error
         {
             return _name;
@@ -70,18 +78,8 @@ namespace FreeSmartphone.MusicPlayer
         public void insert( int position, string file ) throws PlaylistError, DBus.Error
         {
             debug("Adding %s to %s", file, _name );
-            var ext = file.rchr( file.len(), '.' ).down();
-            bool supported = false;
-            foreach( var e in extensions )
-            {
-                if( ext == e )
-                {
-                    supported = true;
-                    break;
-                }
-            }
-            if( ! supported )
-                 throw new PlaylistError.FILETYPE_NOT_SUPPORTED( "Filetype %s is not supported".printf( ext ));
+            if( ! file_supported( file ) )
+                 throw new PlaylistError.FILETYPE_NOT_SUPPORTED( "Filetype for %s is not supported".printf( file ));
             this.files.insert( file, position );
             file_added(position,file);
         }
@@ -158,6 +156,31 @@ namespace FreeSmartphone.MusicPlayer
             {
                 debug("File error for %s: %s", file, e.message );
             }
+        }
+        //
+        // None DBus methods
+        //
+        public bool file_supported( string file )
+        {
+            var ext = file.rchr( file.len(), '.' ).down();
+            foreach( var e in extensions )
+            {
+                if( ext == e )
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public string get_next()
+        {
+            this.current = this.current.next;
+            return this.current.data;
+        }
+        public string get_previous()
+        {
+            this.current = this.current.prev;
+            return this.current.data;
         }
     }
 }
