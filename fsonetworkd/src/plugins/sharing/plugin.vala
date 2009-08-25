@@ -49,19 +49,18 @@ public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractOb
     private string get_nameservers()
     {
         File file = File.new_for_path( ETC_RESOLV_CONF );
-        string nameservers = "";
+        var nameservers = "";
         DataInputStream stream = new DataInputStream( file.read(null) );
-        string line = new string();
 
         try
         {
-            line = stream.read_line( null, null );
+            var line = stream.read_line( null, null );
             while (( line = stream.read_line( null, null ) ) != null)
             {
                 if ( line == "\n" || line == "" )
                     continue;
 
-                if ( "nameserver" in line ) 
+                if ( "nameserver" in line )
                 {
                     string[] _list = line.split(" ");
                     if ( (_list[1] != "") && (_list[0] != "") )
