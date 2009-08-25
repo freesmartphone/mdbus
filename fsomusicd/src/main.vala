@@ -25,10 +25,11 @@ using DBus;
 
 namespace FreeSmartphone.MusicPlayer
 {
-    public static int main()
+    public static int main( string[] args )
     {
         try
         {
+            Gst.init( ref args );
             var ml = new MainLoop( null, false );
             var con = Bus.get( BusType.SESSION );
             var dbus = con.get_object( DBUS_BUS, DBUS_PATH ) as DBusService;

@@ -22,6 +22,7 @@
  */
 using GLib;
 using DBus;
+using Gst;
 
 namespace FreeSmartphone.MusicPlayer
 {
@@ -34,6 +35,25 @@ namespace FreeSmartphone.MusicPlayer
         private HashTable<string,Playlist> playlists;
         private string current_playlist;
         private string playlist_path;
+        private Pipeline audio_pipeline;
+        private Element playbin;
+        private Gst.Bus audio_bus;
+        private FreeSmartphone.MusicPlayer.State cur_state = FreeSmartphone.MusicPlayer.State.STOPPED;
+        private FreeSmartphone.MusicPlayer.State _state { 
+            get{ return this.cur_state; }
+            set
+            {
+                if( value != cur_state )
+                {
+                    debug("State changed");
+                    this.cur_state = value;
+                    state( value );
+                }
+            }
+        }
+
+        private HashTable<string,GLib.Value?> cur_song_info;
+
 
         public MusicPlayer( Connection con, ObjectPath path, KeyFile kf )
         {
@@ -45,10 +65,18 @@ namespace FreeSmartphone.MusicPlayer
         construct
         {
             playlists = new HashTable<string,Playlist>(str_hash, str_equal);
+            audio_pipeline = new Pipeline( "audio" );
+            playbin = ElementFactory.make( "playbin", "audio_player" );
+            audio_pipeline.add( playbin );
+            audio_bus = audio_pipeline.get_bus();
+            audio_bus.add_watch( bus_callback );
         }
-        public HashTable<string,Value?> get_info_for_file( string file )
+        //
+        // org.freesmartphone.MusicPlayer
+        //
+        public HashTable<string,GLib.Value?> get_info_for_file( string file )
         {
-            return new HashTable<string,Value?>( str_hash, str_equal );
+            return new HashTable<string,GLib.Value?>( str_hash, str_equal );
         }
         public string get_playing()
         {
@@ -56,23 +84,31 @@ namespace FreeSmartphone.MusicPlayer
         }
         public void set_playing( string file )
         {
+            this.current_song = file;
+            this.audio_pipeline.set_state( Gst.State.READY );
+            this.playbin.set( "uri", "file://" +  file );
+            this._state = FreeSmartphone.MusicPlayer.State.STOPPED;
 
+            this.cur_song_info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
+            this.cur_song_info.insert( "filename", file );
         }
         public void play()
         {
-
+            this.audio_pipeline.set_state( Gst.State.PLAYING );
+            this._state = FreeSmartphone.MusicPlayer.State.PLAYING;
         }
         public void pause()
         {
-
+            this.audio_pipeline.set_state( Gst.State.PAUSED );
+            this._state = FreeSmartphone.MusicPlayer.State.PAUSED;
         }
         public void stop()
         {
-
+            this.audio_pipeline.set_state( Gst.State.READY );
+            this._state = FreeSmartphone.MusicPlayer.State.STOPPED;
         }
         public void previous()
         {
-
         }
         public void next()
         {
@@ -118,6 +154,9 @@ namespace FreeSmartphone.MusicPlayer
             playlist( obj_path );
             return obj_path;
         }
+        //
+        // None DBus Interface methods
+        //
         public void add_playlist( string name, Playlist pl )
         {
             playlists.insert( name, pl );
@@ -126,6 +165,59 @@ namespace FreeSmartphone.MusicPlayer
         public string[] search( string query )
         {
             return new string[0];
+        }
+        public void set_gst_state( Gst.State s )
+        {
+            switch( s )
+            {
+                case Gst.State.READY:
+                case Gst.State.NULL:
+                case Gst.State.VOID_PENDING:
+                    _state = FreeSmartphone.MusicPlayer.State.STOPPED;
+                    break;
+                case Gst.State.PAUSED:
+                    _state = FreeSmartphone.MusicPlayer.State.PAUSED;
+                    break;
+                case Gst.State.PLAYING:
+                    _state = FreeSmartphone.MusicPlayer.State.PLAYING;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        //
+        // Bus Callbacks
+        //
+        private void foreach_tag (Gst.TagList list, string tag)
+        {
+            string val;
+            list.get_string( tag, out val );
+            cur_song_info.insert( tag, val );
+        }
+        private bool bus_callback (Gst.Bus bus, Gst.Message message)
+        {
+            switch( message.type )
+            {
+                case MessageType.ERROR:
+                    GLib.Error err;
+                    string debug;
+                    message.parse_error( out err, out debug );
+                    GLib.debug( "Message Error: %s %s", debug, err.message );
+                    break;
+                case MessageType.EOS:
+                    debug("End of stream");
+                    next();
+                    break;
+                case MessageType.STATE_CHANGED:
+                    Gst.State oldstate;
+                    Gst.State newstate;
+                    Gst.State pending;
+                    message.parse_state_changed( out oldstate, out newstate, out pending );
+                    debug("Bus.State: %s %s %s", oldstate.to_string(), newstate.to_string(), pending.to_string() );
+                    break;
+            }
+            return true;
         }
     }
 }
