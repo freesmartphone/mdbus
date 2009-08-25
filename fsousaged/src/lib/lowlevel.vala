@@ -21,8 +21,56 @@ using GLib;
 
 namespace FsoUsage {
 
+public enum ResumeReason
+{
+    Invalid = 0,
+    Accelerometer,
+    AuxKey,
+    Bluetooth,
+    Debug,
+    FullBattery,
+    GSM,
+    GFX,
+    GPS,
+    Headphone,
+    LowBattery,
+    PMU,
+    PowerKey,
+    PhoneKey,
+    Unknown,
+    WiFi,
+}
+
 public interface LowLevel : FsoFramework.AbstractObject
 {
+    /**
+     * Whether a resume reason is user initiated or not
+     **/
+    public bool isUserInitiated( ResumeReason r )
+    {
+        var res = false;
+
+        switch (r)
+        {
+            case ResumeReason.Accelerometer:
+                res = true;
+                break;
+            case ResumeReason.Headphone:
+                res = true;
+                break;
+            case ResumeReason.PowerKey:
+                res = true;
+                break;
+            case ResumeReason.PhoneKey:
+                res = true;
+                break;
+            case ResumeReason.Unknown:
+                res = true;
+                break;
+        }
+
+        return res;
+    }
     /**
      * Suspend the device
      **/
@@ -30,7 +78,7 @@ public interface LowLevel : FsoFramework.AbstractObject
     /**
      * Resume the device, return the resume reason, if available
      **/
-    public abstract string resume();
+    public abstract ResumeReason resume();
 }
 
 }

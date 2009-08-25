@@ -407,12 +407,12 @@ public class Controller : FsoFramework.AbstractObject
         else
             Posix.sleep( 5 );
         logger.debug( "<<<<<<< KERNEL RESUME" );
-        var reason = lowlevel.resume().down();
-        logger.info( "Resume reason seems to be '%s'".printf( reason) );
+        FsoUsage.ResumeReason reason = lowlevel.resume();
+        logger.info( "Resume reason seems to be '%d'".printf( reason) );
         resumeAllResources();
         this.system_action( FreeSmartphone.UsageSystemAction.RESUME ); // DBUS SIGNAL
 
-        var idlestate = ( "key" in reason ) ? "idle" : "busy";
+        var idlestate = lowlevel.isUserInitiated( reason ) ? "busy" : "idle";
         try
         {
             idlenotifier.SetState( idlestate );

@@ -41,9 +41,9 @@ class LowLevel.Kernel26 : FsoUsage.LowLevel, FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( "mem\n", sys_power_state );
     }
 
-    public string resume()
+    public ResumeReason resume()
     {
-        return "unknown";
+        return ResumeReason.Unknown;
     }
 }
 
