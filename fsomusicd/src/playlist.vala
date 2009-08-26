@@ -41,6 +41,8 @@ namespace FreeSmartphone.MusicPlayer
             try
             {
                 position = kf.get_integer( name, Config.LAST_PLAYED );
+                load_from_file( Path.build_filename( Config.get_playlist_dir(), name ) );
+                current = files.nth( position );
             }
             catch (GLib.Error e)
             {
@@ -149,6 +151,7 @@ namespace FreeSmartphone.MusicPlayer
         }
         public  void load_from_file( string file ) throws PlaylistError, DBus.Error
         {
+            debug( "%s: %s", Log.METHOD, file );
             this.files = new List<string>();
             try
             {
@@ -158,6 +161,7 @@ namespace FreeSmartphone.MusicPlayer
                 while(!fs.eof())
                 {
                     string? line = fs.read_line();
+                    if( line != null && line.len() > 0 );
                     this.files.prepend( line );
                 }
                 this.files.reverse();
@@ -166,6 +170,7 @@ namespace FreeSmartphone.MusicPlayer
             {
                 debug("File error for %s: %s", file, e.message );
             }
+            debug("New Playlist.length: %ll", file.len());
         }
         //
         // None DBus methods
@@ -199,6 +204,8 @@ namespace FreeSmartphone.MusicPlayer
                  return "";
             this.current = this.current.next;
             position++;
+            debug( "new current %p", this.current );
+            debug( "DATA: %p",this.current.data );
             return this.current == null ? "": this.current.data;
         }
         public string get_previous()

@@ -36,14 +36,26 @@ namespace FreeSmartphone.MusicPlayer
             get { return _current_song; }
             set
             {
-                debug( "%s", value );
+                debug( "current song: %s", value );
                 this._current_song = value;
                 set_playing( value );
             }
         }
         private string _current_song = "";
         private HashTable<ObjectPath,Playlist> playlists;
-        private ObjectPath current_playlist;
+        private ObjectPath current_playlist
+        {
+            get{ return _current_playlist; }
+            set 
+            {
+                debug( "current_playlist: %s", value );
+                _current_playlist = value;
+                var playlist = playlists.lookup( value );
+                debug( "playlist: %p %s", playlist, value );
+                current_song = playlist.get_next();
+            }
+        }
+        private ObjectPath _current_playlist;
         private string playlist_path;
         private Pipeline audio_pipeline;
         private Element playbin;
@@ -81,7 +93,6 @@ namespace FreeSmartphone.MusicPlayer
                 var full_file = Path.build_filename( playlist_dir, file );
                 var pl = new Playlist( file, key_file );
                 add_playlist( file, pl );
-                pl.load_from_file( full_file );
             }
         }
         construct
@@ -96,6 +107,7 @@ namespace FreeSmartphone.MusicPlayer
         ~MusicPlayer()
         {
             save();
+            playbin.set_state( Gst.State.NULL );
         }
         //
         // org.freesmartphone.MusicPlayer
@@ -110,8 +122,8 @@ namespace FreeSmartphone.MusicPlayer
         }
         public void set_playing( string file ) throws MusicPlayerError, DBus.Error
         {
-            this.audio_pipeline.set_state( Gst.State.READY );
             this.playbin.set( "uri", "file://" +  file );
+            this.audio_pipeline.set_state( Gst.State.READY );
             this._state = FreeSmartphone.MusicPlayer.State.STOPPED;
 
             this.cur_song_info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
@@ -178,7 +190,8 @@ namespace FreeSmartphone.MusicPlayer
         }
         public void set_current_playlist( ObjectPath list )
         {
-            if( playlists.lookup( list ) == null )
+            var playlist = playlists.lookup( list );
+            if( playlist == null )
                  throw new MusicPlayerError.UNKNOWN_PLAYLIST( "Playlist not found for %s".printf( list.rchr( list.len(),'/' ).next_char() ) );
             current_playlist = list;
         }
@@ -248,6 +261,7 @@ namespace FreeSmartphone.MusicPlayer
         private void foreach_tag (Gst.TagList list, string tag)
         {
             string val;
+            debug( "TAG: %s", tag );
             list.get_string( tag, out val );
             cur_song_info.insert( tag, val );
         }
@@ -270,6 +284,12 @@ namespace FreeSmartphone.MusicPlayer
                     Gst.State newstate;
                     Gst.State pending;
                     message.parse_state_changed( out oldstate, out newstate, out pending );
+                    break;
+                case MessageType.TAG:
+                    Gst.TagList tag_list;
+                    stdout.printf ("taglist found\n");
+                    message.parse_tag (out tag_list);
+                    tag_list.foreach (foreach_tag);
                     break;
             }
             return true;
