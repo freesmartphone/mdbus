@@ -379,13 +379,16 @@ public class Controller : FsoFramework.AbstractObject
         logger.debug( "%s disappeared. checking whether resources are affected...".printf( name ) );
 
         //FIXME: Consider keeping the known busnames in a map as well, so we don't have to iterate through all values
+
+        var resourcesToRemove = new Gee.HashSet<Resource>();
+
         foreach ( var r in resources.get_values() )
         {
             // first, check whether the resource provider might have vanished
             if ( r.busname == name )
             {
                 onResourceVanishing( r );
-                resources.remove( r.name );
+                resourcesToRemove.add( r );
             }
             // second, check whether it was one of the users
             else
@@ -395,6 +398,10 @@ public class Controller : FsoFramework.AbstractObject
                     r.delUser( name );
                 }
             }
+        }
+        foreach ( var r in resourcesToRemove )
+        {
+            resources.remove( r.name );
         }
     }
 
