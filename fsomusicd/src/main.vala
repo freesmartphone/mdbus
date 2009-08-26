@@ -22,25 +22,30 @@
  */
 using GLib;
 using DBus;
+using Posix;
 
 namespace FreeSmartphone.MusicPlayer
 {
+    static MainLoop ml;
+
     public static int main( string[] args )
     {
+        sighandler_t handle;
         try
         {
             Gst.init( ref args );
-            var ml = new MainLoop( null, false );
+            ml = new MainLoop( null, false );
             var con = Bus.get( BusType.SESSION );
             var dbus = con.get_object( DBUS_BUS, DBUS_PATH ) as DBusService;
             uint req = dbus.request_name( BUSNAME, (uint)0);
             if( req == DBus.RequestNameReply.PRIMARY_OWNER )
             {
                 KeyFile kf = new KeyFile();
-                var mp = new MusicPlayer( con, new ObjectPath( BASE_OBJECT_PATH ), kf );
+                MusicPlayer mp = null;
                 try
                 {
                     kf.load_from_file( Config.get_config_path(), KeyFileFlags.NONE );
+                    mp = new MusicPlayer( con, new ObjectPath( BASE_OBJECT_PATH ), kf );
                 }
                 catch (GLib.FileError e)
                 {
@@ -49,10 +54,13 @@ namespace FreeSmartphone.MusicPlayer
                     kf.set_string(Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYED, "");
                     kf.set_string(Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYLIST, "");
                     var pl = new Playlist.from_dir( "all", kf ,Config.get_music_dir() );
+                    mp = new MusicPlayer( con, new ObjectPath( BASE_OBJECT_PATH ), kf );
                     mp.add_playlist( "all", pl );
                 }
                 con.register_object( BASE_OBJECT_PATH, mp );
+                handle = signal( SIGINT, sig_handle );
                 ml.run();
+                mp = null;
                 save_keyfile( kf, Config.get_config_path() );
             }
             else
@@ -86,5 +94,10 @@ namespace FreeSmartphone.MusicPlayer
     {
         var fs = FileStream.open( path, "w+" );
         fs.puts( kf.to_data());
+    }
+    public static void sig_handle( int signal )
+    {
+        debug("Received signal: %i", signal );
+        ml.quit();
     }
 }

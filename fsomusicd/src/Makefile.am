@@ -9,6 +9,7 @@ CONFIG_PATH ?= "g_build_filename(g_get_user_config_dir(),\"fsomusicd\",\"main.co
 PLAYLIST_DIR ?= "g_build_filename(g_get_user_config_dir(),\"fsomusicd\",\"playlists\")" #"\"/playlists\""
 
 INCLUDES = \
+	-D_GNU_SOURCE \
 	$(DEPS_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	$(NULL)
@@ -33,6 +34,7 @@ fsomusicd_SOURCES = \
 .vala.stamp: $(fsomusicd_VALASOURCES)
 	$(VALAC) -C --pkg  dbus-glib-1 \
 	    --pkg gstreamer-0.10 \
+	    --pkg posix \
 	    --vapidir=. \
 	    --save-temps  $^
 	touch $@

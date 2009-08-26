@@ -38,6 +38,14 @@ namespace FreeSmartphone.MusicPlayer
         {
             this.key_file = kf;
             this._name = name;
+            try
+            {
+                position = kf.get_integer( name, Config.LAST_PLAYED );
+            }
+            catch (GLib.Error e)
+            {
+                debug( "Ignoring Error: %s", e.message );
+            }
         }
         public Playlist.from_dir( string name, KeyFile kf, string dir )
         {
@@ -45,12 +53,11 @@ namespace FreeSmartphone.MusicPlayer
             insert_dir( 0, dir, true );
             position = 0;
             current = files;
-
         }
         construct 
         {
             files = new List<string>();
-            this.position = -1;
+            this.position = 0;
             current = files;
         }
         //
@@ -82,6 +89,8 @@ namespace FreeSmartphone.MusicPlayer
                  throw new PlaylistError.FILETYPE_NOT_SUPPORTED( "Filetype for %s is not supported".printf( file ));
             this.files.insert( file, position );
             file_added(position,file);
+            if( position < this.position )
+                 this.position++;
         }
         public void insert_dir( int position, string dir, bool recursive ) throws PlaylistError, DBus.Error
         {
@@ -118,7 +127,6 @@ namespace FreeSmartphone.MusicPlayer
             {
                 debug("File Error: %s", fe.message );
             }
-
         }
         public void remove( int position ) throws PlaylistError
         {
@@ -129,12 +137,14 @@ namespace FreeSmartphone.MusicPlayer
             }
             else
                  throw new PlaylistError.OUT_OF_RANGE( "%i is to big. Playlist size: %i", position, files.length());
+            if( position < this.position)
+                 this.position--;
         }
         public string get_at_position( int position ) throws PlaylistError, DBus.Error
         {
-            var f = this.files.nth_data( position );
-            if( f == null)
+            if( position > files.length())
                  throw new PlaylistError.OUT_OF_RANGE( "%u is out of range. List size: %u".printf(position,this.files.length()));
+            var f = this.files.nth_data( position );
             return f;
         }
         public  void load_from_file( string file ) throws PlaylistError, DBus.Error
@@ -172,15 +182,32 @@ namespace FreeSmartphone.MusicPlayer
             }
             return false;
         }
+        public void save()
+        {
+            debug("saving %s:%s %i", _name, Config.LAST_PLAYED, position );
+            debug( "KeyFile %p", key_file );
+            key_file.set_integer( _name, Config.LAST_PLAYED, position );
+
+            var playlist_path = Path.build_filename( Config.get_playlist_dir(), _name );
+            var fs = FileStream.open( playlist_path, "w+" );
+            foreach( var file in files )
+                    fs.printf( "%s\n", file );
+        }
         public string get_next()
         {
+            if ( this.current == null )
+                 return "";
             this.current = this.current.next;
-            return this.current.data;
+            position++;
+            return this.current == null ? "": this.current.data;
         }
         public string get_previous()
         {
+            if ( this.current == null )
+                 return "";
+            position--;
             this.current = this.current.prev;
-            return this.current.data;
+            return this.current == null ? "": this.current.data;
         }
     }
 }

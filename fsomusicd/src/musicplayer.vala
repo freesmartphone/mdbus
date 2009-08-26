@@ -36,6 +36,7 @@ namespace FreeSmartphone.MusicPlayer
             get { return _current_song; }
             set
             {
+                debug( "%s", value );
                 this._current_song = value;
                 set_playing( value );
             }
@@ -69,6 +70,19 @@ namespace FreeSmartphone.MusicPlayer
             this.path = path;
             this.key_file = kf;
             this.playlist_path = ((string)path) + "/Playlists/";
+
+            var playlist_dir = Config.get_playlist_dir();
+            var dir = Dir.open( playlist_dir );
+
+            debug(" playlist_dir %s %p", playlist_dir, dir );
+            for( string file = dir.read_name(); file != null; file = dir.read_name() )
+            {
+                debug("Adding Playlist %s", file );
+                var full_file = Path.build_filename( playlist_dir, file );
+                var pl = new Playlist( file, key_file );
+                add_playlist( file, pl );
+                pl.load_from_file( full_file );
+            }
         }
         construct
         {
@@ -78,6 +92,10 @@ namespace FreeSmartphone.MusicPlayer
             audio_pipeline.add( playbin );
             audio_bus = audio_pipeline.get_bus();
             audio_bus.add_watch( bus_callback );
+        }
+        ~MusicPlayer()
+        {
+            save();
         }
         //
         // org.freesmartphone.MusicPlayer
@@ -173,9 +191,6 @@ namespace FreeSmartphone.MusicPlayer
             var list = new Playlist( name, key_file );
             return add_playlist( name, list );
         }
-        //
-        // None DBus Interface methods
-        //
         public ObjectPath add_playlist( string name, Playlist pl )
         {
             var obj_path = new ObjectPath(playlist_path + name);
@@ -188,6 +203,9 @@ namespace FreeSmartphone.MusicPlayer
         {
             return new string[0];
         }
+        //
+        // None DBus Interface methods
+        //
         public void set_gst_state( Gst.State s )
         {
             switch( s )
@@ -205,6 +223,22 @@ namespace FreeSmartphone.MusicPlayer
                     break;
                 default:
                     break;
+            }
+        }
+        public void save()
+        {
+            var song = this.current_song == null ? "": this.current_song;
+            var list = this.current_playlist == null ? "" : this.current_playlist;
+            debug( "song: %s  playlists: %s", song, list );
+            debug( "KeyFile: %p", key_file );
+            debug( "%s %s %s", Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYED, Config.LAST_PLAYLIST );
+            key_file.set_string( Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYED, song );
+            key_file.set_string( Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYLIST, list );
+            debug(" endof kf");
+            foreach( var k in playlists.get_values() )
+            { 
+                debug("saving %p %s", k, k.get_name() );
+                k.save();
             }
         }
 
