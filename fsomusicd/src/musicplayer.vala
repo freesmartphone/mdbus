@@ -116,6 +116,10 @@ namespace FreeSmartphone.MusicPlayer
         {
             return new HashTable<string,GLib.Value?>( str_hash, str_equal );
         }
+        public HashTable<string,GLib.Value?> get_playing_info() throws MusicPlayerError, DBus.Error
+        {
+            return this.cur_song_info;
+        }
         public string get_playing() throws MusicPlayerError, DBus.Error
         {
             return current_song;
@@ -242,15 +246,10 @@ namespace FreeSmartphone.MusicPlayer
         {
             var song = this.current_song == null ? "": this.current_song;
             var list = this.current_playlist == null ? "" : this.current_playlist;
-            debug( "song: %s  playlists: %s", song, list );
-            debug( "KeyFile: %p", key_file );
-            debug( "%s %s %s", Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYED, Config.LAST_PLAYLIST );
             key_file.set_string( Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYED, song );
             key_file.set_string( Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYLIST, list );
-            debug(" endof kf");
             foreach( var k in playlists.get_values() )
             { 
-                debug("saving %p %s", k, k.get_name() );
                 k.save();
             }
         }
@@ -260,10 +259,11 @@ namespace FreeSmartphone.MusicPlayer
         //
         private void foreach_tag (Gst.TagList list, string tag)
         {
-            string val;
-            debug( "TAG: %s", tag );
-            list.get_string( tag, out val );
-            cur_song_info.insert( tag, val );
+            Gst.Value val;
+            Gst.TagList.copy_value( out val, list, tag );
+            debug( "TAG: %s type: %s", tag, val.type().name() );
+            if( ! val.holds( typeof( Gst.Buffer ) ) && ! val.holds( typeof( Gst.Date ) ) )
+                cur_song_info.insert( tag, val );
         }
         private bool bus_callback (Gst.Bus bus, Gst.Message message)
         {

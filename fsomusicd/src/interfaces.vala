@@ -46,6 +46,7 @@ namespace FreeSmartphone.MusicPlayer
     {
         public abstract HashTable<string,Value?> get_info_for_file( string file ) throws MusicPlayerError, DBus.Error;
         public abstract string get_playing() throws MusicPlayerError, DBus.Error;
+        public abstract GLib.HashTable<string,Value?> get_playing_info() throws MusicPlayerError, DBus.Error;
         public abstract void set_playing( string file ) throws MusicPlayerError, DBus.Error;
         public abstract void play() throws MusicPlayerError, DBus.Error;
         public abstract void pause() throws MusicPlayerError, DBus.Error;
