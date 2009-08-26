@@ -408,7 +408,7 @@ public class Controller : FsoFramework.AbstractObject
             Posix.sleep( 5 );
         logger.debug( "<<<<<<< KERNEL RESUME" );
         FsoUsage.ResumeReason reason = lowlevel.resume();
-        logger.info( "Resume reason seems to be '%d'".printf( reason) );
+        logger.info( "Resume reason seems to be %s".printf( FsoFramework.StringHandling.enumToString( typeof( FsoUsage.ResumeReason ), reason) ) );
         resumeAllResources();
         this.system_action( FreeSmartphone.UsageSystemAction.RESUME ); // DBUS SIGNAL
 
