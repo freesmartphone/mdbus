@@ -111,6 +111,8 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     private string[] states;
 
+    private FreeSmartphone.Device.IdleState displayResourcePreventState;
+
     static construct
     {
         buffer = new char[BUFFER_SIZE];
@@ -123,11 +125,14 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
         Idle.add( onIdle );
 
-            // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
-            subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-            subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                            "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ),
-                                            this );
+        // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
+        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                                        "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ),
+                                        this );
+
+        var display_resource_allows_dim = config.boolValue( KERNEL_IDLE_PLUGIN_NAME, "display_resource_allows_dim", false );
+        displayResourcePreventState = display_resource_allows_dim ? FreeSmartphone.Device.IdleState.IDLE_PRELOCK : FreeSmartphone.Device.IdleState.IDLE_DIM;
     }
 
     public override string repr()
@@ -203,7 +208,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
             if (on)
             {
                 // prohibit sending of idle_dim (and later)
-                idlestatus.timeouts[FreeSmartphone.Device.IdleState.IDLE_DIM] = -1;
+                idlestatus.timeouts[displayResourcePreventState] = -1;
                 // relaunch timer, if necessary
                 if ( (int)idlestatus.status > (int)FreeSmartphone.Device.IdleState.IDLE )
                     idlestatus.onState( FreeSmartphone.Device.IdleState.IDLE );
@@ -211,7 +216,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
             else
             {
                 // allow sending of idle_dim (and later)
-                idlestatus.timeouts[FreeSmartphone.Device.IdleState.IDLE_DIM] = config.intValue( KERNEL_IDLE_PLUGIN_NAME, states[FreeSmartphone.Device.IdleState.IDLE_DIM], 10 );
+                idlestatus.timeouts[displayResourcePreventState] = config.intValue( KERNEL_IDLE_PLUGIN_NAME, states[displayResourcePreventState], 10 );
                 // relaunch timer, if necessary
                 if ( idlestatus.status == FreeSmartphone.Device.IdleState.IDLE )
                     idlestatus.onState( FreeSmartphone.Device.IdleState.IDLE );
