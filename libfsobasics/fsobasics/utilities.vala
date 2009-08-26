@@ -150,6 +150,13 @@ public string stringListToString( string[] list )
     return res;
 }
 
+public string enumToString( Type enum_type, int value )
+{
+    EnumClass ec = (EnumClass) enum_type.class_ref();
+    unowned EnumValue ev = ec.get_value( value );
+    return ev == null ? "Unknown Enum value for %s: %i".printf( enum_type.name(), value ) : ev.value_name;
+}
+
 } }
 
 namespace FsoFramework { namespace Network {

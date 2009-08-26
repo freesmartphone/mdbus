@@ -54,6 +54,18 @@ void test_utilities_stringhandling_list()
     assert( line == "[ \"Dieser\", \"Satz\", \"kein\", \"Verb!\" ]" );
 }
 
+public enum MyEnumType { FOO, BAR, BAZ }
+
+//===========================================================================
+void test_utilities_stringhandling_enum()
+//===========================================================================
+{
+    assert ( StringHandling.enumToString( typeof( MyEnumType ), MyEnumType.FOO ) == "MY_ENUM_TYPE_FOO" );
+    assert ( StringHandling.enumToString( typeof( MyEnumType ), MyEnumType.BAR ) == "MY_ENUM_TYPE_BAR" );
+    assert ( StringHandling.enumToString( typeof( MyEnumType ), MyEnumType.BAZ ) == "MY_ENUM_TYPE_BAZ" );
+    assert ( StringHandling.enumToString( typeof( MyEnumType ), 1000 ).has_prefix( "Unknown" ) );
+}
+
 //===========================================================================
 void test_utilities_network_ipv4address_for_interface()
 //===========================================================================
@@ -86,6 +98,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/FileHandling/Read", test_utilities_filehandling_read );
     Test.add_func( "/Utilities/FileHandling/Write", test_utilities_filehandling_write );
     Test.add_func( "/Utilities/StringHandling/List", test_utilities_stringhandling_list );
+    Test.add_func( "/Utilities/StringHandling/Enum", test_utilities_stringhandling_enum );
     Test.add_func( "/Utilities/Network/ipv4AddressForInterface", test_utilities_network_ipv4address_for_interface );
     Test.add_func( "/Utilities/Utility/programName", test_utilities_utility_program_name );
     Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );

@@ -31,6 +31,8 @@ namespace FsoFramework {
 	[CCode (cprefix = "FsoFrameworkStringHandling", lower_case_cprefix = "fso_framework_string_handling_")]
 	namespace StringHandling {
 		[CCode (cheader_filename = "fsobasics.h")]
+		public static string enumToString (GLib.Type enum_type, int value);
+		[CCode (cheader_filename = "fsobasics.h")]
 		public static string stringListToString (string[] list);
 	}
 	[CCode (cprefix = "FsoFrameworkUserGroupHandling", lower_case_cprefix = "fso_framework_user_group_handling_")]
