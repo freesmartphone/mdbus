@@ -57,8 +57,8 @@ namespace FreeSmartphone.MusicPlayer
         }
         private ObjectPath _current_playlist;
         private string playlist_path;
-        private Pipeline audio_pipeline;
-        private Element playbin;
+        private Gst.Pipeline audio_pipeline;
+        private Gst.Element playbin;
         private Gst.Bus audio_bus;
         private FreeSmartphone.MusicPlayer.State cur_state = FreeSmartphone.MusicPlayer.State.STOPPED;
         private FreeSmartphone.MusicPlayer.State _state { 
@@ -69,6 +69,20 @@ namespace FreeSmartphone.MusicPlayer
                 {
                     this.cur_state = value;
                     state( value );
+                }
+            }
+        }
+        private uint timeout_pos_handle;
+        private int _current_position;
+        private int current_position
+        {
+            get{ return _current_position; }
+            set
+            {
+                if( value != _current_position )
+                {
+                    this._current_position = value;
+                    progress( value );
                 }
             }
         }
@@ -103,6 +117,9 @@ namespace FreeSmartphone.MusicPlayer
             audio_pipeline.add( playbin );
             audio_bus = audio_pipeline.get_bus();
             audio_bus.add_watch( bus_callback );
+            //var ap_qt = audio_pipeline.get_query_types();
+            //debug( "audio_pipeline: %x", (int)ap_qt );
+            //debug( "playbin: %x", playbin.get_query_types() );
         }
         ~MusicPlayer()
         {
@@ -138,6 +155,8 @@ namespace FreeSmartphone.MusicPlayer
         {
             this.audio_pipeline.set_state( Gst.State.PLAYING );
             this._state = FreeSmartphone.MusicPlayer.State.PLAYING;
+            timeout_pos_handle = Timeout.add( Config.poll_timeout, position_timeout );
+            debug("timout_handl: %u", timeout_pos_handle );
         }
         public void pause() throws MusicPlayerError, DBus.Error
         {
@@ -170,12 +189,16 @@ namespace FreeSmartphone.MusicPlayer
         }
         public void seek_forward( int step ) throws MusicPlayerError, DBus.Error
         {
+            jump( current_position + step );
         }
         public void seek_backward( int step ) throws MusicPlayerError, DBus.Error
         {
+            jump( current_position - step );
         }
         public void jump( int pos ) throws MusicPlayerError, DBus.Error
         {
+            debug( "Jump to position: %i", pos );
+            playbin.seek_simple( Gst.Format.TIME, Gst.SeekFlags.NONE, ((int64)pos) * 1000000000 / Config.precision );
         }
         public ObjectPath[] get_playlists()
         {
@@ -261,7 +284,6 @@ namespace FreeSmartphone.MusicPlayer
         {
             Gst.Value val;
             Gst.TagList.copy_value( out val, list, tag );
-            debug( "TAG: %s type: %s", tag, val.type().name() );
             if( ! val.holds( typeof( Gst.Buffer ) ) && ! val.holds( typeof( Gst.Date ) ) )
                 cur_song_info.insert( tag, val );
         }
@@ -273,7 +295,19 @@ namespace FreeSmartphone.MusicPlayer
                     GLib.Error err;
                     string debug;
                     message.parse_error( out err, out debug );
-                    GLib.debug( "Message Error: %s %s", debug, err.message );
+                    GLib.debug( "Message ERROR: %s %s", debug, err.message );
+                    break;
+                case MessageType.WARNING:
+                    GLib.Error err;
+                    string debug;
+                    message.parse_warning( out err, out debug );
+                    GLib.debug( "Message WARNING: %s %s", debug, err.message );
+                    break;
+                case MessageType.INFO:
+                    GLib.Error err;
+                    string debug;
+                    message.parse_info( out err, out debug );
+                    GLib.debug( "Message INFO: %s %s", debug, err.message );
                     break;
                 case MessageType.EOS:
                     debug("End of stream");
@@ -284,14 +318,54 @@ namespace FreeSmartphone.MusicPlayer
                     Gst.State newstate;
                     Gst.State pending;
                     message.parse_state_changed( out oldstate, out newstate, out pending );
+                    set_gst_state( newstate );
                     break;
                 case MessageType.TAG:
                     Gst.TagList tag_list;
-                    stdout.printf ("taglist found\n");
                     message.parse_tag (out tag_list);
                     tag_list.foreach (foreach_tag);
                     break;
+                case MessageType.SEGMENT_START:
+                    Gst.Format fmt;
+                    int64 pos;
+                    message.parse_segment_start( out fmt, out pos );
+                    debug( "SEGMENT_START: %i %ll", fmt, pos );
+                    break;
+                case MessageType.DURATION:
+                    Gst.Format fmt;
+                    int64 dur;
+                    message.parse_duration( out fmt, out dur );
+                    break;
+                case MessageType.CLOCK_PROVIDE:
+                    Gst.Clock clk;
+                    bool ready;
+                    message.parse_clock_provide( out clk, out ready );
+                    debug( "CLOCK_PROVIDE: ready:%s type: %s",ready.to_string(), clk.get_type().name() );
+                    break;
+                case MessageType.NEW_CLOCK:
+                    Gst.Clock clk;
+                    message.parse_new_clock( out clk );
+                    debug("NEW_CLOCK: %s", clk.get_type().name() );
+                    break;
+                default:
+                    debug( "ignored message: %s", message.type.to_string() );
+                    break;
             }
+            return true;
+        }
+        public bool position_timeout()
+        {
+            Gst.Format fmt = Gst.Format.TIME;
+            int64 cur;
+            if( playbin.query_position( ref fmt, out cur ) )
+            {
+                current_position = (int)(cur / 1000000000 * Config.precision );
+            }
+            else
+            {
+                debug("ERROR in timeout");
+            }
+            //Call me again
             return true;
         }
     }
