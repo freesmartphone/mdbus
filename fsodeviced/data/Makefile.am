@@ -1,5 +1,5 @@
 dbusdir = @DBUS_DATADIR@
-dbus_DATA = fsousaged.conf
+dbus_DATA = fsodeviced.conf
 
-EXTRA_DIST = fsousaged.conf
+EXTRA_DIST = fsodeviced.conf
 
