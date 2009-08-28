@@ -63,6 +63,7 @@ AC_SUBST(CANBERRA_LIBS)
 
 AC_CONFIG_FILES([
   Makefile
+  data/Makefile
   src/Makefile
   src/lib/Makefile
   src/bin/Makefile
