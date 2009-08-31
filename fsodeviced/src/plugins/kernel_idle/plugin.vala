@@ -243,11 +243,32 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         syncNodesToWatch();
         registerInputWatches();
 
+        FsoFramework.BaseKObjectNotifier.addMatch( "add", "input", onInputNotification );
+        FsoFramework.BaseKObjectNotifier.addMatch( "remove", "input", onInputNotification );
+
         return false;
+    }
+
+    public void onInputNotification( HashTable<string,string> properties )
+    {
+        var devpath = properties.lookup( "DEVPATH" );
+        if ( devpath != null && "event" in devpath )
+        {
+            resetTimeouts();
+            syncNodesToWatch();
+            registerInputWatches();
+        }
     }
 
     private void syncNodesToWatch()
     {
+        // close, if already open
+        if ( fds != null )
+        {
+            foreach ( var fd in fds )
+                Posix.close( fd );
+        }
+
         fds = new int[] {};
         // scan sysfs path
         var dir = Dir.open( sysfsnode );
@@ -276,11 +297,13 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     private void registerInputWatches()
     {
+        // should auto-unref and close channels
         channels = new IOChannel[] {};
 
         foreach ( var fd in fds )
         {
             var channel = new IOChannel.unix_new( fd );
+            channel.set_close_on_unref( true );
             channel.add_watch( IOCondition.IN, onInputEvent );
             channels += channel;
         }
