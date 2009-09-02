@@ -28,16 +28,6 @@ namespace TiCalypso
 
 class TiCalypso.Modem : FsoGsm.AbstractModem
 {
-    static FsoFramework.Subsystem subsystem;
-    static FsoFramework.Logger logger;
-
-    static construct
-    {
-        debug( "ti_calypso_modem_construct" );
-        logger = FsoFramework.createLogger( MODULE_NAME );
-        logger.info( "registrating new modem type: TI CALYPSO" );
-    }
-
     public override string repr()
     {
         return "<Ti Calypso>";

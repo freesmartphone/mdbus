@@ -23,11 +23,6 @@ using FsoGsm;
 
 class Singleline.Modem : FsoGsm.AbstractModem
 {
-    construct
-    {
-        logger.info( "registrating new modem type: SINGLELINE" );
-    }
-
     public override string repr()
     {
         return "<Singleline>";
