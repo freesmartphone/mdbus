@@ -49,6 +49,54 @@ public class FsoFramework.SmartKeyFile : Object
         return true;
     }
 
+    /*
+     * generics do not work properly yet
+     *
+    public T getValue<T>( string section, string key, T defaultvalue )
+    {
+        message( "inttype=%d", typeof(int));
+        message( "typecode=%d", typeof(T));
+        if ( typeof( T ) == typeof( int ) )
+        {
+            try
+            {
+                return kf.get_integer( section, key );
+            }
+            catch ( KeyFileError e )
+            {
+                return defaultvalue;
+            }
+        }
+        else if ( typeof( T ) == typeof( string ) )
+        {
+            try
+            {
+                return kf.get_string( section, key );
+            }
+            catch ( KeyFileError e )
+            {
+                return ((string)defaultvalue).strip();
+            }
+        }
+        else if ( typeof( T ) == typeof( bool ) )
+        {
+            try
+            {
+                return kf.get_boolean( section, key );
+            }
+            catch ( KeyFileError e )
+            {
+                return defaultvalue;
+            }
+        }
+        else
+        {
+            warning( "SmartKeyFile::getValue: unknown type code '%d'. Returning default value", typeof(T) );
+            return defaultvalue;
+        }
+    }
+    */
+
     //TODO: Rewrite this once Vala has generics
     public string stringValue( string section, string key, string defaultvalue = "" )
     {

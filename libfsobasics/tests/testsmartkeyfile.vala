@@ -67,6 +67,55 @@ void test_smartkeyfile_values()
 }
 
 //===========================================================================
+void test_smartkeyfile_values_generics()
+//===========================================================================
+{
+
+    /* enable when generics support works
+
+    var smk = new SmartKeyFile();
+    var ok = smk.loadFromFile( TEST_FILE_NAME );
+    assert( ok );
+
+    var stringvar = smk.getValue<string>( "section1", "keypresent", "defaultvalue" );
+    assert ( stringvar == "present" );
+
+    var stringvar2 = smk.stringValue( "section1", "notpresent", "defaultvalue" );
+    assert ( stringvar2 == "defaultvalue" );
+
+    var intvar = smk.intValue( "section2", "keypresent", 123456789 );
+    assert ( intvar == 42 );
+
+    var intvar2 = smk.intValue( "section2", "notpresent", 123456789 );
+    assert ( intvar2 == 123456789 );
+
+    var boolvar = smk.boolValue( "section3", "keypresent", false );
+    assert ( boolvar );
+
+    var boolvar2 = smk.boolValue( "section3", "notpresent", true );
+    assert ( boolvar2 );
+
+    var stringlistvar = smk.stringListValue( "section4", "keypresent", { "these", "values", "irrelevant" } );
+    assert ( stringlistvar.length == 4 );
+    assert ( stringlistvar[0] == "foo" );
+    assert ( stringlistvar[1] == "bar" );
+    assert ( stringlistvar[2] == "yo" );
+    assert ( stringlistvar[3] == "kurt" );
+
+    var stringlistvar2 = smk.stringListValue( "section4", "notpresent", { "these", "values", "default" } );
+    assert ( stringlistvar2.length == 3 );
+    assert ( stringlistvar2[0] == "these" );
+    assert ( stringlistvar2[1] == "values" );
+    assert ( stringlistvar2[2] == "default" );
+
+    var stringlistvar3 = smk.stringListValue( "section4", "stillNotPresent" );
+    assert ( stringlistvar3 == null );
+
+    */
+
+}
+
+//===========================================================================
 void test_smartkeyfile_sections()
 //===========================================================================
 {
@@ -130,6 +179,7 @@ void main (string[] args)
     // SmartKeyFile creation
 
     Test.add_func ("/SmartKeyFile/Values", test_smartkeyfile_values);
+    Test.add_func ("/SmartKeyFile/Values/Generics", test_smartkeyfile_values_generics);
     Test.add_func ("/SmartKeyFile/Sections", test_smartkeyfile_sections);
     Test.add_func ("/SmartKeyFile/Keys", test_smartkeyfile_keys);
 
