@@ -126,7 +126,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
 
         message( "dealing with action '%s' for subsystem '%s'", action, subsystem );
 
-        HashTable<string, List<DelegateHolder>> table;
+        HashTable<string, List<DelegateHolder>> table = null;
 
         switch( action )
         {
@@ -140,7 +140,8 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 table = remove;
                 break;
             default:
-                assert_not_reached();
+                critical( "unrecognized kobject message action '%s' invalid, must be one of { add, change, remove }", action );
+                break;
         }
 
         weak List<weak DelegateHolder> list = table.lookup( subsystem );
@@ -153,7 +154,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
 
     protected void _addMatch( string action, string subsystem, KObjectNotifierFunc callback )
     {
-        HashTable<string, List<DelegateHolder>> table; 
+        HashTable<string, List<DelegateHolder>> table = null;
 
         switch( action )
         {
@@ -167,7 +168,8 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 table = remove;
                 break;
             default:
-                assert_not_reached();
+                critical( "addMatch action '%s' invalid, must be one of { add, change, remove }", action );
+                break;
         }
 
         weak List<DelegateHolder> list = table.lookup( subsystem );
