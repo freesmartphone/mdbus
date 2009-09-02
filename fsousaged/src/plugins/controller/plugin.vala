@@ -78,6 +78,16 @@ public class Resource
         //message( "Resource %s served by %s @ %s created", name, busname, objectpath );
     }
 
+    /*
+    public void serialize( FsoFramework.SmartKeyFile keyfile, string group )
+    {
+    }
+
+    public void unserialize( FsoFramework.SmartKeyFile keyfile, string group )
+    {
+    }
+    */
+
     ~Resource()
     {
         //message( "Resource %s served by %s @ %s destroyed", name, busname, objectpath );
