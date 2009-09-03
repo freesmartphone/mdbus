@@ -121,22 +121,22 @@ namespace FsoFramework {
 	public class AsyncWorkerQueue<T> : FsoFramework.AbstractWorkerQueue<T>, GLib.Object {
 		protected GLib.Queue<T> q;
 		protected FsoFramework.AbstractWorkerQueue.WorkerFunc worker;
-		protected bool _onIdle ();
 		public AsyncWorkerQueue ();
+		protected bool _onIdle ();
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class BaseKObjectNotifier : GLib.Object {
 		public static FsoFramework.BaseKObjectNotifier instance;
+		public BaseKObjectNotifier ();
 		protected void _addMatch (string action, string subsystem, FsoFramework.KObjectNotifierFunc callback);
 		public static void addMatch (string action, string path, FsoFramework.KObjectNotifierFunc callback);
 		protected void handleMessage (string[] parts);
-		public BaseKObjectNotifier ();
 		protected bool onActionFromSocket (GLib.IOChannel source, GLib.IOCondition condition);
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class BasePlugin : FsoFramework.Plugin, GLib.TypeModule {
-		public override bool load ();
 		public BasePlugin (string filename, FsoFramework.Subsystem subsystem);
+		public override bool load ();
 		public override void unload ();
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
@@ -152,8 +152,8 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public class DBusSubsystem : FsoFramework.AbstractSubsystem {
-		public DBus.Connection dbusConnection ();
 		public DBusSubsystem (string name);
+		public DBus.Connection dbusConnection ();
 		public override bool registerServiceName (string servicename);
 		public override bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
@@ -189,6 +189,7 @@ namespace FsoFramework {
 	public interface Plugin : GLib.Object {
 		public abstract FsoFramework.PluginInfo info ();
 		public abstract void loadAndInit () throws FsoFramework.PluginError;
+		public abstract void shutdown ();
 	}
 	[CCode (cheader_filename = "fsoframework.h")]
 	public interface Subsystem : GLib.Object {
@@ -198,6 +199,7 @@ namespace FsoFramework {
 		public abstract uint registerPlugins ();
 		public abstract bool registerServiceName (string servicename);
 		public abstract bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
+		public abstract void shutdown ();
 	}
 	[CCode (type_id = "FSO_FRAMEWORK_TYPE_PLUGIN_INFO", cheader_filename = "fsoframework.h")]
 	public struct PluginInfo {

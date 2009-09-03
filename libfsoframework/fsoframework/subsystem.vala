@@ -31,6 +31,8 @@ public interface FsoFramework.Subsystem : Object
 
     public abstract bool registerServiceName( string servicename );
     public abstract bool registerServiceObject( string servicename, string objectname, Object obj );
+
+    public abstract void shutdown();
 }
 
 /**
@@ -129,6 +131,14 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
     public virtual bool registerServiceObject( string servicename, string objectname, Object obj )
     {
         return false;
+    }
+
+    public void shutdown()
+    {
+        foreach ( var plugin in _plugins )
+        {
+            plugin.shutdown();
+        }
     }
 }
 

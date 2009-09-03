@@ -52,6 +52,7 @@ public abstract interface FsoFramework.Plugin : Object
 {
     public abstract void loadAndInit() throws FsoFramework.PluginError;
     public abstract PluginInfo info();
+    public abstract void shutdown();
 }
 
 /**
@@ -128,6 +129,11 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
     public override void unload()
     {
         message( "%s unload (GType is no longer in use)", filename );
+    }
+
+    public void shutdown()
+    {
+        message( "%s shutdown", filename );
     }
 
 }
