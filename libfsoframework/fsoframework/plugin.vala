@@ -19,6 +19,10 @@
 
 using GLib;
 
+internal const string FSO_REGISTER_FUNCTION = "fso_register_function";
+internal const string FSO_FACTORY_FUNCTION = "fso_factory_function";
+internal const string FSO_SHUTDOWN_FUNCTION = "fso_shutdown_function";
+
 /**
  * Errors
  */
@@ -33,8 +37,9 @@ public errordomain FsoFramework.PluginError
 /**
  * Delegates
  */
-public static delegate string FsoFramework.FactoryFunc( FsoFramework.Subsystem subsystem ) throws Error;
 public static delegate void FsoFramework.RegisterFunc( TypeModule bar );
+public static delegate string FsoFramework.FactoryFunc( FsoFramework.Subsystem subsystem ) throws Error;
+public static delegate void FsoFramework.ShutdownFunc();
 
 /**
  * PluginInfo
@@ -85,7 +90,7 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
 
         // try to resolve register method
         void* regfunc;
-        var ok = module.symbol( "fso_register_function", out regfunc );
+        var ok = module.symbol( FSO_REGISTER_FUNCTION, out regfunc );
 
         if ( !ok )
             throw new FsoFramework.PluginError.REGISTER_NOT_FOUND( "could not find symbol: %s".printf( Module.error() ) );
@@ -134,6 +139,17 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
     public void shutdown()
     {
         message( "%s shutdown", filename );
+        // try to resolve shutdown method
+        void* func;
+        var ok = module.symbol( FSO_SHUTDOWN_FUNCTION, out func );
+
+        if ( !ok )
+        {
+            return;
+        }
+
+        FsoFramework.ShutdownFunc fso_shutdown_function = (FsoFramework.ShutdownFunc) func;
+        fso_shutdown_function();
     }
 
 }

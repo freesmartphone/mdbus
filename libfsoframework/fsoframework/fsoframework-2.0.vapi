@@ -228,6 +228,8 @@ namespace FsoFramework {
 	public delegate void KObjectNotifierFunc (GLib.HashTable<string,string> properties);
 	[CCode (cheader_filename = "fsoframework.h", has_target = false)]
 	public delegate void RegisterFunc (GLib.TypeModule bar);
+	[CCode (cheader_filename = "fsoframework.h", has_target = false)]
+	public delegate void ShutdownFunc ();
 	[CCode (cheader_filename = "fsoframework.h")]
 	public const string ServiceDBusPrefix;
 	[CCode (cheader_filename = "fsoframework.h")]
