@@ -51,16 +51,22 @@ public enum ResourceStatus
 /**
  * Helper class encapsulating a registered resource
  **/
-public class Resource
+public class Resource : Object
 {
-    public string name;
-    public DBus.BusName busname;
-    public DBus.ObjectPath objectpath;
-    public ResourceStatus status;
-    public FreeSmartphone.UsageResourcePolicy policy;
-    public ArrayList<string> users;
+    public string name { get; set; }
+    public DBus.BusName busname { get; set; }
+    public DBus.ObjectPath objectpath { get; set; }
+    public ResourceStatus status { get; set; }
+    public FreeSmartphone.UsageResourcePolicy policy { get; set; }
+    public ArrayList<string> users { get; set; }
 
     private FreeSmartphone.Resource proxy;
+
+    // called before deserializing, init all non-value types here
+    construct
+    {
+        this.users = new ArrayList<string>( str_equal );
+    }
 
     public Resource( string name, DBus.BusName busname, DBus.ObjectPath objectpath )
     {
@@ -69,7 +75,6 @@ public class Resource
         this.objectpath = objectpath;
         this.status = ResourceStatus.UNKNOWN;
         this.policy = FreeSmartphone.UsageResourcePolicy.AUTO;
-        this.users = new ArrayList<string>( str_equal );
 
         proxy = dbusconn.get_object( busname, objectpath, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
         // workaround until vala 0.7.4
@@ -77,16 +82,6 @@ public class Resource
 
         //message( "Resource %s served by %s @ %s created", name, busname, objectpath );
     }
-
-    /*
-    public void serialize( FsoFramework.SmartKeyFile keyfile, string group )
-    {
-    }
-
-    public void unserialize( FsoFramework.SmartKeyFile keyfile, string group )
-    {
-    }
-    */
 
     ~Resource()
     {
@@ -172,12 +167,53 @@ public class Resource
         updateStatus();
     }
 
+    public void syncUsers()
+    {
+        dynamic DBus.Object busobj = dbusconn.get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
+        string[] busnames = busobj.ListNames();
+
+        var usersToRemove = new ArrayList<string>();
+
+        foreach ( var userbusname in users )
+        {
+            var found = false;
+            foreach ( var busname in busnames )
+            {
+                if ( userbusname == busname )
+                    found = true;
+                    break;
+            }
+            if ( !found )
+                usersToRemove.add( userbusname );
+        }
+        foreach ( var userbusname in usersToRemove )
+        {
+            instance.logger.warning( "Resource %s user %s has vanished.".printf( name, userbusname ) );
+            delUser( userbusname );
+        }
+    }
+
     public string[] allUsers()
     {
         string[] res = {};
         foreach ( var user in users )
             res += user;
         return res;
+    }
+
+    public bool isPresent()
+    {
+        dynamic DBus.Object peer = dbusconn.get_object( busname, objectpath, DBus.DBUS_INTERFACE_PEER );
+        try
+        {
+            peer.Ping();
+            return true;
+        }
+        catch ( DBus.Error e )
+        {
+            instance.logger.warning( "Resource %s incommunicado: %s".printf( name, e.message ) );
+            return false;
+        }
     }
 
     public void enable() throws FreeSmartphone.ResourceError, DBus.Error
@@ -257,6 +293,21 @@ public class Resource
 }
 
 /**
+ * Serialized state class
+ *
+ * All properties here will be saved on forced shutdown
+ **/
+public class PersistentData : Object
+{
+    public HashMap<string,Resource> resources { get; set; }
+
+    construct
+    {
+        resources = new HashMap<string,Resource>( str_hash, str_equal, str_equal );
+    }
+}
+
+/**
  * Controller class implementing org.freesmartphone.Usage API
  *
  * Note: Unfortunately we can't just use libfso-glib (FreeSmartphone.Usage interface)
@@ -266,20 +317,19 @@ public class Resource
 public class Controller : FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-    private HashMap<string,Resource> resources;
 
     private FsoUsage.LowLevel lowlevel;
     private bool do_not_suspend;
 
-    dynamic DBus.Object dbus;
+    private PersistentData data;
+    private weak HashMap<string,Resource> resources;
 
+    dynamic DBus.Object dbus;
     dynamic DBus.Object idlenotifier;
 
     public Controller( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-
-        resources = new HashMap<string,Resource>( str_hash, str_equal, str_equal );
 
         this.subsystem.registerServiceName( FsoFramework.Usage.ServiceDBusName );
         this.subsystem.registerServiceObject( FsoFramework.Usage.ServiceDBusName,
@@ -304,6 +354,33 @@ public class Controller : FsoFramework.AbstractObject
     {
         return "<%s>".printf( FsoFramework.Usage.ServicePathPrefix );
     }
+
+#if PERSISTENCE
+    private void syncResourcesAndUsers()
+    {
+        // for ever resource, we check whether it's still present, and if so,
+        // whether any of the consumers might have disappeared meanwhile
+        var resourcesToRemove = new Gee.HashSet<Resource>();
+
+        foreach ( var r in resources.get_values() )
+        {
+            if ( !r.isPresent() )
+            {
+                resourcesToRemove.add( r );
+            }
+        }
+        foreach ( var r in resourcesToRemove )
+        {
+            resources.remove( r.name );
+            this.resource_available( r.name, false ); // DBUS SIGNAL
+        }
+
+        foreach ( var r in resources.get_values() )
+        {
+            r.syncUsers();
+        }
+    }
+#endif
 
     private bool onIdleForInit()
     {
@@ -335,6 +412,19 @@ public class Controller : FsoFramework.AbstractObject
 
             lowlevel = Object.new( lowlevelclass ) as FsoUsage.LowLevel;
             logger.info( "Ready. Using lowlevel plugin '%s' to handle suspend/resume".printf( lowleveltype ) );
+        }
+#if PERSISTENCE
+        // check whether we have crash data
+        if ( loadPersistentData() )
+        {
+            resources = data.resources;
+            syncResourcesAndUsers();
+        }
+        else
+#endif
+        {
+            data = new PersistentData();
+            resources = data.resources;
         }
 
         return false; // don't call me again
@@ -509,6 +599,33 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
+#if PERSISTENCE
+    // not public, since we don't want to expose it via dbus
+    internal void savePersistentData()
+    {
+        logger.info( "Saving resource status to file..." );
+        var file = File.new_for_path( "/tmp/serialize.output" );
+        var stream = file.replace( null, false, FileCreateFlags.NONE, null );
+        Persistence.JsonTypeSerializer.instance().ignoreUnknown = true;
+        var serializer = new Persistence.JsonSerializer( stream );
+        serializer.serialize_object( data );
+    }
+
+    internal bool loadPersistentData()
+    {
+        var file = File.new_for_path( "/tmp/serialize.output" );
+        if ( !file.query_exists( null ) )
+        {
+            return false;
+        }
+        var stream = file.read( null );
+        Persistence.JsonTypeSerializer.instance().ignoreUnknown = true;
+        var deserializer = new Persistence.JsonDeserializer<PersistentData>( stream );
+        data = deserializer.deserialize_object() as PersistentData;
+        return true;
+    }
+#endif
+
     //
     // DBUS API (for providers)
     //
@@ -638,7 +755,12 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     return "fsousage.controller";
 }
 
-
+public static void fso_shutdown_function()
+{
+#if PERSISTENCE
+    instance.savePersistentData();
+#endif
+}
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )

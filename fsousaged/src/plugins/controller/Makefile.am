@@ -1,19 +1,25 @@
 NULL =
 
+if PERSISTENCE
+	VALAC_EXTRA_ARGS = -DPERSISTENCE --pkg persistence-1.0
+endif
+
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
-	$(GEE_CFLAGS) \
-	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
+	$(GEE_CFLAGS) \
+	$(PERSISTENCE_CFLAGS) \
+	$(FSO_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
 	$(top_srcdir)/src/lib/libfsousage.la \
-	$(GEE_LIBS) \
-	$(FSO_LIBS) \
 	$(DBUS_LIBS) \
+	$(GEE_LIBS) \
+	$(PERSISTENCE_LIBS) \
+	$(FSO_LIBS) \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -35,7 +41,7 @@ modlibexec_LTLIBRARIES = controller.la
 controller_la_SOURCES = plugin.c
 controller_la_VALASOURCES = plugin.vala
 $(controller_la_SOURCES): $(controller_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
+	$(VALAC) -C $(VALAC_ARGS) $(VALAC_EXTRA_ARGS) $^
 	touch $@
 controller_la_LIBADD = $(progs_ldadd)
 controller_la_LDFLAGS = -no-undefined -module -avoid-version

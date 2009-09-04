@@ -23,6 +23,7 @@ DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
 FSO_GLIB_REQUIRED=0.1.0
 FSO_REQUIRED=0.0.0.0
+PERSISTENCE_REQUIRED=0.0.0
 
 # vala
 PKG_CHECK_MODULES(VALA,
@@ -39,13 +40,32 @@ AC_SUBST(GLIB_LIBS)
 # gee
 PKG_CHECK_MODULES(GEE,
   gee-1.0 >= $GEE_REQUIRED)
-  
+AC_SUBST(GEE_CFLAGS)
+AC_SUBST(GEE_LIBS)
+
 # dbus and dbus-glib
 PKG_CHECK_MODULES(DBUS,
   dbus-1 >= $DBUS_REQUIRED
   dbus-glib-1 >= $DBUS_GLIB_REQUIRED)
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
+
+AC_ARG_ENABLE(persistence,
+[  --enable-persistence    Use persistence library to improve restartability],
+[case "${enableval}" in
+  yes) persistence=true ;;
+  no)  persistence=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-persistence) ;;
+esac],[persistence=false])
+AM_CONDITIONAL(PERSISTENCE, test x$persistence = xtrue)
+
+if test x$persistence = xtrue; then
+    # persistence
+    PKG_CHECK_MODULES(PERSISTENCE,
+      persistence-1.0 >= $PERSISTENCE_REQUIRED)
+    AC_SUBST(PERSISTENCE_CFLAGS)
+    AC_SUBST(PERSISTENCE_LIBS)
+fi
 
 # dbus conf directory
 DBUS_DIR="`$PKG_CONFIG --variable=sysconfdir dbus-1`"
@@ -54,7 +74,7 @@ if (test -z "{DBUS_DIR}"); then
 else
   DBUS_DIR="$DBUS_DIR/dbus-1"
 fi
-AC_SUBST(DBUS_DIR)                
+AC_SUBST(DBUS_DIR)
 
 # dbus service directory
 DBUS_SERVICE_DIR="`$PKG_CONFIG --variable=session_bus_services_dir dbus-1`"
