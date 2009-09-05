@@ -27,6 +27,10 @@ namespace Kernel
 
     internal const string KERNEL_INPUT_PLUGIN_NAME = "fsodevice.kernel_input";
 
+    internal const int KEY_RELEASE = 0;
+    internal const int KEY_PRESS = 1;
+    internal const int KEY_REPEAT = 2;
+
 /**
  * Implementation of org.freesmartphone.Device.Input for the Kernel Input Device
  **/
@@ -43,6 +47,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
     internal string phys = "<Unknown Path>";
     internal string caps = "<Unknown Caps>";
     internal int fd = -1;
+    internal uint8[] keystate;
 
     static construct
     {
@@ -116,7 +121,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
                     }
                 }
             }
-            short b = 0;
+            ushort b = 0;
             if ( Posix.ioctl( fd, Linux26.Input.EVIOCGBIT( 0, Linux26.Input.EV_MAX ), &b ) < 0 )
             {
                 logger.error( "Can't inquire input device capabilities: %s".printf( strerror( errno ) ) );
@@ -150,6 +155,13 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
                     caps += " FF_STATUS";
             }
             caps = caps.strip();
+
+            uint typelength = Linux26.Input.KEY_MAX / 8 + 1;
+            keystate = new uint8[typelength];
+            if ( Posix.ioctl( fd, Linux26.Input.EVIOCGKEY( typelength ), keystate ) < 0 )
+            {
+                logger.error( "Can't inquire input device key status: %s".printf( strerror( errno ) ) );
+            }
         }
         if ( ignore && fd != -1 )
         {
@@ -161,7 +173,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
 
     public bool onIdle()
     {
-        // trigger initial coldplug change notification
+        // trigger coldplug change notification
         FsoFramework.FileHandling.write( "change", "%s/uevent".printf( sysfsnode ) );
         return false; // mainloop: don't call again
     }
@@ -243,10 +255,6 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
     private HashMap<int,EventStatus> keys;
     private HashMap<int,EventStatus> switches;
 
-    private const int KEY_RELEASE = 0;
-    private const int KEY_PRESS = 1;
-    private const int KEY_REPEAT = 2;
-
     public AggregateInputDevice( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
@@ -264,6 +272,8 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                                          FsoFramework.Device.InputServicePath,
                                          this );
         logger.info( "Created new AggregateInputDevice object." );
+
+        Idle.add( onIdle );
     }
 
     private void _registerInputWatches()
@@ -271,7 +281,6 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         channels = new IOChannel[] {};
         foreach ( var input in instances )
         {
-
             if ( input.fd != -1 )
             {
                 var channel = new IOChannel.unix_new( input.fd );
@@ -279,6 +288,39 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                 channels += channel;
             }
         }
+    }
+
+    private bool _testbit( uint bit, uint8[] field )
+    {
+        var boffset = bit / 8;
+        var bmodulo = bit % 8;
+        var mask = 1 << bmodulo;
+
+        return ( ( field[boffset] & mask ) == mask );
+    }
+
+    private bool onIdle()
+    {
+        // coldplug
+        foreach ( var input in instances )
+        {
+            if ( input.fd != 1 )
+            {
+                for ( int i = 0; i < Linux26.Input.KEY_MAX; ++i )
+                {
+                    if ( _testbit( i, input.keystate ) )
+                    {
+                        logger.info( "Sending coldplug input notification for bit %s:%d".printf( input.name, i ) );
+                        // need to do it both for switches and keys, since we differenciate between those two
+                        var ev1 = Linux26.Input.Event() { time = Posix.timeval() { tv_sec=0, tv_usec=0 }, type=(uint16)Linux26.Input.EV_KEY, code=(uint16)i, value=KEY_PRESS };
+                        _handleInputEvent( ref ev1 );
+                        var ev2 = Linux26.Input.Event() { time = Posix.timeval() { tv_sec=0, tv_usec=0 }, type=(uint16)Linux26.Input.EV_SW, code=(uint16)i, value=KEY_PRESS };
+                        _handleInputEvent( ref ev2 );
+                    }
+                }
+            }
+        }
+        return false; // Don't call me again
     }
 
     private void _parseConfig()
@@ -311,7 +353,6 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                     logger.warning( "config option %s has unknown type element. Ignoring".printf( entry ) );
                     continue;
             }
-
         }
     }
 
