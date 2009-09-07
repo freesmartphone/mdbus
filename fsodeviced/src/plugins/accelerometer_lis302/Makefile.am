@@ -25,12 +25,12 @@ VALAC_ARGS = \
 	--pkg dbus-glib-1 \
 	--pkg fsoframework-2.0 \
 	--pkg fso-glib-1.0 \
-	--pkg fsousage-2.0
+	--pkg fsodevice-2.0
 
 #
 # plugin
 #
-modlibexecdir = $(libdir)/cornucopia/modules/fsousage
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = accelerometer_lis302.la
 accelerometer_lis302_la_SOURCES = plugin.c
 accelerometer_lis302_la_VALASOURCES = plugin.vala

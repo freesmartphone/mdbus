@@ -179,7 +179,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
     }
 
     //
-    // FsoFramework.Device.Input
+    // FsoFramework.Device.Input (DBUS)
     //
     public string get_name() throws DBus.Error
     {

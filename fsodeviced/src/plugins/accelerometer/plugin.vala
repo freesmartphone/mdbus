@@ -29,34 +29,79 @@ namespace Hardware
 /**
  * Implementation of org.freesmartphone.Device.Orientation for an Accelerometer device
  **/
-class Accelerometer : /* FreeSmartphone.Device.Orientation, */ FsoFramework.AbstractObject
+class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-    //private FsoDevice.IAccelerometer device;
+    private FsoDevice.BaseAccelerometer accelerometer;
 
-    public Accelerometer( FsoFramework.Subsystem subsystem /* , FsoDevice.IAccelerometer device */ )
+    private string orientation;
+
+    public Accelerometer( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-        //this.device = device;
 
-        /*
-        Idle.add( onIdle );
-
-        // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                        "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ),
-                                        this );
+                                         FsoFramework.Device.OrientationServicePath,
+                                         this );
+        logger.info( "Created new Orientation object." );
 
-        var display_resource_allows_dim = config.boolValue( KERNEL_IDLE_PLUGIN_NAME, "display_resource_allows_dim", false );
-        displayResourcePreventState = display_resource_allows_dim ? FreeSmartphone.Device.IdleState.IDLE_PRELOCK : FreeSmartphone.Device.IdleState.IDLE_DIM;
-        */
+        Idle.add( onIdle );
+    }
+
+    public bool onIdle()
+    {
+        var devicetype = config.stringValue( Hardware.HW_ACCEL_PLUGIN_NAME, "device_type", "(not set)" );
+        var typename = "";
+
+        switch ( devicetype )
+        {
+            case "lis302":
+                typename = "HardwareAccelerometerLis302";
+                break;
+            default:
+                logger.error( "Unknown accelerometer device type '%s'".printf( devicetype ) );
+                return false; // don't call me again
+        }
+
+        var classtype = Type.from_name( typename );
+        if ( classtype == Type.INVALID  )
+        {
+            logger.warning( "Can't find plugin for accelerometer device type '%s'".printf( devicetype ) );
+            return false; // don't call me again
+        }
+
+        accelerometer = Object.new( classtype ) as FsoDevice.BaseAccelerometer;
+        logger.info( "Ready. Using accelerometer plugin '%s'".printf( devicetype ) );
+
+        accelerometer.setDelegate( this.onAcceleration );
+
+        return false; // don't call me again
     }
 
     public override string repr()
     {
         return "";
         //return "<%s>".printf( sysfsnode );
+    }
+
+    public void onAcceleration( float x, float y, float z )
+    {
+        logger.debug( "Received acceleration values: %03.2f, %03.2f, %03.2f".printf( x, y, z ) );
+    }
+
+    //
+    // FsoFramework.Device.Orientation (DBUS)
+    //
+    public HashTable<string,Value?> get_info()
+    {
+        var dict = new HashTable<string,Value?>( str_hash, str_equal );
+        return dict;
+    }
+
+    public string get_orientation()
+    {
+        return orientation;
     }
 }
 
@@ -73,20 +118,15 @@ internal Hardware.Accelerometer instance;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    // grab accelerometer type
-    var config = FsoFramework.theMasterKeyFile();
-    var type = config.stringValue( Hardware.HW_ACCEL_PLUGIN_NAME, "device_type", "" );
-
     // create one and only instance
-    instance = new Hardware.Accelerometer( subsystem /*, plugin */ );
-
+    instance = new Hardware.Accelerometer( subsystem );
     return Hardware.HW_ACCEL_PLUGIN_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "input fso_register_function()" );
+    debug( "fsodeviced.accelerometer fso_register_function()" );
 }
 
 /**

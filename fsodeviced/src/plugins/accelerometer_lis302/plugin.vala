@@ -19,21 +19,33 @@
 
 using GLib;
 
-class AccelerometerLis302 : /* FsoDevice.IAccelerometer, */ FsoFramework.AbstractObject
+namespace Hardware {
+
+class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 {
+    private string inputnode;
+    private string sysfsnode;
+
     construct
     {
         logger.info( "Registering lis302 accelerometer" );
         // grab sysfs paths
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+        var devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
+        inputnode = config.stringValue( "cornucopia", "inputnode", "" );
+    }
+
+    public AccelerometerLis302()
+    {
     }
 
     public override string repr()
     {
-        return "<>";
+        return "<via %s>".printf( "unknown" );
     }
-
 }
+
+} /* namespace Hardware */
 
 /**
  * This function gets called on plugin initialization time.

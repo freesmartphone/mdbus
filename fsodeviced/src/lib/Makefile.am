@@ -26,6 +26,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsodevice_la_VALASOURCES = \
+	accelerometer.vala \
 	dispatcher.vala \
 	powercontrol.vala \
 	resource.vala \

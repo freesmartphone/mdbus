@@ -255,7 +255,22 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public HashTable<string,Value?> get_info() throws DBus.Error
     {
-        return new HashTable<string,Value?>( str_hash, str_equal );
+        var dict = new HashTable<string,Value?>( str_hash, str_equal );
+
+        /*
+        var value = Value( typeof(string[] ) );
+        string[] formats = { "wav" };
+        value.take_
+        value = formats;
+
+        /*
+        dict.insert( "formats", value );
+        Value scenario = get_scenario();
+        dict.insert( "scenario", value );
+        Value scenarios = get_available_scenarios();
+        dict.insert( "scenarios", value );
+        */
+        return dict;
     }
 
     public string get_scenario() throws DBus.Error
@@ -290,11 +305,6 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     //
     // Sound
-    public string[] get_supported_formats() throws DBus.Error
-    {
-        return { "*.wav" };
-    }
-
     public void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, DBus.Error
     {
         PlayingSound sound = sounds[name];
