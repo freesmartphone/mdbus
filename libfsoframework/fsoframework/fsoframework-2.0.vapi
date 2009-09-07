@@ -44,6 +44,10 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string LedServicePath;
 		[CCode (cheader_filename = "fsoframework.h")]
+		public const string OrientationServiceFace;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string OrientationServicePath;
+		[CCode (cheader_filename = "fsoframework.h")]
 		public const string PowerControlServiceFace;
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string PowerControlServicePath;

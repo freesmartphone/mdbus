@@ -51,6 +51,9 @@ namespace FsoFramework
         public const string LedServiceFace = ServiceFacePrefix + ".LED";
         public const string LedServicePath = ServicePathPrefix + "/LED";
 
+        public const string OrientationServiceFace = ServiceFacePrefix + ".Orientation";
+        public const string OrientationServicePath = ServicePathPrefix + "/Orientation";
+
         public const string PowerControlServiceFace = ServiceFacePrefix + ".PowerControl";
         public const string PowerControlServicePath = ServicePathPrefix + "/PowerControl";
 
