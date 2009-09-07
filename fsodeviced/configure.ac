@@ -68,6 +68,8 @@ AC_CONFIG_FILES([
   src/lib/Makefile
   src/bin/Makefile
   src/plugins/Makefile
+  src/plugins/accelerometer/Makefile
+  src/plugins/accelerometer_lis302/Makefile
   src/plugins/alsa_audio/Makefile
   src/plugins/kernel26_display/Makefile
   src/plugins/kernel26_leds/Makefile
