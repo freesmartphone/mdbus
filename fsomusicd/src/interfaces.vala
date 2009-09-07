@@ -37,7 +37,8 @@ namespace FreeSmartphone.MusicPlayer
         NO_PLAYLIST_SELECTED,
         END_OF_LIST,
         UNKNOWN_PLAYLIST,
-        PLAYLIST_OUT_OF_FILES
+        PLAYLIST_OUT_OF_FILES,
+        FILE_NOT_FOUND
     }
     public const string BASE_OBJECT_PATH = "/org/freesmartphone/MusicPlayer";
     public const string BUSNAME = "org.freesmartphone.omusicd";

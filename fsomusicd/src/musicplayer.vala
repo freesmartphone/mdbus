@@ -86,6 +86,7 @@ namespace FreeSmartphone.MusicPlayer
         }
 
         private HashTable<string,GLib.Value?> cur_song_info;
+        private HashTable<string,GLib.Value?> file_info;
 
 
         public MusicPlayer( Connection con, ObjectPath path, KeyFile kf )
@@ -131,7 +132,66 @@ namespace FreeSmartphone.MusicPlayer
         //
         public HashTable<string,GLib.Value?> get_info_for_file( string file ) throws MusicPlayerError, DBus.Error
         {
-            return new HashTable<string,GLib.Value?>( str_hash, str_equal );
+            if( ! FileUtils.test( file, FileTest.EXISTS ) )
+                 throw new MusicPlayerError.FILE_NOT_FOUND( "The file '%s does not exist".printf( file ) );
+            //gst-launch filesrc location=file.mp3 ! id3demux ! fakesink -t
+            file_info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
+            file_info.insert( "filename", file );
+            var pipe = new Pipeline( "file_pipeline" );
+
+            var filesrc = Gst.ElementFactory.make( "filesrc", "src" );
+            filesrc.set( "location", file );
+
+            var id3demux = Gst.ElementFactory.make( "id3demux", "demux" );
+
+            var fakesink = Gst.ElementFactory.make( "fakesink", "sink" );
+
+            pipe.add_many( filesrc, id3demux, fakesink );
+            filesrc.link( id3demux );
+            id3demux.link( fakesink );
+            id3demux.link( filesrc );
+            fakesink.link( id3demux );
+
+            var file_bus = pipe.get_bus();
+            pipe.set_state( Gst.State.PLAYING );
+
+            bool stop = false;
+
+            while( ! stop )
+            {
+                if( ! file_bus.have_pending() )
+                     stop = true;
+                else
+                {
+                    var message = file_bus.pop();
+                    switch( message.type )
+                    {
+                        case MessageType.TAG:
+                            debug( "got Tag for %s", file );
+
+                            Gst.TagList tag_list;
+                            message.parse_tag ( out tag_list );
+                            tag_list.foreach ( file_foreach_tag );
+                            break;
+                        case MessageType.EOS:
+                            stop = true;
+                            break;
+                        case MessageType.ERROR:
+                            GLib.Error err;
+                            string debug;
+                            message.parse_error( out err, out debug );
+                            GLib.debug( "Message ERROR: %s %s", debug, err.message );
+                            break;
+                        default:
+                            debug( "ignoring %s for %s", message.type.to_string(), file );
+                            break;
+                    }
+                }
+            }
+
+            pipe.set_state( Gst.State.NULL );
+
+            return file_info;
         }
         public HashTable<string,GLib.Value?> get_playing_info() throws MusicPlayerError, DBus.Error
         {
@@ -402,6 +462,14 @@ namespace FreeSmartphone.MusicPlayer
             }
             //Call me again
             return true;
+        }
+        private void file_foreach_tag (Gst.TagList list, string tag)
+        {
+            Gst.Value val;
+            Gst.TagList.copy_value( out val, list, tag );
+            debug( "new file tag: %s", tag );
+            if( ! val.holds( typeof( Gst.Buffer ) ) && ! val.holds( typeof( Gst.Date ) ) )
+                file_info.insert( tag, val );
         }
     }
 }
