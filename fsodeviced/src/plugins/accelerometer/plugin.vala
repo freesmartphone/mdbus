@@ -85,9 +85,9 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
         //return "<%s>".printf( sysfsnode );
     }
 
-    public void onAcceleration( float x, float y, float z )
+    public void onAcceleration( int[] axis )
     {
-        logger.debug( "Received acceleration values: %03.2f, %03.2f, %03.2f".printf( x, y, z ) );
+        logger.debug( "Received acceleration values: %05d, %05d, %05d".printf( axis[0], axis[1], axis[2] ) );
     }
 
     //

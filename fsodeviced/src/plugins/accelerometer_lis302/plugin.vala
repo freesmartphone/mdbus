@@ -21,10 +21,17 @@ using GLib;
 
 namespace Hardware {
 
+    internal const string HW_ACCEL_LIS302_PLUGIN_NAME = "fsodevice.accelerometer_lis302";
+
+    internal const string DEFAULT_EVENT_NODE = "/input/event2";
+
 class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 {
     private string inputnode;
     private string sysfsnode;
+    internal int fd = -1;
+    private IOChannel channel;
+    private int[] axis;
 
     construct
     {
@@ -32,16 +39,69 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         // grab sysfs paths
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         var devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
-        inputnode = config.stringValue( "cornucopia", "inputnode", "" );
-    }
+        inputnode = devfs_root + config.stringValue( HW_ACCEL_LIS302_PLUGIN_NAME, "inputnode", "/input/event2" );
+        fd = Posix.open( inputnode, Posix.O_RDONLY );
+        if ( fd == -1 )
+        {
+            logger.warning( "Can't open %s (%s). Lis302 Accelerometer will not be available.".printf( inputnode, Posix.strerror( Posix.errno ) ) );
+        }
+        else
+        {
+            Idle.add( onIdle );
+        }
 
-    public AccelerometerLis302()
-    {
     }
 
     public override string repr()
     {
-        return "<via %s>".printf( "unknown" );
+        return "<via %s>".printf( inputnode );
+    }
+
+    private bool onIdle()
+    {
+        axis = new int[3];
+
+        channel = new IOChannel.unix_new( fd );
+        channel.add_watch( IOCondition.IN, onInputEvent );
+        return false; // don't call me again
+    }
+
+    private void _handleInputEvent( ref Linux26.Input.Event ev )
+    {
+        if ( ev.code > 2 )
+        {
+            logger.warning( "invalid data from input device. axis > 2" );
+            return;
+        }
+        else
+        {
+            axis[ev.code] = ev.value;
+            accelerationFunc( axis );
+        }
+    }
+
+    public bool onInputEvent( IOChannel source, IOCondition condition )
+    {
+        Linux26.Input.Event ev = {};
+        var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux26.Input.Event) );
+        if ( bytesread == 0 )
+        {
+            logger.warning( "could not read from input device fd %d.".printf( source.unix_get_fd() ) );
+            return false;
+        }
+
+        // we're only interested in the absolute axis values
+        if ( ev.type == Linux26.Input.EV_ABS )
+        {
+            logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
+            _handleInputEvent( ref ev );
+        }
+        else
+        {
+            logger.debug( "(ignoring non-ABS) input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
+        }
+
+        return true;
     }
 }
 
