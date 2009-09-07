@@ -30,9 +30,22 @@ namespace FreeSmartphone.MusicPlayer
         private unowned KeyFile key_file;
         private string _name;
         private List<string> files;
-        private int position;
         private static string[] extensions = { ".mp3", ".ogg", ".flac" };
-        private weak List<string> current;
+        private weak List<string> _current;
+        private weak List<string> current
+        {
+            get{ return _current; }
+            set
+            {
+                if( _current != value )
+                {
+                    _current = value;
+                    if( value != null )
+                         playing( value.data );
+                }
+            }
+        }
+        private int position;
 
         public Playlist( string name, KeyFile kf )
         {
@@ -52,7 +65,14 @@ namespace FreeSmartphone.MusicPlayer
         public Playlist.from_dir( string name, KeyFile kf, string dir )
         {
             this( name, kf );
-            insert_dir( 0, dir, true );
+            try
+            {
+                insert_dir( 0, dir, true );
+            }
+            catch ( GLib.Error e )
+            {
+                debug( "Playlist.from_dir: %s", e.message );
+            }
             position = 0;
             current = files;
         }
@@ -153,28 +173,34 @@ namespace FreeSmartphone.MusicPlayer
         {
             debug( "%s: %s", Log.METHOD, file );
             this.files = new List<string>();
-            try
+            var fs = FileStream.open( file, "r" );
+            if( fs == null )
+                 throw new PlaylistError.FILE_NOT_FOUND( "Can't open file: %s".printf(file));
+            while(!fs.eof())
             {
-                var fs = FileStream.open( file, "r" );
-                if( fs == null )
-                     throw new PlaylistError.FILE_NOT_FOUND( "Can't open file: %s".printf(file));
-                while(!fs.eof())
-                {
-                    string? line = fs.read_line();
-                    if( line != null && line.len() > 0 );
-                    this.files.prepend( line );
-                }
-                this.files.reverse();
+                string? line = fs.read_line();
+                if( line != null && line.len() > 0 );
+                this.files.prepend( line );
             }
-            catch( FileError e )
-            {
-                debug("File error for %s: %s", file, e.message );
-            }
+            this.files.reverse();
             debug("New Playlist.length: %ll", file.len());
         }
         //
         // None DBus methods
         //
+        public void delete_files()
+        {
+            var playlist_path = Path.build_filename( Config.get_playlist_dir(), _name );
+            FileUtils.remove( playlist_path ) ;
+            try
+            {
+                key_file.remove_group( _name );
+            }
+            catch ( GLib.Error e )
+            {
+                debug( "Ignoring: %s", e.message );
+            }
+        }
         public bool file_supported( string file )
         {
             var ext = file.rchr( file.len(), '.' ).down();
@@ -189,32 +215,37 @@ namespace FreeSmartphone.MusicPlayer
         }
         public void save()
         {
-            debug("saving %s:%s %i", _name, Config.LAST_PLAYED, position );
-            debug( "KeyFile %p", key_file );
             key_file.set_integer( _name, Config.LAST_PLAYED, position );
 
             var playlist_path = Path.build_filename( Config.get_playlist_dir(), _name );
             var fs = FileStream.open( playlist_path, "w+" );
             foreach( var file in files )
-                    fs.printf( "%s\n", file );
+                    if( file != null )
+                        fs.printf( "%s\n", file );
         }
-        public string get_next()
+        public string get_next() throws PlaylistError
         {
-            if ( this.current == null )
-                 return "";
+            if( this.files.length() == 0 )
+                 throw new PlaylistError.EMPTY( "No files in playlist" );
+            if( this.current == null )
+                 throw new PlaylistError.NO_FILE_SELECTED( "No file selected" );
             this.current = this.current.next;
+            if( this.current == null )
+                 throw new PlaylistError.OUT_OF_FILES( "No more file in the playlist" );
             position++;
-            debug( "new current %p", this.current );
-            debug( "DATA: %p",this.current.data );
-            return this.current == null ? "": this.current.data;
+            return this.current.data;
         }
-        public string get_previous()
+        public string get_previous() throws PlaylistError
         {
-            if ( this.current == null )
-                 return "";
-            position--;
+            if( this.files.length() == 0 )
+                 throw new PlaylistError.EMPTY( "No files in playlist" );
+            if( this.current == null )
+                 throw new PlaylistError.NO_FILE_SELECTED( "No file selected" );
             this.current = this.current.prev;
-            return this.current == null ? "": this.current.data;
+            if( this.current == null )
+                 throw new PlaylistError.OUT_OF_FILES( "No more file in the playlist" );
+            position--;
+            return this.current.data;
         }
     }
 }

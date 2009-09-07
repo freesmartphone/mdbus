@@ -80,15 +80,8 @@ namespace FreeSmartphone.MusicPlayer
     }
     public static void create_file_structure()
     {
-        try
-        {
-            //0x1A4 = \0644
-            DirUtils.create_with_parents( Config.get_playlist_dir(), 0x1ED );
-        }
-        catch (GLib.Error e)
-        {
-            debug("Ignoring: %s", e.message);
-        }
+        //0x1A4 = \0644
+        DirUtils.create_with_parents( Config.get_playlist_dir(), 0x1ED );
     }
     public static void save_keyfile( KeyFile kf, string path ) throws FileError
     {

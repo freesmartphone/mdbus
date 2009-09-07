@@ -36,7 +36,8 @@ namespace FreeSmartphone.MusicPlayer
         NO_FILE_SELECTED,
         NO_PLAYLIST_SELECTED,
         END_OF_LIST,
-        UNKNOWN_PLAYLIST
+        UNKNOWN_PLAYLIST,
+        PLAYLIST_OUT_OF_FILES
     }
     public const string BASE_OBJECT_PATH = "/org/freesmartphone/MusicPlayer";
     public const string BUSNAME = "org.freesmartphone.omusicd";
@@ -62,10 +63,13 @@ namespace FreeSmartphone.MusicPlayer
         public abstract void delete_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error;
         public abstract ObjectPath new_playlist( string name ) throws MusicPlayerError, DBus.Error;
         public abstract string[] search( string query ) throws MusicPlayerError, DBus.Error;
+        public abstract int get_volume() throws DBus.Error;
+        public abstract void set_volume( int vol ) throws MusicPlayerError, DBus.Error;
         public abstract signal void progress( int progress );
         public abstract signal void playing_changed( string file );
         public abstract signal void state( State state );
-        public abstract signal void playlist( ObjectPath path );
+        public abstract signal void playlist_added( ObjectPath path );
+        public abstract signal void playlist_removed( ObjectPath path );
     }
     [DBus (name="org.freesmartphone.MusicPlayer.Playlist")]
     public interface IPlaylist: GLib.Object
@@ -88,7 +92,10 @@ namespace FreeSmartphone.MusicPlayer
     {
         FILE_NOT_FOUND,
         OUT_OF_RANGE,
-        FILETYPE_NOT_SUPPORTED
+        FILETYPE_NOT_SUPPORTED,
+        EMPTY,
+        NO_FILE_SELECTED,
+        OUT_OF_FILES
     }
 
     [DBus (name = "org.freedesktop.DBus")]

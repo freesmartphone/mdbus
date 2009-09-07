@@ -28,7 +28,7 @@ namespace FreeSmartphone.MusicPlayer
 {
     public class MusicPlayer:GLib.Object , IMusicPlayer
     {
-        private Connection con;
+        private Connection conn;
         private ObjectPath path;
         private unowned KeyFile key_file;
         private string current_song
@@ -48,10 +48,8 @@ namespace FreeSmartphone.MusicPlayer
             get{ return _current_playlist; }
             set 
             {
-                debug( "current_playlist: %s", value );
                 _current_playlist = value;
                 var playlist = playlists.lookup( value );
-                debug( "playlist: %p %s", playlist, value );
                 current_song = playlist.get_next();
             }
         }
@@ -92,21 +90,26 @@ namespace FreeSmartphone.MusicPlayer
 
         public MusicPlayer( Connection con, ObjectPath path, KeyFile kf )
         {
-            this.con = con;
+            this.conn = con;
             this.path = path;
             this.key_file = kf;
             this.playlist_path = ((string)path) + "/Playlists/";
 
             var playlist_dir = Config.get_playlist_dir();
-            var dir = Dir.open( playlist_dir );
-
-            debug(" playlist_dir %s %p", playlist_dir, dir );
-            for( string file = dir.read_name(); file != null; file = dir.read_name() )
+            try
             {
-                debug("Adding Playlist %s", file );
-                var full_file = Path.build_filename( playlist_dir, file );
-                var pl = new Playlist( file, key_file );
-                add_playlist( file, pl );
+                var dir = Dir.open( playlist_dir );
+
+                for( string file = dir.read_name(); file != null; file = dir.read_name() )
+                {
+                    debug( "FILENAME: %s", file );
+                    var pl = new Playlist( file, key_file );
+                    add_playlist( file, pl );
+                }
+            }
+            catch (GLib.Error e)
+            {
+                debug( "Open playlists: %s", e.message );
             }
         }
         construct
@@ -117,9 +120,6 @@ namespace FreeSmartphone.MusicPlayer
             audio_pipeline.add( playbin );
             audio_bus = audio_pipeline.get_bus();
             audio_bus.add_watch( bus_callback );
-            //var ap_qt = audio_pipeline.get_query_types();
-            //debug( "audio_pipeline: %x", (int)ap_qt );
-            //debug( "playbin: %x", playbin.get_query_types() );
         }
         ~MusicPlayer()
         {
@@ -156,35 +156,47 @@ namespace FreeSmartphone.MusicPlayer
             this.audio_pipeline.set_state( Gst.State.PLAYING );
             this._state = FreeSmartphone.MusicPlayer.State.PLAYING;
             timeout_pos_handle = Timeout.add( Config.poll_timeout, position_timeout );
-            debug("timout_handl: %u", timeout_pos_handle );
         }
         public void pause() throws MusicPlayerError, DBus.Error
         {
             this.audio_pipeline.set_state( Gst.State.PAUSED );
             this._state = FreeSmartphone.MusicPlayer.State.PAUSED;
+            Source.remove( this.timeout_pos_handle );
         }
         public void stop() throws MusicPlayerError, DBus.Error
         {
             this.audio_pipeline.set_state( Gst.State.READY );
             this._state = FreeSmartphone.MusicPlayer.State.STOPPED;
+            Source.remove( this.timeout_pos_handle );
         }
         public void previous() throws MusicPlayerError, DBus.Error
         {
-            var playlist = playlists.lookup( current_playlist );
             if( current_playlist == null )
                  throw new MusicPlayerError.NO_PLAYLIST_SELECTED( "No Playlist Selected" );
-            this.current_song = playlist.get_previous();
-            if( this.current_song == null )
-                 throw new MusicPlayerError.END_OF_LIST( "Playlist %s has no more elements".printf(this.current_playlist));
+            var playlist = playlists.lookup( current_playlist );
+            try
+            {
+                this.current_song = playlist.get_previous();
+            }
+            catch (PlaylistError e)
+            {
+                 throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "Playlist %s has no more elements".printf(this.current_playlist));
+            }
             play();
         }
         public void next() throws MusicPlayerError, DBus.Error
         {
             if( current_playlist == null )
-                 throw new MusicPlayerError.NO_PLAYLIST_SELECTED( "No Playlist Selected" );
-            this.current_song = playlists.lookup( current_playlist ).get_next();
-            if( this.current_song == null )
-                 throw new MusicPlayerError.END_OF_LIST( "Playlist %s has no more elements".printf(this.current_playlist));
+                 throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "No Playlist Selected" );
+            var playlist = playlists.lookup( current_playlist );
+            try
+            {
+                this.current_song = playlist.get_next();
+            }
+            catch (PlaylistError e)
+            {
+                 throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "Playlist %s has no more elements".printf(this.current_playlist));
+            }
             play();
         }
         public void seek_forward( int step ) throws MusicPlayerError, DBus.Error
@@ -197,10 +209,10 @@ namespace FreeSmartphone.MusicPlayer
         }
         public void jump( int pos ) throws MusicPlayerError, DBus.Error
         {
-            debug( "Jump to position: %i", pos );
+            debug( "Jump to position: %ll", ((int64)pos) * 1000000000LL / Config.precision );
             playbin.seek_simple( Gst.Format.TIME, Gst.SeekFlags.NONE, ((int64)pos) * 1000000000 / Config.precision );
         }
-        public ObjectPath[] get_playlists()
+        public ObjectPath[] get_playlists() throws MusicPlayerError, DBus.Error
         {
             var keys = this.playlists.get_keys();
             ObjectPath[] paths = new ObjectPath[keys.length()];
@@ -213,9 +225,11 @@ namespace FreeSmartphone.MusicPlayer
         }
         public ObjectPath get_current_playlist() throws MusicPlayerError, DBus.Error
         {
+            if( current_playlist == null )
+                 throw new MusicPlayerError.NO_PLAYLIST_SELECTED( "No current playlist" );
             return current_playlist;
         }
-        public void set_current_playlist( ObjectPath list )
+        public void set_current_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error
         {
             var playlist = playlists.lookup( list );
             if( playlist == null )
@@ -224,24 +238,45 @@ namespace FreeSmartphone.MusicPlayer
         }
         public void delete_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error
         {
+            var the_list = playlists.lookup( list );
+            the_list.delete_files();
             playlists.remove( list );
+            playlist_removed( list );
+            debug( " deleting playlist refcount: %u", the_list.ref_count );
+            the_list = null;
+            
         }
         public ObjectPath new_playlist( string name ) throws MusicPlayerError, DBus.Error
         {
             var list = new Playlist( name, key_file );
             return add_playlist( name, list );
         }
-        public ObjectPath add_playlist( string name, Playlist pl )
+        public ObjectPath add_playlist( string name, Playlist pl ) throws MusicPlayerError, DBus.Error
         {
             var obj_path = new ObjectPath(playlist_path + name);
             playlists.insert( obj_path, pl );
-            playlist( obj_path );
-            this.con.register_object( playlist_path + name, pl );
+            playlist_added( obj_path );
+            this.conn.register_object( playlist_path + name, pl );
             return obj_path;
         }
-        public string[] search( string query )
+        public string[] search( string query ) throws MusicPlayerError, DBus.Error
         {
             return new string[0];
+        }
+        public int get_volume() throws DBus.Error
+        {
+            double ret = 0;
+            playbin.get( "volume", out ret );
+            debug("Volume: %lf", ret );
+            return (int)( ret * 100.0 );
+        }
+        public void set_volume( int vol ) throws MusicPlayerError, DBus.Error
+        {
+            if( vol > 100 )
+                 vol = 100;
+            else if( vol < 0 )
+                 vol = 0;
+            playbin.set( "volume", (double)( vol/100.0 ) );
         }
         //
         // None DBus Interface methods
