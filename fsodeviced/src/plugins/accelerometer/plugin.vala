@@ -26,6 +26,16 @@ namespace Hardware
 
     internal const string HW_ACCEL_PLUGIN_NAME = "fsodevice.accelerometer";
 
+    internal const int kHistorySize = 150;
+    internal const float kFilteringFactor = 0.1f;
+
+    internal struct AccelerometerValue
+    {
+        int x;
+        int y;
+        int z;
+    }
+
 /**
  * Implementation of org.freesmartphone.Device.Orientation for an Accelerometer device
  **/
@@ -36,6 +46,11 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
     private string orientation;
 
+    private AccelerometerValue[] history;
+    private AccelerometerValue acceleration;
+
+    private uint nextIndex = 0;
+
     public Accelerometer( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
@@ -45,6 +60,8 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
                                          FsoFramework.Device.OrientationServicePath,
                                          this );
         logger.info( "Created new Orientation object." );
+
+        history = new AccelerometerValue[kHistorySize];
 
         Idle.add( onIdle );
     }
@@ -87,7 +104,24 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
     public void onAcceleration( int[] axis )
     {
-        logger.debug( "Received acceleration values: %05d, %05d, %05d".printf( axis[0], axis[1], axis[2] ) );
+        logger.debug( "Received acceleration values: %d, %d, %d".printf( axis[0], axis[1], axis[2] ) );
+
+        int x = axis[0];
+        int y = axis[1];
+        int z = axis[2];
+
+        // apply lowpass filter to smooth curve
+        acceleration.x = (int) Math.lround( x * kFilteringFactor + acceleration.x * (1.0 - kFilteringFactor) );
+        history[nextIndex].x = x - acceleration.x;
+        acceleration.y = (int) Math.lround( y * kFilteringFactor + acceleration.y * (1.0 - kFilteringFactor) );
+        history[nextIndex].y = y - acceleration.y;
+        acceleration.z = (int) Math.lround( z * kFilteringFactor + acceleration.z * (1.0 - kFilteringFactor) );
+        history[nextIndex].z = z - acceleration.z;
+
+        logger.info( "Current acceleration delta: %d, %d, %d".printf( history[nextIndex].x, history[nextIndex].y, history[nextIndex].z ) );
+
+        // Advance buffer pointer to next position or reset to zero.
+        nextIndex = (nextIndex + 1) % kHistorySize;
     }
 
     //

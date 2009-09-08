@@ -49,7 +49,26 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         {
             Idle.add( onIdle );
         }
+        //Timeout.add( 500, feedConstant );
 
+    }
+
+    public bool feedConstant()
+    {
+        // feed constant value for debugging
+        Linux26.Input.Event ev = {};
+        ev.type = Linux26.Input.EV_ABS;
+        ev.code = 0; // X-AXIS
+        ev.value = 0;
+        _handleInputEvent( ref ev );
+        ev.code = 1; // Y-AXIS
+        ev.value = 0;
+        _handleInputEvent( ref ev );
+        ev.code = 2; // Z-AXIS
+        ev.value = 1000; // 1G
+        _handleInputEvent( ref ev );
+
+        return true; // call me again
     }
 
     public override string repr()
