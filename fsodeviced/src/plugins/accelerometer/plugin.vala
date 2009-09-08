@@ -29,6 +29,9 @@ namespace Hardware
     internal const int kHistorySize = 150;
     internal const float kFilteringFactor = 0.1f;
 
+    internal const int MOVEMENT_IDLE_THRESHOLD = 20;
+    internal const int MOVEMENT_BUSY_THRESHOLD = 50;
+
     internal struct AccelerometerValue
     {
         int x;
@@ -48,6 +51,11 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
     private AccelerometerValue[] history;
     private AccelerometerValue acceleration;
+
+    private uint movementIdleThreshold;
+    private uint movementBusyThreshold;
+
+    private bool moving = false;
 
     private uint nextIndex = 0;
 
@@ -93,13 +101,15 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
         accelerometer.setDelegate( this.onAcceleration );
 
+        movementIdleThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_idle_threshold", Hardware.MOVEMENT_IDLE_THRESHOLD );
+        movementBusyThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_busy_threshold", Hardware.MOVEMENT_BUSY_THRESHOLD );
+
         return false; // don't call me again
     }
 
     public override string repr()
     {
-        return "";
-        //return "<%s>".printf( sysfsnode );
+        return ( accelerometer != null ) ? "<%s>".printf( Type.from_instance( accelerometer ).name() ) : "";
     }
 
     public void onAcceleration( int[] axis )
@@ -120,8 +130,28 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
         logger.info( "Current acceleration delta: %d, %d, %d".printf( history[nextIndex].x, history[nextIndex].y, history[nextIndex].z ) );
 
+        uint movement = (uint) Math.sqrtf( (float) ( acceleration.x * acceleration.x ) + ( acceleration.y * acceleration.y ) + ( acceleration.z * acceleration.z ) );
+
+        if ( !moving && movement > movementBusyThreshold )
+        {
+            logger.debug( "Started moving (%u > %u)...".printf( movement, movementBusyThreshold ) );
+            moving = true;
+        }
+
+        if ( moving && movement < movementIdleThreshold )
+        {
+            logger.debug( "Stopped moving (%u < %u)...".printf( movement, movementIdleThreshold ) );
+            moving = false;
+            generateOrientationSignal( history[nextIndex].x, history[nextIndex].y, history[nextIndex].z );
+        }
+
         // Advance buffer pointer to next position or reset to zero.
         nextIndex = (nextIndex + 1) % kHistorySize;
+    }
+
+    public void generateOrientationSignal( int x, int y, int z )
+    {
+        logger.debug( "NYI..." );
     }
 
     //

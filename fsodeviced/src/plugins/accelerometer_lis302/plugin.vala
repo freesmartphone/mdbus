@@ -115,10 +115,12 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
             logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
             _handleInputEvent( ref ev );
         }
+#if DEBUG
         else
         {
             logger.debug( "(ignoring non-ABS) input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
         }
+#endif
 
         return true;
     }
