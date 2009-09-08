@@ -37,14 +37,54 @@ namespace FreeSmartphone.MusicPlayer
             get{ return _current; }
             set
             {
+                debug("value:%p", value );
+                debug("value:%p", value.data);
                 if( _current != value )
                 {
-                    _current = value;
-                    if( value != null )
-                         playing( value.data );
+                    if( value != null && value.data != null )
+                    {
+                        _current = value;
+                        playing( value.data );
+                    }
                 }
             }
         }
+        private delegate string DoGetNext() throws PlaylistError;
+        private delegate string DoGetPrevious() throws PlaylistError;
+
+        private DoGetNext do_get_next;
+        private DoGetPrevious do_get_previous;
+
+        private PlaylistMode _mode;
+        public PlaylistMode mode
+        {
+            get{ return _mode; }
+            set
+            {
+                switch( value )
+                {
+                    case( PlaylistMode.NORMAL ):
+                        do_get_next = get_next_normal;
+                        do_get_previous = get_previous_normal;
+                        break;
+                    case( PlaylistMode.RANDOM ):
+                        //Both would return a randome file
+                        do_get_next = get_next_random;
+                        do_get_previous = get_next_random;
+                        break;
+                    case( PlaylistMode. ENDLESS ):
+                        do_get_next = get_next_endless;
+                        do_get_previous = get_previous_endless;
+                        break;
+                    default:
+                        debug( "Illegal Mode: %i", value );
+                        assert_not_reached();
+                }
+                _mode = value;
+                mode_changed( value );
+            }
+        }
+
         private int position;
 
         public Playlist( string name, KeyFile kf )
@@ -56,6 +96,15 @@ namespace FreeSmartphone.MusicPlayer
                 position = kf.get_integer( name, Config.LAST_PLAYED );
                 load_from_file( Path.build_filename( Config.get_playlist_dir(), name ) );
                 current = files.nth( position );
+            }
+            catch (GLib.Error e)
+            {
+                debug( "Ignoring Error: %s", e.message );
+                position = 0;
+            }
+            try
+            {
+                mode = (PlaylistMode)kf.get_integer( name, Config.PLAYLIST_MODE );
             }
             catch (GLib.Error e)
             {
@@ -80,7 +129,8 @@ namespace FreeSmartphone.MusicPlayer
         {
             files = new List<string>();
             this.position = 0;
-            current = files;
+            _current = files;
+            this.mode = PlaylistMode.NORMAL;
         }
         //
         // org.freesmartphone.MusicPlayer.Playlist
@@ -103,6 +153,14 @@ namespace FreeSmartphone.MusicPlayer
                 ret[i++] = f;
             }
             return ret;
+        }
+        public void set_mode( PlaylistMode m )
+        {
+            mode = m;
+        }
+        public PlaylistMode get_mode()
+        {
+            return mode;
         }
         public void insert( int position, string file ) throws PlaylistError, DBus.Error
         {
@@ -179,8 +237,8 @@ namespace FreeSmartphone.MusicPlayer
             while(!fs.eof())
             {
                 string? line = fs.read_line();
-                if( line != null && line.len() > 0 );
-                this.files.prepend( line );
+                if( line != null && line.len() > 0 )
+                    this.files.prepend( line );
             }
             this.files.reverse();
             debug("New Playlist.length: %ll", file.len());
@@ -216,6 +274,7 @@ namespace FreeSmartphone.MusicPlayer
         public void save()
         {
             key_file.set_integer( _name, Config.LAST_PLAYED, position );
+            key_file.set_integer( _name, Config.PLAYLIST_MODE, mode );
 
             var playlist_path = Path.build_filename( Config.get_playlist_dir(), _name );
             var fs = FileStream.open( playlist_path, "w+" );
@@ -225,26 +284,94 @@ namespace FreeSmartphone.MusicPlayer
         }
         public string get_next() throws PlaylistError
         {
-            if( this.files.length() == 0 )
-                 throw new PlaylistError.EMPTY( "No files in playlist" );
-            if( this.current == null )
-                 throw new PlaylistError.NO_FILE_SELECTED( "No file selected" );
-            this.current = this.current.next;
-            if( this.current == null )
-                 throw new PlaylistError.OUT_OF_FILES( "No more file in the playlist" );
-            position++;
-            return this.current.data;
+            debug("this: %p", this );
+            debug("delegate: %p", (void*)this.do_get_next );
+            debug("Mode: %i", _mode);
+            return this.do_get_next();
         }
         public string get_previous() throws PlaylistError
+        {
+            return this.do_get_previous();
+        }
+
+        //
+        // Private methods for differen random modes
+        //
+
+        private string get_next_normal() throws PlaylistError
         {
             if( this.files.length() == 0 )
                  throw new PlaylistError.EMPTY( "No files in playlist" );
             if( this.current == null )
                  throw new PlaylistError.NO_FILE_SELECTED( "No file selected" );
-            this.current = this.current.prev;
-            if( this.current == null )
+            if( this.current.next == null )
                  throw new PlaylistError.OUT_OF_FILES( "No more file in the playlist" );
+            this.current = this.current.next;
+            position++;
+            return this.current.data;
+        }
+        private string get_previous_normal() throws PlaylistError
+        {
+            if( this.files.length() == 0 )
+                 throw new PlaylistError.EMPTY( "No files in playlist" );
+            if( this.current == null )
+                 throw new PlaylistError.NO_FILE_SELECTED( "No file selected" );
+            if( this.current.prev == null )
+                 throw new PlaylistError.OUT_OF_FILES( "No more file in the playlist" );
+            this.current = this.current.prev;
             position--;
+            return this.current.data;
+        }
+        private string get_next_endless() throws PlaylistError
+        {
+            debug( "next_endless: %i next: %p", position, this.current.next );
+            debug( "length: %u", this.files.length() );
+            foreach( var d in files )
+            {
+                debug("file: %p", d );
+            }
+            string result;
+            try
+            {
+                result = get_next_normal();
+            }
+            catch ( PlaylistError.OUT_OF_FILES e )
+            {
+                debug( "Playlist get first" );
+                this.current = this.files.first();
+                this.position = 0;
+                result = this.current.data;
+            }
+            return result;
+        }
+        private string get_previous_endless() throws PlaylistError
+        {
+            debug( "prev_endless: %i prev: %p", position, this.current.prev );
+            string result;
+            try
+            {
+                result = get_previous_normal();
+            }
+            catch ( PlaylistError.OUT_OF_FILES e )
+            {
+                debug( "Playlist get last" );
+                this.current = this.files.last();
+                this.position = (int)(this.files.length() - 1);
+                result = this.current.data;
+            }
+            return result;
+        }
+        private string get_next_random() throws PlaylistError
+        {
+            if( this.files.length() == 0 )
+                 throw new PlaylistError.EMPTY( "No files in playlist" );
+            if( this.current == null )
+                 throw new PlaylistError.NO_FILE_SELECTED( "No file selected" );
+            var rand = new Rand();
+            uint nr = (uint) rand.int_range( 0, (int)this.files.length() - 1 );
+            this.current = this.files.nth( nr );
+            this.position = (int)nr;
+            debug( "random nr: %i %s", this.position, this.current.data );
             return this.current.data;
         }
     }

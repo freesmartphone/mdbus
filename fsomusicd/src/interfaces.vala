@@ -83,12 +83,16 @@ namespace FreeSmartphone.MusicPlayer
         public abstract void load_from_file( string filename ) throws PlaylistError, DBus.Error;
         public abstract string get_name() throws PlaylistError, DBus.Error;
         public abstract void change_name( string new_name ) throws PlaylistError, DBus.Error;
+        public abstract void set_mode( PlaylistMode m );
+        public abstract PlaylistMode get_mode();
         public abstract signal void name( string name );
         public abstract signal void playing( string file );
         public abstract signal void deleted();
         public abstract signal void file_removed( int position );
         public abstract signal void file_added( int position, string filename);
+        public abstract signal void mode_changed( PlaylistMode mode );
     }
+
     public errordomain PlaylistError
     {
         FILE_NOT_FOUND,
@@ -97,6 +101,12 @@ namespace FreeSmartphone.MusicPlayer
         EMPTY,
         NO_FILE_SELECTED,
         OUT_OF_FILES
+    }
+    public enum PlaylistMode
+    {
+        NORMAL,
+        ENDLESS,
+        RANDOM
     }
 
     [DBus (name = "org.freedesktop.DBus")]
