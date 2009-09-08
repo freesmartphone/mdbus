@@ -130,7 +130,7 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
         logger.info( "Current acceleration delta: %d, %d, %d".printf( history[nextIndex].x, history[nextIndex].y, history[nextIndex].z ) );
 
-        uint movement = (uint) Math.sqrtf( (float) ( acceleration.x * acceleration.x ) + ( acceleration.y * acceleration.y ) + ( acceleration.z * acceleration.z ) );
+        uint movement = (uint) Math.sqrtf( (float) ( history[nextIndex].x * history[nextIndex].x ) + ( history[nextIndex].y * history[nextIndex].y ) + ( history[nextIndex].z * history[nextIndex].z ) );
 
         if ( !moving && movement > movementBusyThreshold )
         {
