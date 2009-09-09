@@ -40,6 +40,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 
     internal int fd = -1;
     private IOChannel channel;
+    private uint watch;
     private int[] axis;
 
     private uint timeout;
@@ -60,25 +61,14 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 
         if ( !FsoFramework.FileHandling.isPresent( sysfsnode ) )
         {
-            logger.warning( "Lis302 configuration sysfs not available as %s. Accelerometer will not be available.".printf( sysfsnode ) );
+            logger.warning( "Lis302 configuration sysfs not available at %s. Accelerometer will not work properly.".printf( sysfsnode ) );
         }
         else
         {
-            fd = Posix.open( inputnode, Posix.O_RDONLY );
-            if ( fd == -1 )
-            {
-                logger.warning( "Can't open %s (%s). Lis302 Accelerometer will not be available.".printf( inputnode, Posix.strerror( Posix.errno ) ) );
-            }
-            else
-            {
-                FsoFramework.FileHandling.write( sample_rate.to_string(), sysfsnode + "/sample_rate" );
-                FsoFramework.FileHandling.write( threshold.to_string(), sysfsnode + "/threshold" );
-                FsoFramework.FileHandling.write( full_scale, sysfsnode + "/full_scale" );
-                Idle.add( onIdle );
-            }
+            FsoFramework.FileHandling.write( sample_rate.to_string(), sysfsnode + "/sample_rate" );
+            FsoFramework.FileHandling.write( threshold.to_string(), sysfsnode + "/threshold" );
+            FsoFramework.FileHandling.write( full_scale, sysfsnode + "/full_scale" );
         }
-        //Idle.add( feedImpulse );
-
         axis = new int[3];
     }
 
@@ -98,11 +88,30 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         return false;
     }
 
-    private bool onIdle()
+    public override void start()
     {
+        fd = Posix.open( inputnode, Posix.O_RDONLY );
+        if ( fd == -1 )
+        {
+            logger.warning( "Can't open %s (%s). Lis302 Accelerometer not available.".printf( inputnode, Posix.strerror( Posix.errno ) ) );
+            return;
+        }
         channel = new IOChannel.unix_new( fd );
-        channel.add_watch( IOCondition.IN, onInputEvent );
-        return false; // don't call me again
+        watch = channel.add_watch( IOCondition.IN, onInputEvent );
+    }
+
+    public override void stop()
+    {
+        if ( watch > 0 )
+        {
+            Source.remove( watch );
+        }
+        channel = null;
+        if ( fd != -1 )
+        {
+            Posix.close( fd );
+        }
+        fd = -1;
     }
 
     private bool onTimeout()
@@ -144,12 +153,12 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
             logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
             _handleInputEvent( ref ev );
         }
-#if DEBUG
+//#if DEBUG
         else
         {
             logger.debug( "(ignoring non-ABS) input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
         }
-#endif
+//#endif
 
         return true;
     }

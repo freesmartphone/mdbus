@@ -21,7 +21,7 @@ using GLib;
 
 namespace FsoDevice {
 
-public class BaseAccelerometer : FsoFramework.AbstractObject
+public abstract class BaseAccelerometer : FsoFramework.AbstractObject
 {
     public delegate void AccelerationFunc( int[] axis );
 
@@ -43,6 +43,10 @@ public class BaseAccelerometer : FsoFramework.AbstractObject
     public void setRate( uint ms )
     {
     }
+
+    public abstract void start();
+
+    public abstract void stop();
 
     public override string repr()
     {

@@ -87,46 +87,62 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
         logger.info( "Created new Orientation object." );
 
         history = new AccelerometerValue[kHistorySize];
-
-        Idle.add( onIdle );
-    }
-
-    public bool onIdle()
-    {
-        var devicetype = config.stringValue( Hardware.HW_ACCEL_PLUGIN_NAME, "device_type", "(not set)" );
-        var typename = "";
-
-        switch ( devicetype )
-        {
-            case "lis302":
-                typename = "HardwareAccelerometerLis302";
-                break;
-            default:
-                logger.error( "Unknown accelerometer device type '%s'".printf( devicetype ) );
-                return false; // don't call me again
-        }
-
-        var classtype = Type.from_name( typename );
-        if ( classtype == Type.INVALID  )
-        {
-            logger.warning( "Can't find plugin for accelerometer device type '%s'".printf( devicetype ) );
-            return false; // don't call me again
-        }
-
-        accelerometer = Object.new( classtype ) as FsoDevice.BaseAccelerometer;
-        logger.info( "Ready. Using accelerometer plugin '%s'".printf( devicetype ) );
-
-        accelerometer.setDelegate( this.onAcceleration );
-
-        movementIdleThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_idle_threshold", Hardware.MOVEMENT_IDLE_THRESHOLD );
-        movementBusyThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_busy_threshold", Hardware.MOVEMENT_BUSY_THRESHOLD );
-
-        return false; // don't call me again
     }
 
     public override string repr()
     {
         return ( accelerometer != null ) ? "<%s>".printf( Type.from_instance( accelerometer ).name() ) : "";
+    }
+
+    private void startAccelerometer()
+    {
+        if ( accelerometer == null )
+        {
+            var devicetype = config.stringValue( Hardware.HW_ACCEL_PLUGIN_NAME, "device_type", "(not set)" );
+            var typename = "";
+
+            switch ( devicetype )
+            {
+                case "lis302":
+                    typename = "HardwareAccelerometerLis302";
+                    break;
+                default:
+                    logger.error( "Unknown accelerometer device type '%s'".printf( devicetype ) );
+                    return; // don't call me again
+            }
+
+            var classtype = Type.from_name( typename );
+            if ( classtype == Type.INVALID  )
+            {
+                logger.warning( "Can't find plugin for accelerometer device type '%s'".printf( devicetype ) );
+                return; // don't call me again
+            }
+
+            accelerometer = Object.new( classtype ) as FsoDevice.BaseAccelerometer;
+            logger.info( "Ready. Using accelerometer plugin '%s'".printf( devicetype ) );
+
+            accelerometer.setDelegate( this.onAcceleration );
+
+            movementIdleThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_idle_threshold", Hardware.MOVEMENT_IDLE_THRESHOLD );
+            movementBusyThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_busy_threshold", Hardware.MOVEMENT_BUSY_THRESHOLD );
+        }
+        accelerometer.start();
+    }
+
+    private void stopAccelerometer()
+    {
+        if ( accelerometer == null )
+            return;
+
+        accelerometer.stop();
+    }
+
+    internal void onResourceChanged( AccelerometerResource r, bool enabled )
+    {
+        if ( enabled )
+            startAccelerometer();
+        else
+            stopAccelerometer();
     }
 
     public void onAcceleration( int[] axis )
@@ -242,6 +258,9 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
         this.orientation_changed( signal );
     }
 
+    // Resource Handling
+    
+
     //
     // FsoFramework.Device.Orientation (DBUS)
     //
@@ -257,9 +276,41 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
     }
 }
 
+/**
+ * Implementation of org.freesmartphone.Resource for the Accelerometer Resource
+ **/
+class AccelerometerResource : FsoDevice.AbstractSimpleResource
+{
+    internal bool on;
+
+    public AccelerometerResource( FsoFramework.Subsystem subsystem )
+    {
+        base( "Accelerometer", subsystem );
+    }
+
+    public override void _enable()
+    {
+        if (on)
+            return;
+        logger.debug( "enabling..." );
+        instance.onResourceChanged( this, true );
+        on = true;
+    }
+
+    public override void _disable()
+    {
+        if (!on)
+            return;
+        logger.debug( "disabling..." );
+        instance.onResourceChanged( this, false );
+        on = false;
+    }
+}
+
 } /* namespace */
 
 internal Hardware.Accelerometer instance;
+internal Hardware.AccelerometerResource accelerometer;
 
 
 /**
@@ -272,6 +323,8 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 {
     // create one and only instance
     instance = new Hardware.Accelerometer( subsystem );
+    // create accelerometer resource
+    accelerometer = new Hardware.AccelerometerResource( subsystem );
     return Hardware.HW_ACCEL_PLUGIN_NAME;
 }
 
