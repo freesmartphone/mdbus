@@ -47,10 +47,10 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
     private FsoFramework.Subsystem subsystem;
     private FsoDevice.BaseAccelerometer accelerometer;
 
-    private bool flat;
-    private bool landscape;
-    private bool facedown;
-    private bool reverse;
+    private Ternary flat;
+    private Ternary landscape;
+    private Ternary facedown;
+    private Ternary reverse;
     private string orientation;
 
     private AccelerometerValue[] history;
@@ -63,10 +63,17 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
     private uint nextIndex = 0;
 
-    private enum Polarity
+    public enum Polarity
     {
         PLUS,
         MINUS,
+    }
+
+    public enum Ternary
+    {
+        UNKNOWN,
+        TRUE,
+        FALSE,
     }
 
     public Accelerometer( FsoFramework.Subsystem subsystem )
@@ -162,33 +169,39 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
         */
 
-        var flat = intWithinRegion( z, 1000, 80 ) || intWithinRegion( z, -1000, 80 );
-        var facedown = polarity( z ) == Polarity.MINUS;
-        var landscape = polarity( x ) != polarity( y ) && polarity( z ) == Polarity.MINUS;
-        var reverse = polarity( x ) == Polarity.PLUS;
+        var flat = ( intWithinRegion( z, 1000, 80 ) || intWithinRegion( z, -1000, 80 ) ) ? Ternary.TRUE : Ternary.FALSE;
+        var facedown = ( polarity( z ) == Polarity.MINUS ) ? Ternary.TRUE : Ternary.FALSE;
+        var landscape = ( polarity( x ) != polarity( y ) && polarity( z ) == Polarity.MINUS ) ? Ternary.TRUE : Ternary.FALSE;
+        var reverse = ( polarity( x ) == Polarity.PLUS ) ? Ternary.TRUE : Ternary.FALSE;
 
         generateOrientationSignal( flat, landscape, facedown, reverse );
     }
 
     private Polarity polarity( int value )
     {
-        return value > 0 ? Polarity.PLUS : Polarity.MINUS;
+        return value >= 0 ? Polarity.PLUS : Polarity.MINUS;
     }
 
     private bool intWithinRegion( int value, int middle, uint region )
     {
-        int lowerbounds = middle - (int)region;
-        int upperbounds = middle + (int)region;
+        var lowerbounds = (middle > 0) ? middle-region : middle+region;
+        var upperbounds = (middle > 0) ? middle+region : middle-region;
 
         return ( value > lowerbounds && value < upperbounds );
     }
 
-    public void generateOrientationSignal( bool flat, bool landscape, bool facedown, bool reverse )
+    public void generateOrientationSignal( Ternary flat, Ternary landscape, Ternary facedown, Ternary reverse )
     {
-        if ( flat )
-            orientation = "flat %s".printf( facedown ? "facedown" : "faceup" );
+        if ( flat == Ternary.TRUE )
+        {
+            orientation = "flat %s".printf( facedown == Ternary.TRUE ? "facedown" : "faceup" );
+        }
         else
-            orientation = "held %s %s %s".printf( landscape ? "landscape" : "portrait", facedown ? "facedown" : "faceup", reverse ? "reverse" : "normal" );
+        {
+            orientation = "held %s %s %s".printf( landscape == Ternary.TRUE ? "landscape" : "portrait",
+                                                  facedown == Ternary.TRUE ? "facedown" : "faceup",
+                                                  reverse == Ternary.TRUE ? "reverse" : "normal" );
+        }
 
         var signal = "";
 
@@ -201,22 +214,22 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
         if ( facedown != this.facedown )
         {
             this.facedown = facedown;
-            signal += facedown ? "facedown " : "faceup ";
+            signal += facedown == Ternary.TRUE ? "facedown " : "faceup ";
         }
 
-        // additional info invalid when laying flat
-        if ( !flat )
+        // additional info only valid, if not laying flat
+        if ( flat == Ternary.FALSE )
         {
             if ( landscape != this.landscape )
             {
                 this.landscape = landscape;
-                signal += landscape ? "landscape " : "portrait ";
+                signal += landscape == Ternary.TRUE ? "landscape " : "portrait ";
             }
 
             if ( reverse != this.reverse )
             {
                 this.reverse = reverse;
-                signal += reverse ? "reverse " : "normal ";
+                signal += reverse == Ternary.TRUE ? "reverse " : "normal ";
             }
         }
 
