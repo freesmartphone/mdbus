@@ -47,6 +47,9 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
     private FsoFramework.Subsystem subsystem;
     private FsoDevice.BaseAccelerometer accelerometer;
 
+    private bool landscape;
+    private bool facedown;
+    private bool reverse;
     private string orientation;
 
     private AccelerometerValue[] history;
@@ -114,11 +117,13 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
     public void onAcceleration( int[] axis )
     {
-        logger.debug( "Received acceleration values: %d, %d, %d".printf( axis[0], axis[1], axis[2] ) );
+        logger.debug( "onAcceleration: acceleration values: %d, %d, %d".printf( axis[0], axis[1], axis[2] ) );
 
         int x = axis[0];
         int y = axis[1];
         int z = axis[2];
+
+        /*
 
         // apply lowpass filter to smooth curve
         acceleration.x = (int) Math.lround( x * kFilteringFactor + acceleration.x * (1.0 - kFilteringFactor) );
@@ -147,11 +152,40 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
         // Advance buffer pointer to next position or reset to zero.
         nextIndex = (nextIndex + 1) % kHistorySize;
+
+        */
+
+        var landscape = false;
+        var facedown = false;
+        var reverse = false;
+
+        generateOrientationSignal( landscape, facedown, reverse );
     }
 
-    public void generateOrientationSignal( int x, int y, int z )
+    public void generateOrientationSignal( bool landscape, bool facedown, bool reverse )
     {
-        logger.debug( "NYI..." );
+        var orientation = "%s %s %s".printf( landscape ? "landscape" : "portrait", facedown ? "facedown" : "faceup", reverse ? "reverse" : "normal" );
+        var signal = "";
+
+        if ( landscape != this.landscape )
+        {
+            this.landscape = landscape;
+            signal += landscape ? "landscape " : "portrait ";
+        }
+
+        if ( facedown != this.facedown )
+        {
+            this.facedown = facedown;
+            signal += facedown ? "facedown " : "faceup ";
+        }
+
+        if ( reverse != this.reverse )
+        {
+            this.reverse = reverse;
+            signal += reverse ? "reverse " : "normal ";
+        }
+
+        this.orientation_changed( signal );
     }
 
     //

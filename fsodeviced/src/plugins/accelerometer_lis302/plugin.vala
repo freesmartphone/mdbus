@@ -22,16 +22,19 @@ using GLib;
 namespace Hardware {
 
     internal const string HW_ACCEL_LIS302_PLUGIN_NAME = "fsodevice.accelerometer_lis302";
-
     internal const string DEFAULT_EVENT_NODE = "/input/event2";
+    internal const string LIS302_CONFIGURATION_NODE = "/bus/spi/drivers/lis302dl/spi3.0";
 
 class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 {
     private string inputnode;
     private string sysfsnode;
+
     internal int fd = -1;
     private IOChannel channel;
     private int[] axis;
+
+    private uint timeout;
 
     construct
     {
@@ -40,17 +43,28 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         var devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
         inputnode = devfs_root + config.stringValue( HW_ACCEL_LIS302_PLUGIN_NAME, "inputnode", "/input/event2" );
-        fd = Posix.open( inputnode, Posix.O_RDONLY );
-        if ( fd == -1 )
+        sysfsnode = sysfs_root + LIS302_CONFIGURATION_NODE;
+
+        if ( !FsoFramework.FileHandling.isPresent( sysfsnode ) )
         {
-            logger.warning( "Can't open %s (%s). Lis302 Accelerometer will not be available.".printf( inputnode, Posix.strerror( Posix.errno ) ) );
+            logger.warning( "Lis302 configuration sysfs not available as %s. Accelerometer will not be available.".printf( sysfsnode ) );
         }
         else
         {
-            Idle.add( onIdle );
+            fd = Posix.open( inputnode, Posix.O_RDONLY );
+            if ( fd == -1 )
+            {
+                logger.warning( "Can't open %s (%s). Lis302 Accelerometer will not be available.".printf( inputnode, Posix.strerror( Posix.errno ) ) );
+            }
+            else
+            {
+                FsoFramework.FileHandling.write( "100", sysfsnode + "/sample_rate" );
+                FsoFramework.FileHandling.write( "20", sysfsnode + "/threshold" );
+                FsoFramework.FileHandling.write( "2.3", sysfsnode + "/full_scale" );
+                Idle.add( onIdle );
+            }
         }
         //Timeout.add( 500, feedConstant );
-
     }
 
     public bool feedConstant()
@@ -85,6 +99,13 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         return false; // don't call me again
     }
 
+    private bool onTimeout()
+    {
+        accelerationFunc( axis );
+        timeout = 0;
+        return false; // don't call me again
+    }
+
     private void _handleInputEvent( ref Linux26.Input.Event ev )
     {
         if ( ev.code > 2 )
@@ -92,11 +113,13 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
             logger.warning( "invalid data from input device. axis > 2" );
             return;
         }
-        else
+
+        axis[ev.code] = ev.value;
+        if ( timeout != 0 )
         {
-            axis[ev.code] = ev.value;
-            accelerationFunc( axis );
+            Source.remove( timeout );
         }
+        timeout = Timeout.add_seconds( 1, onTimeout );
     }
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
