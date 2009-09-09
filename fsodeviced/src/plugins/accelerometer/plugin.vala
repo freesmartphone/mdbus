@@ -188,14 +188,15 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
         int bounds1 = middle - region;
         int bounds2 = middle + region;
         var res = ( bounds1 > bounds2 ) ? value > bounds2 && value < bounds1 : value > bounds1 && value < bounds2;
+#if DEBUG
         message( "intWithinRegion: %d, %d, %d. Answer = %s", value, middle, region, res.to_string() );
+#endif
 
         return res; //( value > lowerbounds && value < upperbounds );
     }
 
     public void generateOrientationSignal( Ternary flat, Ternary landscape, Ternary facedown, Ternary reverse )
     {
-        message( "flat=%d, ternary.TRUE=%d", flat, (int)Ternary.TRUE );
         if ( flat == Ternary.TRUE )
         {
             orientation = "flat %s".printf( facedown == Ternary.TRUE ? "facedown" : "faceup" );
@@ -237,7 +238,7 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
             }
         }
 
-        logger.debug( "orientation = %s. sending change signal for %s".printf( orientation, signal ) );
+        logger.debug( "full orientation = %s. sending change signal for %s".printf( orientation, signal ) );
         this.orientation_changed( signal );
     }
 
