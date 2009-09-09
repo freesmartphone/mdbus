@@ -32,6 +32,9 @@ namespace Hardware
     internal const int MOVEMENT_IDLE_THRESHOLD = 20;
     internal const int MOVEMENT_BUSY_THRESHOLD = 50;
 
+    internal const int FLAT_SURFACE_Z_MIDDLE = 1000;
+    internal const int FLAT_SURFACE_Z_RADIUS = 100;
+
     internal struct AccelerometerValue
     {
         int x;
@@ -185,7 +188,7 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
         */
 
-        var flat = ( intWithinRegion( z, 1000, 80 ) || intWithinRegion( z, -1000, 80 ) ) ? Ternary.TRUE : Ternary.FALSE;
+        var flat = ( intWithinRegion( z, FLAT_SURFACE_Z_MIDDLE, FLAT_SURFACE_Z_RADIUS ) || intWithinRegion( z, -FLAT_SURFACE_Z_MIDDLE, FLAT_SURFACE_Z_RADIUS ) ) ? Ternary.TRUE : Ternary.FALSE;
 
         var facedown = ( polarity( z ) == Polarity.MINUS ) ? Ternary.TRUE : Ternary.FALSE;
         var landscape = ( polarity( x ) != polarity( y ) ) ? Ternary.TRUE : Ternary.FALSE;
@@ -254,8 +257,11 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
             }
         }
 
-        logger.debug( "full orientation = %s. sending change signal for %s".printf( orientation, signal ) );
-        this.orientation_changed( signal );
+        logger.debug( "Full orientation = %s. Sending change signal for %s".printf( orientation, signal ) );
+        if ( signal.length > 0 )
+        {
+            this.orientation_changed( signal );
+        }
     }
 
     // Resource Handling
