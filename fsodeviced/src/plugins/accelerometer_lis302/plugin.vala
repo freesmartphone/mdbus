@@ -25,16 +25,25 @@ namespace Hardware {
     internal const string DEFAULT_EVENT_NODE = "/input/event2";
     internal const string LIS302_CONFIGURATION_NODE = "/bus/spi/drivers/lis302dl/spi3.0";
 
+    internal const int LIS302_DEFAULT_SAMPLERATE = 100;
+    internal const int LIS302_DEFAULT_THRESHOLD = 100;
+    internal const string LIS302_DEFAULT_FULLSCALE = "2.3";
+
 class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 {
     private string inputnode;
     private string sysfsnode;
+
+    private uint sample_rate;
+    private uint threshold;
+    private string full_scale;
 
     internal int fd = -1;
     private IOChannel channel;
     private int[] axis;
 
     private uint timeout;
+
 
     construct
     {
@@ -44,6 +53,10 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         var devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
         inputnode = devfs_root + config.stringValue( HW_ACCEL_LIS302_PLUGIN_NAME, "inputnode", "/input/event2" );
         sysfsnode = sysfs_root + LIS302_CONFIGURATION_NODE;
+
+        sample_rate = config.intValue( HW_ACCEL_LIS302_PLUGIN_NAME, "sample_rate", LIS302_DEFAULT_SAMPLERATE );
+        threshold = config.intValue( HW_ACCEL_LIS302_PLUGIN_NAME, "threshold", LIS302_DEFAULT_THRESHOLD );
+        full_scale = config.stringValue( HW_ACCEL_LIS302_PLUGIN_NAME, "full_scale", LIS302_DEFAULT_FULLSCALE );
 
         if ( !FsoFramework.FileHandling.isPresent( sysfsnode ) )
         {
@@ -58,9 +71,9 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
             }
             else
             {
-                FsoFramework.FileHandling.write( "100", sysfsnode + "/sample_rate" );
-                FsoFramework.FileHandling.write( "20", sysfsnode + "/threshold" );
-                FsoFramework.FileHandling.write( "2.3", sysfsnode + "/full_scale" );
+                FsoFramework.FileHandling.write( sample_rate.to_string(), sysfsnode + "/sample_rate" );
+                FsoFramework.FileHandling.write( threshold.to_string(), sysfsnode + "/threshold" );
+                FsoFramework.FileHandling.write( full_scale, sysfsnode + "/full_scale" );
                 Idle.add( onIdle );
             }
         }
