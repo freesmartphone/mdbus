@@ -185,12 +185,10 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
     private bool intWithinRegion( int value, int middle, int region )
     {
-        int lowerbounds = (middle > 0) ? middle-region : middle+region;
-        int upperbounds = (middle > 0) ? middle+region : middle-region;
-
-        var res = ( value > lowerbounds && value < upperbounds );
-
-        message( "intWithinRegion: %d, %d, %d. question: %d < %d < %d. Answer = %s", value, middle, region, lowerbounds, value, upperbounds, res.to_string() );
+        int bounds1 = middle - region;
+        int bounds2 = middle + region;
+        var res = ( bounds1 > bounds2 ) ? value > bounds2 && value < bounds1 : value > bounds1 && value < bounds2;
+        message( "intWithinRegion: %d, %d, %d. Answer = %s", value, middle, region, res.to_string() );
 
         return res; //( value > lowerbounds && value < upperbounds );
     }

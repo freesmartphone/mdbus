@@ -89,9 +89,9 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 
     private bool feedImpulse()
     {
-        axis[0] = 500;
-        axis[1] = -500;
-        axis[2] = 500;
+        axis[0] = 0;
+        axis[1] = 0;
+        axis[2] = 0;
 
         if (accelerationFunc != null)
             accelerationFunc( axis );
