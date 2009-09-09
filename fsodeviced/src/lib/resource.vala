@@ -51,7 +51,9 @@ public class AbstractSimpleResource : FreeSmartphone.Resource, FsoFramework.Abst
 
     public bool registerWithUsage()
     {
+#if DEBUG
         message( "registering..." );
+#endif
         if (usage == null)
         {
             var conn = subsystem.dbusConnection();
@@ -60,18 +62,21 @@ public class AbstractSimpleResource : FreeSmartphone.Resource, FsoFramework.Abst
                                      FsoFramework.Usage.ServiceFacePrefix ); /* dynamic for async */
             usage.register_resource( name, path, onRegisterResourceReply );
         }
+#if DEBUG
         message( "...OK" );
+#endif
         return false; // MainLoop: don't call me again
     }
 
     public void onRegisterResourceReply( GLib.Error e )
     {
-        if ( e != null )
+        //if ( e != null )
         {
-            logger.error( "%s".printf( e.message ) );
+            logger.error( "%s. Can't register resource with fsousaged, enabling unconditionally".printf( e.message ) );
+            _enable();
             return;
         }
-        else
+        //else
         {
             logger.debug( "registered with org.freesmartphone.ousaged" );
         }
