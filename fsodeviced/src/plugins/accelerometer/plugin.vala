@@ -47,6 +47,7 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
     private FsoFramework.Subsystem subsystem;
     private FsoDevice.BaseAccelerometer accelerometer;
 
+    private bool flat;
     private bool landscape;
     private bool facedown;
     private bool reverse;
@@ -61,6 +62,12 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
     private bool moving = false;
 
     private uint nextIndex = 0;
+
+    private enum Polarity
+    {
+        PLUS,
+        MINUS,
+    }
 
     public Accelerometer( FsoFramework.Subsystem subsystem )
     {
@@ -155,22 +162,40 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 
         */
 
-        var landscape = false;
-        var facedown = false;
-        var reverse = false;
+        var flat = intWithinRegion( z, 1000, 80 ) || intWithinRegion( z, -1000, 80 );
+        var facedown = polarity( z ) == Polarity.MINUS;
+        var landscape = polarity( x ) != polarity( y ) && polarity( z ) == Polarity.MINUS;
+        var reverse = polarity( x ) == Polarity.PLUS;
 
-        generateOrientationSignal( landscape, facedown, reverse );
+        generateOrientationSignal( flat, landscape, facedown, reverse );
     }
 
-    public void generateOrientationSignal( bool landscape, bool facedown, bool reverse )
+    private Polarity polarity( int value )
     {
-        var orientation = "%s %s %s".printf( landscape ? "landscape" : "portrait", facedown ? "facedown" : "faceup", reverse ? "reverse" : "normal" );
+        return value > 0 ? Polarity.PLUS : Polarity.MINUS;
+    }
+
+    private bool intWithinRegion( int value, int middle, uint region )
+    {
+        int lowerbounds = middle - (int)region;
+        int upperbounds = middle + (int)region;
+
+        return ( value > lowerbounds && value < upperbounds );
+    }
+
+    public void generateOrientationSignal( bool flat, bool landscape, bool facedown, bool reverse )
+    {
+        if ( flat )
+            orientation = "flat %s".printf( facedown ? "facedown" : "faceup" );
+        else
+            orientation = "held %s %s %s".printf( landscape ? "landscape" : "portrait", facedown ? "facedown" : "faceup", reverse ? "reverse" : "normal" );
+
         var signal = "";
 
-        if ( landscape != this.landscape )
+        if ( flat != this.flat )
         {
-            this.landscape = landscape;
-            signal += landscape ? "landscape " : "portrait ";
+            this.flat = flat;
+            signal += "flat ";
         }
 
         if ( facedown != this.facedown )
@@ -179,10 +204,20 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
             signal += facedown ? "facedown " : "faceup ";
         }
 
-        if ( reverse != this.reverse )
+        // additional info invalid when laying flat
+        if ( !flat )
         {
-            this.reverse = reverse;
-            signal += reverse ? "reverse " : "normal ";
+            if ( landscape != this.landscape )
+            {
+                this.landscape = landscape;
+                signal += landscape ? "landscape " : "portrait ";
+            }
+
+            if ( reverse != this.reverse )
+            {
+                this.reverse = reverse;
+                signal += reverse ? "reverse " : "normal ";
+            }
         }
 
         this.orientation_changed( signal );
