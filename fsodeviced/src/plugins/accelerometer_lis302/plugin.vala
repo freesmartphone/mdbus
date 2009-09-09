@@ -77,25 +77,9 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
                 Idle.add( onIdle );
             }
         }
-        //Timeout.add( 500, feedConstant );
-    }
+        //Idle.add( feedImpulse );
 
-    public bool feedConstant()
-    {
-        // feed constant value for debugging
-        Linux26.Input.Event ev = {};
-        ev.type = Linux26.Input.EV_ABS;
-        ev.code = 0; // X-AXIS
-        ev.value = 0;
-        _handleInputEvent( ref ev );
-        ev.code = 1; // Y-AXIS
-        ev.value = 0;
-        _handleInputEvent( ref ev );
-        ev.code = 2; // Z-AXIS
-        ev.value = 1000; // 1G
-        _handleInputEvent( ref ev );
-
-        return true; // call me again
+        axis = new int[3];
     }
 
     public override string repr()
@@ -103,10 +87,19 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         return "<via %s>".printf( inputnode );
     }
 
+    private bool feedImpulse()
+    {
+        axis[0] = 500;
+        axis[1] = -500;
+        axis[2] = 500;
+
+        if (accelerationFunc != null)
+            accelerationFunc( axis );
+        return false;
+    }
+
     private bool onIdle()
     {
-        axis = new int[3];
-
         channel = new IOChannel.unix_new( fd );
         channel.add_watch( IOCondition.IN, onInputEvent );
         return false; // don't call me again

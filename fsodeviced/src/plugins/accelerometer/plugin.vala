@@ -170,8 +170,9 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
         */
 
         var flat = ( intWithinRegion( z, 1000, 80 ) || intWithinRegion( z, -1000, 80 ) ) ? Ternary.TRUE : Ternary.FALSE;
+
         var facedown = ( polarity( z ) == Polarity.MINUS ) ? Ternary.TRUE : Ternary.FALSE;
-        var landscape = ( polarity( x ) != polarity( y ) && polarity( z ) == Polarity.MINUS ) ? Ternary.TRUE : Ternary.FALSE;
+        var landscape = ( polarity( x ) != polarity( y ) ) ? Ternary.TRUE : Ternary.FALSE;
         var reverse = ( polarity( x ) == Polarity.PLUS ) ? Ternary.TRUE : Ternary.FALSE;
 
         generateOrientationSignal( flat, landscape, facedown, reverse );
@@ -182,16 +183,21 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
         return value >= 0 ? Polarity.PLUS : Polarity.MINUS;
     }
 
-    private bool intWithinRegion( int value, int middle, uint region )
+    private bool intWithinRegion( int value, int middle, int region )
     {
-        var lowerbounds = (middle > 0) ? middle-region : middle+region;
-        var upperbounds = (middle > 0) ? middle+region : middle-region;
+        int lowerbounds = (middle > 0) ? middle-region : middle+region;
+        int upperbounds = (middle > 0) ? middle+region : middle-region;
 
-        return ( value > lowerbounds && value < upperbounds );
+        var res = ( value > lowerbounds && value < upperbounds );
+
+        message( "intWithinRegion: %d, %d, %d. question: %d < %d < %d. Answer = %s", value, middle, region, lowerbounds, value, upperbounds, res.to_string() );
+
+        return res; //( value > lowerbounds && value < upperbounds );
     }
 
     public void generateOrientationSignal( Ternary flat, Ternary landscape, Ternary facedown, Ternary reverse )
     {
+        message( "flat=%d, ternary.TRUE=%d", flat, (int)Ternary.TRUE );
         if ( flat == Ternary.TRUE )
         {
             orientation = "flat %s".printf( facedown == Ternary.TRUE ? "facedown" : "faceup" );
@@ -208,7 +214,7 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
         if ( flat != this.flat )
         {
             this.flat = flat;
-            signal += "flat ";
+            signal += flat == Ternary.TRUE ? "flat " : "held ";
         }
 
         if ( facedown != this.facedown )
@@ -233,6 +239,7 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
             }
         }
 
+        logger.debug( "orientation = %s. sending change signal for %s".printf( orientation, signal ) );
         this.orientation_changed( signal );
     }
 
