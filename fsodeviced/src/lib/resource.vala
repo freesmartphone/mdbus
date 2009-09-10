@@ -70,13 +70,13 @@ public class AbstractSimpleResource : FreeSmartphone.Resource, FsoFramework.Abst
 
     public void onRegisterResourceReply( GLib.Error e )
     {
-        //if ( e != null )
+        if ( e != null )
         {
             logger.error( "%s. Can't register resource with fsousaged, enabling unconditionally".printf( e.message ) );
             _enable();
             return;
         }
-        //else
+        else
         {
             logger.debug( "registered with org.freesmartphone.ousaged" );
         }
