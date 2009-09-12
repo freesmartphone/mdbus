@@ -83,7 +83,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     private FsoFramework.SoundDevice device;
     private HashMap<string,BunchOfMixerControls> allscenarios;
     private string currentscenario;
-    private Queue<string> scenarios;
+    private GLib.Queue<string> scenarios;
 
     //private Mutex mutex;
 
