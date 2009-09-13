@@ -1,8 +1,8 @@
 /*
- * plugin.vala, Alarm plugin for otimed
- * Written by Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
- * Based on frameworkd time plugin.
- * All Rights Reserved
+ * Alarm plugin for otimed
+ *
+ * (C) 2009 Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
+ * (C) 2009 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,18 +21,18 @@
  */
 
 using GLib;
+using Gee;
 using DBus;
 using FreeSmartphone;
 
+internal const int COMPENSATE_SECONDS = 5;
 
 public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractObject
 {
-
     private FsoFramework.DBusSubsystem subsystem;
     private dynamic DBus.Object rtc;
-    private Queue<string> alarm_q = new Queue<string> ();
-    private HashTable<string, int> alarm_map = new HashTable<string, int>( str_hash, str_equal );
-    private uint timer_id;
+    private HashMap<string,int> alarms;
+    private uint timer;
 
     public AlarmController( FsoFramework.DBusSubsystem subsystem )
     {
@@ -44,45 +44,13 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
                                         this );
 
         DBus.Connection conn = this.subsystem.dbusConnection();
-        this.rtc = conn.get_object( "org.freesmartphone.odeviced",
-                                    "/org/freesmartphone/Device/RealTimeClock/0",
-                                    "org.freesmartphone.Device.RealTimeClock" );
-        logger.info( "Alarm plugin created" );
-    }
 
+        rtc = conn.get_object( "org.freesmartphone.odeviced",
+                               "/org/freesmartphone/Device/RTC/0",
+                               "org.freesmartphone.Device.RealtimeClock" );
+        logger.info( "created" );
 
-    private bool schedule()
-    {
-        TimeVal tv = GLib.TimeVal();
-        int now;
-        tv.get_current_time();
-        now = ( int )tv.tv_sec;
-
-        if ( this.timer_id > 0 )
-        {
-            Source.remove( this.timer_id );
-            this.timer_id = -1;
-        }
-
-        while (! this.alarm_q.is_empty() )
-        {
-            string busname = this.alarm_q.pop_head();
-            int alarm = this.alarm_map.lookup( busname );
-            if ( alarm < now )
-            {
-                dynamic DBus.Object _proxy = this.subsystem.dbusConnection().get_object( busname, "/",
-                                                                                         "org.freesmartphone.Notification" );
-                _proxy.Alarm();
-            }
-            else
-            {
-                tv.get_current_time();
-                this.timer_id = GLib.Timeout.add_seconds( alarm - (int)tv.tv_sec, this.schedule );
-                this.rtc.SetWakeupTime( alarm );
-                break;
-            }
-        }
-        return false;
+        alarms = new HashMap<string,int>( str_hash, str_equal );
     }
 
     public override string repr()
@@ -90,23 +58,124 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         return "<%s>".printf( FsoFramework.Time.AlarmServicePath );
     }
 
+    private bool schedule()
+    {
+        logger.debug( "Rescheduling wakeup alarms" );
+
+        var now = TimeVal();
+        var missed = new ArrayList<string>();
+
+        // compute all that have hit since last schedule
+        foreach ( var busname in alarms.get_keys() )
+        {
+            if ( alarms[busname] < (int)now.tv_sec + COMPENSATE_SECONDS )
+            {
+                missed.add( busname );
+            }
+        }
+
+        // ping and remove them
+        foreach ( var busname in missed )
+        {
+            logger.info( "Notifying %s about its alarm on %d".printf( busname, alarms[busname] ) );
+            alarmNotificationViaDbus( busname );
+            alarms.remove( busname );
+        }
+
+        if ( alarms.size == 0 )
+        {
+            logger.info( "No more alarms. Clearing all timers." );
+            if ( timer != 0 )
+            {
+                Source.remove( timer );
+            }
+            setRtcWakeupTime( 0 );
+            return false;
+        }
+
+        // program the newest one into mainloop & RTC
+        int next = 1952801220;
+        var name = "";
+        foreach ( var busname in alarms.get_keys() )
+        {
+            if ( alarms[busname] < next )
+            {
+                next = alarms[busname];
+                name = busname;
+            }
+        }
+        now.get_current_time();
+        int seconds = next - (int)now.tv_sec;
+        logger.info( "Programming mainloop & rtc alarm for %s at %d (%d seconds from now)".printf( name, next, seconds ) );
+
+        // program mainloop timer
+        if ( timer != 0 )
+        {
+            Source.remove( timer );
+        }
+        timer = Timeout.add_seconds( seconds, schedule );
+
+        setRtcWakeupTime( next );
+
+        return false; // mainloop: don't call me again
+    }
+
+    private void setRtcWakeupTime( int t )
+    {
+        try
+        {
+            rtc.SetWakeupTime( t );
+        }
+        catch ( DBus.Error e )
+        {
+            logger.error( "Can't program RTC wakeup time: %s".printf( e.message ) );
+        }
+    }
+
+    private void alarmNotificationViaDbus( string busname )
+    {
+        dynamic DBus.Object proxy = subsystem.dbusConnection().get_object(
+            busname,
+            "/",
+            "org.freesmartphone.Notification" );
+        // async, so that we don't get stuck by broken clients
+        proxy.Alarm( onDBusAlarmNotificationReply );
+    }
+
+    private void onDBusAlarmNotificationReply( GLib.Error e )
+    {
+        if ( e != null )
+        {
+            logger.error( "%s. Can't notify client".printf( e.message ) );
+        }
+        else
+        {
+            logger.info( "Alarm Notification OK" );
+        }
+    }
+
+    //
+    // DBUS
+    //
     public void clear_alarm( string busname ) throws DBus.Error
     {
-        this.alarm_map.remove( busname );
-        this.alarm_q.remove( busname );
-        this.schedule();
-        logger.info( "Alarm for %s cleared".printf(busname) );
+        if ( busname in alarms )
+        {
+            alarms.remove( busname );
+            schedule();
+        }
     }
 
-    public void set_alarm( string busname, int timestamp ) throws DBus.Error
+    public void set_alarm( string busname, int timestamp ) throws FreeSmartphone.Error, DBus.Error
     {
-        this.alarm_map.insert( busname, timestamp );
-        this.alarm_q.push_tail( busname );
-        this.schedule();
-        logger.info( "Alarm set for %s at %d".printf(busname, timestamp) );
+        var now = TimeVal();
+        if ( (int)now.tv_sec >= timestamp )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Timestamp not in the future." );
+        }
+        alarms[busname] = timestamp;
+        Idle.add( schedule );
     }
-
-
 }
 
 AlarmController instance;
