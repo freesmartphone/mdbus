@@ -22,6 +22,7 @@
 GLib.MainLoop mainloop;
 
 FsoFramework.Logger logger;
+FsoFramework.Subsystem subsystem;
 
 public static void sighandler( int signum )
 {
@@ -32,21 +33,25 @@ public static void sighandler( int signum )
 
 public static int main( string[] args )
 {
-    logger = FsoFramework.createLogger( "fsonetwork", "fsonetwork" );
-    logger.info( "fsonetworkd starting up..." );
-    var subsystem = new FsoFramework.DBusSubsystem( "fsonetwork" );
+    var bin = FsoFramework.Utility.programName();
+    logger = FsoFramework.createLogger( bin, bin );
+    logger.info( "%s starting up...".printf( bin ) );
+    subsystem = new FsoFramework.DBusSubsystem( "fsonetwork" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
     logger.info( "loaded %u plugins".printf( count ) );
-    mainloop = new GLib.MainLoop( null, false );
-    logger.info( "fsonetworkd => mainloop" );
-    Posix.signal( Posix.SIGINT, sighandler );
-    Posix.signal( Posix.SIGTERM, sighandler );
-    // enable for release version?
-    //Posix.signal( Posix.SIGBUS, sighandler );
-    //Posix.signal( Posix.SIGSEGV, sighandler );
-    mainloop.run();
-    logger.info( "mainloop => fsonetworkd" );
+    if ( count > 0 )
+    {
+        mainloop = new GLib.MainLoop( null, false );
+        logger.info( "fsonetworkd => mainloop" );
+        Posix.signal( Posix.SIGINT, sighandler );
+        Posix.signal( Posix.SIGTERM, sighandler );
+        // enable for release version?
+        //Posix.signal( Posix.SIGBUS, sighandler );
+        //Posix.signal( Posix.SIGSEGV, sighandler );
+        mainloop.run();
+        logger.info( "mainloop => fsonetworkd" );
+    }
     logger.info( "fsonetworkd shutdown." );
     return 0;
 }
