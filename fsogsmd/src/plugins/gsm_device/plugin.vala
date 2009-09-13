@@ -88,12 +88,14 @@ class GsmDevice.Device :
             return;
         }
 
-        modem = (FsoGsm.Modem) Object.new( modemclass );
-        logger.info( "Ready. Using modem '%s'".printf( modemtype ) );
-
+        // FIXME use resource handling
         Idle.add( onInitFromMainloop );
 
-        // TODO: Register dbus service and object
+        subsystem.registerServiceName( FsoFramework.GSM.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+
+        modem = (FsoGsm.Modem) Object.new( modemclass );
+        logger.info( "Ready. Using modem '%s'".printf( modemtype ) );
     }
 
     public override string repr()
@@ -145,19 +147,19 @@ class GsmDevice.Device :
         return 0;
     }
 
-    public async void set_antenna_power (bool antenna_power)
+    public async void set_antenna_power(bool antenna_power)
     {
     }
 
-    public async void set_microphone_muted (bool muted)
+    public async void set_microphone_muted(bool muted)
     {
     }
 
-    public async void set_sim_buffers_sms (bool sim_buffers_sms)
+    public async void set_sim_buffers_sms(bool sim_buffers_sms)
     {
     }
 
-    public async void set_speaker_volume (int volume)
+    public async void set_speaker_volume(int volume)
     {
     }
 }
