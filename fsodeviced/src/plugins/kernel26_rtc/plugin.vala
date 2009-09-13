@@ -40,6 +40,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
     private string sysfsnode;
     private string devnode;
     private int rtc_fd;
+    private IOChannel channel;
     private static uint counter;
 
     public Rtc( FsoFramework.Subsystem subsystem, string sysfsnode )
@@ -50,19 +51,50 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
 
         rtc_fd = Posix.open( this.devnode, Posix.O_RDONLY );
         if ( rtc_fd == -1 )
+        {
             logger.warning( "Can't open %s (%s). Full RTC control not available.".printf( devnode, Posix.strerror( Posix.errno ) ) );
+        }
+        else
+        {
+            channel = new IOChannel.unix_new( rtc_fd );
+            channel.add_watch( IOCondition.IN, onInputEvent );
+        }
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          "%s/%u".printf( FsoFramework.Device.RtcServicePath, counter++ ),
                                          this );
 
-        logger.info( "created new Rtc object." );
+        logger.info( "Created new Rtc object." );
     }
 
     public override string repr()
     {
         return "<FsoFramework.Device.Rtc @ %s : %s>".printf( sysfsnode, devnode );
+    }
+
+    public bool onInputEvent( IOChannel source, IOCondition condition )
+    {
+        if ( source != channel )
+        {
+            logger.error( "Bogus onInputEvent for RTC channel" );
+        }
+        else
+        {
+            var buf = new char[1024];
+            var bytesread = Posix.read( source.unix_get_fd(), buf, 1024 );
+            if ( bytesread == 0 )
+            {
+                logger.warning( "Could not read from input device fd %d.".printf( source.unix_get_fd() ) );
+            }
+            else
+            {
+                logger.debug( "Read %d bytes from RTC".printf( (int)bytesread ) );
+            }
+        }
+        var now = TimeVal();
+        this.alarm( (int)now.tv_sec ); // send dbus signal
+        return true;
     }
 
     //
@@ -135,7 +167,12 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         var res = Posix.ioctl( rtc_fd, Linux26.Rtc.RTC_WKALM_SET, &alarm );
         if ( res == -1 )
             throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
+        this.wakeup_time_changed( seconds_since_epoch ); // send dbus signal
     }
+
+    // DBUS SIGNALS
+    /* public void wakeup_time_changed( int seconds_since_epoch ); */
+    /* public void alarm( int seconds_since_epoch ); */
 }
 
 } /* namespace */
