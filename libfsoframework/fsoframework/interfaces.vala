@@ -64,6 +64,17 @@ namespace FsoFramework
         public const string RtcServicePath = ServicePathPrefix + "/RTC";
     }
 
+    namespace GSM
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ogsmd";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".GSM";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/GSM";
+
+        public const string DeviceServiceFace = ServiceFacePrefix + ".Device";
+        public const string DeviceServicePath = ServicePathPrefix + "/Device";
+    }
+
     namespace Network
     {
         public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".onetworkd";
