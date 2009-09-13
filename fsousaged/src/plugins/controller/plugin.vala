@@ -632,7 +632,7 @@ public class Controller : FsoFramework.AbstractObject
     public void register_resource( DBus.BusName sender, string name, DBus.ObjectPath path ) throws FreeSmartphone.UsageError, DBus.Error
     {
         message( "register_resource called with parameters: %s %s %s", sender, name, path );
-        if ( name in resources )
+        if ( name in resources.get_keys() )
             throw new FreeSmartphone.UsageError.RESOURCE_EXISTS( "Resource %s already registered".printf( name ) );
 
         var r = new Resource( name, sender, path );

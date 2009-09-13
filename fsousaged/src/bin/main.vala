@@ -39,21 +39,24 @@ public static int main( string[] args )
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
     logger.info( "loaded %u plugins".printf( count ) );
-    mainloop = new GLib.MainLoop( null, false );
-    logger.info( "%s => mainloop".printf( bin ) );
-    Posix.signal( Posix.SIGINT, sighandler );
-    Posix.signal( Posix.SIGTERM, sighandler );
-    Posix.signal( Posix.SIGBUS, sighandler );
-    Posix.signal( Posix.SIGSEGV, sighandler );
+    if ( count > 0 )
+    {
+        mainloop = new GLib.MainLoop( null, false );
+        logger.info( "%s => mainloop".printf( bin ) );
+        Posix.signal( Posix.SIGINT, sighandler );
+        Posix.signal( Posix.SIGTERM, sighandler );
+        Posix.signal( Posix.SIGBUS, sighandler );
+        Posix.signal( Posix.SIGSEGV, sighandler );
 
-    /*
-    var ok = FsoFramework.UserGroupHandling.switchToUserAndGroup( "nobody", "nogroup" );
-    if ( !ok )
-        logger.warning( "Unable to drop privileges." );
-    */
+        /*
+        var ok = FsoFramework.UserGroupHandling.switchToUserAndGroup( "nobody", "nogroup" );
+        if ( !ok )
+            logger.warning( "Unable to drop privileges." );
+        */
 
-    mainloop.run();
-    logger.info( "mainloop => %s".printf( bin ) );
+        mainloop.run();
+        logger.info( "mainloop => %s".printf( bin ) );
+    }
     logger.info( "%s exit".printf( bin ) );
     return 0;
 }
