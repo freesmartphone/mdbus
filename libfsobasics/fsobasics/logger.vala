@@ -223,7 +223,8 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     public void critical( string message )
     {
         write( format( message, "CRITICAL" ) );
-        assert_not_reached();
+        stderr.printf( "Aborting due to call to logger.critical() error\n" );
+        Posix.exit( Posix.EXIT_FAILURE );
         //FIXME: Trigger dumping a backtrace, if possible
     }
 

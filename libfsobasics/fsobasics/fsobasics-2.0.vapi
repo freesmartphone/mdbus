@@ -57,9 +57,9 @@ namespace FsoFramework {
 		protected string domain;
 		protected uint level;
 		protected ReprDelegate reprdelegate;
+		public AbstractLogger (string domain);
 		protected virtual string format (string message, string level);
 		public static string levelToString (GLib.LogLevelFlags level);
-		public AbstractLogger (string domain);
 		public static GLib.LogLevelFlags stringToLevel (string level);
 		protected virtual void write (string message);
 	}
@@ -76,13 +76,13 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsobasics.h")]
 	public class SmartKeyFile : GLib.Object {
+		public SmartKeyFile ();
 		public bool boolValue (string section, string key, bool defaultvalue = false);
 		public bool hasKey (string section, string key);
 		public bool hasSection (string section);
 		public int intValue (string section, string key, int defaultvalue = 0);
 		public GLib.List<string> keysWithPrefix (string section, string? prefix = null);
 		public bool loadFromFile (string filename);
-		public SmartKeyFile ();
 		public GLib.List<string> sectionsWithPrefix (string? prefix = null);
 		public string[]? stringListValue (string section, string key, string[]? defaultvalue = null);
 		public string stringValue (string section, string key, string defaultvalue = "");
@@ -93,8 +93,8 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsobasics.h")]
 	public class SyslogLogger : FsoFramework.AbstractLogger {
-		protected override string format (string message, string level);
 		public SyslogLogger (string domain);
+		protected override string format (string message, string level);
 		protected override void write (string message);
 	}
 	[CCode (cheader_filename = "fsobasics.h")]
