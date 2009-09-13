@@ -21,7 +21,9 @@ using GLib;
 
 namespace GsmDevice { const string MODULE_NAME = "fsogsm.gsm_device"; }
 
-class GsmDevice.Device : FsoFramework.AbstractObject
+class GsmDevice.Device :
+    FreeSmartphone.GSM.Device,
+    FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
     static FsoGsm.Modem modem;
@@ -90,6 +92,63 @@ class GsmDevice.Device : FsoFramework.AbstractObject
         else
             logger.info( "Modem opened successfully" );
         return false; // don't call me again
+    }
+
+    //
+    // DBUS
+    //
+    public bool get_antenna_power () throws DBus.Error
+    {
+        return false;
+    }
+
+    public GLib.HashTable<string,GLib.Value?> get_features () throws DBus.Error
+    {
+        var res = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        return res;
+    }
+
+    public GLib.HashTable<string,GLib.Value?> get_info () throws DBus.Error
+    {
+        var res = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        return res;
+    }
+
+    public bool get_microphone_muted () throws DBus.Error
+    {
+        return false;
+    }
+
+    public void get_power_status (out string status, out int level) throws DBus.Error
+    {
+        status = "";
+        level = 0;
+    }
+
+    public bool get_sim_buffers_sms () throws DBus.Error
+    {
+        return false;
+    }
+
+    public int get_speaker_volume () throws DBus.Error
+    {
+        return 0;
+    }
+
+    public void set_antenna_power (bool antenna_power) throws DBus.Error
+    {
+    }
+
+    public void set_microphone_muted (bool muted) throws DBus.Error
+    {
+    }
+
+    public void set_sim_buffers_sms (bool sim_buffers_sms) throws DBus.Error
+    {
+    }
+
+    public void set_speaker_volume (int volume) throws DBus.Error
+    {
     }
 }
 
