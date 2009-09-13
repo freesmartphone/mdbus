@@ -148,6 +148,10 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
 
     public void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
+        var rtctime = get_current_time();
+        if ( rtctime >= seconds_since_epoch )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "RTC Wakeup time not in the future" );
+
         Linux26.Rtc.WakeAlarm alarm = {};
         var t = GLib.Time.gm( (time_t) seconds_since_epoch );
 
