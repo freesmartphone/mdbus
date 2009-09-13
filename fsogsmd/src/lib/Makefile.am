@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(GEE_CFLAGS) \
 	$(GSMMUX_CFLAGS) \
 	$(NULL)
 
@@ -17,6 +18,7 @@ VALAC_ARGS = \
 	--pkg dbus-glib-1 \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
+	--pkg gee-1.0 \
 	--pkg gsm0710mux-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
@@ -56,6 +58,7 @@ $(BUILT_SOURCES): $(libfsogsm_la_VALASOURCES)
 libfsogsm_la_LIBADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
+	$(GEE_LIBS) \
 	$(GSMMUX_LIBS) \
 	$(NULL)
 

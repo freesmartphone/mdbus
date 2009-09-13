@@ -95,6 +95,7 @@ class GsmDevice.Device :
         subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
 
         modem = (FsoGsm.Modem) Object.new( modemclass );
+        // modem knows about mediator factory
         logger.info( "Ready. Using modem '%s'".printf( modemtype ) );
     }
 
@@ -117,6 +118,12 @@ class GsmDevice.Device :
     //
     public async bool get_antenna_power()
     {
+        /*
+        mediator = factory( 
+        
+        
+        
+        */
         return false;
     }
 

@@ -23,7 +23,12 @@
  * Do _not_ add vendor-specific mediators here, instead add them to your modem plugin.
  **/
 
-public class FsoGsm.DeviceGetAntennaPower : FsoGsm.AbstractMediator
+using Gee;
+
+namespace FsoGsm
+{
+
+public class DeviceGetAntennaPower : AbstractMediator
 {
     //TODO: needs to get the dbus reply handlers from the creator
     public DeviceGetAntennaPower()
@@ -39,8 +44,13 @@ public class FsoGsm.DeviceGetAntennaPower : FsoGsm.AbstractMediator
 
         var cfun = command as PlusCFUN;
         cfun.parse( response[0] );
-
-        debug( "calling dbus answer with '%d'", cfun.fun );
     }
 }
 
+public void registerGenericMediators( HashMap<string,Type> table )
+{
+    // register commands
+    table[ "DeviceGetAntennaPower" ] = typeof( DeviceGetAntennaPower );
+}
+
+} // namespace FsoGsm

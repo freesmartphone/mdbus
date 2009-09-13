@@ -18,20 +18,21 @@
  */
 
 using GLib;
+using Gee;
 using FsoGsm;
 
-HashTable<string, FsoGsm.AtCommand> commands;
+HashMap<string,FsoGsm.AtCommand> commands;
 
 void setup()
 {
-    commands = new HashTable<string, FsoGsm.AtCommand>( GLib.str_hash, GLib.str_equal );
+    commands = new HashMap<string,FsoGsm.AtCommand>();
     registerGenericAtCommands( commands );
 }
 
 AtCommand atCommandFactory( string command )
 {
     assert( commands != null );
-    var cmd = commands.lookup( command );
+    AtCommand? cmd = commands[ command ];
     assert( cmd != null );
     return cmd;
 }

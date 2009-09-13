@@ -5,18 +5,26 @@ NULL =
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GEE_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsogsm.la
+progs_ldadd = \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(GEE_LIBS) \
+	$(DBUS_LIBS) \
+	$(top_srcdir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ../../lib \
 	--pkg posix \
 	--pkg glib-2.0 \
+	--pkg gee-1.0 \
 	--pkg dbus-glib-1 \
 	--pkg fso-glib-1.0 \
 	--pkg gsm0710mux-1.0 \

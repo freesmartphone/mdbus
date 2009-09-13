@@ -24,6 +24,8 @@
  * Do _not_ add vendor-specific commands here, instead add them to your modem plugin.
  **/
 
+using Gee;
+
 namespace FsoGsm
 {
 
@@ -78,7 +80,7 @@ public class PlusCOPS_Test : AbstractAtCommand
         public string longname;
         public string mccmnc;
     }
-    public List<Info?> info;
+    public GLib.List<Info?> info;
 
     public PlusCOPS_Test()
     {
@@ -89,7 +91,7 @@ public class PlusCOPS_Test : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        info = new List<Info?>();
+        info = new GLib.List<Info?>();
         do
         {
             var i = Info() { status = to_int( "status" ),
@@ -288,19 +290,19 @@ public class PlusCGMR : AbstractAtCommand
     }
 }
 
-public void registerGenericAtCommands( GLib.HashTable<string, AtCommand> table )
+public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // register commands
-    table.insert( "+CGMM",           new FsoGsm.PlusCGMM() );
-    table.insert( "+CGMI",           new FsoGsm.PlusCGMI() );
-    table.insert( "+COPS=?",         new FsoGsm.PlusCOPS_Test() );
-    table.insert( "+CPIN",           new FsoGsm.PlusCPIN() );
-    table.insert( "+FCLASS",         new FsoGsm.PlusFCLASS() );
-    table.insert( "+CGCLASS",        new FsoGsm.PlusCGCLASS() );
-    table.insert( "+CFUN",           new FsoGsm.PlusCFUN() );
-    table.insert( "+COPS",           new FsoGsm.PlusCOPS() );
-    table.insert( "+CGSN",           new FsoGsm.PlusCGSN() );
-    table.insert( "+CGMR",           new FsoGsm.PlusCGMR() );
+    table[ "+CGMM"] =            new FsoGsm.PlusCGMM();
+    table[ "+CGMI"] =            new FsoGsm.PlusCGMI();
+    table[ "+COPS=?"] =          new FsoGsm.PlusCOPS_Test();
+    table[ "+CPIN"] =            new FsoGsm.PlusCPIN();
+    table[ "+FCLASS"] =          new FsoGsm.PlusFCLASS();
+    table[ "+CGCLASS"] =         new FsoGsm.PlusCGCLASS();
+    table[ "+CFUN"] =            new FsoGsm.PlusCFUN();
+    table[ "+COPS"] =            new FsoGsm.PlusCOPS();
+    table[ "+CGSN"] =            new FsoGsm.PlusCGSN();
+    table[ "+CGMR"] =            new FsoGsm.PlusCGMR();
 }
 
 } /* namespace FsoGsm */

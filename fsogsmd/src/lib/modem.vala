@@ -17,6 +17,8 @@
  *
  */
 
+using Gee;
+
 namespace FsoGsm { public FsoGsm.Modem theModem; }
 
 public abstract interface FsoGsm.Modem : GLib.Object
@@ -44,7 +46,8 @@ public abstract interface FsoGsm.Modem : GLib.Object
         /** Suspended **/
         SUSPENDED,
         /** Resume commands are being sent **/
-        RESUMING
+        RESUMING,
+        /* ALIVE */
     }
 
     public abstract bool open();
@@ -52,12 +55,13 @@ public abstract interface FsoGsm.Modem : GLib.Object
     //FIXME: Should be Status with Vala >= 0.7
     public abstract int status();
 
-    public abstract FsoGsm.AtCommand atCommandFactory( string command );
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
+    public abstract string[] commandSequence( string purpose );
+
+    public abstract Type mediatorFactory( string mediator );
+    public abstract FsoGsm.AtCommand atCommandFactory( string command );
 
     public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
-
-    public abstract string[] commandSequence( string purpose );
 }
 
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
@@ -71,8 +75,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     protected FsoGsm.Modem.Status modem_status;
 
-    protected GLib.HashTable<string, FsoGsm.Channel> channels;
-    protected GLib.HashTable<string, FsoGsm.AtCommand> commands;
+    protected HashMap<string,FsoGsm.Channel> channels;
+    protected HashMap<string,FsoGsm.AtCommand> commands;
+    protected HashMap<string,Type> mediators;
 
     construct
     {
@@ -85,8 +90,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
         modem_init = config.stringListValue( "fsogsm", "modem_init", { "Z" } );
 
-        channels = new HashTable<string, FsoGsm.Channel>( GLib.str_hash, GLib.str_equal );
+        channels = new HashMap<string,FsoGsm.Channel>();
 
+        registerMediators();
         registerAtCommands();
         createChannels();
 
@@ -95,18 +101,33 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
     }
 
+    private void registerMediators()
+    {
+        mediators = new HashMap<string,Type>();
+        registerGenericMediators( mediators );
+        registerCustomMediators( mediators );
+    }
+
     private void registerAtCommands()
     {
-        commands = new HashTable<string, FsoGsm.AtCommand>( GLib.str_hash, GLib.str_equal );
+        commands = new HashMap<string,FsoGsm.AtCommand>();
         registerGenericAtCommands( commands );
         registerCustomAtCommands( commands );
+    }
+
+    /**
+     * Override this to register additional mediators specific to your modem or
+     * override generic mediators with modem-specific versions.
+     **/
+    protected virtual void registerCustomMediators( HashMap<string,Type> mediators )
+    {
     }
 
     /**
      * Override this to register additional AT commands specific to your modem or
      * override generic AT commands with modem-specific versions.
      **/
-    protected virtual void registerCustomAtCommands( HashTable<string, FsoGsm.AtCommand> commands )
+    protected virtual void registerCustomAtCommands( HashMap<string,FsoGsm.AtCommand> commands )
     {
     }
 
@@ -124,7 +145,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         ensureStatus( Status.CLOSED );
 
         var channels = this.channels.get_values();
-        logger.info( "will open %u channel(s)...".printf( channels.length() ) );
+        logger.info( "will open %u channel(s)...".printf( channels.size ) );
         foreach( var channel in channels )
         {
             if (!channel.open())
@@ -148,21 +169,25 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return modem_status;
     }
 
+    public Type mediatorFactory( string mediator )
+    {
+        Type? typ = mediators[mediator];
+        assert( typ != null );
+        return typ;
+    }
+
     public AtCommand atCommandFactory( string command )
     {
-        var cmd = commands.lookup( command );
+        var cmd = commands[command];
         assert( cmd != null );
         return cmd;
     }
 
     public void registerChannel( string name, FsoGsm.Channel channel )
     {
-        if ( channels == null )
-        {
-            channels = new HashTable<string, FsoGsm.Channel>( str_hash, str_equal );
-        }
-        assert( channels.lookup( name ) == null );
-        channels.insert( name, channel );
+        assert( channels != null );
+        assert( channels[name] == null );
+        channels[name] = channel;
     }
 
     public void ensureStatus( int current )
