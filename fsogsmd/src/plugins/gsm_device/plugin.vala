@@ -19,10 +19,26 @@
 
 using GLib;
 
+[DBus (name = "org.freesmartphone.GSM.Device")]
+public interface OrgFreeSmartphoneGsmDevice
+{
+    public abstract async bool get_antenna_power () /* throws DBus.Error */ ;
+    public abstract async GLib.HashTable<string,GLib.Value?> get_features () /* throws DBus.Error */ ;
+    public abstract async GLib.HashTable<string,GLib.Value?> get_info () /* throws DBus.Error */ ;
+    public abstract async bool get_microphone_muted () /* throws DBus.Error */ ;
+    public abstract async bool get_sim_buffers_sms () /* throws DBus.Error */ ;
+    public abstract async int get_speaker_volume () /* throws DBus.Error */ ;
+    public abstract async void set_antenna_power (bool antenna_power) /* throws DBus.Error */ ;
+    public abstract async void set_microphone_muted (bool muted) /* throws DBus.Error */ ;
+    public abstract async void set_sim_buffers_sms (bool sim_buffers_sms) /* throws DBus.Error */ ;
+    public abstract async void set_speaker_volume (int volume) /* throws DBus.Error */ ;
+    public signal void keypad_event (string name, bool pressed);
+}
+
 namespace GsmDevice { const string MODULE_NAME = "fsogsm.gsm_device"; }
 
 class GsmDevice.Device :
-    FreeSmartphone.GSM.Device,
+    OrgFreeSmartphoneGsmDevice,
     FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
@@ -97,57 +113,51 @@ class GsmDevice.Device :
     //
     // DBUS
     //
-    public bool get_antenna_power () throws DBus.Error
+    public async bool get_antenna_power()
     {
         return false;
     }
 
-    public GLib.HashTable<string,GLib.Value?> get_features () throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_features()
     {
-        var res = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
-        return res;
+        var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        return r;
     }
 
-    public GLib.HashTable<string,GLib.Value?> get_info () throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_info()
     {
-        var res = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
-        return res;
+        var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        return r;
     }
 
-    public bool get_microphone_muted () throws DBus.Error
-    {
-        return false;
-    }
-
-    public void get_power_status (out string status, out int level) throws DBus.Error
-    {
-        status = "";
-        level = 0;
-    }
-
-    public bool get_sim_buffers_sms () throws DBus.Error
+    public async bool get_microphone_muted()
     {
         return false;
     }
 
-    public int get_speaker_volume () throws DBus.Error
+    public async bool get_sim_buffers_sms()
+    {
+        return false;
+    }
+
+    public async int get_speaker_volume()
     {
         return 0;
     }
 
-    public void set_antenna_power (bool antenna_power) throws DBus.Error
+    public async void set_antenna_power (bool antenna_power)
     {
     }
 
-    public void set_microphone_muted (bool muted) throws DBus.Error
+    public async void set_microphone_muted (bool muted)
     {
     }
 
-    public void set_sim_buffers_sms (bool sim_buffers_sms) throws DBus.Error
+    public async void set_sim_buffers_sms (bool sim_buffers_sms)
     {
     }
 
-    public void set_speaker_volume (int volume) throws DBus.Error
+    public async void set_speaker_volume (int volume)
     {
     }
 }
