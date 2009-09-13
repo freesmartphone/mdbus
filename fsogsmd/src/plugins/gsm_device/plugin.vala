@@ -34,7 +34,11 @@ class GsmDevice.Device : FsoFramework.AbstractObject
     public Device( FsoFramework.Subsystem subsystem )
     {
         var modemtype = config.stringValue( "fsogsm", "modem_type", "DummyModem" );
-        assert( modemtype != "DummyModem" ); // dummy modem not implemented yet
+        if ( modemtype == "DummyModem" )
+        {
+            logger.critical( "modem_type not specified and DummyModem not implemented yet" );
+            return;
+        }
         string typename;
 
         switch ( modemtype )
@@ -55,7 +59,7 @@ class GsmDevice.Device : FsoFramework.AbstractObject
                 typename = "CinterionMc75Modem";
                 break;
             default:
-                warning( "Invalid modem_type '%s'; corresponding modem plugin loaded?".printf( modemtype ) );
+                logger.critical( "Invalid modem_type '%s'; corresponding modem plugin loaded?".printf( modemtype ) );
                 return;
         }
 
@@ -67,11 +71,16 @@ class GsmDevice.Device : FsoFramework.AbstractObject
         }
 
         modem = (FsoGsm.Modem) Object.new( modemclass );
-        logger.info( "Ready. Using modem '%s".printf( modemtype ) );
+        logger.info( "Ready. Using modem '%s'".printf( modemtype ) );
 
         Idle.add( onInitFromMainloop );
 
         // TODO: Register dbus service and object
+    }
+
+    public override string repr()
+    {
+        return "<GsmDevice>";
     }
 
     public bool onInitFromMainloop()
@@ -82,12 +91,6 @@ class GsmDevice.Device : FsoFramework.AbstractObject
             logger.info( "Modem opened successfully" );
         return false; // don't call me again
     }
-
-    public override string repr()
-    {
-        return "<GsmDevice>";
-    }
-
 }
 
 List<GsmDevice.Device> instances;

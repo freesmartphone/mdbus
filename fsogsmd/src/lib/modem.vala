@@ -81,7 +81,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         FsoGsm.theModem = this;
 
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
-        modem_port = config.stringValue( "fsogsm", "modem_port", "file:/dev/null" );
+        modem_port = config.stringValue( "fsogsm", "modem_port", "/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
         modem_init = config.stringListValue( "fsogsm", "modem_init", { "Z" } );
 
