@@ -50,7 +50,7 @@ namespace FreeSmartphone.MusicPlayer.Config
     public const string MUSIC_PLAYER_GROUP = "MusicPlayer";
     public const string FORMAT_GROUP = "Formats";
     //Timout for quering the current position in milliseconds
-    public const int poll_timeout = 100;
+    public const int poll_timeout = 1000;
     //precision of the progress. should be power 0f 10 in nanoseconds
-    public const int precision = 1000000; 
+    public const int precision = 1; 
 }
