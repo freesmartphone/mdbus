@@ -388,10 +388,11 @@ namespace FreeSmartphone.MusicPlayer
         }
         public int get_volume() throws DBus.Error
         {
-            double ret = 0.0;
-            Gst.ChildProxy.get( volume, "volume", out ret );
-            debug("Volume: %lf", ret );
-            return (int)( ret * 100.0 );
+            Gst.Value ret = Gst.Value();
+            ret.init( typeof( double ) );
+            Gst.ChildProxy.get_property( volume, "volume", out ret );
+            debug("Volume: %lf", ret.get_double() );
+            return (int)( ret.get_double() * 100.0 );
         }
         public void set_volume( int vol ) throws MusicPlayerError, DBus.Error
         {
