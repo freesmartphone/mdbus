@@ -66,6 +66,19 @@ namespace FsoFramework {
 		[CCode (cheader_filename = "fsoframework.h")]
 		public const string ServicePathPrefix;
 	}
+	[CCode (cprefix = "FsoFrameworkGSM", lower_case_cprefix = "fso_framework_gsm_")]
+	namespace GSM {
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string DeviceServiceFace;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string DeviceServicePath;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string ServiceDBusName;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string ServiceFacePrefix;
+		[CCode (cheader_filename = "fsoframework.h")]
+		public const string ServicePathPrefix;
+	}
 	[CCode (cprefix = "FsoFrameworkNetwork", lower_case_cprefix = "fso_framework_network_")]
 	namespace Network {
 		[CCode (cheader_filename = "fsoframework.h")]
@@ -161,7 +174,7 @@ namespace FsoFramework {
 		public override bool registerServiceName (string servicename);
 		public override bool registerServiceObject (string servicename, string objectname, GLib.Object obj);
 	}
-	[CCode (ref_function = "fso_framework_mixer_control_ref", unref_function = "fso_framework_mixer_control_unref", param_spec_function = "fso_framework_param_spec_mixer_control", cheader_filename = "fsoframework.h")]
+	[CCode (ref_function = "fso_framework_mixer_control_ref", unref_function = "fso_framework_mixer_control_unref", cheader_filename = "fsoframework.h")]
 	public class MixerControl {
 		public Alsa.ElemId eid;
 		public Alsa.ElemInfo info;
@@ -246,9 +259,4 @@ namespace FsoFramework {
 	public static FsoFramework.DBusServiceNotifier theDBusServiceNotifier ();
 	[CCode (cheader_filename = "fsoframework.h")]
 	public static FsoFramework.SmartKeyFile theMasterKeyFile ();
-}
-[CCode (cheader_filename = "fsoframework.h")]
-[DBus (name = "org.freesmartphone.DBus.Objects")]
-public interface DBusObjects {
-	public abstract void getNodes () throws DBus.Error;
 }

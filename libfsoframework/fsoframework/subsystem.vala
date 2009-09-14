@@ -156,11 +156,14 @@ public class FsoFramework.BaseSubsystem : FsoFramework.AbstractSubsystem
 /**
  * Subsystem query interface
  */
+
+/*
 [DBus (name = "org.freesmartphone.DBus.Objects")]
 public abstract interface DBusObjects
 {
     public abstract void getNodes() throws DBus.Error;
 }
+*/
 
 /**
  * DBusSubsystem
