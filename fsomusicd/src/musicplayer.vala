@@ -396,12 +396,11 @@ namespace FreeSmartphone.MusicPlayer
         }
         public void set_volume( int vol ) throws MusicPlayerError, DBus.Error
         {
-            if( vol > 100 )
-                 vol = 100;
+            if( vol > 1000 )
+                 vol = 1000;
             else if( vol < 0 )
                  vol = 0;
-            debug( "type: %s Gst.object: %s GLib.Object: %s", volume.get_type().name(), (volume is Gst.Object).to_string(), (volume is GLib.Object).to_string());
-            Gst.ChildProxy.set( volume, "volume", (double)( vol / 100.0 * 10.0 ) );
+            Gst.ChildProxy.set( volume, "volume", (double)( vol / 100.0 ) );
         }
         //
         // None DBus Interface methods
