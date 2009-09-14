@@ -61,6 +61,8 @@ public abstract interface FsoGsm.Modem : GLib.Object
     public abstract Type mediatorFactory( string mediator );
     public abstract FsoGsm.AtCommand atCommandFactory( string command );
 
+    public abstract FsoGsm.Channel channel( string category );
+
     public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
 }
 
@@ -167,6 +169,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     public int /* FsoGsm.Modem.Status */ status()
     {
         return modem_status;
+    }
+
+    public virtual FsoGsm.Channel channel( string category )
+    {
+        return channels[category];
     }
 
     public Type mediatorFactory( string mediator )

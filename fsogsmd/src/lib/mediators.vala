@@ -30,11 +30,20 @@ namespace FsoGsm
 
 public class DeviceGetAntennaPower : AbstractMediator
 {
-    //TODO: needs to get the dbus reply handlers from the creator
-    public DeviceGetAntennaPower()
+    SourceFunc cb;
+    public bool antenna_power;
+
+    construct
     {
         debug( "DeviceGetAntennaPower()" );
-        PlusCFUN cfun = theModem.atCommandFactory( "PlusCFUN" ) as PlusCFUN;
+    }
+
+    public void run( SourceFunc cb )
+    {
+        debug( "DeviceGetAntennaPower.run()" );
+        this.cb = cb;
+
+        PlusCFUN cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
         enqueue( cfun, cfun.query(), onResponse );
     }
 
@@ -44,6 +53,10 @@ public class DeviceGetAntennaPower : AbstractMediator
 
         var cfun = command as PlusCFUN;
         cfun.parse( response[0] );
+
+        antenna_power = cfun.fun == 1;
+
+        cb(); // same effect as w/ Idle.add( cb )
     }
 }
 

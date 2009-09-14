@@ -22,16 +22,16 @@ using GLib;
 [DBus (name = "org.freesmartphone.GSM.Device")]
 public interface OrgFreeSmartphoneGsmDevice
 {
-    public abstract async bool get_antenna_power () /* throws DBus.Error */ ;
-    public abstract async GLib.HashTable<string,GLib.Value?> get_features () /* throws DBus.Error */ ;
-    public abstract async GLib.HashTable<string,GLib.Value?> get_info () /* throws DBus.Error */ ;
-    public abstract async bool get_microphone_muted () /* throws DBus.Error */ ;
-    public abstract async bool get_sim_buffers_sms () /* throws DBus.Error */ ;
-    public abstract async int get_speaker_volume () /* throws DBus.Error */ ;
-    public abstract async void set_antenna_power (bool antenna_power) /* throws DBus.Error */ ;
-    public abstract async void set_microphone_muted (bool muted) /* throws DBus.Error */ ;
-    public abstract async void set_sim_buffers_sms (bool sim_buffers_sms) /* throws DBus.Error */ ;
-    public abstract async void set_speaker_volume (int volume) /* throws DBus.Error */ ;
+    public abstract async bool get_antenna_power () throws DBus.Error;
+    public abstract async GLib.HashTable<string,GLib.Value?> get_features () throws DBus.Error;
+    public abstract async GLib.HashTable<string,GLib.Value?> get_info () throws DBus.Error;
+    public abstract async bool get_microphone_muted () throws DBus.Error;
+    public abstract async bool get_sim_buffers_sms () throws DBus.Error;
+    public abstract async int get_speaker_volume () throws DBus.Error;
+    public abstract async void set_antenna_power (bool antenna_power) throws DBus.Error;
+    public abstract async void set_microphone_muted (bool muted) throws DBus.Error;
+    public abstract async void set_sim_buffers_sms (bool sim_buffers_sms) throws DBus.Error;
+    public abstract async void set_speaker_volume (int volume) throws DBus.Error;
     public signal void keypad_event (string name, bool pressed);
 }
 
@@ -116,57 +116,55 @@ class GsmDevice.Device :
     //
     // DBUS
     //
-    public async bool get_antenna_power()
+    public async bool get_antenna_power() throws DBus.Error
     {
-        /*
-        mediator = factory( 
-        
-        
-        
-        */
-        return false;
+        var t = modem.mediatorFactory( "DeviceGetAntennaPower" );
+        var m = Object.new( t ) as FsoGsm.DeviceGetAntennaPower;
+        m.run( get_antenna_power.callback );
+        yield;
+        return m.antenna_power;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_features()
+    public async GLib.HashTable<string,GLib.Value?> get_features() throws DBus.Error
     {
         var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
         return r;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_info()
+    public async GLib.HashTable<string,GLib.Value?> get_info() throws DBus.Error
     {
         var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
         return r;
     }
 
-    public async bool get_microphone_muted()
+    public async bool get_microphone_muted() throws DBus.Error
     {
         return false;
     }
 
-    public async bool get_sim_buffers_sms()
+    public async bool get_sim_buffers_sms() throws DBus.Error
     {
         return false;
     }
 
-    public async int get_speaker_volume()
+    public async int get_speaker_volume() throws DBus.Error
     {
         return 0;
     }
 
-    public async void set_antenna_power(bool antenna_power)
+    public async void set_antenna_power(bool antenna_power) throws DBus.Error
     {
     }
 
-    public async void set_microphone_muted(bool muted)
+    public async void set_microphone_muted(bool muted) throws DBus.Error
     {
     }
 
-    public async void set_sim_buffers_sms(bool sim_buffers_sms)
+    public async void set_sim_buffers_sms(bool sim_buffers_sms) throws DBus.Error
     {
     }
 
-    public async void set_speaker_volume(int volume)
+    public async void set_speaker_volume(int volume) throws DBus.Error
     {
     }
 }

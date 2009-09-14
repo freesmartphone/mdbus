@@ -140,7 +140,14 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
     //FIXME: This works around a problem in Vala as we can't define a HashTable full with function pointers atm.
     public State dispatch( State curstate, char c )
     {
-        debug( "state = %d, feeding '%c'", curstate, c );
+        string s;
+        if ( c == '\n' )
+            s = "\\n";
+        else if ( c == '\r' )
+            s = "\\r";
+        else
+            s = "%c".printf( c );
+        debug( "state = %d, feeding '%s'", curstate, s );
         switch (curstate)
         {
             case State.START:

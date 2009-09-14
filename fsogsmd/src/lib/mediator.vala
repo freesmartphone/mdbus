@@ -30,6 +30,7 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
     protected void enqueue( FsoGsm.AtCommand command, string chars, FsoGsm.ResponseHandler handler )
     {
         debug( "enqueueing %s", Type.from_instance( command ).name() );
+        var channel = theModem.channel("main");
+        channel.enqueue( command, chars, handler );
     }
 }
-

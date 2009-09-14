@@ -56,9 +56,11 @@ PKG_CHECK_MODULES(GSMMUX,
 AC_SUBST(GSMMUX_CFLAGS)
 AC_SUBST(GSMMUX_LIBS)
 
+
+#  fso-glib-1.0 >= $FSO_GLIB_REQUIRED
+
 # fso-glib and framework
 PKG_CHECK_MODULES(FSO,
-  fso-glib-1.0 >= $FSO_GLIB_REQUIRED
   fsoframework-2.0 >= $FSO_REQUIRED
   fsotransport-2.0 >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
