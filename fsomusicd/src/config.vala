@@ -48,6 +48,7 @@ namespace FreeSmartphone.MusicPlayer.Config
     public const string PLAYLIST_MODE = "mode";
     public const string LAST_PLAYLIST = "last_playlist";
     public const string MUSIC_PLAYER_GROUP = "MusicPlayer";
+    public const string FORMAT_GROUP = "Formats";
     //Timout for quering the current position in milliseconds
     public const int poll_timeout = 100;
     //precision of the progress. should be power 0f 10 in nanoseconds

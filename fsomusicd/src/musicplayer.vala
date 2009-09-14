@@ -56,8 +56,11 @@ namespace FreeSmartphone.MusicPlayer
         private ObjectPath _current_playlist;
         private string playlist_path;
         private Gst.Pipeline audio_pipeline;
-        private Gst.Element playbin;
         private Gst.Bus audio_bus;
+        private Gst.Element volume;
+        private Gst.Element core_stream;
+        //Save some time to avoid recreating of the Pipeline
+        private string last_extension;
         private FreeSmartphone.MusicPlayer.State cur_state = FreeSmartphone.MusicPlayer.State.STOPPED;
         private FreeSmartphone.MusicPlayer.State _state { 
             get{ return this.cur_state; }
@@ -116,16 +119,13 @@ namespace FreeSmartphone.MusicPlayer
         construct
         {
             playlists = new HashTable<ObjectPath,Playlist>(str_hash, str_equal);
-            audio_pipeline = new Pipeline( "audio" );
-            playbin = ElementFactory.make( "playbin", "audio_player" );
-            audio_pipeline.add( playbin );
-            audio_bus = audio_pipeline.get_bus();
-            audio_bus.add_watch( bus_callback );
+            audio_pipeline = null;
+            last_extension = null;
         }
         ~MusicPlayer()
         {
             save();
-            playbin.set_state( Gst.State.NULL );
+            audio_pipeline.set_state( Gst.State.NULL );
         }
         //
         // org.freesmartphone.MusicPlayer
@@ -203,7 +203,70 @@ namespace FreeSmartphone.MusicPlayer
         }
         public void set_playing( string file ) throws MusicPlayerError, DBus.Error
         {
-            this.playbin.set( "uri", "file://" +  file );
+            string ext = file.rchr( file.len(), '.' );
+            if( last_extension != null && last_extension == ext )
+            {
+                audio_pipeline.set_state( Gst.State.NULL );
+                debug( "Same extension" );
+                var src = audio_pipeline.get_by_name( "source" );
+                src.set( "location", file );
+            }
+            else
+            {
+                debug( "Creating new pipeline" );
+                string[] confel = null;
+                try
+                {
+                    confel = key_file.get_string_list( Config.FORMAT_GROUP, ext );
+                }
+                catch (GLib.KeyFileError e)
+                {
+                    debug( "File type not supported: %s", ext );
+                    throw new MusicPlayerError.FILETYPE_NOT_SUPPORTED( "Extension %s not supported".printf( ext ) );
+                }
+
+                if( audio_pipeline != null )
+                    audio_pipeline.set_state( Gst.State.NULL );
+                var el = new string[confel.length + 9];
+
+                //TODO: add to config file
+                int i = 0;
+                el[i++] = "filesrc";
+                el[i++] = "location=%s".printf(file);
+                el[i++] = "name=filesource";
+                el[i++] = "!";
+                foreach( var e in confel )
+                {
+                    el[i++] = e;
+                }
+                el[i++] = "!";
+                el[i++] = "volume";
+                el[i++] = "name=volume";
+                el[i++] = "!";
+                el[i++] = "alsasink";
+
+                foreach( var e in el )
+                {
+                    debug( "Element: %s", e );
+                }
+
+                try
+                {
+                    var element = parse_launchv( el );
+                    audio_pipeline = element as Pipeline;
+                    volume = audio_pipeline.get_by_name( "volume" );
+                    core_stream = audio_pipeline.get_by_name( "core" );
+                    debug( "volume: %p", volume );
+                }
+                catch (GLib.Error e)
+                {
+                    error( "parsing arguments: %s", e.message );
+                }
+                audio_bus = audio_pipeline.get_bus();
+                audio_bus.add_watch( bus_callback );
+                last_extension = ext;
+                Source.remove( timeout_pos_handle );
+            }
             this.audio_pipeline.set_state( Gst.State.READY );
             this._state = FreeSmartphone.MusicPlayer.State.STOPPED;
 
@@ -270,7 +333,7 @@ namespace FreeSmartphone.MusicPlayer
         public void jump( int pos ) throws MusicPlayerError, DBus.Error
         {
             debug( "Jump to position: %ll", ((int64)pos) * 1000000000LL / Config.precision );
-            playbin.seek_simple( Gst.Format.TIME, Gst.SeekFlags.NONE, ((int64)pos) * 1000000000 / Config.precision );
+            audio_pipeline.seek_simple( Gst.Format.TIME, Gst.SeekFlags.NONE, ((int64)pos) * 1000000000 / Config.precision );
         }
         public ObjectPath[] get_playlists() throws MusicPlayerError, DBus.Error
         {
@@ -325,8 +388,8 @@ namespace FreeSmartphone.MusicPlayer
         }
         public int get_volume() throws DBus.Error
         {
-            double ret = 0;
-            playbin.get( "volume", out ret );
+            double ret = 0.0;
+            Gst.ChildProxy.get( volume, "volume", out ret );
             debug("Volume: %lf", ret );
             return (int)( ret * 100.0 );
         }
@@ -336,7 +399,8 @@ namespace FreeSmartphone.MusicPlayer
                  vol = 100;
             else if( vol < 0 )
                  vol = 0;
-            playbin.set( "volume", (double)( vol/100.0 ) );
+            debug( "type: %s Gst.object: %s GLib.Object: %s", volume.get_type().name(), (volume is Gst.Object).to_string(), (volume is GLib.Object).to_string());
+            Gst.ChildProxy.set( volume, "volume", (double)( vol / 100.0 * 10.0 ) );
         }
         //
         // None DBus Interface methods
@@ -452,9 +516,9 @@ namespace FreeSmartphone.MusicPlayer
         {
             Gst.Format fmt = Gst.Format.TIME;
             int64 cur;
-            if( playbin.query_position( ref fmt, out cur ) )
+            if( core_stream.query_position( ref fmt, out cur ) )
             {
-                current_position = (int)(cur / 1000000000 * Config.precision );
+                current_position = (int)(cur * Config.precision / 1000000000 );
             }
             else
             {

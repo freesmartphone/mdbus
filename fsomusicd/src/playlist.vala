@@ -30,7 +30,7 @@ namespace FreeSmartphone.MusicPlayer
         private unowned KeyFile key_file;
         private string _name;
         private List<string> files;
-        private static string[] extensions = { ".mp3", ".ogg", ".flac" };
+        private static string[] supported_extensions;
         private weak List<string> _current;
         private weak List<string> current
         {
@@ -94,8 +94,9 @@ namespace FreeSmartphone.MusicPlayer
             try
             {
                 position = kf.get_integer( name, Config.LAST_PLAYED );
+                supported_extensions = kf.get_keys( Config.FORMAT_GROUP );
                 load_from_file( Path.build_filename( Config.get_playlist_dir(), name ) );
-                current = files.nth( position );
+                _current = files.nth( position );
             }
             catch (GLib.Error e)
             {
@@ -129,6 +130,7 @@ namespace FreeSmartphone.MusicPlayer
         {
             files = new List<string>();
             this.position = 0;
+            debug("playlist construct");
             _current = files;
             this.mode = PlaylistMode.NORMAL;
         }
@@ -262,7 +264,7 @@ namespace FreeSmartphone.MusicPlayer
         public bool file_supported( string file )
         {
             var ext = file.rchr( file.len(), '.' ).down();
-            foreach( var e in extensions )
+            foreach( var e in supported_extensions )
             {
                 if( ext == e )
                 {
