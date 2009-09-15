@@ -31,6 +31,7 @@ namespace FreeSmartphone.MusicPlayer
         PAUSED,
         STOPPED
     }
+    [DBus (name="org.freesmartphone.MusicPlayer.MusicPlayerError")]
     public errordomain MusicPlayerError
     {
         NO_FILE_SELECTED,
@@ -39,7 +40,8 @@ namespace FreeSmartphone.MusicPlayer
         UNKNOWN_PLAYLIST,
         PLAYLIST_OUT_OF_FILES,
         FILE_NOT_FOUND,
-        FILETYPE_NOT_SUPPORTED
+        FILETYPE_NOT_SUPPORTED,
+        PROTOCOL_NOT_SUPPORTED
     }
     public const string BASE_OBJECT_PATH = "/org/freesmartphone/MusicPlayer";
     public const string BUSNAME = "org.freesmartphone.omusicd";
@@ -84,8 +86,8 @@ namespace FreeSmartphone.MusicPlayer
         public abstract void load_from_file( string filename ) throws PlaylistError, DBus.Error;
         public abstract string get_name() throws PlaylistError, DBus.Error;
         public abstract void change_name( string new_name ) throws PlaylistError, DBus.Error;
-        public abstract void set_mode( PlaylistMode m );
-        public abstract PlaylistMode get_mode();
+        public abstract void set_mode( PlaylistMode m ) throws PlaylistError, DBus.Error;
+        public abstract PlaylistMode get_mode() throws PlaylistError, DBus.Error;
         public abstract signal void name( string name );
         public abstract signal void playing( string file );
         public abstract signal void deleted();
@@ -94,6 +96,7 @@ namespace FreeSmartphone.MusicPlayer
         public abstract signal void mode_changed( PlaylistMode mode );
     }
 
+    [DBus (name="org.freesmartphone.MusicPlayer.Playlist.PlaylistError")]
     public errordomain PlaylistError
     {
         FILE_NOT_FOUND,
