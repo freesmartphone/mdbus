@@ -31,6 +31,9 @@ namespace FreeSmartphone.MusicPlayer
         private Connection conn;
         private ObjectPath path;
         private unowned KeyFile key_file;
+        private HashTable<string,string> audio_codecs;
+        private HashTable<string,string> audio_srcs;
+        private static string element_tail = "volume name=volume ! alsasink" ;
         private string current_song
         {
             get { return _current_song; }
@@ -59,8 +62,10 @@ namespace FreeSmartphone.MusicPlayer
         private Gst.Bus audio_bus;
         private Gst.Element volume;
         private Gst.Element core_stream;
+        private Gst.Element source;
         //Save some time to avoid recreating of the Pipeline
         private string last_extension;
+        private string last_protcol;
         private FreeSmartphone.MusicPlayer.State cur_state = FreeSmartphone.MusicPlayer.State.STOPPED;
         private FreeSmartphone.MusicPlayer.State _state { 
             get{ return this.cur_state; }
@@ -118,9 +123,14 @@ namespace FreeSmartphone.MusicPlayer
         }
         construct
         {
-            playlists = new HashTable<ObjectPath,Playlist>(str_hash, str_equal);
+            playlists = new HashTable<ObjectPath,Playlist>( str_hash, str_equal );
             audio_pipeline = null;
             last_extension = null;
+            last_protcol = null;
+            audio_codecs = new HashTable<string,string>(str_hash, str_equal);
+            audio_srcs = new HashTable<string,string>(str_hash, str_equal);
+            setup_audio_elements();
+            setup_source_elements();
         }
         ~MusicPlayer()
         {
@@ -204,7 +214,8 @@ namespace FreeSmartphone.MusicPlayer
         public void set_playing( string file ) throws MusicPlayerError, DBus.Error
         {
             string ext = file.rchr( file.len(), '.' );
-            if( last_extension != null && last_extension == ext )
+            string protocol = get_protocol_for_uri( file );
+            if( last_extension != null && last_extension == ext && last_protcol == protocol )
             {
                 audio_pipeline.set_state( Gst.State.NULL );
                 debug( "Same extension" );
@@ -214,41 +225,20 @@ namespace FreeSmartphone.MusicPlayer
             else
             {
                 debug( "Creating new pipeline" );
-                string[] confel = null;
-                try
-                {
-                    confel = key_file.get_string_list( Config.FORMAT_GROUP, ext );
-                }
-                catch (GLib.KeyFileError e)
-                {
-                    debug( "File type not supported: %s", ext );
-                    throw new MusicPlayerError.FILETYPE_NOT_SUPPORTED( "Extension %s not supported".printf( ext ) );
-                }
-
                 if( audio_pipeline != null )
                     audio_pipeline.set_state( Gst.State.NULL );
-                var el = new string[confel.length + 9];
 
-                //TODO: add to config file
-                int i = 0;
-                el[i++] = "filesrc";
-                el[i++] = "location=%s".printf(file);
-                el[i++] = "name=source";
-                el[i++] = "!";
-                foreach( var e in confel )
-                {
-                    el[i++] = e;
-                }
-                el[i++] = "!";
-                el[i++] = "volume";
-                el[i++] = "name=volume";
-                el[i++] = "!";
-                el[i++] = "alsasink";
+                var srcs = audio_srcs.lookup( protocol );
+                if( srcs == null )
+                     throw new MusicPlayerError.PROTOCOL_NOT_SUPPORTED( "Can't open %s".printf( file ) );
 
-                foreach( var e in el )
-                {
-                    debug( "Element: %s", e );
-                }
+                var codec = audio_codecs.lookup( ext );
+                if( codec == null )
+                     throw new MusicPlayerError.FILETYPE_NOT_SUPPORTED( "Can't open %s".printf( file ) );
+                var el = "".concat( srcs, " ! ",codec, " ! ", element_tail ).split( " " );
+
+
+                debug( "Elements: \"%s\"", string.joinv( "\" \"", el ) );
 
                 try
                 {
@@ -256,15 +246,17 @@ namespace FreeSmartphone.MusicPlayer
                     audio_pipeline = element as Pipeline;
                     volume = audio_pipeline.get_by_name( "volume" );
                     core_stream = audio_pipeline.get_by_name( "core" );
-                    debug( "volume: %p", volume );
+                    source = audio_pipeline.get_by_name( "source" );
+                    source.set( "location", file );
                 }
                 catch (GLib.Error e)
                 {
-                    error( "parsing arguments: %s", e.message );
+                    error( "parsing arguments: %s \"%s\"", e.message, string.joinv( "\" \"", el ) );
                 }
                 audio_bus = audio_pipeline.get_bus();
                 audio_bus.add_watch( bus_callback );
                 last_extension = ext;
+                last_protcol = protocol;
                 Source.remove( timeout_pos_handle );
             }
             this.audio_pipeline.set_state( Gst.State.READY );
@@ -435,6 +427,52 @@ namespace FreeSmartphone.MusicPlayer
                 k.save();
             }
         }
+        //
+        // private methods
+        //
+        private void setup_audio_elements()
+        {
+            register_element( { "mad", "name=core" }, ".mp3", audio_codecs );
+            if( ! register_element( { "oggdemux", "!", "ivorbisdec", "name=core", "!", "audioconvert" }, ".ogg", audio_codecs ) )
+                 register_element( { "oggdemux", "!", "vorbisdec", "name=core", "!", "audioconvert" }, ".ogg", audio_codecs );
+            register_element( { "flacdec", "name=core", "!", "audioconvert" }, ".flac", audio_codecs );
+            register_element( { "waveparse", "name=core" }, ".wav", audio_codecs );
+            register_element( { "siddec", "name=core" }, ".sid", audio_codecs );
+            register_element( { "modplug", "name=core" }, ".mod", audio_codecs );
+        }
+        private void setup_source_elements()
+        {
+            register_element( { "filesrc", "name=source" }, "", audio_srcs );
+            register_element( { "filesrc", "name=source" }, "file" , audio_srcs );
+            if( ! register_element( { "souphttpsrc", "name=source" }, "http", audio_srcs ) )
+                register_element( { "neonhttpsrc", "name=source" }, "http", audio_srcs );
+            register_element( { "mmssrc", "name=source" }, "mms" , audio_srcs );
+        }
+        private bool register_element( string[] elements, string extension, HashTable<string,string> to )
+        {
+            try
+            {
+                var test = Gst.parse_launchv( elements );
+                to.insert( extension, string.joinv( " ", elements ) );
+                debug( "Registered audio elements \"%s\" for %s", string.joinv( " ", elements ), extension );
+                test = null;
+            }
+            catch (GLib.Error e)
+            {
+                debug( "Cannot register audio elements \"%s\" for %s: %s", string.joinv( " ", elements ), extension, e.message );
+                return false;
+            }
+            return true;
+        }
+        private string get_protocol_for_uri( string uri )
+        {
+            if( uri.has_prefix( "/" ) )
+                 return "file";
+            string prefix = uri.split( ":", 2 )[0];
+            debug( "PREFIX: \"%s\"",prefix );
+            return prefix;
+        }
+
 
         //
         // Bus Callbacks
