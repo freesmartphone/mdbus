@@ -233,7 +233,7 @@ namespace FreeSmartphone.MusicPlayer
                 int i = 0;
                 el[i++] = "filesrc";
                 el[i++] = "location=%s".printf(file);
-                el[i++] = "name=filesource";
+                el[i++] = "name=source";
                 el[i++] = "!";
                 foreach( var e in confel )
                 {
