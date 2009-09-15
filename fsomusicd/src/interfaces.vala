@@ -29,7 +29,8 @@ namespace FreeSmartphone.MusicPlayer
     {
         PLAYING,
         PAUSED,
-        STOPPED
+        STOPPED,
+        BUFFERING
     }
     [DBus (name="org.freesmartphone.MusicPlayer.MusicPlayerError")]
     public errordomain MusicPlayerError

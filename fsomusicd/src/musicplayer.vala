@@ -544,6 +544,9 @@ namespace FreeSmartphone.MusicPlayer
                     message.parse_new_clock( out clk );
                     debug("NEW_CLOCK: %s", clk.get_type().name() );
                     break;
+                case MessageType.BUFFERING:
+                    this._state = FreeSmartphone.MusicPlayer.State.BUFFERING;
+                    break;
                 default:
                     debug( "ignored message: %s", message.type.to_string() );
                     break;
