@@ -38,6 +38,27 @@ public class DeviceGetAntennaPower : AbstractMediator
         debug( "DeviceGetAntennaPower()" );
     }
 
+    public async void runAsync( SourceFunc cb )
+    {
+        debug( "DeviceGetAntennaPower.runAsync()" );
+        PlusCFUN cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
+        var channel = theModem.channel( "main" );
+
+        //enqueueAsync( cfun, cfun.query(), runAsync.callback, response );
+
+        var response = yield channel.enqueueAsyncYielding( cfun, cfun.query() );
+
+        message( "yield channel.enqueueAsyncYielding( cfun, cfun.query() returned" );
+
+        message( "response = %p", (void*)response );
+
+        cfun.parse( response[0] );
+
+        antenna_power = cfun.fun == 1;
+
+        cb();
+    }
+
     public void run( SourceFunc cb )
     {
         debug( "DeviceGetAntennaPower.run()" );
@@ -56,7 +77,7 @@ public class DeviceGetAntennaPower : AbstractMediator
 
         antenna_power = cfun.fun == 1;
 
-        cb(); // same effect as w/ Idle.add( cb )
+        cb();
     }
 }
 
