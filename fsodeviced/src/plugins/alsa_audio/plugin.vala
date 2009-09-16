@@ -101,9 +101,11 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         Canberra.Context.create( &context );
         eventfd = new FsoFramework.Async.EventFd( 0, onAsyncEvent );
 
+        // init scenarios
         initScenarios();
         if ( currentscenario != "" )
             device.setAllMixerControls( allscenarios[currentscenario].controls );
+        scenarios = new GLib.Queue<string>();
 
         //mutex = new Mutex();
 
