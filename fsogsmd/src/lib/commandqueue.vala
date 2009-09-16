@@ -29,13 +29,14 @@ const int COMMAND_QUEUE_BUFFER_SIZE = 4096;
 const string COMMAND_QUEUE_COMMAND_PREFIX = "AT";
 const string COMMAND_QUEUE_COMMAND_POSTFIX = "\r\n";
 
-[Compact]
 public class FsoGsm.CommandBundle
 {
     public FsoGsm.AtCommand command;
     public string request;
     public RequestHandler getRequest;
     public ResponseHandler handler;
+    public string[] response;
+    public SourceFunc callback;
 }
 
 [Compact]
@@ -56,6 +57,12 @@ public class FsoGsm.UnsolicitedBundlePDU
 
 public abstract interface FsoGsm.CommandQueue : Object
 {
+    public abstract async string[] enqueueAsyncYielding( AtCommand command, string request );
+    /**
+     * Enqueue new @a AtCommand command, sending the request as @a string request.
+     * The @a SourceFunc callback will be called. The response from the peer is set in the command bundle.
+     **/
+    public abstract void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null );
     /**
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * The @a ResponseHandler handler will be called with the response from the peer.
@@ -115,9 +122,20 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 
     protected void onSolicitedResponse( CommandBundle bundle, string[] response )
     {
-        debug( "on solicited response" );
+        debug( "on solicited response w/ %d lines", response.length );
+        /*
         if ( bundle.handler != null )
             bundle.handler( bundle.command, response );
+        */
+
+        if ( bundle.callback != null )
+        {
+            message( "bundle-callback: %p", (void*)bundle.callback );
+            //bundle.response = new string[] { "foo", "bar" };
+            message( "calling bundle callback" );
+            bundle.callback();
+            message( "after calling bundle callback" );
+        }
     }
 
     protected void _onReadFromTransport( FsoFramework.Transport t )
@@ -230,6 +248,38 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
         q.push_head( new CommandBundle() { command=command, request=request, getRequest=null, handler=handler } );
         if ( retriggerWriting )
             writeNextCommand();
+    }
+
+    public void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null )
+    {
+        logger.debug( "enqueuing %s".printf( request ) );
+        var retriggerWriting = ( q.length == 0 );
+        q.push_head( new CommandBundle() { command=command, request=request, getRequest=null, callback=callback, response=response } );
+        if ( retriggerWriting )
+            writeNextCommand();
+    }
+
+    public async string[] enqueueAsyncYielding( AtCommand command, string request )
+    {
+        logger.debug( "enqueuing %s".printf( request ) );
+        var retriggerWriting = ( q.length == 0 );
+        message( "callback = %p", (void*)enqueueAsyncYielding.callback );
+        CommandBundle bundle = new CommandBundle() { command=command, request=request, getRequest=null, callback=enqueueAsyncYielding.callback };
+        message( "callback = %p", (void*)bundle.callback );
+        q.push_head( bundle );
+        if ( retriggerWriting )
+            writeNextCommand();
+        message( "before yield" );
+        yield;
+        message( "after yield" );
+
+        message( "response = %p", (void*) bundle.response );
+        
+        message( "response came in for %s. length of lines = %d".printf( request, bundle.response.length ) );
+
+
+        return bundle.response;
+        //return new string[] { "foo", "bar" };
     }
 
     public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null )

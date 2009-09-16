@@ -120,7 +120,7 @@ class GsmDevice.Device :
     {
         var t = modem.mediatorFactory( "DeviceGetAntennaPower" );
         var m = Object.new( t ) as FsoGsm.DeviceGetAntennaPower;
-        m.run( get_antenna_power.callback );
+        m.runAsync( get_antenna_power.callback );
         yield;
         return m.antenna_power;
     }
