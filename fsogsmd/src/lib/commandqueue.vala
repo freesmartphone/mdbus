@@ -130,11 +130,8 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 
         if ( bundle.callback != null )
         {
-            message( "bundle-callback: %p", (void*)bundle.callback );
-            //bundle.response = new string[] { "foo", "bar" };
-            message( "calling bundle callback" );
+            bundle.response = response;
             bundle.callback();
-            message( "after calling bundle callback" );
         }
     }
 
@@ -263,23 +260,12 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     {
         logger.debug( "enqueuing %s".printf( request ) );
         var retriggerWriting = ( q.length == 0 );
-        message( "callback = %p", (void*)enqueueAsyncYielding.callback );
         CommandBundle bundle = new CommandBundle() { command=command, request=request, getRequest=null, callback=enqueueAsyncYielding.callback };
-        message( "callback = %p", (void*)bundle.callback );
         q.push_head( bundle );
         if ( retriggerWriting )
             writeNextCommand();
-        message( "before yield" );
         yield;
-        message( "after yield" );
-
-        message( "response = %p", (void*) bundle.response );
-        
-        message( "response came in for %s. length of lines = %d".printf( request, bundle.response.length ) );
-
-
         return bundle.response;
-        //return new string[] { "foo", "bar" };
     }
 
     public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null )
