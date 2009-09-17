@@ -109,13 +109,16 @@ class GsmDevice.Device :
         return m.antenna_power;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_features() throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_info() throws DBus.Error
     {
-        var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
-        return r;
+        var t = modem.mediatorFactory( "DeviceGetInformation" );
+        var m = Object.new( t ) as FsoGsm.DeviceGetInformation;
+        m.run( get_features.callback );
+        yield;
+        return m.info;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_info() throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_features() throws DBus.Error
     {
         var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
         return r;
