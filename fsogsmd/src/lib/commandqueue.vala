@@ -57,6 +57,10 @@ public class FsoGsm.UnsolicitedBundlePDU
 
 public abstract interface FsoGsm.CommandQueue : Object
 {
+    /**
+     * Enqueue new @a AtCommand command, sending the request as @a string request.
+     * Coroutine will yield the response.
+     **/
     public abstract async string[] enqueueAsyncYielding( AtCommand command, string request );
     /**
      * Enqueue new @a AtCommand command, sending the request as @a string request.
