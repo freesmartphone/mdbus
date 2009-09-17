@@ -35,6 +35,7 @@ fsomusicd_SOURCES = \
 	$(VALAC) -C --pkg  dbus-glib-1 \
 	    --pkg gstreamer-0.10 \
 	    --pkg posix \
+	    --pkg fsobasics-2.0 \
 	    --vapidir=. \
 	    --save-temps  $^
 	touch $@
