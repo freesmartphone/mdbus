@@ -1,4 +1,4 @@
-AC_INIT([libfsotransport], [0.9.4], [smartphones-userland@linuxtogo.org], [libfsotransport])
+AC_INIT([libfsotransport], [0.9.5.1], [smartphones-userland@linuxtogo.org], [libfsotransport])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -17,9 +17,9 @@ AC_SUBST(LDFLAGS)
 #
 PKG_PROG_PKG_CONFIG
 
-VALA_REQUIRED=0.7.2
+VALA_REQUIRED=0.7.6
 GLIB_REQUIRED=2.18.0
-FSO_BASICS_REQUIRED=0.8.1.0
+FSO_BASICS_REQUIRED=0.8.3
 
 # vala
 AC_PATH_PROG(VALAC, valac, valac)
@@ -33,9 +33,12 @@ PKG_CHECK_MODULES(VALA,
 VALA_VAPIDIR=`$PKG_CONFIG --variable=vapidir vala-1.0`
 AC_SUBST(VALA_VAPIDIR)
 
-AC_MSG_NOTICE([checking for posixextra.vapi...])
+AC_MSG_NOTICE([checking for misc-vapi...])
+if ! test -f "$VALA_VAPIDIR/linux.vapi"; then
+    AC_MSG_ERROR([linux.vapi not found. Your Vala installation may be too old.])
+fi
 if ! test -f "$VALA_VAPIDIR/posixextra.vapi"; then
-	AC_MSG_ERROR([posixextra.vapi not found.])
+	AC_MSG_ERROR([posixextra.vapi not found. Please install misc-vapi from cornucopia.])
 fi
 
 # glib and friends

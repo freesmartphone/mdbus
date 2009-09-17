@@ -32,7 +32,7 @@ fsobasics-2.0.vapi fsobasics.vala.stamp: $(libfsobasics_la_VALASOURCES)
 	            --vapidir ../vapi \
 	            --pkg posix \
 	            --pkg posixextra \
-	            --pkg linux26 \
+	            --pkg linux \
 	            --pkg glib-2.0 \
 	            --pkg gio-2.0 \
 	            --header fsobasics.h \

@@ -58,12 +58,12 @@ public class FsoFramework.BaseKObjectNotifier : Object
         change = new HashTable<string, List<DelegateHolder>>( str_hash, str_equal );
         remove = new HashTable<string, List<DelegateHolder>>( str_hash, str_equal );
 
-        fd = Posix.socket( Linux26.Netlink.AF_NETLINK, Posix.SOCK_DGRAM, Linux26.Netlink.NETLINK_KOBJECT_UEVENT );
+        fd = Posix.socket( Linux.Netlink.AF_NETLINK, Posix.SOCK_DGRAM, Linux.Netlink.NETLINK_KOBJECT_UEVENT );
         assert( fd != -1 );
 
-        Linux26.Netlink.SockAddrNl addr = { Linux26.Netlink.AF_NETLINK, 0, Posix.getpid(), 1 };
+        Linux.Netlink.SockAddrNl addr = { Linux.Netlink.AF_NETLINK, 0, Posix.getpid(), 1 };
 
-        var res = Posix.bind( fd, &addr, sizeof( Linux26.Netlink.SockAddrNl ) );
+        var res = Posix.bind( fd, &addr, sizeof( Linux.Netlink.SockAddrNl ) );
         assert( res != -1 );
 
         channel = new IOChannel.unix_new( fd );

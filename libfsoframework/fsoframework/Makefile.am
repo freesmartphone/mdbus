@@ -41,12 +41,12 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	            --vapidir ../vapi \
 	            --pkg posix \
 	            --pkg posixextra \
-	            --pkg linux26 \
+	            --pkg linux \
 	            --pkg glib-2.0 \
 	            --pkg gmodule-2.0 \
 	            --pkg gio-2.0 \
 	            --pkg dbus-glib-1 \
-	            --pkg libasound \
+	            --pkg alsa \
 	            --pkg fsobasics-2.0 \
 	            --header fsoframework.h \
 	            --library fsoframework-2.0 $^

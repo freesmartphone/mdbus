@@ -166,9 +166,9 @@ namespace FsoFramework { namespace Network {
         var fd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
         assert( fd != -1 );
 
-        Linux26.Network.IfReq ifreq = {};
+        Linux.Network.IfReq ifreq = {};
         Posix.memcpy( ifreq.ifr_name, iface, 16 );
-        var ok = Posix.ioctl( fd, Linux26.Network.SIOCGIFADDR, &ifreq );
+        var ok = Posix.ioctl( fd, Linux.Network.SIOCGIFADDR, &ifreq );
         if ( ok < 0 )
             return "unknown";
 
@@ -229,19 +229,19 @@ namespace FsoFramework { namespace Async {
 
         public EventFd( uint initvalue, GLib.IOFunc callback )
         {
-            channel = new GLib.IOChannel.unix_new( Linux26.eventfd( initvalue, 0 ) );
+            channel = new GLib.IOChannel.unix_new( Linux.eventfd( initvalue, 0 ) );
             watch = channel.add_watch( GLib.IOCondition.IN, callback );
         }
 
         public void write( int count )
         {
-            Linux26.eventfd_write( channel.unix_get_fd(), count );
+            Linux.eventfd_write( channel.unix_get_fd(), count );
         }
 
         public uint read()
         {
             uint64 result;
-            Linux26.eventfd_read( channel.unix_get_fd(), out result );
+            Linux.eventfd_read( channel.unix_get_fd(), out result );
             return (uint)result;
         }
 

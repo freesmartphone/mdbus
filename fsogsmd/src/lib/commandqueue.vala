@@ -17,7 +17,7 @@
  *
  */
 
-using GLib;
+using Gee;
 
 public delegate void FsoGsm.ResponseHandler( FsoGsm.AtCommand command, string[] response );
 public delegate string FsoGsm.RequestHandler( FsoGsm.AtCommand command );
@@ -57,6 +57,10 @@ public class FsoGsm.UnsolicitedBundlePDU
 
 public abstract interface FsoGsm.CommandQueue : Object
 {
+    /**
+     * Enqueue new @a AtCommand command, sending the request as @a string request.
+     * Coroutine will yield the response.
+     **/
     public abstract async string[] enqueueAsyncYielding( AtCommand command, string request );
     /**
      * Enqueue new @a AtCommand command, sending the request as @a string request.
@@ -86,7 +90,9 @@ public abstract interface FsoGsm.CommandQueue : Object
 
 public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractObject
 {
-    protected Queue<CommandBundle> q;
+    protected LinkedList<CommandBundle> q;
+    protected CommandBundle current;
+
     protected FsoFramework.Transport transport;
     protected FsoGsm.Parser parser;
     protected char* buffer;
@@ -97,8 +103,8 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     protected void writeNextCommand()
     {
         logger.debug( "writing next command" );
-        unowned CommandBundle command = q.peek_tail();
-        writeRequestToTransport( command.request );
+        current = q.poll_head();
+        writeRequestToTransport( current.request );
     }
 
     protected void writeRequestToTransport( string request )
@@ -130,11 +136,8 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 
         if ( bundle.callback != null )
         {
-            message( "bundle-callback: %p", (void*)bundle.callback );
-            //bundle.response = new string[] { "foo", "bar" };
-            message( "calling bundle callback" );
+            bundle.response = response;
             bundle.callback();
-            message( "after calling bundle callback" );
         }
     }
 
@@ -152,7 +155,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 
     protected bool _haveCommand()
     {
-        return ( q.length > 0 );
+        return ( current != null );
     }
 
     protected bool _expectedPrefix( string line )
@@ -163,10 +166,12 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     protected void _solicitedCompleted( string[] response )
     {
         logger.debug( "solicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
+        assert( current != null );
 
-        onSolicitedResponse( q.pop_tail(), response );
-        if ( q.length > 0 )
-            writeNextCommand();
+        onSolicitedResponse( current, response );
+        current = null;
+
+        Idle.add( checkRestartingQ );
     }
 
     protected void _unsolicitedCompleted( string[] response )
@@ -206,7 +211,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 
     public AtCommandQueue( FsoFramework.Transport transport, FsoGsm.Parser parser )
     {
-        q = new Queue<CommandBundle>();
+        q = new LinkedList<CommandBundle>();
         this.transport = transport;
         this.parser = parser;
         transport.setDelegates( _onReadFromTransport, _onHupFromTransport );
@@ -244,51 +249,49 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     public void enqueue( AtCommand command, string request, ResponseHandler? handler = null )
     {
         logger.debug( "enqueuing %s".printf( request ) );
-        var retriggerWriting = ( q.length == 0 );
-        q.push_head( new CommandBundle() { command=command, request=request, getRequest=null, handler=handler } );
-        if ( retriggerWriting )
-            writeNextCommand();
+        var retriggerWriting = ( q.size == 0 );
+        q.offer_tail( new CommandBundle() { command=command, request=request, getRequest=null, handler=handler } );
+        Idle.add( checkRestartingQ );
     }
 
     public void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null )
     {
-        logger.debug( "enqueuing %s".printf( request ) );
-        var retriggerWriting = ( q.length == 0 );
-        q.push_head( new CommandBundle() { command=command, request=request, getRequest=null, callback=callback, response=response } );
-        if ( retriggerWriting )
-            writeNextCommand();
+        var retriggerWriting = ( q.size == 0 );
+        logger.debug( "enqueuing %s [q size = %d], retrigger = %d".printf( request, q.size, (int)retriggerWriting ) );
+        q.offer_tail( new CommandBundle() { command=command, request=request, getRequest=null, callback=callback, response=response } );
+        Idle.add( checkRestartingQ );
     }
 
     public async string[] enqueueAsyncYielding( AtCommand command, string request )
     {
-        logger.debug( "enqueuing %s".printf( request ) );
-        var retriggerWriting = ( q.length == 0 );
-        message( "callback = %p", (void*)enqueueAsyncYielding.callback );
+        logger.debug( "enqueuing %s (sizeof q = %u)".printf( request, q.size ) );
+        var retriggerWriting = ( q.size == 0 );
         CommandBundle bundle = new CommandBundle() { command=command, request=request, getRequest=null, callback=enqueueAsyncYielding.callback };
-        message( "callback = %p", (void*)bundle.callback );
-        q.push_head( bundle );
-        if ( retriggerWriting )
-            writeNextCommand();
-        message( "before yield" );
+        q.offer_tail( bundle );
+        Idle.add( checkRestartingQ );
         yield;
-        message( "after yield" );
-
-        message( "response = %p", (void*) bundle.response );
-        
-        message( "response came in for %s. length of lines = %d".printf( request, bundle.response.length ) );
-
-
         return bundle.response;
-        //return new string[] { "foo", "bar" };
     }
 
     public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null )
     {
         logger.debug( "enqueuing deferred request %s".printf( getRequest( command ) ) );
-        var retriggerWriting = ( q.length == 0 );
-        q.push_head( new CommandBundle() { command=command, request=null, getRequest=getRequest, handler=handler } );
-        if ( retriggerWriting )
+        var retriggerWriting = ( q.size == 0 );
+        q.offer_tail( new CommandBundle() { command=command, request=null, getRequest=getRequest, handler=handler } );
+        Idle.add( checkRestartingQ );
+    }
+
+    protected bool checkRestartingQ()
+    {
+        if ( current == null && q.size > 0 )
+        {
             writeNextCommand();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public bool open()

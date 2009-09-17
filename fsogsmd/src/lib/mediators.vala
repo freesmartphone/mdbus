@@ -25,57 +25,77 @@
 
 using Gee;
 
-namespace FsoGsm
-{
+namespace FsoGsm {
 
+/**
+ * Power on/off the antenna. THIS FUNCTION IS DEPRECATED
+ **/
 public class DeviceGetAntennaPower : AbstractMediator
 {
-    SourceFunc cb;
     public bool antenna_power;
 
-    construct
+    public async void run( SourceFunc cb )
     {
-        debug( "DeviceGetAntennaPower()" );
-    }
-
-    public async void runAsync( SourceFunc cb )
-    {
-        debug( "DeviceGetAntennaPower.runAsync()" );
         PlusCFUN cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
         var channel = theModem.channel( "main" );
 
-        //enqueueAsync( cfun, cfun.query(), runAsync.callback, response );
-
         var response = yield channel.enqueueAsyncYielding( cfun, cfun.query() );
 
-        message( "yield channel.enqueueAsyncYielding( cfun, cfun.query() returned" );
-
-        message( "response = %p", (void*)response );
-
         cfun.parse( response[0] );
-
         antenna_power = cfun.fun == 1;
 
         cb();
     }
+}
 
-    public void run( SourceFunc cb )
+/**
+ * Get device information.
+ **/
+public class DeviceGetInformation : AbstractMediator
+{
+    public GLib.HashTable<string,Value?> info;
+
+    public async void run( SourceFunc cb )
     {
-        debug( "DeviceGetAntennaPower.run()" );
-        this.cb = cb;
+        message( "1" );
 
-        PlusCFUN cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
-        enqueue( cfun, cfun.query(), onResponse );
-    }
+        var channel = theModem.channel( "main" );
+        var value = Value( typeof(string) );
+        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
 
-    public void onResponse( AtCommand command, string[] response )
-    {
-        debug( "DeviceGetAntennaPower.onResponse( '%s' )", response[0] );
+        message( "2" );
 
-        var cfun = command as PlusCFUN;
-        cfun.parse( response[0] );
+        PlusCGMR cgmr = theModem.atCommandFactory( "+CGMR" ) as PlusCGMR;
+        var response = yield channel.enqueueAsyncYielding( cgmr, cgmr.query() );
+        cgmr.parse( response[0] );
+        value = (string) cgmr.revision;
+        info.insert( "revision", value );
 
-        antenna_power = cfun.fun == 1;
+        message( "3" );
+
+        PlusCGMM cgmm = theModem.atCommandFactory( "+CGMM" ) as PlusCGMM;
+        response = yield channel.enqueueAsyncYielding( cgmm, cgmm.query() );
+        cgmm.parse( response[0] );
+        value = (string) cgmm.model;
+        info.insert( "model", value );
+
+        message( "4" );
+
+        PlusCGMI cgmi = theModem.atCommandFactory( "+CGMI" ) as PlusCGMI;
+        response = yield channel.enqueueAsyncYielding( cgmi, cgmi.query() );
+        cgmi.parse( response[0] );
+        value = (string) cgmi.manufacturer;
+        info.insert( "manufacturer", value );
+
+        message( "5" );
+
+        PlusCGSN cgsn = theModem.atCommandFactory( "+CGSN" ) as PlusCGSN;
+        response = yield channel.enqueueAsyncYielding( cgsn, cgsn.query() );
+        cgsn.parse( response[0] );
+        value = (string) cgsn.imei;
+        info.insert( "imei", value );
+
+        message( "6" );
 
         cb();
     }
@@ -84,7 +104,8 @@ public class DeviceGetAntennaPower : AbstractMediator
 public void registerGenericMediators( HashMap<string,Type> table )
 {
     // register commands
-    table[ "DeviceGetAntennaPower" ] = typeof( DeviceGetAntennaPower );
+    table[ "DeviceGetAntennaPower" ]        = typeof( DeviceGetAntennaPower );
+    table[ "DeviceGetInformation" ]         = typeof( DeviceGetInformation );
 }
 
 } // namespace FsoGsm
