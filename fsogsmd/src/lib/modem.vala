@@ -176,6 +176,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return channels[category];
     }
 
+    public FsoGsm.Mediator createMediator( string mediator )
+    {
+        Type? typ = mediators[mediator];
+        assert( typ != null );
+        return new Object( typ ) as FsoGsm.Mediator;
+    }
+
     public Type mediatorFactory( string mediator )
     {
         Type? typ = mediators[mediator];

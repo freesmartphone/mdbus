@@ -102,19 +102,17 @@ class GsmDevice.Device :
     //
     public async bool get_antenna_power() throws DBus.Error
     {
-        var t = modem.mediatorFactory( "DeviceGetAntennaPower" );
-        var m = Object.new( t ) as FsoGsm.DeviceGetAntennaPower;
-        m.run( get_antenna_power.callback );
-        yield;
+        Type t = modem.mediatorFactory( "DeviceGetAntennaPower" );
+        FsoGsm.DeviceGetAntennaPower m = Object.new( t ) as FsoGsm.DeviceGetAntennaPower;
+        yield m.run();
         return m.antenna_power;
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_info() throws DBus.Error
     {
-        var t = modem.mediatorFactory( "DeviceGetInformation" );
-        var m = Object.new( t ) as FsoGsm.DeviceGetInformation;
-        m.run( get_features.callback );
-        yield;
+        Type t = modem.mediatorFactory( "DeviceGetInformation" );
+        FsoGsm.DeviceGetInformation m = Object.new( t ) as FsoGsm.DeviceGetInformation;
+        yield m.run();
         return m.info;
     }
 

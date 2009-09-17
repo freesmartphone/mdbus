@@ -34,7 +34,7 @@ public class DeviceGetAntennaPower : AbstractMediator
 {
     public bool antenna_power;
 
-    public async void run( SourceFunc cb )
+    public async void run()
     {
         PlusCFUN cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
         var channel = theModem.channel( "main" );
@@ -43,8 +43,6 @@ public class DeviceGetAntennaPower : AbstractMediator
 
         cfun.parse( response[0] );
         antenna_power = cfun.fun == 1;
-
-        cb();
     }
 }
 
@@ -55,15 +53,11 @@ public class DeviceGetInformation : AbstractMediator
 {
     public GLib.HashTable<string,Value?> info;
 
-    public async void run( SourceFunc cb )
+    public async void run()
     {
-        message( "1" );
-
         var channel = theModem.channel( "main" );
         var value = Value( typeof(string) );
         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-
-        message( "2" );
 
         PlusCGMR cgmr = theModem.atCommandFactory( "+CGMR" ) as PlusCGMR;
         var response = yield channel.enqueueAsyncYielding( cgmr, cgmr.query() );
@@ -71,15 +65,11 @@ public class DeviceGetInformation : AbstractMediator
         value = (string) cgmr.revision;
         info.insert( "revision", value );
 
-        message( "3" );
-
         PlusCGMM cgmm = theModem.atCommandFactory( "+CGMM" ) as PlusCGMM;
         response = yield channel.enqueueAsyncYielding( cgmm, cgmm.query() );
         cgmm.parse( response[0] );
         value = (string) cgmm.model;
         info.insert( "model", value );
-
-        message( "4" );
 
         PlusCGMI cgmi = theModem.atCommandFactory( "+CGMI" ) as PlusCGMI;
         response = yield channel.enqueueAsyncYielding( cgmi, cgmi.query() );
@@ -87,17 +77,11 @@ public class DeviceGetInformation : AbstractMediator
         value = (string) cgmi.manufacturer;
         info.insert( "manufacturer", value );
 
-        message( "5" );
-
         PlusCGSN cgsn = theModem.atCommandFactory( "+CGSN" ) as PlusCGSN;
         response = yield channel.enqueueAsyncYielding( cgsn, cgsn.query() );
         cgsn.parse( response[0] );
         value = (string) cgsn.imei;
         info.insert( "imei", value );
-
-        message( "6" );
-
-        cb();
     }
 }
 

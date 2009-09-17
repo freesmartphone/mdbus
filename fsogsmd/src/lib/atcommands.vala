@@ -26,8 +26,7 @@
 
 using Gee;
 
-namespace FsoGsm
-{
+namespace FsoGsm {
 
 public class PlusCGMM : AbstractAtCommand
 {
