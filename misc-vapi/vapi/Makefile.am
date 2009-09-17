@@ -6,18 +6,6 @@ dist_vapi_DATA = \
 	libascenario.deps \
 	libascenario.vapi \
 	\
-	libasound.deps \
-	libasound.vapi \
-	\
-	libcanberra.deps \
-	libcanberra.vapi \
-	\
-	libnl.deps \
-	libnl.vapi \
-	\
-	linux26.deps \
-	linux26.vapi \
-	\
 	posixextra.deps \
 	posixextra.vapi \
 	$(NULL)
