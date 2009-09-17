@@ -25,12 +25,12 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
 {
     private int domain;
     private int stype;
-    private uint port;
+    private uint16 port;
 
     public SocketTransport( string type, string host, uint port )
     {
         base( host, 115200 );
-        this.port = port;
+        this.port = (uint16)port;
 
         switch ( type )
         {
@@ -70,8 +70,30 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
             return false;
         }
 
+        string ip = "127.0.0.1";
+        if ( name != "localhost" )
+            critical( "dns not supported yet" );
 
-        
+        PosixExtra.InAddr inaddr = { 0 };
+        var res = PosixExtra.inet_aton( ip, out inaddr );
+        if ( res == -1 )
+        {
+            warning( "could not convert address: %s".printf( Posix.strerror( Posix.errno ) ) );
+            return false;
+        }
+
+        PosixExtra.SockAddrIn addr = { 0 };
+        addr.sin_family = Posix.AF_INET;
+        addr.sin_port = PosixExtra.htons( port );
+        addr.sin_addr.s_addr = inaddr.s_addr;
+
+        res = PosixExtra.connect( fd, &addr, sizeof( PosixExtra.SockAddrIn ) );
+        if ( res == -1 )
+        {
+            warning( "could not bind to socket: %s".printf( Posix.strerror( Posix.errno ) ) );
+            return false;
+        }
+
         configure();
 
         return base.open();
