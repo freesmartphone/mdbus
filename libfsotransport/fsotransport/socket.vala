@@ -23,16 +23,37 @@ using GLib;
 public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
 //===========================================================================
 {
-    private int port;
+    private int domain;
+    private int stype;
+    private uint port;
 
-    public SocketTransport()
+    public SocketTransport( string type, string host, uint port )
     {
-        base( "Socket", 115200 );
+        base( host, 115200 );
+        this.port = port;
+
+        switch ( type )
+        {
+            case "unix":
+                domain = Posix.AF_UNIX;
+                stype = Posix.SOCK_STREAM;
+                break;
+            case "udp":
+                domain = Posix.AF_INET;
+                stype = Posix.SOCK_DGRAM;
+                break;
+            case "tcp":
+                domain = Posix.AF_INET;
+                stype = Posix.SOCK_STREAM;
+                break;
+            default:
+                assert_not_reached();
+        }
     }
 
     public override string getName()
     {
-        return "host:port"; //(string)ptyname;
+        return ( port > 0 ) ? "%s:%u".printf( base.getName(), port ) : base.getName();
     }
 
     public override string repr()
@@ -42,6 +63,15 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
 
     public override bool open()
     {
+        fd = Posix.socket( domain, stype, 0 );
+        if ( fd == -1 )
+        {
+            warning( "could not create socket: %s".printf( Posix.strerror( Posix.errno ) ) );
+            return false;
+        }
+
+
+        
         configure();
 
         return base.open();

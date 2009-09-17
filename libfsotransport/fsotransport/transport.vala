@@ -92,6 +92,10 @@ public abstract class FsoFramework.Transport : Object
                 return new FsoFramework.SerialTransport( name, speed, raw, hard );
             case "pty":
                 return new FsoFramework.PtyTransport();
+            case "unix":
+            case "udp":
+            case "tcp":
+                return new FsoFramework.SocketTransport( type, name, speed );
             default:
                 return null;
         }

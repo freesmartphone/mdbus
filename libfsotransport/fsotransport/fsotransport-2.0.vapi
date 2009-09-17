@@ -45,7 +45,7 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsotransport.h")]
 	public class SocketTransport : FsoFramework.BaseTransport {
-		public SocketTransport ();
+		public SocketTransport (string type, string host, uint port);
 		public override string getName ();
 		public override bool open ();
 		public override string repr ();
