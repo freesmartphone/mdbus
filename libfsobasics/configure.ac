@@ -1,4 +1,4 @@
-AC_INIT([libfsobasics], [0.8.2.1], [smartphones-userland@linuxtogo.org], [libfsobasics])
+AC_INIT([libfsobasics], [0.8.3], [smartphones-userland@linuxtogo.org], [libfsobasics])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -18,7 +18,7 @@ AC_SUBST(LDFLAGS)
 #
 PKG_PROG_PKG_CONFIG
 
-VALA_REQUIRED=0.7.3
+VALA_REQUIRED=0.7.6
 GLIB_REQUIRED=2.18.0
 
 # vala
@@ -34,11 +34,11 @@ VALA_VAPIDIR=`$PKG_CONFIG --variable=vapidir vala-1.0`
 AC_SUBST(VALA_VAPIDIR)
 
 AC_MSG_NOTICE([checking for misc-vapi...])
-if ! test -f "$VALA_VAPIDIR/linux26.vapi"; then
-  AC_MSG_ERROR([linux26.vapi not found.])
+if ! test -f "$VALA_VAPIDIR/linux.vapi"; then
+  AC_MSG_ERROR([linux.vapi not found.])
 fi
 if ! test -f "$VALA_VAPIDIR/posixextra.vapi"; then
-  AC_MSG_ERROR([posixextra.vapi not found.])
+  AC_MSG_ERROR([posixextra.vapi not found. Please install misc-vapi from cornucopia.])
 fi
 
 # glib and friends
