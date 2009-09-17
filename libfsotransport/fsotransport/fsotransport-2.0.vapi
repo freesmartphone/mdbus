@@ -44,6 +44,13 @@ namespace FsoFramework {
 		public override string repr ();
 	}
 	[CCode (cheader_filename = "fsotransport.h")]
+	public class SocketTransport : FsoFramework.BaseTransport {
+		public SocketTransport ();
+		public override string getName ();
+		public override bool open ();
+		public override string repr ();
+	}
+	[CCode (cheader_filename = "fsotransport.h")]
 	public abstract class Transport : GLib.Object {
 		public Transport ();
 		public abstract void close ();
