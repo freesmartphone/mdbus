@@ -238,40 +238,40 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
                 tspeed = Posix.B230400;
                 break;
             case 460800:
-                tspeed = Linux26.Termios.B460800;
+                tspeed = Linux.Termios.B460800;
                 break;
             case 500000:
-                tspeed = Linux26.Termios.B500000;
+                tspeed = Linux.Termios.B500000;
                 break;
             case 576000:
-                tspeed = Linux26.Termios.B576000;
+                tspeed = Linux.Termios.B576000;
                 break;
             case 921600:
-                tspeed = Linux26.Termios.B921600;
+                tspeed = Linux.Termios.B921600;
                 break;
             case 1000000:
-                tspeed = Linux26.Termios.B1000000;
+                tspeed = Linux.Termios.B1000000;
                 break;
             case 1152000:
-                tspeed = Linux26.Termios.B1152000;
+                tspeed = Linux.Termios.B1152000;
                 break;
             case 1500000:
-                tspeed = Linux26.Termios.B1500000;
+                tspeed = Linux.Termios.B1500000;
                 break;
             case 2000000:
-                tspeed = Linux26.Termios.B2000000;
+                tspeed = Linux.Termios.B2000000;
                 break;
             case 2500000:
-                tspeed = Linux26.Termios.B2500000;
+                tspeed = Linux.Termios.B2500000;
                 break;
             case 3000000:
-                tspeed = Linux26.Termios.B3000000;
+                tspeed = Linux.Termios.B3000000;
                 break;
             case 3500000:
-                tspeed = Linux26.Termios.B3500000;
+                tspeed = Linux.Termios.B3500000;
                 break;
             case 4000000:
-                tspeed = Linux26.Termios.B4000000;
+                tspeed = Linux.Termios.B4000000;
                 break;
             default:
                 logger.warning( "invalid speed '%u' selected. using '0'".printf( speed ) );
@@ -294,7 +294,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( hard )
         {
             // hardware flow control ON
-            termios.c_cflag |= Linux26.Termios.CRTSCTS;
+            termios.c_cflag |= Linux.Termios.CRTSCTS;
 
             // software flow control OFF
             termios.c_iflag &= ~(Posix.IXON | Posix.IXOFF | Posix.IXANY);
@@ -302,7 +302,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         else
         {
             // hardware flow control OFF
-            termios.c_cflag &= Linux26.Termios.CRTSCTS;
+            termios.c_cflag &= Linux.Termios.CRTSCTS;
 
             // software flow control ON
             termios.c_iflag |= ~(Posix.IXON | Posix.IXOFF | Posix.IXANY);
@@ -315,7 +315,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             termios.c_iflag &= ~(Posix.INLCR | Posix.ICRNL | Posix.IGNCR);
 
             // raw output
-            termios.c_oflag &= ~(Posix.OPOST | Linux26.Termios.OLCUC | Posix.ONLRET | Posix.ONOCR | Posix.OCRNL );
+            termios.c_oflag &= ~(Posix.OPOST | Linux.Termios.OLCUC | Posix.ONLRET | Posix.ONOCR | Posix.OCRNL );
 
             // no special character handling
             termios.c_cc[Posix.VMIN] = 0;
@@ -336,8 +336,8 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( hard )
         {
             // set ready to read/write
-            var v24 = Linux26.Termios.TIOCM_DTR | Linux26.Termios.TIOCM_RTS;
-            Posix.ioctl( fd, Linux26.Termios.TIOCMBIS, &v24 );
+            var v24 = Linux.Termios.TIOCM_DTR | Linux.Termios.TIOCM_RTS;
+            Posix.ioctl( fd, Linux.Termios.TIOCMBIS, &v24 );
         }
     }
 
@@ -562,7 +562,7 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
 
         Posix.grantpt( fd );
         Posix.unlockpt( fd );
-        Linux26.Termios.ptsname_r( fd, ptyname );
+        Linux.Termios.ptsname_r( fd, ptyname );
 
         int flags = Posix.fcntl( fd, Posix.F_GETFL );
         int res = Posix.fcntl( fd, Posix.F_SETFL, flags | Posix.O_NONBLOCK );

@@ -6,7 +6,7 @@ VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--pkg posix \
 	--pkg posixextra \
-	--pkg linux26 \
+	--pkg linux \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg fsobasics-2.0 \
