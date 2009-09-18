@@ -13,13 +13,13 @@ namespace FsoFramework {
 		protected bool raw;
 		protected FsoFramework.TransportReadFunc readfunc;
 		protected uint speed;
+		public BaseTransport (string name, uint speed = 0, bool raw = true, bool hard = true);
 		public bool actionCallback (GLib.IOChannel source, GLib.IOCondition condition);
 		public override void close ();
 		public override void freeze ();
 		public override void getDelegates (out FsoFramework.TransportReadFunc? readfun, out FsoFramework.TransportHupFunc? hupfun);
 		public override string getName ();
 		public override bool isOpen ();
-		public BaseTransport (string name, uint speed = 0, bool raw = true, bool hard = true);
 		public override bool open ();
 		public override int read (void* data, int len);
 		public virtual string repr ();
@@ -32,8 +32,8 @@ namespace FsoFramework {
 	}
 	[CCode (cheader_filename = "fsotransport.h")]
 	public class PtyTransport : FsoFramework.BaseTransport {
-		public override string getName ();
 		public PtyTransport ();
+		public override string getName ();
 		public override bool open ();
 		public override string repr ();
 	}
@@ -44,14 +44,21 @@ namespace FsoFramework {
 		public override string repr ();
 	}
 	[CCode (cheader_filename = "fsotransport.h")]
+	public class SocketTransport : FsoFramework.BaseTransport {
+		public SocketTransport (string type, string host, uint port);
+		public override string getName ();
+		public override bool open ();
+		public override string repr ();
+	}
+	[CCode (cheader_filename = "fsotransport.h")]
 	public abstract class Transport : GLib.Object {
+		public Transport ();
 		public abstract void close ();
 		public static FsoFramework.Transport? create (string type, string name = "", uint speed = 0, bool raw = true, bool hard = true);
 		public abstract void freeze ();
 		public abstract void getDelegates (out FsoFramework.TransportReadFunc? readfun, out FsoFramework.TransportHupFunc? hupfun);
 		public abstract string getName ();
 		public abstract bool isOpen ();
-		public Transport ();
 		public abstract bool open ();
 		public abstract int read (void* data, int len);
 		public abstract void setDelegates (FsoFramework.TransportReadFunc? readfunc, FsoFramework.TransportHupFunc? hupfunc);

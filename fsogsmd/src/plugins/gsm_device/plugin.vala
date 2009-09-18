@@ -19,26 +19,10 @@
 
 using GLib;
 
-[DBus (name = "org.freesmartphone.GSM.Device")]
-public interface OrgFreeSmartphoneGsmDevice
-{
-    public abstract async bool get_antenna_power () throws DBus.Error;
-    public abstract async GLib.HashTable<string,GLib.Value?> get_features () throws DBus.Error;
-    public abstract async GLib.HashTable<string,GLib.Value?> get_info () throws DBus.Error;
-    public abstract async bool get_microphone_muted () throws DBus.Error;
-    public abstract async bool get_sim_buffers_sms () throws DBus.Error;
-    public abstract async int get_speaker_volume () throws DBus.Error;
-    public abstract async void set_antenna_power (bool antenna_power) throws DBus.Error;
-    public abstract async void set_microphone_muted (bool muted) throws DBus.Error;
-    public abstract async void set_sim_buffers_sms (bool sim_buffers_sms) throws DBus.Error;
-    public abstract async void set_speaker_volume (int volume) throws DBus.Error;
-    public signal void keypad_event (string name, bool pressed);
-}
-
 namespace GsmDevice { const string MODULE_NAME = "fsogsm.gsm_device"; }
 
 class GsmDevice.Device :
-    OrgFreeSmartphoneGsmDevice,
+    FreeSmartphone.GSM.Device,
     FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
@@ -118,20 +102,21 @@ class GsmDevice.Device :
     //
     public async bool get_antenna_power() throws DBus.Error
     {
-        var t = modem.mediatorFactory( "DeviceGetAntennaPower" );
-        var m = Object.new( t ) as FsoGsm.DeviceGetAntennaPower;
-        m.runAsync( get_antenna_power.callback );
-        yield;
+        Type t = modem.mediatorFactory( "DeviceGetAntennaPower" );
+        FsoGsm.DeviceGetAntennaPower m = Object.new( t ) as FsoGsm.DeviceGetAntennaPower;
+        yield m.run();
         return m.antenna_power;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_features() throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_info() throws DBus.Error
     {
-        var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
-        return r;
+        Type t = modem.mediatorFactory( "DeviceGetInformation" );
+        FsoGsm.DeviceGetInformation m = Object.new( t ) as FsoGsm.DeviceGetInformation;
+        yield m.run();
+        return m.info;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_info() throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_features() throws DBus.Error
     {
         var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
         return r;
@@ -165,6 +150,10 @@ class GsmDevice.Device :
     }
 
     public async void set_speaker_volume(int volume) throws DBus.Error
+    {
+    }
+
+    public async void get_power_status(out string status, out int level) throws DBus.Error
     {
     }
 }
