@@ -92,11 +92,11 @@ public interface FsoFramework.Logger : Object
 #if DEBUG
         GLib.debug( "creating for domain '%s' from group '%s'", domain, group );
 #endif
-
-        string global_log_level = Environment.get_variable( ENV_OVERRIDE_LOG_LEVEL );
-        if ( global_log_level == null )
-            global_log_level = smk.stringValue( group, "log_level", DEFAULT_LOG_LEVEL );
-        var log_level = smk.stringValue( group, "log_level", global_log_level );
+        string log_level = Environment.get_variable( ENV_OVERRIDE_LOG_LEVEL );
+        if ( log_level == null )
+        {
+            log_level = smk.stringValue( group, "log_level", DEFAULT_LOG_LEVEL );
+        }
 
         string log_to = Environment.get_variable( ENV_OVERRIDE_LOG_TO );
         if ( log_to == null )
