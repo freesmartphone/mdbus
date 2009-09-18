@@ -43,7 +43,7 @@ internal class DBusFuncDelegateHolder
 
 /**
  * @class FsoFramework.DBusServiceNotifierDelegate
- **/
+ *
 internal class FsoFramework.DBusServiceNotifierDelegate<T>
 {
     private T t;
@@ -53,6 +53,7 @@ internal class FsoFramework.DBusServiceNotifierDelegate<T>
         this.t = t;
     }
 }
+ */ // doesn't compile w/ vala 0.7.6 :/
 
 /**
  * @class FsoFramework.DBusServiceNotifier
