@@ -29,6 +29,8 @@ namespace PosixExtra {
     [CCode (cheader_filename = "arpa/inet.h")]
     public uint32 inet_addr (string host);
     [CCode (cheader_filename = "arpa/inet.h")]
+    public int inet_aton(string cp, out InAddr addr);
+    [CCode (cheader_filename = "arpa/inet.h")]
     public weak string inet_ntoa (InAddr addr);
     [CCode (cheader_filename = "arpa/inet.h")]
     public uint32 htonl (uint32 hostlong);
@@ -39,6 +41,22 @@ namespace PosixExtra {
     [CCode (cheader_filename = "arpa/inet.h")]
     public uint16 ntohs (uint16 netshort);
 
+    /* ------------- netdb --------------- */
+
+
+    [CCode (cname = "struct hostent", cheader_filename = "netdb.h")]
+    public class HostEnt {
+        public string h_name;
+        [CCode (array_length=false, array_null_terminated=true)]
+        public string[] h_aliases;
+        public int h_addrtype;
+        public int h_length;
+        [CCode (array_length=false, array_null_terminated=true)]
+        public string[] h_addr_list;
+    }
+
+    [CCode (cheader_filename = "netdb.h")]
+    public unowned HostEnt gethostbyname (string name);
 
     /* ------------- pty --------------- */
 
@@ -57,10 +75,6 @@ namespace PosixExtra {
         public uint32 s_addr;
     }
 
-    [CCode (cname = "struct sock_addr", cheader_filename = "sys/socket.h", destroy_function = "")]
-    public struct SockAddr {
-    }
-
     [CCode (cname = "struct sockaddr_in", cheader_filename = "netinet/in.h", destroy_function = "")]
     public struct SockAddrIn
     {
@@ -76,8 +90,10 @@ namespace PosixExtra {
 
     [CCode (cheader_filename = "sys/socket.h")]
     public int listen (int sfd, int backlog);
-    [CCode (cheader_filename = "sys/socket.h")]
-    public int accept (int sfd, SockAddr addr, ref socklen_t addrlen );
+    [CCode (cheader_filename = "sys/socket.h", sentinel = "")]
+    public int accept (int sfd, ... );
+    [CCode (cheader_filename = "sys/socket.h",  sentinel = "")]
+    public int connect(int sfd, ... );
 
     /* ----------- unistd -------------- */
 
@@ -89,7 +105,7 @@ namespace PosixExtra {
         public ushort ws_xpixel;
         public ushort ws_ypixel;
     }
-    
+
     [CCode (cheader_filename = "unistd.h")]
     public int nice (int inc);
 
