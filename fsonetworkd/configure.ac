@@ -1,4 +1,4 @@
-AC_INIT([fsonetworkd], [0.0.1.0], [smartphones-userland@linuxtogo.org], [fsonetworkd])
+AC_INIT([fsonetworkd], [0.0.1.1], [smartphones-userland@linuxtogo.org], [fsonetworkd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
