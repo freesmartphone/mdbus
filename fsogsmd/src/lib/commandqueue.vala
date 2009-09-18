@@ -26,7 +26,6 @@ public delegate void FsoGsm.UnsolicitedHandler( FsoGsm.AtCommand command, string
 public delegate void FsoGsm.UnsolicitedHandlerPDU( FsoGsm.AtCommand command, string response, string pdu );
 
 const uint COMMAND_QUEUE_CHANNEL_TIMEOUT = 10;
-const uint COMMAND_QUEUE_DEFAULT_RETRY = 3;
 const int  COMMAND_QUEUE_BUFFER_SIZE = 4096;
 const string COMMAND_QUEUE_COMMAND_PREFIX = "AT";
 const string COMMAND_QUEUE_COMMAND_POSTFIX = "\r\n";
@@ -60,26 +59,27 @@ public class FsoGsm.UnsolicitedBundlePDU
 
 public abstract interface FsoGsm.CommandQueue : Object
 {
+    public const uint DEFAULT_RETRY = 3;
     /**
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * Coroutine will yield the response.
      **/
-    public abstract async string[] enqueueAsyncYielding( AtCommand command, string request, uint retry = COMMAND_QUEUE_DEFAULT_RETRY );
+    public abstract async string[] enqueueAsyncYielding( AtCommand command, string request, uint retry = DEFAULT_RETRY );
     /**
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * The @a SourceFunc callback will be called. The response from the peer is set in the command bundle.
      **/
-    public abstract void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY );
+    public abstract void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null, uint retry = DEFAULT_RETRY );
     /**
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * The @a ResponseHandler handler will be called with the response from the peer.
      **/
-    public abstract void enqueue( AtCommand command, string request, ResponseHandler? handler = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY );
+    public abstract void enqueue( AtCommand command, string request, ResponseHandler? handler = null, uint retry = DEFAULT_RETRY );
     /**
      * Enqueue new @a AtCommand command. When the command is due for sending, the
      * @a RequestHandler getRequest will be called to gather the request string.
      **/
-    public abstract void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY );
+    public abstract void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null, uint retry = DEFAULT_RETRY );
     /**
      * Halt the Queue operation. Stop accepting any more commands. If drain is true, send
      * all commands that are in the Queue at this point.
@@ -286,7 +286,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
         urcs_pdu.insert( prefix, new UnsolicitedBundlePDU() { command=command, prefix=prefix, handler=handler } );
     }
 
-    public void enqueue( AtCommand command, string request, ResponseHandler? handler = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY )
+    public void enqueue( AtCommand command, string request, ResponseHandler? handler = null, uint retry = DEFAULT_RETRY )
     {
         logger.debug( "enqueuing %s".printf( request ) );
         var retriggerWriting = ( q.size == 0 );
@@ -299,7 +299,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
         Idle.add( checkRestartingQ );
     }
 
-    public void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY )
+    public void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null, uint retry = DEFAULT_RETRY )
     {
         var retriggerWriting = ( q.size == 0 );
         logger.debug( "enqueuing %s [q size = %d], retrigger = %d".printf( request, q.size, (int)retriggerWriting ) );
@@ -313,7 +313,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
         Idle.add( checkRestartingQ );
     }
 
-    public async string[] enqueueAsyncYielding( AtCommand command, string request, uint retry = COMMAND_QUEUE_DEFAULT_RETRY )
+    public async string[] enqueueAsyncYielding( AtCommand command, string request, uint retry = DEFAULT_RETRY )
     {
         logger.debug( "enqueuing %s (sizeof q = %u)".printf( request, q.size ) );
         var retriggerWriting = ( q.size == 0 );
@@ -329,7 +329,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
         return bundle.response;
     }
 
-    public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY )
+    public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null, uint retry = DEFAULT_RETRY )
     {
         logger.debug( "enqueuing deferred request %s".printf( getRequest( command ) ) );
         var retriggerWriting = ( q.size == 0 );
