@@ -155,6 +155,8 @@ class GsmDevice.Device :
 
     public async void get_power_status(out string status, out int level) throws DBus.Error
     {
+        status = "";
+        level = 0;
     }
 }
 

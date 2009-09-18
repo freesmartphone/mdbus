@@ -34,7 +34,7 @@ public class DeviceGetAntennaPower : AbstractMediator
 {
     public bool antenna_power;
 
-    public async void run()
+    public async void run() throws DBus.Error
     {
         PlusCFUN cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
         var channel = theModem.channel( "main" );

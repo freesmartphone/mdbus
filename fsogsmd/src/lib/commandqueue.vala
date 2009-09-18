@@ -25,7 +25,9 @@ public delegate string FsoGsm.RequestHandler( FsoGsm.AtCommand command );
 public delegate void FsoGsm.UnsolicitedHandler( FsoGsm.AtCommand command, string response );
 public delegate void FsoGsm.UnsolicitedHandlerPDU( FsoGsm.AtCommand command, string response, string pdu );
 
-const int COMMAND_QUEUE_BUFFER_SIZE = 4096;
+const uint COMMAND_QUEUE_CHANNEL_TIMEOUT = 10;
+const uint COMMAND_QUEUE_DEFAULT_RETRY = 3;
+const int  COMMAND_QUEUE_BUFFER_SIZE = 4096;
 const string COMMAND_QUEUE_COMMAND_PREFIX = "AT";
 const string COMMAND_QUEUE_COMMAND_POSTFIX = "\r\n";
 
@@ -33,6 +35,7 @@ public class FsoGsm.CommandBundle
 {
     public FsoGsm.AtCommand command;
     public string request;
+    public uint retry;
     public RequestHandler getRequest;
     public ResponseHandler handler;
     public string[] response;
@@ -61,22 +64,22 @@ public abstract interface FsoGsm.CommandQueue : Object
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * Coroutine will yield the response.
      **/
-    public abstract async string[] enqueueAsyncYielding( AtCommand command, string request );
+    public abstract async string[] enqueueAsyncYielding( AtCommand command, string request, uint retry = COMMAND_QUEUE_DEFAULT_RETRY );
     /**
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * The @a SourceFunc callback will be called. The response from the peer is set in the command bundle.
      **/
-    public abstract void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null );
+    public abstract void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY );
     /**
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * The @a ResponseHandler handler will be called with the response from the peer.
      **/
-    public abstract void enqueue( AtCommand command, string request, ResponseHandler? handler = null );
+    public abstract void enqueue( AtCommand command, string request, ResponseHandler? handler = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY );
     /**
      * Enqueue new @a AtCommand command. When the command is due for sending, the
      * @a RequestHandler getRequest will be called to gather the request string.
      **/
-    public abstract void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null );
+    public abstract void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY );
     /**
      * Halt the Queue operation. Stop accepting any more commands. If drain is true, send
      * all commands that are in the Queue at this point.
@@ -92,6 +95,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 {
     protected LinkedList<CommandBundle> q;
     protected CommandBundle current;
+    protected uint timeout;
 
     protected FsoFramework.Transport transport;
     protected FsoGsm.Parser parser;
@@ -100,49 +104,20 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     protected HashTable<string, FsoGsm.UnsolicitedBundle> urcs;
     protected HashTable<string, FsoGsm.UnsolicitedBundlePDU> urcs_pdu;
 
-    protected void writeNextCommand()
-    {
-        logger.debug( "writing next command" );
-        current = q.poll_head();
-        writeRequestToTransport( current.request );
-    }
-
-    protected void writeRequestToTransport( string request )
+    protected void _writeRequestToTransport( string request )
     {
         transport.write( COMMAND_QUEUE_COMMAND_PREFIX, 2 );
         transport.write( request, (int)request.size() );
         transport.write( COMMAND_QUEUE_COMMAND_POSTFIX, 2 );
-    }
-
-    protected void onResponseFromTransport( string response )
-    {
-        logger.debug( "response = %s".printf( response.escape( "" ) ) );
-        parser.feed( response, (int)response.length );
-    }
-
-    protected void onHupFromTransport()
-    {
-        logger.debug( "hup from transport. closing." );
-        transport.close();
-    }
-
-    protected void onSolicitedResponse( CommandBundle bundle, string[] response )
-    {
-        debug( "on solicited response w/ %d lines", response.length );
-        /*
-        if ( bundle.handler != null )
-            bundle.handler( bundle.command, response );
-        */
-
-        if ( bundle.callback != null )
-        {
-            bundle.response = response;
-            bundle.callback();
-        }
+        timeout = Timeout.add_seconds( COMMAND_QUEUE_CHANNEL_TIMEOUT, _onTimeout );
     }
 
     protected void _onReadFromTransport( FsoFramework.Transport t )
     {
+        if ( timeout > 0 )
+        {
+            Source.remove( timeout );
+        }
         var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
         buffer[bytesread] = 0;
         onResponseFromTransport( (string)buffer );
@@ -151,6 +126,28 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     protected void _onHupFromTransport( FsoFramework.Transport t )
     {
         onHupFromTransport();
+    }
+
+    protected bool _onTimeout()
+    {
+        // FIXME: Might check whether we already have something in the
+        // parser buffer (i.e. partial response), since then we need to
+        // reset the parser state before continuing
+        if ( current.retry-- > 0 )
+        {
+            logger.warning( "Transport did not reply to command '%s'. Resending...".printf( current.request ) );
+            _writeRequestToTransport( current.request );
+        }
+        else
+        {
+            logger.error( "Transport did (even after retrying) not reply to command '%s'".printf( current.request ) );
+
+            onResponseTimeout( current );
+
+            current = null;
+            Idle.add( checkRestartingQ );
+        }
+        return false;
     }
 
     protected bool _haveCommand()
@@ -206,6 +203,49 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     }
 
     //=====================================================================//
+    // SUBCLASSING API
+    //=====================================================================//
+
+    protected void writeNextCommand()
+    {
+        logger.debug( "writing next command" );
+        current = q.poll_head();
+        _writeRequestToTransport( current.request );
+    }
+
+    protected void onResponseFromTransport( string response )
+    {
+        logger.debug( "response = %s".printf( response.escape( "" ) ) );
+        parser.feed( response, (int)response.length );
+    }
+
+    protected void onHupFromTransport()
+    {
+        logger.debug( "hup from transport. closing." );
+        transport.close();
+    }
+
+    protected void onSolicitedResponse( CommandBundle bundle, string[] response )
+    {
+        debug( "on solicited response w/ %d lines", response.length );
+        /*
+        if ( bundle.handler != null )
+        bundle.handler( bundle.command, response );
+        */
+
+        if ( bundle.callback != null )
+        {
+            bundle.response = response;
+            bundle.callback();
+        }
+    }
+
+    protected void onResponseTimeout( CommandBundle bundle )
+    {
+        onSolicitedResponse( bundle, new string[] { "+EXT: ERROR 261271" } );
+    }
+
+    //=====================================================================//
     // PUBLIC API
     //=====================================================================//
 
@@ -246,38 +286,59 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
         urcs_pdu.insert( prefix, new UnsolicitedBundlePDU() { command=command, prefix=prefix, handler=handler } );
     }
 
-    public void enqueue( AtCommand command, string request, ResponseHandler? handler = null )
+    public void enqueue( AtCommand command, string request, ResponseHandler? handler = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY )
     {
         logger.debug( "enqueuing %s".printf( request ) );
         var retriggerWriting = ( q.size == 0 );
-        q.offer_tail( new CommandBundle() { command=command, request=request, getRequest=null, handler=handler } );
+        q.offer_tail( new CommandBundle() {
+            command=command,
+            request=request,
+            getRequest=null,
+            handler=handler,
+            retry=retry } );
         Idle.add( checkRestartingQ );
     }
 
-    public void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null )
+    public void enqueueAsync( AtCommand command, string request, SourceFunc? callback = null, string[]? response = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY )
     {
         var retriggerWriting = ( q.size == 0 );
         logger.debug( "enqueuing %s [q size = %d], retrigger = %d".printf( request, q.size, (int)retriggerWriting ) );
-        q.offer_tail( new CommandBundle() { command=command, request=request, getRequest=null, callback=callback, response=response } );
+        q.offer_tail( new CommandBundle() {
+            command=command,
+            request=request,
+            getRequest=null,
+            callback=callback,
+            response=response,
+            retry=retry } );
         Idle.add( checkRestartingQ );
     }
 
-    public async string[] enqueueAsyncYielding( AtCommand command, string request )
+    public async string[] enqueueAsyncYielding( AtCommand command, string request, uint retry = COMMAND_QUEUE_DEFAULT_RETRY )
     {
         logger.debug( "enqueuing %s (sizeof q = %u)".printf( request, q.size ) );
         var retriggerWriting = ( q.size == 0 );
-        CommandBundle bundle = new CommandBundle() { command=command, request=request, getRequest=null, callback=enqueueAsyncYielding.callback };
+        CommandBundle bundle = new CommandBundle() {
+            command=command,
+            request=request,
+            getRequest=null,
+            callback=enqueueAsyncYielding.callback,
+            retry=retry };
         q.offer_tail( bundle );
         Idle.add( checkRestartingQ );
         yield;
         return bundle.response;
     }
 
-    public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null )
+    public void deferred( AtCommand command, RequestHandler getRequest, ResponseHandler? handler = null, uint retry = COMMAND_QUEUE_DEFAULT_RETRY )
     {
         logger.debug( "enqueuing deferred request %s".printf( getRequest( command ) ) );
         var retriggerWriting = ( q.size == 0 );
-        q.offer_tail( new CommandBundle() { command=command, request=null, getRequest=getRequest, handler=handler } );
+        q.offer_tail( new CommandBundle() {
+            command=command,
+            request=null,
+            getRequest=getRequest,
+            handler=handler,
+            retry=retry } );
         Idle.add( checkRestartingQ );
     }
 
