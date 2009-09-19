@@ -58,7 +58,7 @@ public abstract interface FsoGsm.Modem : GLib.Object
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
     public abstract string[] commandSequence( string purpose );
 
-    public abstract Type mediatorFactory( string mediator );
+    public abstract Type mediatorFactory( string mediator ) throws FreeSmartphone.Error;
     public abstract FsoGsm.AtCommand atCommandFactory( string command );
 
     public abstract FsoGsm.Channel channel( string category );
@@ -90,7 +90,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
-        modem_init = config.stringListValue( "fsogsm", "modem_init", { "Z", "E0Q0V1" } );
+        modem_init = config.stringListValue( "fsogsm", "modem_init", { "ZE0Q0V1" } );
 
         channels = new HashMap<string,FsoGsm.Channel>();
 
@@ -183,7 +183,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return new Object( typ ) as FsoGsm.Mediator;
     }
 
-    public Type mediatorFactory( string mediator )
+    public Type mediatorFactory( string mediator ) throws FreeSmartphone.Error
     {
         Type? typ = mediators[mediator];
         assert( typ != null );

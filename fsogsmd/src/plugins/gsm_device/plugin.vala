@@ -100,7 +100,7 @@ class GsmDevice.Device :
     //
     // DBUS
     //
-    public async bool get_antenna_power() throws DBus.Error
+    public async bool get_antenna_power() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         Type t = modem.mediatorFactory( "DeviceGetAntennaPower" );
         FsoGsm.DeviceGetAntennaPower m = Object.new( t ) as FsoGsm.DeviceGetAntennaPower;
@@ -108,7 +108,7 @@ class GsmDevice.Device :
         return m.antenna_power;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_info() throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         Type t = modem.mediatorFactory( "DeviceGetInformation" );
         FsoGsm.DeviceGetInformation m = Object.new( t ) as FsoGsm.DeviceGetInformation;
@@ -116,44 +116,44 @@ class GsmDevice.Device :
         return m.info;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_features() throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_features() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
         return r;
     }
 
-    public async bool get_microphone_muted() throws DBus.Error
+    public async bool get_microphone_muted() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         return false;
     }
 
-    public async bool get_sim_buffers_sms() throws DBus.Error
+    public async bool get_sim_buffers_sms() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         return false;
     }
 
-    public async int get_speaker_volume() throws DBus.Error
+    public async int get_speaker_volume() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         return 0;
     }
 
-    public async void set_antenna_power(bool antenna_power) throws DBus.Error
+    public async void set_antenna_power(bool antenna_power) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 
-    public async void set_microphone_muted(bool muted) throws DBus.Error
+    public async void set_microphone_muted(bool muted) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 
-    public async void set_sim_buffers_sms(bool sim_buffers_sms) throws DBus.Error
+    public async void set_sim_buffers_sms(bool sim_buffers_sms) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 
-    public async void set_speaker_volume(int volume) throws DBus.Error
+    public async void set_speaker_volume(int volume) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 
-    public async void get_power_status(out string status, out int level) throws DBus.Error
+    public async void get_power_status(out string status, out int level) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         status = "";
         level = 0;
