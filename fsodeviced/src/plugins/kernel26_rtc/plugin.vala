@@ -73,7 +73,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         return "<FsoFramework.Device.Rtc @ %s : %s>".printf( sysfsnode, devnode );
     }
 
-    public bool onInputEvent( IOChannel source, IOCondition condition )
+    private bool onInputEvent( IOChannel source, IOCondition condition )
     {
         if ( source != channel )
         {
@@ -97,6 +97,17 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         return true;
     }
 
+    private int _getCurrentTime() throws FreeSmartphone.Error
+    {
+        GLib.Time t = {};
+        var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_RD_TIME, &t );
+        if ( res == -1 )
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
+        logger.info( "RTC time equals %s".printf( t.to_string() ) );
+
+        return (int)Linux.timegm( t );
+    }
+
     //
     // DBUS API
     //
@@ -107,13 +118,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
 
     public int get_current_time() throws FreeSmartphone.Error, DBus.Error
     {
-        GLib.Time t = {};
-        var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_RD_TIME, &t );
-        if ( res == -1 )
-            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
-        logger.info( "RTC time equals %s".printf( t.to_string() ) );
-
-        return (int)Linux.timegm( t );
+        return _getCurrentTime();
     }
 
     public void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
@@ -148,7 +153,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
 
     public void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
-        var rtctime = get_current_time();
+        var rtctime = _getCurrentTime();
         if ( rtctime >= seconds_since_epoch )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "RTC Wakeup time not in the future" );
 

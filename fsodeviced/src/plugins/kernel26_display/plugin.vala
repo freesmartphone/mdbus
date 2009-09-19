@@ -44,7 +44,7 @@ class Display : FreeSmartphone.Device.Display, FsoFramework.AbstractObject
         this.sysfsnode = sysfsnode;
         this.max_brightness = FsoFramework.FileHandling.read( this.sysfsnode + "/max_brightness" ).to_int();
 
-        this.current_brightness = get_brightness();
+        this.current_brightness = _getBrightness();
 
         fb_fd = Posix.open( dev_fb0, Posix.O_RDONLY );
         if ( fb_fd == -1 )
@@ -90,6 +90,12 @@ class Display : FreeSmartphone.Device.Display, FsoFramework.AbstractObject
         return (int)value;
     }
 
+    private int _getBrightness()
+    {
+        var value = FsoFramework.FileHandling.read( this.sysfsnode + "/actual_brightness" ).to_int();
+        return _valueToPercent( value );
+    }
+
     //
     // DBUS API
     //
@@ -116,8 +122,7 @@ class Display : FreeSmartphone.Device.Display, FsoFramework.AbstractObject
 
     public int get_brightness()
     {
-        var value = FsoFramework.FileHandling.read( this.sysfsnode + "/actual_brightness" ).to_int();
-        return _valueToPercent( value );
+        return _getBrightness();
     }
 
     public bool get_backlight_power()
