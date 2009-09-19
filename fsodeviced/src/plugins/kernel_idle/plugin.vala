@@ -155,7 +155,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     {
         var ignore = false;
 
-        var length = Posix.ioctl( fd, Linux26.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
+        var length = Posix.ioctl( fd, Linux.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
         if ( length > 0 )
         {
             var product = _cleanBuffer( length );
@@ -167,7 +167,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
                 }
             }
         }
-        length = Posix.ioctl( fd, Linux26.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
+        length = Posix.ioctl( fd, Linux.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
         if ( length > 0 )
         {
             var phys = _cleanBuffer( length );
@@ -309,15 +309,15 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         }
     }
 
-    private void _handleInputEvent( ref Linux26.Input.Event ev )
+    private void _handleInputEvent( ref Linux.Input.Event ev )
     {
         idlestatus.onState( FreeSmartphone.Device.IdleState.BUSY );
     }
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
     {
-        Linux26.Input.Event ev = {};
-        var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux26.Input.Event) );
+        Linux.Input.Event ev = {};
+        var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux.Input.Event) );
         if ( bytesread == 0 )
         {
             logger.warning( "could not read from input device fd %d.".printf( source.unix_get_fd() ) );
@@ -325,7 +325,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         }
 
         // only honor keys and buttons for now
-        if ( ev.type == Linux26.Input.EV_KEY )
+        if ( ev.type == Linux.Input.EV_KEY )
         {
             //logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
             _handleInputEvent( ref ev );

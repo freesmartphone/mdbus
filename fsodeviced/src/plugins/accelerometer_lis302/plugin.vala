@@ -121,7 +121,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         return false; // don't call me again
     }
 
-    private void _handleInputEvent( ref Linux26.Input.Event ev )
+    private void _handleInputEvent( ref Linux.Input.Event ev )
     {
         if ( ev.code > 2 )
         {
@@ -139,8 +139,8 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
     {
-        Linux26.Input.Event ev = {};
-        var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux26.Input.Event) );
+        Linux.Input.Event ev = {};
+        var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux.Input.Event) );
         if ( bytesread == 0 )
         {
             logger.warning( "could not read from input device fd %d.".printf( source.unix_get_fd() ) );
@@ -148,7 +148,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         }
 
         // we're only interested in the absolute axis values
-        if ( ev.type == Linux26.Input.EV_ABS )
+        if ( ev.type == Linux.Input.EV_ABS )
         {
             logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
             _handleInputEvent( ref ev );

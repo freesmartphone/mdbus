@@ -97,7 +97,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
             logger.warning( "Can't open %s (%s). Full input device control not available.".printf( sysfsnode, Posix.strerror( Posix.errno ) ) );
         else
         {
-            var length = Posix.ioctl( fd, Linux26.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
+            var length = Posix.ioctl( fd, Linux.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
             if ( length > 0 )
             {
                 product = _cleanBuffer( length );
@@ -109,7 +109,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
                     }
                 }
             }
-            length = Posix.ioctl( fd, Linux26.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
+            length = Posix.ioctl( fd, Linux.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
             if ( length > 0 )
             {
                 phys = _cleanBuffer( length );
@@ -122,43 +122,43 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
                 }
             }
             ushort b = 0;
-            if ( Posix.ioctl( fd, Linux26.Input.EVIOCGBIT( 0, Linux26.Input.EV_MAX ), &b ) < 0 )
+            if ( Posix.ioctl( fd, Linux.Input.EVIOCGBIT( 0, Linux.Input.EV_MAX ), &b ) < 0 )
             {
                 logger.error( "Can't inquire input device capabilities: %s".printf( strerror( errno ) ) );
             }
             else
             {
                 caps = "";
-                if ( ( b & ( 1 << Linux26.Input.EV_SYN ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_SYN ) ) > 0 )
                     caps += " SYN";
-                if ( ( b & ( 1 << Linux26.Input.EV_KEY ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_KEY ) ) > 0 )
                     caps += " KEY";
-                if ( ( b & ( 1 << Linux26.Input.EV_REL ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_REL ) ) > 0 )
                     caps += " REL";
-                if ( ( b & ( 1 << Linux26.Input.EV_ABS ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_ABS ) ) > 0 )
                     caps += " ABS";
-                if ( ( b & ( 1 << Linux26.Input.EV_MSC ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_MSC ) ) > 0 )
                     caps += " MSC";
-                if ( ( b & ( 1 << Linux26.Input.EV_SW ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_SW ) ) > 0 )
                     caps += " SW";
-                if ( ( b & ( 1 << Linux26.Input.EV_LED ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_LED ) ) > 0 )
                     caps += " LED";
-                if ( ( b & ( 1 << Linux26.Input.EV_SND ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_SND ) ) > 0 )
                     caps += " SND";
-                if ( ( b & ( 1 << Linux26.Input.EV_REP ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_REP ) ) > 0 )
                     caps += " REP";
-                if ( ( b & ( 1 << Linux26.Input.EV_FF ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_FF ) ) > 0 )
                     caps += " FF";
-                if ( ( b & ( 1 << Linux26.Input.EV_PWR ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_PWR ) ) > 0 )
                     caps += " PWR";
-                if ( ( b & ( 1 << Linux26.Input.EV_FF_STATUS ) ) > 0 )
+                if ( ( b & ( 1 << Linux.Input.EV_FF_STATUS ) ) > 0 )
                     caps += " FF_STATUS";
             }
             caps = caps.strip();
 
-            uint typelength = Linux26.Input.KEY_MAX / 8 + 1;
+            uint typelength = Linux.Input.KEY_MAX / 8 + 1;
             keystate = new uint8[typelength];
-            if ( Posix.ioctl( fd, Linux26.Input.EVIOCGKEY( typelength ), keystate ) < 0 )
+            if ( Posix.ioctl( fd, Linux.Input.EVIOCGKEY( typelength ), keystate ) < 0 )
             {
                 logger.error( "Can't inquire input device key status: %s".printf( strerror( errno ) ) );
             }
@@ -306,15 +306,15 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         {
             if ( input.fd != 1 )
             {
-                for ( int i = 0; i < Linux26.Input.KEY_MAX; ++i )
+                for ( int i = 0; i < Linux.Input.KEY_MAX; ++i )
                 {
                     if ( _testbit( i, input.keystate ) )
                     {
                         logger.info( "Sending coldplug input notification for bit %s:%d".printf( input.name, i ) );
                         // need to do it both for switches and keys, since we differenciate between those two
-                        var ev1 = Linux26.Input.Event() { time = Posix.timeval() { tv_sec=0, tv_usec=0 }, type=(uint16)Linux26.Input.EV_KEY, code=(uint16)i, value=KEY_PRESS };
+                        var ev1 = Linux.Input.Event() { time = Posix.timeval() { tv_sec=0, tv_usec=0 }, type=(uint16)Linux.Input.EV_KEY, code=(uint16)i, value=KEY_PRESS };
                         _handleInputEvent( ref ev1 );
-                        var ev2 = Linux26.Input.Event() { time = Posix.timeval() { tv_sec=0, tv_usec=0 }, type=(uint16)Linux26.Input.EV_SW, code=(uint16)i, value=KEY_PRESS };
+                        var ev2 = Linux.Input.Event() { time = Posix.timeval() { tv_sec=0, tv_usec=0 }, type=(uint16)Linux.Input.EV_SW, code=(uint16)i, value=KEY_PRESS };
                         _handleInputEvent( ref ev2 );
                     }
                 }
@@ -356,16 +356,16 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         }
     }
 
-    private void _handleInputEvent( ref Linux26.Input.Event ev )
+    private void _handleInputEvent( ref Linux.Input.Event ev )
     {
         HashMap<int,EventStatus> table = null;
 
         switch ( ev.type )
         {
-            case Linux26.Input.EV_KEY:
+            case Linux.Input.EV_KEY:
                 table = keys;
                 break;
-            case Linux26.Input.EV_SW:
+            case Linux.Input.EV_SW:
                 table = switches;
                 break;
             default:
@@ -430,15 +430,15 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
     {
-        Linux26.Input.Event ev = {};
-        var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux26.Input.Event) );
+        Linux.Input.Event ev = {};
+        var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux.Input.Event) );
         if ( bytesread == 0 )
         {
             logger.warning( "could not read from input device fd %d.".printf( source.unix_get_fd() ) );
             return false;
         }
 
-        if ( ev.type != Linux26.Input.EV_SYN )
+        if ( ev.type != Linux.Input.EV_SYN )
         {
             logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
             _handleInputEvent( ref ev );
