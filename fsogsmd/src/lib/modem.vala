@@ -59,7 +59,7 @@ public abstract interface FsoGsm.Modem : GLib.Object
     public abstract string[] commandSequence( string purpose );
 
     public abstract Type mediatorFactory( string mediator ) throws FreeSmartphone.Error;
-    public abstract FsoGsm.AtCommand atCommandFactory( string command );
+    public abstract FsoGsm.AtCommand atCommandFactory( string command ) throws FreeSmartphone.Error;
 
     public abstract FsoGsm.Channel channel( string category );
 
@@ -176,24 +176,33 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return channels[category];
     }
 
-    public FsoGsm.Mediator createMediator( string mediator )
+    public T createMediator<T>( string mediator )
     {
-        Type? typ = mediators[mediator];
-        assert( typ != null );
-        return new Object( typ ) as FsoGsm.Mediator;
+        Type typ = mediators[mediator];
+        if ( typ == Type.INVALID )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( mediator ) );
+        }
+        return (T) new Object( typ );
     }
 
     public Type mediatorFactory( string mediator ) throws FreeSmartphone.Error
     {
-        Type? typ = mediators[mediator];
-        assert( typ != null );
+        Type typ = mediators[mediator];
+        if ( typ == Type.INVALID )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( mediator ) );
+        }
         return typ;
     }
 
-    public AtCommand atCommandFactory( string command )
+    public AtCommand atCommandFactory( string command ) throws FreeSmartphone.Error
     {
-        var cmd = commands[command];
-        assert( cmd != null );
+        AtCommand? cmd = commands[command];
+        if (cmd == null )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested at command '%s' unknown".printf( command ) );
+        }
         return cmd;
     }
 
