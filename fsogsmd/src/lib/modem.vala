@@ -58,7 +58,8 @@ public abstract interface FsoGsm.Modem : GLib.Object
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
     public abstract string[] commandSequence( string purpose );
 
-    public abstract Type mediatorFactory( string mediator ) throws FreeSmartphone.Error;
+    public abstract T createMediator<T>() throws FreeSmartphone.Error;
+    public abstract Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error;
     public abstract FsoGsm.AtCommand atCommandFactory( string command ) throws FreeSmartphone.Error;
 
     public abstract FsoGsm.Channel channel( string category );
@@ -79,7 +80,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     protected HashMap<string,FsoGsm.Channel> channels;
     protected HashMap<string,FsoGsm.AtCommand> commands;
-    protected HashMap<string,Type> mediators;
+    protected HashMap<Type,Type> mediators;
 
     construct
     {
@@ -105,8 +106,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     private void registerMediators()
     {
-        mediators = new HashMap<string,Type>();
-        registerGenericMediators( mediators );
+        mediators = new HashMap<Type,Type>();
+        registerGenericAtMediators( mediators );
         registerCustomMediators( mediators );
     }
 
@@ -121,7 +122,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      * Override this to register additional mediators specific to your modem or
      * override generic mediators with modem-specific versions.
      **/
-    protected virtual void registerCustomMediators( HashMap<string,Type> mediators )
+    protected virtual void registerCustomMediators( HashMap<Type,Type> mediators )
     {
     }
 
@@ -176,22 +177,23 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return channels[category];
     }
 
-    public T createMediator<T>( string mediator )
+    public T createMediator<T>() throws FreeSmartphone.Error
     {
-        Type typ = mediators[mediator];
+        Type typ = mediators[typeof(T)];
+        assert( typ != typeof(T) ); // we do NOT want the interface
         if ( typ == Type.INVALID )
         {
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( mediator ) );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( typeof(T).name() ) );
         }
-        return (T) new Object( typ );
+        return (T) ( new Object( typ ) );
     }
 
-    public Type mediatorFactory( string mediator ) throws FreeSmartphone.Error
+    public Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error
     {
         Type typ = mediators[mediator];
         if ( typ == Type.INVALID )
         {
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( mediator ) );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( mediator.name() ) );
         }
         return typ;
     }

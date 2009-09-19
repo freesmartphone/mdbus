@@ -30,12 +30,17 @@ namespace FsoGsm {
 /**
  * Power on/off the antenna. THIS FUNCTION IS DEPRECATED
  **/
-public class DeviceGetAntennaPower : AbstractMediator
+public class AtDeviceGetAntennaPower : DeviceGetAntennaPower, FsoGsm.AbstractMediator
 {
-    public bool antenna_power;
+    public bool antenna_power { get; set; }
 
-    public async void run()
+    construct
     {
+        message( "AtDeviceGetAntennaPower()" );
+    }
+    public async void run() throws FreeSmartphone.Error
+    {
+        message( "AtDeviceGetAntennaPower.run()" );
         PlusCFUN cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
         var channel = theModem.channel( "main" );
 
@@ -49,12 +54,17 @@ public class DeviceGetAntennaPower : AbstractMediator
 /**
  * Get device information.
  **/
-public class DeviceGetInformation : AbstractMediator
+public class AtDeviceGetInformation : DeviceGetInformation, FsoGsm.AbstractMediator
 {
-    public GLib.HashTable<string,Value?> info;
-
-    public async void run()
+    construct
     {
+        message( "AtDeviceGetInformation()" );
+    }
+    public GLib.HashTable<string,GLib.Value?> info { get; set; }
+
+    public async void run() throws FreeSmartphone.Error
+    {
+        message( "AtDeviceGetInformation.run()" );
         var channel = theModem.channel( "main" );
         var value = Value( typeof(string) );
         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
@@ -85,11 +95,11 @@ public class DeviceGetInformation : AbstractMediator
     }
 }
 
-public void registerGenericMediators( HashMap<string,Type> table )
+public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
     // register commands
-    table[ "DeviceGetAntennaPower" ]        = typeof( DeviceGetAntennaPower );
-    table[ "DeviceGetInformation" ]         = typeof( DeviceGetInformation );
+    table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
+    table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
 }
 
 } // namespace FsoGsm

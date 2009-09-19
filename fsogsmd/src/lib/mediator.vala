@@ -18,10 +18,10 @@
  */
 
 /**
- * Mediator Interface and Base Class
+ * Mediator Interfaces and Base Class
  **/
 
-public abstract interface FsoGsm.Mediator : GLib.Object
+public abstract interface FsoGsm.Mediator
 {
 }
 
@@ -39,5 +39,23 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
         debug( "enqueueing %s", Type.from_instance( command ).name() );
         var channel = theModem.channel("main");
         channel.enqueueAsync( command, chars, callback, response );
+    }
+}
+
+public abstract interface FsoGsm.DeviceGetAntennaPower : GLib.Object
+{
+    public abstract bool antenna_power { get; set; }
+    public async void run() throws FreeSmartphone.Error
+    {
+        assert_not_reached();
+    }
+}
+
+public abstract interface FsoGsm.DeviceGetInformation : FsoGsm.AbstractMediator
+{
+    public abstract GLib.HashTable<string,GLib.Value?> info { get; set; }
+    public async void run() throws FreeSmartphone.Error
+    {
+        assert_not_reached();
     }
 }
