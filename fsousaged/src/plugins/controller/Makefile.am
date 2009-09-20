@@ -38,8 +38,8 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsousage
 modlibexec_LTLIBRARIES = controller.la
-controller_la_SOURCES = plugin.c
-controller_la_VALASOURCES = plugin.vala
+controller_la_SOURCES = plugin.c resource.c
+controller_la_VALASOURCES = plugin.vala resource.vala
 $(controller_la_SOURCES): $(controller_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $(VALAC_EXTRA_ARGS) $^
 	touch $@
