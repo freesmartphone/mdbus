@@ -213,7 +213,6 @@ public class Resource : Object
         {
             proxy.enable();
             status = ResourceStatus.ENABLED;
-            updateStatus();
         }
         catch ( DBus.Error e )
         {
