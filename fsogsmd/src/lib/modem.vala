@@ -177,15 +177,21 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return channels[category];
     }
 
+    /* try to reproduce as minimal example why calling this method bails out */
     public T createMediator<T>() throws FreeSmartphone.Error
     {
+        message( "createMediator()" );
         Type typ = mediators[typeof(T)];
         assert( typ != typeof(T) ); // we do NOT want the interface
         if ( typ == Type.INVALID )
         {
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( typeof(T).name() ) );
         }
-        return (T) ( new Object( typ ) );
+        message( "2" );
+        T obj = Object.new( typ );
+        message( "3" );
+        return obj;
+        //return (T) ( Object.new( typ ) );
     }
 
     public Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error

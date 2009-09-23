@@ -30,17 +30,10 @@ namespace FsoGsm {
 /**
  * Power on/off the antenna. THIS FUNCTION IS DEPRECATED
  **/
-public class AtDeviceGetAntennaPower : DeviceGetAntennaPower, FsoGsm.AbstractMediator
+public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
 {
-    public bool antenna_power { get; set; }
-
-    construct
+    public override async void run() throws FreeSmartphone.Error
     {
-        message( "AtDeviceGetAntennaPower()" );
-    }
-    public async void run() throws FreeSmartphone.Error
-    {
-        message( "AtDeviceGetAntennaPower.run()" );
         PlusCFUN cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
         var channel = theModem.channel( "main" );
 
@@ -54,20 +47,13 @@ public class AtDeviceGetAntennaPower : DeviceGetAntennaPower, FsoGsm.AbstractMed
 /**
  * Get device information.
  **/
-public class AtDeviceGetInformation : DeviceGetInformation, FsoGsm.AbstractMediator
+public class AtDeviceGetInformation : DeviceGetInformation
 {
-    construct
+    public override async void run() throws FreeSmartphone.Error
     {
-        message( "AtDeviceGetInformation()" );
-    }
-    public GLib.HashTable<string,GLib.Value?> info { get; set; }
-
-    public async void run() throws FreeSmartphone.Error
-    {
-        message( "AtDeviceGetInformation.run()" );
+        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
         var channel = theModem.channel( "main" );
         var value = Value( typeof(string) );
-        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
 
         PlusCGMR cgmr = theModem.atCommandFactory( "+CGMR" ) as PlusCGMR;
         var response = yield channel.enqueueAsyncYielding( cgmr, cgmr.query() );
@@ -95,11 +81,29 @@ public class AtDeviceGetInformation : DeviceGetInformation, FsoGsm.AbstractMedia
     }
 }
 
+/**
+ * List providers.
+ **/
+public class AtNetworkListProviders : NetworkListProviders
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        PlusCOPS_Test cops = theModem.atCommandFactory( "+COPS=?" ) as PlusCOPS_Test;
+        var channel = theModem.channel( "main" );
+
+        var response = yield channel.enqueueAsyncYielding( cops, cops.issue() );
+
+        cops.parse( response[0] );
+    }
+}
+
 public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
     // register commands
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
+
+    table[ typeof(NetworkListProviders) ]         = typeof( NetworkListProviders );
 }
 
 } // namespace FsoGsm

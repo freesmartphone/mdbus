@@ -74,10 +74,11 @@ public class PlusCOPS_Test : AbstractAtCommand
 {
     public struct Info
     {
-        public int status;
+        public string status;
         public string shortname;
         public string longname;
         public string mccmnc;
+        public string act;
     }
     public GLib.List<Info?> info;
 
@@ -93,7 +94,7 @@ public class PlusCOPS_Test : AbstractAtCommand
         info = new GLib.List<Info?>();
         do
         {
-            var i = Info() { status = to_int( "status" ),
+            var i = Info() { status = Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
                              longname = to_string( "longname" ),
                              shortname = to_string( "shortname" ),
                              mccmnc = to_string( "mccmnc" ) };

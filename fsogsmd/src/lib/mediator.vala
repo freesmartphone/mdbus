@@ -42,20 +42,26 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
     }
 }
 
-public abstract interface FsoGsm.DeviceGetAntennaPower : GLib.Object
+//
+// org.freesmartphone.GSM.Device.*
+//
+public abstract class FsoGsm.DeviceGetAntennaPower : FsoGsm.AbstractMediator
 {
-    public abstract bool antenna_power { get; set; }
-    public async void run() throws FreeSmartphone.Error
-    {
-        assert_not_reached();
-    }
+    public bool antenna_power { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
 }
 
-public abstract interface FsoGsm.DeviceGetInformation : FsoGsm.AbstractMediator
+public abstract class FsoGsm.DeviceGetInformation : FsoGsm.AbstractMediator
 {
-    public abstract GLib.HashTable<string,GLib.Value?> info { get; set; }
-    public async void run() throws FreeSmartphone.Error
-    {
-        assert_not_reached();
-    }
+    public GLib.HashTable<string,GLib.Value?> info { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+//
+// org.freesmartphone.GSM.Network.*
+//
+public abstract class FsoGsm.NetworkListProviders : FsoGsm.AbstractMediator
+{
+    public FreeSmartphone.GSM.NetworkProvider[] providers { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
 }
