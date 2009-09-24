@@ -55,6 +55,8 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
     protected string to_string( string name )
     {
         var res = mi.fetch_named( name );
+        if ( res == null )
+            return ""; // indicates parameter not present
         return res;
     }
 

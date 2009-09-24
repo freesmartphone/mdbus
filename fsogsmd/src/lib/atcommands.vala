@@ -72,7 +72,7 @@ public class PlusCGMI : AbstractAtCommand
 
 public class PlusCOPS_Test : AbstractAtCommand
 {
-    public struct Info
+    public struct Provider
     {
         public string status;
         public string shortname;
@@ -80,25 +80,27 @@ public class PlusCOPS_Test : AbstractAtCommand
         public string mccmnc;
         public string act;
     }
-    public GLib.List<Info?> info;
+    Provider[] providers;
 
     public PlusCOPS_Test()
     {
-        re = new Regex( """\((?<status>\d),"(?P<longname>[^"]*)","(?P<shortname>[^"]*)","(?P<mccmnc>[^"]*)"\)""" );
+        re = new Regex( """\((?P<status>\d),"(?P<longname>[^"]*)","(?P<shortname>[^"]*)","(?P<mccmnc>[^"]*)"(?:,(?P<act>\d))?\)""" );
         prefix = { "+COPS: " };
     }
 
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        info = new GLib.List<Info?>();
+        providers = new Provider[] {};
         do
         {
-            var i = Info() { status = Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
-                             longname = to_string( "longname" ),
-                             shortname = to_string( "shortname" ),
-                             mccmnc = to_string( "mccmnc" ) };
-            info.append( i );
+            var p = Provider() {
+                status = Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
+                longname = to_string( "longname" ),
+                shortname = to_string( "shortname" ),
+                mccmnc = to_string( "mccmnc" ),
+                act = Constants.instance().networkProviderActToString( to_int( "act" ) ) };
+            providers += p;
         }
         while ( mi.next() );
     }
@@ -106,6 +108,11 @@ public class PlusCOPS_Test : AbstractAtCommand
     public string issue()
     {
         return "+COPS=?";
+    }
+
+    public FreeSmartphone.GSM.NetworkProvider[] providerList()
+    {
+        return (FreeSmartphone.GSM.NetworkProvider[]) providers;
     }
 }
 

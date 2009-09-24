@@ -25,6 +25,9 @@
 
 using Gee;
 
+//workaround
+using FreeSmartphone.GSM;
+
 namespace FsoGsm {
 
 /**
@@ -94,6 +97,8 @@ public class AtNetworkListProviders : NetworkListProviders
         var response = yield channel.enqueueAsyncYielding( cops, cops.issue() );
 
         cops.parse( response[0] );
+
+        providers = cops.providerList();
     }
 }
 
@@ -103,7 +108,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
 
-    table[ typeof(NetworkListProviders) ]         = typeof( NetworkListProviders );
+    table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
 }
 
 } // namespace FsoGsm

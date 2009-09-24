@@ -54,5 +54,26 @@ public class FsoGsm.Constants
                 return "unknown";
         }
     }
+
+    public string networkProviderActToString( int code )
+    {
+        switch ( code )
+        {
+            case 1:
+                return "Compact GSM";
+            case 2:
+                return "UMTS";
+            case 3:
+                return "EDGE";
+            case 4:
+                return "HSDPA";
+            case 5:
+                return "HSUPA";
+            case 6:
+                return "HSDPA/HSUPA";
+            default:
+                return "GSM";
+        }
+    }
 }
 
