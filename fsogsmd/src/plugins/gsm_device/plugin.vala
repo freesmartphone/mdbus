@@ -103,22 +103,14 @@ class GsmDevice.Device :
     //
     public async bool get_antenna_power() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        Type t = modem.mediatorFactory( typeof(FsoGsm.DeviceGetAntennaPower) );
-        FsoGsm.DeviceGetAntennaPower m = Object.new( t ) as FsoGsm.DeviceGetAntennaPower;
-
-        //FsoGsm.DeviceGetAntennaPower m = modem.createMediator<FsoGsm.DeviceGetAntennaPower>();
+        var m = modem.createMediator<FsoGsm.DeviceGetAntennaPower>();
         yield m.run();
         return m.antenna_power;
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        Type t = modem.mediatorFactory( typeof(FsoGsm.DeviceGetInformation) );
-        assert( t == typeof(FsoGsm.AtDeviceGetInformation) );
-        FsoGsm.DeviceGetInformation m = (FsoGsm.DeviceGetInformation) (Object.new( t ));
-
-        //FsoGsm.DeviceGetInformation m = modem.createMediator<FsoGsm.DeviceGetInformation>;
-        //FsoGsm.DeviceGetInformation m = modem.mediatorFactory( FsoGsm.DeviceGetInformation );
+        var m = modem.createMediator<FsoGsm.DeviceGetInformation>();
         yield m.run();
         return m.info;
     }
@@ -207,8 +199,7 @@ class GsmDevice.Device :
 
     public async FreeSmartphone.GSM.NetworkProvider[] list_providers( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        Type t = modem.mediatorFactory( typeof(FsoGsm.NetworkListProviders ) );
-        FsoGsm.NetworkListProviders m = Object.new( t  ) as FsoGsm.NetworkListProviders;
+        var m = modem.createMediator<FsoGsm.NetworkListProviders>();
         yield m.run();
         return m.providers;
     }
