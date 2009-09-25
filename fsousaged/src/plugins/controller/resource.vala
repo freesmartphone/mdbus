@@ -125,8 +125,6 @@ public class Resource : Object
             default:
                 assert_not_reached();
         }
-
-        updateStatus();
     }
 
     public void addUser( string user ) throws FreeSmartphone.UsageError
@@ -141,8 +139,8 @@ public class Resource : Object
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 1 )
             enable();
-
-        updateStatus();
+        else
+            updateStatus();
     }
 
     public void delUser( string user ) throws FreeSmartphone.UsageError
@@ -154,8 +152,6 @@ public class Resource : Object
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 0 )
             disable();
-
-        updateStatus();
     }
 
     public void syncUsers()
@@ -211,7 +207,7 @@ public class Resource : Object
     {
         try
         {
-            proxy.enable();
+            proxy.enable(updateStatus);
             status = ResourceStatus.ENABLED;
         }
         catch ( DBus.Error e )
@@ -226,7 +222,7 @@ public class Resource : Object
     {
         try
         {
-            proxy.disable();
+            proxy.disable(updateStatus);
             status = ResourceStatus.DISABLED;
         }
         catch ( DBus.Error e )
@@ -243,7 +239,7 @@ public class Resource : Object
         {
             try
             {
-                proxy.suspend();
+                proxy.suspend(updateStatus);
                 status = ResourceStatus.SUSPENDED;
             }
             catch ( DBus.Error e )
@@ -265,7 +261,7 @@ public class Resource : Object
         {
             try
             {
-                proxy.resume();
+                proxy.resume(updateStatus);
                 status = ResourceStatus.ENABLED;
             }
             catch ( DBus.Error e )
