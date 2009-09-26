@@ -28,6 +28,62 @@ using Gee;
 
 namespace FsoGsm {
 
+public class SimpleAtCommand<T> : AbstractAtCommand
+{
+    public T value;
+    private string name;
+
+    public SimpleAtCommand( string name, bool prefixoptional = false )
+    {
+        this.name = name;
+        var regex = prefixoptional ? """(\%s:\ )?""".printf( name ) : """%s:\ """.printf( name );
+
+        if ( typeof(T) == typeof(string) )
+        {
+            regex += """"?(?P<righthandside>[^"]*)"?""";
+        }
+        else if ( typeof(T) == typeof(string) )
+        {
+            regex += """(?P<righthandside>\d)""";
+        }
+        else
+        {
+            assert_not_reached();
+        }
+        if ( !prefixoptional )
+        {
+            prefix = { name };
+        }
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        if ( typeof(T) == typeof(string) )
+        {
+            value = to_string( "righthandside" );
+        }
+        else if ( typeof(T) == typeof(int) )
+        {
+            value = to_int( "righthandside" );
+        }
+        else
+        {
+            assert_not_reached();
+        }
+    }
+
+    public string execute()
+    {
+        return name;
+    }
+
+    public string query()
+    {
+        return name + "?";
+    }
+}
+
 public class PlusCGMM : AbstractAtCommand
 {
     public string model;

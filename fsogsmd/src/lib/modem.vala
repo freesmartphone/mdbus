@@ -147,7 +147,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         ensureStatus( Status.CLOSED );
 
-        var channels = this.channels.get_values();
+        var channels = this.channels.values;
         logger.info( "will open %u channel(s)...".printf( channels.size ) );
         foreach( var channel in channels )
         {
@@ -162,7 +162,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual void close()
     {
-        var channels = this.channels.get_values();
+        var channels = this.channels.values;
         foreach( var channel in channels )
             channel.close();
     }
