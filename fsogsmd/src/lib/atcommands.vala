@@ -28,101 +28,27 @@ using Gee;
 
 namespace FsoGsm {
 
-public class SimpleAtCommand<T> : AbstractAtCommand
+public class PlusCGMI : SimpleAtCommand<string>
 {
-    public T value;
-    private string name;
-
-    public SimpleAtCommand( string name, bool prefixoptional = false )
-    {
-        this.name = name;
-        var regex = prefixoptional ? """(\%s:\ )?""".printf( name ) : """%s:\ """.printf( name );
-
-        if ( typeof(T) == typeof(string) )
-        {
-            regex += """"?(?P<righthandside>[^"]*)"?""";
-        }
-        else if ( typeof(T) == typeof(string) )
-        {
-            regex += """(?P<righthandside>\d)""";
-        }
-        else
-        {
-            assert_not_reached();
-        }
-        if ( !prefixoptional )
-        {
-            prefix = { name };
-        }
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        if ( typeof(T) == typeof(string) )
-        {
-            value = to_string( "righthandside" );
-        }
-        else if ( typeof(T) == typeof(int) )
-        {
-            value = to_int( "righthandside" );
-        }
-        else
-        {
-            assert_not_reached();
-        }
-    }
-
-    public string execute()
-    {
-        return name;
-    }
-
-    public string query()
-    {
-        return name + "?";
-    }
-}
-
-public class PlusCGMM : AbstractAtCommand
-{
-    public string model;
-
-    public PlusCGMM()
-    {
-        re = new Regex( """(\+CGMM:\ )?"?(?P<model>[^"]*)"?""" );
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        model = to_string( "model" );
-    }
-
-    public string query()
-    {
-        return "+CGMM";
-    }
-}
-
-public class PlusCGMI : AbstractAtCommand
-{
-    public string manufacturer;
-
     public PlusCGMI()
     {
-        re = new Regex( """(\+CGMI:\ )?"?(?P<manufacturer>[^"]*)"?""" );
+        base( "+CGMI", true );
     }
+}
 
-    public override void parse( string response ) throws AtCommandError
+public class PlusCGMM : SimpleAtCommand<string>
+{
+    public PlusCGMM()
     {
-        base.parse( response );
-        manufacturer = to_string( "manufacturer" );
+        base( "+CGMM", true );
     }
+}
 
-    public string query()
+public class PlusCGMR : SimpleAtCommand<string>
+{
+    public PlusCGMR()
     {
-        return "+CGMI";
+        base( "+CGMR", true );
     }
 }
 
@@ -311,45 +237,11 @@ public class PlusCOPS : AbstractAtCommand
     }
 }
 
-public class PlusCGSN : AbstractAtCommand
+public class PlusCGSN : SimpleAtCommand<string>
 {
-    public string imei;
-
     public PlusCGSN()
     {
-        re = new Regex( """(\+CGSN:\ )?"?(?P<imei>[^"]*)"?""" );
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        imei = to_string( "imei" );
-    }
-
-    public string query()
-    {
-        return "+CGSN";
-    }
-}
-
-public class PlusCGMR : AbstractAtCommand
-{
-    public string revision;
-
-    public PlusCGMR()
-    {
-        re = new Regex( """(\+CGMR:\ )?"?(?P<revision>[^"]*)"?""" );
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        revision = to_string( "revision" );
-    }
-
-    public string query()
-    {
-        return "+CGMR";
+        base( "+CGSN", true );
     }
 }
 

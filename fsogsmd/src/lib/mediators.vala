@@ -59,27 +59,27 @@ public class AtDeviceGetInformation : DeviceGetInformation
         var value = Value( typeof(string) );
 
         PlusCGMR cgmr = theModem.atCommandFactory( "+CGMR" ) as PlusCGMR;
-        var response = yield channel.enqueueAsyncYielding( cgmr, cgmr.query() );
+        var response = yield channel.enqueueAsyncYielding( cgmr, cgmr.execute() );
         cgmr.parse( response[0] );
-        value = (string) cgmr.revision;
+        value = (string) cgmr.value;
         info.insert( "revision", value );
 
         PlusCGMM cgmm = theModem.atCommandFactory( "+CGMM" ) as PlusCGMM;
-        response = yield channel.enqueueAsyncYielding( cgmm, cgmm.query() );
+        response = yield channel.enqueueAsyncYielding( cgmm, cgmm.execute() );
         cgmm.parse( response[0] );
-        value = (string) cgmm.model;
+        value = (string) cgmm.value;
         info.insert( "model", value );
 
         PlusCGMI cgmi = theModem.atCommandFactory( "+CGMI" ) as PlusCGMI;
-        response = yield channel.enqueueAsyncYielding( cgmi, cgmi.query() );
+        response = yield channel.enqueueAsyncYielding( cgmi, cgmi.execute() );
         cgmi.parse( response[0] );
-        value = (string) cgmi.manufacturer;
+        value = (string) cgmi.value;
         info.insert( "manufacturer", value );
 
         PlusCGSN cgsn = theModem.atCommandFactory( "+CGSN" ) as PlusCGSN;
-        response = yield channel.enqueueAsyncYielding( cgsn, cgsn.query() );
+        response = yield channel.enqueueAsyncYielding( cgsn, cgsn.execute() );
         cgsn.parse( response[0] );
-        value = (string) cgsn.imei;
+        value = (string) cgsn.value;
         info.insert( "imei", value );
     }
 }

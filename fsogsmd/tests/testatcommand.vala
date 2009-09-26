@@ -87,13 +87,13 @@ void test_atcommand_PlusCGMI()
     FsoGsm.PlusCGMI cmd = (FsoGsm.PlusCGMI) atCommandFactory( "+CGMI" );
 
     cmd.parse( "+CGMI: FIC/OpenMoko" );
-    assert( cmd.manufacturer == "FIC/OpenMoko" );
+    assert( cmd.value == "FIC/OpenMoko" );
 
     cmd.parse( "+CGMI: \"SIEMENS\"" );
-    assert( cmd.manufacturer == "SIEMENS" );
+    assert( cmd.value == "SIEMENS" );
 
     cmd.parse( "HTC" );
-    assert( cmd.manufacturer == "HTC" );
+    assert( cmd.value == "HTC" );
 }
 
 //===========================================================================
@@ -103,13 +103,13 @@ void test_atcommand_PlusCGMM()
     FsoGsm.PlusCGMM cmd = (FsoGsm.PlusCGMM) atCommandFactory( "+CGMM" );
 
     cmd.parse( "+CGMM: \"Neo1973 GTA01/GTA02 Embedded GSM Modem\"" );
-    assert( cmd.model == "Neo1973 GTA01/GTA02 Embedded GSM Modem" );
+    assert( cmd.value == "Neo1973 GTA01/GTA02 Embedded GSM Modem" );
 
     cmd.parse( "+CGMM: SIEMENS" );
-    assert( cmd.model == "SIEMENS" );
+    assert( cmd.value == "SIEMENS" );
 
     cmd.parse( "HTC" );
-    assert( cmd.model == "HTC" );
+    assert( cmd.value == "HTC" );
 }
 
 //===========================================================================
@@ -119,13 +119,13 @@ void test_atcommand_PlusCGMR()
     FsoGsm.PlusCGMR cmd = (FsoGsm.PlusCGMR) atCommandFactory( "+CGMR" );
 
     cmd.parse( "+CGMR: \"GSM: gsm_ac_gp_fd_pu_em_cph_ds_vc_cal35_ri_36_amd8_ts0-Moko11b1\"" );
-    assert( cmd.revision == "GSM: gsm_ac_gp_fd_pu_em_cph_ds_vc_cal35_ri_36_amd8_ts0-Moko11b1" );
+    assert( cmd.value == "GSM: gsm_ac_gp_fd_pu_em_cph_ds_vc_cal35_ri_36_amd8_ts0-Moko11b1" );
 
     cmd.parse( "+CGMR: SIEMENS" );
-    assert( cmd.revision == "SIEMENS" );
+    assert( cmd.value == "SIEMENS" );
 
     cmd.parse( "HTC" );
-    assert( cmd.revision == "HTC" );
+    assert( cmd.value == "HTC" );
 }
 
 //===========================================================================
@@ -134,13 +134,13 @@ void test_atcommand_PlusCGSN()
 {
     FsoGsm.PlusCGSN cmd = (FsoGsm.PlusCGSN) atCommandFactory( "+CGSN" );
     cmd.parse( "+CGSN: 1234567890" );
-    assert( cmd.imei == "1234567890" );
+    assert( cmd.value == "1234567890" );
 
     cmd.parse( "+CGSN: \"1234567890\"" );
-    assert( cmd.imei == "1234567890" );
+    assert( cmd.value == "1234567890" );
 
     cmd.parse( "1234567890" );
-    assert( cmd.imei == "1234567890" );
+    assert( cmd.value == "1234567890" );
 }
 
 //===========================================================================
