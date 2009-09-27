@@ -36,25 +36,11 @@ public class PlusCFUN : SimpleAtCommand<int>
     }
 }
 
-public class PlusCGCLASS : AbstractAtCommand
+public class PlusCGCLASS : SimpleAtCommand<string>
 {
-    public string gprsclass;
-
     public PlusCGCLASS()
     {
-        re = new Regex( """\+CGCLASS:\ "?(?P<gprsclass>[^"]*)"?""" );
-        prefix = { "+CGCLASS: " };
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        gprsclass = to_string( "gprsclass" );
-    }
-
-    public string query()
-    {
-        return "+CGCLASS?";
+        base( "+CGCLASS" );
     }
 }
 

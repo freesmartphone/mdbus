@@ -68,10 +68,10 @@ void test_atcommand_PlusCGCLASS()
     FsoGsm.PlusCGCLASS cmd = (FsoGsm.PlusCGCLASS) atCommandFactory( "+CGCLASS" );
 
     cmd.parse( "+CGCLASS: \"A\"" );
-    assert( cmd.gprsclass == "A" );
+    assert( cmd.value == "A" );
 
     cmd.parse( "+CGCLASS: A" );
-    assert( cmd.gprsclass == "A" );
+    assert( cmd.value == "A" );
 
     try
     {
@@ -81,6 +81,9 @@ void test_atcommand_PlusCGCLASS()
     catch ( Error e )
     {
     }
+
+    var str = cmd.issue( "BX" );
+    assert( str == "+CGCLASS=\"BX\"" );
 }
 
 //===========================================================================
