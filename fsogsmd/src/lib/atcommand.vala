@@ -136,6 +136,23 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
     {
         return name + "?";
     }
+
+    public string issue( T val )
+    {
+        if ( typeof(T) == typeof(string) )
+        {
+            return "%s=\"%s\"".printf( name, (string)val );
+        }
+        else if ( typeof(T) == typeof(int) )
+        {
+            return "%s=%d".printf( name, (int)val );
+        }
+        else
+        {
+            assert_not_reached();
+        }
+    }
+
 }
 
 public class FsoGsm.NullAtCommand : FsoGsm.AbstractAtCommand

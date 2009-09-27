@@ -34,11 +34,6 @@ public class PlusCFUN : SimpleAtCommand<int>
     {
         base( "+CFUN" );
     }
-
-    public string issue( int fun )
-    {
-        return "+CFUN=%d".printf( fun );
-    }
 }
 
 public class PlusCGCLASS : AbstractAtCommand

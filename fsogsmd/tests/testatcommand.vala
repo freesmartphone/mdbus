@@ -56,6 +56,9 @@ void test_atcommand_PlusCFUN()
     catch ( Error e )
     {
     }
+
+    var str = cmd.issue( 1 );
+    assert( str == "+CFUN=1" );
 }
 
 //===========================================================================
