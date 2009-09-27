@@ -103,7 +103,7 @@ public class Controller : FsoFramework.AbstractObject
         // whether any of the consumers might have disappeared meanwhile
         var resourcesToRemove = new Gee.HashSet<Resource>();
 
-        foreach ( var r in resources.get_values() )
+        foreach ( var r in resources.values )
         {
             if ( !r.isPresent() )
             {
@@ -116,7 +116,7 @@ public class Controller : FsoFramework.AbstractObject
             this.resource_available( r.name, false ); // DBUS SIGNAL
         }
 
-        foreach ( var r in resources.get_values() )
+        foreach ( var r in resources.values )
         {
             r.syncUsers();
         }
@@ -223,7 +223,7 @@ public class Controller : FsoFramework.AbstractObject
 
         var resourcesToRemove = new Gee.HashSet<Resource>();
 
-        foreach ( var r in resources.get_values() )
+        foreach ( var r in resources.values )
         {
             // first, check whether the resource provider might have vanished
             if ( r.busname == name )
@@ -285,7 +285,7 @@ public class Controller : FsoFramework.AbstractObject
 
     private void disableAllResources()
     {
-        foreach ( var r in resources.get_values() )
+        foreach ( var r in resources.values )
         {
             try
             {
@@ -304,7 +304,7 @@ public class Controller : FsoFramework.AbstractObject
 
     private void suspendAllResources()
     {
-        foreach ( var r in resources.get_values() )
+        foreach ( var r in resources.values )
         {
             try
             {
@@ -323,7 +323,7 @@ public class Controller : FsoFramework.AbstractObject
 
     private void resumeAllResources()
     {
-        foreach ( var r in resources.get_values() )
+        foreach ( var r in resources.values )
         {
             try
             {
@@ -373,7 +373,7 @@ public class Controller : FsoFramework.AbstractObject
     public void register_resource( DBus.BusName sender, string name, DBus.ObjectPath path ) throws FreeSmartphone.UsageError, DBus.Error
     {
         message( "register_resource called with parameters: %s %s %s", sender, name, path );
-        if ( name in resources.get_keys() )
+        if ( name in resources.keys )
             throw new FreeSmartphone.UsageError.RESOURCE_EXISTS( "Resource %s already registered".printf( name ) );
 
         var r = new Resource( name, sender, path );
@@ -443,7 +443,7 @@ public class Controller : FsoFramework.AbstractObject
     public string[] list_resources() throws DBus.Error
     {
         string[] res = {};
-        foreach ( var key in resources.get_keys() )
+        foreach ( var key in resources.keys )
             res += key;
         return res;
     }
