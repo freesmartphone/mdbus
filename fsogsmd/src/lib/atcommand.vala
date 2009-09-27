@@ -105,7 +105,7 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
         }
         if ( !prefixoptional )
         {
-            prefix = { name };
+            prefix = { name + ": " };
         }
         re = new Regex( regex );
     }

@@ -43,10 +43,10 @@ void test_atcommand_PlusCFUN()
 {
     FsoGsm.PlusCFUN cmd = (FsoGsm.PlusCFUN) atCommandFactory( "+CFUN" );
     cmd.parse( "+CFUN: 0" );
-    assert( cmd.fun == 0 );
+    assert( cmd.value == 0 );
 
     cmd.parse( "+CFUN: 1" );
-    assert( cmd.fun == 1 );
+    assert( cmd.value == 1 );
 
     try
     {

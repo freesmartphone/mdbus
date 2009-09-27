@@ -43,7 +43,7 @@ public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
         var response = yield channel.enqueueAsyncYielding( cfun, cfun.query() );
 
         cfun.parse( response[0] );
-        antenna_power = cfun.fun == 1;
+        antenna_power = cfun.value == 1;
     }
 }
 

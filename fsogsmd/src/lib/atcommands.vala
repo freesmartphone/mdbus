@@ -28,6 +28,41 @@ using Gee;
 
 namespace FsoGsm {
 
+public class PlusCFUN : SimpleAtCommand<int>
+{
+    public PlusCFUN()
+    {
+        base( "+CFUN" );
+    }
+
+    public string issue( int fun )
+    {
+        return "+CFUN=%d".printf( fun );
+    }
+}
+
+public class PlusCGCLASS : AbstractAtCommand
+{
+    public string gprsclass;
+
+    public PlusCGCLASS()
+    {
+        re = new Regex( """\+CGCLASS:\ "?(?P<gprsclass>[^"]*)"?""" );
+        prefix = { "+CGCLASS: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        gprsclass = to_string( "gprsclass" );
+    }
+
+    public string query()
+    {
+        return "+CGCLASS?";
+    }
+}
+
 public class PlusCGMI : SimpleAtCommand<string>
 {
     public PlusCGMI()
@@ -49,6 +84,14 @@ public class PlusCGMR : SimpleAtCommand<string>
     public PlusCGMR()
     {
         base( "+CGMR", true );
+    }
+}
+
+public class PlusCGSN : SimpleAtCommand<string>
+{
+    public PlusCGSN()
+    {
+        base( "+CGSN", true );
     }
 }
 
@@ -149,60 +192,6 @@ public class PlusFCLASS : AbstractAtCommand
     }
 }
 
-public class PlusCGCLASS : AbstractAtCommand
-{
-    public string gprsclass;
-
-    public PlusCGCLASS()
-    {
-        re = new Regex( """\+CGCLASS:\ "?(?P<gprsclass>[^"]*)"?""" );
-        prefix = { "+CGCLASS: " };
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        gprsclass = to_string( "gprsclass" );
-    }
-
-    public string query()
-    {
-        return "+CGCLASS?";
-    }
-}
-
-public class PlusCFUN : AbstractAtCommand
-{
-    public int fun;
-
-    public PlusCFUN()
-    {
-        re = new Regex( """\+CFUN:\ (?P<fun>\d)""" );
-        prefix = { "+CFUN: " };
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        fun = to_int( "fun" );
-    }
-
-    public string issue( int fun )
-    {
-        return "+CFUN=%d".printf( fun );
-    }
-
-    public string query()
-    {
-        return "+CFUN?";
-    }
-
-    public string test()
-    {
-        return "+CFUN=?";
-    }
-}
-
 public class PlusCOPS : AbstractAtCommand
 {
     public int status;
@@ -237,27 +226,27 @@ public class PlusCOPS : AbstractAtCommand
     }
 }
 
-public class PlusCGSN : SimpleAtCommand<string>
+public class PlusGCAP : SimpleAtCommand<string>
 {
-    public PlusCGSN()
+    public PlusGCAP()
     {
-        base( "+CGSN", true );
+        base( "+GCAP", true );
     }
 }
 
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // register commands
+    table[ "+CFUN"] =            new FsoGsm.PlusCFUN();
+    table[ "+CGCLASS"] =         new FsoGsm.PlusCGCLASS();
     table[ "+CGMM"] =            new FsoGsm.PlusCGMM();
     table[ "+CGMI"] =            new FsoGsm.PlusCGMI();
+    table[ "+CGSN"] =            new FsoGsm.PlusCGSN();
+    table[ "+CGMR"] =            new FsoGsm.PlusCGMR();
+    table[ "+COPS"] =            new FsoGsm.PlusCOPS();
     table[ "+COPS=?"] =          new FsoGsm.PlusCOPS_Test();
     table[ "+CPIN"] =            new FsoGsm.PlusCPIN();
     table[ "+FCLASS"] =          new FsoGsm.PlusFCLASS();
-    table[ "+CGCLASS"] =         new FsoGsm.PlusCGCLASS();
-    table[ "+CFUN"] =            new FsoGsm.PlusCFUN();
-    table[ "+COPS"] =            new FsoGsm.PlusCOPS();
-    table[ "+CGSN"] =            new FsoGsm.PlusCGSN();
-    table[ "+CGMR"] =            new FsoGsm.PlusCGMR();
 }
 
 } /* namespace FsoGsm */
