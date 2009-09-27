@@ -250,7 +250,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     public string[] get_available_scenarios() throws DBus.Error
     {
         string[] list = {};
-        foreach ( var key in allscenarios.get_keys() )
+        foreach ( var key in allscenarios.keys )
             list += key;
         return list;
     }
@@ -297,7 +297,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public void set_scenario( string scenario ) throws /* FreeSmartphone.Error, */ DBus.Error
     {
-        if ( !( scenario in allscenarios.get_keys() ) )
+        if ( !( scenario in allscenarios.keys ) )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not find scenario %s".printf( scenario ) );
 
         assert ( device != null );
@@ -330,7 +330,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public void stop_all_sounds() throws DBus.Error
     {
-        foreach ( var name in sounds.get_keys() )
+        foreach ( var name in sounds.keys )
         {
             //message( "stopping sound '%s' (%0x)", name, Quark.from_string( name ) );
             stop_sound( name );
