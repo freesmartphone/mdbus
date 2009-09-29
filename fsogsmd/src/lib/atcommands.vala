@@ -84,6 +84,14 @@ public class PlusCLVL : SimpleAtCommand<int>
     }
 }
 
+public class PlusCMICKEY : SimpleAtCommand<int>
+{
+    public PlusCMICKEY()
+    {
+        base( "+CMICKEY" );
+    }
+}
+
 public class PlusCMUT : SimpleAtCommand<int>
 {
     public PlusCMUT()
@@ -246,6 +254,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CGMR"] =            new FsoGsm.PlusCGMR();
     table[ "+CGSN"] =            new FsoGsm.PlusCGSN();
     table[ "+CLVL"] =            new FsoGsm.PlusCLVL();
+    table[ "+CMICKEY"] =         new FsoGsm.PlusCMICKEY();
     table[ "+CMUT"] =            new FsoGsm.PlusCMUT();
     table[ "+COPS"] =            new FsoGsm.PlusCOPS();
     table[ "+COPS=?"] =          new FsoGsm.PlusCOPS_Test();

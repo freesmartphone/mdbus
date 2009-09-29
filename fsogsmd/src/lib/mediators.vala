@@ -81,6 +81,12 @@ public class AtDeviceGetInformation : DeviceGetInformation
         cgsn.parse( response[0] );
         value = (string) cgsn.value;
         info.insert( "imei", value );
+
+        PlusCMICKEY cmickey = theModem.atCommandFactory( "+CMICKEY" ) as PlusCMICKEY;
+        response = yield channel.enqueueAsyncYielding( cmickey, cmickey.execute() );
+        cmickey.parse( response[0] );
+        value = (string) cmickey.value;
+        info.insert( "mickey", value );
     }
 }
 
@@ -126,13 +132,11 @@ public class AtNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.Error
     {
-        PlusCOPS_Test cops = theModem.atCommandFactory( "+COPS=?" ) as PlusCOPS_Test;
         var channel = theModem.channel( "main" );
 
+        PlusCOPS_Test cops = theModem.atCommandFactory( "+COPS=?" ) as PlusCOPS_Test;
         var response = yield channel.enqueueAsyncYielding( cops, cops.issue() );
-
         cops.parse( response[0] );
-
         providers = cops.providerList();
     }
 }
@@ -142,6 +146,7 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
     public override async void run() throws FreeSmartphone.Error
     {
         var channel = theModem.channel( "main" );
+
         PlusCMUT cmut = theModem.atCommandFactory( "+CMUT" ) as PlusCMUT;
         var response = yield channel.enqueueAsyncYielding( cmut, cmut.query() );
         cmut.parse( response[0] );
