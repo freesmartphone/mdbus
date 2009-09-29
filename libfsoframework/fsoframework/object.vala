@@ -23,7 +23,7 @@
 public abstract class FsoFramework.AbstractObject : GLib.Object
 {
     protected FsoFramework.SmartKeyFile config;
-    protected FsoFramework.Logger logger;
+    public FsoFramework.Logger logger;
     public string classname;
 
     construct
