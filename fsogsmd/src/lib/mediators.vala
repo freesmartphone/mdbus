@@ -84,9 +84,17 @@ public class AtDeviceGetInformation : DeviceGetInformation
 
         PlusCMICKEY cmickey = theModem.atCommandFactory( "+CMICKEY" ) as PlusCMICKEY;
         response = yield channel.enqueueAsyncYielding( cmickey, cmickey.execute() );
+
+#if OLD_CODE
         cmickey.parse( response[0] );
         value = (string) cmickey.value;
         info.insert( "mickey", value );
+#else
+        if ( cmickey.validate( response ) == AtResponse.VALID )
+        {
+            value = (string) cmickey.value;
+            info.insert( "mickey", value );
+        }
     }
 }
 

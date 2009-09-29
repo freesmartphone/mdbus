@@ -31,11 +31,27 @@ public errordomain FsoGsm.AtCommandError
     UNABLE_TO_PARSE,
 }
 
+/**
+ * At response codes
+ **/
+public enum FsoGsm.AtResponse
+{
+    VALID = 0,
+    UNEXPECTED_LENGTH = 1,
+    UNABLE_TO_PARSE = 2,
+    ERROR,
+    CME_ERROR_START = 1000,
+    CMS_ERROR_START = 2000,
+    EXT_ERROR_START = 3000,
+}
+
 public abstract interface FsoGsm.AtCommand : GLib.Object
 {
     public abstract void parse( string response ) throws AtCommandError;
     public abstract void parseTest( string response ) throws AtCommandError;
     public abstract bool is_valid_prefix( string line );
+
+    public abstract FsoGsm.AtResponse validate( string[] response );
 }
 
 public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
@@ -44,6 +60,12 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
     protected Regex tere;
     protected MatchInfo mi;
     protected string[] prefix;
+    protected int length;
+
+    construct
+    {
+        length = 1;
+    }
 
     public virtual void parse( string response ) throws AtCommandError
     {
@@ -61,6 +83,39 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
 
         if ( !match || mi == null )
             throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, tere.get_pattern() ) );
+    }
+
+    /**
+     * Validate a response for this At command
+     **/
+    public virtual FsoGsm.AtResponse validate( string[] response )
+    {
+        // first, check whether we have received an OK response
+        if ( response[response.length-1] != "OK" )
+        {
+            debug( "Did not receive OK for AT command w/ pattern %s", re.get_pattern() );
+            //FIXME: Parse and do something meaningful with the result
+            return AtResponse.ERROR;
+        }
+
+        // second, check whether we have received enough lines
+        if ( response.length <= length )
+        {
+            debug( "Unexpected length for AT command w/ pattern %s", re.get_pattern() );
+            return AtResponse.UNEXPECTED_LENGTH;
+        }
+
+        try
+        {
+            parse( response[0] );
+        }
+        catch ( AtCommandError e )
+        {
+            debug( "Unexpected format for AT command w/ pattern %s", re.get_pattern() );
+            return AtResponse.UNABLE_TO_PARSE;
+        }
+        debug( "Did receive a valid response to AT command w/ pattern %s", re.get_pattern() );
+        return AtResponse.VALID;
     }
 
     protected string to_string( string name )
