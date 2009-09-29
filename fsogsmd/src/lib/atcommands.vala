@@ -76,6 +76,22 @@ public class PlusCGSN : SimpleAtCommand<string>
     }
 }
 
+public class PlusCLVL : SimpleAtCommand<int>
+{
+    public PlusCLVL()
+    {
+        base( "+CLVL" );
+    }
+}
+
+public class PlusCMUT : SimpleAtCommand<int>
+{
+    public PlusCMUT()
+    {
+        base( "+CMUT" );
+    }
+}
+
 public class PlusCOPS_Test : AbstractAtCommand
 {
     public struct Provider
@@ -171,6 +187,11 @@ public class PlusFCLASS : AbstractAtCommand
     {
         return "+FCLASS?";
     }
+
+    public string test()
+    {
+        return "+FCLASS=?";
+    }
 }
 
 public class PlusCOPS : AbstractAtCommand
@@ -220,14 +241,17 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     // register commands
     table[ "+CFUN"] =            new FsoGsm.PlusCFUN();
     table[ "+CGCLASS"] =         new FsoGsm.PlusCGCLASS();
-    table[ "+CGMM"] =            new FsoGsm.PlusCGMM();
     table[ "+CGMI"] =            new FsoGsm.PlusCGMI();
-    table[ "+CGSN"] =            new FsoGsm.PlusCGSN();
+    table[ "+CGMM"] =            new FsoGsm.PlusCGMM();
     table[ "+CGMR"] =            new FsoGsm.PlusCGMR();
+    table[ "+CGSN"] =            new FsoGsm.PlusCGSN();
+    table[ "+CLVL"] =            new FsoGsm.PlusCLVL();
+    table[ "+CMUT"] =            new FsoGsm.PlusCMUT();
     table[ "+COPS"] =            new FsoGsm.PlusCOPS();
     table[ "+COPS=?"] =          new FsoGsm.PlusCOPS_Test();
     table[ "+CPIN"] =            new FsoGsm.PlusCPIN();
     table[ "+FCLASS"] =          new FsoGsm.PlusFCLASS();
+    table[ "+GCAP"] =            new FsoGsm.PlusGCAP();
 }
 
 } /* namespace FsoGsm */

@@ -57,6 +57,29 @@ public abstract class FsoGsm.DeviceGetInformation : FsoGsm.AbstractMediator
     public abstract async void run() throws FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.DeviceGetFeatures : FsoGsm.AbstractMediator
+{
+    public GLib.HashTable<string,GLib.Value?> features { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceGetMicrophoneMuted : FsoGsm.AbstractMediator
+{
+    public bool muted { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceGetSpeakerVolume : FsoGsm.AbstractMediator
+{
+    public int volume { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceSetSpeakerVolume : FsoGsm.AbstractMediator
+{
+    public abstract async void run( int volume ) throws FreeSmartphone.Error;
+}
+
 //
 // org.freesmartphone.GSM.Network.*
 //

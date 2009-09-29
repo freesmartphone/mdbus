@@ -117,8 +117,9 @@ class GsmDevice.Device :
 
     public async GLib.HashTable<string,GLib.Value?> get_features() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
-        return r;
+        var m = modem.createMediator<FsoGsm.DeviceGetFeatures>();
+        yield m.run();
+        return m.features;
     }
 
     public async bool get_microphone_muted() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -150,6 +151,8 @@ class GsmDevice.Device :
 
     public async void set_speaker_volume( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        var m = modem.createMediator<FsoGsm.DeviceSetSpeakerVolume>();
+        yield m.run( volume );
     }
 
     public async void get_power_status( out string status, out int level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

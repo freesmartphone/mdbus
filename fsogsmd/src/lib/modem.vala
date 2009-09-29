@@ -21,6 +21,12 @@ using Gee;
 
 namespace FsoGsm { public FsoGsm.Modem theModem; }
 
+public class FsoGsm.ModemData : GLib.Object
+{
+    public int speakerVolumeMinimum { get; set; default = -1; }
+    public int speakerVolumeMaximum { get; set; default = -1; }
+}
+
 public abstract interface FsoGsm.Modem : GLib.Object
 {
     public enum Status
@@ -52,7 +58,7 @@ public abstract interface FsoGsm.Modem : GLib.Object
 
     public abstract bool open();
     public abstract void close();
-    //FIXME: Should be Status with Vala >= 0.7
+    //FIXME: Should be FsoGsm.Modem.Status with Vala >= 0.7
     public abstract int status();
 
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
@@ -65,6 +71,8 @@ public abstract interface FsoGsm.Modem : GLib.Object
     public abstract FsoGsm.Channel channel( string category );
 
     public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
+
+    public abstract FsoGsm.ModemData data();
 }
 
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
@@ -77,6 +85,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected string[] modem_init;
 
     protected FsoGsm.Modem.Status modem_status;
+    protected FsoGsm.ModemData modem_data;
 
     protected HashMap<string,FsoGsm.Channel> channels;
     protected HashMap<string,FsoGsm.AtCommand> commands;
@@ -100,6 +109,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         createChannels();
 
         modem_status = Status.CLOSED;
+        modem_data = new FsoGsm.ModemData();
 
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
     }
@@ -172,6 +182,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return modem_status;
     }
 
+    public FsoGsm.ModemData data()
+    {
+        return modem_data;
+    }
+
     public virtual FsoGsm.Channel channel( string category )
     {
         return channels[category];
@@ -205,7 +220,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         AtCommand? cmd = commands[command];
         if (cmd == null )
         {
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested at command '%s' unknown".printf( command ) );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested AT command '%s' unknown".printf( command ) );
         }
         return cmd;
     }

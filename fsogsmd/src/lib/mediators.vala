@@ -85,6 +85,41 @@ public class AtDeviceGetInformation : DeviceGetInformation
 }
 
 /**
+ * Get device features.
+ **/
+public class AtDeviceGetFeatures : DeviceGetFeatures
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        features = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        var channel = theModem.channel( "main" );
+        var value = Value( typeof(string) );
+
+        PlusGCAP gcap = theModem.atCommandFactory( "+GCAP" ) as PlusGCAP;
+        var response = yield channel.enqueueAsyncYielding( gcap, gcap.execute() );
+        gcap.parse( response[0] );
+
+        if ( "GSM" in gcap.value )
+        {
+            value = (string) "TA";
+            features.insert( "gsm", value );
+        }
+
+        PlusCGCLASS cgclass = theModem.atCommandFactory( "+CGCLASS" ) as PlusCGCLASS;
+        response = yield channel.enqueueAsyncYielding( cgclass, cgclass.test() );
+        cgclass.parseTest( response[0] );
+        value = (string) cgclass.righthandside;
+        features.insert( "gprs", value );
+
+        PlusFCLASS fclass = theModem.atCommandFactory( "+FCLASS" ) as PlusFCLASS;
+        response = yield channel.enqueueAsyncYielding( fclass, fclass.test() );
+        fclass.parse( response[0] );
+        value = (string) fclass.faxclass;
+        features.insert( "fax", value );
+    }
+}
+
+/**
  * List providers.
  **/
 public class AtNetworkListProviders : NetworkListProviders
@@ -102,11 +137,56 @@ public class AtNetworkListProviders : NetworkListProviders
     }
 }
 
+public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" );
+        PlusCMUT cmut = theModem.atCommandFactory( "+CMUT" ) as PlusCMUT;
+        var response = yield channel.enqueueAsyncYielding( cmut, cmut.query() );
+        cmut.parse( response[0] );
+        muted = cmut.value == 1;
+    }
+}
+
+public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
+{
+    public override async void run( int volume ) throws FreeSmartphone.Error
+    {
+        if ( volume < 0 || volume > 100 )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Volume needs to be a percentage (0-100)" );
+        }
+
+        var channel = theModem.channel( "main" );
+        PlusCLVL clvl = theModem.atCommandFactory( "+CLVL" ) as PlusCLVL;
+
+        var data = theModem.data();
+        if ( data.speakerVolumeMinimum == -1 )
+        {
+            var response = yield channel.enqueueAsyncYielding( clvl, clvl.test() );
+            clvl.parseTest( response[0] );
+            data.speakerVolumeMinimum = clvl.min;
+            data.speakerVolumeMaximum = clvl.max;
+        }
+
+        var value = data.speakerVolumeMinimum + volume * (data.speakerVolumeMaximum-data.speakerVolumeMinimum) / 100;
+
+        // can't name it response, triggers a bug in Vala
+        var response2 = yield channel.enqueueAsyncYielding( clvl, clvl.issue( value ) );
+        //FIXME: parse OK?
+    }
+}
+
 public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
     // register commands
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
+    table[ typeof(DeviceGetFeatures) ]            = typeof( AtDeviceGetFeatures );
+    table[ typeof(DeviceGetMicrophoneMuted) ]     = typeof( AtDeviceGetMicrophoneMuted );
+
+    table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
 }

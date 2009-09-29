@@ -34,12 +34,14 @@ public errordomain FsoGsm.AtCommandError
 public abstract interface FsoGsm.AtCommand : GLib.Object
 {
     public abstract void parse( string response ) throws AtCommandError;
+    public abstract void parseTest( string response ) throws AtCommandError;
     public abstract bool is_valid_prefix( string line );
 }
 
 public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
 {
     protected Regex re;
+    protected Regex tere;
     protected MatchInfo mi;
     protected string[] prefix;
 
@@ -50,6 +52,15 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
 
         if ( !match || mi == null )
             throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, re.get_pattern() ) );
+    }
+
+    public virtual void parseTest( string response ) throws AtCommandError
+    {
+        bool match;
+        match = tere.match( response, 0, out mi );
+
+        if ( !match || mi == null )
+            throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, tere.get_pattern() ) );
     }
 
     protected string to_string( string name )
@@ -83,21 +94,30 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
 
 public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
 {
-    public T value;
     private string name;
+    /* regular operation */
+    public T value;
+
+    /* for test command */
+    public string righthandside;
+    public int min;
+    public int max;
 
     public SimpleAtCommand( string name, bool prefixoptional = false )
     {
         this.name = name;
         var regex = prefixoptional ? """(\%s:\ )?""".printf( name ) : """\%s:\ """.printf( name );
+        var testx = prefixoptional ? """(\%s:\ )?""".printf( name ) : """\%s:\ """.printf( name );
 
         if ( typeof(T) == typeof(string) )
         {
             regex += """"?(?P<righthandside>[^"]*)"?""";
+            testx += """"?(?P<righthandside>.*)"?""";
         }
         else if ( typeof(T) == typeof(int) )
         {
-            regex += """(?P<righthandside>\d)""";
+            regex += """(?P<righthandside>\d+)""";
+            testx += """(?P<min>\d+)-(?P<max>\d+)""";
         }
         else
         {
@@ -108,6 +128,7 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
             prefix = { name + ": " };
         }
         re = new Regex( regex );
+        tere = new Regex( testx );
     }
 
     public override void parse( string response ) throws AtCommandError
@@ -127,6 +148,24 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
         }
     }
 
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        if ( typeof(T) == typeof(string) )
+        {
+            righthandside = to_string( "righthandside" );
+        }
+        else if ( typeof(T) == typeof(int) )
+        {
+            min = to_int( "min" );
+            max = to_int( "max" );
+        }
+        else
+        {
+            assert_not_reached();
+        }
+    }
+
     public string execute()
     {
         return name;
@@ -135,6 +174,11 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
     public string query()
     {
         return name + "?";
+    }
+
+    public string test()
+    {
+        return name + "=?";
     }
 
     public string issue( T val )
