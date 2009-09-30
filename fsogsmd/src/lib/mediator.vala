@@ -40,6 +40,24 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
         var channel = theModem.channel("main");
         channel.enqueueAsync( command, chars, callback, response );
     }
+
+    protected void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        if ( command.validateOk( response ) != AtResponse.OK )
+        {
+            //FIXME gather better error message out of response status
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "AT command ERROR" );
+        }
+    }
+
+    protected void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        if ( command.validate( response ) != AtResponse.VALID )
+        {
+            //FIXME gather better error message out of response status
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "AT command ERROR" );
+        }
+    }
 }
 
 //

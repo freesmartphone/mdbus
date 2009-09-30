@@ -25,9 +25,6 @@
 
 using Gee;
 
-//workaround
-using FreeSmartphone.GSM;
-
 namespace FsoGsm {
 
 /**
@@ -60,36 +57,54 @@ public class AtDeviceGetInformation : DeviceGetInformation
 
         PlusCGMR cgmr = theModem.atCommandFactory( "+CGMR" ) as PlusCGMR;
         var response = yield channel.enqueueAsyncYielding( cgmr, cgmr.execute() );
-        cgmr.parse( response[0] );
-        value = (string) cgmr.value;
-        info.insert( "revision", value );
+        if ( cgmr.validate( response ) == AtResponse.VALID )
+        {
+            value = (string) cgmr.value;
+            info.insert( "revision", value );
+        }
+        else
+        {
+            info.insert( "revision", "unknown" );
+        }
 
         PlusCGMM cgmm = theModem.atCommandFactory( "+CGMM" ) as PlusCGMM;
         response = yield channel.enqueueAsyncYielding( cgmm, cgmm.execute() );
-        cgmm.parse( response[0] );
-        value = (string) cgmm.value;
-        info.insert( "model", value );
+        if ( cgmm.validate( response ) == AtResponse.VALID )
+        {
+            value = (string) cgmm.value;
+            info.insert( "model", value );
+        }
+        else
+        {
+            info.insert( "model", "unknown" );
+        }
 
         PlusCGMI cgmi = theModem.atCommandFactory( "+CGMI" ) as PlusCGMI;
         response = yield channel.enqueueAsyncYielding( cgmi, cgmi.execute() );
-        cgmi.parse( response[0] );
-        value = (string) cgmi.value;
-        info.insert( "manufacturer", value );
+        if ( cgmi.validate( response ) == AtResponse.VALID )
+        {
+            value = (string) cgmi.value;
+            info.insert( "manufacturer", value );
+        }
+        else
+        {
+            info.insert( "manufacturer", "unknown" );
+        }
 
         PlusCGSN cgsn = theModem.atCommandFactory( "+CGSN" ) as PlusCGSN;
         response = yield channel.enqueueAsyncYielding( cgsn, cgsn.execute() );
-        cgsn.parse( response[0] );
-        value = (string) cgsn.value;
-        info.insert( "imei", value );
+        if ( cgsn.validate( response ) == AtResponse.VALID )
+        {
+            value = (string) cgsn.value;
+            info.insert( "imei", value );
+        }
+        else
+        {
+            info.insert( "imei", "unknown" );
+        }
 
         PlusCMICKEY cmickey = theModem.atCommandFactory( "+CMICKEY" ) as PlusCMICKEY;
         response = yield channel.enqueueAsyncYielding( cmickey, cmickey.execute() );
-
-#if OLD_CODE
-        cmickey.parse( response[0] );
-        value = (string) cmickey.value;
-        info.insert( "mickey", value );
-#else
         if ( cmickey.validate( response ) == AtResponse.VALID )
         {
             value = (string) cmickey.value;
@@ -162,6 +177,19 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
     }
 }
 
+public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" );
+
+        PlusCLVL cmd = theModem.atCommandFactory( "+CLVL" ) as PlusCLVL;
+        var response = yield channel.enqueueAsyncYielding( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        volume = cmd.value;
+    }
+}
+
 public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 {
     public override async void run( int volume ) throws FreeSmartphone.Error
@@ -178,16 +206,24 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
         if ( data.speakerVolumeMinimum == -1 )
         {
             var response = yield channel.enqueueAsyncYielding( clvl, clvl.test() );
-            clvl.parseTest( response[0] );
-            data.speakerVolumeMinimum = clvl.min;
-            data.speakerVolumeMaximum = clvl.max;
+            if ( clvl.validateTest( response ) == AtResponse.VALID )
+            {
+                data.speakerVolumeMinimum = clvl.min;
+                data.speakerVolumeMaximum = clvl.max;
+            }
+            else
+            {
+                theModem.logger.warning( "Modem does not support querying volume range. Assuming (0-255)" );
+                data.speakerVolumeMinimum = 0;
+                data.speakerVolumeMaximum = 255;
+            }
         }
 
         var value = data.speakerVolumeMinimum + volume * (data.speakerVolumeMaximum-data.speakerVolumeMinimum) / 100;
 
         // can't name it response, triggers a bug in Vala
         var response2 = yield channel.enqueueAsyncYielding( clvl, clvl.issue( value ) );
-        //FIXME: parse OK?
+        checkResponseOk( clvl, response2 );
     }
 }
 
@@ -199,6 +235,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetFeatures) ]            = typeof( AtDeviceGetFeatures );
     table[ typeof(DeviceGetMicrophoneMuted) ]     = typeof( AtDeviceGetMicrophoneMuted );
 
+    table[ typeof(DeviceGetSpeakerVolume) ]       = typeof( AtDeviceGetSpeakerVolume );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );

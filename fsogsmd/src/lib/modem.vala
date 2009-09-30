@@ -27,7 +27,7 @@ public class FsoGsm.ModemData : GLib.Object
     public int speakerVolumeMaximum { get; set; default = -1; }
 }
 
-public abstract interface FsoGsm.Modem : GLib.Object
+public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 {
     public enum Status
     {

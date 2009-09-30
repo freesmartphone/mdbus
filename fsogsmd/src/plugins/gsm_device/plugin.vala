@@ -134,7 +134,9 @@ class GsmDevice.Device :
 
     public async int get_speaker_volume() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        return 0;
+        var m = modem.createMediator<FsoGsm.DeviceGetSpeakerVolume>();
+        yield m.run();
+        return m.volume;
     }
 
     public async void set_antenna_power( bool antenna_power ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

@@ -315,7 +315,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 
     public async string[] enqueueAsyncYielding( AtCommand command, string request, uint retry = DEFAULT_RETRY )
     {
-        logger.debug( "enqueuing %s (sizeof q = %u)".printf( request, q.size ) );
+        logger.debug( "enqueuing %s from AT command %s (sizeof q = %u)".printf( request, Type.from_instance( command ).name(), q.size ) );
         var retriggerWriting = ( q.size == 0 );
         CommandBundle bundle = new CommandBundle() {
             command=command,

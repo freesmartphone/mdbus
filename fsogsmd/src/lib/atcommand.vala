@@ -37,9 +37,10 @@ public errordomain FsoGsm.AtCommandError
 public enum FsoGsm.AtResponse
 {
     VALID = 0,
-    UNEXPECTED_LENGTH = 1,
-    UNABLE_TO_PARSE = 2,
-    ERROR,
+    OK = 1,
+    UNEXPECTED_LENGTH = 501,
+    UNABLE_TO_PARSE = 502,
+    ERROR = 503,
     CME_ERROR_START = 1000,
     CMS_ERROR_START = 2000,
     EXT_ERROR_START = 3000,
@@ -52,6 +53,9 @@ public abstract interface FsoGsm.AtCommand : GLib.Object
     public abstract bool is_valid_prefix( string line );
 
     public abstract FsoGsm.AtResponse validate( string[] response );
+    public abstract FsoGsm.AtResponse validateTest( string[] response );
+
+    public abstract FsoGsm.AtResponse validateOk( string[] response );
 }
 
 public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
@@ -64,7 +68,13 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
 
     construct
     {
+        message( "%s()", Type.from_instance( this ).name() );
         length = 1;
+    }
+
+    ~AbstractAtCommand()
+    {
+        message( "~%s()", Type.from_instance( this ).name() );
     }
 
     public virtual void parse( string response ) throws AtCommandError
@@ -86,19 +96,34 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
     }
 
     /**
-     * Validate a response for this At command
+     * Validate the terminal response for this At command
      **/
-    public virtual FsoGsm.AtResponse validate( string[] response )
+    public virtual FsoGsm.AtResponse validateOk( string[] response )
     {
-        // first, check whether we have received an OK response
         if ( response[response.length-1] != "OK" )
         {
             debug( "Did not receive OK for AT command w/ pattern %s", re.get_pattern() );
             //FIXME: Parse and do something meaningful with the result
             return AtResponse.ERROR;
         }
+        else
+        {
+            return AtResponse.OK;
+        }
+    }
 
-        // second, check whether we have received enough lines
+    /**
+     * Validate a response for this At command
+     **/
+    public virtual FsoGsm.AtResponse validate( string[] response )
+    {
+        var status = validateOk( response );
+        if ( status != AtResponse.OK )
+        {
+            return status;
+        }
+
+        // check whether we have received enough lines
         if ( response.length <= length )
         {
             debug( "Unexpected length for AT command w/ pattern %s", re.get_pattern() );
@@ -115,6 +140,37 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
             return AtResponse.UNABLE_TO_PARSE;
         }
         debug( "Did receive a valid response to AT command w/ pattern %s", re.get_pattern() );
+        return AtResponse.VALID;
+    }
+
+    /**
+     * Validate a test response for this At command
+     **/
+    public virtual FsoGsm.AtResponse validateTest( string[] response )
+    {
+        var status = validateOk( response );
+        if ( status != AtResponse.OK )
+        {
+            return status;
+        }
+
+        // second, check whether we have received enough lines
+        if ( response.length <= length )
+        {
+            debug( "Unexpected length for AT command w/ pattern %s", tere.get_pattern() );
+            return AtResponse.UNEXPECTED_LENGTH;
+        }
+
+        try
+        {
+            parseTest( response[0] );
+        }
+        catch ( AtCommandError e )
+        {
+            debug( "Unexpected format for AT command w/ pattern %s", tere.get_pattern() );
+            return AtResponse.UNABLE_TO_PARSE;
+        }
+        debug( "Did receive a valid response to AT command w/ pattern %s", tere.get_pattern() );
         return AtResponse.VALID;
     }
 
