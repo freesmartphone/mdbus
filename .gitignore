@@ -22,6 +22,7 @@ ltmain.sh
 ylwrap
 compile
 stamp-h1
+
 *.pc
 *.service
-
+*.vapi
