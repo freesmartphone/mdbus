@@ -74,7 +74,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
 
     ~AbstractAtCommand()
     {
-        message( "~%s()", Type.from_instance( this ).name() );
+        warning( "DESTRUCT %s", Type.from_instance( this ).name() );
     }
 
     public virtual void parse( string response ) throws AtCommandError

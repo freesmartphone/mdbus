@@ -65,9 +65,9 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract string[] commandSequence( string purpose );
 
     public abstract T createMediator<T>() throws FreeSmartphone.Error;
-    public abstract Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error;
-    public abstract FsoGsm.AtCommand atCommandFactory( string command ) throws FreeSmartphone.Error;
+    public abstract T createAtCommand<T>( string command ) throws FreeSmartphone.Error;
 
+    //FIXME: Might also create a channel that implements round-robin transparently?!
     public abstract FsoGsm.Channel channel( string category );
 
     public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
@@ -203,6 +203,16 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         T obj = Object.new( typ );
         assert( obj != null );
         return obj;
+    }
+
+    public T createAtCommand<T>( string command ) throws FreeSmartphone.Error
+    {
+        AtCommand? cmd = commands[command];
+        if (cmd == null )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested AT command '%s' unknown".printf( command ) );
+        }
+        return (T) cmd;
     }
 
     public Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error

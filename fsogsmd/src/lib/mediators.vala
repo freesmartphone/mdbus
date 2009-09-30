@@ -34,11 +34,10 @@ public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
 {
     public override async void run() throws FreeSmartphone.Error
     {
-        PlusCFUN cfun = theModem.atCommandFactory( "+CFUN" ) as PlusCFUN;
         var channel = theModem.channel( "main" );
 
+        var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
         var response = yield channel.enqueueAsyncYielding( cfun, cfun.query() );
-
         cfun.parse( response[0] );
         antenna_power = cfun.value == 1;
     }
@@ -55,7 +54,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         var channel = theModem.channel( "main" );
         var value = Value( typeof(string) );
 
-        PlusCGMR cgmr = theModem.atCommandFactory( "+CGMR" ) as PlusCGMR;
+        var cgmr = theModem.createAtCommand<PlusCGMR>( "+CGMR" );
         var response = yield channel.enqueueAsyncYielding( cgmr, cgmr.execute() );
         if ( cgmr.validate( response ) == AtResponse.VALID )
         {
@@ -67,7 +66,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
             info.insert( "revision", "unknown" );
         }
 
-        PlusCGMM cgmm = theModem.atCommandFactory( "+CGMM" ) as PlusCGMM;
+        var cgmm = theModem.createAtCommand<PlusCGMM>( "+CGMM" );
         response = yield channel.enqueueAsyncYielding( cgmm, cgmm.execute() );
         if ( cgmm.validate( response ) == AtResponse.VALID )
         {
@@ -79,7 +78,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
             info.insert( "model", "unknown" );
         }
 
-        PlusCGMI cgmi = theModem.atCommandFactory( "+CGMI" ) as PlusCGMI;
+        var cgmi = theModem.createAtCommand<PlusCGMI>( "+CGMI" );
         response = yield channel.enqueueAsyncYielding( cgmi, cgmi.execute() );
         if ( cgmi.validate( response ) == AtResponse.VALID )
         {
@@ -91,7 +90,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
             info.insert( "manufacturer", "unknown" );
         }
 
-        PlusCGSN cgsn = theModem.atCommandFactory( "+CGSN" ) as PlusCGSN;
+        var cgsn = theModem.createAtCommand<PlusCGSN>( "+CGSN" );
         response = yield channel.enqueueAsyncYielding( cgsn, cgsn.execute() );
         if ( cgsn.validate( response ) == AtResponse.VALID )
         {
@@ -103,7 +102,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
             info.insert( "imei", "unknown" );
         }
 
-        PlusCMICKEY cmickey = theModem.atCommandFactory( "+CMICKEY" ) as PlusCMICKEY;
+        var cmickey = theModem.createAtCommand<PlusCMICKEY>( "+CMICKEY" );
         response = yield channel.enqueueAsyncYielding( cmickey, cmickey.execute() );
         if ( cmickey.validate( response ) == AtResponse.VALID )
         {
@@ -124,7 +123,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         var channel = theModem.channel( "main" );
         var value = Value( typeof(string) );
 
-        PlusGCAP gcap = theModem.atCommandFactory( "+GCAP" ) as PlusGCAP;
+        var gcap = theModem.createAtCommand<PlusGCAP>( "+GCAP" );
         var response = yield channel.enqueueAsyncYielding( gcap, gcap.execute() );
         gcap.parse( response[0] );
 
@@ -134,13 +133,13 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
             features.insert( "gsm", value );
         }
 
-        PlusCGCLASS cgclass = theModem.atCommandFactory( "+CGCLASS" ) as PlusCGCLASS;
+        var cgclass = theModem.createAtCommand<PlusCGCLASS>( "+CGCLASS" );
         response = yield channel.enqueueAsyncYielding( cgclass, cgclass.test() );
         cgclass.parseTest( response[0] );
         value = (string) cgclass.righthandside;
         features.insert( "gprs", value );
 
-        PlusFCLASS fclass = theModem.atCommandFactory( "+FCLASS" ) as PlusFCLASS;
+        var fclass = theModem.createAtCommand<PlusFCLASS>( "+FCLASS" );
         response = yield channel.enqueueAsyncYielding( fclass, fclass.test() );
         fclass.parse( response[0] );
         value = (string) fclass.faxclass;
@@ -157,7 +156,7 @@ public class AtNetworkListProviders : NetworkListProviders
     {
         var channel = theModem.channel( "main" );
 
-        PlusCOPS_Test cops = theModem.atCommandFactory( "+COPS=?" ) as PlusCOPS_Test;
+        var cops = theModem.createAtCommand<PlusCOPS_Test>( "+COPS=?" );
         var response = yield channel.enqueueAsyncYielding( cops, cops.issue() );
         cops.parse( response[0] );
         providers = cops.providerList();
@@ -170,7 +169,7 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
     {
         var channel = theModem.channel( "main" );
 
-        PlusCMUT cmut = theModem.atCommandFactory( "+CMUT" ) as PlusCMUT;
+        var cmut = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
         var response = yield channel.enqueueAsyncYielding( cmut, cmut.query() );
         cmut.parse( response[0] );
         muted = cmut.value == 1;
@@ -183,7 +182,7 @@ public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
     {
         var channel = theModem.channel( "main" );
 
-        PlusCLVL cmd = theModem.atCommandFactory( "+CLVL" ) as PlusCLVL;
+        var cmd = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
         var response = yield channel.enqueueAsyncYielding( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         volume = cmd.value;
@@ -200,7 +199,8 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
         }
 
         var channel = theModem.channel( "main" );
-        PlusCLVL clvl = theModem.atCommandFactory( "+CLVL" ) as PlusCLVL;
+
+        var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
 
         var data = theModem.data();
         if ( data.speakerVolumeMinimum == -1 )
