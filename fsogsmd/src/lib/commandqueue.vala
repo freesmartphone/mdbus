@@ -120,7 +120,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
         }
         var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
         buffer[bytesread] = 0;
-        onResponseFromTransport( (string)buffer );
+        onReadFromTransport( (string)buffer );
     }
 
     protected void _onHupFromTransport( FsoFramework.Transport t )
@@ -162,7 +162,6 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 
     protected void _solicitedCompleted( string[] response )
     {
-        logger.debug( "solicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
         assert( current != null );
 
         onSolicitedResponse( current, response );
@@ -208,26 +207,35 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 
     protected void writeNextCommand()
     {
-        logger.debug( "writing next command" );
+        logger.debug( "Writing next command" );
         current = q.poll_head();
         _writeRequestToTransport( current.request );
     }
 
-    protected void onResponseFromTransport( string response )
+    protected void onReadFromTransport( string response )
     {
-        logger.debug( "response = %s".printf( response.escape( "" ) ) );
-        parser.feed( response, (int)response.length );
+        if ( response.length > 0 )
+        {
+            logger.debug( "Read '%s'".printf( response.escape( "" ) ) );
+            parser.feed( response, (int)response.length );
+        }
+        else
+        {
+            onHupFromTransport();
+        }
     }
 
     protected void onHupFromTransport()
     {
-        logger.debug( "hup from transport. closing." );
+        logger.debug( "HUP from transport. closing." );
         transport.close();
+        //FIXME: Try to open again or leave that to the higher layers?
     }
 
     protected void onSolicitedResponse( CommandBundle bundle, string[] response )
     {
-        debug( "on solicited response w/ %d lines", response.length );
+        logger.debug( "Solicited completed: %s -> %s".printf( bundle.request, FsoFramework.StringHandling.stringListToString( response ) ) );
+
         /*
         if ( bundle.handler != null )
         bundle.handler( bundle.command, response );

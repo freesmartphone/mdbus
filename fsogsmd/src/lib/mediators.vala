@@ -28,6 +28,32 @@ using Gee;
 namespace FsoGsm {
 
 /**
+ * Some helper functions useful for mediators
+ **/
+internal async void gatherSpeakerVolumeRange()
+{
+    var data = theModem.data();
+    if ( data.speakerVolumeMinimum == -1 )
+    {
+        var channel = theModem.channel( "main" );
+
+        var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
+        var response = yield channel.enqueueAsyncYielding( clvl, clvl.test() );
+        if ( clvl.validateTest( response ) == AtResponse.VALID )
+        {
+            data.speakerVolumeMinimum = clvl.min;
+            data.speakerVolumeMaximum = clvl.max;
+        }
+        else
+        {
+            theModem.logger.warning( "Modem does not support querying volume range. Assuming (0-255)" );
+            data.speakerVolumeMinimum = 0;
+            data.speakerVolumeMaximum = 255;
+        }
+    }
+}
+
+/**
  * Power on/off the antenna. THIS FUNCTION IS DEPRECATED
  **/
 public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
@@ -180,12 +206,16 @@ public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
 {
     public override async void run() throws FreeSmartphone.Error
     {
+        yield gatherSpeakerVolumeRange();
+
         var channel = theModem.channel( "main" );
 
         var cmd = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
         var response = yield channel.enqueueAsyncYielding( cmd, cmd.query() );
         checkResponseValid( cmd, response );
-        volume = cmd.value;
+
+        var data = theModem.data();
+        volume = data.speakerVolumeMinimum + cmd.value * 100 / ( data.speakerVolumeMaximum - data.speakerVolumeMinimum );
     }
 }
 
@@ -198,32 +228,15 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Volume needs to be a percentage (0-100)" );
         }
 
-        var channel = theModem.channel( "main" );
-
-        var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
+        yield gatherSpeakerVolumeRange();
 
         var data = theModem.data();
-        if ( data.speakerVolumeMinimum == -1 )
-        {
-            var response = yield channel.enqueueAsyncYielding( clvl, clvl.test() );
-            if ( clvl.validateTest( response ) == AtResponse.VALID )
-            {
-                data.speakerVolumeMinimum = clvl.min;
-                data.speakerVolumeMaximum = clvl.max;
-            }
-            else
-            {
-                theModem.logger.warning( "Modem does not support querying volume range. Assuming (0-255)" );
-                data.speakerVolumeMinimum = 0;
-                data.speakerVolumeMaximum = 255;
-            }
-        }
+        var value = data.speakerVolumeMinimum + volume * ( data.speakerVolumeMaximum - data.speakerVolumeMinimum ) / 100;
 
-        var value = data.speakerVolumeMinimum + volume * (data.speakerVolumeMaximum-data.speakerVolumeMinimum) / 100;
-
-        // can't name it response, triggers a bug in Vala
-        var response2 = yield channel.enqueueAsyncYielding( clvl, clvl.issue( value ) );
-        checkResponseOk( clvl, response2 );
+        var channel = theModem.channel( "main" );
+        var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
+        var response = yield channel.enqueueAsyncYielding( clvl, clvl.issue( value ) );
+        checkResponseOk( clvl, response );
     }
 }
 
