@@ -193,11 +193,8 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
 {
     public override async void run() throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" );
-
         var cmd = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
-        var response = yield channel.enqueueAsyncYielding( cmd, cmd.query() );
-
+        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         muted = cmd.value == 1;
     }

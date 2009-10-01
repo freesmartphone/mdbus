@@ -23,6 +23,8 @@ using FsoGsm;
 
 class Singleline.Modem : FsoGsm.AbstractModem
 {
+    private const string CHANNEL_NAME = "main";
+
     public override string repr()
     {
         return "<Singleline>";
@@ -32,7 +34,13 @@ class Singleline.Modem : FsoGsm.AbstractModem
     {
         var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
         var parser = new FsoGsm.StateBasedAtParser();
-        var chan = new Channel( "main", transport, parser );
+        var chan = new Channel( CHANNEL_NAME, transport, parser );
+    }
+
+    protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
+    {
+        // nothing to do here as singleline only has one channel
+        return channels[ CHANNEL_NAME ];
     }
 
     public void responseHandler( FsoGsm.AtCommand command, string[] response )

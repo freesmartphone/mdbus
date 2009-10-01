@@ -29,6 +29,8 @@ public class FsoGsm.ModemData : GLib.Object
 
 public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 {
+    public const uint DEFAULT_RETRY = 3;
+
     public enum Status
     {
         /** Initial state, Transport is closed **/
@@ -62,10 +64,16 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract int status();
 
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
+    //FIXME: What was this for?
     public abstract string[] commandSequence( string purpose );
 
     public abstract T createMediator<T>() throws FreeSmartphone.Error;
     public abstract T createAtCommand<T>( string command ) throws FreeSmartphone.Error;
+
+    // All commands go through this function, so that the modem can
+    // easily decide which channel a certain command goes to at a
+    // given time
+    public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
 
     //FIXME: Might also create a channel that implements round-robin transparently?!
     public abstract FsoGsm.Channel channel( string category );
@@ -147,7 +155,18 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     /**
      * Override this to create your channels and assorted transports.
      **/
-    protected abstract void createChannels();
+    protected virtual void createChannels()
+    {
+    }
+
+    /**
+     * Override this to create your custom command/channel-assignment function.
+     **/
+    protected virtual FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string request )
+    {
+        // Must provide an implementation for this!
+        assert_not_reached();
+    }
 
     //=====================================================================//
     // PUBLIC API
@@ -213,6 +232,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested AT command '%s' unknown".printf( command ) );
         }
         return (T) cmd;
+    }
+
+    public async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY )
+    {
+        var channel = channelForCommand( command, request );
+        var response = yield channel.enqueueAsyncYielding( command, request, retry );
+        return response;
     }
 
     public Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error
