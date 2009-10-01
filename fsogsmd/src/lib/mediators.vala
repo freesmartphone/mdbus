@@ -202,6 +202,18 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
     }
 }
 
+public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
+{
+    public override async void run( bool muted ) throws FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" );
+
+        var cmut = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
+        var response = yield channel.enqueueAsyncYielding( cmut, cmut.issue( muted ? 1 : 0 ) );
+        checkResponseOk( cmut, response );
+    }
+}
+
 public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
 {
     public override async void run() throws FreeSmartphone.Error
@@ -247,6 +259,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
     table[ typeof(DeviceGetFeatures) ]            = typeof( AtDeviceGetFeatures );
     table[ typeof(DeviceGetMicrophoneMuted) ]     = typeof( AtDeviceGetMicrophoneMuted );
+    table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( AtDeviceSetMicrophoneMuted );
 
     table[ typeof(DeviceGetSpeakerVolume) ]       = typeof( AtDeviceGetSpeakerVolume );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );

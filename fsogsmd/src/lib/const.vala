@@ -75,5 +75,22 @@ public class FsoGsm.Constants
                 return "GSM";
         }
     }
+
+    public string deviceBatteryStatusToString( int code )
+    {
+        switch ( code )
+        {
+            case 0:
+                return "battery";
+            case 1:
+                return "ac";
+            case 2:
+                return "usb";
+            case 3:
+                return "failure";
+            default:
+                return "unknown";
+        }
+    }
 }
 

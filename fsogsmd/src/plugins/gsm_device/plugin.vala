@@ -99,7 +99,7 @@ class GsmDevice.Device :
     }
 
     //
-    // DBUS
+    // DBUS (org.freesmartphone.GSM.Device.*)
     //
     public async bool get_antenna_power() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
@@ -124,7 +124,9 @@ class GsmDevice.Device :
 
     public async bool get_microphone_muted() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        return false;
+        var m = modem.createMediator<FsoGsm.DeviceGetMicrophoneMuted>();
+        yield m.run();
+        return m.muted;
     }
 
     public async bool get_sim_buffers_sms() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -145,6 +147,8 @@ class GsmDevice.Device :
 
     public async void set_microphone_muted( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        var m = modem.createMediator<FsoGsm.DeviceSetMicrophoneMuted>();
+        yield m.run( muted );
     }
 
     public async void set_sim_buffers_sms( bool sim_buffers_sms ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -164,7 +168,7 @@ class GsmDevice.Device :
     }
 
     //
-    // DBUS(org.freesmartphone.GSM.Network.*)
+    // DBUS (org.freesmartphone.GSM.Network.*)
     //
     public async void disable_call_forwarding( string reason, string class_ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
