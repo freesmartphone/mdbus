@@ -163,8 +163,10 @@ class GsmDevice.Device :
 
     public async void get_power_status( out string status, out int level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        status = "";
-        level = 0;
+        var m = modem.createMediator<FsoGsm.DeviceGetPowerStatus>();
+        yield m.run();
+        status = m.status;
+        level = m.level;
     }
 
     //

@@ -28,6 +28,30 @@ using Gee;
 
 namespace FsoGsm {
 
+public class PlusCBC : AbstractAtCommand
+{
+    public string status;
+    public int level;
+
+    public PlusCBC()
+    {
+        re = new Regex( """\+CBC: (?P<status>\d),(?P<level>\d+)""" );
+        prefix = { "+CBC: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        status = Constants.instance().devicePowerStatusToString( to_int( "status" ) );
+        level = to_int( "level" );
+    }
+
+    public string execute()
+    {
+        return "+CBC";
+    }
+}
+
 public class PlusCFUN : SimpleAtCommand<int>
 {
     public PlusCFUN()
@@ -247,20 +271,21 @@ public class PlusGCAP : SimpleAtCommand<string>
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // register commands
-    table[ "+CFUN"] =            new FsoGsm.PlusCFUN();
-    table[ "+CGCLASS"] =         new FsoGsm.PlusCGCLASS();
-    table[ "+CGMI"] =            new FsoGsm.PlusCGMI();
-    table[ "+CGMM"] =            new FsoGsm.PlusCGMM();
-    table[ "+CGMR"] =            new FsoGsm.PlusCGMR();
-    table[ "+CGSN"] =            new FsoGsm.PlusCGSN();
-    table[ "+CLVL"] =            new FsoGsm.PlusCLVL();
-    table[ "+CMICKEY"] =         new FsoGsm.PlusCMICKEY();
-    table[ "+CMUT"] =            new FsoGsm.PlusCMUT();
-    table[ "+COPS"] =            new FsoGsm.PlusCOPS();
-    table[ "+COPS=?"] =          new FsoGsm.PlusCOPS_Test();
-    table[ "+CPIN"] =            new FsoGsm.PlusCPIN();
-    table[ "+FCLASS"] =          new FsoGsm.PlusFCLASS();
-    table[ "+GCAP"] =            new FsoGsm.PlusGCAP();
+    table[ "+CBC" ]              = new FsoGsm.PlusCBC();
+    table[ "+CFUN" ]             = new FsoGsm.PlusCFUN();
+    table[ "+CGCLASS" ]          = new FsoGsm.PlusCGCLASS();
+    table[ "+CGMI" ]             = new FsoGsm.PlusCGMI();
+    table[ "+CGMM" ]             = new FsoGsm.PlusCGMM();
+    table[ "+CGMR" ]             = new FsoGsm.PlusCGMR();
+    table[ "+CGSN" ]             = new FsoGsm.PlusCGSN();
+    table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
+    table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
+    table[ "+CMUT" ]             = new FsoGsm.PlusCMUT();
+    table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
+    table[ "+COPS=?" ]           = new FsoGsm.PlusCOPS_Test();
+    table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
+    table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
+    table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
 }
 
 } /* namespace FsoGsm */

@@ -76,7 +76,7 @@ public class FsoGsm.Constants
         }
     }
 
-    public string deviceBatteryStatusToString( int code )
+    public string devicePowerStatusToString( int code )
     {
         switch ( code )
         {

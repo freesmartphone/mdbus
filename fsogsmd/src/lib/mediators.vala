@@ -195,22 +195,11 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
     {
         var channel = theModem.channel( "main" );
 
-        var cmut = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
-        var response = yield channel.enqueueAsyncYielding( cmut, cmut.query() );
-        cmut.parse( response[0] );
-        muted = cmut.value == 1;
-    }
-}
+        var cmd = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
+        var response = yield channel.enqueueAsyncYielding( cmd, cmd.query() );
 
-public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
-{
-    public override async void run( bool muted ) throws FreeSmartphone.Error
-    {
-        var channel = theModem.channel( "main" );
-
-        var cmut = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
-        var response = yield channel.enqueueAsyncYielding( cmut, cmut.issue( muted ? 1 : 0 ) );
-        checkResponseOk( cmut, response );
+        checkResponseValid( cmd, response );
+        muted = cmd.value == 1;
     }
 }
 
@@ -228,6 +217,34 @@ public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
 
         var data = theModem.data();
         volume = data.speakerVolumeMinimum + cmd.value * 100 / ( data.speakerVolumeMaximum - data.speakerVolumeMinimum );
+    }
+}
+
+public class AtDeviceGetPowerStatus : DeviceGetPowerStatus
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" );
+
+        var cmd = theModem.createAtCommand<PlusCBC>( "+CBC" );
+        var response = yield channel.enqueueAsyncYielding( cmd, cmd.execute() );
+
+        checkResponseValid( cmd, response );
+        status = cmd.status;
+        level = cmd.level;
+    }
+}
+
+public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
+{
+    public override async void run( bool muted ) throws FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" );
+
+        var cmut = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
+        var response = yield channel.enqueueAsyncYielding( cmut, cmut.issue( muted ? 1 : 0 ) );
+
+        checkResponseOk( cmut, response );
     }
 }
 
@@ -259,9 +276,9 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
     table[ typeof(DeviceGetFeatures) ]            = typeof( AtDeviceGetFeatures );
     table[ typeof(DeviceGetMicrophoneMuted) ]     = typeof( AtDeviceGetMicrophoneMuted );
-    table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( AtDeviceSetMicrophoneMuted );
-
     table[ typeof(DeviceGetSpeakerVolume) ]       = typeof( AtDeviceGetSpeakerVolume );
+    table[ typeof(DeviceGetPowerStatus) ]         = typeof( AtDeviceGetPowerStatus );
+    table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( AtDeviceSetMicrophoneMuted );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
