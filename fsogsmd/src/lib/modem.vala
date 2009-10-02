@@ -21,7 +21,13 @@ using Gee;
 
 namespace FsoGsm { public FsoGsm.Modem theModem; }
 
-public abstract interface FsoGsm.Modem : GLib.Object
+public class FsoGsm.ModemData : GLib.Object
+{
+    public int speakerVolumeMinimum { get; set; default = -1; }
+    public int speakerVolumeMaximum { get; set; default = -1; }
+}
+
+public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 {
     public enum Status
     {
@@ -52,18 +58,21 @@ public abstract interface FsoGsm.Modem : GLib.Object
 
     public abstract bool open();
     public abstract void close();
-    //FIXME: Should be Status with Vala >= 0.7
+    //FIXME: Should be FsoGsm.Modem.Status with Vala >= 0.7
     public abstract int status();
 
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
     public abstract string[] commandSequence( string purpose );
 
-    public abstract Type mediatorFactory( string mediator );
-    public abstract FsoGsm.AtCommand atCommandFactory( string command );
+    public abstract T createMediator<T>() throws FreeSmartphone.Error;
+    public abstract T createAtCommand<T>( string command ) throws FreeSmartphone.Error;
 
+    //FIXME: Might also create a channel that implements round-robin transparently?!
     public abstract FsoGsm.Channel channel( string category );
 
     public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
+
+    public abstract FsoGsm.ModemData data();
 }
 
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
@@ -76,10 +85,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected string[] modem_init;
 
     protected FsoGsm.Modem.Status modem_status;
+    protected FsoGsm.ModemData modem_data;
 
     protected HashMap<string,FsoGsm.Channel> channels;
     protected HashMap<string,FsoGsm.AtCommand> commands;
-    protected HashMap<string,Type> mediators;
+    protected HashMap<Type,Type> mediators;
 
     construct
     {
@@ -90,7 +100,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
-        modem_init = config.stringListValue( "fsogsm", "modem_init", { "Z", "E0Q0V1" } );
+        modem_init = config.stringListValue( "fsogsm", "modem_init", { "ZE0Q0V1" } );
 
         channels = new HashMap<string,FsoGsm.Channel>();
 
@@ -99,14 +109,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         createChannels();
 
         modem_status = Status.CLOSED;
+        modem_data = new FsoGsm.ModemData();
 
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
     }
 
     private void registerMediators()
     {
-        mediators = new HashMap<string,Type>();
-        registerGenericMediators( mediators );
+        mediators = new HashMap<Type,Type>();
+        registerGenericAtMediators( mediators );
         registerCustomMediators( mediators );
     }
 
@@ -121,7 +132,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      * Override this to register additional mediators specific to your modem or
      * override generic mediators with modem-specific versions.
      **/
-    protected virtual void registerCustomMediators( HashMap<string,Type> mediators )
+    protected virtual void registerCustomMediators( HashMap<Type,Type> mediators )
     {
     }
 
@@ -146,7 +157,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         ensureStatus( Status.CLOSED );
 
-        var channels = this.channels.get_values();
+        var channels = this.channels.values;
         logger.info( "will open %u channel(s)...".printf( channels.size ) );
         foreach( var channel in channels )
         {
@@ -161,7 +172,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual void close()
     {
-        var channels = this.channels.get_values();
+        var channels = this.channels.values;
         foreach( var channel in channels )
             channel.close();
     }
@@ -171,22 +182,56 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return modem_status;
     }
 
+    public FsoGsm.ModemData data()
+    {
+        return modem_data;
+    }
+
     public virtual FsoGsm.Channel channel( string category )
     {
         return channels[category];
     }
 
-    public Type mediatorFactory( string mediator )
+    public T createMediator<T>() throws FreeSmartphone.Error
     {
-        Type? typ = mediators[mediator];
-        assert( typ != null );
+        Type typ = mediators[typeof(T)];
+        assert( typ != typeof(T) ); // we do NOT want the interface, else things will go havoc
+        if ( typ == Type.INVALID )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( typeof(T).name() ) );
+        }
+        T obj = Object.new( typ );
+        assert( obj != null );
+        return obj;
+    }
+
+    public T createAtCommand<T>( string command ) throws FreeSmartphone.Error
+    {
+        AtCommand? cmd = commands[command];
+        if (cmd == null )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested AT command '%s' unknown".printf( command ) );
+        }
+        return (T) cmd;
+    }
+
+    public Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error
+    {
+        Type typ = mediators[mediator];
+        if ( typ == Type.INVALID )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( mediator.name() ) );
+        }
         return typ;
     }
 
-    public AtCommand atCommandFactory( string command )
+    public AtCommand atCommandFactory( string command ) throws FreeSmartphone.Error
     {
-        var cmd = commands[command];
-        assert( cmd != null );
+        AtCommand? cmd = commands[command];
+        if (cmd == null )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested AT command '%s' unknown".printf( command ) );
+        }
         return cmd;
     }
 

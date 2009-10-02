@@ -18,10 +18,10 @@
  */
 
 /**
- * Mediator Interface and Base Class
+ * Mediator Interfaces and Base Class
  **/
 
-public abstract interface FsoGsm.Mediator : GLib.Object
+public abstract interface FsoGsm.Mediator
 {
 }
 
@@ -29,15 +29,80 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
 {
     protected void enqueue( FsoGsm.AtCommand command, string chars, FsoGsm.ResponseHandler handler )
     {
-        debug( "enqueueing %s", Type.from_instance( command ).name() );
+        debug( "FsoGsm.AbstractMediator::enqueueing %s", Type.from_instance( command ).name() );
         var channel = theModem.channel("main");
         channel.enqueue( command, chars, handler );
     }
 
     protected void enqueueAsync( FsoGsm.AtCommand command, string chars, SourceFunc? callback, string[] response )
     {
-        debug( "enqueueing %s", Type.from_instance( command ).name() );
+        debug( "FsoGsm.AbstractMediator::enqueueing %s", Type.from_instance( command ).name() );
         var channel = theModem.channel("main");
         channel.enqueueAsync( command, chars, callback, response );
     }
+
+    protected void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        if ( command.validateOk( response ) != AtResponse.OK )
+        {
+            //FIXME gather better error message out of response status
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "AT command ERROR" );
+        }
+    }
+
+    protected void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        if ( command.validate( response ) != AtResponse.VALID )
+        {
+            //FIXME gather better error message out of response status
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "AT command ERROR" );
+        }
+    }
+}
+
+//
+// org.freesmartphone.GSM.Device.*
+//
+public abstract class FsoGsm.DeviceGetAntennaPower : FsoGsm.AbstractMediator
+{
+    public bool antenna_power { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceGetInformation : FsoGsm.AbstractMediator
+{
+    public GLib.HashTable<string,GLib.Value?> info { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceGetFeatures : FsoGsm.AbstractMediator
+{
+    public GLib.HashTable<string,GLib.Value?> features { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceGetMicrophoneMuted : FsoGsm.AbstractMediator
+{
+    public bool muted { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceGetSpeakerVolume : FsoGsm.AbstractMediator
+{
+    public int volume { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceSetSpeakerVolume : FsoGsm.AbstractMediator
+{
+    public abstract async void run( int volume ) throws FreeSmartphone.Error;
+}
+
+//
+// org.freesmartphone.GSM.Network.*
+//
+public abstract class FsoGsm.NetworkListProviders : FsoGsm.AbstractMediator
+{
+    public FreeSmartphone.GSM.NetworkProvider[] providers { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
 }

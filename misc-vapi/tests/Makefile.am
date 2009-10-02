@@ -17,7 +17,7 @@ VALAC_ARGS = \
 	-C \
 	--basedir $(top_srcdir) \
 	--vapidir ../vapi/ \
-	--pkg libasound \
+	--pkg alsa \
 	--pkg glib-2.0 \
 	--pkg gio-2.0
 

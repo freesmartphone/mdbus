@@ -1,4 +1,4 @@
-AC_INIT([fsousaged], [0.9.1.0], [smartphones-userland@linuxtogo.org], [fsousaged])
+AC_INIT([fsousaged], [0.9.1.1], [smartphones-userland@linuxtogo.org], [fsousaged])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -16,9 +16,9 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-VALA_REQUIRED=0.7.6
+VALA_REQUIRED=0.7.7
 GLIB_REQUIRED=2.18.0
-GEE_REQUIRED=0.3.0
+GEE_REQUIRED=0.5.0
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
 FSO_GLIB_REQUIRED=0.2.0

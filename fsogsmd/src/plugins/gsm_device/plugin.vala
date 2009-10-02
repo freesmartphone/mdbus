@@ -23,6 +23,7 @@ namespace GsmDevice { const string MODULE_NAME = "fsogsm.gsm_device"; }
 
 class GsmDevice.Device :
     FreeSmartphone.GSM.Device,
+    FreeSmartphone.GSM.Network,
     FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
@@ -100,62 +101,131 @@ class GsmDevice.Device :
     //
     // DBUS
     //
-    public async bool get_antenna_power() throws DBus.Error
+    public async bool get_antenna_power() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var t = modem.mediatorFactory( "DeviceGetAntennaPower" );
-        var m = Object.new( t ) as FsoGsm.DeviceGetAntennaPower;
-        m.run( get_antenna_power.callback );
-        yield;
+        var m = modem.createMediator<FsoGsm.DeviceGetAntennaPower>();
+        yield m.run();
         return m.antenna_power;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_info() throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var t = modem.mediatorFactory( "DeviceGetInformation" );
-        var m = Object.new( t ) as FsoGsm.DeviceGetInformation;
-        m.run( get_features.callback );
-        yield;
+        var m = modem.createMediator<FsoGsm.DeviceGetInformation>();
+        yield m.run();
         return m.info;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_features() throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_features() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var r = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
-        return r;
+        var m = modem.createMediator<FsoGsm.DeviceGetFeatures>();
+        yield m.run();
+        return m.features;
     }
 
-    public async bool get_microphone_muted() throws DBus.Error
-    {
-        return false;
-    }
-
-    public async bool get_sim_buffers_sms() throws DBus.Error
+    public async bool get_microphone_muted() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         return false;
     }
 
-    public async int get_speaker_volume() throws DBus.Error
+    public async bool get_sim_buffers_sms() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return false;
+    }
+
+    public async int get_speaker_volume() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceGetSpeakerVolume>();
+        yield m.run();
+        return m.volume;
+    }
+
+    public async void set_antenna_power( bool antenna_power ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void set_microphone_muted( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void set_sim_buffers_sms( bool sim_buffers_sms ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void set_speaker_volume( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceSetSpeakerVolume>();
+        yield m.run( volume );
+    }
+
+    public async void get_power_status( out string status, out int level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        status = "";
+        level = 0;
+    }
+
+    //
+    // DBUS(org.freesmartphone.GSM.Network.*)
+    //
+    public async void disable_call_forwarding( string reason, string class_ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void enable_call_forwarding( string reason, string class_, string number, int timeout ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async GLib.HashTable<string,GLib.Value?> get_call_forwarding( string reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var res = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        return res;
+    }
+
+    public async string get_calling_identification( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return "unknown";
+    }
+
+    public async void get_network_country_code( out string dial_code, out string country_name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        dial_code = "unknown";
+        country_name = "unknown";
+    }
+
+    public async int get_signal_strength( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         return 0;
     }
 
-    public async void set_antenna_power(bool antenna_power) throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_status( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var res = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        return res;
+    }
+
+    public async FreeSmartphone.GSM.NetworkProvider[] list_providers( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.NetworkListProviders>();
+        yield m.run();
+        return m.providers;
+    }
+
+    public async void register_( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 
-    public async void set_microphone_muted(bool muted) throws DBus.Error
+    public async void register_with_provider( string operator_code ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 
-    public async void set_sim_buffers_sms(bool sim_buffers_sms) throws DBus.Error
+    public async void send_ussd_request( string request ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 
-    public async void set_speaker_volume(int volume) throws DBus.Error
+    public async void set_calling_identification( string visible ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 
-    public async void get_power_status(out string status, out int level) throws DBus.Error
+    public async void unregister( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 }

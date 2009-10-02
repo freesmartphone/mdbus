@@ -20,7 +20,7 @@ VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ./ \
 	--vapidir $(top_srcdir)/src/lib \
-	--pkg linux26 \
+	--pkg linux \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
 	--pkg dbus-glib-1 \

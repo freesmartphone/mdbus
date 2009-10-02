@@ -66,7 +66,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         var missed = new ArrayList<string>();
 
         // compute all that have hit since last schedule
-        foreach ( var busname in alarms.get_keys() )
+        foreach ( var busname in alarms.keys )
         {
             if ( alarms[busname] < (int)now.tv_sec + COMPENSATE_SECONDS )
             {
@@ -96,7 +96,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         // program the newest one into mainloop & RTC
         int next = 1952801220;
         var name = "";
-        foreach ( var busname in alarms.get_keys() )
+        foreach ( var busname in alarms.keys )
         {
             if ( alarms[busname] < next )
             {

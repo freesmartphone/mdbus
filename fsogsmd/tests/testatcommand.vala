@@ -43,10 +43,10 @@ void test_atcommand_PlusCFUN()
 {
     FsoGsm.PlusCFUN cmd = (FsoGsm.PlusCFUN) atCommandFactory( "+CFUN" );
     cmd.parse( "+CFUN: 0" );
-    assert( cmd.fun == 0 );
+    assert( cmd.value == 0 );
 
     cmd.parse( "+CFUN: 1" );
-    assert( cmd.fun == 1 );
+    assert( cmd.value == 1 );
 
     try
     {
@@ -56,6 +56,9 @@ void test_atcommand_PlusCFUN()
     catch ( Error e )
     {
     }
+
+    var str = cmd.issue( 1 );
+    assert( str == "+CFUN=1" );
 }
 
 //===========================================================================
@@ -65,10 +68,10 @@ void test_atcommand_PlusCGCLASS()
     FsoGsm.PlusCGCLASS cmd = (FsoGsm.PlusCGCLASS) atCommandFactory( "+CGCLASS" );
 
     cmd.parse( "+CGCLASS: \"A\"" );
-    assert( cmd.gprsclass == "A" );
+    assert( cmd.value == "A" );
 
     cmd.parse( "+CGCLASS: A" );
-    assert( cmd.gprsclass == "A" );
+    assert( cmd.value == "A" );
 
     try
     {
@@ -78,6 +81,9 @@ void test_atcommand_PlusCGCLASS()
     catch ( Error e )
     {
     }
+
+    var str = cmd.issue( "BX" );
+    assert( str == "+CGCLASS=\"BX\"" );
 }
 
 //===========================================================================
@@ -87,13 +93,13 @@ void test_atcommand_PlusCGMI()
     FsoGsm.PlusCGMI cmd = (FsoGsm.PlusCGMI) atCommandFactory( "+CGMI" );
 
     cmd.parse( "+CGMI: FIC/OpenMoko" );
-    assert( cmd.manufacturer == "FIC/OpenMoko" );
+    assert( cmd.value == "FIC/OpenMoko" );
 
     cmd.parse( "+CGMI: \"SIEMENS\"" );
-    assert( cmd.manufacturer == "SIEMENS" );
+    assert( cmd.value == "SIEMENS" );
 
     cmd.parse( "HTC" );
-    assert( cmd.manufacturer == "HTC" );
+    assert( cmd.value == "HTC" );
 }
 
 //===========================================================================
@@ -103,13 +109,13 @@ void test_atcommand_PlusCGMM()
     FsoGsm.PlusCGMM cmd = (FsoGsm.PlusCGMM) atCommandFactory( "+CGMM" );
 
     cmd.parse( "+CGMM: \"Neo1973 GTA01/GTA02 Embedded GSM Modem\"" );
-    assert( cmd.model == "Neo1973 GTA01/GTA02 Embedded GSM Modem" );
+    assert( cmd.value == "Neo1973 GTA01/GTA02 Embedded GSM Modem" );
 
     cmd.parse( "+CGMM: SIEMENS" );
-    assert( cmd.model == "SIEMENS" );
+    assert( cmd.value == "SIEMENS" );
 
     cmd.parse( "HTC" );
-    assert( cmd.model == "HTC" );
+    assert( cmd.value == "HTC" );
 }
 
 //===========================================================================
@@ -119,13 +125,13 @@ void test_atcommand_PlusCGMR()
     FsoGsm.PlusCGMR cmd = (FsoGsm.PlusCGMR) atCommandFactory( "+CGMR" );
 
     cmd.parse( "+CGMR: \"GSM: gsm_ac_gp_fd_pu_em_cph_ds_vc_cal35_ri_36_amd8_ts0-Moko11b1\"" );
-    assert( cmd.revision == "GSM: gsm_ac_gp_fd_pu_em_cph_ds_vc_cal35_ri_36_amd8_ts0-Moko11b1" );
+    assert( cmd.value == "GSM: gsm_ac_gp_fd_pu_em_cph_ds_vc_cal35_ri_36_amd8_ts0-Moko11b1" );
 
     cmd.parse( "+CGMR: SIEMENS" );
-    assert( cmd.revision == "SIEMENS" );
+    assert( cmd.value == "SIEMENS" );
 
     cmd.parse( "HTC" );
-    assert( cmd.revision == "HTC" );
+    assert( cmd.value == "HTC" );
 }
 
 //===========================================================================
@@ -134,13 +140,13 @@ void test_atcommand_PlusCGSN()
 {
     FsoGsm.PlusCGSN cmd = (FsoGsm.PlusCGSN) atCommandFactory( "+CGSN" );
     cmd.parse( "+CGSN: 1234567890" );
-    assert( cmd.imei == "1234567890" );
+    assert( cmd.value == "1234567890" );
 
     cmd.parse( "+CGSN: \"1234567890\"" );
-    assert( cmd.imei == "1234567890" );
+    assert( cmd.value == "1234567890" );
 
     cmd.parse( "1234567890" );
-    assert( cmd.imei == "1234567890" );
+    assert( cmd.value == "1234567890" );
 }
 
 //===========================================================================
@@ -151,7 +157,7 @@ void test_atcommand_PlusCOPS()
     cmd.parse( "+COPS: 2" );
     assert( cmd.status == 2 );
     assert( cmd.mode == -1 ); // not present
-    assert( cmd.oper == null ); // not present
+    assert( cmd.oper == "" ); // not present
 
     cmd.parse( "+COPS: 0,3,\"E-Plus\"" );
     assert( cmd.status == 0 );
@@ -165,24 +171,29 @@ void test_atcommand_PlusCOPS_Test()
 {
     FsoGsm.PlusCOPS_Test cmd = (FsoGsm.PlusCOPS_Test) atCommandFactory( "+COPS=?" );
 
-    cmd.parse( """+COPS: (2,"E-Plus","E-Plus","26203"),(3,"Vodafone.de","Vodafone","26202"),(3,"T-Mobile D","TMO D","26201")""" );
+    cmd.parse( """+COPS: (1,"E-Plus","E-Plus","26203"),(2,"Vodafone.de","Vodafone","26202",2),(3,"T-Mobile D","TMO D","26201")""" );
 
-    assert( cmd.info.length() == 3 );
+    var providers = (FsoGsm.PlusCOPS_Test.Provider[]) cmd.providerList();
 
-    assert( cmd.info.nth_data(0).status == 2 );
-    assert( cmd.info.nth_data(0).longname == "E-Plus" );
-    assert( cmd.info.nth_data(0).shortname == "E-Plus" );
-    assert( cmd.info.nth_data(0).mccmnc == "26203" );
+    assert( providers.length == 3 );
 
-    assert( cmd.info.nth_data(1).status == 3 );
-    assert( cmd.info.nth_data(1).longname == "Vodafone.de" );
-    assert( cmd.info.nth_data(1).shortname == "Vodafone" );
-    assert( cmd.info.nth_data(1).mccmnc == "26202" );
+    assert( providers[0].status == "available" );
+    assert( providers[0].longname == "E-Plus" );
+    assert( providers[0].shortname == "E-Plus" );
+    assert( providers[0].mccmnc == "26203" );
+    assert( providers[0].act == "GSM" );
 
-    assert( cmd.info.nth_data(2).status == 3 );
-    assert( cmd.info.nth_data(2).longname == "T-Mobile D" );
-    assert( cmd.info.nth_data(2).shortname == "TMO D" );
-    assert( cmd.info.nth_data(2).mccmnc == "26201" );
+    assert( providers[1].status == "current" );
+    assert( providers[1].longname == "Vodafone.de" );
+    assert( providers[1].shortname == "Vodafone" );
+    assert( providers[1].mccmnc == "26202" );
+    assert( providers[1].act == "UMTS" );
+
+    assert( providers[2].status == "forbidden" );
+    assert( providers[2].longname == "T-Mobile D" );
+    assert( providers[2].shortname == "TMO D" );
+    assert( providers[2].mccmnc == "26201" );
+    assert( providers[2].act == "GSM" );
 }
 
 //===========================================================================

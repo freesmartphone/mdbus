@@ -1,4 +1,4 @@
-AC_INIT([fsonetworkd], [0.0.1.0], [smartphones-userland@linuxtogo.org], [fsonetworkd])
+AC_INIT([fsonetworkd], [0.0.1.1], [smartphones-userland@linuxtogo.org], [fsonetworkd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -16,7 +16,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-VALA_REQUIRED=0.7.6
+VALA_REQUIRED=0.7.7
 GLIB_REQUIRED=2.18.0
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76

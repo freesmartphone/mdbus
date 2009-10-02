@@ -26,79 +26,111 @@
 
 using Gee;
 
-namespace FsoGsm
+namespace FsoGsm {
+
+public class PlusCFUN : SimpleAtCommand<int>
 {
-
-public class PlusCGMM : AbstractAtCommand
-{
-    public string model;
-
-    public PlusCGMM()
+    public PlusCFUN()
     {
-        re = new Regex( """(\+CGMM:\ )?"?(?P<model>[^"]*)"?""" );
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        model = to_string( "model" );
-    }
-
-    public string query()
-    {
-        return "+CGMM";
+        base( "+CFUN" );
     }
 }
 
-public class PlusCGMI : AbstractAtCommand
+public class PlusCGCLASS : SimpleAtCommand<string>
 {
-    public string manufacturer;
+    public PlusCGCLASS()
+    {
+        base( "+CGCLASS" );
+    }
+}
 
+public class PlusCGMI : SimpleAtCommand<string>
+{
     public PlusCGMI()
     {
-        re = new Regex( """(\+CGMI:\ )?"?(?P<manufacturer>[^"]*)"?""" );
+        base( "+CGMI", true );
     }
+}
 
-    public override void parse( string response ) throws AtCommandError
+public class PlusCGMM : SimpleAtCommand<string>
+{
+    public PlusCGMM()
     {
-        base.parse( response );
-        manufacturer = to_string( "manufacturer" );
+        base( "+CGMM", true );
     }
+}
 
-    public string query()
+public class PlusCGMR : SimpleAtCommand<string>
+{
+    public PlusCGMR()
     {
-        return "+CGMI";
+        base( "+CGMR", true );
+    }
+}
+
+public class PlusCGSN : SimpleAtCommand<string>
+{
+    public PlusCGSN()
+    {
+        base( "+CGSN", true );
+    }
+}
+
+public class PlusCLVL : SimpleAtCommand<int>
+{
+    public PlusCLVL()
+    {
+        base( "+CLVL" );
+    }
+}
+
+public class PlusCMICKEY : SimpleAtCommand<int>
+{
+    public PlusCMICKEY()
+    {
+        base( "+CMICKEY" );
+    }
+}
+
+public class PlusCMUT : SimpleAtCommand<int>
+{
+    public PlusCMUT()
+    {
+        base( "+CMUT" );
     }
 }
 
 public class PlusCOPS_Test : AbstractAtCommand
 {
-    public struct Info
+    public struct Provider
     {
-        public int status;
+        public string status;
         public string shortname;
         public string longname;
         public string mccmnc;
+        public string act;
     }
-    public GLib.List<Info?> info;
+    Provider[] providers;
 
     public PlusCOPS_Test()
     {
-        re = new Regex( """\((?<status>\d),"(?P<longname>[^"]*)","(?P<shortname>[^"]*)","(?P<mccmnc>[^"]*)"\)""" );
+        re = new Regex( """\((?P<status>\d),"(?P<longname>[^"]*)","(?P<shortname>[^"]*)","(?P<mccmnc>[^"]*)"(?:,(?P<act>\d))?\)""" );
         prefix = { "+COPS: " };
     }
 
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        info = new GLib.List<Info?>();
+        providers = new Provider[] {};
         do
         {
-            var i = Info() { status = to_int( "status" ),
-                             longname = to_string( "longname" ),
-                             shortname = to_string( "shortname" ),
-                             mccmnc = to_string( "mccmnc" ) };
-            info.append( i );
+            var p = Provider() {
+                status = Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
+                longname = to_string( "longname" ),
+                shortname = to_string( "shortname" ),
+                mccmnc = to_string( "mccmnc" ),
+                act = Constants.instance().networkProviderActToString( to_int( "act" ) ) };
+            providers += p;
         }
         while ( mi.next() );
     }
@@ -106,6 +138,11 @@ public class PlusCOPS_Test : AbstractAtCommand
     public string issue()
     {
         return "+COPS=?";
+    }
+
+    public FreeSmartphone.GSM.NetworkProvider[] providerList()
+    {
+        return (FreeSmartphone.GSM.NetworkProvider[]) providers;
     }
 }
 
@@ -158,59 +195,10 @@ public class PlusFCLASS : AbstractAtCommand
     {
         return "+FCLASS?";
     }
-}
-
-public class PlusCGCLASS : AbstractAtCommand
-{
-    public string gprsclass;
-
-    public PlusCGCLASS()
-    {
-        re = new Regex( """\+CGCLASS:\ "?(?P<gprsclass>[^"]*)"?""" );
-        prefix = { "+CGCLASS: " };
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        gprsclass = to_string( "gprsclass" );
-    }
-
-    public string query()
-    {
-        return "+CGCLASS?";
-    }
-}
-
-public class PlusCFUN : AbstractAtCommand
-{
-    public int fun;
-
-    public PlusCFUN()
-    {
-        re = new Regex( """\+CFUN:\ (?P<fun>\d)""" );
-        prefix = { "+CFUN: " };
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        fun = to_int( "fun" );
-    }
-
-    public string issue( int fun )
-    {
-        return "+CFUN=%d".printf( fun );
-    }
-
-    public string query()
-    {
-        return "+CFUN?";
-    }
 
     public string test()
     {
-        return "+CFUN=?";
+        return "+FCLASS=?";
     }
 }
 
@@ -248,61 +236,31 @@ public class PlusCOPS : AbstractAtCommand
     }
 }
 
-public class PlusCGSN : AbstractAtCommand
+public class PlusGCAP : SimpleAtCommand<string>
 {
-    public string imei;
-
-    public PlusCGSN()
+    public PlusGCAP()
     {
-        re = new Regex( """(\+CGSN:\ )?"?(?P<imei>[^"]*)"?""" );
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        imei = to_string( "imei" );
-    }
-
-    public string query()
-    {
-        return "+CGSN";
-    }
-}
-
-public class PlusCGMR : AbstractAtCommand
-{
-    public string revision;
-
-    public PlusCGMR()
-    {
-        re = new Regex( """(\+CGMR:\ )?"?(?P<revision>[^"]*)"?""" );
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        revision = to_string( "revision" );
-    }
-
-    public string query()
-    {
-        return "+CGMR";
+        base( "+GCAP", true );
     }
 }
 
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // register commands
-    table[ "+CGMM"] =            new FsoGsm.PlusCGMM();
+    table[ "+CFUN"] =            new FsoGsm.PlusCFUN();
+    table[ "+CGCLASS"] =         new FsoGsm.PlusCGCLASS();
     table[ "+CGMI"] =            new FsoGsm.PlusCGMI();
+    table[ "+CGMM"] =            new FsoGsm.PlusCGMM();
+    table[ "+CGMR"] =            new FsoGsm.PlusCGMR();
+    table[ "+CGSN"] =            new FsoGsm.PlusCGSN();
+    table[ "+CLVL"] =            new FsoGsm.PlusCLVL();
+    table[ "+CMICKEY"] =         new FsoGsm.PlusCMICKEY();
+    table[ "+CMUT"] =            new FsoGsm.PlusCMUT();
+    table[ "+COPS"] =            new FsoGsm.PlusCOPS();
     table[ "+COPS=?"] =          new FsoGsm.PlusCOPS_Test();
     table[ "+CPIN"] =            new FsoGsm.PlusCPIN();
     table[ "+FCLASS"] =          new FsoGsm.PlusFCLASS();
-    table[ "+CGCLASS"] =         new FsoGsm.PlusCGCLASS();
-    table[ "+CFUN"] =            new FsoGsm.PlusCFUN();
-    table[ "+COPS"] =            new FsoGsm.PlusCOPS();
-    table[ "+CGSN"] =            new FsoGsm.PlusCGSN();
-    table[ "+CGMR"] =            new FsoGsm.PlusCGMR();
+    table[ "+GCAP"] =            new FsoGsm.PlusGCAP();
 }
 
 } /* namespace FsoGsm */
