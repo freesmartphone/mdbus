@@ -35,10 +35,8 @@ internal async void gatherSpeakerVolumeRange()
     var data = theModem.data();
     if ( data.speakerVolumeMinimum == -1 )
     {
-        var channel = theModem.channel( "main" );
-
         var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
-        var response = yield channel.enqueueAsyncYielding( clvl, clvl.test() );
+        var response = yield theModem.processCommandAsync( clvl, clvl.test() );
         if ( clvl.validateTest( response ) == AtResponse.VALID )
         {
             data.speakerVolumeMinimum = clvl.min;
@@ -60,10 +58,8 @@ public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
 {
     public override async void run() throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" );
-
         var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var response = yield channel.enqueueAsyncYielding( cfun, cfun.query() );
+        var response = yield theModem.processCommandAsync( cfun, cfun.query() );
         cfun.parse( response[0] );
         antenna_power = cfun.value == 1;
     }
@@ -77,11 +73,11 @@ public class AtDeviceGetInformation : DeviceGetInformation
     public override async void run() throws FreeSmartphone.Error
     {
         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-        var channel = theModem.channel( "main" );
+
         var value = Value( typeof(string) );
 
         var cgmr = theModem.createAtCommand<PlusCGMR>( "+CGMR" );
-        var response = yield channel.enqueueAsyncYielding( cgmr, cgmr.execute() );
+        var response = yield theModem.processCommandAsync( cgmr, cgmr.execute() );
         if ( cgmr.validate( response ) == AtResponse.VALID )
         {
             value = (string) cgmr.value;
@@ -93,7 +89,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         }
 
         var cgmm = theModem.createAtCommand<PlusCGMM>( "+CGMM" );
-        response = yield channel.enqueueAsyncYielding( cgmm, cgmm.execute() );
+        response = yield theModem.processCommandAsync( cgmm, cgmm.execute() );
         if ( cgmm.validate( response ) == AtResponse.VALID )
         {
             value = (string) cgmm.value;
@@ -105,7 +101,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         }
 
         var cgmi = theModem.createAtCommand<PlusCGMI>( "+CGMI" );
-        response = yield channel.enqueueAsyncYielding( cgmi, cgmi.execute() );
+        response = yield theModem.processCommandAsync( cgmi, cgmi.execute() );
         if ( cgmi.validate( response ) == AtResponse.VALID )
         {
             value = (string) cgmi.value;
@@ -117,7 +113,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         }
 
         var cgsn = theModem.createAtCommand<PlusCGSN>( "+CGSN" );
-        response = yield channel.enqueueAsyncYielding( cgsn, cgsn.execute() );
+        response = yield theModem.processCommandAsync( cgsn, cgsn.execute() );
         if ( cgsn.validate( response ) == AtResponse.VALID )
         {
             value = (string) cgsn.value;
@@ -129,7 +125,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         }
 
         var cmickey = theModem.createAtCommand<PlusCMICKEY>( "+CMICKEY" );
-        response = yield channel.enqueueAsyncYielding( cmickey, cmickey.execute() );
+        response = yield theModem.processCommandAsync( cmickey, cmickey.execute() );
         if ( cmickey.validate( response ) == AtResponse.VALID )
         {
             value = (string) cmickey.value;
@@ -146,11 +142,10 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
     public override async void run() throws FreeSmartphone.Error
     {
         features = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-        var channel = theModem.channel( "main" );
         var value = Value( typeof(string) );
 
         var gcap = theModem.createAtCommand<PlusGCAP>( "+GCAP" );
-        var response = yield channel.enqueueAsyncYielding( gcap, gcap.execute() );
+        var response = yield theModem.processCommandAsync( gcap, gcap.execute() );
         gcap.parse( response[0] );
 
         if ( "GSM" in gcap.value )
@@ -160,13 +155,13 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         }
 
         var cgclass = theModem.createAtCommand<PlusCGCLASS>( "+CGCLASS" );
-        response = yield channel.enqueueAsyncYielding( cgclass, cgclass.test() );
+        response = yield theModem.processCommandAsync( cgclass, cgclass.test() );
         cgclass.parseTest( response[0] );
         value = (string) cgclass.righthandside;
         features.insert( "gprs", value );
 
         var fclass = theModem.createAtCommand<PlusFCLASS>( "+FCLASS" );
-        response = yield channel.enqueueAsyncYielding( fclass, fclass.test() );
+        response = yield theModem.processCommandAsync( fclass, fclass.test() );
         fclass.parse( response[0] );
         value = (string) fclass.faxclass;
         features.insert( "fax", value );
@@ -180,10 +175,8 @@ public class AtNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" );
-
         var cops = theModem.createAtCommand<PlusCOPS_Test>( "+COPS=?" );
-        var response = yield channel.enqueueAsyncYielding( cops, cops.issue() );
+        var response = yield theModem.processCommandAsync( cops, cops.issue() );
         cops.parse( response[0] );
         providers = cops.providerList();
     }
@@ -206,10 +199,8 @@ public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
     {
         yield gatherSpeakerVolumeRange();
 
-        var channel = theModem.channel( "main" );
-
         var cmd = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
-        var response = yield channel.enqueueAsyncYielding( cmd, cmd.query() );
+        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
 
         var data = theModem.data();
@@ -221,10 +212,8 @@ public class AtDeviceGetPowerStatus : DeviceGetPowerStatus
 {
     public override async void run() throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" );
-
         var cmd = theModem.createAtCommand<PlusCBC>( "+CBC" );
-        var response = yield channel.enqueueAsyncYielding( cmd, cmd.execute() );
+        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
 
         checkResponseValid( cmd, response );
         status = cmd.status;
@@ -236,10 +225,8 @@ public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
 {
     public override async void run( bool muted ) throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" );
-
         var cmut = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
-        var response = yield channel.enqueueAsyncYielding( cmut, cmut.issue( muted ? 1 : 0 ) );
+        var response = yield theModem.processCommandAsync( cmut, cmut.issue( muted ? 1 : 0 ) );
 
         checkResponseOk( cmut, response );
     }
@@ -259,9 +246,9 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
         var data = theModem.data();
         var value = data.speakerVolumeMinimum + volume * ( data.speakerVolumeMaximum - data.speakerVolumeMinimum ) / 100;
 
-        var channel = theModem.channel( "main" );
+
         var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
-        var response = yield channel.enqueueAsyncYielding( clvl, clvl.issue( value ) );
+        var response = yield theModem.processCommandAsync( clvl, clvl.issue( value ) );
         checkResponseOk( clvl, response );
     }
 }
