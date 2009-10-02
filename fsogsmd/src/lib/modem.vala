@@ -115,7 +115,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
-        modem_init = config.stringListValue( "fsogsm", "modem_init", { "ZE0Q0V1" } );
+        modem_init = config.stringListValue( "fsogsm", "modem_init", { "E0Q0V1" } );
 
         channels = new HashMap<string,FsoGsm.Channel>();
 
@@ -185,13 +185,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     }
 
     /**
-     * Override this to create your custom command/channel-assignment function.
+     * Implement this to create the command/channel-assignment function.
      **/
-    protected virtual FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string request )
-    {
-        // Must provide an implementation for this!
-        assert_not_reached();
-    }
+    protected abstract FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string request );
 
     //=====================================================================//
     // PUBLIC API

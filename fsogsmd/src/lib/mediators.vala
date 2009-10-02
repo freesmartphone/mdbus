@@ -146,25 +146,30 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
 
         var gcap = theModem.createAtCommand<PlusGCAP>( "+GCAP" );
         var response = yield theModem.processCommandAsync( gcap, gcap.execute() );
-        gcap.parse( response[0] );
-
-        if ( "GSM" in gcap.value )
+        if ( gcap.validate( response ) == AtResponse.VALID )
         {
-            value = (string) "TA";
-            features.insert( "gsm", value );
+            if ( "GSM" in gcap.value )
+            {
+                value = (string) "TA";
+                features.insert( "gsm", value );
+            }
         }
 
         var cgclass = theModem.createAtCommand<PlusCGCLASS>( "+CGCLASS" );
         response = yield theModem.processCommandAsync( cgclass, cgclass.test() );
-        cgclass.parseTest( response[0] );
-        value = (string) cgclass.righthandside;
-        features.insert( "gprs", value );
+        if ( cgclass.validateTest( response ) == AtResponse.VALID )
+        {
+            value = (string) cgclass.righthandside;
+            features.insert( "gprs", value );
+        }
 
         var fclass = theModem.createAtCommand<PlusFCLASS>( "+FCLASS" );
         response = yield theModem.processCommandAsync( fclass, fclass.test() );
-        fclass.parse( response[0] );
-        value = (string) fclass.faxclass;
-        features.insert( "fax", value );
+        if ( fclass.validateTest( response ) == AtResponse.VALID )
+        {
+            value = (string) fclass.faxclass;
+            features.insert( "fax", value );
+        }
     }
 }
 
@@ -186,7 +191,7 @@ public class AtDeviceGetSimBuffersSms : DeviceGetSimBuffersSms
         var cmd = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
         var response = yield theModem.processCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
-        buffers = cmd.mt == 1;
+        buffers = cmd.mt < 2;
     }
 }
 
@@ -264,7 +269,6 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 
         var data = theModem.data();
         var value = data.speakerVolumeMinimum + volume * ( data.speakerVolumeMaximum - data.speakerVolumeMinimum ) / 100;
-
 
         var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
         var response = yield theModem.processCommandAsync( clvl, clvl.issue( value ) );

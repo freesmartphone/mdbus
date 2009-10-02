@@ -38,6 +38,11 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         //TODO: create channels here
     }
 
+    protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
+    {
+        //TODO: return proper channel here
+        assert_not_reached();
+    }
 }
 
 /**
