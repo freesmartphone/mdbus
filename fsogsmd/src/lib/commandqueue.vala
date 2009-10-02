@@ -388,8 +388,4 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     {
         transport.close();
     }
-
 }
-
-}
-

@@ -94,6 +94,12 @@ public abstract class FsoGsm.DeviceGetPowerStatus : FsoGsm.AbstractMediator
     public abstract async void run() throws FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.DeviceGetSimBuffersSms : FsoGsm.AbstractMediator
+{
+    public bool buffers { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.DeviceGetSpeakerVolume : FsoGsm.AbstractMediator
 {
     public int volume { get; set; }
@@ -103,6 +109,11 @@ public abstract class FsoGsm.DeviceGetSpeakerVolume : FsoGsm.AbstractMediator
 public abstract class FsoGsm.DeviceSetMicrophoneMuted : FsoGsm.AbstractMediator
 {
     public abstract async void run( bool muted ) throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceSetSimBuffersSms : FsoGsm.AbstractMediator
+{
+    public abstract async void run( bool buffers ) throws FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.DeviceSetSpeakerVolume : FsoGsm.AbstractMediator

@@ -168,20 +168,6 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
     }
 }
 
-/**
- * List providers.
- **/
-public class AtNetworkListProviders : NetworkListProviders
-{
-    public override async void run() throws FreeSmartphone.Error
-    {
-        var cops = theModem.createAtCommand<PlusCOPS_Test>( "+COPS=?" );
-        var response = yield theModem.processCommandAsync( cops, cops.issue() );
-        cops.parse( response[0] );
-        providers = cops.providerList();
-    }
-}
-
 public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
 {
     public override async void run() throws FreeSmartphone.Error
@@ -190,6 +176,17 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
         var response = yield theModem.processCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         muted = cmd.value == 1;
+    }
+}
+
+public class AtDeviceGetSimBuffersSms : DeviceGetSimBuffersSms
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        buffers = cmd.mt == 1;
     }
 }
 
@@ -232,6 +229,28 @@ public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
     }
 }
 
+public class AtDeviceSetSimBuffersSms : DeviceSetSimBuffersSms
+{
+    public override async void run( bool buffers ) throws FreeSmartphone.Error
+    {
+        //if ( buffers != theModem.data().simBuffersSms )
+        {
+            var data = theModem.data();
+            data.simBuffersSms = buffers;
+            var cnmiparams = buffers ? data.cnmiSmsBufferedCb : data.cnmiSmsDirectCb;
+
+            var cnmi = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
+            var response = yield theModem.processCommandAsync( cnmi, cnmi.issue( cnmiparams.mode,
+                                                                                 cnmiparams.mt,
+                                                                                 cnmiparams.bm,
+                                                                                 cnmiparams.ds,
+                                                                                 cnmiparams.bfr) );
+
+            checkResponseOk( cnmi, response );
+        }
+    }
+}
+
 public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 {
     public override async void run( int volume ) throws FreeSmartphone.Error
@@ -253,6 +272,21 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
     }
 }
 
+/**
+ * List providers.
+ **/
+public class AtNetworkListProviders : NetworkListProviders
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        var cops = theModem.createAtCommand<PlusCOPS_Test>( "+COPS=?" );
+        var response = yield theModem.processCommandAsync( cops, cops.issue() );
+        cops.parse( response[0] );
+        providers = cops.providerList();
+    }
+}
+
+
 public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
     // register commands
@@ -260,9 +294,11 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
     table[ typeof(DeviceGetFeatures) ]            = typeof( AtDeviceGetFeatures );
     table[ typeof(DeviceGetMicrophoneMuted) ]     = typeof( AtDeviceGetMicrophoneMuted );
-    table[ typeof(DeviceGetSpeakerVolume) ]       = typeof( AtDeviceGetSpeakerVolume );
     table[ typeof(DeviceGetPowerStatus) ]         = typeof( AtDeviceGetPowerStatus );
+    table[ typeof(DeviceGetSimBuffersSms) ]       = typeof( AtDeviceGetSimBuffersSms );
+    table[ typeof(DeviceGetSpeakerVolume) ]       = typeof( AtDeviceGetSpeakerVolume );
     table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( AtDeviceSetMicrophoneMuted );
+    table[ typeof(DeviceSetSimBuffersSms) ]       = typeof( AtDeviceSetSimBuffersSms );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );

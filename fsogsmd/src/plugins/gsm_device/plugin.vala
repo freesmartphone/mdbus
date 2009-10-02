@@ -131,7 +131,9 @@ class GsmDevice.Device :
 
     public async bool get_sim_buffers_sms() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        return false;
+        var m = modem.createMediator<FsoGsm.DeviceGetSimBuffersSms>();
+        yield m.run();
+        return m.buffers;
     }
 
     public async int get_speaker_volume() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -153,6 +155,8 @@ class GsmDevice.Device :
 
     public async void set_sim_buffers_sms( bool sim_buffers_sms ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        var m = modem.createMediator<FsoGsm.DeviceSetSimBuffersSms>();
+        yield m.run( sim_buffers_sms );
     }
 
     public async void set_speaker_volume( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

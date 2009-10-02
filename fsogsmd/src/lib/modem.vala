@@ -23,8 +23,15 @@ namespace FsoGsm { public FsoGsm.Modem theModem; }
 
 public class FsoGsm.ModemData : GLib.Object
 {
-    public int speakerVolumeMinimum { get; set; default = -1; }
-    public int speakerVolumeMaximum { get; set; default = -1; }
+    public int speakerVolumeMinimum;
+    public int speakerVolumeMaximum;
+
+    public bool simBuffersSms;
+
+    public AtNewMessageIndication cnmiSmsBufferedCb;
+    public AtNewMessageIndication cnmiSmsBufferedNoCb;
+    public AtNewMessageIndication cnmiSmsDirectCb;
+    public AtNewMessageIndication cnmiSmsDirectNoCb;
 }
 
 public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
@@ -112,14 +119,25 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         channels = new HashMap<string,FsoGsm.Channel>();
 
+        initData();
         registerMediators();
         registerAtCommands();
         createChannels();
 
+        logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
+    }
+
+    private void initData()
+    {
         modem_status = Status.CLOSED;
         modem_data = new FsoGsm.ModemData();
 
-        logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
+        modem_data.cnmiSmsBufferedCb    = AtNewMessageIndication() { mode=2, mt=1, bm=2, ds=1, bfr=1 };
+        modem_data.cnmiSmsBufferedNoCb  = AtNewMessageIndication() { mode=2, mt=1, bm=0, ds=0, bfr=0 };
+        modem_data.cnmiSmsDirectCb      = AtNewMessageIndication() { mode=2, mt=2, bm=2, ds=1, bfr=1 };
+        modem_data.cnmiSmsDirectNoCb    = AtNewMessageIndication() { mode=2, mt=2, bm=0, ds=0, bfr=0 };
+
+        configureData();
     }
 
     private void registerMediators()
@@ -156,6 +174,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      * Override this to create your channels and assorted transports.
      **/
     protected virtual void createChannels()
+    {
+    }
+
+    /**
+     * Override this to configure the data instance for your modem.
+     **/
+    protected virtual void configureData()
     {
     }
 

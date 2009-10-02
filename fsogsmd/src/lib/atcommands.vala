@@ -108,6 +108,41 @@ public class PlusCLVL : SimpleAtCommand<int>
     }
 }
 
+public class PlusCNMI : AbstractAtCommand
+{
+    public int mode;
+    public int mt;
+    public int bm;
+    public int ds;
+    public int bfr;
+
+    public PlusCNMI()
+    {
+        re = new Regex( """\+CNMI: (?P<mode>\d),(?P<mt>\d),(?P<bm>\d),(?P<ds>\d),(?P<bfr>\d)""" );
+        prefix = { "+CNMI: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        mode = to_int( "mode" );
+        mt = to_int( "mt" );
+        bm = to_int( "bm" );
+        ds = to_int( "ds" );
+        bfr = to_int( "bfr" );
+    }
+
+    public string query()
+    {
+        return "+CNMI?";
+    }
+
+    public string issue( int mode, int mt, int bm, int ds, int bfr )
+    {
+        return "+CNMI=%d,%d,%d,%d,%d".printf( mode, mt, bm, ds, bfr );
+    }
+}
+
 public class PlusCMICKEY : SimpleAtCommand<int>
 {
     public PlusCMICKEY()
@@ -281,6 +316,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
     table[ "+CMUT" ]             = new FsoGsm.PlusCMUT();
+    table[ "+CNMI" ]             = new FsoGsm.PlusCNMI();
     table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
     table[ "+COPS=?" ]           = new FsoGsm.PlusCOPS_Test();
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
