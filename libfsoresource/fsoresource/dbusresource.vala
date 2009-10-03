@@ -24,7 +24,7 @@ namespace FsoFramework {
 /**
  * AbstractSimpleResource: A DBus Resource API service object
  */
-public class AbstractDBusResource : FreeSmartphone.Resource, FsoFramework.AbstractObject
+public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramework.AbstractObject
 {
     private FsoFramework.DBusSubsystem subsystem;
     private dynamic DBus.Object usage; /* needs to be dynamic for async */
@@ -73,7 +73,7 @@ public class AbstractDBusResource : FreeSmartphone.Resource, FsoFramework.Abstra
         if ( e != null )
         {
             logger.error( "%s. Can't register resource with fsousaged, enabling unconditionally".printf( e.message ) );
-            _enable();
+            enableResource();
             return;
         }
         else
@@ -82,43 +82,35 @@ public class AbstractDBusResource : FreeSmartphone.Resource, FsoFramework.Abstra
         }
     }
 
-    public virtual void _enable()
-    {
-    }
+    public abstract void enableResource();
 
-    public virtual void _disable()
-    {
-    }
+    public abstract void disableResource();
 
-    public virtual void _suspend()
-    {
-    }
+    public abstract void suspendResource();
 
-    public virtual void _resume()
-    {
-    }
+    public abstract void resumeResource();
 
     //
     // DBUS API
     //
     public void disable() throws FreeSmartphone.ResourceError, DBus.Error
     {
-        _disable();
+        disableResource();
     }
 
     public void enable() throws DBus.Error
     {
-        _enable();
+        enableResource();
     }
 
     public void resume() throws FreeSmartphone.ResourceError, DBus.Error
     {
-        _resume();
+        resumeResource();
     }
 
     public void suspend() throws FreeSmartphone.ResourceError, DBus.Error
     {
-        _suspend();
+        suspendResource();
     }
 }
 
