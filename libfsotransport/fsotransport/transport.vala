@@ -105,6 +105,3 @@ public abstract class FsoFramework.Transport : Object
 //===========================================================================
 public delegate void FsoFramework.TransportReadFunc( Transport transport );
 public delegate void FsoFramework.TransportHupFunc( Transport transport );
-
-}
-
