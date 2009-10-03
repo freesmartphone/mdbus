@@ -196,6 +196,7 @@ public class Controller : FsoFramework.AbstractObject
         logger.debug( "Resource %s served by %s @ %s has just been unregistered".printf( r.name, r.busname, r.objectpath ) );
         this.resource_available( r.name, false ); // DBUS SIGNAL
 
+#if WHY_TRYING_TO_DISABLE_A_VANISHED_RESOURCE
         try
         {
             r.disable();
@@ -208,6 +209,9 @@ public class Controller : FsoFramework.AbstractObject
         {
             logger.warning( "Error while trying to (finally) disable resource %s: %s".printf( r.name, e.message ) );
         }
+#endif
+
+        //resources.remove( r.name );
     }
 
     private void onNameOwnerChanged( dynamic DBus.Object obj, string name, string oldowner, string newowner )
@@ -398,7 +402,7 @@ public class Controller : FsoFramework.AbstractObject
     // DBUS API (for consumers)
     //
     //public FreeSmartphone.UsageResourcePolicy get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
-    public string get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async string get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         switch ( getResource( name ).policy )
         {
@@ -416,7 +420,7 @@ public class Controller : FsoFramework.AbstractObject
     }
 
     //public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
-    public void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         message( "set resource policy for %s to %s", name, policy );
 
@@ -430,17 +434,17 @@ public class Controller : FsoFramework.AbstractObject
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "ResourcePolicy needs to be one of { \"enabled\", \"disabled\", \"auto\" }" );
     }
 
-    public bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public async bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
         return getResource( name ).isEnabled();
     }
 
-    public string[] get_resource_users( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public async string[] get_resource_users( string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
         return getResource( name ).allUsers();
     }
 
-    public string[] list_resources() throws DBus.Error
+    public async string[] list_resources() throws DBus.Error
     {
         string[] res = {};
         foreach ( var key in resources.keys )
@@ -448,31 +452,31 @@ public class Controller : FsoFramework.AbstractObject
         return res;
     }
 
-    public void request_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public async void request_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
         getResource( name ).addUser( sender );
     }
 
-    public void release_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public async void release_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
         getResource( name ).delUser( sender );
     }
 
-    public void shutdown() throws DBus.Error
+    public async void shutdown() throws DBus.Error
     {
         this.system_action( FreeSmartphone.UsageSystemAction.SHUTDOWN ); // DBUS SIGNAL
         disableAllResources();
         Posix.system( "shutdown -h now" );
     }
 
-    public void reboot() throws DBus.Error
+    public async void reboot() throws DBus.Error
     {
         this.system_action( FreeSmartphone.UsageSystemAction.REBOOT ); // DBUS SIGNAL
         disableAllResources();
         Posix.system( "reboot" );
     }
 
-    public void suspend() throws DBus.Error
+    public async void suspend() throws DBus.Error
     {
         this.system_action( FreeSmartphone.UsageSystemAction.SUSPEND ); // DBUS SIGNAL
         // we need to suspend async, otherwise the dbus call would timeout
