@@ -56,7 +56,7 @@ public class Resource : Object
     // called before deserializing, init all non-value types here
     construct
     {
-        this.users = new ArrayList<string>( str_equal );
+        this.users = new ArrayList<string>();
     }
 
     public Resource( string name, DBus.BusName busname, DBus.ObjectPath objectpath )
@@ -69,18 +69,27 @@ public class Resource : Object
 
         proxy = dbusconn.get_object( busname, objectpath, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
         // workaround until vala 0.7.4
-        proxy.ref();
+        //proxy.ref();
 
-        //message( "Resource %s served by %s @ %s created", name, busname, objectpath );
+        message( "Resource %s served by %s @ %s created", name, busname, objectpath );
     }
 
     ~Resource()
     {
-        //message( "Resource %s served by %s @ %s destroyed", name, busname, objectpath );
+        message( "Resource %s served by %s @ %s destroyed", name, busname, objectpath );
     }
 
     private void updateStatus()
     {
+        // NOTE: Ok, here's a "funny" one: updateStatus is the async reply handler for a call
+        // that results in the caller (this very object) to be destroyed. The reply handler
+        // will then be called with a half-destroyed ( this!=null ) object.
+        // TODO: Investigate whether this is a vala bug or not
+        if ( users == null )
+        {
+            instance.logger.warning( "Resource already destroyed." );
+            return;
+        }
         var info = new HashTable<string,Value?>( str_hash, str_equal );
         var p = Value( typeof(int) );
         p.set_int( policy );
