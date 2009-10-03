@@ -60,8 +60,24 @@ public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
     {
         var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
         var response = yield theModem.processCommandAsync( cfun, cfun.query() );
-        cfun.parse( response[0] );
+        checkResponseValid( cfun, response );
         antenna_power = cfun.value == 1;
+    }
+}
+
+/**
+ * Get device functionality.
+ **/
+public class AtDeviceGetFunctionality : DeviceGetFunctionality
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        /*
+        var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
+        var response = yield theModem.processCommandAsync( cfun, cfun.query() );
+        checkResponseValid( cfun, response );
+        level = cfun.level;
+        */
     }
 }
 
@@ -220,6 +236,18 @@ public class AtDeviceGetPowerStatus : DeviceGetPowerStatus
         checkResponseValid( cmd, response );
         status = cmd.status;
         level = cmd.level;
+    }
+}
+
+public class AtDeviceSetFunctionality : DeviceSetFunctionality
+{
+    public override async void run( string level ) throws FreeSmartphone.Error
+    {
+        /*
+        var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( level ) );
+        checkResponseValid( cmd, response );
+        */
     }
 }
 

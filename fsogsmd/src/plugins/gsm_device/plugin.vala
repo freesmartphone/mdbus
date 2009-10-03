@@ -108,6 +108,13 @@ class GsmDevice.Device :
         return m.antenna_power;
     }
 
+    public async string get_functionality() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceGetFunctionality>();
+        yield m.run();
+        return "unknown"; //m.level;
+    }
+
     public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var m = modem.createMediator<FsoGsm.DeviceGetInformation>();
@@ -145,6 +152,13 @@ class GsmDevice.Device :
 
     public async void set_antenna_power( bool antenna_power ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Please use org.freesmartphone.GSM.Device.SetFunctionality instead." );
+    }
+
+    public async void set_functionality( string level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceSetFunctionality>();
+        yield m.run( level );
     }
 
     public async void set_microphone_muted( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
