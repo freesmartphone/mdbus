@@ -69,7 +69,7 @@ internal async void gatherSimStatusAndUpdate()
 }
 
 /**
- * Power on/off the antenna. THIS FUNCTION IS DEPRECATED
+ * Device Mediators
  **/
 public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
 {
@@ -82,9 +82,39 @@ public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
     }
 }
 
-/**
- * Get device functionality.
- **/
+public class AtDeviceGetAlarmTime : DeviceGetAlarmTime
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        //FIXME: Honor default alarm time for disabled
+        var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        // some modems strip the leading zero for one-digit chars, so we have to reassemble it
+        var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( cmd.year, cmd.month, cmd.day, cmd.hour, cmd.minute, cmd.second );
+        var formatstr = "%y/%m/%d,%H:%M:%S";
+        var t = GLib.Time();
+        t.strptime( timestr, formatstr );
+        since_epoch = (int) Linux.timegm( t );
+    }
+}
+
+public class AtDeviceGetCurrentTime : DeviceGetCurrentTime
+{
+    public override async void run() throws FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        // some modems strip the leading zero for one-digit chars, so we have to reassemble it
+        var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( cmd.year, cmd.month, cmd.day, cmd.hour, cmd.minute, cmd.second );
+        var formatstr = "%y/%m/%d,%H:%M:%S";
+        var t = GLib.Time();
+        t.strptime( timestr, formatstr );
+        since_epoch = (int) Linux.timegm( t );
+    }
+}
+
 public class AtDeviceGetFunctionality : DeviceGetFunctionality
 {
     public override async void run() throws FreeSmartphone.Error
@@ -96,9 +126,6 @@ public class AtDeviceGetFunctionality : DeviceGetFunctionality
     }
 }
 
-/**
- * Get device information.
- **/
 public class AtDeviceGetInformation : DeviceGetInformation
 {
     public override async void run() throws FreeSmartphone.Error
@@ -165,9 +192,6 @@ public class AtDeviceGetInformation : DeviceGetInformation
     }
 }
 
-/**
- * Get device features.
- **/
 public class AtDeviceGetFeatures : DeviceGetFeatures
 {
     public override async void run() throws FreeSmartphone.Error
@@ -254,6 +278,33 @@ public class AtDeviceGetPowerStatus : DeviceGetPowerStatus
     }
 }
 
+public class AtDeviceSetAlarmTime : DeviceSetAlarmTime
+{
+    public override async void run( int since_epoch ) throws FreeSmartphone.Error
+    {
+        //FIXME: Honor since_epoch = 0 for disabling alarm time (+CALA="")
+        var t = GLib.Time.gm( (time_t) since_epoch );
+
+        var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
+
+        checkResponseOk( cmd, response );
+    }
+}
+
+public class AtDeviceSetCurrentTime : DeviceSetCurrentTime
+{
+    public override async void run( int since_epoch ) throws FreeSmartphone.Error
+    {
+        var t = GLib.Time.gm( (time_t) since_epoch );
+
+        var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
+
+        checkResponseOk( cmd, response );
+    }
+}
+
 public class AtDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level ) throws FreeSmartphone.Error
@@ -327,7 +378,7 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 }
 
 /**
- * List providers.
+ * Network Mediators
  **/
 public class AtNetworkListProviders : NetworkListProviders
 {
@@ -340,11 +391,14 @@ public class AtNetworkListProviders : NetworkListProviders
     }
 }
 
-
+/**
+ * Register all mediators
+ **/
 public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
     // register commands
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
+    table[ typeof(DeviceGetCurrentTime) ]         = typeof( AtDeviceGetCurrentTime );
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
     table[ typeof(DeviceGetFeatures) ]            = typeof( AtDeviceGetFeatures );
     table[ typeof(DeviceGetFunctionality) ]       = typeof( AtDeviceGetFunctionality );
@@ -352,6 +406,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetPowerStatus) ]         = typeof( AtDeviceGetPowerStatus );
     table[ typeof(DeviceGetSimBuffersSms) ]       = typeof( AtDeviceGetSimBuffersSms );
     table[ typeof(DeviceGetSpeakerVolume) ]       = typeof( AtDeviceGetSpeakerVolume );
+    table[ typeof(DeviceSetAlarmTime) ]           = typeof( AtDeviceSetAlarmTime );
+    table[ typeof(DeviceSetCurrentTime) ]         = typeof( AtDeviceSetCurrentTime );
     table[ typeof(DeviceSetFunctionality) ]       = typeof( AtDeviceSetFunctionality );
     table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( AtDeviceSetMicrophoneMuted );
     table[ typeof(DeviceSetSimBuffersSms) ]       = typeof( AtDeviceSetSimBuffersSms );

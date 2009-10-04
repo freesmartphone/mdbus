@@ -22,6 +22,7 @@ using GLib;
 namespace GsmDevice { const string MODULE_NAME = "fsogsm.gsm_device"; }
 
 class GsmDevice.Device :
+    FreeSmartphone.Device.RealtimeClock,
     FreeSmartphone.GSM.Device,
     FreeSmartphone.GSM.Network,
     FsoFramework.AbstractObject
@@ -105,6 +106,41 @@ class GsmDevice.Device :
     {
         logger.critical( "Not yet implemented" );
     }
+
+    //
+    // DBUS (org.freesmartphone.Device.RealtimeClock)
+    //
+
+    public async int get_current_time() throws FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceGetCurrentTime>();
+        yield m.run();
+        return m.since_epoch;
+    }
+
+    public async void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceSetCurrentTime>();
+        yield m.run( seconds_since_epoch );
+    }
+
+    public async int get_wakeup_time() throws FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceGetAlarmTime>();
+        yield m.run();
+        return m.since_epoch;
+    }
+
+    public async void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceSetAlarmTime>();
+        yield m.run( seconds_since_epoch );
+        this.wakeup_time_changed( seconds_since_epoch ); // DBUS SIGNAL
+    }
+
+    // DBUS SIGNALS
+    /* public void wakeup_time_changed( int seconds_since_epoch ); */
+    /* public void alarm( int seconds_since_epoch ); */
 
     //
     // DBUS (org.freesmartphone.GSM.Device.*)
@@ -241,7 +277,7 @@ class GsmDevice.Device :
         return m.providers;
     }
 
-    public async void register_( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void register_() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 
