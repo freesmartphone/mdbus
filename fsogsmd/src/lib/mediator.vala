@@ -77,7 +77,7 @@ public abstract class FsoGsm.DeviceGetFeatures : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.DeviceGetFunctionality : FsoGsm.AbstractMediator
 {
-    public string functionality { get; set; }
+    public string level { get; set; }
     public abstract async void run() throws FreeSmartphone.Error;
 }
 

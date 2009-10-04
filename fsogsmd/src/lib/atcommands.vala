@@ -231,7 +231,7 @@ public class PlusCPIN : AbstractAtCommand
 
     public string query()
     {
-        return "+COPS?";
+        return "+CPIN?";
     }
 }
 
@@ -284,9 +284,9 @@ public class PlusCOPS : AbstractAtCommand
     public string issue( int mode, int format, int oper = 0 )
     {
         if ( oper == 0 )
-            return "+CFUN=%d,%d".printf( mode, format );
+            return "+COPS=%d,%d".printf( mode, format );
         else
-            return "+CFUN=%d,%d,\"%d\"".printf( mode, format, oper );
+            return "+COPS=%d,%d,\"%d\"".printf( mode, format, oper );
     }
 
     public string query()

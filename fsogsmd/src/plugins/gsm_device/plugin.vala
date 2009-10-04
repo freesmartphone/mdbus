@@ -72,6 +72,8 @@ class GsmDevice.Device :
         subsystem.registerServiceName( FsoFramework.GSM.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
 
+        modem = (FsoGsm.Modem) Object.new( modemclass );
+
         logger.info( "Ready. Configured for modem '%s'".printf( modemtype ) );
     }
 
@@ -82,11 +84,6 @@ class GsmDevice.Device :
 
     public void enable()
     {
-        if ( modem == null )
-        {
-            modem = (FsoGsm.Modem) Object.new( modemclass );
-        }
-
         if ( !modem.open() )
             logger.error( "Can't open modem" );
         else
@@ -95,10 +92,7 @@ class GsmDevice.Device :
 
     public void disable()
     {
-        if ( modem != null )
-        {
-            modem.close();
-        }
+        modem.close();
         logger.info( "Modem closed successfully" );
     }
 
@@ -126,7 +120,7 @@ class GsmDevice.Device :
     {
         var m = modem.createMediator<FsoGsm.DeviceGetFunctionality>();
         yield m.run();
-        return "unknown"; //m.level;
+        return m.level;
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

@@ -26,6 +26,8 @@ public class FsoGsm.ModemData : GLib.Object
     public int speakerVolumeMinimum;
     public int speakerVolumeMaximum;
 
+    public string simAuthStatus;
+
     public bool simBuffersSms;
 
     public AtNewMessageIndication cnmiSmsBufferedCb;
@@ -71,7 +73,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract int status();
 
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
-    //FIXME: What was this for?
+
+    // get command sequence for a specific purpose (init, suspend, resume, poweroff)
     public abstract string[] commandSequence( string purpose );
 
     public abstract T createMediator<T>() throws FreeSmartphone.Error;
@@ -136,6 +139,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         advanceStatus( modem_status, Status.CLOSED );
         modem_data = new FsoGsm.ModemData();
 
+        modem_data.simAuthStatus = "UNKNOWN";
+        modem_data.simBuffersSms = true;
+
         modem_data.cnmiSmsBufferedCb    = AtNewMessageIndication() { mode=2, mt=1, bm=2, ds=1, bfr=1 };
         modem_data.cnmiSmsBufferedNoCb  = AtNewMessageIndication() { mode=2, mt=1, bm=0, ds=0, bfr=0 };
         modem_data.cnmiSmsDirectCb      = AtNewMessageIndication() { mode=2, mt=2, bm=2, ds=1, bfr=1 };
@@ -189,6 +195,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     }
 
     /**
+     * Override this for modem-specific power handling
+     **/
+    protected virtual void setPower( bool on )
+    {
+    }
+
+    /**
      * Implement this to create the command/channel-assignment function.
      **/
     protected abstract FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string request );
@@ -199,6 +212,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual bool open()
     {
+        // power on
+        setPower( true );
         initData();
         ensureStatus( Status.CLOSED );
 
@@ -223,6 +238,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         {
             channel.close();
         }
+        // power off
+        setPower( false );
     }
 
     public int /* FsoGsm.Modem.Status */ status()

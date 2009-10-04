@@ -51,6 +51,23 @@ internal async void gatherSpeakerVolumeRange()
     }
 }
 
+internal async void gatherSimStatusAndUpdate()
+{
+    var data = theModem.data();
+
+    var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
+    var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+    if ( cmd.validate( response ) == AtResponse.VALID )
+    {
+        if ( cmd.pin != data.simAuthStatus )
+        {
+            data.simAuthStatus = cmd.pin;
+            //theModem.auth_status( cmd.pin );
+            theModem.logger.info( "New SIM Auth status '%s'".printf( cmd.pin ) );
+        }
+    }
+}
+
 /**
  * Power on/off the antenna. THIS FUNCTION IS DEPRECATED
  **/
@@ -72,12 +89,10 @@ public class AtDeviceGetFunctionality : DeviceGetFunctionality
 {
     public override async void run() throws FreeSmartphone.Error
     {
-        /*
         var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
         var response = yield theModem.processCommandAsync( cfun, cfun.query() );
         checkResponseValid( cfun, response );
-        level = cfun.level;
-        */
+        level = Constants.instance().deviceFunctionalityStatusToString( cfun.value );
     }
 }
 
@@ -243,11 +258,18 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level ) throws FreeSmartphone.Error
     {
-        /*
+        var value = Constants.instance().deviceFunctionalityStringToStatus( level );
+
+        if ( value == -1 )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
+        }
+
         var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( level ) );
-        checkResponseValid( cmd, response );
-        */
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( value ) );
+        checkResponseOk( cmd, response );
+
+        yield gatherSimStatusAndUpdate();
     }
 }
 
@@ -325,10 +347,12 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
     table[ typeof(DeviceGetFeatures) ]            = typeof( AtDeviceGetFeatures );
+    table[ typeof(DeviceGetFunctionality) ]       = typeof( AtDeviceGetFunctionality );
     table[ typeof(DeviceGetMicrophoneMuted) ]     = typeof( AtDeviceGetMicrophoneMuted );
     table[ typeof(DeviceGetPowerStatus) ]         = typeof( AtDeviceGetPowerStatus );
     table[ typeof(DeviceGetSimBuffersSms) ]       = typeof( AtDeviceGetSimBuffersSms );
     table[ typeof(DeviceGetSpeakerVolume) ]       = typeof( AtDeviceGetSpeakerVolume );
+    table[ typeof(DeviceSetFunctionality) ]       = typeof( AtDeviceSetFunctionality );
     table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( AtDeviceSetMicrophoneMuted );
     table[ typeof(DeviceSetSimBuffersSms) ]       = typeof( AtDeviceSetSimBuffersSms );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
