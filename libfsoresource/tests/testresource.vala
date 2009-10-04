@@ -20,17 +20,45 @@
 using GLib;
 using FsoFramework;
 
+const string DBUS_TEST_BUSNAME = "org.freesmartphone.testing";
+const string DBUS_TEST_OBJPATH = "/org/freesmartphone/Testing";
+const string DBUS_TEST_INTERFACE = "org.freesmartphone.Testing";
+
+MainLoop loop;
+
+public class DummyResource : AbstractBaseResource
+{
+    public status = "unknown";
+}
+
+void async testit()
+{
+    
+}
+
+//===========================================================================
+void test_resource_all()
+//===========================================================================
+{
+    // setup server side
+    var subsystem = new DBusSubsystem( "tests" );
+    var ok = subsystem.registerServiceName( DBUS_TEST_BUSNAME );
+    assert ( ok );
+    var obj = new DummyResource( subsystem );
+    subsystem.registerServiceObject( DBUS_TEST_BUSNAME, DBUS_TEST_OBJPATH, obj );
+
+    testit.begin();
+    loop = new MainLoop();
+    loop.run();
+}
+
 //===========================================================================
 void main( string[] args )
 //===========================================================================
 {
     Test.init( ref args );
 
-    /*
-    Test.add_func( "/Resource/Base/Create", test_resource_base );
-    Test.add_func( "/Resource/Base/Register", test_resource_register );
-    Test.add_func( "/Resource/Base/Unregister", test_resource_unregister );
-    */
+    Test.add_func( "/Resource/all", test_resource_all );
 
     Test.run();
 }

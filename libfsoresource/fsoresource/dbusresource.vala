@@ -82,35 +82,35 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
         }
     }
 
-    public abstract void enableResource();
+    public abstract async void enableResource();
 
-    public abstract void disableResource();
+    public abstract async void disableResource();
 
-    public abstract void suspendResource();
+    public abstract async void suspendResource();
 
-    public abstract void resumeResource();
+    public abstract async void resumeResource();
 
     //
     // DBUS API
     //
-    public void disable() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void disable() throws FreeSmartphone.ResourceError, DBus.Error
     {
-        disableResource();
+        yield disableResource();
     }
 
-    public void enable() throws DBus.Error
+    public async void enable() throws DBus.Error
     {
-        enableResource();
+        yield enableResource();
     }
 
-    public void resume() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void resume() throws FreeSmartphone.ResourceError, DBus.Error
     {
-        resumeResource();
+        yield resumeResource();
     }
 
-    public void suspend() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void suspend() throws FreeSmartphone.ResourceError, DBus.Error
     {
-        suspendResource();
+        yield suspendResource();
     }
 }
 
