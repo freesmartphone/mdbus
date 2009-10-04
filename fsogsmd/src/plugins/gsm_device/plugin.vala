@@ -30,11 +30,6 @@ class GsmDevice.Device :
     private static FsoGsm.Modem modem;
     public static Type modemclass;
 
-    public static FsoGsm.Modem theModem()
-    {
-        return modem;
-    }
-
     public Device( FsoFramework.Subsystem subsystem )
     {
         var modemtype = config.stringValue( "fsogsm", "modem_type", "DummyModem" );
@@ -87,7 +82,10 @@ class GsmDevice.Device :
 
     public void enable()
     {
-        modem = (FsoGsm.Modem) Object.new( modemclass );
+        if ( modem == null )
+        {
+            modem = (FsoGsm.Modem) Object.new( modemclass );
+        }
 
         if ( !modem.open() )
             logger.error( "Can't open modem" );
@@ -97,10 +95,9 @@ class GsmDevice.Device :
 
     public void disable()
     {
-//        if ( modem != null )
+        if ( modem != null )
         {
             modem.close();
-            modem = null;
         }
         logger.info( "Modem closed successfully" );
     }

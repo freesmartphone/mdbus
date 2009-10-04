@@ -119,7 +119,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         channels = new HashMap<string,FsoGsm.Channel>();
 
-        initData();
         registerMediators();
         registerAtCommands();
         createChannels();
@@ -127,9 +126,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
     }
 
+    ~AbstractModem()
+    {
+        logger.debug( "FsoGsm.AbstractModem destroyed: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
+    }
+
     private void initData()
     {
-        modem_status = Status.CLOSED;
+        advanceStatus( modem_status, Status.CLOSED );
         modem_data = new FsoGsm.ModemData();
 
         modem_data.cnmiSmsBufferedCb    = AtNewMessageIndication() { mode=2, mt=1, bm=2, ds=1, bfr=1 };
@@ -195,6 +199,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual bool open()
     {
+        initData();
         ensureStatus( Status.CLOSED );
 
         var channels = this.channels.values;
@@ -212,9 +217,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual void close()
     {
+        // close all channels
         var channels = this.channels.values;
         foreach( var channel in channels )
+        {
             channel.close();
+        }
     }
 
     public int /* FsoGsm.Modem.Status */ status()
