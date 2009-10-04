@@ -27,9 +27,10 @@ class GsmDevice.Device :
     FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
-    static FsoGsm.Modem modem;
+    private static FsoGsm.Modem modem;
+    public static Type modemclass;
 
-    static FsoGsm.Modem theModem()
+    public static FsoGsm.Modem theModem()
     {
         return modem;
     }
@@ -66,22 +67,17 @@ class GsmDevice.Device :
                 return;
         }
 
-        var modemclass = Type.from_name( typename );
+        modemclass = Type.from_name( typename );
         if ( modemclass == Type.INVALID  )
         {
             logger.warning( "Can't find modem for modem_type = '%s'".printf( modemtype ) );
             return;
         }
 
-        // FIXME use resource handling
-        Idle.add( onInitFromMainloop );
-
         subsystem.registerServiceName( FsoFramework.GSM.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
 
-        modem = (FsoGsm.Modem) Object.new( modemclass );
-        // modem knows about mediator factory
-        logger.info( "Ready. Using modem '%s'".printf( modemtype ) );
+        logger.info( "Ready. Configured for modem '%s'".printf( modemtype ) );
     }
 
     public override string repr()
@@ -89,13 +85,34 @@ class GsmDevice.Device :
         return "<GsmDevice>";
     }
 
-    public bool onInitFromMainloop()
+    public void enable()
     {
+        modem = (FsoGsm.Modem) Object.new( modemclass );
+
         if ( !modem.open() )
             logger.error( "Can't open modem" );
         else
             logger.info( "Modem opened successfully" );
-        return false; // don't call me again
+    }
+
+    public void disable()
+    {
+//        if ( modem != null )
+        {
+            modem.close();
+            modem = null;
+        }
+        logger.info( "Modem closed successfully" );
+    }
+
+    public void suspend()
+    {
+        logger.critical( "Not yet implemented" );
+    }
+
+    public void resume()
+    {
+        logger.critical( "Not yet implemented" );
     }
 
     //
@@ -254,7 +271,40 @@ class GsmDevice.Device :
     }
 }
 
-List<GsmDevice.Device> instances;
+public class GsmDevice.Resource : FsoFramework.AbstractDBusResource
+{
+    public Resource( FsoFramework.Subsystem subsystem )
+    {
+        base( "GSM", subsystem );
+    }
+
+    public override async void enableResource()
+    {
+        logger.debug( "Enabling GSM resource..." );
+        device.enable();
+    }
+
+    public override async void disableResource()
+    {
+        logger.debug( "Disabling GSM resource..." );
+        device.disable();
+    }
+
+    public override async void suspendResource()
+    {
+        logger.debug( "Suspending GSM resource..." );
+        device.suspend();
+    }
+
+    public override async void resumeResource()
+    {
+        logger.debug( "Resuming GSM resource..." );
+        device.resume();
+    }
+}
+
+GsmDevice.Device device;
+GsmDevice.Resource resource;
 
 /**
  * This function gets called on plugin initialization time.
@@ -264,7 +314,11 @@ List<GsmDevice.Device> instances;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    instances.append( new GsmDevice.Device( subsystem ) );
+    device = new GsmDevice.Device( subsystem );
+    if ( GsmDevice.Device.modemclass != Type.INVALID )
+    {
+        resource = new GsmDevice.Resource( subsystem );
+    }
     return GsmDevice.MODULE_NAME;
 }
 

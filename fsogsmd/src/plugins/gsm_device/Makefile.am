@@ -30,6 +30,7 @@ VALAC_ARGS = \
 	--pkg gsm0710mux-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
+	--pkg fsoresource-2.0 \
 	--pkg fsogsm-2.0
 
 #
