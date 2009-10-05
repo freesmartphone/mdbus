@@ -1,0 +1,8 @@
+Makefile.in
+*.c
+*.h
+*.la
+*.lo
+*.so
+testresource
+

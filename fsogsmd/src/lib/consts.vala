@@ -40,6 +40,53 @@ public class FsoGsm.Constants
     }
 
     // public API
+    public string devicePowerStatusToString( int code )
+    {
+        switch ( code )
+        {
+            case 0:
+                return "battery";
+            case 1:
+                return "ac";
+            case 2:
+                return "usb";
+            case 3:
+                return "failure";
+            default:
+                return "unknown";
+        }
+    }
+
+    public string deviceFunctionalityStatusToString( int code )
+    {
+        switch ( code )
+        {
+            case 0:
+                return "minimal";
+            case 1:
+                return "full";
+            case 4:
+                return "airplane";
+            default:
+                return "unknown";
+        }
+    }
+
+    public int deviceFunctionalityStringToStatus( string level )
+    {
+        switch ( level )
+        {
+            case "minimal":
+                return 0;
+            case "full":
+                return 1;
+            case "airplane":
+                return 4;
+            default:
+                return -1;
+        }
+    }
+
     public string networkProviderStatusToString( int code )
     {
         switch ( code )

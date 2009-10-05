@@ -23,12 +23,23 @@ namespace FsoGsm { public FsoGsm.Modem theModem; }
 
 public class FsoGsm.ModemData : GLib.Object
 {
-    public int speakerVolumeMinimum { get; set; default = -1; }
-    public int speakerVolumeMaximum { get; set; default = -1; }
+    public int speakerVolumeMinimum;
+    public int speakerVolumeMaximum;
+
+    public string simAuthStatus;
+
+    public bool simBuffersSms;
+
+    public AtNewMessageIndication cnmiSmsBufferedCb;
+    public AtNewMessageIndication cnmiSmsBufferedNoCb;
+    public AtNewMessageIndication cnmiSmsDirectCb;
+    public AtNewMessageIndication cnmiSmsDirectNoCb;
 }
 
 public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 {
+    public const uint DEFAULT_RETRY = 3;
+
     public enum Status
     {
         /** Initial state, Transport is closed **/
@@ -62,10 +73,17 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract int status();
 
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
+
+    // get command sequence for a specific purpose (init, suspend, resume, poweroff)
     public abstract string[] commandSequence( string purpose );
 
     public abstract T createMediator<T>() throws FreeSmartphone.Error;
     public abstract T createAtCommand<T>( string command ) throws FreeSmartphone.Error;
+
+    // All commands go through this function, so that the modem can
+    // easily decide which channel a certain command goes to at a
+    // given time
+    public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
 
     //FIXME: Might also create a channel that implements round-robin transparently?!
     public abstract FsoGsm.Channel channel( string category );
@@ -100,7 +118,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
-        modem_init = config.stringListValue( "fsogsm", "modem_init", { "ZE0Q0V1" } );
+        modem_init = config.stringListValue( "fsogsm", "modem_init", { "E0Q0V1" } );
 
         channels = new HashMap<string,FsoGsm.Channel>();
 
@@ -108,10 +126,28 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         registerAtCommands();
         createChannels();
 
-        modem_status = Status.CLOSED;
+        logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
+    }
+
+    ~AbstractModem()
+    {
+        logger.debug( "FsoGsm.AbstractModem destroyed: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
+    }
+
+    private void initData()
+    {
+        advanceStatus( modem_status, Status.CLOSED );
         modem_data = new FsoGsm.ModemData();
 
-        logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
+        modem_data.simAuthStatus = "UNKNOWN";
+        modem_data.simBuffersSms = true;
+
+        modem_data.cnmiSmsBufferedCb    = AtNewMessageIndication() { mode=2, mt=1, bm=2, ds=1, bfr=1 };
+        modem_data.cnmiSmsBufferedNoCb  = AtNewMessageIndication() { mode=2, mt=1, bm=0, ds=0, bfr=0 };
+        modem_data.cnmiSmsDirectCb      = AtNewMessageIndication() { mode=2, mt=2, bm=2, ds=1, bfr=1 };
+        modem_data.cnmiSmsDirectNoCb    = AtNewMessageIndication() { mode=2, mt=2, bm=0, ds=0, bfr=0 };
+
+        configureData();
     }
 
     private void registerMediators()
@@ -147,7 +183,28 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     /**
      * Override this to create your channels and assorted transports.
      **/
-    protected abstract void createChannels();
+    protected virtual void createChannels()
+    {
+    }
+
+    /**
+     * Override this to configure the data instance for your modem.
+     **/
+    protected virtual void configureData()
+    {
+    }
+
+    /**
+     * Override this for modem-specific power handling
+     **/
+    protected virtual void setPower( bool on )
+    {
+    }
+
+    /**
+     * Implement this to create the command/channel-assignment function.
+     **/
+    protected abstract FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string request );
 
     //=====================================================================//
     // PUBLIC API
@@ -155,6 +212,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual bool open()
     {
+        // power on
+        setPower( true );
+        initData();
         ensureStatus( Status.CLOSED );
 
         var channels = this.channels.values;
@@ -172,9 +232,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual void close()
     {
+        // close all channels
         var channels = this.channels.values;
         foreach( var channel in channels )
+        {
             channel.close();
+        }
+        // power off
+        setPower( false );
     }
 
     public int /* FsoGsm.Modem.Status */ status()
@@ -213,6 +278,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested AT command '%s' unknown".printf( command ) );
         }
         return (T) cmd;
+    }
+
+    public async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY )
+    {
+        var channel = channelForCommand( command, request );
+        var response = yield channel.enqueueAsyncYielding( command, request, retry );
+        return response;
     }
 
     public Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error

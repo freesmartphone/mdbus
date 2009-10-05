@@ -1,4 +1,13 @@
-SUBDIRS = libfsobasics libfsotransport libfsoframework fsodeviced fsousaged fsotimed fsogsmd fsonetworkd
+SUBDIRS = \
+	libfsobasics \
+	libfsotransport \
+	libfsoresource \
+	libfsoframework \
+	fsodeviced \
+	fsousaged \
+	fsotimed \
+	fsogsmd \
+	fsonetworkd
 
 all:
 	for i in $(SUBDIRS); do $(MAKE) -C $$i; done

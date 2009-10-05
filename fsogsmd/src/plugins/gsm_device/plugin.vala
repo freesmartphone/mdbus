@@ -27,12 +27,8 @@ class GsmDevice.Device :
     FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
-    static FsoGsm.Modem modem;
-
-    static FsoGsm.Modem theModem()
-    {
-        return modem;
-    }
+    private static FsoGsm.Modem modem;
+    public static Type modemclass;
 
     public Device( FsoFramework.Subsystem subsystem )
     {
@@ -66,22 +62,19 @@ class GsmDevice.Device :
                 return;
         }
 
-        var modemclass = Type.from_name( typename );
+        modemclass = Type.from_name( typename );
         if ( modemclass == Type.INVALID  )
         {
             logger.warning( "Can't find modem for modem_type = '%s'".printf( modemtype ) );
             return;
         }
 
-        // FIXME use resource handling
-        Idle.add( onInitFromMainloop );
-
         subsystem.registerServiceName( FsoFramework.GSM.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
 
         modem = (FsoGsm.Modem) Object.new( modemclass );
-        // modem knows about mediator factory
-        logger.info( "Ready. Using modem '%s'".printf( modemtype ) );
+
+        logger.info( "Ready. Configured for modem '%s'".printf( modemtype ) );
     }
 
     public override string repr()
@@ -89,23 +82,45 @@ class GsmDevice.Device :
         return "<GsmDevice>";
     }
 
-    public bool onInitFromMainloop()
+    public void enable()
     {
         if ( !modem.open() )
             logger.error( "Can't open modem" );
         else
             logger.info( "Modem opened successfully" );
-        return false; // don't call me again
+    }
+
+    public void disable()
+    {
+        modem.close();
+        logger.info( "Modem closed successfully" );
+    }
+
+    public void suspend()
+    {
+        logger.critical( "Not yet implemented" );
+    }
+
+    public void resume()
+    {
+        logger.critical( "Not yet implemented" );
     }
 
     //
-    // DBUS
+    // DBUS (org.freesmartphone.GSM.Device.*)
     //
     public async bool get_antenna_power() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var m = modem.createMediator<FsoGsm.DeviceGetAntennaPower>();
         yield m.run();
         return m.antenna_power;
+    }
+
+    public async string get_functionality() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceGetFunctionality>();
+        yield m.run();
+        return m.level;
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -124,12 +139,16 @@ class GsmDevice.Device :
 
     public async bool get_microphone_muted() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        return false;
+        var m = modem.createMediator<FsoGsm.DeviceGetMicrophoneMuted>();
+        yield m.run();
+        return m.muted;
     }
 
     public async bool get_sim_buffers_sms() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        return false;
+        var m = modem.createMediator<FsoGsm.DeviceGetSimBuffersSms>();
+        yield m.run();
+        return m.buffers;
     }
 
     public async int get_speaker_volume() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -141,14 +160,25 @@ class GsmDevice.Device :
 
     public async void set_antenna_power( bool antenna_power ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Please use org.freesmartphone.GSM.Device.SetFunctionality instead." );
+    }
+
+    public async void set_functionality( string level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DeviceSetFunctionality>();
+        yield m.run( level );
     }
 
     public async void set_microphone_muted( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        var m = modem.createMediator<FsoGsm.DeviceSetMicrophoneMuted>();
+        yield m.run( muted );
     }
 
     public async void set_sim_buffers_sms( bool sim_buffers_sms ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        var m = modem.createMediator<FsoGsm.DeviceSetSimBuffersSms>();
+        yield m.run( sim_buffers_sms );
     }
 
     public async void set_speaker_volume( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -159,12 +189,14 @@ class GsmDevice.Device :
 
     public async void get_power_status( out string status, out int level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        status = "";
-        level = 0;
+        var m = modem.createMediator<FsoGsm.DeviceGetPowerStatus>();
+        yield m.run();
+        status = m.status;
+        level = m.level;
     }
 
     //
-    // DBUS(org.freesmartphone.GSM.Network.*)
+    // DBUS (org.freesmartphone.GSM.Network.*)
     //
     public async void disable_call_forwarding( string reason, string class_ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
@@ -230,7 +262,40 @@ class GsmDevice.Device :
     }
 }
 
-List<GsmDevice.Device> instances;
+public class GsmDevice.Resource : FsoFramework.AbstractDBusResource
+{
+    public Resource( FsoFramework.Subsystem subsystem )
+    {
+        base( "GSM", subsystem );
+    }
+
+    public override async void enableResource()
+    {
+        logger.debug( "Enabling GSM resource..." );
+        device.enable();
+    }
+
+    public override async void disableResource()
+    {
+        logger.debug( "Disabling GSM resource..." );
+        device.disable();
+    }
+
+    public override async void suspendResource()
+    {
+        logger.debug( "Suspending GSM resource..." );
+        device.suspend();
+    }
+
+    public override async void resumeResource()
+    {
+        logger.debug( "Resuming GSM resource..." );
+        device.resume();
+    }
+}
+
+GsmDevice.Device device;
+GsmDevice.Resource resource;
 
 /**
  * This function gets called on plugin initialization time.
@@ -240,7 +305,11 @@ List<GsmDevice.Device> instances;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    instances.append( new GsmDevice.Device( subsystem ) );
+    device = new GsmDevice.Device( subsystem );
+    if ( GsmDevice.Device.modemclass != Type.INVALID )
+    {
+        resource = new GsmDevice.Resource( subsystem );
+    }
     return GsmDevice.MODULE_NAME;
 }
 
