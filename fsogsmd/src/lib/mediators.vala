@@ -86,7 +86,7 @@ public class AtDeviceGetAlarmTime : DeviceGetAlarmTime
 {
     public override async void run() throws FreeSmartphone.Error
     {
-        //FIXME: Honor default alarm time for disabled
+        var data = theModem.data();
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
         var response = yield theModem.processCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
@@ -96,6 +96,11 @@ public class AtDeviceGetAlarmTime : DeviceGetAlarmTime
         var t = GLib.Time();
         t.strptime( timestr, formatstr );
         since_epoch = (int) Linux.timegm( t );
+
+        if ( since_epoch == data.alarmCleared )
+        {
+            since_epoch = 0;
+        }
     }
 }
 
@@ -282,8 +287,10 @@ public class AtDeviceSetAlarmTime : DeviceSetAlarmTime
 {
     public override async void run( int since_epoch ) throws FreeSmartphone.Error
     {
-        //FIXME: Honor since_epoch = 0 for disabling alarm time (+CALA="")
-        var t = GLib.Time.gm( (time_t) since_epoch );
+        var data = theModem.data();
+        var alarm = since_epoch != 0 ? data.alarmCleared : since_epoch;
+
+        var t = GLib.Time.gm( (time_t) alarm );
 
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
