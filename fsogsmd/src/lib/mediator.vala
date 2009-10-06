@@ -63,9 +63,21 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
 //
 // org.freesmartphone.GSM.Device.*
 //
+public abstract class FsoGsm.DeviceGetAlarmTime : FsoGsm.AbstractMediator
+{
+    public int since_epoch { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.DeviceGetAntennaPower : FsoGsm.AbstractMediator
 {
     public bool antenna_power { get; set; }
+    public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceGetCurrentTime : FsoGsm.AbstractMediator
+{
+    public int since_epoch { get; set; }
     public abstract async void run() throws FreeSmartphone.Error;
 }
 
@@ -110,6 +122,16 @@ public abstract class FsoGsm.DeviceGetSpeakerVolume : FsoGsm.AbstractMediator
 {
     public int volume { get; set; }
     public abstract async void run() throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceSetAlarmTime : FsoGsm.AbstractMediator
+{
+    public abstract async void run( int since_epoch ) throws FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DeviceSetCurrentTime : FsoGsm.AbstractMediator
+{
+    public abstract async void run( int since_epoch ) throws FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.DeviceSetFunctionality : FsoGsm.AbstractMediator

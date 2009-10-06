@@ -28,6 +28,46 @@ using Gee;
 
 namespace FsoGsm {
 
+public class PlusCALA : AbstractAtCommand
+{
+    public int year;
+    public int month;
+    public int day;
+    public int hour;
+    public int minute;
+    public int second;
+    public int tzoffset;
+
+    public PlusCALA()
+    {
+    // some modems strip the leading zero for one-digit chars
+        re = new Regex( """\+CALA: (?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:\+(?P<tzoffset>\d\d))?""" );
+        prefix = { "+CALA: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        year = to_int( "year" );
+        month = to_int( "month" );
+        day = to_int( "day" );
+        hour = to_int( "hour" );
+        minute = to_int( "minute" );
+        second = to_int( "second" );
+        tzoffset = to_int( "tzoffset" );
+    }
+
+    public string issue( int year, int month, int day, int hour, int minute, int second, int tzoffset )
+    {
+        return "+CALA=\"%02d/%02d/%02d,%02d:%02d:%02d+%02d\"".printf( year, month, day, hour, minute, second, tzoffset );
+    }
+
+    public string query()
+    {
+        return "+CALA?";
+    }
+}
+
 public class PlusCBC : AbstractAtCommand
 {
     public string status;
@@ -49,6 +89,46 @@ public class PlusCBC : AbstractAtCommand
     public string execute()
     {
         return "+CBC";
+    }
+}
+
+public class PlusCCLK : AbstractAtCommand
+{
+    public int year;
+    public int month;
+    public int day;
+    public int hour;
+    public int minute;
+    public int second;
+    public int tzoffset;
+
+    public PlusCCLK()
+    {
+        // some modems strip the leading zero for one-digit chars
+        re = new Regex( """\+CCLK: (?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:\+(?P<tzoffset>\d\d))?""" );
+        prefix = { "+CCLK: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        year = to_int( "year" );
+        month = to_int( "month" );
+        day = to_int( "day" );
+        hour = to_int( "hour" );
+        minute = to_int( "minute" );
+        second = to_int( "second" );
+        tzoffset = to_int( "tzoffset" );
+    }
+
+    public string issue( int year, int month, int day, int hour, int minute, int second, int tzoffset )
+    {
+        return "+CCLK=\"%02d/%02d/%02d,%02d:%02d:%02d+%02d\"".printf( year, month, day, hour, minute, second, tzoffset );
+    }
+
+    public string query()
+    {
+        return "+CCLK?";
     }
 }
 
@@ -306,7 +386,9 @@ public class PlusGCAP : SimpleAtCommand<string>
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // register commands
+    table[ "+CALA" ]             = new FsoGsm.PlusCALA();
     table[ "+CBC" ]              = new FsoGsm.PlusCBC();
+    table[ "+CCLK" ]             = new FsoGsm.PlusCCLK();
     table[ "+CFUN" ]             = new FsoGsm.PlusCFUN();
     table[ "+CGCLASS" ]          = new FsoGsm.PlusCGCLASS();
     table[ "+CGMI" ]             = new FsoGsm.PlusCGMI();
