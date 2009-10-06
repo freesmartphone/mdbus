@@ -20,6 +20,7 @@ VALAC_ARGS = \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
+	--pkg fsoframework-2.0 \
 	--pkg fsoresource-2.0
 
 #
