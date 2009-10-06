@@ -141,6 +141,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         advanceStatus( modem_status, Status.CLOSED );
         modem_data = new FsoGsm.ModemData();
 
+        modem_data.speakerVolumeMinimum = -1;
+        modem_data.speakerVolumeMaximum = -1;
+
         modem_data.alarmCleared = 1324857600; // 11/12/26,00:00:00+00
         modem_data.simAuthStatus = "UNKNOWN";
         modem_data.simBuffersSms = true;
