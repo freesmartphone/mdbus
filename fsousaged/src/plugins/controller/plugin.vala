@@ -60,7 +60,10 @@ public class Controller : FsoFramework.AbstractObject
     private FsoFramework.Subsystem subsystem;
 
     private FsoUsage.LowLevel lowlevel;
-    private bool do_not_suspend;
+    private bool debug_do_not_suspend;
+    private bool debug_enable_on_startup;
+    private bool disable_on_startup;
+    private bool disable_on_shutdown;
 
     private PersistentData data;
     private weak HashMap<string,Resource> resources;
@@ -76,8 +79,14 @@ public class Controller : FsoFramework.AbstractObject
         this.subsystem.registerServiceObject( FsoFramework.Usage.ServiceDBusName,
                                               FsoFramework.Usage.ServicePathPrefix, this );
 
-        // should we really suspend?
-        do_not_suspend = config.boolValue( CONFIG_SECTION, "do_not_suspend", false );
+        // debug option: should we really suspend?
+        debug_do_not_suspend = config.boolValue( CONFIG_SECTION, "debug_do_not_suspend", false );
+        // debug option: should we enable on startup?
+        debug_enable_on_startup = config.boolValue( CONFIG_SECTION, "debug_enable_on_startup", false );
+
+        var sync_resources_with_lifecycle = config.stringValue( CONFIG_SECTION, "sync_resources_with_lifecycle", "always" );
+        disable_on_startup = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "startup" );
+        disable_on_shutdown = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "shutdown" );
 
         // start listening for name owner changes
         dbusconn = ( (FsoFramework.DBusSubsystem)subsystem ).dbusConnection();
@@ -176,18 +185,37 @@ public class Controller : FsoFramework.AbstractObject
         logger.debug( "Resource %s served by %s @ %s has just been registered".printf( r.name, r.busname, r.objectpath ) );
         this.resource_available( r.name, true ); // DBUS SIGNAL
 
-        // initial status is disabled
-        try
+        if ( debug_enable_on_startup )
         {
-            r.disable();
+            try
+            {
+                r.enable();
+            }
+            catch ( FreeSmartphone.ResourceError e )
+            {
+                logger.warning( "Error while trying to (initially) enable resource %s: %s".printf( r.name, e.message ) );
+            }
+            catch ( DBus.Error e )
+            {
+                logger.warning( "Error while trying to (initially) enable resource %s: %s".printf( r.name, e.message ) );
+            }
         }
-        catch ( FreeSmartphone.ResourceError e )
+
+        if ( disable_on_startup )
         {
-            logger.warning( "Error while trying to (initially) disable resource %s: %s".printf( r.name, e.message ) );
-        }
-        catch ( DBus.Error e )
-        {
-            logger.warning( "Error while trying to (initially) disable resource %s: %s".printf( r.name, e.message ) );
+            // initial status is disabled
+            try
+            {
+                r.disable();
+            }
+            catch ( FreeSmartphone.ResourceError e )
+            {
+                logger.warning( "Error while trying to (initially) disable resource %s: %s".printf( r.name, e.message ) );
+            }
+            catch ( DBus.Error e )
+            {
+                logger.warning( "Error while trying to (initially) disable resource %s: %s".printf( r.name, e.message ) );
+            }
         }
     }
 
@@ -254,7 +282,7 @@ public class Controller : FsoFramework.AbstractObject
     {
         suspendAllResources();
         logger.debug( ">>>>>>> KERNEL SUSPEND" );
-        if ( !do_not_suspend )
+        if ( !debug_do_not_suspend )
             lowlevel.suspend();
         else
             Posix.sleep( 5 );
@@ -398,6 +426,15 @@ public class Controller : FsoFramework.AbstractObject
         resources.remove( name );
     }
 
+    internal void shutdownPlugin()
+    {
+        if ( disable_on_shutdown )
+        {
+            disableAllResources();
+        }
+    }
+
+
     //
     // DBUS API (for consumers)
     //
@@ -505,6 +542,7 @@ public static void fso_shutdown_function()
 #if PERSISTENCE
     instance.savePersistentData();
 #endif
+    instance.shutdownPlugin();
 }
 
 [ModuleInit]
