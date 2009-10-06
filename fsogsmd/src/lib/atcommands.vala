@@ -105,7 +105,7 @@ public class PlusCCLK : AbstractAtCommand
     public PlusCCLK()
     {
         // some modems strip the leading zero for one-digit chars
-        re = new Regex( """\+CCLK: (?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:\+(?P<tzoffset>\d\d))?""" );
+        re = new Regex( """\+CCLK: "?(?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:[\+-](?P<tzoffset>\d\d))?"?""" );
         prefix = { "+CCLK: " };
     }
 
