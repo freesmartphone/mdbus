@@ -55,7 +55,7 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
 
     protected void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var code = command.validateOk( response );
+        var code = command.validate( response );
         if ( code == AtResponse.VALID )
         {
             return;

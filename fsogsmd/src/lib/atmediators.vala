@@ -89,7 +89,16 @@ public class AtDeviceGetAlarmTime : DeviceGetAlarmTime
         var data = theModem.data();
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
         var response = yield theModem.processCommandAsync( cmd, cmd.query() );
-        checkResponseValid( cmd, response );
+        // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
+        // hence we need to catch this error and transform it into something valid
+        try
+        {
+            checkResponseValid( cmd, response );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
         // some modems strip the leading zero for one-digit chars, so we have to reassemble it
         var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( cmd.year, cmd.month, cmd.day, cmd.hour, cmd.minute, cmd.second );
         var formatstr = "%y/%m/%d,%H:%M:%S";
@@ -110,7 +119,16 @@ public class AtDeviceGetCurrentTime : DeviceGetCurrentTime
     {
         var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
         var response = yield theModem.processCommandAsync( cmd, cmd.query() );
-        checkResponseValid( cmd, response );
+        // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
+        // hence we need to catch this error and transform it into something valid
+        try
+        {
+            checkResponseValid( cmd, response );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
         // some modems strip the leading zero for one-digit chars, so we have to reassemble it
         var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( cmd.year, cmd.month, cmd.day, cmd.hour, cmd.minute, cmd.second );
         var formatstr = "%y/%m/%d,%H:%M:%S";
@@ -295,7 +313,16 @@ public class AtDeviceSetAlarmTime : DeviceSetAlarmTime
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
 
-        checkResponseOk( cmd, response );
+        // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
+        // hence we need to catch this error and transform it into something valid
+        try
+        {
+            checkResponseOk( cmd, response );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
     }
 }
 
@@ -308,7 +335,16 @@ public class AtDeviceSetCurrentTime : DeviceSetCurrentTime
         var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
 
-        checkResponseOk( cmd, response );
+        // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
+        // hence we need to catch this error and transform it into something valid
+        try
+        {
+            checkResponseOk( cmd, response );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
     }
 }
 
