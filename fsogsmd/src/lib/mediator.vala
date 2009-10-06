@@ -43,20 +43,26 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
 
     protected void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        if ( command.validateOk( response ) != AtResponse.OK )
+        var code = command.validateOk( response );
+        if ( code == AtResponse.OK )
         {
-            //FIXME gather better error message out of response status
-            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "AT command ERROR" );
+            return;
         }
+
+        //FIXME: gather better error message out of response status
+        throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( response[response.length-1] );
     }
 
     protected void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        if ( command.validate( response ) != AtResponse.VALID )
+        var code = command.validateOk( response );
+        if ( code == AtResponse.VALID )
         {
-            //FIXME gather better error message out of response status
-            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "AT command ERROR" );
+            return;
         }
+
+        //FIXME: gather better error message out of response status
+        throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unexpected AT command response" );
     }
 }
 

@@ -120,7 +120,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
-        modem_init = config.stringListValue( "fsogsm", "modem_init", { "E0Q0V1" } );
+        modem_init = config.stringListValue( "fsogsm", "modem_init", { "E0Q0V1", "+CMEE=1", "+CRC=1" } );
 
         channels = new HashMap<string,FsoGsm.Channel>();
 
