@@ -30,7 +30,7 @@ namespace FreeSmartphone.MusicPlayer
         private unowned KeyFile key_file;
         private string _name;
         private List<string> files;
-        private static string[] supported_extensions;
+        private static string[] supported_extensions = { ".mp3", ".ogg", ".flac", ".wav", ".sid", ".mod" };
         private weak List<string> _current;
         private weak List<string> current
         {
@@ -94,7 +94,6 @@ namespace FreeSmartphone.MusicPlayer
             try
             {
                 position = kf.get_integer( name, Config.LAST_PLAYED );
-                supported_extensions = kf.get_keys( Config.FORMAT_GROUP );
                 load_from_file( Path.build_filename( Config.get_playlist_dir(), name ) );
                 _current = files.nth( position );
             }
