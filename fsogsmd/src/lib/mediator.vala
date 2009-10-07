@@ -161,6 +161,12 @@ public abstract class FsoGsm.DeviceSetSpeakerVolume : FsoGsm.AbstractMediator
 }
 
 //
+// org.freesmartphone.GSM.SIM.*
+//
+
+
+
+//
 // org.freesmartphone.GSM.Network.*
 //
 public abstract class FsoGsm.NetworkListProviders : FsoGsm.AbstractMediator

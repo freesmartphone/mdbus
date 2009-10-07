@@ -26,6 +26,7 @@ namespace GsmDevice {
 class GsmDevice.Device :
     FreeSmartphone.Device.RealtimeClock,
     FreeSmartphone.GSM.Device,
+    FreeSmartphone.GSM.SIM,
     FreeSmartphone.GSM.Network,
     FsoFramework.AbstractObject
 {
@@ -233,6 +234,137 @@ class GsmDevice.Device :
         status = m.status;
         level = m.level;
     }
+
+    //
+    // DBUS (org.freesmartphone.GSM.SIM.*)
+    //
+    public async void change_auth_code( string old_pin, string new_pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void delete_entry( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void delete_message( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async bool get_auth_code_required() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return false;
+    }
+
+    public async FreeSmartphone.GSM.SIMAuthStatus get_auth_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return (FreeSmartphone.GSM.SIMAuthStatus)0;
+    }
+
+    public async FreeSmartphone.GSM.SIMHomezone[] get_home_zones() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return new FreeSmartphone.GSM.SIMHomezone[] {};
+    }
+
+    public async string get_issuer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return "unknown";
+    }
+
+    public async GLib.HashTable<string,GLib.Value?> get_messagebook_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+    }
+
+    public async GLib.HashTable<string,GLib.Value?> get_phonebook_info( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+    }
+
+    public async GLib.HashTable<string,string> get_provider_list() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return new GLib.HashTable<string,string>( str_hash, str_equal );
+    }
+
+    public async string get_service_center_number() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return "unknown";
+    }
+
+    public async GLib.HashTable<string,GLib.Value?> get_sim_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+    }
+
+    public async bool get_sim_ready() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return false;
+    }
+
+    public async string[] list_phonebooks() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return {};
+    }
+
+    public async void retrieve_entry( string category, int index, out string name, out string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void retrieve_message( int index, out string status, out string sender_number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async FreeSmartphone.GSM.SIMMessage[] retrieve_messagebook( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return new FreeSmartphone.GSM.SIMMessage[] {};
+    }
+
+    public async FreeSmartphone.GSM.SIMEntry[] retrieve_phonebook( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return new FreeSmartphone.GSM.SIMEntry[] {};
+    }
+
+    public async void send_auth_code( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async string send_generic_sim_command( string command ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return "unknown";
+    }
+
+    public async string send_restricted_sim_command( int command, int fileid, int p1, int p2, int p3, string data ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return "unknown";
+    }
+
+    public async void send_stored_message( int index, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void set_auth_code_required( bool check, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void set_service_center_number( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async void store_entry( string category, int index, string name, string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    public async int store_message( string recipient_number, string contents, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return 0;
+    }
+
+    public async void unlock( string puk, string new_pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+
+    //public signal void auth_status( FreeSmartphone.GSM.SIMAuthStatus status);
+    //public signal void incoming_stored_message( int index);
+    //public signal void ready_status( bool status);
 
     //
     // DBUS (org.freesmartphone.GSM.Network.*)
