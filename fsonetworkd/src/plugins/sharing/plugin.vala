@@ -77,9 +77,9 @@ public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractOb
 
 
     //
-    // DBUS API
+    // FreeSmartphone.Network (DBUS API)
     //
-    public void start_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBus.Error
+    public async void start_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBus.Error
     {
         if ( !(FsoFramework.FileHandling.isPresent( Path.build_filename( sys_class_net, iface ) ) ) )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Interface %s not present".printf( iface ) );
