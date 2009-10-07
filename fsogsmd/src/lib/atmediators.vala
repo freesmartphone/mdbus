@@ -306,12 +306,10 @@ public class AtDeviceSetAlarmTime : DeviceSetAlarmTime
     public override async void run( int since_epoch ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var data = theModem.data();
-        var alarm = since_epoch != 0 ? data.alarmCleared : since_epoch;
-
-        var t = GLib.Time.gm( (time_t) alarm );
+        var t = GLib.Time.gm( (time_t) since_epoch );
 
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
+        var response = yield theModem.processCommandAsync( cmd, since_epoch > 0 ? cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) : cmd.clear() );
 
         // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
         // hence we need to catch this error and transform it into something valid
@@ -440,6 +438,7 @@ public class AtNetworkListProviders : NetworkListProviders
 public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
     // register commands
+    table[ typeof(DeviceGetAlarmTime) ]           = typeof( AtDeviceGetAlarmTime );
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
     table[ typeof(DeviceGetCurrentTime) ]         = typeof( AtDeviceGetCurrentTime );
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );

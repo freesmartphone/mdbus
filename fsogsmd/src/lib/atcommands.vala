@@ -40,8 +40,11 @@ public class PlusCALA : AbstractAtCommand
 
     public PlusCALA()
     {
-    // some modems strip the leading zero for one-digit chars
-        re = new Regex( """\+CALA: (?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:\+(?P<tzoffset>\d\d))?""" );
+        // some modems strip the leading zero for one-digit chars
+
+        var str = """\+CALA: "?(?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:[\+-](?P<tzoffset>\d\d))?"?,0,0,""";
+        str += "\"(?P<mccmnc>[^\"]*)\"";
+        re = new Regex( str );
         prefix = { "+CALA: " };
     }
 
@@ -59,7 +62,13 @@ public class PlusCALA : AbstractAtCommand
 
     public string issue( int year, int month, int day, int hour, int minute, int second, int tzoffset )
     {
-        return "+CALA=\"%02d/%02d/%02d,%02d:%02d:%02d+%02d\"".printf( year, month, day, hour, minute, second, tzoffset );
+        //FIXME: check whether only some modems do not like the timezone parameter
+        return "+CALA=\"%02d/%02d/%02d,%02d:%02d:%02d\",0,0,\"Dr.Mickey rocks!\"".printf( year, month, day, hour, minute, second );
+    }
+
+    public string clear()
+    {
+        return "+CALA=\"\"";
     }
 
     public string query()
@@ -123,7 +132,9 @@ public class PlusCCLK : AbstractAtCommand
 
     public string issue( int year, int month, int day, int hour, int minute, int second, int tzoffset )
     {
-        return "+CCLK=\"%02d/%02d/%02d,%02d:%02d:%02d+%02d\"".printf( year, month, day, hour, minute, second, tzoffset );
+        //FIXME: check whether only some modems do not like the timezone parameter
+        //return "+CCLK=\"%02d/%02d/%02d,%02d:%02d:%02d+%02d\"".printf( year, month, day, hour, minute, second, tzoffset );
+        return "+CCLK=\"%02d/%02d/%02d,%02d:%02d:%02d\"".printf( year, month, day, hour, minute, second );
     }
 
     public string query()
