@@ -82,6 +82,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract T createMediator<T>() throws FreeSmartphone.Error;
     public abstract T createAtCommand<T>( string command ) throws FreeSmartphone.Error;
 
+    public abstract T theDevice<T>();
+
     // All commands go through this function, so that the modem can
     // easily decide which channel a certain command goes to at a
     // given time
@@ -93,6 +95,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
 
     public abstract FsoGsm.ModemData data();
+
+    public abstract Object parent { get; set; } // the DBus object
 }
 
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
@@ -112,6 +116,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected HashMap<Type,Type> mediators;
 
     protected UnsolicitedResponseHandler urc;
+
+    protected Object parent { get; set; } // the DBus object
 
     construct
     {
@@ -271,6 +277,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         }
         // power off
         setPower( false );
+    }
+
+    public T theDevice<T>()
+    {
+        assert( parent != null );
+        return (T) parent;
     }
 
     public int /* FsoGsm.Modem.Status */ status()

@@ -19,7 +19,9 @@
 
 using GLib;
 
-namespace GsmDevice { const string MODULE_NAME = "fsogsm.gsm_device"; }
+namespace GsmDevice {
+    const string MODULE_NAME = "fsogsm.gsm_device";
+}
 
 class GsmDevice.Device :
     FreeSmartphone.Device.RealtimeClock,
@@ -74,6 +76,7 @@ class GsmDevice.Device :
         subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
 
         modem = (FsoGsm.Modem) Object.new( modemclass );
+        modem.parent = this;
 
         logger.info( "Ready. Configured for modem '%s'".printf( modemtype ) );
     }

@@ -54,7 +54,7 @@ public abstract interface FsoGsm.AtCommand : GLib.Object
 
     public abstract FsoGsm.AtResponse validate( string[] response );
     public abstract FsoGsm.AtResponse validateTest( string[] response );
-
+    public abstract FsoGsm.AtResponse validateURC( string response );
     public abstract FsoGsm.AtResponse validateOk( string[] response );
 }
 
@@ -194,6 +194,25 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
             return AtResponse.UNABLE_TO_PARSE;
         }
         theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( tere.get_pattern() ) );
+        return AtResponse.VALID;
+    }
+
+
+    /**
+     * Validate an URC for this At command
+     **/
+    public virtual FsoGsm.AtResponse validateURC( string response )
+    {
+        try
+        {
+            parse( response );
+        }
+        catch ( AtCommandError e )
+        {
+            theModem.logger.warning( "Unexpected format for AT command w/ pattern %s".printf( re.get_pattern() ) );
+            return AtResponse.UNABLE_TO_PARSE;
+        }
+        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( re.get_pattern() ) );
         return AtResponse.VALID;
     }
 

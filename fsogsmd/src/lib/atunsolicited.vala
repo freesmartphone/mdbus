@@ -109,7 +109,9 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCALA( string prefix, string rhs )
     {
-        logger.debug( "plusCALA: %s %s".printf( prefix, rhs ) );
+        // send dbus signal
+        var obj = theModem.theDevice<FreeSmartphone.Device.RealtimeClock>();
+        obj.alarm( 0 );
     }
 
     public virtual void plusCIEV( string prefix, string rhs )
