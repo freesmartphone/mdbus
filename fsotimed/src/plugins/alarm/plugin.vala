@@ -155,9 +155,9 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
     }
 
     //
-    // DBUS
+    // FreeSmartphone.Time.Alarm (DBUS API)
     //
-    public void clear_alarm( string busname ) throws DBus.Error
+    public async void clear_alarm( string busname ) throws DBus.Error
     {
         if ( busname in alarms )
         {
@@ -166,7 +166,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         }
     }
 
-    public void set_alarm( string busname, int timestamp ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_alarm( string busname, int timestamp ) throws FreeSmartphone.Error, DBus.Error
     {
         var now = TimeVal();
         if ( (int)now.tv_sec >= timestamp )
