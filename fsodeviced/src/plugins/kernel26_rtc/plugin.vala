@@ -109,19 +109,19 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
     }
 
     //
-    // DBUS API
+    // FreeSmartphone.Device.RealtimeClock (DBUS API)
     //
-    public string get_name() throws DBus.Error
+    public async string get_name() throws DBus.Error
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public int get_current_time() throws FreeSmartphone.Error, DBus.Error
+    public async int get_current_time() throws FreeSmartphone.Error, DBus.Error
     {
         return _getCurrentTime();
     }
 
-    public void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
         var t = GLib.Time.gm( (time_t) seconds_since_epoch ); // VALABUG: cast is necessary here, otherwise things go havoc
         logger.info( "Setting RTC time to %s (dst=%d)".printf( t.to_string(), t.isdst ) );
@@ -130,7 +130,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
             throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
     }
 
-    public int get_wakeup_time() throws FreeSmartphone.Error, DBus.Error
+    public async int get_wakeup_time() throws FreeSmartphone.Error, DBus.Error
     {
         Linux.Rtc.WakeAlarm alarm = {};
         var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_WKALM_RD, &alarm );
@@ -151,7 +151,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         return ( alarm.enabled == 1 ) ? (int) Linux.timegm( t ) : 0;
     }
 
-    public void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
         var rtctime = _getCurrentTime();
         if ( rtctime >= seconds_since_epoch )

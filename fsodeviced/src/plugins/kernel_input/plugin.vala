@@ -181,22 +181,22 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
     //
     // FsoFramework.Device.Input (DBUS)
     //
-    public string get_name() throws DBus.Error
+    public async string get_name() throws DBus.Error
     {
         return name;
     }
 
-    public string get_id() throws DBus.Error
+    public async string get_id() throws DBus.Error
     {
         return product;
     }
 
-    public string get_phys() throws DBus.Error
+    public async string get_phys() throws DBus.Error
     {
         return phys;
     }
 
-    public string get_capabilities() throws DBus.Error
+    public async string get_capabilities() throws DBus.Error
     {
         return caps;
     }
@@ -450,22 +450,22 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
     //
     // DBUS API
     //
-    public string get_name() throws DBus.Error
+    public async string get_name() throws DBus.Error
     {
         return dev_input;
     }
 
-    public string get_id() throws DBus.Error
+    public async string get_id() throws DBus.Error
     {
         return "aggregate";
     }
 
-    public string get_phys() throws DBus.Error
+    public async string get_phys() throws DBus.Error
     {
         return "";
     }
 
-    public string get_capabilities() throws DBus.Error
+    public async string get_capabilities() throws DBus.Error
     {
         return "none";
     }

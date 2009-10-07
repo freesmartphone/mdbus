@@ -265,18 +265,17 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
     }
 
     // Resource Handling
-    
 
     //
     // FsoFramework.Device.Orientation (DBUS)
     //
-    public HashTable<string,Value?> get_info()
+    public async HashTable<string,Value?> get_info()
     {
         var dict = new HashTable<string,Value?>( str_hash, str_equal );
         return dict;
     }
 
-    public string get_orientation()
+    public async string get_orientation()
     {
         return orientation;
     }
