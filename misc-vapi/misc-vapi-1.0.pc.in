@@ -1,0 +1,13 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+datarootdir=@datarootdir@
+datadir=@datadir@
+
+Name: misc-vapi
+Description: miscellaneous vapi files for Vala
+Version: @VERSION@
+Requires:
+Libs:
+Cflags:
