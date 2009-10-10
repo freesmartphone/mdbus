@@ -452,6 +452,40 @@ public class AtSimListPhonebooks : SimListPhonebooks
     }
 }
 
+public class AtSimRetrievePhonebook : SimRetrievePhonebook
+{
+    public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield gatherListOfPhonebooks();
+        var data = theModem.data();
+
+        var found = false;
+        foreach ( var pb in data.simPhonebooks )
+        {
+            if ( pb == category )
+            {
+                found = true;
+                break;
+            }
+        }
+        if ( !found )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Category needs to be one of ..." );
+        }
+
+        var cat = Constants.instance().simPhonebookStringToName( category );
+        assert( category != "" );
+
+        var cmd = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( cat ) );
+
+        //
+        //checkResponseOk( cmd, response );
+        //providers = cmd.providers;
+        //phonebook = data.simPhonebooks;
+    }
+}
+
 /**
  * Network Mediators
  **/
@@ -490,6 +524,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );
+    table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
 }

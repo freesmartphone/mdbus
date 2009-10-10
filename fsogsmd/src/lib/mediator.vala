@@ -169,6 +169,12 @@ public abstract class FsoGsm.SimListPhonebooks : FsoGsm.AbstractMediator
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.SimRetrievePhonebook : FsoGsm.AbstractMediator
+{
+    public FreeSmartphone.GSM.SIMEntry[] phonebooks { get; set; }
+    public abstract async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 //
 // org.freesmartphone.GSM.Network.*
 //

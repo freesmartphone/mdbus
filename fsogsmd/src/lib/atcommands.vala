@@ -281,11 +281,11 @@ public class PlusCOPS : AbstractAtCommand
         {
             var p = FreeSmartphone.GSM.NetworkProvider() {
                 status = Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
-                                            longname = to_string( "longname" ),
-                                                    shortname = to_string( "shortname" ),
-                                                            mccmnc = to_string( "mccmnc" ),
-                                                                    act = Constants.instance().networkProviderActToString( to_int( "act" ) ) };
-                                                                    providers += p;
+                longname = to_string( "longname" ),
+                shortname = to_string( "shortname" ),
+                mccmnc = to_string( "mccmnc" ),
+                act = Constants.instance().networkProviderActToString( to_int( "act" ) ) };
+            providers += p;
         }
         while ( mi.next() );
         this.providers = providers;
@@ -307,6 +307,31 @@ public class PlusCOPS : AbstractAtCommand
     public string test()
     {
         return "+COPS=?";
+    }
+}
+
+public class PlusCPBR : AbstractAtCommand
+{
+    public PlusCPBR()
+    {
+        re = new Regex( """\+CPBR: (?P<id>\d+),"(?P<number>[\+0-9*#w]+)",(?P<typ>\d+),"(?P<name>[^"]*)"""" );
+        prefix = { "+CPBR: " };
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        base.parse( "\n".join( response ) );
+        pin = to_string( "pin" );
+    }
+
+    public string issue( string cat, int first, int last )
+    {
+        return @"+CPBS=\"$cat\";+CPBR=$first,$last";
+    }
+
+    public string test( string cat )
+    {
+        return @"+CPBS=\"%cat\";+CPBR=?";
     }
 }
 
@@ -429,6 +454,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 
     table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
 
+    table[ "+CPBR" ]             = new FsoGsm.PlusCPBR();
     table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
 

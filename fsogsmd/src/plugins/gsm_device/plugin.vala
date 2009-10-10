@@ -322,7 +322,9 @@ class GsmDevice.Device :
 
     public async FreeSmartphone.GSM.SIMEntry[] retrieve_phonebook( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        return new FreeSmartphone.GSM.SIMEntry[] {};
+        var m = modem.createMediator<FsoGsm.SimRetrievePhonebook>();
+        yield m.run( category );
+        return m.phonebook;
     }
 
     public async void send_auth_code( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
