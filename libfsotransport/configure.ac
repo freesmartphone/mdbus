@@ -18,6 +18,7 @@ AC_SUBST(LDFLAGS)
 PKG_PROG_PKG_CONFIG
 
 VALA_REQUIRED=0.7.7
+MISC_VAPI_REQUIRED=0.5.0
 GLIB_REQUIRED=2.18.0
 FSO_BASICS_REQUIRED=0.8.3
 
@@ -30,16 +31,8 @@ PKG_CHECK_MODULES(VALA,
 #
 # vala vapi files
 #
-VALA_VAPIDIR=`$PKG_CONFIG --variable=vapidir vala-1.0`
-AC_SUBST(VALA_VAPIDIR)
-
-AC_MSG_NOTICE([checking for misc-vapi...])
-if ! test -f "$VALA_VAPIDIR/linux.vapi"; then
-    AC_MSG_ERROR([linux.vapi not found. Your Vala installation may be too old.])
-fi
-if ! test -f "$VALA_VAPIDIR/posixextra.vapi"; then
-	AC_MSG_ERROR([posixextra.vapi not found. Please install misc-vapi from cornucopia.])
-fi
+PKG_CHECK_MODULES(MISC_VAPI,
+  misc-vapi-1.0 >= $MISC_VAPI_REQUIRED)
 
 # glib and friends
 PKG_CHECK_MODULES(GLIB,
