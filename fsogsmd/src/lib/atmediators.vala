@@ -459,10 +459,10 @@ public class AtNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cops = theModem.createAtCommand<PlusCOPS_Test>( "+COPS=?" );
-        var response = yield theModem.processCommandAsync( cops, cops.issue() );
-        cops.parse( response[0] );
-        providers = cops.providerList();
+        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.test() );
+        checkResponseOk( cmd, response );
+        providers = cmd.providers;
     }
 }
 

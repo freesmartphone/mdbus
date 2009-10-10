@@ -250,49 +250,63 @@ public class PlusCMUT : SimpleAtCommand<int>
     }
 }
 
-public class PlusCOPS_Test : AbstractAtCommand
+public class PlusCOPS : AbstractAtCommand
 {
-    public struct Provider
-    {
-        public string status;
-        public string shortname;
-        public string longname;
-        public string mccmnc;
-        public string act;
-    }
-    Provider[] providers;
+    public int status;
+    public int mode;
+    public string oper;
 
-    public PlusCOPS_Test()
+    public FreeSmartphone.GSM.NetworkProvider[] providers;
+
+    public PlusCOPS()
     {
-        re = new Regex( """\((?P<status>\d),"(?P<longname>[^"]*)","(?P<shortname>[^"]*)","(?P<mccmnc>[^"]*)"(?:,(?P<act>\d))?\)""" );
+        re = new Regex( """\+COPS:\ (?P<status>\d)(,(?P<mode>\d)?(,"(?P<oper>[^"]*)")?)?""" );
+        tere = new Regex( """\((?P<status>\d),"(?P<longname>[^"]*)","(?P<shortname>[^"]*)","(?P<mccmnc>[^"]*)"(?:,(?P<act>\d))?\)""" );
         prefix = { "+COPS: " };
     }
 
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        providers = new Provider[] {};
+        status = to_int( "status" );
+        mode = to_int( "mode" );
+        oper = to_string( "oper" );
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        var providers = new FreeSmartphone.GSM.NetworkProvider[] {};
         do
         {
-            var p = Provider() {
+            var p = FreeSmartphone.GSM.NetworkProvider() {
                 status = Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
-                longname = to_string( "longname" ),
-                shortname = to_string( "shortname" ),
-                mccmnc = to_string( "mccmnc" ),
-                act = Constants.instance().networkProviderActToString( to_int( "act" ) ) };
-            providers += p;
+                                            longname = to_string( "longname" ),
+                                                    shortname = to_string( "shortname" ),
+                                                            mccmnc = to_string( "mccmnc" ),
+                                                                    act = Constants.instance().networkProviderActToString( to_int( "act" ) ) };
+                                                                    providers += p;
         }
         while ( mi.next() );
+        this.providers = providers;
     }
 
-    public string issue()
+    public string issue( int mode, int format, int oper = 0 )
+    {
+        if ( oper == 0 )
+            return "+COPS=%d,%d".printf( mode, format );
+        else
+            return "+COPS=%d,%d,\"%d\"".printf( mode, format, oper );
+    }
+
+    public string query()
+    {
+        return "+COPS?";
+    }
+
+    public string test()
     {
         return "+COPS=?";
-    }
-
-    public FreeSmartphone.GSM.NetworkProvider[] providerList()
-    {
-        return (FreeSmartphone.GSM.NetworkProvider[]) providers;
     }
 }
 
@@ -381,40 +395,6 @@ public class PlusFCLASS : AbstractAtCommand
     }
 }
 
-public class PlusCOPS : AbstractAtCommand
-{
-    public int status;
-    public int mode;
-    public string oper;
-
-    public PlusCOPS()
-    {
-        re = new Regex( """\+COPS:\ (?P<status>\d)(,(?P<mode>\d)?(,"(?P<oper>[^"]*)")?)?""" );
-        prefix = { "+COPS: " };
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        status = to_int( "status" );
-        mode = to_int( "mode" );
-        oper = to_string( "oper" );
-    }
-
-    public string issue( int mode, int format, int oper = 0 )
-    {
-        if ( oper == 0 )
-            return "+COPS=%d,%d".printf( mode, format );
-        else
-            return "+COPS=%d,%d,\"%d\"".printf( mode, format, oper );
-    }
-
-    public string query()
-    {
-        return "+COPS?";
-    }
-}
-
 public class PlusGCAP : SimpleAtCommand<string>
 {
     public PlusGCAP()
@@ -448,7 +428,6 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CNMI" ]             = new FsoGsm.PlusCNMI();
 
     table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
-    table[ "+COPS=?" ]           = new FsoGsm.PlusCOPS_Test();
 
     table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
