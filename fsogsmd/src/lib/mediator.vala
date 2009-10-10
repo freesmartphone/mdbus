@@ -163,8 +163,11 @@ public abstract class FsoGsm.DeviceSetSpeakerVolume : FsoGsm.AbstractMediator
 //
 // org.freesmartphone.GSM.SIM.*
 //
-
-
+public abstract class FsoGsm.SimListPhonebooks : FsoGsm.AbstractMediator
+{
+    public string[] phonebooks { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
 
 //
 // org.freesmartphone.GSM.Network.*

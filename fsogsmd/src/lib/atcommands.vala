@@ -296,6 +296,35 @@ public class PlusCOPS_Test : AbstractAtCommand
     }
 }
 
+public class PlusCPBS : AbstractAtCommand
+{
+    public string[] phonebooks;
+
+    public PlusCPBS()
+    {
+        tere = new Regex( """\"(?P<book>[A-Z][A-Z])\"""" );
+        prefix = { "+CPBS: " };
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        var books = new string[] {};
+        do
+        {
+            books += Constants.instance().simPhonebookNameToString( to_string( "book" ) );
+            message( "adding book %s", Constants.instance().simPhonebookNameToString( to_string( "book" ) ) );
+        }
+        while ( mi.next() );
+        phonebooks = books;
+    }
+
+    public string test()
+    {
+        return "+CPBS=?";
+    }
+}
+
 public class PlusCPIN : AbstractAtCommand
 {
     public string pin;
@@ -398,22 +427,34 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // register commands
     table[ "+CALA" ]             = new FsoGsm.PlusCALA();
+
     table[ "+CBC" ]              = new FsoGsm.PlusCBC();
+
     table[ "+CCLK" ]             = new FsoGsm.PlusCCLK();
+
     table[ "+CFUN" ]             = new FsoGsm.PlusCFUN();
+
     table[ "+CGCLASS" ]          = new FsoGsm.PlusCGCLASS();
     table[ "+CGMI" ]             = new FsoGsm.PlusCGMI();
     table[ "+CGMM" ]             = new FsoGsm.PlusCGMM();
     table[ "+CGMR" ]             = new FsoGsm.PlusCGMR();
     table[ "+CGSN" ]             = new FsoGsm.PlusCGSN();
+
     table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
+
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
     table[ "+CMUT" ]             = new FsoGsm.PlusCMUT();
+
     table[ "+CNMI" ]             = new FsoGsm.PlusCNMI();
+
     table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
     table[ "+COPS=?" ]           = new FsoGsm.PlusCOPS_Test();
+
+    table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
+
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
+
     table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
 }
 

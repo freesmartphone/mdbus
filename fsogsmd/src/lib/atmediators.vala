@@ -68,6 +68,27 @@ internal async void gatherSimStatusAndUpdate()
     }
 }
 
+internal async void gatherListOfPhonebooks()
+{
+    var data = theModem.data();
+    if ( data.simPhonebooks == null )
+    {
+        if ( data.simPhonebooks.length == 0 )
+        {
+            var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
+            var response = yield theModem.processCommandAsync( cmd, cmd.test() );
+            if ( cmd.validateTest( response ) == AtResponse.VALID )
+            {
+                data.simPhonebooks = cmd.phonebooks;
+            }
+            else
+            {
+                theModem.logger.warning( "Modem does not support querying the phonebooks." );
+            }
+        }
+    }
+}
+
 /**
  * Device Mediators
  **/
@@ -419,6 +440,19 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 }
 
 /**
+ * SIM Mediators
+ **/
+public class AtSimListPhonebooks : SimListPhonebooks
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield gatherListOfPhonebooks();
+        var data = theModem.data();
+        phonebooks = data.simPhonebooks;
+    }
+}
+
+/**
  * Network Mediators
  **/
 public class AtNetworkListProviders : NetworkListProviders
@@ -454,6 +488,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( AtDeviceSetMicrophoneMuted );
     table[ typeof(DeviceSetSimBuffersSms) ]       = typeof( AtDeviceSetSimBuffersSms );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
+
+    table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
 }

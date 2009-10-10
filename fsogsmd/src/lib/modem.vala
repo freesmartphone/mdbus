@@ -28,6 +28,8 @@ public class FsoGsm.ModemData : GLib.Object
 
     public int alarmCleared;
 
+    public string[] simPhonebooks;
+
     public string simAuthStatus;
 
     public bool simBuffersSms;

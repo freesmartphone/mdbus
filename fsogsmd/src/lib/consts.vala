@@ -87,6 +87,31 @@ public class FsoGsm.Constants
         }
     }
 
+    public string simPhonebookNameToString( string name )
+    {
+        switch ( name )
+        {
+            case "DC":
+                return "dialed";
+            case "EN":
+                return "emergency";
+            case "FD":
+                return "fixed";
+            case "MC":
+                return "missed";
+            case "ON":
+                return "own";
+            case "RC":
+                return "received";
+            case "SM":
+                return "contacts";
+            case "VM":
+                return "voicebox";
+            default:
+                return "unknown:%s".printf( name );
+        }
+    }
+
     public string networkProviderStatusToString( int code )
     {
         switch ( code )

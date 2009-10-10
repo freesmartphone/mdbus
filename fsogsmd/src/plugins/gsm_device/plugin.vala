@@ -302,7 +302,9 @@ class GsmDevice.Device :
 
     public async string[] list_phonebooks() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        return {};
+        var m = modem.createMediator<FsoGsm.SimListPhonebooks>();
+        yield m.run();
+        return m.phonebooks;
     }
 
     public async void retrieve_entry( string category, int index, out string name, out string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
