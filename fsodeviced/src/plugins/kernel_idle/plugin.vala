@@ -335,14 +335,14 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     }
 
     //
-    // DBUS API
+    // FreeSnmartphone.Device.IdleNotifier (DBUS API)
     //
-    public FreeSmartphone.Device.IdleState get_state() throws DBus.Error
+    public async FreeSmartphone.Device.IdleState get_state() throws DBus.Error
     {
         return 0;
     }
 
-    public GLib.HashTable<string,int> get_timeouts() throws DBus.Error
+    public async GLib.HashTable<string,int> get_timeouts() throws DBus.Error
     {
         var dict = new GLib.HashTable<string,int>( str_hash, str_equal );
 
@@ -353,12 +353,12 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         return dict;
     }
 
-    public void set_state( FreeSmartphone.Device.IdleState status ) throws DBus.Error
+    public async void set_state( FreeSmartphone.Device.IdleState status ) throws DBus.Error
     {
         idlestatus.onState( status );
     }
 
-    public void set_timeout( FreeSmartphone.Device.IdleState status, int timeout ) throws DBus.Error
+    public async void set_timeout( FreeSmartphone.Device.IdleState status, int timeout ) throws DBus.Error
     {
         idlestatus.timeouts[status] = timeout;
     }

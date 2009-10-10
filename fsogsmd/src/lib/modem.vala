@@ -28,6 +28,8 @@ public class FsoGsm.ModemData : GLib.Object
 
     public int alarmCleared;
 
+    public string[] simPhonebooks;
+
     public string simAuthStatus;
 
     public bool simBuffersSms;
@@ -82,6 +84,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract T createMediator<T>() throws FreeSmartphone.Error;
     public abstract T createAtCommand<T>( string command ) throws FreeSmartphone.Error;
 
+    public abstract T theDevice<T>();
+
     // All commands go through this function, so that the modem can
     // easily decide which channel a certain command goes to at a
     // given time
@@ -93,6 +97,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
 
     public abstract FsoGsm.ModemData data();
+
+    public abstract Object parent { get; set; } // the DBus object
 }
 
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
@@ -111,6 +117,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected HashMap<string,FsoGsm.AtCommand> commands;
     protected HashMap<Type,Type> mediators;
 
+    protected UnsolicitedResponseHandler urc;
+
+    protected Object parent { get; set; } // the DBus object
+
     construct
     {
         // only one modem allowed per process
@@ -120,12 +130,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
         modem_port = config.stringValue( "fsogsm", "modem_port", "/dev/null" );
         modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
-        modem_init = config.stringListValue( "fsogsm", "modem_init", { "E0Q0V1" } );
+        modem_init = config.stringListValue( "fsogsm", "modem_init", { "E0Q0V1", "+CMEE=1", "+CRC=1" } );
 
-        channels = new HashMap<string,FsoGsm.Channel>();
-
+        registerHandlers();
         registerMediators();
         registerAtCommands();
+        channels = new HashMap<string,FsoGsm.Channel>();
         createChannels();
 
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
@@ -141,7 +151,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         advanceStatus( modem_status, Status.CLOSED );
         modem_data = new FsoGsm.ModemData();
 
-        modem_data.alarmCleared = 1324857600; // 11/12/26,00:00:00+00
+        modem_data.speakerVolumeMinimum = -1;
+        modem_data.speakerVolumeMaximum = -1;
+
+        modem_data.alarmCleared = 946684800; // 00/01/01,00:00:00 (default for SIEMENS mc75i)
         modem_data.simAuthStatus = "UNKNOWN";
         modem_data.simBuffersSms = true;
 
@@ -151,6 +164,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.cnmiSmsDirectNoCb    = AtNewMessageIndication() { mode=2, mt=2, bm=0, ds=0, bfr=0 };
 
         configureData();
+    }
+
+    private void registerHandlers()
+    {
+        urc = createUnsolicitedHandler();
+        //TODO: call handler, binary sms handler, etc.
     }
 
     private void registerMediators()
@@ -182,6 +201,23 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected virtual void registerCustomAtCommands( HashMap<string,FsoGsm.AtCommand> commands )
     {
     }
+
+    /**
+     * Override this to return a custom type of urc handler to be used for this modem.
+     **/
+    protected virtual UnsolicitedResponseHandler createUnsolicitedHandler()
+    {
+        return new AtUnsolicitedResponseHandler();
+    }
+
+    /**
+     * Override this to return a custom type of call handler to be used for this modem.
+     *
+    protected virtual CallHandler createCallHandler()
+    {
+        return (CallHandler) null;
+    }
+     **/
 
     /**
      * Override this to create your channels and assorted transports.
@@ -245,6 +281,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         setPower( false );
     }
 
+    public T theDevice<T>()
+    {
+        assert( parent != null );
+        return (T) parent;
+    }
+
     public int /* FsoGsm.Modem.Status */ status()
     {
         return modem_status;
@@ -290,6 +332,16 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return response;
     }
 
+    public void processUnsolicitedResponse( string prefix, string righthandside, string? pdu = null )
+    {
+        // lookup and forward to unsolicited object, if not found, handle on your own?
+        assert( urc != null );
+        if ( !urc.dispatch( prefix, righthandside, pdu ) )
+        {
+            logger.warning( "No handler for URC '%s', please report to smartphones-userland@linuxtogo.org".printf( prefix ) );
+        }
+    }
+
     public Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error
     {
         Type typ = mediators[mediator];
@@ -315,6 +367,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         assert( channels != null );
         assert( channels[name] == null );
         channels[name] = channel;
+        channel.registerUnsolicitedHandler( this.processUnsolicitedResponse );
     }
 
     public void ensureStatus( int current )

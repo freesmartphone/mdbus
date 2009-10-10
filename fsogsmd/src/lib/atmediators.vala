@@ -68,12 +68,33 @@ internal async void gatherSimStatusAndUpdate()
     }
 }
 
+internal async void gatherListOfPhonebooks()
+{
+    var data = theModem.data();
+    if ( data.simPhonebooks == null )
+    {
+        if ( data.simPhonebooks.length == 0 )
+        {
+            var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
+            var response = yield theModem.processCommandAsync( cmd, cmd.test() );
+            if ( cmd.validateTest( response ) == AtResponse.VALID )
+            {
+                data.simPhonebooks = cmd.phonebooks;
+            }
+            else
+            {
+                theModem.logger.warning( "Modem does not support querying the phonebooks." );
+            }
+        }
+    }
+}
+
 /**
  * Device Mediators
  **/
 public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
         var response = yield theModem.processCommandAsync( cfun, cfun.query() );
@@ -84,12 +105,21 @@ public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
 
 public class AtDeviceGetAlarmTime : DeviceGetAlarmTime
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var data = theModem.data();
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
         var response = yield theModem.processCommandAsync( cmd, cmd.query() );
-        checkResponseValid( cmd, response );
+        // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
+        // hence we need to catch this error and transform it into something valid
+        try
+        {
+            checkResponseValid( cmd, response );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
         // some modems strip the leading zero for one-digit chars, so we have to reassemble it
         var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( cmd.year, cmd.month, cmd.day, cmd.hour, cmd.minute, cmd.second );
         var formatstr = "%y/%m/%d,%H:%M:%S";
@@ -106,11 +136,20 @@ public class AtDeviceGetAlarmTime : DeviceGetAlarmTime
 
 public class AtDeviceGetCurrentTime : DeviceGetCurrentTime
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
         var response = yield theModem.processCommandAsync( cmd, cmd.query() );
-        checkResponseValid( cmd, response );
+        // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
+        // hence we need to catch this error and transform it into something valid
+        try
+        {
+            checkResponseValid( cmd, response );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
         // some modems strip the leading zero for one-digit chars, so we have to reassemble it
         var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( cmd.year, cmd.month, cmd.day, cmd.hour, cmd.minute, cmd.second );
         var formatstr = "%y/%m/%d,%H:%M:%S";
@@ -122,7 +161,7 @@ public class AtDeviceGetCurrentTime : DeviceGetCurrentTime
 
 public class AtDeviceGetFunctionality : DeviceGetFunctionality
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
         var response = yield theModem.processCommandAsync( cfun, cfun.query() );
@@ -133,7 +172,7 @@ public class AtDeviceGetFunctionality : DeviceGetFunctionality
 
 public class AtDeviceGetInformation : DeviceGetInformation
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
 
@@ -199,7 +238,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
 
 public class AtDeviceGetFeatures : DeviceGetFeatures
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         features = new GLib.HashTable<string,Value?>( str_hash, str_equal );
         var value = Value( typeof(string) );
@@ -235,7 +274,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
 
 public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
         var response = yield theModem.processCommandAsync( cmd, cmd.query() );
@@ -246,7 +285,7 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
 
 public class AtDeviceGetSimBuffersSms : DeviceGetSimBuffersSms
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
         var response = yield theModem.processCommandAsync( cmd, cmd.query() );
@@ -257,7 +296,7 @@ public class AtDeviceGetSimBuffersSms : DeviceGetSimBuffersSms
 
 public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         yield gatherSpeakerVolumeRange();
 
@@ -272,7 +311,7 @@ public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
 
 public class AtDeviceGetPowerStatus : DeviceGetPowerStatus
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCBC>( "+CBC" );
         var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
@@ -285,36 +324,52 @@ public class AtDeviceGetPowerStatus : DeviceGetPowerStatus
 
 public class AtDeviceSetAlarmTime : DeviceSetAlarmTime
 {
-    public override async void run( int since_epoch ) throws FreeSmartphone.Error
+    public override async void run( int since_epoch ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var data = theModem.data();
-        var alarm = since_epoch != 0 ? data.alarmCleared : since_epoch;
-
-        var t = GLib.Time.gm( (time_t) alarm );
+        var t = GLib.Time.gm( (time_t) since_epoch );
 
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
+        var response = yield theModem.processCommandAsync( cmd, since_epoch > 0 ? cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) : cmd.clear() );
 
-        checkResponseOk( cmd, response );
+        // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
+        // hence we need to catch this error and transform it into something valid
+        try
+        {
+            checkResponseOk( cmd, response );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
     }
 }
 
 public class AtDeviceSetCurrentTime : DeviceSetCurrentTime
 {
-    public override async void run( int since_epoch ) throws FreeSmartphone.Error
+    public override async void run( int since_epoch ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var t = GLib.Time.gm( (time_t) since_epoch );
 
         var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
 
-        checkResponseOk( cmd, response );
+        // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
+        // hence we need to catch this error and transform it into something valid
+        try
+        {
+            checkResponseOk( cmd, response );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
     }
 }
 
 public class AtDeviceSetFunctionality : DeviceSetFunctionality
 {
-    public override async void run( string level ) throws FreeSmartphone.Error
+    public override async void run( string level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var value = Constants.instance().deviceFunctionalityStringToStatus( level );
 
@@ -333,7 +388,7 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
 
 public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
 {
-    public override async void run( bool muted ) throws FreeSmartphone.Error
+    public override async void run( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmut = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
         var response = yield theModem.processCommandAsync( cmut, cmut.issue( muted ? 1 : 0 ) );
@@ -344,7 +399,7 @@ public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
 
 public class AtDeviceSetSimBuffersSms : DeviceSetSimBuffersSms
 {
-    public override async void run( bool buffers ) throws FreeSmartphone.Error
+    public override async void run( bool buffers ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         //if ( buffers != theModem.data().simBuffersSms )
         {
@@ -366,7 +421,7 @@ public class AtDeviceSetSimBuffersSms : DeviceSetSimBuffersSms
 
 public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 {
-    public override async void run( int volume ) throws FreeSmartphone.Error
+    public override async void run( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( volume < 0 || volume > 100 )
         {
@@ -385,11 +440,24 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 }
 
 /**
+ * SIM Mediators
+ **/
+public class AtSimListPhonebooks : SimListPhonebooks
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield gatherListOfPhonebooks();
+        var data = theModem.data();
+        phonebooks = data.simPhonebooks;
+    }
+}
+
+/**
  * Network Mediators
  **/
 public class AtNetworkListProviders : NetworkListProviders
 {
-    public override async void run() throws FreeSmartphone.Error
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cops = theModem.createAtCommand<PlusCOPS_Test>( "+COPS=?" );
         var response = yield theModem.processCommandAsync( cops, cops.issue() );
@@ -404,6 +472,7 @@ public class AtNetworkListProviders : NetworkListProviders
 public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
     // register commands
+    table[ typeof(DeviceGetAlarmTime) ]           = typeof( AtDeviceGetAlarmTime );
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
     table[ typeof(DeviceGetCurrentTime) ]         = typeof( AtDeviceGetCurrentTime );
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
@@ -419,6 +488,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( AtDeviceSetMicrophoneMuted );
     table[ typeof(DeviceSetSimBuffersSms) ]       = typeof( AtDeviceSetSimBuffersSms );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
+
+    table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
 }

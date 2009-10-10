@@ -21,9 +21,7 @@ using Gee;
 
 public delegate void FsoGsm.ResponseHandler( FsoGsm.AtCommand command, string[] response );
 public delegate string FsoGsm.RequestHandler( FsoGsm.AtCommand command );
-
-public delegate void FsoGsm.UnsolicitedHandler( FsoGsm.AtCommand command, string response );
-public delegate void FsoGsm.UnsolicitedHandlerPDU( FsoGsm.AtCommand command, string response, string pdu );
+public delegate void FsoGsm.UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
 const uint COMMAND_QUEUE_CHANNEL_TIMEOUT = 10;
 const int  COMMAND_QUEUE_BUFFER_SIZE = 4096;
@@ -41,25 +39,13 @@ public class FsoGsm.CommandBundle
     public SourceFunc callback;
 }
 
-[Compact]
-public class FsoGsm.UnsolicitedBundle
-{
-    public FsoGsm.AtCommand command;
-    public string prefix;
-    public UnsolicitedHandler handler;
-}
-
-[Compact]
-public class FsoGsm.UnsolicitedBundlePDU
-{
-    public FsoGsm.AtCommand command;
-    public string prefix;
-    public UnsolicitedHandlerPDU handler;
-}
-
 public abstract interface FsoGsm.CommandQueue : Object
 {
     public const uint DEFAULT_RETRY = 3;
+    /**
+     * Register @a UnsolicitedHandler delegate that will be called for incoming URCs
+     **/
+    public abstract void registerUnsolicitedHandler( UnsolicitedHandler urchandler );
     /**
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * Coroutine will yield the response.
@@ -100,9 +86,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     protected FsoFramework.Transport transport;
     protected FsoGsm.Parser parser;
     protected char* buffer;
-
-    protected HashTable<string, FsoGsm.UnsolicitedBundle> urcs;
-    protected HashTable<string, FsoGsm.UnsolicitedBundlePDU> urcs_pdu;
+    protected UnsolicitedHandler urchandler;
 
     protected void _writeRequestToTransport( string request )
     {
@@ -181,24 +165,16 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
 
         if ( response.length == 1 ) // simple URCs
         {
-            weak UnsolicitedBundle bundle = urcs.lookup( strings[0] );
-
-            if ( bundle == null )
-                logger.warning( "unregistered URC. Please report!" );
-            else
-                bundle.handler( bundle.command, strings[1] );
+            urchandler( strings[0], strings[1] );
         }
         else if ( response.length == 2 ) // PDU URC
         {
-            weak UnsolicitedBundlePDU bundle = urcs_pdu.lookup( strings[0] );
-
-            if ( bundle == null )
-                logger.warning( "unregistered URC w/ PDU. Please report!" );
-            else
-                bundle.handler( bundle.command, strings[1], response[1] );
+            urchandler( strings[0], strings[1], response[1] );
         }
         else
-            assert_not_reached();
+        {
+            logger.critical( "Can't handle URC w/ more than 2 lines!" );
+        }
     }
 
     //=====================================================================//
@@ -266,8 +242,6 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
         parser.setDelegates( _haveCommand, _expectedPrefix, _solicitedCompleted, _unsolicitedCompleted );
 
         buffer = malloc( COMMAND_QUEUE_BUFFER_SIZE );
-        urcs = new HashTable<string, FsoGsm.UnsolicitedBundle>( str_hash, str_equal );
-        urcs_pdu = new HashTable<string, FsoGsm.UnsolicitedBundlePDU>( str_hash, str_equal );
     }
 
     ~AtCommandQueue()
@@ -280,18 +254,10 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
         return "<Unnamed AtCommandQueue>";
     }
 
-    public void registerUnsolicited( AtCommand command, string prefix, UnsolicitedHandler handler )
+    public void registerUnsolicitedHandler( UnsolicitedHandler urchandler )
     {
-        logger.debug( "registering unsolicited handler for prefix '%s'".printf( prefix ) );
-        assert( urcs.lookup( prefix ) == null ); // not allowed to register twice for one prefix
-        urcs.insert( prefix, new UnsolicitedBundle() { command=command, prefix=prefix, handler=handler } );
-    }
-
-    public void registerUnsolicitedPDU( AtCommand command, string prefix, UnsolicitedHandlerPDU handler )
-    {
-        logger.debug( "registering unsolicited PDU handler for prefix '%s'".printf( prefix ) );
-        assert( urcs_pdu.lookup( prefix ) == null ); // not allowed to register twice for one prefix
-        urcs_pdu.insert( prefix, new UnsolicitedBundlePDU() { command=command, prefix=prefix, handler=handler } );
+        assert( this.urchandler == null );
+        this.urchandler = urchandler;
     }
 
     public void enqueue( AtCommand command, string request, ResponseHandler? handler = null, uint retry = DEFAULT_RETRY )

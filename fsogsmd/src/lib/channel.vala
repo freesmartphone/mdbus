@@ -29,8 +29,6 @@ public class FsoGsm.Channel : FsoGsm.AtCommandQueue
         this.name = name;
         theModem.registerChannel( name, this );
 
-        registerUnsolicited( new NullAtCommand(), "+FOO", onPlusFOO );
-
         theModem.signalStatusChanged += onModemStatusChanged;
     }
 
@@ -51,11 +49,6 @@ public class FsoGsm.Channel : FsoGsm.AtCommandQueue
             }
         }
 
-    }
-
-    public void onPlusFOO( FsoGsm.AtCommand command, string response )
-    {
-        debug( "onPlusFOO with response '%s'", response );
     }
 }
 

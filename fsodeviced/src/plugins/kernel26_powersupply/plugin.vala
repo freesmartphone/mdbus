@@ -133,17 +133,10 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObje
     }
 
     //
-    // DBUS API
+    // FreeSmartphone.Device.PowerStatus (DBUS API)
     //
 
-    /*
-    public string get_name() throws DBus.Error
-    {
-        return name;
-    }
-    */
-
-    public HashTable<string,Value?> get_info() throws DBus.Error
+    public async HashTable<string,Value?> get_info() throws DBus.Error
     {
         //FIXME: add more infos
         var res = new HashTable<string,Value?>( str_hash, str_equal );
@@ -157,12 +150,12 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObje
         return res;
     }
 
-    public FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
+    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
     {
         return status;
     }
 
-    public int get_capacity() throws DBus.Error
+    public async int get_capacity() throws DBus.Error
     {
         return getCapacity();
     }
@@ -407,14 +400,14 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
     }
 
     //
-    // DBUS API
+    // FreeSmartphone.Device.PowerSupply (DBUS API)
     //
-    public string get_name() throws DBus.Error
+    public async string get_name() throws DBus.Error
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public HashTable<string,Value?> get_info() throws DBus.Error
+    public async HashTable<string,Value?> get_info() throws DBus.Error
     {
         //FIXME: add more infos
         var value = Value( typeof(string) );
@@ -424,12 +417,12 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
         return res;
     }
 
-    public FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
+    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
     {
         return status;
     }
 
-    public int get_capacity() throws DBus.Error
+    public async int get_capacity() throws DBus.Error
     {
         return getCapacity();
     }

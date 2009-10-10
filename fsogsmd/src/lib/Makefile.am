@@ -35,13 +35,14 @@ lib_LTLIBRARIES = \
 libfsogsm_la_VALASOURCES = \
 	atcommand.vala \
 	atcommands.vala \
+	atmediators.vala \
+	atparser.vala \
+	atunsolicited.vala \
 	commandqueue.vala \
 	consts.vala \
 	channel.vala \
 	mediator.vala \
-	mediators.vala \
 	modem.vala \
-	parser.vala \
 	structs.vala \
 	transport.vala \
 	$(NULL)

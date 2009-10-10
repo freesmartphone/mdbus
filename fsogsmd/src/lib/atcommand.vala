@@ -54,7 +54,7 @@ public abstract interface FsoGsm.AtCommand : GLib.Object
 
     public abstract FsoGsm.AtResponse validate( string[] response );
     public abstract FsoGsm.AtResponse validateTest( string[] response );
-
+    public abstract FsoGsm.AtResponse validateURC( string response );
     public abstract FsoGsm.AtResponse validateOk( string[] response );
 }
 
@@ -100,16 +100,39 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
      **/
     public virtual FsoGsm.AtResponse validateOk( string[] response )
     {
-        if ( response[response.length-1] != "OK" )
-        {
-            debug( "Did not receive OK for AT command w/ pattern %s", re.get_pattern() );
-            //FIXME: Parse and do something meaningful with the result
-            return AtResponse.ERROR;
-        }
-        else
+        var statusline = response[response.length-1];
+        if ( statusline == "OK" )
         {
             return AtResponse.OK;
         }
+
+        theModem.logger.debug( "Did not receive OK for AT command w/ pattern %s".printf( re.get_pattern() ) );
+        var errorcode = 0;
+
+        if ( !( ":" in statusline ) )
+        {
+            return AtResponse.ERROR;
+        }
+
+        if ( statusline.has_prefix( "+CMS" ) )
+        {
+            errorcode += (int)AtResponse.CMS_ERROR_START;
+            errorcode += (int)statusline.split( ":" )[1].to_int();
+            return (AtResponse)errorcode;
+        }
+        else if ( statusline.has_prefix( "+CME" ) )
+        {
+            errorcode += (int)AtResponse.CME_ERROR_START;
+            errorcode += (int)statusline.split( ":" )[1].to_int();
+            return (AtResponse)errorcode;
+        }
+        else if ( statusline.has_prefix( "+EXT" ) )
+        {
+            errorcode += (int)AtResponse.EXT_ERROR_START;
+            errorcode += (int)statusline.split( ":" )[1].to_int();
+            return (AtResponse)errorcode;
+        }
+        return AtResponse.ERROR;
     }
 
     /**
@@ -126,7 +149,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         // check whether we have received enough lines
         if ( response.length <= length )
         {
-            debug( "Unexpected length for AT command w/ pattern %s", re.get_pattern() );
+            theModem.logger.warning( "Unexpected length for AT command w/ pattern %s".printf( re.get_pattern() ) );
             return AtResponse.UNEXPECTED_LENGTH;
         }
 
@@ -136,10 +159,10 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         }
         catch ( AtCommandError e )
         {
-            debug( "Unexpected format for AT command w/ pattern %s", re.get_pattern() );
+            theModem.logger.warning( "Unexpected format for AT command w/ pattern %s".printf( re.get_pattern() ) );
             return AtResponse.UNABLE_TO_PARSE;
         }
-        debug( "Did receive a valid response to AT command w/ pattern %s", re.get_pattern() );
+        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( re.get_pattern() ) );
         return AtResponse.VALID;
     }
 
@@ -157,7 +180,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         // second, check whether we have received enough lines
         if ( response.length <= length )
         {
-            debug( "Unexpected length for AT command w/ pattern %s", tere.get_pattern() );
+            theModem.logger.warning( "Unexpected length for AT command w/ pattern %s".printf( tere.get_pattern() ) );
             return AtResponse.UNEXPECTED_LENGTH;
         }
 
@@ -167,10 +190,29 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         }
         catch ( AtCommandError e )
         {
-            debug( "Unexpected format for AT command w/ pattern %s", tere.get_pattern() );
+            theModem.logger.debug( "Unexpected format for AT command w/ pattern %s".printf( tere.get_pattern() ) );
             return AtResponse.UNABLE_TO_PARSE;
         }
-        debug( "Did receive a valid response to AT command w/ pattern %s", tere.get_pattern() );
+        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( tere.get_pattern() ) );
+        return AtResponse.VALID;
+    }
+
+
+    /**
+     * Validate an URC for this At command
+     **/
+    public virtual FsoGsm.AtResponse validateURC( string response )
+    {
+        try
+        {
+            parse( response );
+        }
+        catch ( AtCommandError e )
+        {
+            theModem.logger.warning( "Unexpected format for AT command w/ pattern %s".printf( re.get_pattern() ) );
+            return AtResponse.UNABLE_TO_PARSE;
+        }
+        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( re.get_pattern() ) );
         return AtResponse.VALID;
     }
 

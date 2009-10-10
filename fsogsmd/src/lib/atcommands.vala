@@ -40,8 +40,11 @@ public class PlusCALA : AbstractAtCommand
 
     public PlusCALA()
     {
-    // some modems strip the leading zero for one-digit chars
-        re = new Regex( """\+CALA: (?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:\+(?P<tzoffset>\d\d))?""" );
+        // some modems strip the leading zero for one-digit chars
+
+        var str = """\+CALA: "?(?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:[\+-](?P<tzoffset>\d\d))?"?,0,0,""";
+        str += "\"(?P<mccmnc>[^\"]*)\"";
+        re = new Regex( str );
         prefix = { "+CALA: " };
     }
 
@@ -59,7 +62,13 @@ public class PlusCALA : AbstractAtCommand
 
     public string issue( int year, int month, int day, int hour, int minute, int second, int tzoffset )
     {
-        return "+CALA=\"%02d/%02d/%02d,%02d:%02d:%02d+%02d\"".printf( year, month, day, hour, minute, second, tzoffset );
+        //FIXME: check whether only some modems do not like the timezone parameter
+        return "+CALA=\"%02d/%02d/%02d,%02d:%02d:%02d\",0,0,\"Dr.Mickey rocks!\"".printf( year, month, day, hour, minute, second );
+    }
+
+    public string clear()
+    {
+        return "+CALA=\"\"";
     }
 
     public string query()
@@ -105,7 +114,7 @@ public class PlusCCLK : AbstractAtCommand
     public PlusCCLK()
     {
         // some modems strip the leading zero for one-digit chars
-        re = new Regex( """\+CCLK: (?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:\+(?P<tzoffset>\d\d))?""" );
+        re = new Regex( """\+CCLK: "?(?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:[\+-](?P<tzoffset>\d\d))?"?""" );
         prefix = { "+CCLK: " };
     }
 
@@ -123,7 +132,9 @@ public class PlusCCLK : AbstractAtCommand
 
     public string issue( int year, int month, int day, int hour, int minute, int second, int tzoffset )
     {
-        return "+CCLK=\"%02d/%02d/%02d,%02d:%02d:%02d+%02d\"".printf( year, month, day, hour, minute, second, tzoffset );
+        //FIXME: check whether only some modems do not like the timezone parameter
+        //return "+CCLK=\"%02d/%02d/%02d,%02d:%02d:%02d+%02d\"".printf( year, month, day, hour, minute, second, tzoffset );
+        return "+CCLK=\"%02d/%02d/%02d,%02d:%02d:%02d\"".printf( year, month, day, hour, minute, second );
     }
 
     public string query()
@@ -285,6 +296,35 @@ public class PlusCOPS_Test : AbstractAtCommand
     }
 }
 
+public class PlusCPBS : AbstractAtCommand
+{
+    public string[] phonebooks;
+
+    public PlusCPBS()
+    {
+        tere = new Regex( """\"(?P<book>[A-Z][A-Z])\"""" );
+        prefix = { "+CPBS: " };
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        var books = new string[] {};
+        do
+        {
+            books += Constants.instance().simPhonebookNameToString( to_string( "book" ) );
+            message( "adding book %s", Constants.instance().simPhonebookNameToString( to_string( "book" ) ) );
+        }
+        while ( mi.next() );
+        phonebooks = books;
+    }
+
+    public string test()
+    {
+        return "+CPBS=?";
+    }
+}
+
 public class PlusCPIN : AbstractAtCommand
 {
     public string pin;
@@ -387,22 +427,34 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // register commands
     table[ "+CALA" ]             = new FsoGsm.PlusCALA();
+
     table[ "+CBC" ]              = new FsoGsm.PlusCBC();
+
     table[ "+CCLK" ]             = new FsoGsm.PlusCCLK();
+
     table[ "+CFUN" ]             = new FsoGsm.PlusCFUN();
+
     table[ "+CGCLASS" ]          = new FsoGsm.PlusCGCLASS();
     table[ "+CGMI" ]             = new FsoGsm.PlusCGMI();
     table[ "+CGMM" ]             = new FsoGsm.PlusCGMM();
     table[ "+CGMR" ]             = new FsoGsm.PlusCGMR();
     table[ "+CGSN" ]             = new FsoGsm.PlusCGSN();
+
     table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
+
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
     table[ "+CMUT" ]             = new FsoGsm.PlusCMUT();
+
     table[ "+CNMI" ]             = new FsoGsm.PlusCNMI();
+
     table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
     table[ "+COPS=?" ]           = new FsoGsm.PlusCOPS_Test();
+
+    table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
+
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
+
     table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
 }
 

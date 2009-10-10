@@ -1,4 +1,4 @@
-AC_INIT([libfsobasics], [0.8.3.1], [smartphones-userland@linuxtogo.org], [libfsobasics])
+AC_INIT([libfsobasics], [0.8.3.2], [smartphones-userland@linuxtogo.org], [libfsobasics])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -19,6 +19,7 @@ AC_SUBST(LDFLAGS)
 PKG_PROG_PKG_CONFIG
 
 VALA_REQUIRED=0.7.7
+MISC_VAPI_REQUIRED=0.5.0
 GLIB_REQUIRED=2.18.0
 
 # vala
@@ -28,18 +29,10 @@ PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
 
 #
-# vala vapi files
+# fso misc vapi files
 #
-VALA_VAPIDIR=`$PKG_CONFIG --variable=vapidir vala-1.0`
-AC_SUBST(VALA_VAPIDIR)
-
-AC_MSG_NOTICE([checking for misc-vapi...])
-if ! test -f "$VALA_VAPIDIR/linux.vapi"; then
-  AC_MSG_ERROR([linux.vapi not found.])
-fi
-if ! test -f "$VALA_VAPIDIR/posixextra.vapi"; then
-  AC_MSG_ERROR([posixextra.vapi not found. Please install misc-vapi from cornucopia.])
-fi
+PKG_CHECK_MODULES(MISC_VAPI,
+	misc-vapi-1.0 >= $MISC_VAPI_REQUIRED)
 
 # glib and friends
 PKG_CHECK_MODULES(GLIB,

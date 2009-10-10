@@ -54,6 +54,7 @@ fi
 #
 AC_CONFIG_FILES([Makefile
   tests/Makefile
-  vapi/Makefile])
+  vapi/Makefile
+  misc-vapi-1.0.pc])
 
 AC_OUTPUT

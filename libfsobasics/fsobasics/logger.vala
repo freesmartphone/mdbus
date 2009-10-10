@@ -52,11 +52,11 @@ public interface FsoFramework.Logger : Object
     public abstract LogLevelFlags getLevel();
     public abstract string getDestination();
 
-    public abstract void debug( string message );
-    public abstract void info( string message );
-    public abstract void warning( string message );
-    public abstract void error( string message );
-    public abstract void critical( string message );
+    public abstract bool debug( string message );
+    public abstract bool info( string message );
+    public abstract bool warning( string message );
+    public abstract bool error( string message );
+    public abstract bool critical( string message );
 
     public static Logger defaultLogger()
     {
@@ -196,35 +196,40 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
         this.reprdelegate = d;
     }
 
-    public void debug( string message )
+    public bool debug( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_DEBUG )
             write( format( message, "DEBUG" ) );
+        return true;
     }
 
-    public void info( string message )
+    public bool info( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_INFO )
             write( format( message, "INFO" ) );
+        return true;
     }
 
-    public void warning( string message )
+    public bool warning( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_WARNING )
             write( format( message, "WARNING" ) );
+        return true;
     }
 
-    public void error( string message )
+    public bool error( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_ERROR )
             write( format( message, "ERROR" ) );
+        return true;
     }
 
-    public void critical( string message )
+    public bool critical( string message )
     {
         write( format( message, "CRITICAL" ) );
         stderr.printf( "Aborting due to call to logger.critical() error\n" );
         Posix.exit( Posix.EXIT_FAILURE );
+        return true;
         //FIXME: Trigger dumping a backtrace, if possible
     }
 

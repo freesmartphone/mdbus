@@ -242,12 +242,12 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     }
 
     //
-    // DBUS API
+    // FreeSmartphone.Device.Sound (DBUS API)
     //
 
     //
     // Scenario
-    public string[] get_available_scenarios() throws DBus.Error
+    public async string[] get_available_scenarios() throws DBus.Error
     {
         string[] list = {};
         foreach ( var key in allscenarios.keys )
@@ -255,7 +255,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         return list;
     }
 
-    public HashTable<string,Value?> get_info() throws DBus.Error
+    public async HashTable<string,Value?> get_info() throws DBus.Error
     {
         var dict = new HashTable<string,Value?>( str_hash, str_equal );
 
@@ -275,12 +275,12 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         return dict;
     }
 
-    public string get_scenario() throws DBus.Error
+    public async string get_scenario() throws DBus.Error
     {
         return currentscenario;
     }
 
-    public string pull_scenario() throws FreeSmartphone.Device.AudioError, DBus.Error
+    public async string pull_scenario() throws FreeSmartphone.Device.AudioError, DBus.Error
     {
         var scenario = scenarios.pop_head();
         if ( scenario == null )
@@ -289,13 +289,13 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         return scenario;
     }
 
-    public void push_scenario( string scenario ) throws DBus.Error
+    public async void push_scenario( string scenario ) throws DBus.Error
     {
         scenarios.push_head( scenario );
         set_scenario( scenario );
     }
 
-    public void set_scenario( string scenario ) throws /* FreeSmartphone.Error, */ DBus.Error
+    public async void set_scenario( string scenario ) throws /* FreeSmartphone.Error, */ DBus.Error
     {
         if ( !( scenario in allscenarios.keys ) )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not find scenario %s".printf( scenario ) );
@@ -307,7 +307,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     //
     // Sound
-    public void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, DBus.Error
+    public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, DBus.Error
     {
         PlayingSound sound = sounds[name];
         if ( sound != null )
@@ -328,7 +328,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         sounds[name] = new PlayingSound( name, loop, length );
     }
 
-    public void stop_all_sounds() throws DBus.Error
+    public async void stop_all_sounds() throws DBus.Error
     {
         foreach ( var name in sounds.keys )
         {
@@ -337,7 +337,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         }
     }
 
-    public void stop_sound( string name ) throws DBus.Error
+    public async void stop_sound( string name ) throws DBus.Error
     {
         PlayingSound sound = sounds[name];
         if ( sound == null )
