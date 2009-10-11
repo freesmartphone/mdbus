@@ -163,6 +163,11 @@ public abstract class FsoGsm.DeviceSetSpeakerVolume : FsoGsm.AbstractMediator
 //
 // org.freesmartphone.GSM.SIM.*
 //
+public abstract class FsoGsm.SimChangeAuthCode : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SimListPhonebooks : FsoGsm.AbstractMediator
 {
     public string[] phonebooks { get; set; }
@@ -173,6 +178,16 @@ public abstract class FsoGsm.SimRetrievePhonebook : FsoGsm.AbstractMediator
 {
     public FreeSmartphone.GSM.SIMEntry[] phonebook { get; set; }
     public abstract async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.SimSendAuthCode : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.SimUnlock : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 //

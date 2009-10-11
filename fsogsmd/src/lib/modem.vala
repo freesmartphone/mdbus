@@ -35,21 +35,21 @@ public class PhonebookParams
 
 public class FsoGsm.ModemData : GLib.Object
 {
-    public int speakerVolumeMinimum;
-    public int speakerVolumeMaximum;
-
     public int alarmCleared;
-
-    public HashMap<string,PhonebookParams> simPhonebooks;
-
-    public string simAuthStatus;
-
-    public bool simBuffersSms;
 
     public AtNewMessageIndication cnmiSmsBufferedCb;
     public AtNewMessageIndication cnmiSmsBufferedNoCb;
     public AtNewMessageIndication cnmiSmsDirectCb;
     public AtNewMessageIndication cnmiSmsDirectNoCb;
+
+    public int speakerVolumeMinimum;
+    public int speakerVolumeMaximum;
+
+    public string simAuthStatus;
+    public bool simBuffersSms;
+    public bool simHasReadySignal;
+    public bool simIsReady;
+    public HashMap<string,PhonebookParams> simPhonebooks;
 }
 
 public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject

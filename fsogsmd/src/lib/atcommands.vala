@@ -418,6 +418,30 @@ public class PlusCPIN : AbstractAtCommand
     }
 }
 
+public class PlusCPWD : AbstractAtCommand
+{
+    public PlusCPWD()
+    {
+        re = new Regex( """\+CPWD:\ "?(?P<pin>[^"]*)"?""" );
+        prefix = { "+CPWD: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+    }
+
+    public string issue( string facility, string p1, string p2 )
+    {
+        return @"+CPWD=\"$facility\",\"$p1\",\"$p2\"";
+    }
+
+    public string query()
+    {
+        return "+CPWD?";
+    }
+}
+
 public class PlusFCLASS : AbstractAtCommand
 {
     public string faxclass;
@@ -481,6 +505,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CPBR" ]             = new FsoGsm.PlusCPBR();
     table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
+    table[ "+CPWD" ]             = new FsoGsm.PlusCPWD();
 
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
 

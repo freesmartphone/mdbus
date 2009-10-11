@@ -449,6 +449,16 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 /**
  * SIM Mediators
  **/
+public class AtSimChangeAuthCode : SimChangeAuthCode
+{
+    public override async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCPWD>( "+CPWD" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( "SC", oldpin, newpin ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
 public class AtSimListPhonebooks : SimListPhonebooks
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -490,6 +500,26 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
     }
 }
 
+public class AtSimSendAuthCode : SimSendAuthCode
+{
+    public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( pin ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
+public class AtSimUnlock : SimUnlock
+{
+    public override async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( puk, newpin ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
 /**
  * Network Mediators
  **/
@@ -527,8 +557,11 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetSimBuffersSms) ]       = typeof( AtDeviceSetSimBuffersSms );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
+    table[ typeof(SimChangeAuthCode) ]            = typeof( AtSimChangeAuthCode );
     table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
+    table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );
+    table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
 }
