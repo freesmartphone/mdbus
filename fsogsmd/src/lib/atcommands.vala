@@ -312,26 +312,51 @@ public class PlusCOPS : AbstractAtCommand
 
 public class PlusCPBR : AbstractAtCommand
 {
+    public int min;
+    public int max;
+
+    public FreeSmartphone.GSM.SIMEntry[] phonebook;
+
     public PlusCPBR()
     {
         re = new Regex( """\+CPBR: (?P<id>\d+),"(?P<number>[\+0-9*#w]+)",(?P<typ>\d+),"(?P<name>[^"]*)"""" );
+        tere = new Regex( """\+CPBR: \((?P<min>\d+)-(?P<max>\d+)\),\d+,\d+""" );
         prefix = { "+CPBR: " };
     }
 
-    public override void parseMulti( string[] response ) throws AtCommandError
+    public void parseMulti( string[] response ) throws AtCommandError
     {
-        base.parse( "\n".join( response ) );
-        pin = to_string( "pin" );
+        var phonebook = new FreeSmartphone.GSM.SIMEntry[] {};
+        foreach ( var line in response )
+        {
+            base.parse( line );
+            var entry = FreeSmartphone.GSM.SIMEntry() {
+                index = to_int( "id" ),
+                number = to_string( "number" ),
+                name = to_string( "name" )
+            };
+            phonebook += entry;
+        }
+        this.phonebook = phonebook;
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        min = to_int( "min" );
+        max = to_int( "max" );
     }
 
     public string issue( string cat, int first, int last )
     {
-        return @"+CPBS=\"$cat\";+CPBR=$first,$last";
+        //return @"+CPBS=\"$cat\";+CPBR=$first,$last";
+        return """+CPBS="%s";+CPBR=%d,%d""".printf( cat, first, last );
     }
 
     public string test( string cat )
     {
-        return @"+CPBS=\"%cat\";+CPBR=?";
+        //return @"+CPBS=\"%cat\";+CPBR=?";
+        return """+CPBS="%s";+CPBR=?""".printf( cat );
     }
 }
 

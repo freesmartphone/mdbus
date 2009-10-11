@@ -21,6 +21,18 @@ using Gee;
 
 namespace FsoGsm { public FsoGsm.Modem theModem; }
 
+public class PhonebookParams
+{
+    public int min;
+    public int max;
+
+    public PhonebookParams( int min, int max )
+    {
+        this.min = min;
+        this.max = max;
+    }
+}
+
 public class FsoGsm.ModemData : GLib.Object
 {
     public int speakerVolumeMinimum;
@@ -28,7 +40,7 @@ public class FsoGsm.ModemData : GLib.Object
 
     public int alarmCleared;
 
-    public string[] simPhonebooks;
+    public HashMap<string,PhonebookParams> simPhonebooks;
 
     public string simAuthStatus;
 
@@ -162,6 +174,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.cnmiSmsBufferedNoCb  = AtNewMessageIndication() { mode=2, mt=1, bm=0, ds=0, bfr=0 };
         modem_data.cnmiSmsDirectCb      = AtNewMessageIndication() { mode=2, mt=2, bm=2, ds=1, bfr=1 };
         modem_data.cnmiSmsDirectNoCb    = AtNewMessageIndication() { mode=2, mt=2, bm=0, ds=0, bfr=0 };
+
+        modem_data.simPhonebooks = new HashMap<string,PhonebookParams>();
 
         configureData();
     }

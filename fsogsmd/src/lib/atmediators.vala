@@ -68,23 +68,30 @@ internal async void gatherSimStatusAndUpdate()
     }
 }
 
-internal async void gatherListOfPhonebooks()
+internal async void gatherPhonebookParams()
 {
     var data = theModem.data();
-    if ( data.simPhonebooks == null )
+    if ( data.simPhonebooks.size == 0 )
     {
-        if ( data.simPhonebooks.length == 0 )
+        var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.test() );
+        if ( cmd.validateTest( response ) == AtResponse.VALID )
         {
-            var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
-            var response = yield theModem.processCommandAsync( cmd, cmd.test() );
-            if ( cmd.validateTest( response ) == AtResponse.VALID )
+            foreach ( var pbname in cmd.phonebooks )
             {
-                data.simPhonebooks = cmd.phonebooks;
+                var cpbr = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
+                var pbcode = Constants.instance().simPhonebookStringToName( pbname );
+                var answer = yield theModem.processCommandAsync( cpbr, cpbr.test( pbcode ) );
+                if ( cpbr.validateTest( answer ) == AtResponse.VALID )
+                {
+                    data.simPhonebooks[pbname] = new PhonebookParams( cpbr.min, cpbr.max );
+                    assert( theModem.logger.debug( @"Found phonebook '$pbname' w/ indices $(cpbr.min)-$(cpbr.max)" ) );
+                }
             }
-            else
-            {
-                theModem.logger.warning( "Modem does not support querying the phonebooks." );
-            }
+        }
+        else
+        {
+            theModem.logger.warning( "Modem does not support querying the phonebooks." );
         }
     }
 }
@@ -446,9 +453,16 @@ public class AtSimListPhonebooks : SimListPhonebooks
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        yield gatherListOfPhonebooks();
+        yield gatherPhonebookParams();
         var data = theModem.data();
-        phonebooks = data.simPhonebooks;
+        var a = new string[] {};
+        foreach ( var key in data.simPhonebooks.keys )
+        {
+            a += key;
+        }
+        phonebooks = a;
+        //FIXME: This doesn't work, returns an empty array -- bug in libgee?
+        //phonebooks = (string[]) data.simPhonebooks.keys.to_array();
     }
 }
 
@@ -456,28 +470,20 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        yield gatherListOfPhonebooks();
+        yield gatherPhonebookParams();
         var data = theModem.data();
 
-        var found = false;
-        foreach ( var pb in data.simPhonebooks )
-        {
-            if ( pb == category )
-            {
-                found = true;
-                break;
-            }
-        }
-        if ( !found )
+        if ( ! ( category in data.simPhonebooks ) )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Category needs to be one of ..." );
         }
 
         var cat = Constants.instance().simPhonebookStringToName( category );
         assert( category != "" );
+        var pp = data.simPhonebooks[category];
 
         var cmd = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( cat ) );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( cat, pp.min, pp.max ) );
 
         //
         //checkResponseOk( cmd, response );
