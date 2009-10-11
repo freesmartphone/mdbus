@@ -71,7 +71,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         var defaultpath = "%s/lib/cornucopia/modules".printf( FsoFramework.Utility.prefixForExecutable() );
         var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "cornucopia", "plugin_path", defaultpath );
 
-        logger.debug( "pluginpath is %s".printf( pluginpath ) );
+        assert( logger.debug( "pluginpath is %s".printf( pluginpath ) ) );
 
         foreach ( var name in names )
         {
@@ -85,7 +85,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
             _plugins.append( plugin );
         }
 
-        logger.debug( "registered %u plugins".printf( _plugins.length() ) );
+        assert( logger.debug( "registered %u plugins".printf( _plugins.length() ) ) );
         return _plugins.length();
     }
 
@@ -197,11 +197,11 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         var connection = _dbusconnections.lookup( servicename );
         if ( connection != null )
         {
-            logger.debug( "connection for '%s' found; ok.".printf( servicename ) );
+            assert( logger.debug( "connection for '%s' found; ok.".printf( servicename ) ) );
             return true;
         }
 
-        logger.debug( "connection for '%s' not present yet; creating.".printf( servicename ) );
+        assert( logger.debug( "connection for '%s' not present yet; creating.".printf( servicename ) ) );
 
         // get bus connection
         if ( _dbusconn == null )
