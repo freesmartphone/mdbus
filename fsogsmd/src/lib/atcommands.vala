@@ -377,7 +377,6 @@ public class PlusCPBS : AbstractAtCommand
         do
         {
             books += Constants.instance().simPhonebookNameToString( to_string( "book" ) );
-            message( "adding book %s", Constants.instance().simPhonebookNameToString( to_string( "book" ) ) );
         }
         while ( mi.next() );
         phonebooks = books;
