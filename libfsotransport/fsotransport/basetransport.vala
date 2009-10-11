@@ -76,12 +76,12 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             logger = new FsoFramework.NullLogger( "none" );
         }
 
-        logger.debug( "created" );
+        assert( logger.debug( "created" ) );
     }
 
     ~BaseTransport()
     {
-        logger.debug( "destroyed" );
+        assert( logger.debug( "destroyed" ) );
     }
 
     public override string getName()
@@ -280,7 +280,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( buffer.len > 0 )
             restartWriter();
 
-        logger.debug( "opened" );
+        assert( logger.debug( "opened" ) );
         return true;
     }
 
@@ -292,7 +292,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( fd != -1 )
             Posix.close( fd );
         fd = -1; // mark closed
-        logger.debug( "closed" );
+        assert( logger.debug( "closed" ) );
     }
 
     public override bool isOpen()
@@ -341,10 +341,12 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public override int write( void* data, int len )
     {
-        logger.debug( "writing %d bytes".printf( len ) );
+        assert( logger.debug( "writing %d bytes".printf( len ) ) );
         assert( data != null );
         if ( fd == -1 )
+        {
             logger.warning( "writing although transport still closed; buffering." );
+        }
         var restart = ( fd != -1 && buffer.len == 0 );
         //TODO: avoid copying the buffer
         var temp = new uint8[len];
@@ -359,12 +361,14 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     public override void freeze()
     {
         if ( buffer.len > 0 )
+        {
             logger.warning( "freeze called while buffer not yet empty" );
+        }
         if ( readwatch != 0 )
             Source.remove( readwatch );
         if ( writewatch != 0 )
             Source.remove( writewatch );
-        logger.debug( "frozen" );
+        assert( logger.debug( "frozen" ) );
     }
 
     public override void thaw()
@@ -379,7 +383,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public bool actionCallback( IOChannel source, IOCondition condition )
     {
-        logger.debug( "actionCallback called with condition = %d".printf( condition ) );
+        assert( logger.debug( "actionCallback called with condition = %d".printf( condition ) ) );
 
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
@@ -402,14 +406,14 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public bool writeCallback( IOChannel source, IOCondition condition )
     {
-        logger.debug( "writeCallback called with %u bytes in buffer".printf( buffer.len ) );
+        assert( logger.debug( "writeCallback called with %u bytes in buffer".printf( buffer.len ) ) );
         /*
         for( int i = 0; i < buffer.len; ++i )
             logger.debug( "byte: 0x%02x".printf( buffer.data[i] ) );
         */
         int len = 64 > buffer.len? (int)buffer.len : 64;
         var byteswritten = _write( buffer.data, len );
-        logger.debug( "writeCallback wrote %d bytes".printf( (int)byteswritten ) );
+        assert( logger.debug( "writeCallback wrote %d bytes".printf( (int)byteswritten ) ) );
         buffer.remove_range( 0, (int)byteswritten );
 
         return ( buffer.len != 0 );
