@@ -168,6 +168,12 @@ public abstract class FsoGsm.SimChangeAuthCode : FsoGsm.AbstractMediator
     public abstract async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.SimGetInformation : FsoGsm.AbstractMediator
+{
+    public GLib.HashTable<string,Value?> info { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SimListPhonebooks : FsoGsm.AbstractMediator
 {
     public string[] phonebooks { get; set; }

@@ -109,7 +109,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         theModem.logger.debug( "Did not receive OK for AT command w/ pattern %s".printf( re.get_pattern() ) );
         var errorcode = 0;
 
-        if ( !( ":" in statusline ) )
+        if ( ! ( ":" in statusline ) )
         {
             return AtResponse.ERROR;
         }

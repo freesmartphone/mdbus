@@ -191,6 +191,14 @@ public class PlusCGSN : SimpleAtCommand<string>
     }
 }
 
+public class PlusCIMI : SimpleAtCommand<string>
+{
+    public PlusCIMI()
+    {
+        base( "+CIMI", true );
+    }
+}
+
 public class PlusCLVL : SimpleAtCommand<int>
 {
     public PlusCLVL()
@@ -442,6 +450,28 @@ public class PlusCPWD : AbstractAtCommand
     }
 }
 
+public class PlusCRSM : AbstractAtCommand
+{
+    public string payload;
+
+    public PlusCRSM()
+    {
+        re = new Regex( """\+CRSM: 144,0,(?P<payload>[0-9A-Z]+)""" );
+        prefix = { "+CRSM: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        payload = to_string( "payload" );
+    }
+
+    public string issue( int command, int p1, int p2, int offset, int length )
+    {
+        return @"+CRSM=$command,$p1,$p2,$offset,$length";
+    }
+}
+
 public class PlusFCLASS : AbstractAtCommand
 {
     public string faxclass;
@@ -493,6 +523,8 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CGMR" ]             = new FsoGsm.PlusCGMR();
     table[ "+CGSN" ]             = new FsoGsm.PlusCGSN();
 
+    table[ "+CIMI" ]             = new FsoGsm.PlusCIMI();
+
     table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
 
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
@@ -506,6 +538,8 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
     table[ "+CPWD" ]             = new FsoGsm.PlusCPWD();
+
+    table[ "+CRSM" ]             = new FsoGsm.PlusCRSM();
 
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
 

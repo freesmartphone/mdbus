@@ -296,7 +296,9 @@ class GsmDevice.Device :
 
     public async GLib.HashTable<string,GLib.Value?> get_sim_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.SimGetInformation>();
+        yield m.run();
+        return m.info;
     }
 
     public async bool get_sim_ready() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -412,7 +414,7 @@ class GsmDevice.Device :
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async int get_signal_strength( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async int get_signal_strength() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }

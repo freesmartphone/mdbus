@@ -459,6 +459,42 @@ public class AtSimChangeAuthCode : SimChangeAuthCode
     }
 }
 
+public class AtSimGetInformation : SimGetInformation
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+
+        var value = Value( typeof(string) );
+
+        var cimi = theModem.createAtCommand<PlusCGMR>( "+CIMI" );
+        var response = yield theModem.processCommandAsync( cimi, cimi.execute() );
+        if ( cimi.validate( response ) == AtResponse.VALID )
+        {
+            value = (string) cimi.value;
+            info.insert( "imsi", value );
+        }
+        else
+        {
+            info.insert( "imsi", "unknown" );
+        }
+
+        var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
+        response = yield theModem.processCommandAsync( crsm, crsm.issue( 176, 28486, 0, 0, 17 ) );
+        if ( crsm.validate( response ) == AtResponse.VALID )
+        {
+            value = Codec.hexToString( crsm.payload );
+            info.insert( "issuer", value );
+        }
+        else
+        {
+            info.insert( "issuer", "unknown" );
+        }
+
+        //FIXME: Add dial_prefix and country
+    }
+}
+
 public class AtSimListPhonebooks : SimListPhonebooks
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -558,6 +594,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(SimChangeAuthCode) ]            = typeof( AtSimChangeAuthCode );
+    table[ typeof(SimGetInformation) ]            = typeof( AtSimGetInformation );
     table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );
