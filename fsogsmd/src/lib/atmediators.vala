@@ -495,6 +495,17 @@ public class AtSimGetInformation : SimGetInformation
     }
 }
 
+public class AtSimGetServiceCenterNumber : SimGetServiceCenterNumber
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        number = cmd.number;
+    }
+}
+
 public class AtSimListPhonebooks : SimListPhonebooks
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -542,6 +553,16 @@ public class AtSimSendAuthCode : SimSendAuthCode
     {
         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( pin ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
+public class AtSimSetServiceCenterNumber : SimSetServiceCenterNumber
+{
+    public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( number ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -594,10 +615,12 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(SimChangeAuthCode) ]            = typeof( AtSimChangeAuthCode );
+    table[ typeof(SimGetServiceCenterNumber) ]    = typeof( AtSimGetServiceCenterNumber );
     table[ typeof(SimGetInformation) ]            = typeof( AtSimGetInformation );
     table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );
+    table[ typeof(SimSetServiceCenterNumber) ]    = typeof( AtSimSetServiceCenterNumber );
     table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );

@@ -472,6 +472,33 @@ public class PlusCRSM : AbstractAtCommand
     }
 }
 
+public class PlusCSCA : AbstractAtCommand
+{
+    public string number;
+
+    public PlusCSCA()
+    {
+        re = new Regex( """\+CSCA: "(?P<number>%s*)",(?P<ntype>\d+)""".printf( Constants.PHONE_DIGITS_RE ) );
+        prefix = { "+CSCA: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        number = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "ntype" ) );
+    }
+
+    public string query()
+    {
+        return "+CSCA?";
+    }
+
+    public string issue( string number )
+    {
+        return "+CSCA=" + Constants.instance().phonenumberStringToTuple( number );
+    }
+}
+
 public class PlusFCLASS : AbstractAtCommand
 {
     public string faxclass;
@@ -540,6 +567,8 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CPWD" ]             = new FsoGsm.PlusCPWD();
 
     table[ "+CRSM" ]             = new FsoGsm.PlusCRSM();
+
+    table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
 
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
 

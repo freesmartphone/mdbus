@@ -23,6 +23,9 @@
 
 public class FsoGsm.Constants
 {
+    public const string PHONE_DIGITS = """0123456789ABCD*#+pw""";
+    public const string PHONE_DIGITS_RE = """[0-9A-D\*#\+pw]""";
+
     internal static FsoGsm.Constants _instance;
 
     public static FsoGsm.Constants instance()
@@ -170,6 +173,37 @@ public class FsoGsm.Constants
                 return "HSDPA/HSUPA";
             default:
                 return "GSM";
+        }
+    }
+
+    public string phonenumberTupleToString( string number, int ntype )
+    {
+        if ( ntype == 145 ) // must not include '+' then, but some modems violate the spec
+        {
+            if ( number[0] == '+' )
+            {
+                return number;
+            }
+            else
+            {
+                return "+%s".printf( number );
+            }
+        }
+        else
+        {
+            return number;
+        }
+    }
+
+    public string phonenumberStringToTuple( string number )
+    {
+        if ( number[0] == '+' )
+        {
+            return """"%s",145""".printf( number.offset( 1 ) );
+        }
+        else
+        {
+            return """"%s",129""".printf( number );
         }
     }
 }

@@ -174,6 +174,12 @@ public abstract class FsoGsm.SimGetInformation : FsoGsm.AbstractMediator
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.SimGetServiceCenterNumber : FsoGsm.AbstractMediator
+{
+    public string number;
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SimListPhonebooks : FsoGsm.AbstractMediator
 {
     public string[] phonebooks { get; set; }
@@ -189,6 +195,11 @@ public abstract class FsoGsm.SimRetrievePhonebook : FsoGsm.AbstractMediator
 public abstract class FsoGsm.SimSendAuthCode : FsoGsm.AbstractMediator
 {
     public abstract async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.SimSetServiceCenterNumber : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.SimUnlock : FsoGsm.AbstractMediator
