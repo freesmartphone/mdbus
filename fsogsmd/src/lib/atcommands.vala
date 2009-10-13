@@ -450,6 +450,39 @@ public class PlusCPWD : AbstractAtCommand
     }
 }
 
+public class PlusCREG : AbstractAtCommand
+{
+    public int mode;
+    public int status;
+    public string lac;
+    public string cid;
+
+    public PlusCREG()
+    {
+        re = new Regex( """\+CREG: (?P<mode>\d),(?P<status>\d)(?:,(?P<lac>[0-9A-F]+),(?P<cid>[0-9A-F]+))?""" );
+        prefix = { "+CREG: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        mode = to_int( "mode" );
+        status = to_int( "status" );
+        lac = to_string( "lac" );
+        cid = to_string( "cid" );
+    }
+
+    public string query()
+    {
+        return "+CREG?";
+    }
+
+    public string issue( int mode = 0 )
+    {
+        return "+CREG=%d";
+    }
+}
+
 public class PlusCRSM : AbstractAtCommand
 {
     public string payload;
@@ -566,6 +599,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
     table[ "+CPWD" ]             = new FsoGsm.PlusCPWD();
 
+    table[ "+CREG" ]             = new FsoGsm.PlusCREG();
     table[ "+CRSM" ]             = new FsoGsm.PlusCRSM();
 
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();

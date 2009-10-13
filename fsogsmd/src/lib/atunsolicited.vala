@@ -69,6 +69,8 @@ public class FsoGsm.BaseUnsolicitedResponseHandler : FsoGsm.UnsolicitedResponseH
 
     public bool dispatch( string prefix, string rhs, string? pdu = null )
     {
+        assert( logger.debug( @"dispatching AT unsolicited '$prefix', '$rhs'" ) );
+
         if ( pdu == null )
         {
             var urcwrapper = urcs[prefix];
@@ -105,6 +107,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     {
         registerUrc( "+CALA", plusCALA );
         registerUrc( "+CIEV", plusCIEV );
+        registerUrc( "+CREG", plusCREG );
     }
 
     public virtual void plusCALA( string prefix, string rhs )
@@ -116,6 +119,9 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCIEV( string prefix, string rhs )
     {
-        logger.debug( "plusCIEV: %s %s".printf( prefix, rhs ) );
+    }
+
+    public virtual void plusCREG( string prefix, string rhs )
+    {
     }
 }
