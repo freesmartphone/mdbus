@@ -147,7 +147,9 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
             s = "\\r";
         else
             s = "%c".printf( c );
+#if DEBUG
         debug( "state = %d, feeding '%s'", curstate, s );
+#endif
         switch (curstate)
         {
             case State.START:
@@ -223,7 +225,9 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
             return State.INLINE;
 
         curline += 0x0; // we want to treat it as a string
+#if DEBUG
         debug( "line completed: '%s'", (string)curline );
+#endif
 
         if ( !haveCommand() )
         {
@@ -237,7 +241,9 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
     public State endoflinePerhapsSolicited()
     {
+#if DEBUG
         debug( "endoflinePerhapsSolicited" );
+#endif
         if ( isFinalResponse() )
         {
             return endoflineSurelySolicited();
@@ -262,22 +268,29 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
     public State endoflineSurelySolicited()
     {
+#if DEBUG
         debug( "endoflineSurelySolicited" );
+#endif
         solicited += (string)curline;
-
+#if DEBUG
         debug( "is final response. solicited response with %d lines", solicited.length );
+#endif
         solicitedCompleted( solicited ); //TODO: rather call in idle mode or will this confuse everything?
         return resetAll();
     }
 
     public State endoflineSurelyUnsolicited()
     {
+#if DEBUG
         debug( "endoflineSurelyUnsolicited" );
+#endif
         unsolicited += (string)curline;
 
         if ( pendingPDU )
         {
+#if DEBUG
             debug( "pending PDU received; unsolicited response completed." );
+#endif
             pendingPDU = false;
             unsolicitedCompleted( unsolicited );
             return resetAll( false );
@@ -285,12 +298,15 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
         if ( hasUnsolicitedPdu() )
         {
+#if DEBUG
             debug( "unsolicited response pending PDU..." );
+#endif
             pendingPDU = true;
             return resetLine();
         }
-
+#if DEBUG
         debug( "unsolicited response completed." );
+#endif
         unsolicitedCompleted( unsolicited );
         return resetAll( false );  // do not clear solicited responses; we might have sneaked in-between
     }

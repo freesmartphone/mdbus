@@ -64,6 +64,18 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
         //FIXME: gather better error message out of response status
         throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unexpected AT command response" );
     }
+
+    protected void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var code = command.validateMulti( response );
+        if ( code == AtResponse.VALID )
+        {
+            return;
+        }
+
+        //FIXME: gather better error message out of response status
+        throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unexpected AT command response" );
+    }
 }
 
 //

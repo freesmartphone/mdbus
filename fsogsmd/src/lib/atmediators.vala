@@ -542,7 +542,7 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
         var cmd = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( cat, pp.min, pp.max ) );
 
-        checkResponseOk( cmd, response );
+        checkMultiResponseValid( cmd, response );
         phonebook = cmd.phonebook;
     }
 }

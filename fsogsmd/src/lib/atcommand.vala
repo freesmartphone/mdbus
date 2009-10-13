@@ -49,6 +49,7 @@ public enum FsoGsm.AtResponse
 public abstract interface FsoGsm.AtCommand : GLib.Object
 {
     public abstract void parse( string response ) throws AtCommandError;
+    public abstract void parseMulti( string[] response ) throws AtCommandError;
     public abstract void parseTest( string response ) throws AtCommandError;
     public abstract bool is_valid_prefix( string line );
 
@@ -56,6 +57,7 @@ public abstract interface FsoGsm.AtCommand : GLib.Object
     public abstract FsoGsm.AtResponse validateTest( string[] response );
     public abstract FsoGsm.AtResponse validateURC( string response );
     public abstract FsoGsm.AtResponse validateOk( string[] response );
+    public abstract FsoGsm.AtResponse validateMulti( string[] response );
 }
 
 public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
@@ -68,7 +70,6 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
 
     construct
     {
-        message( "%s()", Type.from_instance( this ).name() );
         length = 1;
     }
 
@@ -95,6 +96,11 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
             throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, tere.get_pattern() ) );
     }
 
+    public virtual void parseMulti( string[] response ) throws AtCommandError
+    {
+        assert_not_reached(); // pure virtual method
+    }
+
     /**
      * Validate the terminal response for this At command
      **/
@@ -106,7 +112,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
             return AtResponse.OK;
         }
 
-        theModem.logger.debug( "Did not receive OK for AT command w/ pattern %s".printf( re.get_pattern() ) );
+        theModem.logger.debug( "Did not receive OK (instead '%s') for AT command w/ pattern %s".printf( statusline, re.get_pattern() ) );
         var errorcode = 0;
 
         if ( ! ( ":" in statusline ) )
@@ -197,6 +203,39 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         return AtResponse.VALID;
     }
 
+    /**
+     * Validate a multiline response for this At command
+     **/
+    public virtual FsoGsm.AtResponse validateMulti( string[] response )
+    {
+        message( "checking for OK" );
+        var status = validateOk( response );
+        if ( status != AtResponse.OK )
+        {
+            return status;
+        }
+        // <HACK>
+        response.length--;
+        // </HACK>
+        try
+        {
+            // response[0:-1]?
+            parseMulti( response );
+            // <HACK>
+            response.length++;
+            // </HACK>
+        }
+        catch ( AtCommandError e )
+        {
+            // <HACK>
+            response.length++;
+            // </HACK>
+            theModem.logger.warning( "Unexpected format for AT command w/ pattern %s".printf( re.get_pattern() ) );
+            return AtResponse.UNABLE_TO_PARSE;
+        }
+        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( re.get_pattern() ) );
+        return AtResponse.VALID;
+    }
 
     /**
      * Validate an URC for this At command

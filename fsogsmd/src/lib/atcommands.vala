@@ -332,7 +332,7 @@ public class PlusCPBR : AbstractAtCommand
         prefix = { "+CPBR: " };
     }
 
-    public void parseMulti( string[] response ) throws AtCommandError
+    public override void parseMulti( string[] response ) throws AtCommandError
     {
         var phonebook = new FreeSmartphone.GSM.SIMEntry[] {};
         foreach ( var line in response )
