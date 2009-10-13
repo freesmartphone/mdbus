@@ -591,6 +591,16 @@ public class AtNetworkListProviders : NetworkListProviders
     }
 }
 
+public class AtNetworkRegister : NetworkRegister
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( 0, 0, 0 ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
 /**
  * Register all mediators
  **/
@@ -624,6 +634,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
+    table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
 }
 
 } // namespace FsoGsm

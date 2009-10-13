@@ -215,3 +215,18 @@ public abstract class FsoGsm.NetworkListProviders : FsoGsm.AbstractMediator
     public FreeSmartphone.GSM.NetworkProvider[] providers { get; set; }
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
+
+public abstract class FsoGsm.NetworkRegister : FsoGsm.AbstractMediator
+{
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.NetworkRegisterWithProvider : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string provider ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.NetworkUnregister : FsoGsm.AbstractMediator
+{
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}

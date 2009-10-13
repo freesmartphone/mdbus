@@ -385,9 +385,9 @@ class GsmDevice.Device :
         yield m.run( puk, new_pin );
     }
 
-    //public signal void auth_status( FreeSmartphone.GSM.SIMAuthStatus status);
-    //public signal void incoming_stored_message( int index);
-    //public signal void ready_status( bool status);
+    public signal void auth_status( FreeSmartphone.GSM.SIMAuthStatus status);
+    public signal void incoming_stored_message( int index);
+    public signal void ready_status( bool status);
 
     //
     // DBUS (org.freesmartphone.GSM.Network.*)
@@ -436,7 +436,8 @@ class GsmDevice.Device :
 
     public async void register_() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.NetworkRegister>();
+        yield m.run();
     }
 
     public async void register_with_provider( string operator_code ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
