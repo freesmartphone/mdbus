@@ -547,6 +547,14 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
     }
 }
 
+public class AtSimRetrieveMessagebook : SimRetrieveMessagebook
+{
+    public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.SYSTEM_ERROR( "Not yet implemented" );
+    }
+}
+
 public class AtSimSendAuthCode : SimSendAuthCode
 {
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

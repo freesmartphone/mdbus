@@ -1,4 +1,4 @@
-AC_INIT([fsogsmd], [0.0.1.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
+AC_INIT([fsogsmd], [0.1.0.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])

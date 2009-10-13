@@ -208,7 +208,6 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
      **/
     public virtual FsoGsm.AtResponse validateMulti( string[] response )
     {
-        message( "checking for OK" );
         var status = validateOk( response );
         if ( status != AtResponse.OK )
         {
