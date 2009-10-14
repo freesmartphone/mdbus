@@ -19,7 +19,7 @@
 
 using GLib;
 
-public class FsoGsm.Channel : FsoGsm.AtCommandQueue
+public class FsoGsm.Channel : FsoFramework.BaseCommandQueue<AtCommand>
 {
     protected string name;
 
@@ -32,10 +32,12 @@ public class FsoGsm.Channel : FsoGsm.AtCommandQueue
         theModem.signalStatusChanged += onModemStatusChanged;
     }
 
+    /*
     public override string repr()
     {
         return "<Channel '%s'>".printf( name );
     }
+    */
 
     public void onModemStatusChanged( FsoGsm.Modem modem, int status )
     {
@@ -45,7 +47,7 @@ public class FsoGsm.Channel : FsoGsm.AtCommandQueue
             foreach( var cmd in cmds )
             {
                 debug( "sending cmd '%s'", cmd );
-                enqueue( new NullAtCommand(), cmd );
+                enqueueAsyncYielding( new NullAtCommand(), cmd );
             }
         }
 

@@ -27,20 +27,6 @@ public abstract interface FsoGsm.Mediator
 
 public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
 {
-    protected void enqueue( FsoGsm.AtCommand command, string chars, FsoGsm.ResponseHandler handler )
-    {
-        debug( "FsoGsm.AbstractMediator::enqueueing %s", Type.from_instance( command ).name() );
-        var channel = theModem.channel("main");
-        channel.enqueue( command, chars, handler );
-    }
-
-    protected void enqueueAsync( FsoGsm.AtCommand command, string chars, SourceFunc? callback, string[] response )
-    {
-        debug( "FsoGsm.AbstractMediator::enqueueing %s", Type.from_instance( command ).name() );
-        var channel = theModem.channel("main");
-        channel.enqueueAsync( command, chars, callback, response );
-    }
-
     protected void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var code = command.validateOk( response );

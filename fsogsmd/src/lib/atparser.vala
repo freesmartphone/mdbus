@@ -285,7 +285,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         state = resetAll();
     }
 
-    public int feed( char* data, int len )
+    public override int feed( char* data, int len )
     {
         assert( len > 0 );
         for ( int i = 0; i < len; ++i )
