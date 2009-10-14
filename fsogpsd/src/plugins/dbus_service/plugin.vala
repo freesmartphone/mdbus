@@ -42,7 +42,7 @@ class DBusService.Device :
 
         switch ( gpstype )
         {
-            case "receiver_nmea":
+            case "nmea":
                 typename = "NmeaReceiver";
                 break;
             default:

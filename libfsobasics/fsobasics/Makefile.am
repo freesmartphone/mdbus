@@ -16,6 +16,7 @@ lib_LTLIBRARIES = \
 libfsobasics_la_VALASOURCES = \
 	logger.vala \
 	smartkeyfile.vala \
+	types.vala \
 	utilities.vala \
 	$(NULL)
 

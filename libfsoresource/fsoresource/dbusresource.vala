@@ -78,7 +78,7 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
         }
         else
         {
-            logger.debug( "registered with org.freesmartphone.ousaged" );
+            logger.info( "registered with org.freesmartphone.ousaged" );
         }
     }
 
