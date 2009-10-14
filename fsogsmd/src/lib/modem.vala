@@ -33,27 +33,27 @@ public class PhonebookParams
     }
 }
 
-public class FsoGsm.ModemData : GLib.Object
-{
-    public int alarmCleared;
-
-    public AtNewMessageIndication cnmiSmsBufferedCb;
-    public AtNewMessageIndication cnmiSmsBufferedNoCb;
-    public AtNewMessageIndication cnmiSmsDirectCb;
-    public AtNewMessageIndication cnmiSmsDirectNoCb;
-
-    public int speakerVolumeMinimum;
-    public int speakerVolumeMaximum;
-
-    public string simAuthStatus;
-    public bool simBuffersSms;
-    public bool simHasReadySignal;
-    public bool simIsReady;
-    public HashMap<string,PhonebookParams> simPhonebooks;
-}
-
 public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 {
+    public class Data : GLib.Object
+    {
+        public int alarmCleared;
+
+        public AtNewMessageIndication cnmiSmsBufferedCb;
+        public AtNewMessageIndication cnmiSmsBufferedNoCb;
+        public AtNewMessageIndication cnmiSmsDirectCb;
+        public AtNewMessageIndication cnmiSmsDirectNoCb;
+
+        public int speakerVolumeMinimum;
+        public int speakerVolumeMaximum;
+
+        public string simAuthStatus;
+        public bool simBuffersSms;
+        public bool simHasReadySignal;
+        public bool simIsReady;
+        public HashMap<string,PhonebookParams> simPhonebooks;
+    }
+
     public const uint DEFAULT_RETRY = 3;
 
     public enum Status
@@ -108,7 +108,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
     public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
 
-    public abstract FsoGsm.ModemData data();
+    public abstract FsoGsm.Modem.Data data();
 
     public abstract Object parent { get; set; } // the DBus object
 }
@@ -123,7 +123,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected string[] modem_init;
 
     protected FsoGsm.Modem.Status modem_status;
-    protected FsoGsm.ModemData modem_data;
+    protected FsoGsm.Modem.Data modem_data;
 
     protected HashMap<string,FsoGsm.Channel> channels;
     protected HashMap<string,FsoGsm.AtCommand> commands;
@@ -161,7 +161,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     private void initData()
     {
         advanceStatus( modem_status, Status.CLOSED );
-        modem_data = new FsoGsm.ModemData();
+        modem_data = new FsoGsm.Modem.Data();
 
         modem_data.speakerVolumeMinimum = -1;
         modem_data.speakerVolumeMaximum = -1;
@@ -306,7 +306,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return modem_status;
     }
 
-    public FsoGsm.ModemData data()
+    public FsoGsm.Modem.Data data()
     {
         return modem_data;
     }
