@@ -19,11 +19,17 @@
 
 using GLib;
 
-//using FsoGps;
+using FsoGps;
 
-//class Protocol.Nmea : FsoGps.AbstractProtocol
-//{
-//}
+namespace Nmea { const string MODULE_NAME = "fsogsm.modem_ti_calypso"; }
+
+class Nmea.Receiver : FsoGps.AbstractReceiver
+{
+    public override string repr()
+    {
+        return "<>";
+    }
+}
 
 /**
  * This function gets called on plugin initialization time.
@@ -34,7 +40,7 @@ using GLib;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     debug( "singleline fso_factory_function" );
-    return "fsogpsd.receiver_nmea";
+    return Nmea.MODULE_NAME;
 }
 
 [ModuleInit]

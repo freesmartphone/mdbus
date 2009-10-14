@@ -31,6 +31,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsogps_la_VALASOURCES = \
+	channel.vala \
 	receiver.vala \
 	$(NULL)
 

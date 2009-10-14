@@ -21,18 +21,6 @@ using Gee;
 
 namespace FsoGps { public FsoGps.Receiver theReceiver; }
 
-public class FsoGps.Channel : GLib.Object
-{
-    public bool open()
-    {
-        return false;
-    }
-    public bool close()
-    {
-        return false;
-    }
-}
-
 public abstract interface FsoGps.Receiver : FsoFramework.AbstractObject
 {
     public class Data : GLib.Object
@@ -62,6 +50,8 @@ public abstract interface FsoGps.Receiver : FsoFramework.AbstractObject
         /* ALIVE */
     }
 
+    // called by the channel upon creation
+    public abstract void registerChannel( string name, FsoGps.Channel channel );
     public abstract bool open();
     public abstract void close();
     //FIXME: Should be FsoGps.Receiver.Status with Vala >= 0.7
@@ -106,6 +96,13 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
     ~AbstractReceiver()
     {
         logger.debug( "FsoGps.AbstractReceiver destroyed: %s:%s@%d".printf( receiver_transport, receiver_port, receiver_speed ) );
+    }
+
+    public void registerChannel( string name, FsoGps.Channel channel )
+    {
+        // not possible to register a channel twice
+        assert( ! ( name in channels ) );
+        channels[name] = channel;
     }
 
     private void initData()
