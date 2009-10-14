@@ -50,8 +50,8 @@ public class FsoFramework.BaseParser : FsoFramework.Parser, GLib.Object
         this.unsolicitedCompleted = unsolicitedCompleted;
     }
 
-    public int feed( void* data, int len )
+    public virtual int feed( void* data, int len )
     {
-        return 0;
+        assert_not_reached();
     }
 }
