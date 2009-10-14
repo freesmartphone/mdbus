@@ -17,48 +17,13 @@
  *
  */
 
-public abstract interface FsoGsm.Parser : GLib.Object
-{
-    public delegate bool HaveCommandFunc();
-    public delegate bool ExpectedPrefixFunc( string line );
-    public delegate void SolicitedCompletedFunc( string[] response );
-    public delegate void UnsolicitedCompletedFunc( string[] response );
-
-    public abstract void setDelegates( HaveCommandFunc haveCommand,
-                                       ExpectedPrefixFunc expectedPrefix,
-                                       SolicitedCompletedFunc solicitedCompleted,
-                                       UnsolicitedCompletedFunc unsolicitedCompleted );
-
-    public abstract int feed( void* data, int len );
-}
-
-public class FsoGsm.NullParser : FsoGsm.Parser, GLib.Object
-{
-    public void setDelegates( Parser.HaveCommandFunc haveCommand,
-                              Parser.ExpectedPrefixFunc expectedPrefix,
-                              Parser.SolicitedCompletedFunc solicitedCompleted,
-                              Parser.UnsolicitedCompletedFunc unsolicitedCompleted )
-    {
-    }
-
-    public int feed( void* data, int len )
-    {
-        return 0;
-    }
-}
-
-public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
+public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 {
     State state = State.INVALID;
     char[] curline;
     string[] solicited;
     string[] unsolicited;
     bool pendingPDU;
-
-    Parser.HaveCommandFunc haveCommand;
-    Parser.ExpectedPrefixFunc expectedPrefix;
-    Parser.SolicitedCompletedFunc solicitedCompleted;
-    Parser.UnsolicitedCompletedFunc unsolicitedCompleted;
 
     string[] final_responses = {
         "OK",
@@ -317,19 +282,6 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
     public StateBasedAtParser()
     {
-        state = resetAll();
-    }
-
-    public void setDelegates( Parser.HaveCommandFunc haveCommand,
-                                       Parser.ExpectedPrefixFunc expectedPrefix,
-                                       Parser.SolicitedCompletedFunc solicitedCompleted,
-                                       Parser.UnsolicitedCompletedFunc unsolicitedCompleted )
-    {
-        this.haveCommand = haveCommand;
-        this.expectedPrefix = expectedPrefix;
-        this.solicitedCompleted = solicitedCompleted;
-        this.unsolicitedCompleted = unsolicitedCompleted;
-
         state = resetAll();
     }
 

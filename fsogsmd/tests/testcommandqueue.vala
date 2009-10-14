@@ -28,7 +28,7 @@ void test_commandqueue_enqueue()
     t.open();
     assert( t.isOpen() );
 
-    var p = new FsoGsm.NullParser();
+    var p = new FsoFramework.BaseParser();
 
     var q = new AtCommandQueue( t, p );
 

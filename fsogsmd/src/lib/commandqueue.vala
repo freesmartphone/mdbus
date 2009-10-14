@@ -84,7 +84,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     protected uint timeout;
 
     protected FsoFramework.Transport transport;
-    protected FsoGsm.Parser parser;
+    protected FsoFramework.Parser parser;
     protected char* buffer;
     protected UnsolicitedHandler urchandler;
 
@@ -233,7 +233,7 @@ public class FsoGsm.AtCommandQueue : FsoGsm.CommandQueue, FsoFramework.AbstractO
     // PUBLIC API
     //=====================================================================//
 
-    public AtCommandQueue( FsoFramework.Transport transport, FsoGsm.Parser parser )
+    public AtCommandQueue( FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
         q = new LinkedList<CommandBundle>();
         this.transport = transport;

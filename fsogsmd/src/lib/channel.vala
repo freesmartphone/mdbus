@@ -23,7 +23,7 @@ public class FsoGsm.Channel : FsoGsm.AtCommandQueue
 {
     protected string name;
 
-    public Channel( string name, FsoFramework.Transport transport, FsoGsm.Parser parser )
+    public Channel( string name, FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
         base( transport, parser );
         this.name = name;
