@@ -25,11 +25,12 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsotransport_la_VALASOURCES = \
-	transport.vala \
 	basetransport.vala \
-	serial.vala \
+	parser.vala \
 	pty.vala \
+	serial.vala \
 	socket.vala \
+	transport.vala \
 	$(NULL)
 
 libfsotransport_la_SOURCES = \
