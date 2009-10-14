@@ -29,21 +29,22 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
+	--pkg fsoresource-2.0 \
 	--pkg fsogps-2.0
 
 #
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogps
-modlibexec_LTLIBRARIES = protocol_nmea.la
-protocol_nmea_la_SOURCES = plugin.c
-protocol_nmea_la_VALASOURCES = plugin.vala
-$(protocol_nmea_la_SOURCES): $(protocol_nmea_la_VALASOURCES)
+modlibexec_LTLIBRARIES = dbus_service.la
+dbus_service_la_SOURCES = plugin.c
+dbus_service_la_VALASOURCES = plugin.vala
+$(dbus_service_la_SOURCES): $(dbus_service_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-protocol_nmea_la_LIBADD = $(progs_ldadd)
-protocol_nmea_la_LDFLAGS = -no-undefined -module -avoid-version
-protocol_nmea_la_LIBTOOLFLAGS = --tag=disable-static
+dbus_service_la_LIBADD = $(progs_ldadd)
+dbus_service_la_LDFLAGS = -no-undefined -module -avoid-version
+dbus_service_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

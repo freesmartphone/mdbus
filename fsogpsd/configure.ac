@@ -66,8 +66,8 @@ AC_CONFIG_FILES([
   src/lib/Makefile
   src/bin/Makefile
   src/plugins/Makefile
-  src/plugins/gps_device/Makefile
-  src/plugins/protocol_nmea/Makefile
+  src/plugins/dbus_service/Makefile
+  src/plugins/receiver_nmea/Makefile
   tests/Makefile
 ])
 

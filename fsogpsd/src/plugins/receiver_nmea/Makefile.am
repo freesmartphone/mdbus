@@ -27,25 +27,23 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg dbus-glib-1 \
 	--pkg fso-glib-1.0 \
-	--pkg gps0710mux-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
-	--pkg fsoresource-2.0 \
 	--pkg fsogps-2.0
 
 #
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogps
-modlibexec_LTLIBRARIES = gps_device.la
-gps_device_la_SOURCES = plugin.c
-gps_device_la_VALASOURCES = plugin.vala
-$(gps_device_la_SOURCES): $(gps_device_la_VALASOURCES)
+modlibexec_LTLIBRARIES = receiver_nmea.la
+receiver_nmea_la_SOURCES = plugin.c
+receiver_nmea_la_VALASOURCES = plugin.vala
+$(receiver_nmea_la_SOURCES): $(receiver_nmea_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-gps_device_la_LIBADD = $(progs_ldadd)
-gps_device_la_LDFLAGS = -no-undefined -module -avoid-version
-gps_device_la_LIBTOOLFLAGS = --tag=disable-static
+receiver_nmea_la_LIBADD = $(progs_ldadd)
+receiver_nmea_la_LDFLAGS = -no-undefined -module -avoid-version
+receiver_nmea_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

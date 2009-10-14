@@ -31,7 +31,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsogps_la_VALASOURCES = \
-	dummy.vala \
+	receiver.vala \
 	$(NULL)
 
 libfsogps_la_SOURCES = \

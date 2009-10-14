@@ -19,87 +19,72 @@
 
 using GLib;
 
-namespace GpsDevice {
-    const string MODULE_NAME = "fsogps.gps_device";
+namespace DBusService {
+    const string MODULE_NAME = "fsogps.dbus_service";
 }
 
-class GpsDevice.Device :
+class DBusService.Device :
     FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
-    //private static FsoGps.Modem modem;
-    //public static Type deviceclass;
-    //protocol
+    private static FsoGps.Receiver receiver;
+    public static Type receiverclass;
 
     public Device( FsoFramework.Subsystem subsystem )
     {
-        /*
-        var modemtype = config.stringValue( "fsogps", "modem_type", "DummyModem" );
-        if ( modemtype == "DummyModem" )
+        var gpstype = config.stringValue( "fsogps", "receiver_type", "DummyReceiver" );
+        if ( gpstype == "DummyReceiver" )
         {
-            logger.critical( "modem_type not specified and DummyModem not implemented yet" );
+            logger.critical( "receiver_type not specified and DummyReceiver not implemented yet" );
             return;
         }
         string typename;
 
-        switch ( modemtype )
+        switch ( gpstype )
         {
-            case "singleline":
-                typename = "SinglelineModem";
-                break;
-            case "ti_calypso":
-                typename = "TiCalypsoModem";
-                break;
-            case "qualcomm_msm":
-                typename = "QualcommMsmModem";
-                break;
-            case "freescale_neptune":
-                typename = "FreescaleNeptuneModem";
-                break;
-            case "cinterion_mc75":
-                typename = "CinterionMc75Modem";
+            case "receiver_nmea":
+                typename = "NmeaReceiver";
                 break;
             default:
-                logger.critical( "Invalid modem_type '%s'; corresponding modem plugin loaded?".printf( modemtype ) );
+                logger.critical( "Invalid receiver_type '%s'; corresponding receiver plugin loaded?".printf( gpstype ) );
                 return;
         }
 
-        modemclass = Type.from_name( typename );
-        if ( modemclass == Type.INVALID  )
+        receiverclass = Type.from_name( typename );
+        if ( receiverclass == Type.INVALID  )
         {
-            logger.warning( "Can't find modem for modem_type = '%s'".printf( modemtype ) );
+            logger.warning( "Can't find receiver for receiver_type = '%s'".printf( gpstype ) );
             return;
         }
 
-        subsystem.registerServiceName( FsoFramework.GSM.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerServiceName( FsoFramework.GPS.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.GPS.ServiceDBusName, FsoFramework.GPS.DeviceServicePath, this );
 
-        modem = (FsoGps.Modem) Object.new( modemclass );
-        modem.parent = this;
+        receiver = (FsoGps.Receiver) Object.new( receiverclass );
+        receiver.parent = this;
 
-        logger.info( "Ready. Configured for modem '%s'".printf( modemtype ) );
-        */
+        logger.info( "Ready. Configured for receiver '%s'".printf( gpstype ) );
     }
 
     public override string repr()
     {
-        return "<GpsDevice>";
+        return "<DBusService>";
     }
 
     public void enable()
     {
         /*
-        if ( !modem.open() )
-            logger.error( "Can't open modem" );
+        if ( !receiver.open() )
+            logger.error( "Can't open receiver" );
         else
-            logger.info( "GPS device opened successfully" );
+            logger.info( "GPS receiver opened successfully" );
         */
     }
 
     public void disable()
     {
-        //modem.close();
-        logger.info( "GPS device closed successfully" );
+        //receiver.close();
+        logger.info( "GPS receiver closed successfully" );
     }
 
     public void suspend()
@@ -119,27 +104,27 @@ class GpsDevice.Device :
 
     public async int get_current_time() throws FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetCurrentTime>();
+        var m = receiver.createMediator<FsoGps.DeviceGetCurrentTime>();
         yield m.run();
         return m.since_epoch;
     }
 
     public async void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceSetCurrentTime>();
+        var m = receiver.createMediator<FsoGps.DeviceSetCurrentTime>();
         yield m.run( seconds_since_epoch );
     }
 
     public async int get_wakeup_time() throws FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetAlarmTime>();
+        var m = receiver.createMediator<FsoGps.DeviceGetAlarmTime>();
         yield m.run();
         return m.since_epoch;
     }
 
     public async void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceSetAlarmTime>();
+        var m = receiver.createMediator<FsoGps.DeviceSetAlarmTime>();
         yield m.run( seconds_since_epoch );
         this.wakeup_time_changed( seconds_since_epoch ); // DBUS SIGNAL
     }
@@ -153,49 +138,49 @@ class GpsDevice.Device :
     //
     public async bool get_antenna_power() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetAntennaPower>();
+        var m = receiver.createMediator<FsoGps.DeviceGetAntennaPower>();
         yield m.run();
         return m.antenna_power;
     }
 
     public async string get_functionality() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetFunctionality>();
+        var m = receiver.createMediator<FsoGps.DeviceGetFunctionality>();
         yield m.run();
         return m.level;
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetInformation>();
+        var m = receiver.createMediator<FsoGps.DeviceGetInformation>();
         yield m.run();
         return m.info;
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_features() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetFeatures>();
+        var m = receiver.createMediator<FsoGps.DeviceGetFeatures>();
         yield m.run();
         return m.features;
     }
 
     public async bool get_microphone_muted() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetMicrophoneMuted>();
+        var m = receiver.createMediator<FsoGps.DeviceGetMicrophoneMuted>();
         yield m.run();
         return m.muted;
     }
 
     public async bool get_sim_buffers_sms() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetSimBuffersSms>();
+        var m = receiver.createMediator<FsoGps.DeviceGetSimBuffersSms>();
         yield m.run();
         return m.buffers;
     }
 
     public async int get_speaker_volume() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetSpeakerVolume>();
+        var m = receiver.createMediator<FsoGps.DeviceGetSpeakerVolume>();
         yield m.run();
         return m.volume;
     }
@@ -207,31 +192,31 @@ class GpsDevice.Device :
 
     public async void set_functionality( string level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceSetFunctionality>();
+        var m = receiver.createMediator<FsoGps.DeviceSetFunctionality>();
         yield m.run( level );
     }
 
     public async void set_microphone_muted( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceSetMicrophoneMuted>();
+        var m = receiver.createMediator<FsoGps.DeviceSetMicrophoneMuted>();
         yield m.run( muted );
     }
 
     public async void set_sim_buffers_sms( bool sim_buffers_sms ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceSetSimBuffersSms>();
+        var m = receiver.createMediator<FsoGps.DeviceSetSimBuffersSms>();
         yield m.run( sim_buffers_sms );
     }
 
     public async void set_speaker_volume( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceSetSpeakerVolume>();
+        var m = receiver.createMediator<FsoGps.DeviceSetSpeakerVolume>();
         yield m.run( volume );
     }
 
     public async void get_power_status( out string status, out int level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.DeviceGetPowerStatus>();
+        var m = receiver.createMediator<FsoGps.DeviceGetPowerStatus>();
         yield m.run();
         status = m.status;
         level = m.level;
@@ -242,7 +227,7 @@ class GpsDevice.Device :
     //
     public async void change_auth_code( string old_pin, string new_pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.SimChangeAuthCode>();
+        var m = receiver.createMediator<FsoGps.SimChangeAuthCode>();
         yield m.run( old_pin, new_pin );
     }
 
@@ -293,14 +278,14 @@ class GpsDevice.Device :
 
     public async string get_service_center_number() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.SimGetServiceCenterNumber>();
+        var m = receiver.createMediator<FsoGps.SimGetServiceCenterNumber>();
         yield m.run();
         return m.number;
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_sim_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.SimGetInformation>();
+        var m = receiver.createMediator<FsoGps.SimGetInformation>();
         yield m.run();
         return m.info;
     }
@@ -312,7 +297,7 @@ class GpsDevice.Device :
 
     public async string[] list_phonebooks() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.SimListPhonebooks>();
+        var m = receiver.createMediator<FsoGps.SimListPhonebooks>();
         yield m.run();
         return m.phonebooks;
     }
@@ -329,21 +314,21 @@ class GpsDevice.Device :
 
     public async FreeSmartphone.GSM.SIMMessage[] retrieve_messagebook( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.SimRetrieveMessagebook>();
+        var m = receiver.createMediator<FsoGps.SimRetrieveMessagebook>();
         yield m.run( category );
         return m.messagebook;
     }
 
     public async FreeSmartphone.GSM.SIMEntry[] retrieve_phonebook( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.SimRetrievePhonebook>();
+        var m = receiver.createMediator<FsoGps.SimRetrievePhonebook>();
         yield m.run( category );
         return m.phonebook;
     }
 
     public async void send_auth_code( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.SimSendAuthCode>();
+        var m = receiver.createMediator<FsoGps.SimSendAuthCode>();
         yield m.run( pin );
     }
 
@@ -369,7 +354,7 @@ class GpsDevice.Device :
 
     public async void set_service_center_number( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.SimSetServiceCenterNumber>();
+        var m = receiver.createMediator<FsoGps.SimSetServiceCenterNumber>();
         yield m.run( number );
     }
 
@@ -385,7 +370,7 @@ class GpsDevice.Device :
 
     public async void unlock( string puk, string new_pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.SimUnlock>();
+        var m = receiver.createMediator<FsoGps.SimUnlock>();
         yield m.run( puk, new_pin );
     }
 
@@ -433,14 +418,14 @@ class GpsDevice.Device :
 
     public async FreeSmartphone.GSM.NetworkProvider[] list_providers( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.NetworkListProviders>();
+        var m = receiver.createMediator<FsoGps.NetworkListProviders>();
         yield m.run();
         return m.providers;
     }
 
     public async void register_() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGps.NetworkRegister>();
+        var m = receiver.createMediator<FsoGps.NetworkRegister>();
         yield m.run();
     }
 
@@ -466,7 +451,7 @@ class GpsDevice.Device :
     */
 }
 
-public class GpsDevice.Resource : FsoFramework.AbstractDBusResource
+public class DBusService.Resource : FsoFramework.AbstractDBusResource
 {
     public Resource( FsoFramework.Subsystem subsystem )
     {
@@ -498,8 +483,8 @@ public class GpsDevice.Resource : FsoFramework.AbstractDBusResource
     }
 }
 
-GpsDevice.Device device;
-GpsDevice.Resource resource;
+DBusService.Device device;
+DBusService.Resource resource;
 
 
 /**
@@ -510,20 +495,18 @@ GpsDevice.Resource resource;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    /*
-    device = new GpsDevice.Device( subsystem );
-    if ( GpsDevice.Device.modemclass != Type.INVALID )
+    device = new DBusService.Device( subsystem );
+    if ( DBusService.Device.receiverclass != Type.INVALID )
     {
-        resource = new GpsDevice.Resource( subsystem );
+        resource = new DBusService.Resource( subsystem );
     }
-    */
-    return GpsDevice.MODULE_NAME;
+    return DBusService.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "gps_device fso_register_function" );
+    debug( "dbus_service fso_register_function" );
 }
 
 /**

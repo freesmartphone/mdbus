@@ -34,7 +34,7 @@ using GLib;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     debug( "singleline fso_factory_function" );
-    return "fsogpsd.protocol_nmea";
+    return "fsogpsd.receiver_nmea";
 }
 
 [ModuleInit]
