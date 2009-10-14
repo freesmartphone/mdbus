@@ -19,11 +19,11 @@
 
 using GLib;
 
-namespace GsmDevice {
-    const string MODULE_NAME = "fsogsm.gsm_device";
+namespace DBusService {
+    const string MODULE_NAME = "fsogsm.dbus_service";
 }
 
-class GsmDevice.Device :
+class DBusService.Device :
     FreeSmartphone.Device.RealtimeClock,
     FreeSmartphone.GSM.Device,
     FreeSmartphone.GSM.SIM,
@@ -84,7 +84,7 @@ class GsmDevice.Device :
 
     public override string repr()
     {
-        return "<GsmDevice>";
+        return "<DBusService>";
     }
 
     public void enable()
@@ -463,7 +463,7 @@ class GsmDevice.Device :
     }
 }
 
-public class GsmDevice.Resource : FsoFramework.AbstractDBusResource
+public class DBusService.Resource : FsoFramework.AbstractDBusResource
 {
     public Resource( FsoFramework.Subsystem subsystem )
     {
@@ -495,8 +495,8 @@ public class GsmDevice.Resource : FsoFramework.AbstractDBusResource
     }
 }
 
-GsmDevice.Device device;
-GsmDevice.Resource resource;
+DBusService.Device device;
+DBusService.Resource resource;
 
 /**
  * This function gets called on plugin initialization time.
@@ -506,18 +506,18 @@ GsmDevice.Resource resource;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    device = new GsmDevice.Device( subsystem );
-    if ( GsmDevice.Device.modemclass != Type.INVALID )
+    device = new DBusService.Device( subsystem );
+    if ( DBusService.Device.modemclass != Type.INVALID )
     {
-        resource = new GsmDevice.Resource( subsystem );
+        resource = new DBusService.Resource( subsystem );
     }
-    return GsmDevice.MODULE_NAME;
+    return DBusService.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "gsm_device fso_register_function" );
+    debug( "dbus_service fso_register_function" );
 }
 
 /**

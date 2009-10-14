@@ -37,15 +37,15 @@ VALAC_ARGS = \
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
-modlibexec_LTLIBRARIES = gsm_device.la
-gsm_device_la_SOURCES = plugin.c
-gsm_device_la_VALASOURCES = plugin.vala
-$(gsm_device_la_SOURCES): $(gsm_device_la_VALASOURCES)
+modlibexec_LTLIBRARIES = dbus_service.la
+dbus_service_la_SOURCES = plugin.c
+dbus_service_la_VALASOURCES = plugin.vala
+$(dbus_service_la_SOURCES): $(dbus_service_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-gsm_device_la_LIBADD = $(progs_ldadd)
-gsm_device_la_LDFLAGS = -no-undefined -module -avoid-version
-gsm_device_la_LIBTOOLFLAGS = --tag=disable-static
+dbus_service_la_LIBADD = $(progs_ldadd)
+dbus_service_la_LDFLAGS = -no-undefined -module -avoid-version
+dbus_service_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

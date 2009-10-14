@@ -5,7 +5,7 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
-	gsm_device \
+	dbus_service \
 	modem_cinterion_mc75 \
 	modem_singleline \
 	modem_ti_calypso \
