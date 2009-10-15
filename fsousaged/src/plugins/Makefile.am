@@ -3,7 +3,7 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
-	controller \
+	dbus_service \
 	lowlevel_kernel26 \
 	lowlevel_openmoko \
 	$(NULL)

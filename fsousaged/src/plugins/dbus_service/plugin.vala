@@ -1,5 +1,5 @@
 /*
- * Generic Resource Controller
+ * Resource Controller DBus Service
  *
  * Written by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  * All Rights Reserved
@@ -534,7 +534,7 @@ DBus.Connection dbusconn;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     instance = new Usage.Controller( subsystem );
-    return "fsousage.controller";
+    return "fsousage.dbus_service";
 }
 
 public static void fso_shutdown_function()
@@ -548,5 +548,5 @@ public static void fso_shutdown_function()
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "usage controller fso_register_function()" );
+    debug( "usage dbus_service fso_register_function()" );
 }
