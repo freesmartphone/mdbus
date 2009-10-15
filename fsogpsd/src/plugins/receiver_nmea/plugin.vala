@@ -21,13 +21,23 @@ using GLib;
 
 using FsoGps;
 
-namespace Nmea { const string MODULE_NAME = "fsogsm.modem_ti_calypso"; }
+namespace Nmea {
+    const string MODULE_NAME = "fsogsm.modem_ti_calypso";
+    const string CHANNEL_NAME = "NMEA";
+}
 
 class Nmea.Receiver : FsoGps.AbstractReceiver
 {
     public override string repr()
     {
         return "<>";
+    }
+
+    protected override void createChannels()
+    {
+        var transport = FsoFramework.Transport.create( receiver_transport, receiver_port, receiver_speed );
+        var parser = new FsoFramework.NullParser();
+        var chan = new Channel( CHANNEL_NAME, transport, parser );
     }
 }
 

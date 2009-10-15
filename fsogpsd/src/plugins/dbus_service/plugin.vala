@@ -73,17 +73,15 @@ class DBusService.Device :
 
     public void enable()
     {
-        /*
         if ( !receiver.open() )
             logger.error( "Can't open receiver" );
         else
             logger.info( "GPS receiver opened successfully" );
-        */
     }
 
     public void disable()
     {
-        //receiver.close();
+        receiver.close();
         logger.info( "GPS receiver closed successfully" );
     }
 
