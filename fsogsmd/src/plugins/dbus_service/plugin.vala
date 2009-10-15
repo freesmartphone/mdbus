@@ -28,6 +28,7 @@ class DBusService.Device :
     FreeSmartphone.GSM.Device,
     FreeSmartphone.GSM.SIM,
     FreeSmartphone.GSM.Network,
+    FreeSmartphone.GSM.Call,
     FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
@@ -461,8 +462,74 @@ class DBusService.Device :
     {
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
+
+    //
+    // DBUS (org.freesmartphone.GSM.Call.*)
+    //
+    public async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void activate_conference( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void emergency( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void hold_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async int initiate( string number, string type ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async FreeSmartphone.GSM.CallDetail[] list_calls() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void release_all() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void release_held() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void send_dtmf( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void transfer( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
 }
 
+/**
+ * @class DBusService.Resource
+ **/
 public class DBusService.Resource : FsoFramework.AbstractDBusResource
 {
     public Resource( FsoFramework.Subsystem subsystem )

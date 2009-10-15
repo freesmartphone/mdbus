@@ -105,6 +105,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
     //FIXME: This works around a problem in Vala as we can't define a HashTable full with function pointers atm.
     public State dispatch( State curstate, char c )
     {
+#if DEBUG
         string s;
         if ( c == '\n' )
             s = "\\n";
@@ -112,7 +113,6 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
             s = "\\r";
         else
             s = "%c".printf( c );
-#if DEBUG
         debug( "state = %d, feeding '%s'", curstate, s );
 #endif
         switch (curstate)
