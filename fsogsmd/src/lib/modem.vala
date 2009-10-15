@@ -113,6 +113,9 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract Object parent { get; set; } // the DBus object
 }
 
+/**
+ * @class FsoGsm.AbstractModem
+ **/
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
 {
     protected string modem_type;
@@ -130,6 +133,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected HashMap<Type,Type> mediators;
 
     protected UnsolicitedResponseHandler urc;
+    protected CallHandler call;
 
     protected Object parent { get; set; } // the DBus object
 
@@ -183,7 +187,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     private void registerHandlers()
     {
         urc = createUnsolicitedHandler();
-        //TODO: call handler, binary sms handler, etc.
+        call = createCallHandler();
+        //TODO: binary sms handler, etc.
     }
 
     private void registerMediators()
@@ -226,12 +231,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     /**
      * Override this to return a custom type of call handler to be used for this modem.
-     *
+     **/
     protected virtual CallHandler createCallHandler()
     {
-        return (CallHandler) null;
+        return new GenericAtCallHandler();
     }
-     **/
 
     /**
      * Override this to create your channels and assorted transports.

@@ -33,6 +33,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsogsm_la_VALASOURCES = \
+	atcall.vala \
 	atcommand.vala \
 	atcommands.vala \
 	atmediators.vala \
