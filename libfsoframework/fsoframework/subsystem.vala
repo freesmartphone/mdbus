@@ -20,18 +20,47 @@
 using GLib;
 
 /**
- * Subsystem
+ * Subsystem Interface
+ *
+ * A subsystem hosts a number of plugins that can expose service objects
+ * via an IPC mechanism such as DBus.
  */
 public interface FsoFramework.Subsystem : Object
 {
+    /**
+     * Register plugins for this subsystem.
+     * @return the number of registered plugins.
+     **/
     public abstract uint registerPlugins();
+    /**
+     * Load registered plugins for this subsystem.
+     * @return the number of loaded plugins.
+     * Plugins are loaded in the order they appear in the register,
+     * which in turn is the order they are defined in the configuration
+     * file. You can use this to express dependencies.
+     **/
     public abstract uint loadPlugins();
+    /**
+     * @return the name of this subsystem.
+     **/
     public abstract string name();
+    /**
+     * @return plugin information.
+     **/
     public abstract List<FsoFramework.PluginInfo?> pluginsInfo();
-
+    /**
+     * Claim a service name with the IPC mechanism.
+     * @return true, if name could be claimed. false, otherwise.
+     **/
     public abstract bool registerServiceName( string servicename );
+    /**
+     * Export an object via the IPC mechanims.
+     * @return true, if object has been exported. false, otherwise.
+     **/
     public abstract bool registerServiceObject( string servicename, string objectname, Object obj );
-
+    /**
+     * Shutdown the subsystem. This will call shutdown on all plugins.
+     **/
     public abstract void shutdown();
 }
 
