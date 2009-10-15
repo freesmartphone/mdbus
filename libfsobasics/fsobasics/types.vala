@@ -23,12 +23,18 @@ namespace GLib
     public const bool SOURCE_CALL_NEVER = false;
 }
 
-namespace FsoBasics
+namespace FsoFramework
 {
     public enum Ternary
     {
         UNKNOWN = -1,
         FALSE = 0,
         TRUE = 1,
+    }
+
+    public class Pair<T1,T2>
+    {
+        public T1 first;
+        public T2 second;
     }
 }
