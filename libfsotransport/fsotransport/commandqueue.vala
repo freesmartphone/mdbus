@@ -141,8 +141,15 @@ public class FsoFramework.BaseCommandQueue<T> : FsoFramework.CommandQueue<T>, GL
     {
         debug( "UNsolicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
 
-        assert( ":" in response[0] ); // free-form URCs not yet supported
+        //TODO: should we have a configurable prefix separator or is that over the top?
 
+        if ( ! ( ":" in response[0] ) ) // test for free-form URC
+        {
+            urchandler( "", response[0], "" );
+            return;
+        }
+
+        // URC has the form PREFIX:SUFFIX
         var strings = response[0].split( ":" );
         assert( strings.length == 2 ); // multiple ':' in URC not yet supported
 
@@ -188,7 +195,7 @@ public class FsoFramework.BaseCommandQueue<T> : FsoFramework.CommandQueue<T>, GL
     {
         if ( response.length > 0 )
         {
-            debug( "Read '%s'".printf( response.escape( "" ) ) );
+            debug( "Read '%s' - feeding to %s".printf( response.escape( "" ), Type.from_instance( parser ).name() ) );
             parser.feed( response, (int)response.length );
         }
         else
