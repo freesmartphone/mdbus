@@ -388,10 +388,6 @@ class DBusService.Device :
         yield m.run( puk, new_pin );
     }
 
-    public signal void auth_status( FreeSmartphone.GSM.SIMAuthStatus status);
-    public signal void incoming_stored_message( int index);
-    public signal void ready_status( bool status);
-
     //
     // DBUS (org.freesmartphone.GSM.Network.*)
     //
