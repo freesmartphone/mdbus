@@ -22,110 +22,9 @@ using GLib;
 namespace FsoDevice {
 
 /**
- * AbstractSimpleResource: A DBus Resource API service object
- */
-public class AbstractSimpleResource : FreeSmartphone.Resource, FsoFramework.AbstractObject
-{
-    private FsoFramework.DBusSubsystem subsystem;
-    private dynamic DBus.Object usage; /* needs to be dynamic for async */
-    private string name;
-    private DBus.ObjectPath path;
-
-    public AbstractSimpleResource( string name, FsoFramework.Subsystem subsystem )
-    {
-        this.name = name;
-        this.subsystem = subsystem as FsoFramework.DBusSubsystem;
-        this.path = new DBus.ObjectPath( "%s/%s".printf( FsoFramework.Resource.ServicePathPrefix, name ) );
-
-        var conn = this.subsystem.dbusConnection();
-        //FIXME: try/catch
-        conn.register_object( this.path, this );
-
-        Idle.add( registerWithUsage );
-    }
-
-    public override string repr()
-    {
-        return "<%s>".printf( name );
-    }
-
-    public bool registerWithUsage()
-    {
-#if DEBUG
-        message( "registering..." );
-#endif
-        if (usage == null)
-        {
-            var conn = subsystem.dbusConnection();
-            usage = conn.get_object( FsoFramework.Usage.ServiceDBusName,
-                                     FsoFramework.Usage.ServicePathPrefix,
-                                     FsoFramework.Usage.ServiceFacePrefix ); /* dynamic for async */
-            usage.register_resource( name, path, onRegisterResourceReply );
-        }
-#if DEBUG
-        message( "...OK" );
-#endif
-        return false; // MainLoop: don't call me again
-    }
-
-    public void onRegisterResourceReply( GLib.Error e )
-    {
-        if ( e != null )
-        {
-            logger.error( "%s. Can't register resource with fsousaged, enabling unconditionally".printf( e.message ) );
-            _enable();
-            return;
-        }
-        else
-        {
-            logger.debug( "registered with org.freesmartphone.ousaged" );
-        }
-    }
-
-    public virtual void _enable()
-    {
-    }
-
-    public virtual void _disable()
-    {
-    }
-
-    public virtual void _suspend()
-    {
-    }
-
-    public virtual void _resume()
-    {
-    }
-
-    //
-    // DBUS API
-    //
-    public void disable() throws FreeSmartphone.ResourceError, DBus.Error
-    {
-        _disable();
-    }
-
-    public void enable() throws DBus.Error
-    {
-        _enable();
-    }
-
-    public void resume() throws FreeSmartphone.ResourceError, DBus.Error
-    {
-        _resume();
-    }
-
-    public void suspend() throws FreeSmartphone.ResourceError, DBus.Error
-    {
-        _suspend();
-    }
-}
-
-/**
  * BasePowerControlResource: Exports a BasePowerControl instance via the DBus Resource API
  */
-public class BasePowerControlResource : AbstractSimpleResource
+public class BasePowerControlResource : FsoFramework.AbstractDBusResource
 {
     private weak BasePowerControl bpc;
 
@@ -135,16 +34,26 @@ public class BasePowerControlResource : AbstractSimpleResource
         this.bpc = bpc;
     }
 
-    public override void _enable()
+    public override async void enableResource()
     {
         logger.debug( "enabling..." );
         bpc.setPower( true );
     }
 
-    public override void _disable()
+    public override async void disableResource()
     {
         logger.debug( "disabling..." );
         bpc.setPower( false );
+    }
+
+    public override async void suspendResource()
+    {
+        logger.debug( "suspending..." );
+    }
+
+    public override async void resumeResource()
+    {
+        logger.debug( "resuming..." );
     }
 }
 

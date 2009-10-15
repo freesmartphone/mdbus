@@ -284,7 +284,7 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
 /**
  * Implementation of org.freesmartphone.Resource for the Accelerometer Resource
  **/
-class AccelerometerResource : FsoDevice.AbstractSimpleResource
+class AccelerometerResource : FsoFramework.AbstractDBusResource
 {
     internal bool on;
 
@@ -293,7 +293,7 @@ class AccelerometerResource : FsoDevice.AbstractSimpleResource
         base( "Accelerometer", subsystem );
     }
 
-    public override void _enable()
+    public override async void enableResource()
     {
         if (on)
             return;
@@ -302,13 +302,23 @@ class AccelerometerResource : FsoDevice.AbstractSimpleResource
         on = true;
     }
 
-    public override void _disable()
+    public override async void disableResource()
     {
         if (!on)
             return;
         logger.debug( "disabling..." );
         instance.onResourceChanged( this, false );
         on = false;
+    }
+
+    public override async void suspendResource()
+    {
+        logger.debug( "suspending..." );
+    }
+
+    public override async void resumeResource()
+    {
+        logger.debug( "resuming..." );
     }
 }
 
