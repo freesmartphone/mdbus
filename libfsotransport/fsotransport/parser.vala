@@ -55,3 +55,14 @@ public class FsoFramework.BaseParser : FsoFramework.Parser, GLib.Object
         assert_not_reached();
     }
 }
+
+/**
+ * The NullParser swallows everything.
+ **/
+public class FsoFramework.NullParser : FsoFramework.BaseParser
+{
+    public override int feed( void *data, int len )
+    {
+        return 0;
+    }
+}
