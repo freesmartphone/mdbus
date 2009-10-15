@@ -26,6 +26,15 @@ public class FsoGsm.Constants
     public const string PHONE_DIGITS = """0123456789ABCD*#+pw""";
     public const string PHONE_DIGITS_RE = """[0-9A-D\*#\+pw]""";
 
+    public enum SimCommand
+    {
+        READ_BINARY         = 176,
+        READ_RECORD         = 192,
+        UPDATE_BINARY       = 214,
+        UPDATE_RECORD       = 220,
+        STATUS              = 242,
+    }
+
     internal static FsoGsm.Constants _instance;
 
     public static FsoGsm.Constants instance()

@@ -566,6 +566,36 @@ public class PlusGCAP : SimpleAtCommand<string>
     }
 }
 
+public class V250A : V250terCommand
+{
+    public V250A()
+    {
+        base( "A" );
+    }
+}
+
+public class V250D : V250terCommand
+{
+    public V250D()
+    {
+        base( "D" );
+    }
+
+    public string issue( string number, bool voice = true )
+    {
+        var postfix = voice ? ";" : "";
+        return @"D$number$postfix";
+    }
+}
+
+public class V250H : V250terCommand
+{
+    public V250H()
+    {
+        base( "H" );
+    }
+}
+
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // register commands
@@ -603,6 +633,10 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CRSM" ]             = new FsoGsm.PlusCRSM();
 
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
+
+    table[ "A" ]                 = new FsoGsm.V250A();
+    table[ "H" ]                 = new FsoGsm.V250H();
+    table[ "D" ]                 = new FsoGsm.V250D();
 
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
 

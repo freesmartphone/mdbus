@@ -486,9 +486,11 @@ class DBusService.Device :
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async int initiate( string number, string type ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.CallInitiate>();
+        yield m.run( number, ctype );
+        return 1;
     }
 
     public async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

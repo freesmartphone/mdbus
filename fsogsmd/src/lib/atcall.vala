@@ -24,13 +24,46 @@ using Gee;
  **/
 public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
 {
+    public enum SingleCallState
+    {
+        RELEASED,
+        OUTGOING,
+        INCOMING,
+        ACTIVE,
+        HELD
+    }
+
+    public struct CallStatus
+    {
+        public CallHandler.SingleCallState first;
+        public CallHandler.SingleCallState second;
+    }
+
+    public abstract async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    /*
+    public abstract async void activate( int id );
+    public abstract async void release( int id );
+    public abstract async void hold( int id );
+    public abstract async void conference();
+    public abstract async void join();
+    */
 }
 
 /**
  * @class FsoGsm.AbstractCallHandler
  **/
-public abstract class FsoGsm.AbstractCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractObject
+public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallHandler, FsoFramework.AbstractObject
 {
+    public CallHandler.CallStatus status;
+
+    construct
+    {
+        status = CallHandler.CallStatus() { first=SingleCallState.RELEASED, second=SingleCallState.RELEASED };
+    }
+
+    public virtual async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
 }
 
 /**
@@ -41,5 +74,11 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     public override string repr()
     {
         return "<>";
+    }
+
+    public override async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var cmd = theModem.createAtCommand<V250D>( "D" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
     }
 }

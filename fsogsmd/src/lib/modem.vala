@@ -111,6 +111,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract FsoGsm.Modem.Data data();
 
     public abstract Object parent { get; set; } // the DBus object
+    public abstract CallHandler callhandler { get; set; } // the Call handler
 }
 
 /**
@@ -133,9 +134,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected HashMap<Type,Type> mediators;
 
     protected UnsolicitedResponseHandler urc;
-    protected CallHandler call;
 
     protected Object parent { get; set; } // the DBus object
+    protected CallHandler callhandler { get; set; } // the Call handler
 
     construct
     {
@@ -187,7 +188,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     private void registerHandlers()
     {
         urc = createUnsolicitedHandler();
-        call = createCallHandler();
+        callhandler = createCallHandler();
         //TODO: binary sms handler, etc.
     }
 

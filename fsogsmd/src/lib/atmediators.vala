@@ -480,7 +480,7 @@ public class AtSimGetInformation : SimGetInformation
         }
 
         var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
-        response = yield theModem.processCommandAsync( crsm, crsm.issue( 176, 28486, 0, 0, 17 ) );
+        response = yield theModem.processCommandAsync( crsm, crsm.issue( Constants.SimCommand.READ_BINARY, 28486, 0, 0, 17 ) );
         if ( crsm.validate( response ) == AtResponse.VALID )
         {
             value = Codec.hexToString( crsm.payload );
@@ -610,6 +610,17 @@ public class AtNetworkRegister : NetworkRegister
 }
 
 /**
+ * Call Mediators
+ **/
+public class AtCallInitiate : CallInitiate
+{
+    public override async void run( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.initiate( number, ctype );
+    }
+}
+
+/**
  * Register all mediators
  **/
 public void registerGenericAtMediators( HashMap<Type,Type> table )
@@ -643,6 +654,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
 
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
     table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
+
+    table[ typeof(CallInitiate) ]                 = typeof( AtCallInitiate );
 }
 
 } // namespace FsoGsm

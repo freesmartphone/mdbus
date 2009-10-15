@@ -23,10 +23,6 @@
 
 public abstract interface FsoGsm.Mediator
 {
-}
-
-public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
-{
     protected void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var code = command.validateOk( response );
@@ -62,6 +58,10 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
         //FIXME: gather better error message out of response status
         throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unexpected AT command response" );
     }
+}
+
+public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
+{
 }
 
 //
@@ -233,4 +233,12 @@ public abstract class FsoGsm.NetworkRegisterWithProvider : FsoGsm.AbstractMediat
 public abstract class FsoGsm.NetworkUnregister : FsoGsm.AbstractMediator
 {
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+//
+// org.freesmartphone.GSM.Call.*
+//
+public abstract class FsoGsm.CallInitiate : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string number, string typ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }

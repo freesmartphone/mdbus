@@ -283,6 +283,21 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
     }
 }
 
+public class FsoGsm.V250terCommand : FsoGsm.AbstractAtCommand
+{
+    public string name;
+
+    public V250terCommand( string name )
+    {
+        this.name = name;
+    }
+
+    public string execute()
+    {
+        return name;
+    }
+}
+
 public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
 {
     private string name;
