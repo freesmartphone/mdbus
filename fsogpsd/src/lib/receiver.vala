@@ -71,11 +71,11 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
     protected string receiver_port;
     protected int receiver_speed;
 
+    protected HashMap<string,FsoGps.Channel> channels;
+
     protected Receiver.Status receiver_status;
     protected Receiver.Data receiver_data;
     public Object parent { get; set; } // the DBus object
-
-    protected HashMap<string,FsoGps.Channel> channels;
 
     construct
     {
@@ -87,6 +87,7 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
         receiver_port = config.stringValue( "fsogps", "receiver_port", "/dev/null" );
         receiver_speed = config.intValue( "fsogps", "receiver_speed", 115200 );
 
+        registerHandlers();
         channels = new HashMap<string,FsoGps.Channel>();
         createChannels();
 
@@ -98,11 +99,17 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
         logger.debug( "FsoGps.AbstractReceiver destroyed: %s:%s@%d".printf( receiver_transport, receiver_port, receiver_speed ) );
     }
 
+    private void registerHandlers()
+    {
+        //TODO: call handler, binary sms handler, etc.
+    }
+
     public void registerChannel( string name, FsoGps.Channel channel )
     {
-        // not possible to register a channel twice
-        assert( ! ( name in channels ) );
+        assert( channels != null );
+        assert( channels[name] == null );
         channels[name] = channel;
+        channel.registerUnsolicitedHandler( this.processUnsolicitedResponse );
     }
 
     private void initData()
@@ -138,23 +145,27 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
     }
 
     /**
-     * Override this to configure the data instance for your modem.
+     * Override this to configure the data instance for your receiver.
      **/
     protected virtual void configureData()
     {
     }
 
     /**
-     * Override this for modem-specific power handling
+     * Override this for receiver-specific power handling.
      **/
     protected virtual void setPower( bool on )
     {
     }
 
+    /**
+     * Implement this to implement processing unsolicited responses.
+     **/
+    public abstract void processUnsolicitedResponse( string prefix, string righthandside, string? pdu = null );
+
     //
     // public API
     //
-
     public virtual bool open()
     {
        // power on

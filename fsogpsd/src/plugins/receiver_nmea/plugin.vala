@@ -36,8 +36,13 @@ class Nmea.Receiver : FsoGps.AbstractReceiver
     protected override void createChannels()
     {
         var transport = FsoFramework.Transport.create( receiver_transport, receiver_port, receiver_speed );
-        var parser = new FsoFramework.NullParser();
+        var parser = new FsoFramework.LineByLineParser();
         var chan = new Channel( CHANNEL_NAME, transport, parser );
+    }
+
+    public override void processUnsolicitedResponse( string prefix, string righthandside, string? pdu = null )
+    {
+        message( @"NMEA DATUM: $righthandside" );
     }
 }
 
