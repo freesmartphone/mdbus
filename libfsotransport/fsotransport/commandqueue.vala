@@ -19,8 +19,6 @@
 
 const uint COMMAND_QUEUE_CHANNEL_TIMEOUT = 10;
 const int  COMMAND_QUEUE_BUFFER_SIZE = 4096;
-const string COMMAND_QUEUE_COMMAND_PREFIX = "AT";
-const string COMMAND_QUEUE_COMMAND_POSTFIX = "\r\n";
 
 public abstract interface FsoFramework.CommandQueueCommand : GLib.Object
 {
@@ -80,9 +78,14 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     protected void _writeRequestToTransport( string request )
     {
-        transport.write( COMMAND_QUEUE_COMMAND_PREFIX, 2 );
+        assert( current != null );
+
+        var prefix = current.command.get_prefix();
+        var postfix = current.command.get_postfix();
+
+        transport.write( prefix, (int)prefix.length );
         transport.write( request, (int)request.size() );
-        transport.write( COMMAND_QUEUE_COMMAND_POSTFIX, 2 );
+        transport.write( postfix, (int)postfix.length );
         timeout = Timeout.add_seconds( COMMAND_QUEUE_CHANNEL_TIMEOUT, _onTimeout );
     }
 
@@ -132,7 +135,7 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
     protected bool _expectedPrefix( string line )
     {
         assert( current != null );
-        return true;
+        return current.command.is_valid_prefix( line );
     }
 
     protected void _solicitedCompleted( string[] response )
