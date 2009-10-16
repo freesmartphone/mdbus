@@ -19,6 +19,25 @@
 
 using Gee;
 
+internal const int CALL_STATUS_REFRESH_TIMEOUT = 3; // in seconds
+
+/**
+ * @class FsoGsm.Call
+ **/
+public class FsoGsm.Call : GLib.Object
+{
+    public int id;
+    public string status;
+    public GLib.HashTable<string,Value?> properties;
+
+    public Call( int id, string status, GLib.HashTable<string,Value?> properties )
+    {
+        this.id = id;
+        this.status = status;
+        this.properties = properties;
+    }
+}
+
 /**
  * @interface FsoGsm.CallHandler
  **/
@@ -75,15 +94,94 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
  */
 public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 {
+    protected uint timeout;
+    protected XFreeSmartphone.GSM.CallDetail[] calls;
+
+    construct
+    {
+        calls = new XFreeSmartphone.GSM.CallDetail[] {};
+    }
+
     public override string repr()
     {
         return "<>";
+    }
+
+    private void startTimeoutIfNecessary()
+    {
+        onTimeout();
+        if ( timeout == 0 )
+        {
+            timeout = GLib.Timeout.add_seconds( CALL_STATUS_REFRESH_TIMEOUT, onTimeout );
+        }
+    }
+
+    protected bool onTimeout()
+    {
+        syncCallStatus.begin();
+        return true;
+    }
+
+    private
+
+    protected async void syncCallStatus()
+    {
+        var m = theModem.createMediator<FsoGsm.CallListCalls>();
+        yield m.run();
+
+        
+
+        /*
+        if ( callListsEqual( this.calls, m.calls ) )
+        {
+            return;
+        }
+        */
+
+
+        this.calls = m.calls;
+
+        // synthesize status for 1 and 2, if missing
+        bool haveSeen1 = false;
+        bool haveSeen2 = false;
+        foreach ( var call in calls )
+        {
+            if ( call.id == 1 )
+                haveSeen1 = true;
+            if ( call.id == 2 )
+                haveSeen2 = true;
+        }
+        if ( !haveSeen1 )
+        {
+            this.calls += XFreeSmartphone.GSM.CallDetail() {
+                id = 1,
+                status = "release",
+                properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal )
+            };
+        }
+        if ( !haveSeen2 )
+        {
+            this.calls += XFreeSmartphone.GSM.CallDetail() {
+                id = 2,
+                status = "release",
+                properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal )
+            };
+        }
+
+        // send dbus signals
+        var obj = theModem.theDevice<XFreeSmartphone.GSM.Call>();
+        foreach ( var c in calls )
+        {
+            obj.call_status( c.id, c.status, c.properties );
+        }
     }
 
     public override async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var cmd = theModem.createAtCommand<V250D>( "D" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
+
+        startTimeoutIfNecessary();
     }
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

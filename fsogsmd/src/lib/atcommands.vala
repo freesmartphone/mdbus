@@ -228,6 +228,9 @@ public class PlusCLCC : AbstractAtCommand
             strvalue = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
             entry.properties.insert( "peer", strvalue );
 
+            strvalue = Constants.instance().callTypeToString( to_int( "mode" ) );
+            entry.properties.insert( "type", strvalue );
+
             c += entry;
         }
         calls = c;

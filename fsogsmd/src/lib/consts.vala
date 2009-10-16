@@ -270,6 +270,62 @@ public class FsoGsm.Constants
                 return "unknown";
         }
     }
+    public int callStringToType( string ctype )
+    {
+        switch ( ctype )
+        {
+            case "voice":
+                return 0;
+            case "data":
+                return 1;
+            case "fax":
+                return 2;
+            case "voice;data:voice":
+                return 3;
+            case "voice/data:voice":
+                return 4;
+            case "voice/fax:voice":
+                return 5;
+            case "voice;data:data":
+                return 6;
+            case "voice/data:data":
+                return 7;
+            case "voice/fax:fax":
+                return 8;
+            case "unknown":
+                return 9;
+            default:
+                error( "invalid call type: %s", ctype );
+                return 9;
+        }
+    }
+
+    public string callTypeToString( int code )
+    {
+        switch ( code )
+        {
+            case 0:
+                return "voice";
+            case 1:
+                return "data";
+            case 2:
+                return "fax";
+            case 3:
+                return "voice;data:voice";
+            case 4:
+                return "voice/dat:voice";
+            case 5:
+                return "voice/fax:voice";
+            case 6:
+                return "voice;data:data";
+            case 7:
+                return "voice/data:data";
+            case 8:
+                return "voice/fax:fax";
+            default:
+                return "unknown";
+        }
+    }
 }
 
 
