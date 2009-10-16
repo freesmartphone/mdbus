@@ -242,3 +242,22 @@ public abstract class FsoGsm.CallInitiate : FsoGsm.AbstractMediator
 {
     public abstract async void run( string number, string typ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
+
+// work around since string marshalling seems somewhat broken atm.
+public struct XFreeSmartphone.GSM.CallDetail
+{
+    public int id;
+    public string status;
+    public GLib.HashTable<string,GLib.Value?> properties;
+}
+
+public abstract class FsoGsm.CallListCalls : FsoGsm.AbstractMediator
+{
+    public XFreeSmartphone.GSM.CallDetail[] calls { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.CallReleaseAll : FsoGsm.AbstractMediator
+{
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}

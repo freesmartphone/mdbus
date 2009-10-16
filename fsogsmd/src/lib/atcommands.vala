@@ -199,6 +199,46 @@ public class PlusCIMI : SimpleAtCommand<string>
     }
 }
 
+public class PlusCLCC : AbstractAtCommand
+{
+    public XFreeSmartphone.GSM.CallDetail[] calls;
+
+    public PlusCLCC()
+    {
+        re = new Regex( """\+CLCC: (?P<id>\d),(?P<dir>\d),(?P<stat>\d),(?P<mode>\d),(?P<mpty>\d)(?:,"(?P<number>[\+0-9*#w]+)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?)?""");
+        prefix = { "+CLCC: " };
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        var c = new XFreeSmartphone.GSM.CallDetail[] {};
+        foreach ( var line in response )
+        {
+            base.parse( line );
+            var entry = XFreeSmartphone.GSM.CallDetail();
+            entry.id = to_int( "id" );
+            entry.status = Constants.instance().callStatusToString( to_int( "stat" ) );
+            //entry.status = Constants.instance().callStatusToEnum( to_int( "stat" ) );
+            entry.properties = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+
+            var strvalue = GLib.Value( typeof(string) );
+            strvalue = Constants.instance().callDirectionToString( to_int( "dir" ) );
+            entry.properties.insert( "direction", strvalue );
+
+            strvalue = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
+            entry.properties.insert( "peer", strvalue );
+
+            c += entry;
+        }
+        calls = c;
+    }
+
+    public string execute()
+    {
+        return "+CLCC";
+    }
+}
+
 public class PlusCLVL : SimpleAtCommand<int>
 {
     public PlusCLVL()
@@ -615,6 +655,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 
     table[ "+CIMI" ]             = new FsoGsm.PlusCIMI();
 
+    table[ "+CLCC" ]             = new FsoGsm.PlusCLCC();
     table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
 
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();

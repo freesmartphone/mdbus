@@ -40,12 +40,13 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
     }
 
     public abstract async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     /*
-    public abstract async void activate( int id );
-    public abstract async void release( int id );
-    public abstract async void hold( int id );
-    public abstract async void conference();
-    public abstract async void join();
+    public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void hold( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     */
 }
 
@@ -62,6 +63,9 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
     }
 
     public virtual async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
+    public virtual async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
 }
@@ -81,4 +85,18 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         var cmd = theModem.createAtCommand<V250D>( "D" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
     }
+
+    public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var cmd = theModem.createAtCommand<V250H>( "H" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+    }
+    /*
+
+    public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var cmd = theModem.createAtCommand<V250D>( "D" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
+    }
+    */
 }

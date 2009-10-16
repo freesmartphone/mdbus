@@ -620,6 +620,25 @@ public class AtCallInitiate : CallInitiate
     }
 }
 
+public class AtCallListCalls : CallListCalls
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCLCC>( "+CLCC" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+        checkMultiResponseValid( cmd, response );
+        calls = cmd.calls;
+    }
+}
+
+public class AtCallReleaseAll : CallReleaseAll
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.releaseAll();
+    }
+}
+
 /**
  * Register all mediators
  **/
@@ -656,6 +675,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
 
     table[ typeof(CallInitiate) ]                 = typeof( AtCallInitiate );
+    table[ typeof(CallListCalls) ]                = typeof( AtCallListCalls );
+    table[ typeof(CallReleaseAll) ]               = typeof( AtCallReleaseAll );
 }
 
 } // namespace FsoGsm

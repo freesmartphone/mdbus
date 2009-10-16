@@ -215,5 +215,61 @@ public class FsoGsm.Constants
             return """"%s",129""".printf( number );
         }
     }
+
+    public string callStatusToString( int code )
+    {
+        switch ( code )
+        {
+            case 0:
+                return "active";
+            case 1:
+                return "held";
+            case 2:
+                return "outgoing"; // we don't distinguish between alerting and outgoing
+            case 3:
+                return "outgoing";
+            case 4:
+                return "incoming";
+            case 5:
+                return "incoming";
+            default:
+                return "unknown";
+        }
+    }
+
+    public FreeSmartphone.GSM.CallStatus callStatusToEnum( int code )
+    {
+        switch ( code )
+        {
+            case 0:
+                return FreeSmartphone.GSM.CallStatus.ACTIVE;
+            case 1:
+                return FreeSmartphone.GSM.CallStatus.HELD;
+            case 2:
+            case 3:
+                return FreeSmartphone.GSM.CallStatus.OUTGOING;
+            case 4:
+            case 5:
+                return FreeSmartphone.GSM.CallStatus.INCOMING;
+            default:
+                warning( "invalid call status!!! setting to RELEASE" );
+                return FreeSmartphone.GSM.CallStatus.RELEASE;
+        }
+    }
+
+    public string callDirectionToString( int code )
+    {
+        switch ( code )
+        {
+            case 0:
+                return "outgoing";
+            case 1:
+                return "incoming";
+            default:
+                error( "invalid call status: %d", code );
+                return "unknown";
+        }
+    }
 }
+
 
