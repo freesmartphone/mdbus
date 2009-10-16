@@ -221,6 +221,11 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
             return resetAll();
         }
 
+        var prefixExpected = expectedPrefix( (string)curline );
+
+        //message( @"Prefix expected: $(expectedPrefix((string)curline))" );
+        message( "Prefix expected = %s".printf( prefixExpected.to_string() ) );
+
         if ( !expectedPrefix( (string)curline ) )
         {
             return endoflineSurelyUnsolicited();

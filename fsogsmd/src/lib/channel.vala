@@ -19,7 +19,7 @@
 
 using GLib;
 
-public class FsoGsm.Channel : FsoFramework.BaseCommandQueue<AtCommand>
+public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
 {
     protected string name;
 

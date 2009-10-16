@@ -46,12 +46,17 @@ public enum FsoGsm.AtResponse
     EXT_ERROR_START = 3000,
 }
 
-public abstract interface FsoGsm.AtCommand : GLib.Object
+public abstract interface FsoGsm.AtCommand : FsoFramework.CommandQueueCommand, GLib.Object
 {
+    /* CommandQueueCommand */
+    public abstract string get_prefix();
+    public abstract string get_postfix();
+    public abstract bool is_valid_prefix( string line );
+
+    /* AtCommand */
     public abstract void parse( string response ) throws AtCommandError;
     public abstract void parseMulti( string[] response ) throws AtCommandError;
     public abstract void parseTest( string response ) throws AtCommandError;
-    public abstract bool is_valid_prefix( string line );
 
     public abstract FsoGsm.AtResponse validate( string[] response );
     public abstract FsoGsm.AtResponse validateTest( string[] response );
@@ -60,7 +65,7 @@ public abstract interface FsoGsm.AtCommand : GLib.Object
     public abstract FsoGsm.AtResponse validateMulti( string[] response );
 }
 
-public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
+public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueCommand, FsoGsm.AtCommand, GLib.Object
 {
     protected Regex re;
     protected Regex tere;
@@ -270,6 +275,16 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         return res.to_int();
     }
 
+    public string get_prefix()
+    {
+        return "AT";
+    }
+
+    public string get_postfix()
+    {
+        return "\r\n";
+    }
+
     public bool is_valid_prefix( string line )
     {
         if ( prefix == null ) // free format
@@ -290,6 +305,7 @@ public class FsoGsm.V250terCommand : FsoGsm.AbstractAtCommand
     public V250terCommand( string name )
     {
         this.name = name;
+        prefix = { "+ONLY_TERMINAL_SYMBOLS_ALLOWED" };
     }
 
     public string execute()
