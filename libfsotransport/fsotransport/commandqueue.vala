@@ -24,8 +24,8 @@ const string COMMAND_QUEUE_COMMAND_POSTFIX = "\r\n";
 
 public abstract interface FsoFramework.CommandQueueCommand : GLib.Object
 {
-    public abstract string prefix();
-    public abstract string postfix();
+    public abstract string get_prefix();
+    public abstract string get_postfix();
     public abstract bool is_valid_prefix( string line );
 }
 
