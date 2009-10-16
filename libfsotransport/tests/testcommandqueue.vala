@@ -29,7 +29,7 @@ void test_commandqueue_enqueue()
 
     var p = new FsoFramework.BaseParser();
 
-    var q = new FsoFramework.BaseCommandQueue<Object>( t, p );
+    var q = new FsoFramework.BaseCommandQueue( t, p );
 
     /*
     var cmd = Command() { command = "AT+CGMR\r\n", handler = null };

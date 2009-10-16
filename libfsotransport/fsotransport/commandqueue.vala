@@ -22,10 +22,17 @@ const int  COMMAND_QUEUE_BUFFER_SIZE = 4096;
 const string COMMAND_QUEUE_COMMAND_PREFIX = "AT";
 const string COMMAND_QUEUE_COMMAND_POSTFIX = "\r\n";
 
-public abstract interface FsoFramework.CommandQueue<T> : GLib.Object
+public abstract interface FsoFramework.CommandQueueCommand : GLib.Object
 {
-    public delegate void ResponseHandler( T command, string[] response );
-    public delegate string RequestHandler( T command );
+    public abstract string prefix();
+    public abstract string postfix();
+    public abstract bool is_valid_prefix( string line );
+}
+
+public abstract interface FsoFramework.CommandQueue : GLib.Object
+{
+    public delegate void ResponseHandler( CommandQueueCommand command, string[] response );
+    public delegate string RequestHandler( CommandQueueCommand command );
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
     public const uint DEFAULT_RETRY = 3;
@@ -37,7 +44,7 @@ public abstract interface FsoFramework.CommandQueue<T> : GLib.Object
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * Coroutine will yield the response.
      **/
-    public abstract async string[] enqueueAsyncYielding( T command, string request, uint retry = DEFAULT_RETRY );
+    public abstract async string[] enqueueAsyncYielding( CommandQueueCommand command, string request, uint retry = DEFAULT_RETRY );
     /**
      * Halt the Queue operation. Stop accepting any more commands. If drain is true, send
      * all commands that are in the Queue at this point.
@@ -49,9 +56,9 @@ public abstract interface FsoFramework.CommandQueue<T> : GLib.Object
     public abstract void thaw();
 }
 
-public class CommandBundle<T>
+public class CommandBundle
 {
-    public T command;
+    public FsoFramework.CommandQueueCommand command;
     public string request;
     public uint retry;
     public FsoFramework.CommandQueue.RequestHandler getRequest;
@@ -60,9 +67,9 @@ public class CommandBundle<T>
     public SourceFunc callback;
 }
 
-public class FsoFramework.BaseCommandQueue<T> : FsoFramework.CommandQueue<T>, GLib.Object
+public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Object
 {
-    protected Gee.LinkedList<CommandBundle<T>> q;
+    protected Gee.LinkedList<CommandBundle> q;
     protected CommandBundle current;
     protected uint timeout;
 
@@ -124,6 +131,7 @@ public class FsoFramework.BaseCommandQueue<T> : FsoFramework.CommandQueue<T>, GL
 
     protected bool _expectedPrefix( string line )
     {
+        assert( current != null );
         return true;
     }
 
@@ -253,10 +261,10 @@ public class FsoFramework.BaseCommandQueue<T> : FsoFramework.CommandQueue<T>, GL
         this.urchandler = urchandler;
     }
 
-    public async string[] enqueueAsyncYielding( T command, string request, uint retry = DEFAULT_RETRY )
+    public async string[] enqueueAsyncYielding( CommandQueueCommand command, string request, uint retry = DEFAULT_RETRY )
     {
         debug( "enqueuing %s from AT command %s (sizeof q = %u)".printf( request, Type.from_instance( command ).name(), q.size ) );
-        CommandBundle bundle = new CommandBundle<T>() {
+        CommandBundle bundle = new CommandBundle() {
             command=command,
             request=request,
             getRequest=null,
