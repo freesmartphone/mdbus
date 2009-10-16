@@ -21,21 +21,63 @@ using Gee;
 
 internal const int CALL_STATUS_REFRESH_TIMEOUT = 3; // in seconds
 
+internal const int MAXIMUM_NUMBER_OF_CALLS = 10; // 3 would be more like it, but hey... let's play safe ;)
+
 /**
  * @class FsoGsm.Call
  **/
-public class FsoGsm.Call : GLib.Object
+public class FsoGsm.Call
 {
-    public int id;
-    public string status;
-    public GLib.HashTable<string,Value?> properties;
+    public XFreeSmartphone.GSM.CallDetail detail;
 
-    public Call( int id, string status, GLib.HashTable<string,Value?> properties )
+    public Call.newFromDetail( XFreeSmartphone.GSM.CallDetail detail )
     {
-        this.id = id;
-        this.status = status;
-        this.properties = properties;
+        this.detail = detail;
     }
+
+    public Call.newFromId( int id )
+    {
+        detail.id = id;
+        detail.status = "release";
+        detail.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+    }
+
+    public bool update( XFreeSmartphone.GSM.CallDetail detail )
+    {
+        assert( this.detail.id == detail.id );
+        if ( this.detail.status != detail.status )
+        {
+            notify( detail );
+            return true;
+        }
+        if ( this.detail.properties.size() != detail.properties.size() )
+        {
+            notify( detail );
+            return true;
+        }
+        /*
+        var iter = GLib.HashTableIter<string,GLib.Value?>( this.detail.properties );
+        string key; Value? v;
+        while ( iter.next( out key, out v ) )
+        {
+            var v2 = detail.properties.lookup( key );
+            if ( v2 == null || v != v2 )
+            {
+                notify( detail );
+                return;
+            }
+        }
+        */
+        return false; // nothing happened
+    }
+
+    public void notify( XFreeSmartphone.GSM.CallDetail detail )
+    {
+        var obj = theModem.theDevice<XFreeSmartphone.GSM.Call>();
+        obj.call_status( detail.id, detail.status, detail.properties );
+        this.detail = detail;
+    }
+
 }
 
 /**
@@ -43,21 +85,6 @@ public class FsoGsm.Call : GLib.Object
  **/
 public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
 {
-    public enum SingleCallState
-    {
-        RELEASED,
-        OUTGOING,
-        INCOMING,
-        ACTIVE,
-        HELD
-    }
-
-    public struct CallStatus
-    {
-        public CallHandler.SingleCallState first;
-        public CallHandler.SingleCallState second;
-    }
-
     public abstract async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     /*
@@ -74,13 +101,6 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
  **/
 public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallHandler, FsoFramework.AbstractObject
 {
-    public CallHandler.CallStatus status;
-
-    construct
-    {
-        status = CallHandler.CallStatus() { first=SingleCallState.RELEASED, second=SingleCallState.RELEASED };
-    }
-
     public virtual async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
@@ -95,11 +115,15 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
 public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 {
     protected uint timeout;
-    protected XFreeSmartphone.GSM.CallDetail[] calls;
+    protected FsoGsm.Call[] calls;
 
     construct
     {
-        calls = new XFreeSmartphone.GSM.CallDetail[] {};
+        calls = new FsoGsm.Call[MAXIMUM_NUMBER_OF_CALLS] {};
+        for ( int i = 1; i < MAXIMUM_NUMBER_OF_CALLS; ++i )
+        {
+            calls[i] = new Call.newFromId( i );
+        }
     }
 
     public override string repr()
@@ -122,57 +146,45 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         return true;
     }
 
-    private
-
     protected async void syncCallStatus()
     {
+        assert( logger.debug( "synchronizing call status" ) );
         var m = theModem.createMediator<FsoGsm.CallListCalls>();
         yield m.run();
 
-        
-
-        /*
-        if ( callListsEqual( this.calls, m.calls ) )
+        // workaround for https://bugzilla.gnome.org/show_bug.cgi?id=585847
+        var length = 0;
+        foreach ( var c in m.calls )
         {
-            return;
+            length++;
         }
-        */
+        // </workaround>
 
+        assert( logger.debug( @"$(length) calls known in the system" ) );
 
-        this.calls = m.calls;
-
-        // synthesize status for 1 and 2, if missing
-        bool haveSeen1 = false;
-        bool haveSeen2 = false;
-        foreach ( var call in calls )
+        // stop timer if there are no more calls
+        if ( length == 0 )
         {
-            if ( call.id == 1 )
-                haveSeen1 = true;
-            if ( call.id == 2 )
-                haveSeen2 = true;
-        }
-        if ( !haveSeen1 )
-        {
-            this.calls += XFreeSmartphone.GSM.CallDetail() {
-                id = 1,
-                status = "release",
-                properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal )
-            };
-        }
-        if ( !haveSeen2 )
-        {
-            this.calls += XFreeSmartphone.GSM.CallDetail() {
-                id = 2,
-                status = "release",
-                properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal )
-            };
+            assert( logger.debug( "call status idle -> stopping updater" ) );
+            Source.remove( timeout );
+            timeout = 0;
         }
 
-        // send dbus signals
-        var obj = theModem.theDevice<XFreeSmartphone.GSM.Call>();
-        foreach ( var c in calls )
+        // visit all calls and synthesize updates for released ones
+        var visited = new bool[MAXIMUM_NUMBER_OF_CALLS];
+        foreach ( var call in m.calls )
         {
-            obj.call_status( c.id, c.status, c.properties );
+            calls[call.id].update( call );
+            visited[call.id] = true;
+        }
+
+        for ( int i = 0; i < MAXIMUM_NUMBER_OF_CALLS; ++i )
+        {
+            if ( ! visited[i] )
+            {
+                //FIXME: This leads to a (harmless) assertion
+                calls[i].update( new Call.newFromId( i ).detail );
+            }
         }
     }
 

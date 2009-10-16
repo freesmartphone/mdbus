@@ -33,7 +33,7 @@ public abstract interface XFreeSmartphone.GSM.Call : GLib.Object {
     public abstract async void send_dtmf (string tones) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void transfer (string number) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public signal void call_status (int id, string status, GLib.HashTable<string,GLib.Value?> properties);
-        }
+}
 
 
 /**

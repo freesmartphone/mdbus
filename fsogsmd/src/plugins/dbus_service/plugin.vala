@@ -143,10 +143,6 @@ class DBusService.Device :
         this.wakeup_time_changed( seconds_since_epoch ); // DBUS SIGNAL
     }
 
-    // DBUS SIGNALS
-    /* public void wakeup_time_changed( int seconds_since_epoch ); */
-    /* public void alarm( int seconds_since_epoch ); */
-
     //
     // DBUS (org.freesmartphone.GSM.Device.*)
     //
