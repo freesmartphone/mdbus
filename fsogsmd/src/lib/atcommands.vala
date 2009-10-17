@@ -441,18 +441,18 @@ public class PlusCPBS : AbstractAtCommand
 
 public class PlusCPIN : AbstractAtCommand
 {
-    public string pin;
+    public FreeSmartphone.GSM.SIMAuthStatus status;
 
     public PlusCPIN()
     {
-        re = new Regex( """\+CPIN:\ "?(?P<pin>[^"]*)"?""" );
+        re = new Regex( """\+CPIN:\ "?(?P<status>[^"]*)"?""" );
         prefix = { "+CPIN: " };
     }
 
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        pin = to_string( "pin" );
+        status = Constants.instance().simAuthStatusToEnum( to_string( "status" ) );
     }
 
     public string issue( string pin, string? new_pin = null )

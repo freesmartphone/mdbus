@@ -59,11 +59,13 @@ internal async void gatherSimStatusAndUpdate()
     var response = yield theModem.processCommandAsync( cmd, cmd.query() );
     if ( cmd.validate( response ) == AtResponse.VALID )
     {
-        if ( cmd.pin != data.simAuthStatus )
+        if ( cmd.status != data.simAuthStatus )
         {
-            data.simAuthStatus = cmd.pin;
-            //theModem.auth_status( cmd.pin );
-            theModem.logger.info( "New SIM Auth status '%s'".printf( cmd.pin ) );
+            data.simAuthStatus = cmd.status;
+            theModem.logger.info( "New SIM Auth status '%s'".printf( FsoFramework.StringHandling.enumToString( typeof(FreeSmartphone.GSM.SIMAuthStatus), cmd.status ) ) );
+            // send dbus signal
+            var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
+            obj.auth_status( cmd.status );
         }
     }
 }
@@ -459,6 +461,17 @@ public class AtSimChangeAuthCode : SimChangeAuthCode
     }
 }
 
+public class AtSimGetAuthStatus : SimGetAuthStatus
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        status = cmd.status;
+    }
+}
+
 public class AtSimGetInformation : SimGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -663,6 +676,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(SimChangeAuthCode) ]            = typeof( AtSimChangeAuthCode );
+    table[ typeof(SimGetAuthStatus) ]             = typeof( AtSimGetAuthStatus );
     table[ typeof(SimGetServiceCenterNumber) ]    = typeof( AtSimGetServiceCenterNumber );
     table[ typeof(SimGetInformation) ]            = typeof( AtSimGetInformation );
     table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );

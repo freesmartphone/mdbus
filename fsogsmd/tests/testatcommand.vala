@@ -193,9 +193,9 @@ void test_atcommand_PlusCPIN()
 {
     FsoGsm.PlusCPIN cmd = (FsoGsm.PlusCPIN) atCommandFactory( "+CPIN" );
     cmd.parse( "+CPIN: \"SIM PIN\"" );
-    assert( cmd.pin == "SIM PIN" );
+    assert( cmd.status == FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
     cmd.parse( "+CPIN: READY" );
-    assert( cmd.pin == "READY" );
+    assert( cmd.status == FreeSmartphone.GSM.SIMAuthStatus.READY );
     try
     {
         cmd.parse( "+CPIN THIS FAILS" );

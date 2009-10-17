@@ -216,6 +216,26 @@ public class FsoGsm.Constants
         }
     }
 
+    public FreeSmartphone.GSM.SIMAuthStatus simAuthStatusToEnum( string status )
+    {
+        switch ( status )
+        {
+            case "READY":
+                return FreeSmartphone.GSM.SIMAuthStatus.READY;
+            case "SIM PIN":
+                return FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED;
+            case "SIM PUK":
+                return FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED;
+            case "SIM PIN2":
+                return FreeSmartphone.GSM.SIMAuthStatus.PIN2_REQUIRED;
+            case "SIM PUK2":
+                return FreeSmartphone.GSM.SIMAuthStatus.PUK2_REQUIRED;
+            default:
+                warning( "unknown SIM PIN status %s!!!", status );
+                return FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
+        }
+    }
+
     public string callStatusToString( int code )
     {
         switch ( code )

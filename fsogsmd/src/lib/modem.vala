@@ -47,7 +47,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public int speakerVolumeMinimum;
         public int speakerVolumeMaximum;
 
-        public string simAuthStatus;
+        public FreeSmartphone.GSM.SIMAuthStatus simAuthStatus;
         public bool simBuffersSms;
         public bool simHasReadySignal;
         public bool simIsReady;
@@ -172,7 +172,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.speakerVolumeMaximum = -1;
 
         modem_data.alarmCleared = 946684800; // 00/01/01,00:00:00 (default for SIEMENS mc75i)
-        modem_data.simAuthStatus = "UNKNOWN";
+        modem_data.simAuthStatus = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
         modem_data.simBuffersSms = true;
 
         modem_data.cnmiSmsBufferedCb    = AtNewMessageIndication() { mode=2, mt=1, bm=2, ds=1, bfr=1 };
