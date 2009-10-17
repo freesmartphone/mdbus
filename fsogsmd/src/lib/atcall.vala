@@ -85,6 +85,11 @@ public class FsoGsm.Call
  **/
 public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
 {
+    /**
+     * Call this, when the network has indicated an incoming call.
+     **/
+    public abstract void handleIncomingCall( string ctype );
+
     public abstract async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     /*
@@ -101,6 +106,13 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
  **/
 public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallHandler, FsoFramework.AbstractObject
 {
+    public void handleIncomingCall( string ctype )
+    {
+        startTimeoutIfNecessary();
+    }
+
+    protected abstract void startTimeoutIfNecessary();
+
     public virtual async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
@@ -131,7 +143,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         return "<>";
     }
 
-    private void startTimeoutIfNecessary()
+    protected override void startTimeoutIfNecessary()
     {
         onTimeout();
         if ( timeout == 0 )

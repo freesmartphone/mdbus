@@ -62,10 +62,11 @@ internal async void gatherSimStatusAndUpdate()
         if ( cmd.status != data.simAuthStatus )
         {
             data.simAuthStatus = cmd.status;
-            theModem.logger.info( "New SIM Auth status '%s'".printf( FsoFramework.StringHandling.enumToString( typeof(FreeSmartphone.GSM.SIMAuthStatus), cmd.status ) ) );
+            theModem.logger.info( "SIM Auth status changed to '%s'".printf( FsoFramework.StringHandling.enumToString( typeof(FreeSmartphone.GSM.SIMAuthStatus), cmd.status ) ) );
             // send dbus signal
             var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
             obj.auth_status( cmd.status );
+            //TODO: advance modem status?
         }
     }
 }
@@ -96,6 +97,12 @@ internal async void gatherPhonebookParams()
             theModem.logger.warning( "Modem does not support querying the phonebooks." );
         }
     }
+}
+
+internal void updateSimStatus( FreeSmartphone.GSM.SIMAuthStatus status )
+{
+    var data = theModem.data();
+    
 }
 
 /**
@@ -496,7 +503,8 @@ public class AtSimGetInformation : SimGetInformation
         response = yield theModem.processCommandAsync( crsm, crsm.issue( Constants.SimCommand.READ_BINARY, 28486, 0, 0, 17 ) );
         if ( crsm.validate( response ) == AtResponse.VALID )
         {
-            value = Codec.hexToString( crsm.payload );
+            var issuer = Codec.hexToString( crsm.payload );
+            value = issuer != "" ? issuer : "unknown";
             info.insert( "issuer", value );
         }
         else

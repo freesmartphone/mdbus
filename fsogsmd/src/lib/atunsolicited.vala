@@ -108,6 +108,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CALA", plusCALA );
         registerUrc( "+CIEV", plusCIEV );
         registerUrc( "+CREG", plusCREG );
+        registerUrc( "+CRING", plusCRING );
     }
 
     public virtual void plusCALA( string prefix, string rhs )
@@ -123,5 +124,10 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCREG( string prefix, string rhs )
     {
+    }
+
+    public virtual void plusCRING( string prefix, string rhs )
+    {
+        theModem.callhandler.handleIncomingCall( rhs );
     }
 }
