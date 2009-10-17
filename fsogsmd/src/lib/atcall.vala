@@ -90,6 +90,7 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
      **/
     public abstract void handleIncomingCall( string ctype );
 
+    public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     /*
@@ -113,6 +114,9 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
 
     protected abstract void startTimeoutIfNecessary();
 
+    public virtual async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+    }
     public virtual async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
     }
@@ -200,19 +204,39 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         }
     }
 
+    //
+    // DBus methods, delegated from the Call mediators
+    //
+
+    public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var cmd = theModem.createAtCommand<V250D>( "A" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+        checkResponseOk( cmd, response );
+    }
+
     public override async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var cmd = theModem.createAtCommand<V250D>( "D" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
+        checkResponseOk( cmd, response );
 
         startTimeoutIfNecessary();
     }
+
+    /*
+    public override async void holdActive()
+    {
+    }
+    */
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var cmd = theModem.createAtCommand<V250H>( "H" );
         var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+        // no checkResponseOk, this call will always succeed
     }
+
     /*
 
     public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

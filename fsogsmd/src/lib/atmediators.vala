@@ -633,6 +633,14 @@ public class AtNetworkRegister : NetworkRegister
 /**
  * Call Mediators
  **/
+public class AtCallActivate : CallActivate
+{
+    public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.activate( id );
+    }
+}
+
 public class AtCallInitiate : CallInitiate
 {
     public override async void run( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -696,6 +704,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
     table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
 
+    table[ typeof(CallActivate) ]                 = typeof( AtCallActivate );
     table[ typeof(CallInitiate) ]                 = typeof( AtCallInitiate );
     table[ typeof(CallListCalls) ]                = typeof( AtCallListCalls );
     table[ typeof(CallReleaseAll) ]               = typeof( AtCallReleaseAll );
