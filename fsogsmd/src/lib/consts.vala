@@ -338,6 +338,54 @@ public class FsoGsm.Constants
         }
     }
 
+    public string networkRegistrationModeToString( int code )
+    {
+        switch ( code )
+        {
+            case 0:
+                return "automatic";
+            case 1:
+                return "manual";
+            case 2:
+                return "unregister";
+            case 4:
+                return "manual;automatic";
+            default:
+                return "unknown";
+        }
+    }
+
+    public string networkRegistrationStatusToString( int code )
+    {
+        switch ( code )
+        {
+            case 0:
+                return "unregistered";
+            case 1:
+                return "home";
+            case 2:
+                return "searching";
+            case 3:
+                return "denied";
+            case 5:
+                return "roaming";
+            default:
+                return "unknown";
+        }
+    }
+
+    public int networkSignalToPercentage( int signal )
+    {
+        if ( signal <= 0 || signal > 31 )
+        {
+            return 0;
+        }
+        double dsig = signal;
+        var dpercentage = Math.round( Math.log10( dsig ) / Math.log10( 31.0 ) * 100 );
+
+        return (int)dpercentage;
+    }
+
     public string phonenumberTupleToString( string number, int ntype )
     {
         if ( ntype == 145 ) // must not include '+' then, but some modems violate the spec

@@ -404,7 +404,7 @@ class DBusService.Device :
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async string get_calling_identification( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string get_calling_identification() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
@@ -416,15 +416,19 @@ class DBusService.Device :
 
     public async int get_signal_strength() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.NetworkGetSignalStrength>();
+        yield m.run();
+        return m.signal;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_status( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.NetworkGetStatus>();
+        yield m.run();
+        return m.status;
     }
 
-    public async FreeSmartphone.GSM.NetworkProvider[] list_providers( ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.NetworkProvider[] list_providers() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var m = modem.createMediator<FsoGsm.NetworkListProviders>();
         yield m.run();

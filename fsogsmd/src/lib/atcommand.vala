@@ -421,6 +421,6 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
 
 }
 
-public class FsoGsm.NullAtCommand : FsoGsm.AbstractAtCommand
+public class FsoGsm.CustomAtCommand : FsoGsm.AbstractAtCommand
 {
 }

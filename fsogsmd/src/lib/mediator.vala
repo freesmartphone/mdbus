@@ -239,6 +239,18 @@ public abstract class FsoGsm.SimUnlock : FsoGsm.AbstractMediator
 //
 // org.freesmartphone.GSM.Network.*
 //
+public abstract class FsoGsm.NetworkGetSignalStrength : FsoGsm.AbstractMediator
+{
+    public int signal { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.NetworkGetStatus : FsoGsm.AbstractMediator
+{
+    public GLib.HashTable<string,GLib.Value?> status { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.NetworkListProviders : FsoGsm.AbstractMediator
 {
     public FreeSmartphone.GSM.NetworkProvider[] providers { get; set; }

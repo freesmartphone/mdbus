@@ -611,6 +611,74 @@ public class AtSimUnlock : SimUnlock
 /**
  * Network Mediators
  **/
+public class AtNetworkGetSignalStrength : NetworkGetSignalStrength
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+        checkResponseValid( cmd, response );
+        signal = cmd.signal;
+    }
+}
+
+public class AtNetworkGetStatus : NetworkGetStatus
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        var strvalue = Value( typeof(string) );
+        var intvalue = Value( typeof(int) );
+
+        // query field strength
+        var csq = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
+        var response = yield theModem.processCommandAsync( csq, csq.execute() );
+        if ( csq.validate( response ) == AtResponse.VALID )
+        {
+            intvalue = csq.signal;
+            status.insert( "strength", intvalue );
+        }
+
+        // query registration status and lac/cid
+        var creg = theModem.createAtCommand<PlusCREG>( "+CREG" );
+        var cregResult = yield theModem.processCommandAsync( creg, creg.query() );
+        if ( creg.validate( cregResult ) == AtResponse.VALID )
+        {
+            var cregResult2 = yield theModem.processCommandAsync( creg, creg.queryFull( creg.mode ) );
+            if ( creg.validate( cregResult2 ) == AtResponse.VALID )
+            {
+                strvalue = Constants.instance().networkRegistrationStatusToString( creg.status );
+                status.insert( "registration", strvalue );
+                strvalue = creg.lac;
+                status.insert( "lac", strvalue );
+                strvalue = creg.cid;
+                status.insert( "cid", strvalue );
+            }
+        }
+
+        // query registration mode, operator name, access technology
+        var cops = theModem.createAtCommand<PlusCOPS>( "+COPS" );
+        var copsResult = yield theModem.processCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC ) );
+        if ( cops.validate( copsResult ) == AtResponse.VALID )
+        {
+            strvalue = Constants.instance().networkRegistrationModeToString( cops.mode );
+            status.insert( "mode", strvalue );
+            strvalue = cops.oper;
+            status.insert( "provider", strvalue );
+            strvalue = cops.act;
+            status.insert( "act", strvalue );
+        }
+
+        // query operator code
+        var copsResult2 = yield theModem.processCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
+        if ( cops.validate( copsResult2 ) == AtResponse.VALID )
+        {
+            strvalue = cops.oper;
+            status.insert( "code", strvalue );
+        }
+    }
+}
+
 public class AtNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -627,7 +695,7 @@ public class AtNetworkRegister : NetworkRegister
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( 0, 0, 0 ) );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -729,6 +797,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( AtSimSetServiceCenterNumber );
     table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
 
+    table[ typeof(NetworkGetSignalStrength) ]     = typeof( AtNetworkGetSignalStrength );
+    table[ typeof(NetworkGetStatus) ]             = typeof( AtNetworkGetStatus );
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
     table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
 

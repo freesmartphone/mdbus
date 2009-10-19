@@ -329,15 +329,31 @@ public class PlusCMUT : SimpleAtCommand<int>
 
 public class PlusCOPS : AbstractAtCommand
 {
-    public int status;
+    public int format;
     public int mode;
     public string oper;
+    public string act;
+    public int status;
 
     public FreeSmartphone.GSM.NetworkProvider[] providers;
 
+    public enum Action
+    {
+        REGISTER_WITH_BEST_PROVIDER     = 0,
+        REGISTER_WITH_SPECIFIC_PROVIDER = 1,
+        UNREGISTER                      = 2,
+        SET_FORMAT                      = 3,
+    }
+
+    public enum Format
+    {
+        ALPHANUMERIC                    = 0,
+        NUMERIC                         = 2,
+    }
+
     public PlusCOPS()
     {
-        re = new Regex( """\+COPS:\ (?P<status>\d)(,(?P<mode>\d)?(,"(?P<oper>[^"]*)")?)?""" );
+        re = new Regex( """\+COPS:\ (?P<mode>\d)(,(?P<format>\d)?(,"(?P<oper>[^"]*)")?)?(?:,(?P<act>\d))?""" );
         tere = new Regex( """\((?P<status>\d),"(?P<longname>[^"]*)","(?P<shortname>[^"]*)","(?P<mccmnc>[^"]*)"(?:,(?P<act>\d))?\)""" );
         prefix = { "+COPS: " };
     }
@@ -345,9 +361,10 @@ public class PlusCOPS : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        status = to_int( "status" );
         mode = to_int( "mode" );
+        format = to_int( "format" );
         oper = to_string( "oper" );
+        act = Constants.instance().networkProviderActToString( to_int( "act" ) );
     }
 
     public override void parseTest( string response ) throws AtCommandError
@@ -368,17 +385,21 @@ public class PlusCOPS : AbstractAtCommand
         this.providers = providers;
     }
 
-    public string issue( int mode, int format, int oper = 0 )
+    public string issue( Action action, Format format = Format.ALPHANUMERIC, int param = 0 )
     {
-        if ( oper == 0 )
-            return "+COPS=%d,%d".printf( mode, format );
+        if ( action == Action.REGISTER_WITH_BEST_PROVIDER )
+        {
+            return "+COPS=0,0";
+        }
         else
-            return "+COPS=%d,%d,\"%d\"".printf( mode, format, oper );
+        {
+            return "+COPS=%d,%d,\"%d\"".printf( (int)action, (int)format, (int)param );
+        }
     }
 
-    public string query()
+    public string query( Format format = Format.ALPHANUMERIC )
     {
-        return "+COPS?";
+        return "+COPS=%d,%d;+COPS?".printf( (int)Action.SET_FORMAT, (int)format );
     }
 
     public string test()
@@ -528,13 +549,13 @@ public class PlusCREG : AbstractAtCommand
 
     public PlusCREG()
     {
-        re = new Regex( """\+CREG: (?P<mode>\d),(?P<status>\d)(?:,(?P<lac>[0-9A-F]+),(?P<cid>[0-9A-F]+))?""" );
+        re = new Regex( """\+CREG: (?P<mode>\d),(?P<status>\d)(?:,"?(?P<lac>[0-9A-F]*)"?,"?(?P<cid>[0-9A-F]*)"?)?""" );
         prefix = { "+CREG: " };
     }
 
     public override void parse( string response ) throws AtCommandError
     {
-        base.parseTest( response );
+        base.parse( response );
         mode = to_int( "mode" );
         status = to_int( "status" );
         lac = to_string( "lac" );
@@ -546,9 +567,14 @@ public class PlusCREG : AbstractAtCommand
         return "+CREG?";
     }
 
-    public string issue( int mode = 0 )
+    public string issue( int mode )
     {
         return "+CREG=%d";
+    }
+
+    public string queryFull( int restoreMode )
+    {
+        return @"+CREG=2;+CREG?;+CREG=$restoreMode";
     }
 }
 
@@ -598,6 +624,28 @@ public class PlusCSCA : AbstractAtCommand
     public string issue( string number )
     {
         return "+CSCA=" + Constants.instance().phonenumberStringToTuple( number );
+    }
+}
+
+public class PlusCSQ : AbstractAtCommand
+{
+    public int signal;
+
+    public PlusCSQ()
+    {
+        re = new Regex( """\+CSQ: (?P<signal>\d+),(?P<ber>\d+)""" );
+        prefix = { "+CSQ: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        signal = Constants.instance().networkSignalToPercentage( to_int( "signal" ) );
+    }
+
+    public string execute()
+    {
+        return "+CSQ";
     }
 }
 
@@ -726,12 +774,15 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CRSM" ]             = new FsoGsm.PlusCRSM();
 
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
+    table[ "+CSQ" ]              = new FsoGsm.PlusCSQ();
 
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
 
     table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
 
     table[ "+VTS" ]              = new FsoGsm.PlusVTS();
+
+    table[ "CUSTOM" ]            = new FsoGsm.CustomAtCommand();
 
     table[ "A" ]                 = new FsoGsm.V250A();
     table[ "H" ]                 = new FsoGsm.V250H();

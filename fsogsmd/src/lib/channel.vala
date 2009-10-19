@@ -43,11 +43,12 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
     {
         if ( status == FsoGsm.Modem.Status.INITIALIZING )
         {
-            var cmds = modem.commandSequence( "init" );
-            foreach( var cmd in cmds )
+            var sequence = modem.commandSequence( "init" );
+            foreach( var element in sequence )
             {
-                debug( "sending cmd '%s'", cmd );
-                enqueueAsyncYielding( new NullAtCommand(), cmd );
+                var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+                enqueueAsyncYielding( cmd, element );
+                //FIXME: What about the responses to these commands?
             }
         }
 
