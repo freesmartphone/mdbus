@@ -191,6 +191,14 @@ public class PlusCGSN : SimpleAtCommand<string>
     }
 }
 
+public class PlusCHLD : AbstractAtCommand
+{
+    public string issue( int action, int cid = 0 )
+    {
+        return cid == 0 ? @"+CHLD=$action" : @"+CHLD=$action$cid";
+    }
+}
+
 public class PlusCIMI : SimpleAtCommand<string>
 {
     public PlusCIMI()
@@ -655,6 +663,8 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CGMM" ]             = new FsoGsm.PlusCGMM();
     table[ "+CGMR" ]             = new FsoGsm.PlusCGMR();
     table[ "+CGSN" ]             = new FsoGsm.PlusCGSN();
+
+    table[ "+CHLD" ]             = new FsoGsm.PlusCHLD();
 
     table[ "+CIMI" ]             = new FsoGsm.PlusCIMI();
 

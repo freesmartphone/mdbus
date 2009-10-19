@@ -502,8 +502,7 @@ public class AtSimGetInformation : SimGetInformation
         var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
         response = yield theModem.processCommandAsync( crsm, crsm.issue(
                 Constants.SimCommand.READ_BINARY,
-                Constants.instance().simFilesystemEntryNameToCode( "EFspn" ),
-                0, 0, 17 ) );
+                Constants.instance().simFilesystemEntryNameToCode( "EFspn" ), 0, 0, 17 ) );
         if ( crsm.validate( response ) == AtResponse.VALID )
         {
             var issuer = Codec.hexToString( crsm.payload );
@@ -644,6 +643,14 @@ public class AtCallActivate : CallActivate
     }
 }
 
+public class AtCallHoldActive : CallHoldActive
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.hold();
+    }
+}
+
 public class AtCallInitiate : CallInitiate
 {
     public override async void run( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -708,6 +715,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
 
     table[ typeof(CallActivate) ]                 = typeof( AtCallActivate );
+    table[ typeof(CallHoldActive) ]               = typeof( AtCallHoldActive );
     table[ typeof(CallInitiate) ]                 = typeof( AtCallInitiate );
     table[ typeof(CallListCalls) ]                = typeof( AtCallListCalls );
     table[ typeof(CallReleaseAll) ]               = typeof( AtCallReleaseAll );

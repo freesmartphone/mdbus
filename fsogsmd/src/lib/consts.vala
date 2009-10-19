@@ -25,6 +25,8 @@ public class FsoGsm.Constants
     public const string PHONE_DIGITS = """0123456789ABCD*#+pw""";
     public const string PHONE_DIGITS_RE = """[0-9A-D\*#\+pw]""";
 
+    public const uint CALL_INDEX_MAX = 7;
+
     public struct SimFilesystemEntry
     {
         public int id;
@@ -34,7 +36,7 @@ public class FsoGsm.Constants
 
     public const SimFilesystemEntry[] SimFilesystem =
     {
-        { 0x3F00,        0x0000,      "MF" },
+        { 0x3F00,        0x0000,      "MF" },           // root
 
         { 0x2FE2,        0x3F00,      "EFiccid" },
         { 0x2F05,        0x3F00,      "EFelp" },

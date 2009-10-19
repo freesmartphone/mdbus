@@ -21,8 +21,6 @@ using Gee;
 
 internal const int CALL_STATUS_REFRESH_TIMEOUT = 3; // in seconds
 
-internal const int MAXIMUM_NUMBER_OF_CALLS = 10; // 3 would be more like it, but hey... let's play safe ;)
-
 /**
  * @class FsoGsm.Call
  **/
@@ -92,11 +90,10 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
 
     public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     /*
-    public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void hold( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     */
@@ -114,15 +111,11 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
 
     protected abstract void startTimeoutIfNecessary();
 
-    public virtual async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-    }
-    public virtual async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-    }
-    public virtual async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-    }
+    public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
 }
 
 /**
@@ -135,11 +128,24 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     construct
     {
-        calls = new FsoGsm.Call[MAXIMUM_NUMBER_OF_CALLS] {};
-        for ( int i = 1; i < MAXIMUM_NUMBER_OF_CALLS; ++i )
+        calls = new FsoGsm.Call[Constants.CALL_INDEX_MAX+1] {};
+        for ( int i = 1; i != Constants.CALL_INDEX_MAX; ++i )
         {
             calls[i] = new Call.newFromId( i );
         }
+    }
+
+    private int numberOfCallsWithStatus( string status )
+    {
+        var num = 0;
+        for ( int i = 1; i != Constants.CALL_INDEX_MAX; ++i )
+        {
+            if ( calls[i].detail.status == status )
+            {
+                num++;
+            }
+        }
+        return num;
     }
 
     public override string repr()
@@ -187,14 +193,14 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         }
 
         // visit all calls and synthesize updates for released ones
-        var visited = new bool[MAXIMUM_NUMBER_OF_CALLS];
+        var visited = new bool[Constants.CALL_INDEX_MAX+1];
         foreach ( var call in m.calls )
         {
             calls[call.id].update( call );
             visited[call.id] = true;
         }
 
-        for ( int i = 0; i < MAXIMUM_NUMBER_OF_CALLS; ++i )
+        for ( int i = 0; i != Constants.CALL_INDEX_MAX; ++i )
         {
             if ( ! visited[i] )
             {
@@ -224,11 +230,27 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         startTimeoutIfNecessary();
     }
 
-    /*
-    public override async void holdActive()
+    public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        if ( numberOfCallsWithStatus( "active" ) == 0 )
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No active call present" );
+        }
+        if ( numberOfCallsWithStatus( "incoming" ) > 0 )
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating." );
+        }
+        var cmd = theModem.createAtCommand<PlusCHLD>( "PlusCHLD" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( 2 ) );
+        checkResponseOk( cmd, response );
     }
-    */
+
+    public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCHLD>( "PlusCHLD" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( 2 ) );
+        checkResponseOk( cmd, response );
+    }
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
@@ -236,13 +258,4 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
         // no checkResponseOk, this call will always succeed
     }
-
-    /*
-
-    public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        var cmd = theModem.createAtCommand<V250D>( "D" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
-    }
-    */
 }
