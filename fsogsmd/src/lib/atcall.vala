@@ -135,6 +135,19 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         }
     }
 
+    private int numberOfBusyCalls()
+    {
+        var num = 0;
+        for ( int i = 1; i != Constants.CALL_INDEX_MAX; ++i )
+        {
+            if ( calls[i].detail.status != "release" && calls[i].detail.status != "incoming" )
+            {
+                num++;
+            }
+        }
+        return num;
+    }
+
     private int numberOfCallsWithStatus( string status )
     {
         var num = 0;
@@ -225,12 +238,30 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     //
     // DBus methods, delegated from the Call mediators
     //
-
     public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var cmd = theModem.createAtCommand<V250D>( "A" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
-        checkResponseOk( cmd, response );
+        if ( id < 1 || id > Constants.CALL_INDEX_MAX )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
+        }
+        if ( calls[id].detail.status != "incoming" && calls[id].detail.status != "held" )
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to activate found" );
+        }
+
+        if ( numberOfBusyCalls() == 0 ) // simple case
+        {
+            var cmd = theModem.createAtCommand<V250D>( "A" );
+            var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+            checkResponseOk( cmd, response );
+        }
+        else
+        {
+            // call is present and incoming or held
+            var cmd2 = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
+            var response2 = yield theModem.processCommandAsync( cmd2, cmd2.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
+            checkResponseOk( cmd2, response2 );
+        }
     }
 
     public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

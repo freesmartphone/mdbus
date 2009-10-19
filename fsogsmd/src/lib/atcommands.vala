@@ -208,11 +208,11 @@ public class PlusCHLD : AbstractAtCommand
     {
         if ( cid > 0 )
         {
-            return "+CHLD=%d".printf( (int)action );
+            return "+CHLD=%d%d".printf( (int)action, cid );
         }
         else
         {
-            return "+CHLD=%d%d".printf( (int)action, cid );
+            return "+CHLD=%d".printf( (int)action );
         }
     }
 }
