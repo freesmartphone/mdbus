@@ -106,6 +106,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     public AtUnsolicitedResponseHandler()
     {
         registerUrc( "+CALA", plusCALA );
+        registerUrc( "+CCWA", plusCCWA );
         registerUrc( "+CIEV", plusCIEV );
         registerUrc( "+CREG", plusCREG );
         registerUrc( "+CRING", plusCRING );
@@ -118,12 +119,22 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         obj.alarm( 0 );
     }
 
+    public virtual void plusCCWA( string prefix, string rhs )
+    {
+        // The call waiting parameters are irrelevant, as we're going to pull them
+        // immediately via +CLCC anyways. Note that we force type to be
+        // 'VOICE' since call waiting does only apply to voice calls.
+        theModem.callhandler.handleIncomingCall( "VOICE" );
+    }
+
     public virtual void plusCIEV( string prefix, string rhs )
     {
+        //FIXME: Implement
     }
 
     public virtual void plusCREG( string prefix, string rhs )
     {
+        //FIXME: Implement
     }
 
     public virtual void plusCRING( string prefix, string rhs )
