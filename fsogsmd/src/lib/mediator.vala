@@ -275,7 +275,13 @@ public abstract class FsoGsm.CallHoldActive : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.CallInitiate : FsoGsm.AbstractMediator
 {
+    public int id { get; set; }
     public abstract async void run( string number, string typ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.CallRelease : FsoGsm.AbstractMediator
+{
+    public abstract async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 // work around since string marshalling seems somewhat broken atm.

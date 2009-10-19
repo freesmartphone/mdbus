@@ -193,9 +193,27 @@ public class PlusCGSN : SimpleAtCommand<string>
 
 public class PlusCHLD : AbstractAtCommand
 {
-    public string issue( int action, int cid = 0 )
+    public enum Action
     {
-        return cid == 0 ? @"+CHLD=$action" : @"+CHLD=$action$cid";
+        DROP_ALL_OR_SEND_BUSY = 0,
+        DROP_ALL_AND_ACCEPT_WAITING_OR_HELD = 1,
+        DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD = 1,
+        HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD = 2,
+        HOLD_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD = 2,
+        ACTIVATE_HELD = 3,
+        DROP_SELF_AND_CONNECT_ACTIVE = 4
+    }
+
+    public string issue( Action action, int cid = 0 )
+    {
+        if ( cid > 0 )
+        {
+            return "+CHLD=%d".printf( (int)action );
+        }
+        else
+        {
+            return "+CHLD=%d%d".printf( (int)action, cid );
+        }
     }
 }
 

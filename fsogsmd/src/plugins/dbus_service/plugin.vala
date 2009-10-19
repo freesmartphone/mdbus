@@ -486,7 +486,7 @@ class DBusService.Device :
     {
         var m = modem.createMediator<FsoGsm.CallInitiate>();
         yield m.run( number, ctype );
-        return 1;
+        return m.id;
     }
 
     public async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -503,7 +503,8 @@ class DBusService.Device :
 
     public async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.CallRelease>();
+        yield m.run( id );
     }
 
     public async void release_all() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

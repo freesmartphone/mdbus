@@ -89,7 +89,7 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
     public abstract void handleIncomingCall( string ctype );
 
     public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async int  initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
@@ -112,7 +112,7 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
     protected abstract void startTimeoutIfNecessary();
 
     public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async int  initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
     public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
@@ -146,6 +146,18 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
             }
         }
         return num;
+    }
+
+    private int lowestOfCallsWithStatus( string status )
+    {
+        for ( int i = 1; i != Constants.CALL_INDEX_MAX; ++i )
+        {
+            if ( calls[i].detail.status == status )
+            {
+                return i;
+            }
+        }
+        return 0;
     }
 
     public override string repr()
@@ -221,13 +233,21 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         checkResponseOk( cmd, response );
     }
 
-    public override async void initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        var num = lowestOfCallsWithStatus( "release" );
+        if ( num == 0 )
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "System busy" );
+        }
+
         var cmd = theModem.createAtCommand<V250D>( "D" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
         checkResponseOk( cmd, response );
 
         startTimeoutIfNecessary();
+
+        return num;
     }
 
     public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -238,17 +258,25 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         }
         if ( numberOfCallsWithStatus( "incoming" ) > 0 )
         {
-            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating." );
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating" );
         }
-        var cmd = theModem.createAtCommand<PlusCHLD>( "PlusCHLD" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( 2 ) );
+        var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
         checkResponseOk( cmd, response );
     }
 
     public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var cmd = theModem.createAtCommand<PlusCHLD>( "PlusCHLD" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( 2 ) );
+        if ( id < 1 || id > Constants.CALL_INDEX_MAX )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
+        }
+        if ( calls[id].detail.status == "release" )
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to release found" );
+        }
+        var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id ) );
         checkResponseOk( cmd, response );
     }
 
