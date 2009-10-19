@@ -520,7 +520,8 @@ class DBusService.Device :
 
     public async void send_dtmf( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.CallSendDtmf>();
+        yield m.run( tones );
     }
 
     public async void transfer( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

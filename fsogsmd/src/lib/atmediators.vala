@@ -670,6 +670,16 @@ public class AtCallListCalls : CallListCalls
     }
 }
 
+public class AtCallSendDtmf : CallSendDtmf
+{
+    public override async void run( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusVTS>( "+VTS" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( tones ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
 public class AtCallRelease : CallRelease
 {
     public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -728,6 +738,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(CallListCalls) ]                = typeof( AtCallListCalls );
     table[ typeof(CallReleaseAll) ]               = typeof( AtCallReleaseAll );
     table[ typeof(CallRelease) ]                  = typeof( AtCallRelease );
+    table[ typeof(CallSendDtmf) ]                 = typeof( AtCallSendDtmf );
 }
 
 } // namespace FsoGsm

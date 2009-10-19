@@ -279,11 +279,6 @@ public abstract class FsoGsm.CallInitiate : FsoGsm.AbstractMediator
     public abstract async void run( string number, string typ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
-public abstract class FsoGsm.CallRelease : FsoGsm.AbstractMediator
-{
-    public abstract async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-}
-
 // work around since string marshalling seems somewhat broken atm.
 public struct XFreeSmartphone.GSM.CallDetail
 {
@@ -298,7 +293,17 @@ public abstract class FsoGsm.CallListCalls : FsoGsm.AbstractMediator
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.CallRelease : FsoGsm.AbstractMediator
+{
+    public abstract async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.CallReleaseAll : FsoGsm.AbstractMediator
 {
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.CallSendDtmf : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }

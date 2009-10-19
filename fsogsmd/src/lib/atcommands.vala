@@ -635,6 +635,27 @@ public class PlusGCAP : SimpleAtCommand<string>
     }
 }
 
+public class PlusVTS : AbstractAtCommand
+{
+    public const string DTMF_VALID_CHARS = "0123456789ABC+#";
+
+    public string issue( string tones )
+    {
+        /*
+        var tone = "";
+        for ( int i = 0; i < tone.length; ++i )
+        {
+            var c = tones[i];
+            if ( c in DTMF_VALID_CHARS )
+            {
+                tone += c;
+            }
+        }
+        */
+        return @"+VTS=$tones";
+    }
+}
+
 public class V250A : V250terCommand
 {
     public V250A()
@@ -706,13 +727,16 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
 
+    table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
+
+    table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
+
+    table[ "+VTS" ]              = new FsoGsm.PlusVTS();
+
     table[ "A" ]                 = new FsoGsm.V250A();
     table[ "H" ]                 = new FsoGsm.V250H();
     table[ "D" ]                 = new FsoGsm.V250D();
 
-    table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
-
-    table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
 }
 
 } /* namespace FsoGsm */
