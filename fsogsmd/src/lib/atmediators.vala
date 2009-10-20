@@ -685,7 +685,7 @@ public class AtNetworkListProviders : NetworkListProviders
     {
         var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
         var response = yield theModem.processCommandAsync( cmd, cmd.test() );
-        checkResponseOk( cmd, response );
+        checkTestResponseValid( cmd, response );
         providers = cmd.providers;
     }
 }

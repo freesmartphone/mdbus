@@ -369,7 +369,7 @@ public class PlusCOPS : AbstractAtCommand
 
     public override void parseTest( string response ) throws AtCommandError
     {
-        base.parse( response );
+        base.parseTest( response );
         var providers = new FreeSmartphone.GSM.NetworkProvider[] {};
         do
         {

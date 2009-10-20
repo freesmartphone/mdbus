@@ -54,6 +54,18 @@ public abstract interface FsoGsm.Mediator
         throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( response[response.length-1] );
     }
 
+    protected void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var code = command.validateTest( response );
+        if ( code == AtResponse.VALID )
+        {
+            return;
+        }
+
+        //FIXME: gather better error message out of response status
+        throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unexpected AT command response" );
+    }
+
     protected void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var code = command.validate( response );
