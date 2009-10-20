@@ -143,6 +143,14 @@ public class PlusCCLK : AbstractAtCommand
     }
 }
 
+public class PlusCEER : SimpleAtCommand<string>
+{
+    public PlusCEER()
+    {
+        base( "+CEER", false );
+    }
+}
+
 public class PlusCFUN : SimpleAtCommand<int>
 {
     public PlusCFUN()
@@ -724,6 +732,8 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CBC" ]              = new FsoGsm.PlusCBC();
 
     table[ "+CCLK" ]             = new FsoGsm.PlusCCLK();
+
+    table[ "+CEER" ]             = new FsoGsm.PlusCEER();
 
     table[ "+CFUN" ]             = new FsoGsm.PlusCFUN();
 

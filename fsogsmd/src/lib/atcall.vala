@@ -217,7 +217,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
             timeout = 0;
         }
 
-        // visit all calls and synthesize updates for released ones
+        // visit all busy (incoming,outgoing,held,active) calls to send updates...
         var visited = new bool[Constants.CALL_INDEX_MAX+1];
         foreach ( var call in m.calls )
         {
@@ -225,12 +225,25 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
             visited[call.id] = true;
         }
 
+        // ...and synthesize updates for released calls
         for ( int i = 0; i != Constants.CALL_INDEX_MAX; ++i )
         {
             if ( ! visited[i] )
             {
-                //FIXME: This leads to a (harmless) assertion
-                calls[i].update( new Call.newFromId( i ).detail );
+                var detail = XFreeSmartphone.GSM.CallDetail();
+                detail.id = i;
+                detail.status = "release";
+                detail.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+
+                var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
+                var result = yield theModem.processCommandAsync( ceer, ceer.execute() );
+                if ( ceer.validate( result ) == AtResponse.VALID )
+                {
+                    var cause = Value( typeof(string) );
+                    cause = ceer.value;
+                    detail.properties.insert( "cause", cause );
+                }
+                calls[i].update( detail );
             }
         }
     }
