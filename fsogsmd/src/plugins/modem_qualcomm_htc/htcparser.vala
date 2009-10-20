@@ -175,9 +175,8 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         switch (c)
         {
             case '\r':
-
-            // HTC madness bug in ATV1, does not include the mandatory \n
-            // when the terminal response is an error message
+                // HTC madness bug in ATV1, does not include the mandatory \n
+                // when the terminal response is an error message
                 if ( curline.length > 11 &&
                      curline[0] == '+' && curline[1] == 'C' && curline[2] == 'M' &&
                      curline[5] == 'E' && curline[6] == 'R' && curline[7] == 'R' )

@@ -212,9 +212,9 @@ void test_atcommand_PlusFCLASS()
 {
     FsoGsm.PlusFCLASS cmd = (FsoGsm.PlusFCLASS) atCommandFactory( "+FCLASS" );
     cmd.parse( "0" );
-    assert( cmd.faxclass == "0" );
+    assert( cmd.value == "0" );
     cmd.parse( "2.0" );
-    assert( cmd.faxclass == "2.0" );
+    assert( cmd.value == "2.0" );
 }
 
 //===========================================================================

@@ -282,7 +282,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         response = yield theModem.processCommandAsync( fclass, fclass.test() );
         if ( fclass.validateTest( response ) == AtResponse.VALID )
         {
-            value = (string) fclass.faxclass;
+            value = (string) fclass.righthandside;
             features.insert( "fax", value );
         }
     }

@@ -649,29 +649,11 @@ public class PlusCSQ : AbstractAtCommand
     }
 }
 
-public class PlusFCLASS : AbstractAtCommand
+public class PlusFCLASS : SimpleAtCommand<string>
 {
-    public string faxclass;
-
     public PlusFCLASS()
     {
-        re = new Regex( """"?(?P<faxclass>[^"]*)"?""" );
-    }
-
-    public override void parse( string response ) throws AtCommandError
-    {
-        base.parse( response );
-        faxclass = to_string( "faxclass" );
-    }
-
-    public string query()
-    {
-        return "+FCLASS?";
-    }
-
-    public string test()
-    {
-        return "+FCLASS=?";
+        base( "+FCLASS", true );
     }
 }
 
