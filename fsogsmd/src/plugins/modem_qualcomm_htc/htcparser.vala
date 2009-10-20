@@ -115,7 +115,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
             s = "\\r";
         else
             s = "%c".printf( c );
-        debug( "state = %d, feeding '%s'", curstate, s );
+        debug( "state = %s, feeding '%s'", FsoFramework.StringHandling.enumToString( typeof(State), curstate ), s );
 #endif
         switch (curstate)
         {
@@ -175,6 +175,15 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         switch (c)
         {
             case '\r':
+
+            // HTC madness bug in ATV1, does not include the mandatory \n
+            // when the terminal response is an error message
+                if ( curline.length > 11 &&
+                     curline[0] == '+' && curline[1] == 'C' && curline[2] == 'M' &&
+                     curline[5] == 'E' && curline[6] == 'R' && curline[7] == 'R' )
+                {
+                    return endofline();
+                }
                 return State.INLINE_R;
             default:
                 curline += c;
@@ -239,7 +248,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
 
         var prefixExpected = expectedPrefix( (string)curline );
 #if DEBUG
-        debug( "prefix expected = ", prefixExpected );
+        debug( "prefix expected = %s", prefixExpected.to_string() );
 #endif
         if ( !expectedPrefix( (string)curline ) )
         {

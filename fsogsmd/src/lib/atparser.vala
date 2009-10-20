@@ -113,7 +113,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
             s = "\\r";
         else
             s = "%c".printf( c );
-        debug( "state = %d, feeding '%s'", curstate, s );
+        debug( "state = %s, feeding '%s'", FsoFramework.StringHandling.enumToString( typeof(State), curstate ), s );
 #endif
         switch (curstate)
         {
@@ -223,7 +223,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 
         var prefixExpected = expectedPrefix( (string)curline );
 #if DEBUG
-        debug( "prefix expected = ", prefixExpected );
+        debug( "prefix expected = %s", prefixExpected.to_string() );
 #endif
         if ( !expectedPrefix( (string)curline ) )
         {
