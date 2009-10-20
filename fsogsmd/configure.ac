@@ -1,4 +1,4 @@
-AC_INIT([fsogsmd], [0.1.0.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
+AC_INIT([fsogsmd], [0.2.0.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -77,6 +77,7 @@ AC_CONFIG_FILES([
   src/plugins/modem_cinterion_mc75/Makefile
   src/plugins/modem_singleline/Makefile
   src/plugins/modem_ti_calypso/Makefile
+  src/plugins/modem_qualcomm_htc/Makefile
   tests/Makefile
 ])
 

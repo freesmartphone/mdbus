@@ -9,4 +9,5 @@ SUBDIRS = \
 	modem_cinterion_mc75 \
 	modem_singleline \
 	modem_ti_calypso \
+	modem_qualcomm_htc \
 	$(NULL)

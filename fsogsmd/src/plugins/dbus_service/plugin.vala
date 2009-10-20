@@ -53,8 +53,8 @@ class DBusService.Device :
             case "ti_calypso":
                 typename = "TiCalypsoModem";
                 break;
-            case "qualcomm_msm":
-                typename = "QualcommMsmModem";
+            case "qualcomm_htc":
+                typename = "QualcommHtcModem";
                 break;
             case "freescale_neptune":
                 typename = "FreescaleNeptuneModem";
