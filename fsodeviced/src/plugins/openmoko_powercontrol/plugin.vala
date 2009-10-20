@@ -50,6 +50,42 @@ class BluetoothPowerControl : FsoDevice.BasePowerControl
 }
 
 /**
+ * UsbHost mode control for Openmoko GTA02
+ **/
+class UsbHostModeControl : FsoDevice.BasePowerControl
+{
+    private FsoFramework.Subsystem subsystem;
+    private string sysfsnode;
+    private string umodenode;
+    private string name;
+
+    public UsbHostModeControl( FsoFramework.Subsystem subsystem, string sysfsnode )
+    {
+        base( Path.build_filename( sysfsnode, "hostmode" ) );
+        this.subsystem = subsystem;
+        this.sysfsnode = sysfsnode;
+        this.umodenode = Path.build_filename( sysfs_root, "devices", "s3c-ohci", "usb_mode" );
+        this.name = Path.get_basename( sysfsnode );
+
+        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
+                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
+                                                 this );
+
+        logger.info( "created." );
+    }
+
+    public override void setPower( bool on )
+    {
+        // first, set/clear 5v via USB
+        base.setPower( on );
+        // then, set/clear logical mode
+        var logical = on ? "host" : "device";
+        FsoFramework.FileHandling.write( logical, umodenode );
+    }
+}
+
+/**
  * WiFi power control for Openmoko GTA02
  **/
 class WiFiPowerControl : FsoDevice.BasePowerControl
@@ -113,6 +149,15 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         instances.append( o );
         resources.append( new FsoDevice.BasePowerControlResource( o, "Bluetooth", subsystem ) );
     }
+
+    var usbhost = Path.build_filename( devices, "neo1973-pm-host.0" );
+    if ( FsoFramework.FileHandling.isPresent( usbhost ) )
+    {
+        var o = new Openmoko.UsbHostModeControl( subsystem, usbhost );
+        instances.append( o );
+        resources.append( new FsoDevice.BasePowerControlResource( o, "UsbHost", subsystem ) );
+    }
+
 
     var wifi = Path.build_filename( drivers, "s3c2440-sdi" );
     if ( FsoFramework.FileHandling.isPresent( wifi ) )
