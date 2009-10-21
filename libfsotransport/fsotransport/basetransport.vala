@@ -396,6 +396,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return len;
     }
 
+    public override int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 1000 )
+    {
+        assert_not_reached(); // NYI
+    }
+
     public override void freeze()
     {
         if ( buffer.len > 0 )
