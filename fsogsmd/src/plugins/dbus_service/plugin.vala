@@ -85,7 +85,7 @@ class DBusService.Device :
 
     public override string repr()
     {
-        return "<DBusService>";
+        return "<>";
     }
 
     public void enable()

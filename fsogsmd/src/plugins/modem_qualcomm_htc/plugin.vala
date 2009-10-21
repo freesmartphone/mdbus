@@ -27,7 +27,7 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
 
     public override string repr()
     {
-        return "<Qualcomm/HTC>";
+        return "<>";
     }
 
     protected override void createChannels()

@@ -22,6 +22,7 @@ using GLib;
 public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
 {
     protected string name;
+    private string[] init;
 
     public Channel( string name, FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
@@ -30,6 +31,8 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
         theModem.registerChannel( name, this );
 
         theModem.signalStatusChanged += onModemStatusChanged;
+
+        init = theModem.config.stringListValue( "fsogsm", @"channel_init_$name", { } );
     }
 
     /*
@@ -45,6 +48,13 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
         {
             var sequence = modem.commandSequence( "init" );
             foreach( var element in sequence )
+            {
+                var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+                enqueueAsyncYielding( cmd, element );
+                //FIXME: What about the responses to these commands?
+            }
+
+            foreach( var element in init )
             {
                 var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
                 enqueueAsyncYielding( cmd, element );
