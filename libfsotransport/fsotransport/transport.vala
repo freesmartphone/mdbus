@@ -106,6 +106,10 @@ public abstract class FsoFramework.Transport : Object
                 return null;
         }
     }
+    /**
+     * Should not be here, but wants to be accessed from the command queue
+     **/
+    public FsoFramework.Logger logger;
 }
 
 //===========================================================================

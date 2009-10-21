@@ -47,7 +47,7 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
 
     public override string repr()
     {
-        return "<Serial Transport %s @ %u (fd %d)>".printf( name, speed, fd );
+        return "<Serial %s@%u (fd %d)>".printf( name, speed, fd );
     }
 
 }

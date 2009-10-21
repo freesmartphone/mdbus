@@ -40,8 +40,6 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     protected ByteArray buffer;
 
-    protected FsoFramework.Logger logger;
-
     protected void restartWriter()
     {
         writewatch = channel.add_watch_full( writepriority, IOCondition.OUT, writeCallback );

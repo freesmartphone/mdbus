@@ -150,9 +150,7 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     protected void _unsolicitedCompleted( string[] response )
     {
-#if DEBUG
-        debug( "UNsolicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
-#endif
+        transport.logger.info( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
 
         //TODO: should we have a configurable prefix separator or is that over the top?
 
@@ -230,9 +228,7 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     protected void onSolicitedResponse( CommandBundle bundle, string[] response )
     {
-#if DEBUG
-        debug( "Solicited completed: %s -> %s".printf( bundle.request, FsoFramework.StringHandling.stringListToString( response ) ) );
-#endif
+        transport.logger.info( "SRC: %s -> %s".printf( bundle.request, FsoFramework.StringHandling.stringListToString( response ) ) );
 
         if ( bundle.callback != null )
         {

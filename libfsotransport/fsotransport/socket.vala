@@ -58,7 +58,7 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
 
     public override string repr()
     {
-        return "<Socket Transport %s (fd %d)>".printf( getName(), fd );
+        return "<Socket %s (fd %d)>".printf( getName(), fd );
     }
 
     public override bool open()
