@@ -40,53 +40,56 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     protected ByteArray buffer;
 
+    protected FsoFramework.Logger logger;
+
     protected void restartWriter()
     {
         writewatch = channel.add_watch_full( writepriority, IOCondition.OUT, writeCallback );
     }
 
-    protected FsoFramework.Logger logger;
-
-    //=====================================================================//
-    // PUBLIC API
-    //=====================================================================//
-
-    public BaseTransport( string name,
-                          uint speed = 0,
-                          bool raw = true,
-                          bool hard = true )
+    private bool actionCallback( IOChannel source, IOCondition condition )
     {
-        this.name = name;
-        this.speed = speed;
-        this.raw = raw;
-        this.hard = hard;
-        buffer = new ByteArray();
+        assert( logger.debug( "actionCallback called with condition = %d".printf( condition ) ) );
 
-        // FIXME: Creating the debug logger may be better done in the global
-        // library initializer (e.g. void __attribute__ ((constructor)) my_init(void); )
-        var smk = new FsoFramework.SmartKeyFile();
-        // FIXME: Do not hardcode this
-        if ( smk.loadFromFile( "/etc/frameworkd.conf" ) )
+        if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
-            logger = FsoFramework.Logger.createFromKeyFile( smk, "libfsotransport", "libfsotransport" );
-            logger.setReprDelegate( repr );
-        }
-        else
-        {
-            logger = new FsoFramework.NullLogger( "none" );
+            if ( hupfunc != null )
+                hupfunc( this );
+            return false;
         }
 
-        assert( logger.debug( "created" ) );
+        if ( ( condition & IOCondition.IN ) == IOCondition.IN )
+        {
+            if ( readfunc != null )
+                readfunc( this );
+            return true;
+        }
+
+        logger.warning( "actionCallback called with unknown condition %d".printf( condition ) );
+
+        return false;
     }
 
-    ~BaseTransport()
+    private bool writeCallback( IOChannel source, IOCondition condition )
     {
-        assert( logger.debug( "destroyed" ) );
+        assert( logger.debug( "writeCallback called with %u bytes in buffer".printf( buffer.len ) ) );
+        /*
+        for( int i = 0; i < buffer.len; ++i )
+        logger.debug( "byte: 0x%02x".printf( buffer.data[i] ) );
+        */
+        int len = 64 > buffer.len? (int)buffer.len : 64;
+        var byteswritten = _write( buffer.data, len );
+        assert( logger.debug( "writeCallback wrote %d bytes".printf( (int)byteswritten ) ) );
+        buffer.remove_range( 0, (int)byteswritten );
+
+        return ( buffer.len != 0 );
     }
 
-    public override string getName()
+    internal int _write( void* data, int len )
     {
-        return name;
+        assert( fd != -1 );
+        ssize_t byteswritten = Posix.write( fd, data, len );
+        return (int)byteswritten;
     }
 
     internal void configure()
@@ -260,6 +263,53 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         }
     }
 
+    public virtual string repr()
+    {
+        return "<BaseTransport fd %d>".printf( fd );
+    }
+
+    //
+    // public API
+    //
+
+    public BaseTransport( string name,
+                          uint speed = 0,
+                          bool raw = true,
+                          bool hard = true )
+    {
+        this.name = name;
+        this.speed = speed;
+        this.raw = raw;
+        this.hard = hard;
+        buffer = new ByteArray();
+
+        // FIXME: Creating the debug logger may be better done in the global
+        // library initializer (e.g. void __attribute__ ((constructor)) my_init(void); )
+        var smk = new FsoFramework.SmartKeyFile();
+        // FIXME: Do not hardcode this
+        if ( smk.loadFromFile( "/etc/frameworkd.conf" ) )
+        {
+            logger = FsoFramework.Logger.createFromKeyFile( smk, "libfsotransport", "libfsotransport" );
+            logger.setReprDelegate( repr );
+        }
+        else
+        {
+            logger = new FsoFramework.NullLogger( "none" );
+        }
+
+        assert( logger.debug( "created" ) );
+    }
+
+    ~BaseTransport()
+    {
+        assert( logger.debug( "destroyed" ) );
+    }
+
+    public override string getName()
+    {
+        return name;
+    }
+
     public override bool open()
     {
         assert( fd != -1 ); // fail, if trying to open the 2nd time
@@ -300,11 +350,6 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return ( fd != -1 );
     }
 
-    public virtual string repr()
-    {
-        return "<BaseTransport fd %d>".printf( fd );
-    }
-
     public override void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc )
     {
         this.readfunc = readfunc;
@@ -330,13 +375,6 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         ssize_t bytesread = Posix.read( fd, data, len );
         //TODO: what to do if we got 0 bytes?
         return (int)bytesread;
-    }
-
-    internal int _write( void* data, int len )
-    {
-        assert( fd != -1 );
-        ssize_t byteswritten = Posix.write( fd, data, len );
-        return (int)byteswritten;
     }
 
     public override int write( void* data, int len )
@@ -385,43 +423,5 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( buffer.len > 0 )
             restartWriter();
         logger.debug( "thawn" );
-    }
-
-    public bool actionCallback( IOChannel source, IOCondition condition )
-    {
-        assert( logger.debug( "actionCallback called with condition = %d".printf( condition ) ) );
-
-        if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
-        {
-            if ( hupfunc != null )
-                hupfunc( this );
-            return false;
-        }
-
-        if ( ( condition & IOCondition.IN ) == IOCondition.IN )
-        {
-            if ( readfunc != null )
-                readfunc( this );
-            return true;
-        }
-
-        logger.warning( "actionCallback called with unknown condition %d".printf( condition ) );
-
-        return false;
-    }
-
-    public bool writeCallback( IOChannel source, IOCondition condition )
-    {
-        assert( logger.debug( "writeCallback called with %u bytes in buffer".printf( buffer.len ) ) );
-        /*
-        for( int i = 0; i < buffer.len; ++i )
-            logger.debug( "byte: 0x%02x".printf( buffer.data[i] ) );
-        */
-        int len = 64 > buffer.len? (int)buffer.len : 64;
-        var byteswritten = _write( buffer.data, len );
-        assert( logger.debug( "writeCallback wrote %d bytes".printf( (int)byteswritten ) ) );
-        buffer.remove_range( 0, (int)byteswritten );
-
-        return ( buffer.len != 0 );
     }
 }
