@@ -460,7 +460,7 @@ public class FsoGsm.Constants
     {
         switch ( name )
         {
-            case "DC":
+            case "LD":
                 return "dialed";
             case "EN":
                 return "emergency";
@@ -477,7 +477,7 @@ public class FsoGsm.Constants
             case "VM":
                 return "voicebox";
             default:
-                return "unknown:%s".printf( name );
+                return "unsupported:%s".printf( name );
         }
     }
 
@@ -486,7 +486,7 @@ public class FsoGsm.Constants
         switch ( category )
         {
             case "dialed":
-                return "DC";
+                return "LD";
             case "emergency":
                 return "EN";
             case "fixed":
@@ -502,7 +502,14 @@ public class FsoGsm.Constants
             case "voicebox":
                 return "VM";
             default:
-                return "";
+                if ( category.has_prefix( "unknown:" ) )
+                {
+                    return ( category.replace( "unknown:", "" ) );
+                }
+                else
+                {
+                    return "";
+                }
         }
     }
 
