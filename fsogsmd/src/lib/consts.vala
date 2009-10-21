@@ -231,6 +231,36 @@ public class FsoGsm.Constants
     //
     // public API
     //
+    public FreeSmartphone.GSM.Error atResponseCodeToError( AtResponse code, string detail )
+    {
+        switch ( code )
+        {
+            case AtResponse.CME_ERROR_010_SIM_NOT_INSERTED:
+                return new FreeSmartphone.GSM.Error.SIM_NOT_PRESENT( detail );
+
+            case AtResponse.CME_ERROR_005_PH_SIM_PIN_REQUIRED:
+            case AtResponse.CME_ERROR_006_PH_FSIM_PIN_REQUIRED:
+            case AtResponse.CME_ERROR_007_PH_FSIM_PUK_REQUIRED:
+            case AtResponse.CME_ERROR_011_SIM_PIN_REQUIRED:
+            case AtResponse.CME_ERROR_012_SIM_PUK_REQUIRED:
+            case AtResponse.CME_ERROR_017_SIM_PIN2_REQUIRED:
+            case AtResponse.CME_ERROR_018_SIM_PUK2_REQUIRED:
+            case AtResponse.CME_ERROR_040_NETWORK_PERSONALIZATION_PIN_REQUIRED:
+            case AtResponse.CME_ERROR_041_NETWORK_PERSONALIZATION_PUK_REQUIRED:
+            case AtResponse.CME_ERROR_042_NETWORK_SUBSET_PERSONALIZATION_PIN_REQUIRED:
+            case AtResponse.CME_ERROR_043_NETWORK_SUBSET_PERSONALIZATION_PUK_REQUIRED:
+            case AtResponse.CME_ERROR_044_SERVICE_PROVIDER_PERSONALIZATION_PIN_REQUIRED:
+            case AtResponse.CME_ERROR_045_SERVICE_PROVIDER_PERSONALIZATION_PUK_REQUIRED:
+            case AtResponse.CME_ERROR_046_CORPORATE_PERSONALIZATION_PIN_REQUIRED:
+            case AtResponse.CME_ERROR_047_CORPORATE_PERSONALIZATION_PUK_REQUIRED:
+            case AtResponse.CME_ERROR_048_PH_SIM_PUK_REQUIRED:
+                return new FreeSmartphone.GSM.Error.NETWORK_UNAUTHORIZED( detail );
+
+            default:
+                return new FreeSmartphone.GSM.Error.DEVICE_FAILED( detail );
+        }
+    }
+
     public string devicePowerStatusToString( int code )
     {
         switch ( code )
