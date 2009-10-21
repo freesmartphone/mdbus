@@ -398,7 +398,20 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public override int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 1000 )
     {
-        assert_not_reached(); // NYI
+        assert( fd != -1 );
+        ssize_t byteswritten = Posix.write( fd, wdata, wlength );
+        Posix.tcdrain( fd );
+
+        var readfds = Posix.fd_set();
+        var writefds = Posix.fd_set();
+        var exceptfds = Posix.fd_set();
+        Posix.FD_SET( fd, readfds );
+        Posix.timeval t = { 1, 0 };
+        int res = Posix.select( fd+1, readfds, writefds, exceptfds, t );
+        if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
+            return 0;
+        ssize_t bread = Posix.read( fd, rdata, rlength );
+        return (int)bread;
     }
 
     public override void freeze()
