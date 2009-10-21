@@ -73,8 +73,9 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         bool match;
         match = re.match( response, 0, out mi );
 
+        //FIXME: use logging and do not include any info in exception, since exception is not user visible anyways
         if ( !match || mi == null )
-            throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, re.get_pattern() ) );
+            throw new AtCommandError.UNABLE_TO_PARSE( @"$response does not match against RE $(re.get_pattern())" );
     }
 
     public virtual void parseTest( string response ) throws AtCommandError
@@ -82,8 +83,9 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         bool match;
         match = tere.match( response, 0, out mi );
 
+        //FIXME: use logging and do not include any info in exception, since exception is not user visible anyways
         if ( !match || mi == null )
-            throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, tere.get_pattern() ) );
+            throw new AtCommandError.UNABLE_TO_PARSE( @"$response does not match against RE $(tere.get_pattern())" );
     }
 
     public virtual void parseMulti( string[] response ) throws AtCommandError
@@ -102,7 +104,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
             return Constants.AtResponse.OK;
         }
 
-        theModem.logger.debug( "Did not receive OK (instead '%s') for AT command w/ pattern %s".printf( statusline, re.get_pattern() ) );
+        assert( theModem.logger.debug( @"Did not receive OK (instead '$statusline') for $(Type.from_instance(this).name())" ) );
         var errorcode = 0;
 
         if ( ! ( ":" in statusline ) )
@@ -145,7 +147,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         // check whether we have received enough lines
         if ( response.length <= length )
         {
-            theModem.logger.warning( "Unexpected length for AT command w/ pattern %s".printf( re.get_pattern() ) );
+            theModem.logger.warning( @"Unexpected length $(response.length) for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNEXPECTED_LENGTH;
         }
 
@@ -155,10 +157,10 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         }
         catch ( AtCommandError e )
         {
-            theModem.logger.warning( "Unexpected format for AT command w/ pattern %s".printf( re.get_pattern() ) );
+            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( re.get_pattern() ) );
+        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
         return Constants.AtResponse.VALID;
     }
 
@@ -176,7 +178,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         // second, check whether we have received enough lines
         if ( response.length <= length )
         {
-            theModem.logger.warning( "Unexpected length for AT command w/ pattern %s".printf( tere.get_pattern() ) );
+            theModem.logger.warning( @"Unexpected test length $(response.length) for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNEXPECTED_LENGTH;
         }
 
@@ -186,10 +188,10 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         }
         catch ( AtCommandError e )
         {
-            theModem.logger.debug( "Unexpected format for AT command w/ pattern %s".printf( tere.get_pattern() ) );
+            assert( theModem.logger.debug( @"Unexpected test format for $(Type.from_instance(this).name())" ) );
             return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( tere.get_pattern() ) );
+        assert( theModem.logger.debug( @"Did receive a valid test response for $(Type.from_instance(this).name())" ) );
         return Constants.AtResponse.VALID;
     }
 
@@ -219,10 +221,10 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
             // <HACK>
             response.length++;
             // </HACK>
-            theModem.logger.warning( "Unexpected format for AT command w/ pattern %s".printf( re.get_pattern() ) );
+            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( re.get_pattern() ) );
+        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
         return Constants.AtResponse.VALID;
     }
 
@@ -237,10 +239,10 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         }
         catch ( AtCommandError e )
         {
-            theModem.logger.warning( "Unexpected format for AT command w/ pattern %s".printf( re.get_pattern() ) );
+            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( re.get_pattern() ) );
+        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
         return Constants.AtResponse.VALID;
     }
 

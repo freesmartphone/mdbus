@@ -27,10 +27,72 @@ using Gee;
 
 namespace FsoGsm {
 
+
 /**
- * Some helper functions useful for mediators
+ * Parsing and response checking helpers
  **/
-internal async void gatherSpeakerVolumeRange()
+internal void throwAppropriateError( Constants.AtResponse code, string detail ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+{
+    var error = Constants.instance().atResponseCodeToError( code, detail );
+    throw error;
+}
+
+internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+{
+    var code = command.validateOk( response );
+    if ( code == Constants.AtResponse.OK )
+    {
+        return;
+    }
+    else
+    {
+        throwAppropriateError( code, response[response.length-1] );
+    }
+}
+
+internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+{
+    var code = command.validateTest( response );
+    if ( code == Constants.AtResponse.VALID )
+    {
+        return;
+    }
+    else
+    {
+        throwAppropriateError( code, response[response.length-1] );
+    }
+}
+
+internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+{
+    var code = command.validate( response );
+    if ( code == Constants.AtResponse.VALID )
+    {
+        return;
+    }
+    else
+    {
+        throwAppropriateError( code, response[response.length-1] );
+    }
+}
+
+internal void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+{
+    var code = command.validateMulti( response );
+    if ( code == Constants.AtResponse.VALID )
+    {
+        return;
+    }
+    else
+    {
+        throwAppropriateError( code, response[response.length-1] );
+    }
+}
+
+/**
+ * Modem facilities helpers
+ **/
+internal async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var data = theModem.data();
     if ( data.speakerVolumeMinimum == -1 )
@@ -51,7 +113,7 @@ internal async void gatherSpeakerVolumeRange()
     }
 }
 
-internal async void gatherSimStatusAndUpdate()
+internal async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var data = theModem.data();
 
@@ -71,38 +133,27 @@ internal async void gatherSimStatusAndUpdate()
     }
 }
 
-internal async void gatherPhonebookParams()
+internal async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var data = theModem.data();
     if ( data.simPhonebooks.size == 0 )
     {
         var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
         var response = yield theModem.processCommandAsync( cmd, cmd.test() );
-        if ( cmd.validateTest( response ) == Constants.AtResponse.VALID )
+        checkTestResponseValid( cmd, response );
+
+        foreach ( var pbname in cmd.phonebooks )
         {
-            foreach ( var pbname in cmd.phonebooks )
+            var cpbr = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
+            var pbcode = Constants.instance().simPhonebookStringToName( pbname );
+            var answer = yield theModem.processCommandAsync( cpbr, cpbr.test( pbcode ) );
+            if ( cpbr.validateTest( answer ) == Constants.AtResponse.VALID )
             {
-                var cpbr = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
-                var pbcode = Constants.instance().simPhonebookStringToName( pbname );
-                var answer = yield theModem.processCommandAsync( cpbr, cpbr.test( pbcode ) );
-                if ( cpbr.validateTest( answer ) == Constants.AtResponse.VALID )
-                {
-                    data.simPhonebooks[pbname] = new PhonebookParams( cpbr.min, cpbr.max );
-                    assert( theModem.logger.debug( @"Found phonebook '$pbname' w/ indices $(cpbr.min)-$(cpbr.max)" ) );
-                }
+                data.simPhonebooks[pbname] = new PhonebookParams( cpbr.min, cpbr.max );
+                assert( theModem.logger.debug( @"Found phonebook '$pbname' w/ indices $(cpbr.min)-$(cpbr.max)" ) );
             }
         }
-        else
-        {
-            theModem.logger.warning( "Modem does not support querying the phonebooks." );
-        }
     }
-}
-
-internal void updateSimStatus( FreeSmartphone.GSM.SIMAuthStatus status )
-{
-    var data = theModem.data();
-    
 }
 
 /**
