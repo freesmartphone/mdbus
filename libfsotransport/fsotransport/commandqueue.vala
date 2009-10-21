@@ -150,7 +150,9 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     protected void _unsolicitedCompleted( string[] response )
     {
+#if DEBUG
         debug( "UNsolicited completed: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
+#endif
 
         //TODO: should we have a configurable prefix separator or is that over the top?
 
@@ -197,7 +199,9 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     protected void writeNextCommand()
     {
+#if DEBUG
         debug( "Writing next command" );
+#endif
         current = q.poll_head();
         _writeRequestToTransport( current.request );
     }
@@ -206,7 +210,9 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
     {
         if ( response.length > 0 )
         {
+#if DEBUG
             debug( "Read '%s' - feeding to %s".printf( response.escape( "" ), Type.from_instance( parser ).name() ) );
+#endif
             parser.feed( response, (int)response.length );
         }
         else
@@ -217,14 +223,16 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     protected void onHupFromTransport()
     {
-        debug( "HUP from transport. closing." );
+        warning( "HUP from transport. closing." );
         transport.close();
         //FIXME: Try to open again or leave that to the higher layers?
     }
 
     protected void onSolicitedResponse( CommandBundle bundle, string[] response )
     {
+#if DEBUG
         debug( "Solicited completed: %s -> %s".printf( bundle.request, FsoFramework.StringHandling.stringListToString( response ) ) );
+#endif
 
         if ( bundle.callback != null )
         {
@@ -266,7 +274,9 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     public async string[] enqueueAsyncYielding( CommandQueueCommand command, string request, uint retry = DEFAULT_RETRY )
     {
+#if DEBUG
         debug( "enqueuing %s from AT command %s (sizeof q = %u)".printf( request, Type.from_instance( command ).name(), q.size ) );
+#endif
         CommandBundle bundle = new CommandBundle() {
             command=command,
             request=request,

@@ -265,7 +265,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public virtual string repr()
     {
-        return "<BaseTransport fd %d>".printf( fd );
+        return "<fd %d>".printf( fd );
     }
 
     //
