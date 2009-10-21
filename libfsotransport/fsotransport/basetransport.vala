@@ -365,9 +365,15 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             logger.warning( "freeze called while buffer not yet empty" );
         }
         if ( readwatch != 0 )
+        {
             Source.remove( readwatch );
+            readwatch = 0;
+        }
         if ( writewatch != 0 )
+        {
             Source.remove( writewatch );
+            writewatch = 0;
+        }
         assert( logger.debug( "frozen" ) );
     }
 
