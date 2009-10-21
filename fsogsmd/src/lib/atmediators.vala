@@ -37,7 +37,7 @@ internal async void gatherSpeakerVolumeRange()
     {
         var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
         var response = yield theModem.processCommandAsync( clvl, clvl.test() );
-        if ( clvl.validateTest( response ) == AtResponse.VALID )
+        if ( clvl.validateTest( response ) == Constants.AtResponse.VALID )
         {
             data.speakerVolumeMinimum = clvl.min;
             data.speakerVolumeMaximum = clvl.max;
@@ -57,7 +57,7 @@ internal async void gatherSimStatusAndUpdate()
 
     var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
     var response = yield theModem.processCommandAsync( cmd, cmd.query() );
-    if ( cmd.validate( response ) == AtResponse.VALID )
+    if ( cmd.validate( response ) == Constants.AtResponse.VALID )
     {
         if ( cmd.status != data.simAuthStatus )
         {
@@ -78,14 +78,14 @@ internal async void gatherPhonebookParams()
     {
         var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
         var response = yield theModem.processCommandAsync( cmd, cmd.test() );
-        if ( cmd.validateTest( response ) == AtResponse.VALID )
+        if ( cmd.validateTest( response ) == Constants.AtResponse.VALID )
         {
             foreach ( var pbname in cmd.phonebooks )
             {
                 var cpbr = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
                 var pbcode = Constants.instance().simPhonebookStringToName( pbname );
                 var answer = yield theModem.processCommandAsync( cpbr, cpbr.test( pbcode ) );
-                if ( cpbr.validateTest( answer ) == AtResponse.VALID )
+                if ( cpbr.validateTest( answer ) == Constants.AtResponse.VALID )
                 {
                     data.simPhonebooks[pbname] = new PhonebookParams( cpbr.min, cpbr.max );
                     assert( theModem.logger.debug( @"Found phonebook '$pbname' w/ indices $(cpbr.min)-$(cpbr.max)" ) );
@@ -196,7 +196,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
 
         var cgmr = theModem.createAtCommand<PlusCGMR>( "+CGMR" );
         var response = yield theModem.processCommandAsync( cgmr, cgmr.execute() );
-        if ( cgmr.validate( response ) == AtResponse.VALID )
+        if ( cgmr.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgmr.value;
             info.insert( "revision", value );
@@ -208,7 +208,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
 
         var cgmm = theModem.createAtCommand<PlusCGMM>( "+CGMM" );
         response = yield theModem.processCommandAsync( cgmm, cgmm.execute() );
-        if ( cgmm.validate( response ) == AtResponse.VALID )
+        if ( cgmm.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgmm.value;
             info.insert( "model", value );
@@ -220,7 +220,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
 
         var cgmi = theModem.createAtCommand<PlusCGMI>( "+CGMI" );
         response = yield theModem.processCommandAsync( cgmi, cgmi.execute() );
-        if ( cgmi.validate( response ) == AtResponse.VALID )
+        if ( cgmi.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgmi.value;
             info.insert( "manufacturer", value );
@@ -232,7 +232,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
 
         var cgsn = theModem.createAtCommand<PlusCGSN>( "+CGSN" );
         response = yield theModem.processCommandAsync( cgsn, cgsn.execute() );
-        if ( cgsn.validate( response ) == AtResponse.VALID )
+        if ( cgsn.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgsn.value;
             info.insert( "imei", value );
@@ -244,7 +244,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
 
         var cmickey = theModem.createAtCommand<PlusCMICKEY>( "+CMICKEY" );
         response = yield theModem.processCommandAsync( cmickey, cmickey.execute() );
-        if ( cmickey.validate( response ) == AtResponse.VALID )
+        if ( cmickey.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cmickey.value;
             info.insert( "mickey", value );
@@ -261,7 +261,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
 
         var gcap = theModem.createAtCommand<PlusGCAP>( "+GCAP" );
         var response = yield theModem.processCommandAsync( gcap, gcap.execute() );
-        if ( gcap.validate( response ) == AtResponse.VALID )
+        if ( gcap.validate( response ) == Constants.AtResponse.VALID )
         {
             if ( "GSM" in gcap.value )
             {
@@ -272,7 +272,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
 
         var cgclass = theModem.createAtCommand<PlusCGCLASS>( "+CGCLASS" );
         response = yield theModem.processCommandAsync( cgclass, cgclass.test() );
-        if ( cgclass.validateTest( response ) == AtResponse.VALID )
+        if ( cgclass.validateTest( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgclass.righthandside;
             features.insert( "gprs", value );
@@ -280,7 +280,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
 
         var fclass = theModem.createAtCommand<PlusFCLASS>( "+FCLASS" );
         response = yield theModem.processCommandAsync( fclass, fclass.test() );
-        if ( fclass.validateTest( response ) == AtResponse.VALID )
+        if ( fclass.validateTest( response ) == Constants.AtResponse.VALID )
         {
             value = (string) fclass.righthandside;
             features.insert( "fax", value );
@@ -489,7 +489,7 @@ public class AtSimGetInformation : SimGetInformation
 
         var cimi = theModem.createAtCommand<PlusCGMR>( "+CIMI" );
         var response = yield theModem.processCommandAsync( cimi, cimi.execute() );
-        if ( cimi.validate( response ) == AtResponse.VALID )
+        if ( cimi.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cimi.value;
             info.insert( "imsi", value );
@@ -501,9 +501,9 @@ public class AtSimGetInformation : SimGetInformation
 
         var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
         response = yield theModem.processCommandAsync( crsm, crsm.issue(
-                Constants.SimCommand.READ_BINARY,
+                Constants.SimFilesystemCommand.READ_BINARY,
                 Constants.instance().simFilesystemEntryNameToCode( "EFspn" ), 0, 0, 17 ) );
-        if ( crsm.validate( response ) == AtResponse.VALID )
+        if ( crsm.validate( response ) == Constants.AtResponse.VALID )
         {
             var issuer = Codec.hexToString( crsm.payload );
             value = issuer != "" ? issuer : "unknown";
@@ -633,7 +633,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
         // query field strength
         var csq = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
         var response = yield theModem.processCommandAsync( csq, csq.execute() );
-        if ( csq.validate( response ) == AtResponse.VALID )
+        if ( csq.validate( response ) == Constants.AtResponse.VALID )
         {
             intvalue = csq.signal;
             status.insert( "strength", intvalue );
@@ -642,10 +642,10 @@ public class AtNetworkGetStatus : NetworkGetStatus
         // query registration status and lac/cid
         var creg = theModem.createAtCommand<PlusCREG>( "+CREG" );
         var cregResult = yield theModem.processCommandAsync( creg, creg.query() );
-        if ( creg.validate( cregResult ) == AtResponse.VALID )
+        if ( creg.validate( cregResult ) == Constants.AtResponse.VALID )
         {
             var cregResult2 = yield theModem.processCommandAsync( creg, creg.queryFull( creg.mode ) );
-            if ( creg.validate( cregResult2 ) == AtResponse.VALID )
+            if ( creg.validate( cregResult2 ) == Constants.AtResponse.VALID )
             {
                 strvalue = Constants.instance().networkRegistrationStatusToString( creg.status );
                 status.insert( "registration", strvalue );
@@ -659,7 +659,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
         // query registration mode, operator name, access technology
         var cops = theModem.createAtCommand<PlusCOPS>( "+COPS" );
         var copsResult = yield theModem.processCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC ) );
-        if ( cops.validate( copsResult ) == AtResponse.VALID )
+        if ( cops.validate( copsResult ) == Constants.AtResponse.VALID )
         {
             strvalue = Constants.instance().networkRegistrationModeToString( cops.mode );
             status.insert( "mode", strvalue );
@@ -671,7 +671,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
 
         // query operator code
         var copsResult2 = yield theModem.processCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
-        if ( cops.validate( copsResult2 ) == AtResponse.VALID )
+        if ( cops.validate( copsResult2 ) == Constants.AtResponse.VALID )
         {
             strvalue = cops.oper;
             status.insert( "code", strvalue );

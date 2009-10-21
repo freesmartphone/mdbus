@@ -27,6 +27,9 @@ public class FsoGsm.Constants
 
     public const uint CALL_INDEX_MAX = 7;
 
+    /**
+     * SIM Filesystem
+     **/
     public struct SimFilesystemEntry
     {
         public int id;
@@ -166,13 +169,47 @@ public class FsoGsm.Constants
         { 0x7F23,        0x3F00,      "DFfp-cts" }
     };
 
-    public enum SimCommand
+    public enum SimFilesystemCommand
     {
         READ_BINARY         = 176,
         READ_RECORD         = 192,
         UPDATE_BINARY       = 214,
         UPDATE_RECORD       = 220,
         STATUS              = 242,
+    }
+
+    /**
+     * At response codes
+     **/
+    public enum AtResponse
+    {
+        VALID = 0,
+        OK = 1,
+        UNEXPECTED_LENGTH = 501,
+        UNABLE_TO_PARSE = 502,
+        ERROR = 503,
+
+        CME_ERROR_START                                                             = 1000,
+        CME_ERROR_005_PH_SIM_PIN_REQUIRED                                           = 1005,
+        CME_ERROR_006_PH_FSIM_PIN_REQUIRED                                          = 1006,
+        CME_ERROR_007_PH_FSIM_PUK_REQUIRED                                          = 1007,
+        CME_ERROR_010_SIM_NOT_INSERTED                                              = 1010,
+        CME_ERROR_011_SIM_PIN_REQUIRED                                              = 1011,
+        CME_ERROR_012_SIM_PUK_REQUIRED                                              = 1012,
+        CME_ERROR_017_SIM_PIN2_REQUIRED                                             = 1017,
+        CME_ERROR_018_SIM_PUK2_REQUIRED                                             = 1018,
+        CME_ERROR_040_NETWORK_PERSONALIZATION_PIN_REQUIRED                          = 1040,
+        CME_ERROR_041_NETWORK_PERSONALIZATION_PUK_REQUIRED                          = 1041,
+        CME_ERROR_042_NETWORK_SUBSET_PERSONALIZATION_PIN_REQUIRED                   = 1042,
+        CME_ERROR_043_NETWORK_SUBSET_PERSONALIZATION_PUK_REQUIRED                   = 1043,
+        CME_ERROR_044_SERVICE_PROVIDER_PERSONALIZATION_PIN_REQUIRED                 = 1044,
+        CME_ERROR_045_SERVICE_PROVIDER_PERSONALIZATION_PUK_REQUIRED                 = 1045,
+        CME_ERROR_046_CORPORATE_PERSONALIZATION_PIN_REQUIRED                        = 1046,
+        CME_ERROR_047_CORPORATE_PERSONALIZATION_PUK_REQUIRED                        = 1047,
+        CME_ERROR_048_PH_SIM_PUK_REQUIRED                                           = 1048,
+
+        CMS_ERROR_START = 2000,
+        EXT_ERROR_START = 3000,
     }
 
     internal static FsoGsm.Constants _instance;
@@ -191,7 +228,9 @@ public class FsoGsm.Constants
         // init...
     }
 
+    //
     // public API
+    //
     public string devicePowerStatusToString( int code )
     {
         switch ( code )
@@ -446,11 +485,9 @@ public class FsoGsm.Constants
             case 1:
                 return "held";
             case 2:
-                return "outgoing"; // we don't distinguish between alerting and outgoing
             case 3:
                 return "outgoing";
             case 4:
-                return "incoming";
             case 5:
                 return "incoming";
             default:

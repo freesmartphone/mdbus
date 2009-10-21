@@ -45,7 +45,7 @@ public abstract interface FsoGsm.Mediator
     protected void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var code = command.validateOk( response );
-        if ( code == AtResponse.OK )
+        if ( code == Constants.AtResponse.OK )
         {
             return;
         }
@@ -57,7 +57,7 @@ public abstract interface FsoGsm.Mediator
     protected void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var code = command.validateTest( response );
-        if ( code == AtResponse.VALID )
+        if ( code == Constants.AtResponse.VALID )
         {
             return;
         }
@@ -69,7 +69,7 @@ public abstract interface FsoGsm.Mediator
     protected void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var code = command.validate( response );
-        if ( code == AtResponse.VALID )
+        if ( code == Constants.AtResponse.VALID )
         {
             return;
         }
@@ -81,7 +81,7 @@ public abstract interface FsoGsm.Mediator
     protected void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var code = command.validateMulti( response );
-        if ( code == AtResponse.VALID )
+        if ( code == Constants.AtResponse.VALID )
         {
             return;
         }

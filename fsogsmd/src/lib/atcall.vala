@@ -237,7 +237,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
                 var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
                 var result = yield theModem.processCommandAsync( ceer, ceer.execute() );
-                if ( ceer.validate( result ) == AtResponse.VALID )
+                if ( ceer.validate( result ) == Constants.AtResponse.VALID )
                 {
                     var cause = Value( typeof(string) );
                     cause = ceer.value;
