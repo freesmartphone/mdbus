@@ -170,11 +170,14 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
 
         switch ( level[0] )
         {
+            case 'D':
+                prefix = "\033[1;30m"; /* bold gray */
+                break;
             case 'I':
-                prefix = "\033[0;32m";
+                prefix = "\033[0;32m"; /* normal green */
                 break;
             case 'W':
-                prefix = "\033[1;33m"; /* bright yellow */
+                prefix = "\033[0;33m"; /* normal yellow */
                 break;
             case 'E':
                 prefix = "\033[0;31m"; /* normal red */
