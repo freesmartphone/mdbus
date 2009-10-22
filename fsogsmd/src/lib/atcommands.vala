@@ -642,7 +642,7 @@ public class PlusCRSM : AbstractAtCommand
 
     public PlusCRSM()
     {
-        re = new Regex( """\+CRSM: 144,0,(?P<payload>[0-9A-Z]+)""" );
+        re = new Regex( """\+CRSM: 144,0,"?(?P<payload>[0-9A-Z]+)"?""" );
         prefix = { "+CRSM: " };
     }
 
