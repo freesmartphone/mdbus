@@ -24,7 +24,11 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
     private static int numChannelsInitialized;
 
     protected string name;
-    private string[] initsequence;
+    private string[] initSequence;
+    private string[] unlockedSequence;
+    private string[] registeredSequence;
+    private string[] suspendSequence;
+    private string[] resumeSequence;
 
     static construct
     {
@@ -39,14 +43,25 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
 
         theModem.signalStatusChanged += onModemStatusChanged;
 
-        initsequence = theModem.config.stringListValue( "fsogsm", @"channel_init_$name", { } );
+        initSequence = theModem.config.stringListValue( "fsogsm", @"channel_init_$name", { } );
+        unlockedSequence = theModem.config.stringListValue( "fsogsm", @"channel_unlocked_$name", { } );
+        registeredSequence = theModem.config.stringListValue( "fsogsm", @"channel_registered_$name", { } );
+        suspendSequence = theModem.config.stringListValue( "fsogsm", @"channel_suspend_$name", { } );
+        resumeSequence = theModem.config.stringListValue( "fsogsm", @"channel_resume_$name", { } );
     }
 
-    public void onModemStatusChanged( FsoGsm.Modem modem, int status )
+    public void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
     {
-        if ( status == FsoGsm.Modem.Status.INITIALIZING )
+        switch ( status )
         {
-            initialize();
+            case Modem.Status.INITIALIZING:
+                initialize();
+                break;
+            case Modem.Status.ALIVE_SIM_READY:
+                simIsReady();
+                break;
+            default:
+                break;
         }
     }
 
@@ -58,7 +73,7 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
             var sequence = theModem.commandSequence( "init" );
             yield sendCommandSequence( sequence );
         }
-        yield sendCommandSequence( initsequence );
+        yield sendCommandSequence( initSequence );
 
         var charset = yield configureCharset( { "UTF8", "UCS2", "IRA" } );
 
@@ -71,6 +86,14 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
             theModem.logger.info( @"Modem successfully configured for charset '$charset'" );
         }
         theModem.data().charset = charset;
+
+        // charset ok, now it's save to call mediators
+        gatherSimStatusAndUpdate();
+    }
+
+    private async void simIsReady()
+    {
+        yield sendCommandSequence( unlockedSequence );
     }
 
     private async string configureCharset( string[] charsets )

@@ -128,9 +128,24 @@ internal async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, 
             // send dbus signal
             var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
             obj.auth_status( cmd.status );
-            //TODO: advance modem status?
+
+            // advance global modem state
+            var modemStatus = theModem.status();
+            if ( modemStatus == Modem.Status.INITIALIZING )
+            {
+                if ( cmd.status == FreeSmartphone.GSM.SIMAuthStatus.READY )
+                {
+                    theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+                }
+                else
+                {
+                    theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
+                }
+            }
         }
     }
+
+    // TODO: Check error; we might be in NO_SIM_STATUS
 }
 
 internal async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -671,6 +686,7 @@ public class AtSimSendAuthCode : SimSendAuthCode
         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( pin ) );
         checkResponseOk( cmd, response );
+        gatherSimStatusAndUpdate();
     }
 }
 
