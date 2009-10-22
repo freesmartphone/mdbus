@@ -276,6 +276,50 @@ public class PlusCLCC : AbstractAtCommand
     }
 }
 
+public class PlusCLCK : AbstractAtCommand
+{
+    public bool enabled;
+    public int klass;
+
+    public enum Mode
+    {
+        DISABLE = 0,
+        ENABLE = 1,
+        QUERY = 2,
+    }
+
+    public PlusCLCK()
+    {
+        re = new Regex( """\+CLCK: (?P<enabled>[01])(?:,(?P<class>\d+))?""" );
+        //tere = new Regex( """\+CLCK: \(.*\)""" );
+        prefix = { "+CLCK: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        enabled = to_int( "enabled" ) == 1;
+        klass = to_int( "class" );
+    }
+
+    public string query( string facility )
+    {
+        return "+CLCK=\"%s\",%d".printf( facility, (int)Mode.QUERY );
+    }
+
+    public string issue( string facility, bool enable, string pin )
+    {
+        return "+CLCK=\"%s\",%d,\"%s\"".printf( facility, enable ? (int)Mode.ENABLE : (int)Mode.DISABLE, pin );
+    }
+
+    /*
+    public string test()
+    {
+        return "+CLCK=?";
+    }
+    */
+}
+
 public class PlusCLVL : SimpleAtCommand<int>
 {
     public PlusCLVL()
@@ -748,6 +792,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CIMI" ]             = new FsoGsm.PlusCIMI();
 
     table[ "+CLCC" ]             = new FsoGsm.PlusCLCC();
+    table[ "+CLCK" ]             = new FsoGsm.PlusCLCK();
     table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
 
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();

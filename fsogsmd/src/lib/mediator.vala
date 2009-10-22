@@ -150,6 +150,12 @@ public abstract class FsoGsm.SimChangeAuthCode : FsoGsm.AbstractMediator
     public abstract async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.SimGetAuthCodeRequired : FsoGsm.AbstractMediator
+{
+    public bool required;
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SimGetAuthStatus : FsoGsm.AbstractMediator
 {
     public FreeSmartphone.GSM.SIMAuthStatus status;
@@ -189,6 +195,11 @@ public abstract class FsoGsm.SimRetrieveMessagebook : FsoGsm.AbstractMediator
 public abstract class FsoGsm.SimSendAuthCode : FsoGsm.AbstractMediator
 {
     public abstract async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.SimSetAuthCodeRequired : FsoGsm.AbstractMediator
+{
+    public abstract async void run( bool required, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.SimSetServiceCenterNumber : FsoGsm.AbstractMediator
