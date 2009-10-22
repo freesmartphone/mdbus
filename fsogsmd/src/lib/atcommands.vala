@@ -281,6 +281,8 @@ public class PlusCLCK : AbstractAtCommand
     public bool enabled;
     public int klass;
 
+    public string facilities; // test
+
     public enum Mode
     {
         DISABLE = 0,
@@ -291,7 +293,7 @@ public class PlusCLCK : AbstractAtCommand
     public PlusCLCK()
     {
         re = new Regex( """\+CLCK: (?P<enabled>[01])(?:,(?P<class>\d+))?""" );
-        //tere = new Regex( """\+CLCK: \(.*\)""" );
+        tere = new Regex( """\+CLCK: \((?P<facilities>[^\)]*)\)""" );
         prefix = { "+CLCK: " };
     }
 
@@ -300,6 +302,12 @@ public class PlusCLCK : AbstractAtCommand
         base.parse( response );
         enabled = to_int( "enabled" ) == 1;
         klass = to_int( "class" );
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        facilities = to_string( "facilities" );
     }
 
     public string query( string facility )
@@ -312,12 +320,10 @@ public class PlusCLCK : AbstractAtCommand
         return "+CLCK=\"%s\",%d,\"%s\"".printf( facility, enable ? (int)Mode.ENABLE : (int)Mode.DISABLE, pin );
     }
 
-    /*
     public string test()
     {
         return "+CLCK=?";
     }
-    */
 }
 
 public class PlusCLVL : SimpleAtCommand<int>

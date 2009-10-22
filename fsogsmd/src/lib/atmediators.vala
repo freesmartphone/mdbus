@@ -328,6 +328,12 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
             value = (string) cgclass.righthandside;
             features.insert( "gprs", value );
         }
+        else
+        {
+            // default these days is B
+            value = (string) "B";
+            features.insert( "gprs", "B" );
+        }
 
         var fclass = theModem.createAtCommand<PlusFCLASS>( "+FCLASS" );
         response = yield theModem.processCommandAsync( fclass, fclass.test() );
@@ -335,6 +341,14 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         {
             value = (string) fclass.righthandside;
             features.insert( "fax", value );
+        }
+
+        var fac = theModem.createAtCommand<PlusCLCK>( "+CLCK" );
+        response = yield theModem.processCommandAsync( fac, fac.test() );
+        if ( fac.validateTest( response ) == Constants.AtResponse.VALID )
+        {
+            value = (string) fac.facilities;
+            features.insert( "facilities", value );
         }
     }
 }
