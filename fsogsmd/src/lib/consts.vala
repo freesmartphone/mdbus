@@ -502,9 +502,9 @@ public class FsoGsm.Constants
             case "voicebox":
                 return "VM";
             default:
-                if ( category.has_prefix( "unknown:" ) )
+                if ( category.has_prefix( "unsupported:" ) )
                 {
-                    return ( category.replace( "unknown:", "" ) );
+                    return ( category.replace( "unsupported:", "" ) );
                 }
                 else
                 {
