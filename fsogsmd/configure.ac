@@ -70,6 +70,7 @@ AC_SUBST(FSO_LIBS)
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
+  src/3rdparty/Makefile
   src/lib/Makefile
   src/bin/Makefile
   src/plugins/Makefile
