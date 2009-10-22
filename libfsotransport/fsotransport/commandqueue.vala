@@ -17,11 +17,12 @@
  *
  */
 
-const uint COMMAND_QUEUE_CHANNEL_TIMEOUT = 10;
 const int  COMMAND_QUEUE_BUFFER_SIZE = 4096;
 
 public abstract interface FsoFramework.CommandQueueCommand : GLib.Object
 {
+    public abstract uint get_retry();
+    public abstract uint get_timeout();
     public abstract string get_prefix();
     public abstract string get_postfix();
     public abstract bool is_valid_prefix( string line );
@@ -82,11 +83,15 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
         var prefix = current.command.get_prefix();
         var postfix = current.command.get_postfix();
+        var seconds = current.command.get_timeout();
 
         transport.write( prefix, (int)prefix.length );
         transport.write( request, (int)request.size() );
         transport.write( postfix, (int)postfix.length );
-        timeout = Timeout.add_seconds( COMMAND_QUEUE_CHANNEL_TIMEOUT, _onTimeout );
+        if ( seconds > 0 )
+        {
+            timeout = Timeout.add_seconds( seconds, _onTimeout );
+        }
     }
 
     protected void _onReadFromTransport( FsoFramework.Transport t )
