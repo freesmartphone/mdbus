@@ -34,6 +34,8 @@ public errordomain FsoGsm.AtCommandError
 public abstract interface FsoGsm.AtCommand : FsoFramework.CommandQueueCommand, GLib.Object
 {
     /* CommandQueueCommand */
+    public abstract uint get_timeout();
+    public abstract uint get_retry();
     public abstract string get_prefix();
     public abstract string get_postfix();
     public abstract bool is_valid_prefix( string line );
@@ -275,6 +277,16 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         if ( res == null )
             return -1; // indicates parameter not present
         return res.to_int();
+    }
+
+    public virtual uint get_timeout()
+    {
+        return 2 * 60;
+    }
+
+    public virtual uint get_retry()
+    {
+        return 3;
     }
 
     public string get_prefix()
