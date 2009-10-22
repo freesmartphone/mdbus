@@ -19,17 +19,4 @@
  *
  */
 
-#include "util.h"
-
-char *ucs2_to_utf8(const char *str)
-{
-    long len;
-    unsigned char *ucs2;
-    char *utf8;
-    ucs2 = decode_hex(str, -1, &len, 0);
-    utf8 = g_convert((char *)ucs2, len, "UTF-8//TRANSLIT", "UCS-2BE",
-                      NULL, NULL, NULL);
-    g_free(ucs2);
-    return utf8;
-}
-
+char *ucs2_to_utf8(const char *str);

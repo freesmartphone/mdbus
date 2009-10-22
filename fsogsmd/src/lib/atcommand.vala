@@ -43,6 +43,9 @@ public abstract interface FsoGsm.AtCommand : FsoFramework.CommandQueueCommand, G
     public abstract void parseMulti( string[] response ) throws AtCommandError;
     public abstract void parseTest( string response ) throws AtCommandError;
 
+    /* Encoding/Decoding */
+    public abstract string decodeString( string str );
+
     public abstract Constants.AtResponse validate( string[] response );
     public abstract Constants.AtResponse validateTest( string[] response );
     public abstract Constants.AtResponse validateURC( string response );
@@ -66,6 +69,12 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
     ~AbstractAtCommand()
     {
         warning( "DESTRUCT %s", Type.from_instance( this ).name() );
+    }
+
+    public string decodeString( string str )
+    {
+        //FIXME: Check installed code for current mode and use this
+        return Conversions.ucs2_to_utf8( str );
     }
 
     public virtual void parse( string response ) throws AtCommandError
