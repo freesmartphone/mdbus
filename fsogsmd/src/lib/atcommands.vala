@@ -685,6 +685,14 @@ public class PlusCSCA : AbstractAtCommand
     }
 }
 
+public class PlusCSCS : SimpleAtCommand<string>
+{
+    public PlusCSCS()
+    {
+        base( "+CSCS" );
+    }
+}
+
 public class PlusCSQ : AbstractAtCommand
 {
     public int signal;
@@ -817,6 +825,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CRSM" ]             = new FsoGsm.PlusCRSM();
 
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
+    table[ "+CSCS" ]             = new FsoGsm.PlusCSCS();
     table[ "+CSQ" ]              = new FsoGsm.PlusCSQ();
 
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();

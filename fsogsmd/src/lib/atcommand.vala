@@ -73,8 +73,14 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
 
     public string decodeString( string str )
     {
-        //FIXME: Check installed code for current mode and use this
-        return Conversions.ucs2_to_utf8( str );
+        var data = theModem.data();
+        switch ( data.charset )
+        {
+            case "UCS2":
+                return Conversions.ucs2_to_utf8( str );
+            default:
+                return str;
+        }
     }
 
     public virtual void parse( string response ) throws AtCommandError

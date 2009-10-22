@@ -21,8 +21,15 @@ using GLib;
 
 public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
 {
+    private static int numChannelsInitialized;
+
     protected string name;
-    private string[] init;
+    private string[] initsequence;
+
+    static construct
+    {
+        numChannelsInitialized = 0;
+    }
 
     public Channel( string name, FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
@@ -32,36 +39,63 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
 
         theModem.signalStatusChanged += onModemStatusChanged;
 
-        init = theModem.config.stringListValue( "fsogsm", @"channel_init_$name", { } );
+        initsequence = theModem.config.stringListValue( "fsogsm", @"channel_init_$name", { } );
     }
-
-    /*
-    public override string repr()
-    {
-        return "<Channel '%s'>".printf( name );
-    }
-    */
 
     public void onModemStatusChanged( FsoGsm.Modem modem, int status )
     {
         if ( status == FsoGsm.Modem.Status.INITIALIZING )
         {
-            var sequence = modem.commandSequence( "init" );
-            foreach( var element in sequence )
-            {
-                var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
-                enqueueAsyncYielding( cmd, element );
-                //FIXME: What about the responses to these commands?
-            }
+            initialize();
+        }
+    }
 
-            foreach( var element in init )
+    private async void initialize()
+    {
+        if ( numChannelsInitialized < 1 ) // global modem init only sent once
+        {
+            numChannelsInitialized++;
+            var sequence = theModem.commandSequence( "init" );
+            yield sendCommandSequence( sequence );
+        }
+        yield sendCommandSequence( initsequence );
+
+        var charset = yield configureCharset( { "UTF8", "UCS2", "IRA" } );
+
+        if ( charset == "unknown" )
+        {
+            theModem.logger.warning( "Modem does not support the charset command or any of UTF8, UCS2, IRA" );
+        }
+        else
+        {
+            theModem.logger.info( @"Modem successfully configured for charset '$charset'" );
+        }
+        theModem.data().charset = charset;
+    }
+
+    private async string configureCharset( string[] charsets )
+    {
+        theModem.logger.info( "Configuring modem charset..." );
+
+        for ( int i = 0; i < charsets.length; ++i )
+        {
+            var cmd = theModem.createAtCommand<PlusCSCS>( "+CSCS" );
+            var response = yield enqueueAsyncYielding( cmd, cmd.issue( charsets[i] ) );
+            if ( cmd.validateOk( response ) == Constants.AtResponse.OK )
             {
-                var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
-                enqueueAsyncYielding( cmd, element );
-                //FIXME: What about the responses to these commands?
+                return charsets[i];
             }
         }
+        return "unknown";
+    }
 
+    private async void sendCommandSequence( string[] sequence )
+    {
+        foreach( var element in sequence )
+        {
+            var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+            var response = yield enqueueAsyncYielding( cmd, element );
+        }
     }
 }
 

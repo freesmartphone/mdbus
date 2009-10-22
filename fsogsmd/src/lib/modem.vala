@@ -52,6 +52,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public bool simHasReadySignal;
         public bool simIsReady;
         public HashMap<string,PhonebookParams> simPhonebooks;
+
+        public string charset;
     }
 
     public const uint DEFAULT_RETRY = 3;
@@ -167,6 +169,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         advanceStatus( modem_status, Status.CLOSED );
         modem_data = new FsoGsm.Modem.Data();
+
+        modem_data.charset = "unknown";
 
         modem_data.speakerVolumeMinimum = -1;
         modem_data.speakerVolumeMaximum = -1;
