@@ -26,8 +26,6 @@ public string hexToString( string hex, uint lowest = 0x20, uint highest = 0x7f, 
 {
     var str = new GLib.StringBuilder();
 
-    message( "decoding %ld bytes", hex.length );
-
     for ( int i = 0; i < hex.length / 2; ++i )
     {
         var hexbyte = "%c%c".printf( (int)hex[i*2+0], (int)hex[i*2+1] );

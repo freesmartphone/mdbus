@@ -17,9 +17,9 @@
  *
  */
 
-[CCode (cheader_filename = "conversions.h", cprefix = "", lower_case_cprefix = "")]
+[CCode (cheader_filename = "conversions.h,util.h", cprefix = "", lower_case_cprefix = "")]
 namespace Conversions {
 
-    static string ucs2_to_utf8(string data);
-
+    string ucs2_to_utf8( string data );
+    string sim_string_to_utf8( string buffer, int length );
 }

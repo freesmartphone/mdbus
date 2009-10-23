@@ -91,11 +91,10 @@ EXTRA_DIST += \
 
 CLEANFILES = \
 	$(BUILT_SOURCES) \
-	$(libfsogsm_la_SOURCES) \
+        $(libfsogsm_la_VALASOURCES:.vala=.c) \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
-	$(BUILT_SOURCES) \
-	$(libfsogsm_la_SOURCES) \
+	$(CLEANFILES) \
 	Makefile.in
 
