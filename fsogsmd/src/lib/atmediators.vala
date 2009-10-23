@@ -37,6 +37,7 @@ internal void throwAppropriateError( Constants.AtResponse code, string detail ) 
     throw error;
 }
 
+//FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validateOk( response );
@@ -50,6 +51,7 @@ internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) thr
     }
 }
 
+//FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validateTest( response );
@@ -63,6 +65,7 @@ internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] respons
     }
 }
 
+//FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validate( response );
@@ -76,6 +79,7 @@ internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) 
     }
 }
 
+//FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validateMulti( response );
@@ -656,7 +660,11 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
         var cmd = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( cat, pp.min, pp.max ) );
 
-        checkMultiResponseValid( cmd, response );
+        var valid = cmd.validateMulti( response );
+        if ( valid != Constants.AtResponse.VALID && valid != Constants.AtResponse.CME_ERROR_022_NOT_FOUND )
+        {
+            throwAppropriateError( valid, response[response.length-1] );
+        }
         phonebook = cmd.phonebook;
     }
 }

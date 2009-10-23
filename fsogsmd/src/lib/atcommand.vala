@@ -75,6 +75,8 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
 
     public string decodeString( string str )
     {
+        if ( str == null || str.length == 0 )
+            return "";
         var data = theModem.data();
         switch ( data.charset )
         {
@@ -90,9 +92,11 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         bool match;
         match = re.match( response, 0, out mi );
 
-        //FIXME: use logging and do not include any info in exception, since exception is not user visible anyways
         if ( !match || mi == null )
-            throw new AtCommandError.UNABLE_TO_PARSE( @"$response does not match against RE $(re.get_pattern())" );
+        {
+            theModem.logger.debug( @"Parsing error: '$response' does not match '$(re.get_pattern())'" );
+            throw new AtCommandError.UNABLE_TO_PARSE( "" );
+        }
     }
 
     public virtual void parseTest( string response ) throws AtCommandError
@@ -100,9 +104,11 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         bool match;
         match = tere.match( response, 0, out mi );
 
-        //FIXME: use logging and do not include any info in exception, since exception is not user visible anyways
         if ( !match || mi == null )
-            throw new AtCommandError.UNABLE_TO_PARSE( @"$response does not match against RE $(tere.get_pattern())" );
+        {
+            theModem.logger.debug( @"Parsing error: '$response' does not match '$(tere.get_pattern())'" );
+            throw new AtCommandError.UNABLE_TO_PARSE( "" );
+        }
     }
 
     public virtual void parseMulti( string[] response ) throws AtCommandError
@@ -116,6 +122,7 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
     public virtual Constants.AtResponse validateOk( string[] response )
     {
         var statusline = response[response.length-1];
+        //FIXME: Handle nonverbose mode as well
         if ( statusline == "OK" )
         {
             return Constants.AtResponse.OK;

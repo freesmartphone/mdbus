@@ -475,7 +475,7 @@ public class PlusCPBR : AbstractAtCommand
 
     public PlusCPBR()
     {
-        re = new Regex( """\+CPBR: (?P<id>\d+),"(?P<number>[\+0-9*#w]+)",(?P<typ>\d+),"(?P<name>[^"]*)"""" );
+        re = new Regex( """\+CPBR: (?P<id>\d+),"(?P<number>[\+0-9*#w]*)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?""" );
         tere = new Regex( """\+CPBR: \((?P<min>\d+)-(?P<max>\d+)\),\d+,\d+""" );
         prefix = { "+CPBR: " };
     }
