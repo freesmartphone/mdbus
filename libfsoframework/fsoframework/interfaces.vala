@@ -64,6 +64,17 @@ namespace FsoFramework
         public const string RtcServicePath = ServicePathPrefix + "/RTC";
     }
 
+    namespace GPS
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ogpsd";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".GPS";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/GPS";
+
+        public const string DeviceServiceFace = ServiceFacePrefix + ".Device";
+        public const string DeviceServicePath = ServicePathPrefix + "/Device";
+    }
+
     namespace GSM
     {
         public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ogsmd";

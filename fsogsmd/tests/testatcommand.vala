@@ -163,37 +163,28 @@ void test_atcommand_PlusCOPS()
     assert( cmd.status == 0 );
     assert( cmd.mode == 3 );
     assert( cmd.oper == "E-Plus" );
-}
 
-//===========================================================================
-void test_atcommand_PlusCOPS_Test()
-//===========================================================================
-{
-    FsoGsm.PlusCOPS_Test cmd = (FsoGsm.PlusCOPS_Test) atCommandFactory( "+COPS=?" );
 
-    cmd.parse( """+COPS: (1,"E-Plus","E-Plus","26203"),(2,"Vodafone.de","Vodafone","26202",2),(3,"T-Mobile D","TMO D","26201")""" );
+    cmd.parseTest( """+COPS: (1,"E-Plus","E-Plus","26203"),(2,"Vodafone.de","Vodafone","26202",2),(3,"T-Mobile D","TMO D","26201")""" );
+    assert( cmd.providers.length == 3 );
 
-    var providers = (FsoGsm.PlusCOPS_Test.Provider[]) cmd.providerList();
+    assert( cmd.providers[0].status == "available" );
+    assert( cmd.providers[0].longname == "E-Plus" );
+    assert( cmd.providers[0].shortname == "E-Plus" );
+    assert( cmd.providers[0].mccmnc == "26203" );
+    assert( cmd.providers[0].act == "GSM" );
 
-    assert( providers.length == 3 );
+    assert( cmd.providers[1].status == "current" );
+    assert( cmd.providers[1].longname == "Vodafone.de" );
+    assert( cmd.providers[1].shortname == "Vodafone" );
+    assert( cmd.providers[1].mccmnc == "26202" );
+    assert( cmd.providers[1].act == "UMTS" );
 
-    assert( providers[0].status == "available" );
-    assert( providers[0].longname == "E-Plus" );
-    assert( providers[0].shortname == "E-Plus" );
-    assert( providers[0].mccmnc == "26203" );
-    assert( providers[0].act == "GSM" );
-
-    assert( providers[1].status == "current" );
-    assert( providers[1].longname == "Vodafone.de" );
-    assert( providers[1].shortname == "Vodafone" );
-    assert( providers[1].mccmnc == "26202" );
-    assert( providers[1].act == "UMTS" );
-
-    assert( providers[2].status == "forbidden" );
-    assert( providers[2].longname == "T-Mobile D" );
-    assert( providers[2].shortname == "TMO D" );
-    assert( providers[2].mccmnc == "26201" );
-    assert( providers[2].act == "GSM" );
+    assert( cmd.providers[2].status == "forbidden" );
+    assert( cmd.providers[2].longname == "T-Mobile D" );
+    assert( cmd.providers[2].shortname == "TMO D" );
+    assert( cmd.providers[2].mccmnc == "26201" );
+    assert( cmd.providers[2].act == "GSM" );
 }
 
 //===========================================================================
@@ -202,9 +193,9 @@ void test_atcommand_PlusCPIN()
 {
     FsoGsm.PlusCPIN cmd = (FsoGsm.PlusCPIN) atCommandFactory( "+CPIN" );
     cmd.parse( "+CPIN: \"SIM PIN\"" );
-    assert( cmd.pin == "SIM PIN" );
+    assert( cmd.status == FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
     cmd.parse( "+CPIN: READY" );
-    assert( cmd.pin == "READY" );
+    assert( cmd.status == FreeSmartphone.GSM.SIMAuthStatus.READY );
     try
     {
         cmd.parse( "+CPIN THIS FAILS" );
@@ -221,9 +212,9 @@ void test_atcommand_PlusFCLASS()
 {
     FsoGsm.PlusFCLASS cmd = (FsoGsm.PlusFCLASS) atCommandFactory( "+FCLASS" );
     cmd.parse( "0" );
-    assert( cmd.faxclass == "0" );
+    assert( cmd.value == "0" );
     cmd.parse( "2.0" );
-    assert( cmd.faxclass == "2.0" );
+    assert( cmd.value == "2.0" );
 }
 
 //===========================================================================
@@ -239,8 +230,7 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+CGMM", test_atcommand_PlusCGMM );
     Test.add_func( "/AtCommand/+CGMR", test_atcommand_PlusCGMR );
     Test.add_func( "/AtCommand/+CGSN", test_atcommand_PlusCGSN );
-    Test.add_func( "/AtCommand/+COPS?", test_atcommand_PlusCOPS );
-    Test.add_func( "/AtCommand/+COPS=?", test_atcommand_PlusCOPS_Test );
+    Test.add_func( "/AtCommand/+COPS", test_atcommand_PlusCOPS );
     Test.add_func( "/AtCommand/+CPIN", test_atcommand_PlusCPIN );
     Test.add_func( "/AtCommand/+FCLASS", test_atcommand_PlusFCLASS );
     Test.run();

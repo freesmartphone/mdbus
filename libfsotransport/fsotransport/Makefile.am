@@ -9,6 +9,7 @@ VALAC_ARGS = \
 	--pkg linux \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
+	--pkg gee-1.0 \
 	--pkg fsobasics-2.0 \
 	--header fsotransport.h \
 	--library fsotransport-2.0
@@ -25,11 +26,13 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsotransport_la_VALASOURCES = \
-	transport.vala \
 	basetransport.vala \
-	serial.vala \
+	commandqueue.vala \
+	parser.vala \
 	pty.vala \
+	serial.vala \
 	socket.vala \
+	transport.vala \
 	$(NULL)
 
 libfsotransport_la_SOURCES = \

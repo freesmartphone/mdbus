@@ -117,6 +117,12 @@ public interface FsoFramework.Logger : Object
                 logger.setFile( log_to );
                 theLogger = logger;
                 break;
+            case "stderr:colors":
+                var logger = new FileLogger( domain );
+                logger.setFile( "stderr" );
+                logger.setColored( true );
+                theLogger = logger;
+                break;
             case "file":
                 var logger = new FileLogger( domain );
                 logger.setFile( log_destination );
@@ -149,6 +155,7 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     protected uint level = LogLevelFlags.LEVEL_INFO;
     protected string domain;
     protected string destination;
+    protected bool colored;
 
     protected ReprDelegate reprdelegate;
 
@@ -156,12 +163,42 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     {
     }
 
+    protected string colorwrap( string message, string level )
+    {
+        var prefix = "";
+        var postfix = "\033[m";
+
+        switch ( level[0] )
+        {
+            case 'D':
+                prefix = "\033[1;30m"; /* bold gray */
+                break;
+            case 'I':
+                prefix = "\033[0;32m"; /* normal green */
+                break;
+            case 'W':
+                prefix = "\033[0;33m"; /* normal yellow */
+                break;
+            case 'E':
+                prefix = "\033[0;31m"; /* normal red */
+                break;
+            case 'C':
+                prefix = "\033[1;31m"; /* bright red */
+                break;
+            default:
+                prefix = "";
+                postfix = "";
+                break;
+        }
+        return "%s%s%s".printf( prefix, message, postfix );
+    }
+
     protected virtual string format( string message, string level )
     {
-        var repr = ( reprdelegate != null ? reprdelegate() : "" );
         var t = TimeVal();
+        var repr = ( reprdelegate != null ? reprdelegate() : "" );
         var str = "%s %s [%s] %s: %s\n".printf( t.to_iso8601(), domain, level, repr, message );
-        return str;
+        return colored ? colorwrap( str, level ) : str;
     }
 
     public AbstractLogger( string domain )
@@ -189,6 +226,16 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     public string getDestination()
     {
         return this.destination;
+    }
+
+    public void setColored( bool on )
+    {
+        this.colored = on;
+    }
+
+    public bool getColored()
+    {
+        return this.colored;
     }
 
     public void setReprDelegate( ReprDelegate d )
@@ -332,6 +379,7 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
     }
 
 }
+
 /**
  * SyslogLogger
  */

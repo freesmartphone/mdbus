@@ -19,36 +19,106 @@
 
 using GLib;
 
-public class FsoGsm.Channel : FsoGsm.AtCommandQueue
+public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
 {
-    protected string name;
+    private static int numChannelsInitialized;
 
-    public Channel( string name, FsoFramework.Transport transport, FsoGsm.Parser parser )
+    protected string name;
+    private string[] initSequence;
+    private string[] unlockedSequence;
+    private string[] registeredSequence;
+    private string[] suspendSequence;
+    private string[] resumeSequence;
+
+    static construct
+    {
+        numChannelsInitialized = 0;
+    }
+
+    public Channel( string name, FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
         base( transport, parser );
         this.name = name;
         theModem.registerChannel( name, this );
 
         theModem.signalStatusChanged += onModemStatusChanged;
+
+        initSequence = theModem.config.stringListValue( "fsogsm", @"channel_init_$name", { } );
+        unlockedSequence = theModem.config.stringListValue( "fsogsm", @"channel_unlocked_$name", { } );
+        registeredSequence = theModem.config.stringListValue( "fsogsm", @"channel_registered_$name", { } );
+        suspendSequence = theModem.config.stringListValue( "fsogsm", @"channel_suspend_$name", { } );
+        resumeSequence = theModem.config.stringListValue( "fsogsm", @"channel_resume_$name", { } );
     }
 
-    public override string repr()
+    public void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
     {
-        return "<Channel '%s'>".printf( name );
-    }
-
-    public void onModemStatusChanged( FsoGsm.Modem modem, int status )
-    {
-        if ( status == FsoGsm.Modem.Status.INITIALIZING )
+        switch ( status )
         {
-            var cmds = modem.commandSequence( "init" );
-            foreach( var cmd in cmds )
+            case Modem.Status.INITIALIZING:
+                initialize();
+                break;
+            case Modem.Status.ALIVE_SIM_READY:
+                simIsReady();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private async void initialize()
+    {
+        if ( numChannelsInitialized < 1 ) // global modem init only sent once
+        {
+            numChannelsInitialized++;
+            var sequence = theModem.commandSequence( "init" );
+            yield sendCommandSequence( sequence );
+        }
+        yield sendCommandSequence( initSequence );
+
+        var charset = yield configureCharset( { "UTF8", "UCS2", "IRA" } );
+
+        if ( charset == "unknown" )
+        {
+            theModem.logger.warning( "Modem does not support the charset command or any of UTF8, UCS2, IRA" );
+        }
+        else
+        {
+            theModem.logger.info( @"Modem successfully configured for charset '$charset'" );
+        }
+        theModem.data().charset = charset;
+
+        // charset ok, now it's save to call mediators
+        gatherSimStatusAndUpdate();
+    }
+
+    private async void simIsReady()
+    {
+        yield sendCommandSequence( unlockedSequence );
+    }
+
+    private async string configureCharset( string[] charsets )
+    {
+        theModem.logger.info( "Configuring modem charset..." );
+
+        for ( int i = 0; i < charsets.length; ++i )
+        {
+            var cmd = theModem.createAtCommand<PlusCSCS>( "+CSCS" );
+            var response = yield enqueueAsyncYielding( cmd, cmd.issue( charsets[i] ) );
+            if ( cmd.validateOk( response ) == Constants.AtResponse.OK )
             {
-                debug( "sending cmd '%s'", cmd );
-                enqueue( new NullAtCommand(), cmd );
+                return charsets[i];
             }
         }
+        return "unknown";
+    }
 
+    private async void sendCommandSequence( string[] sequence )
+    {
+        foreach( var element in sequence )
+        {
+            var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+            var response = yield enqueueAsyncYielding( cmd, element );
+        }
     }
 }
 

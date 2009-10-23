@@ -17,7 +17,7 @@ progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
 	$(DBUS_LIBS) \
-	$(top_srcdir)/src/lib/libfsogsm.la
+	$(top_srcdir)/src/lib/libfsogps.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -27,25 +27,24 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg dbus-glib-1 \
 	--pkg fso-glib-1.0 \
-	--pkg gsm0710mux-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsoresource-2.0 \
-	--pkg fsogsm-2.0
+	--pkg fsogps-2.0
 
 #
 # plugin
 #
-modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
-modlibexec_LTLIBRARIES = gsm_device.la
-gsm_device_la_SOURCES = plugin.c
-gsm_device_la_VALASOURCES = plugin.vala
-$(gsm_device_la_SOURCES): $(gsm_device_la_VALASOURCES)
+modlibexecdir = $(libdir)/cornucopia/modules/fsogps
+modlibexec_LTLIBRARIES = dbus_service.la
+dbus_service_la_SOURCES = plugin.c
+dbus_service_la_VALASOURCES = plugin.vala
+$(dbus_service_la_SOURCES): $(dbus_service_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-gsm_device_la_LIBADD = $(progs_ldadd)
-gsm_device_la_LDFLAGS = -no-undefined -module -avoid-version
-gsm_device_la_LIBTOOLFLAGS = --tag=disable-static
+dbus_service_la_LIBADD = $(progs_ldadd)
+dbus_service_la_LDFLAGS = -no-undefined -module -avoid-version
+dbus_service_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

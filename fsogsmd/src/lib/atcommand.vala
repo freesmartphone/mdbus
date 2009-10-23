@@ -31,34 +31,31 @@ public errordomain FsoGsm.AtCommandError
     UNABLE_TO_PARSE,
 }
 
-/**
- * At response codes
- **/
-public enum FsoGsm.AtResponse
+public abstract interface FsoGsm.AtCommand : FsoFramework.CommandQueueCommand, GLib.Object
 {
-    VALID = 0,
-    OK = 1,
-    UNEXPECTED_LENGTH = 501,
-    UNABLE_TO_PARSE = 502,
-    ERROR = 503,
-    CME_ERROR_START = 1000,
-    CMS_ERROR_START = 2000,
-    EXT_ERROR_START = 3000,
-}
-
-public abstract interface FsoGsm.AtCommand : GLib.Object
-{
-    public abstract void parse( string response ) throws AtCommandError;
-    public abstract void parseTest( string response ) throws AtCommandError;
+    /* CommandQueueCommand */
+    public abstract uint get_timeout();
+    public abstract uint get_retry();
+    public abstract string get_prefix();
+    public abstract string get_postfix();
     public abstract bool is_valid_prefix( string line );
 
-    public abstract FsoGsm.AtResponse validate( string[] response );
-    public abstract FsoGsm.AtResponse validateTest( string[] response );
-    public abstract FsoGsm.AtResponse validateURC( string response );
-    public abstract FsoGsm.AtResponse validateOk( string[] response );
+    /* AtCommand */
+    public abstract void parse( string response ) throws AtCommandError;
+    public abstract void parseMulti( string[] response ) throws AtCommandError;
+    public abstract void parseTest( string response ) throws AtCommandError;
+
+    /* Encoding/Decoding */
+    public abstract string decodeString( string str );
+
+    public abstract Constants.AtResponse validate( string[] response );
+    public abstract Constants.AtResponse validateTest( string[] response );
+    public abstract Constants.AtResponse validateURC( string response );
+    public abstract Constants.AtResponse validateOk( string[] response );
+    public abstract Constants.AtResponse validateMulti( string[] response );
 }
 
-public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
+public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueCommand, FsoGsm.AtCommand, GLib.Object
 {
     protected Regex re;
     protected Regex tere;
@@ -68,7 +65,6 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
 
     construct
     {
-        message( "%s()", Type.from_instance( this ).name() );
         length = 1;
     }
 
@@ -77,13 +73,30 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         warning( "DESTRUCT %s", Type.from_instance( this ).name() );
     }
 
+    public string decodeString( string str )
+    {
+        if ( str == null || str.length == 0 )
+            return "";
+        var data = theModem.data();
+        switch ( data.charset )
+        {
+            case "UCS2":
+                return Conversions.ucs2_to_utf8( str );
+            default:
+                return str;
+        }
+    }
+
     public virtual void parse( string response ) throws AtCommandError
     {
         bool match;
         match = re.match( response, 0, out mi );
 
         if ( !match || mi == null )
-            throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, re.get_pattern() ) );
+        {
+            theModem.logger.debug( @"Parsing error: '$response' does not match '$(re.get_pattern())'" );
+            throw new AtCommandError.UNABLE_TO_PARSE( "" );
+        }
     }
 
     public virtual void parseTest( string response ) throws AtCommandError
@@ -92,56 +105,65 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         match = tere.match( response, 0, out mi );
 
         if ( !match || mi == null )
-            throw new AtCommandError.UNABLE_TO_PARSE( "%s does not match against RE %s".printf( response, tere.get_pattern() ) );
+        {
+            theModem.logger.debug( @"Parsing error: '$response' does not match '$(tere.get_pattern())'" );
+            throw new AtCommandError.UNABLE_TO_PARSE( "" );
+        }
+    }
+
+    public virtual void parseMulti( string[] response ) throws AtCommandError
+    {
+        assert_not_reached(); // pure virtual method
     }
 
     /**
      * Validate the terminal response for this At command
      **/
-    public virtual FsoGsm.AtResponse validateOk( string[] response )
+    public virtual Constants.AtResponse validateOk( string[] response )
     {
         var statusline = response[response.length-1];
+        //FIXME: Handle nonverbose mode as well
         if ( statusline == "OK" )
         {
-            return AtResponse.OK;
+            return Constants.AtResponse.OK;
         }
 
-        theModem.logger.debug( "Did not receive OK for AT command w/ pattern %s".printf( re.get_pattern() ) );
+        assert( theModem.logger.debug( @"Did not receive OK (instead '$statusline') for $(Type.from_instance(this).name())" ) );
         var errorcode = 0;
 
-        if ( !( ":" in statusline ) )
+        if ( ! ( ":" in statusline ) )
         {
-            return AtResponse.ERROR;
+            return Constants.AtResponse.ERROR;
         }
 
         if ( statusline.has_prefix( "+CMS" ) )
         {
-            errorcode += (int)AtResponse.CMS_ERROR_START;
+            errorcode += (int)Constants.AtResponse.CMS_ERROR_START;
             errorcode += (int)statusline.split( ":" )[1].to_int();
-            return (AtResponse)errorcode;
+            return (Constants.AtResponse)errorcode;
         }
         else if ( statusline.has_prefix( "+CME" ) )
         {
-            errorcode += (int)AtResponse.CME_ERROR_START;
+            errorcode += (int)Constants.AtResponse.CME_ERROR_START;
             errorcode += (int)statusline.split( ":" )[1].to_int();
-            return (AtResponse)errorcode;
+            return (Constants.AtResponse)errorcode;
         }
         else if ( statusline.has_prefix( "+EXT" ) )
         {
-            errorcode += (int)AtResponse.EXT_ERROR_START;
+            errorcode += (int)Constants.AtResponse.EXT_ERROR_START;
             errorcode += (int)statusline.split( ":" )[1].to_int();
-            return (AtResponse)errorcode;
+            return (Constants.AtResponse)errorcode;
         }
-        return AtResponse.ERROR;
+        return Constants.AtResponse.ERROR;
     }
 
     /**
      * Validate a response for this At command
      **/
-    public virtual FsoGsm.AtResponse validate( string[] response )
+    public virtual Constants.AtResponse validate( string[] response )
     {
         var status = validateOk( response );
-        if ( status != AtResponse.OK )
+        if ( status != Constants.AtResponse.OK )
         {
             return status;
         }
@@ -149,8 +171,8 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         // check whether we have received enough lines
         if ( response.length <= length )
         {
-            theModem.logger.warning( "Unexpected length for AT command w/ pattern %s".printf( re.get_pattern() ) );
-            return AtResponse.UNEXPECTED_LENGTH;
+            theModem.logger.warning( @"Unexpected length $(response.length) for $(Type.from_instance(this).name())" );
+            return Constants.AtResponse.UNEXPECTED_LENGTH;
         }
 
         try
@@ -159,20 +181,20 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         }
         catch ( AtCommandError e )
         {
-            theModem.logger.warning( "Unexpected format for AT command w/ pattern %s".printf( re.get_pattern() ) );
-            return AtResponse.UNABLE_TO_PARSE;
+            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
+            return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( re.get_pattern() ) );
-        return AtResponse.VALID;
+        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
+        return Constants.AtResponse.VALID;
     }
 
     /**
      * Validate a test response for this At command
      **/
-    public virtual FsoGsm.AtResponse validateTest( string[] response )
+    public virtual Constants.AtResponse validateTest( string[] response )
     {
         var status = validateOk( response );
-        if ( status != AtResponse.OK )
+        if ( status != Constants.AtResponse.OK )
         {
             return status;
         }
@@ -180,8 +202,8 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         // second, check whether we have received enough lines
         if ( response.length <= length )
         {
-            theModem.logger.warning( "Unexpected length for AT command w/ pattern %s".printf( tere.get_pattern() ) );
-            return AtResponse.UNEXPECTED_LENGTH;
+            theModem.logger.warning( @"Unexpected test length $(response.length) for $(Type.from_instance(this).name())" );
+            return Constants.AtResponse.UNEXPECTED_LENGTH;
         }
 
         try
@@ -190,18 +212,50 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         }
         catch ( AtCommandError e )
         {
-            theModem.logger.debug( "Unexpected format for AT command w/ pattern %s".printf( tere.get_pattern() ) );
-            return AtResponse.UNABLE_TO_PARSE;
+            assert( theModem.logger.debug( @"Unexpected test format for $(Type.from_instance(this).name())" ) );
+            return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( tere.get_pattern() ) );
-        return AtResponse.VALID;
+        assert( theModem.logger.debug( @"Did receive a valid test response for $(Type.from_instance(this).name())" ) );
+        return Constants.AtResponse.VALID;
     }
 
+    /**
+     * Validate a multiline response for this At command
+     **/
+    public virtual Constants.AtResponse validateMulti( string[] response )
+    {
+        var status = validateOk( response );
+        if ( status != Constants.AtResponse.OK )
+        {
+            return status;
+        }
+        // <HACK>
+        response.length--;
+        // </HACK>
+        try
+        {
+            // response[0:-1]?
+            parseMulti( response );
+            // <HACK>
+            response.length++;
+            // </HACK>
+        }
+        catch ( AtCommandError e )
+        {
+            // <HACK>
+            response.length++;
+            // </HACK>
+            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
+            return Constants.AtResponse.UNABLE_TO_PARSE;
+        }
+        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
+        return Constants.AtResponse.VALID;
+    }
 
     /**
      * Validate an URC for this At command
      **/
-    public virtual FsoGsm.AtResponse validateURC( string response )
+    public virtual Constants.AtResponse validateURC( string response )
     {
         try
         {
@@ -209,11 +263,11 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         }
         catch ( AtCommandError e )
         {
-            theModem.logger.warning( "Unexpected format for AT command w/ pattern %s".printf( re.get_pattern() ) );
-            return AtResponse.UNABLE_TO_PARSE;
+            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
+            return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        theModem.logger.debug( "Did receive a valid response to AT command w/ pattern %s".printf( re.get_pattern() ) );
-        return AtResponse.VALID;
+        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
+        return Constants.AtResponse.VALID;
     }
 
     protected string to_string( string name )
@@ -232,6 +286,26 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
         return res.to_int();
     }
 
+    public virtual uint get_timeout()
+    {
+        return 2 * 60;
+    }
+
+    public virtual uint get_retry()
+    {
+        return 3;
+    }
+
+    public string get_prefix()
+    {
+        return "AT";
+    }
+
+    public string get_postfix()
+    {
+        return "\r\n";
+    }
+
     public bool is_valid_prefix( string line )
     {
         if ( prefix == null ) // free format
@@ -242,6 +316,22 @@ public abstract class FsoGsm.AbstractAtCommand : FsoGsm.AtCommand, GLib.Object
                 return true;
         }
         return false;
+    }
+}
+
+public class FsoGsm.V250terCommand : FsoGsm.AbstractAtCommand
+{
+    public string name;
+
+    public V250terCommand( string name )
+    {
+        this.name = name;
+        prefix = { "+ONLY_TERMINAL_SYMBOLS_ALLOWED" };
+    }
+
+    public string execute()
+    {
+        return name;
     }
 }
 
@@ -352,6 +442,6 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
 
 }
 
-public class FsoGsm.NullAtCommand : FsoGsm.AbstractAtCommand
+public class FsoGsm.CustomAtCommand : FsoGsm.AbstractAtCommand
 {
 }

@@ -21,29 +21,52 @@ using Gee;
 
 namespace FsoGsm { public FsoGsm.Modem theModem; }
 
-public class FsoGsm.ModemData : GLib.Object
+public class PhonebookParams
 {
-    public int speakerVolumeMinimum;
-    public int speakerVolumeMaximum;
+    public int min;
+    public int max;
 
-    public int alarmCleared;
-
-    public string[] simPhonebooks;
-
-    public string simAuthStatus;
-
-    public bool simBuffersSms;
-
-    public AtNewMessageIndication cnmiSmsBufferedCb;
-    public AtNewMessageIndication cnmiSmsBufferedNoCb;
-    public AtNewMessageIndication cnmiSmsDirectCb;
-    public AtNewMessageIndication cnmiSmsDirectNoCb;
+    public PhonebookParams( int min, int max )
+    {
+        this.min = min;
+        this.max = max;
+    }
 }
 
 public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 {
+    public class Data : GLib.Object
+    {
+        public int alarmCleared;
+
+        public AtNewMessageIndication cnmiSmsBufferedCb;
+        public AtNewMessageIndication cnmiSmsBufferedNoCb;
+        public AtNewMessageIndication cnmiSmsDirectCb;
+        public AtNewMessageIndication cnmiSmsDirectNoCb;
+
+        public bool simHasReadySignal;
+
+        public int speakerVolumeMinimum;
+        public int speakerVolumeMaximum;
+
+        public FreeSmartphone.GSM.SIMAuthStatus simAuthStatus;
+
+        public bool simBuffersSms;
+
+        public HashMap<string,PhonebookParams> simPhonebooks;
+
+        public string charset;
+
+        public bool simInserted;
+        public bool simUnlocked;
+        public bool simReady;
+        public bool simRegistered;
+    }
+
     public const uint DEFAULT_RETRY = 3;
 
+    //TODO: Think about exposing a global modem state through DBus -- possibly
+    //      reusing this as internal status as well -- rather than double bookkeeping
     public enum Status
     {
         /** Initial state, Transport is closed **/
@@ -51,8 +74,6 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         /** Transport open, initialization commands are being sent **/
         INITIALIZING,
         /** Initialized, SIM status unknown **/
-        ALIVE,
-        /** Initialized, SIM is not inserted **/
         ALIVE_NO_SIM,
         /** Initialized, SIM is locked **/
         ALIVE_SIM_LOCKED,
@@ -71,36 +92,35 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         /* ALIVE */
     }
 
+    // DBus Service API
     public abstract bool open();
     public abstract void close();
-    //FIXME: Should be FsoGsm.Modem.Status with Vala >= 0.7
-    public abstract int status();
 
+    // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
-
-    // get command sequence for a specific purpose (init, suspend, resume, poweroff)
+    public abstract void advanceToState( Modem.Status status );
     public abstract string[] commandSequence( string purpose );
+    public signal void signalStatusChanged( Modem.Status status );
 
+    // Mediator API
     public abstract T createMediator<T>() throws FreeSmartphone.Error;
     public abstract T createAtCommand<T>( string command ) throws FreeSmartphone.Error;
-
     public abstract T theDevice<T>();
+    public abstract Object parent { get; set; } // the DBus object
+    public abstract CallHandler callhandler { get; set; } // the Call handler
 
-    // All commands go through this function, so that the modem can
-    // easily decide which channel a certain command goes to at a
-    // given time
+    // Command Queue API
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
-
-    //FIXME: Might also create a channel that implements round-robin transparently?!
     public abstract FsoGsm.Channel channel( string category );
 
-    public signal void signalStatusChanged( /* FsoGsm.Modem.Status */ int status );
-
-    public abstract FsoGsm.ModemData data();
-
-    public abstract Object parent { get; set; } // the DBus object
+    // Misc. Accessors
+    public abstract Modem.Status status();
+    public abstract FsoGsm.Modem.Data data();
 }
 
+/**
+ * @class FsoGsm.AbstractModem
+ **/
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
 {
     protected string modem_type;
@@ -111,7 +131,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected string[] modem_init;
 
     protected FsoGsm.Modem.Status modem_status;
-    protected FsoGsm.ModemData modem_data;
+    protected FsoGsm.Modem.Data modem_data;
 
     protected HashMap<string,FsoGsm.Channel> channels;
     protected HashMap<string,FsoGsm.AtCommand> commands;
@@ -120,6 +140,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected UnsolicitedResponseHandler urc;
 
     protected Object parent { get; set; } // the DBus object
+    protected CallHandler callhandler { get; set; } // the Call handler
 
     construct
     {
@@ -148,14 +169,18 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     private void initData()
     {
-        advanceStatus( modem_status, Status.CLOSED );
-        modem_data = new FsoGsm.ModemData();
+        advanceToState( Modem.Status.CLOSED );
+
+        modem_data = new FsoGsm.Modem.Data();
+
+        modem_data.charset = "unknown";
+        modem_data.simHasReadySignal = false;
 
         modem_data.speakerVolumeMinimum = -1;
         modem_data.speakerVolumeMaximum = -1;
 
         modem_data.alarmCleared = 946684800; // 00/01/01,00:00:00 (default for SIEMENS mc75i)
-        modem_data.simAuthStatus = "UNKNOWN";
+        modem_data.simAuthStatus = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
         modem_data.simBuffersSms = true;
 
         modem_data.cnmiSmsBufferedCb    = AtNewMessageIndication() { mode=2, mt=1, bm=2, ds=1, bfr=1 };
@@ -163,13 +188,16 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.cnmiSmsDirectCb      = AtNewMessageIndication() { mode=2, mt=2, bm=2, ds=1, bfr=1 };
         modem_data.cnmiSmsDirectNoCb    = AtNewMessageIndication() { mode=2, mt=2, bm=0, ds=0, bfr=0 };
 
+        modem_data.simPhonebooks = new HashMap<string,PhonebookParams>();
+
         configureData();
     }
 
     private void registerHandlers()
     {
         urc = createUnsolicitedHandler();
-        //TODO: call handler, binary sms handler, etc.
+        callhandler = createCallHandler();
+        //TODO: binary sms handler, etc.
     }
 
     private void registerMediators()
@@ -212,12 +240,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     /**
      * Override this to return a custom type of call handler to be used for this modem.
-     *
+     **/
     protected virtual CallHandler createCallHandler()
     {
-        return (CallHandler) null;
+        return new GenericAtCallHandler();
     }
-     **/
 
     /**
      * Override this to create your channels and assorted transports.
@@ -254,9 +281,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         // power on
         setPower( true );
         initData();
-        ensureStatus( Status.CLOSED );
 
         var channels = this.channels.values;
+        //FIXME: If we can't open all channels, we should close all others
         logger.info( "will open %u channel(s)...".printf( channels.size ) );
         foreach( var channel in channels )
         {
@@ -264,7 +291,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
                 return false;
         }
 
-        advanceStatus( Status.CLOSED, Status.INITIALIZING );
+        advanceToState( Modem.Status.INITIALIZING );
 
         return true;
     }
@@ -287,12 +314,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return (T) parent;
     }
 
-    public int /* FsoGsm.Modem.Status */ status()
+    public Modem.Status status()
     {
         return modem_status;
     }
 
-    public FsoGsm.ModemData data()
+    public FsoGsm.Modem.Data data()
     {
         return modem_data;
     }
@@ -370,21 +397,24 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         channel.registerUnsolicitedHandler( this.processUnsolicitedResponse );
     }
 
-    public void ensureStatus( int current )
-    {
-        assert( modem_status == current );
-    }
-
     /**
      * The only reason for this to be public is that the only authorized source to call this
      * is the command queues / channels and there are no friend classes in Vala. However,
      * it should _never_ be called by any other classes.
      **/
-    public void advanceStatus( int current, int next )
+    public void advanceToState( Modem.Status next )
     {
-        assert( modem_status == current );
-        modem_status = (Modem.Status)next;
-        signalStatusChanged( next );
+        // if there is no SIM readyness signal, assume it's ready NOW
+        if ( ( next == Modem.Status.ALIVE_SIM_UNLOCKED ) && ( !modem_data.simHasReadySignal ) )
+        {
+            modem_status = Modem.Status.ALIVE_SIM_READY;
+        }
+        else
+        {
+            modem_status = next;
+        }
+        signalStatusChanged( modem_status );
+        logger.info( "Modem Status changed to %s".printf( FsoFramework.StringHandling.enumToString( typeof(Modem.Status), modem_status ) ) );
     }
 
     public string[] commandSequence( string purpose )

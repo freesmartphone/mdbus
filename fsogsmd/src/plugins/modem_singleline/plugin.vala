@@ -27,7 +27,7 @@ class Singleline.Modem : FsoGsm.AbstractModem
 
     public override string repr()
     {
-        return "<Singleline>";
+        return "<>";
     }
 
     protected override void createChannels()

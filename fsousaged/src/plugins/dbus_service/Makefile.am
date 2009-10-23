@@ -37,15 +37,15 @@ VALAC_ARGS = \
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsousage
-modlibexec_LTLIBRARIES = controller.la
-controller_la_SOURCES = resource.c plugin.c
-controller_la_VALASOURCES = resource.vala plugin.vala
-$(controller_la_SOURCES): $(controller_la_VALASOURCES)
+modlibexec_LTLIBRARIES = dbus_service.la
+dbus_service_la_SOURCES = resource.c plugin.c
+dbus_service_la_VALASOURCES = resource.vala plugin.vala
+$(dbus_service_la_SOURCES): $(dbus_service_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $(VALAC_EXTRA_ARGS) $^
 	touch $@
-controller_la_LIBADD = $(progs_ldadd)
-controller_la_LDFLAGS = -no-undefined -module -avoid-version
-controller_la_LIBTOOLFLAGS = --tag=disable-static
+dbus_service_la_LIBADD = $(progs_ldadd)
+dbus_service_la_LDFLAGS = -no-undefined -module -avoid-version
+dbus_service_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     plugin.c \

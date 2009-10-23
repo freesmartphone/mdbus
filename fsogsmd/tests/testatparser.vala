@@ -62,7 +62,7 @@ public void unsoli( string[] response )
 void test_parser_1_solicited()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser();
+    FsoFramework.Parser parser = new StateBasedAtParser();
     parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = true;
@@ -76,7 +76,7 @@ void test_parser_1_solicited()
 void test_parser_1_unsolicited()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser();
+    FsoFramework.Parser parser = new StateBasedAtParser();
     parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = false;
@@ -90,7 +90,7 @@ void test_parser_1_unsolicited()
 void test_parser_2_solicited()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser();
+    FsoFramework.Parser parser = new StateBasedAtParser();
     parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = true;
@@ -105,7 +105,7 @@ void test_parser_2_solicited()
 void test_parser_2_unsolicited()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser();
+    FsoFramework.Parser parser = new StateBasedAtParser();
     parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = false;
@@ -122,7 +122,7 @@ void test_parser_2_unsolicited()
 void test_parser_2_unsolicited_pdu()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser();
+    FsoFramework.Parser parser = new StateBasedAtParser();
     parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = false;
@@ -137,7 +137,7 @@ void test_parser_2_unsolicited_pdu()
 void test_parser_multiline_solicited()
 //===========================================================================
 {
-    Parser parser = new StateBasedAtParser();
+    FsoFramework.Parser parser = new StateBasedAtParser();
     parser.setDelegates( hcf, epf, soli, unsoli );
 
     haveCommand = true;

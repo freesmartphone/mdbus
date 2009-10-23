@@ -18,28 +18,12 @@
  */
 
 using GLib;
-using FsoGsm;
+using FsoGps;
 
 //===========================================================================
-void test_commandqueue_enqueue()
+void test_parser()
 //===========================================================================
 {
-    var t = new FsoFramework.PtyTransport();
-    t.open();
-    assert( t.isOpen() );
-
-    var p = new FsoGsm.NullParser();
-
-    var q = new AtCommandQueue( t, p );
-
-    /*
-    var cmd = Command() { command = "AT+CGMR\r\n", handler = null };
-
-    q.enqueue( cmd );
-
-    transport.writeCallback( new IOChannel(), IOCondition.OUT ); // usually only called in mainloop
-    */
-
 }
 
 //===========================================================================
@@ -48,6 +32,7 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/CommandQueue/Enqueue", test_commandqueue_enqueue );
+    Test.add_func( "/Parser/1/Solicited", test_parser );
+
     Test.run();
 }

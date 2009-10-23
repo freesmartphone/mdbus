@@ -182,7 +182,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         return ignore;
     }
 
-    public void onResourceChanged( FsoDevice.AbstractSimpleResource r, bool on )
+    public void onResourceChanged( FsoFramework.AbstractDBusResource r, bool on )
     {
         if ( r is CpuResource )
         {
@@ -368,7 +368,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 /**
  * Implementation of org.freesmartphone.Resource for the Display Resource
  **/
-class DisplayResource : FsoDevice.AbstractSimpleResource
+class DisplayResource : FsoFramework.AbstractDBusResource
 {
     internal bool on;
 
@@ -377,7 +377,7 @@ class DisplayResource : FsoDevice.AbstractSimpleResource
         base( "Display", subsystem );
     }
 
-    public override void _enable()
+    public override async void enableResource()
     {
         if (on)
             return;
@@ -386,7 +386,7 @@ class DisplayResource : FsoDevice.AbstractSimpleResource
         on = true;
     }
 
-    public override void _disable()
+    public override async void disableResource()
     {
         if (!on)
             return;
@@ -394,13 +394,21 @@ class DisplayResource : FsoDevice.AbstractSimpleResource
         instance.onResourceChanged( this, false );
         on = false;
     }
+
+    public override async void suspendResource()
+    {
+    }
+
+    public override async void resumeResource()
+    {
+    }
 }
 
 
 /**
  * Implementation of org.freesmartphone.Resource for the CPU Resource
  **/
-class CpuResource : FsoDevice.AbstractSimpleResource
+class CpuResource : FsoFramework.AbstractDBusResource
 {
     internal bool on;
 
@@ -409,7 +417,7 @@ class CpuResource : FsoDevice.AbstractSimpleResource
         base( "CPU", subsystem );
     }
 
-    public override void _enable()
+    public override async void enableResource()
     {
         if (on)
             return;
@@ -418,13 +426,21 @@ class CpuResource : FsoDevice.AbstractSimpleResource
         on = true;
     }
 
-    public override void _disable()
+    public override async void disableResource()
     {
         if (!on)
             return;
         logger.debug( "disabling..." );
         instance.onResourceChanged( this, false );
         on = false;
+    }
+
+    public override async void suspendResource()
+    {
+    }
+
+    public override async void resumeResource()
+    {
     }
 }
 

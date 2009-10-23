@@ -20,6 +20,7 @@ VALAC_ARGS = \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
+	--pkg gee-1.0 \
 	--pkg fsotransport-2.0
 
 #
@@ -33,6 +34,15 @@ $(testtransport_SOURCES): $(testtransport_VALASOURCES)
 	touch $@
 testtransport_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testtransport_VALASOURCES)
+
+TEST_PROGS += testcommandqueue
+testcommandqueue_VALASOURCES = testcommandqueue.vala
+testcommandqueue_SOURCES = testcommandqueue.c
+$(testcommandqueue_SOURCES): $(testcommandqueue_VALASOURCES)
+	$(VALAC) -C $(VALAC_ARGS) $^
+	touch $@
+testcommandqueue_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testcommandqueue_VALASOURCES)
 
 CLEANFILES = \
     $(TEST_PROGS) \

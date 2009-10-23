@@ -17,48 +17,13 @@
  *
  */
 
-public abstract interface FsoGsm.Parser : GLib.Object
-{
-    public delegate bool HaveCommandFunc();
-    public delegate bool ExpectedPrefixFunc( string line );
-    public delegate void SolicitedCompletedFunc( string[] response );
-    public delegate void UnsolicitedCompletedFunc( string[] response );
-
-    public abstract void setDelegates( HaveCommandFunc haveCommand,
-                                       ExpectedPrefixFunc expectedPrefix,
-                                       SolicitedCompletedFunc solicitedCompleted,
-                                       UnsolicitedCompletedFunc unsolicitedCompleted );
-
-    public abstract int feed( void* data, int len );
-}
-
-public class FsoGsm.NullParser : FsoGsm.Parser, GLib.Object
-{
-    public void setDelegates( Parser.HaveCommandFunc haveCommand,
-                              Parser.ExpectedPrefixFunc expectedPrefix,
-                              Parser.SolicitedCompletedFunc solicitedCompleted,
-                              Parser.UnsolicitedCompletedFunc unsolicitedCompleted )
-    {
-    }
-
-    public int feed( void* data, int len )
-    {
-        return 0;
-    }
-}
-
-public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
+public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 {
     State state = State.INVALID;
     char[] curline;
     string[] solicited;
     string[] unsolicited;
     bool pendingPDU;
-
-    Parser.HaveCommandFunc haveCommand;
-    Parser.ExpectedPrefixFunc expectedPrefix;
-    Parser.SolicitedCompletedFunc solicitedCompleted;
-    Parser.UnsolicitedCompletedFunc unsolicitedCompleted;
 
     string[] final_responses = {
         "OK",
@@ -119,6 +84,9 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
         INVALID,
         START,
         START_R,
+        V0_RESULT,
+        ECHO_A,
+        ECHO_INLINE,
         INLINE,
         INLINE_R,
     }
@@ -140,6 +108,7 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
     //FIXME: This works around a problem in Vala as we can't define a HashTable full with function pointers atm.
     public State dispatch( State curstate, char c )
     {
+#if DEBUG
         string s;
         if ( c == '\n' )
             s = "\\n";
@@ -147,13 +116,20 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
             s = "\\r";
         else
             s = "%c".printf( c );
-        debug( "state = %d, feeding '%s'", curstate, s );
+        debug( "state = %s, feeding '%s'", FsoFramework.StringHandling.enumToString( typeof(State), curstate ), s );
+#endif
         switch (curstate)
         {
             case State.START:
                 return start( c );
             case State.START_R:
                 return start_r( c );
+            case State.ECHO_A:
+                return echo_a( c );
+            case State.ECHO_INLINE:
+                return echo_inline( c );
+            case State.V0_RESULT:
+                return v0_result( c );
             case State.INLINE:
                 return inline( c );
             case State.INLINE_R:
@@ -171,16 +147,65 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
     {
         switch (c)
         {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+                return State.V0_RESULT;
             case '\r':
                 return State.START_R;
+            case 'A':
+            case 'a':
+                return State.ECHO_A;
         }
         return State.INVALID;
+    }
+
+    public State echo_a( char c )
+    {
+        switch ( c )
+        {
+            case 'T':
+            case 't':
+                warning( "Detected E1 mode (echo); ignoring, but please turn that off!" );
+                return State.ECHO_INLINE;
+        }
+        return State.INVALID;
+    }
+
+    public State echo_inline( char c )
+    {
+        switch ( c )
+        {
+            case '\r':
+                return State.START;
+            default:
+                return State.ECHO_INLINE;
+        }
+    }
+
+    public State v0_result( char c )
+    {
+        switch ( c )
+        {
+            case '\r':
+                warning( "Detected V0 mode (nonverbose). Ignoring, but please turn that off!" );
+                curline += 'O';
+                curline += 'K';
+                return endofline();
+            default:
+                return State.INVALID;
+        }
     }
 
     public State start_r( char c )
     {
         switch (c)
         {
+            case '\r':
+                warning( "Ignoring multiple \r at start of result. Your modem SUCKS!" );
+                return State.START_R;
             case '\n':
                 return State.INLINE;
         }
@@ -223,7 +248,9 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
             return State.INLINE;
 
         curline += 0x0; // we want to treat it as a string
+#if DEBUG
         debug( "line completed: '%s'", (string)curline );
+#endif
 
         if ( !haveCommand() )
         {
@@ -237,7 +264,9 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
     public State endoflinePerhapsSolicited()
     {
+#if DEBUG
         debug( "endoflinePerhapsSolicited" );
+#endif
         if ( isFinalResponse() )
         {
             return endoflineSurelySolicited();
@@ -250,6 +279,10 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
             return resetAll();
         }
 
+        var prefixExpected = expectedPrefix( (string)curline );
+#if DEBUG
+        debug( "prefix expected = %s", prefixExpected.to_string() );
+#endif
         if ( !expectedPrefix( (string)curline ) )
         {
             return endoflineSurelyUnsolicited();
@@ -262,22 +295,29 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
     public State endoflineSurelySolicited()
     {
+#if DEBUG
         debug( "endoflineSurelySolicited" );
+#endif
         solicited += (string)curline;
-
+#if DEBUG
         debug( "is final response. solicited response with %d lines", solicited.length );
+#endif
         solicitedCompleted( solicited ); //TODO: rather call in idle mode or will this confuse everything?
         return resetAll();
     }
 
     public State endoflineSurelyUnsolicited()
     {
+#if DEBUG
         debug( "endoflineSurelyUnsolicited" );
+#endif
         unsolicited += (string)curline;
 
         if ( pendingPDU )
         {
+#if DEBUG
             debug( "pending PDU received; unsolicited response completed." );
+#endif
             pendingPDU = false;
             unsolicitedCompleted( unsolicited );
             return resetAll( false );
@@ -285,12 +325,15 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
 
         if ( hasUnsolicitedPdu() )
         {
+#if DEBUG
             debug( "unsolicited response pending PDU..." );
+#endif
             pendingPDU = true;
             return resetLine();
         }
-
+#if DEBUG
         debug( "unsolicited response completed." );
+#endif
         unsolicitedCompleted( unsolicited );
         return resetAll( false );  // do not clear solicited responses; we might have sneaked in-between
     }
@@ -304,20 +347,7 @@ public class FsoGsm.StateBasedAtParser : FsoGsm.Parser, GLib.Object
         state = resetAll();
     }
 
-    public void setDelegates( Parser.HaveCommandFunc haveCommand,
-                                       Parser.ExpectedPrefixFunc expectedPrefix,
-                                       Parser.SolicitedCompletedFunc solicitedCompleted,
-                                       Parser.UnsolicitedCompletedFunc unsolicitedCompleted )
-    {
-        this.haveCommand = haveCommand;
-        this.expectedPrefix = expectedPrefix;
-        this.solicitedCompleted = solicitedCompleted;
-        this.unsolicitedCompleted = unsolicitedCompleted;
-
-        state = resetAll();
-    }
-
-    public int feed( char* data, int len )
+    public override int feed( char* data, int len )
     {
         assert( len > 0 );
         for ( int i = 0; i < len; ++i )

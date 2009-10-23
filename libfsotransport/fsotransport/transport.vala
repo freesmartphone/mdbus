@@ -46,6 +46,10 @@ public abstract class FsoFramework.Transport : Object
      */
     public abstract bool open();
     /**
+     * Close the transport. Closing an already closed transport is allowed.
+     **/
+    public abstract void close();
+    /**
      * Transport Configure the transport. @returns true, if successful; else false.
      **/
     public abstract string getName();
@@ -62,9 +66,19 @@ public abstract class FsoFramework.Transport : Object
      **/
     public abstract void setPriorities( int rp, int wp );
     /**
+     * Write data to the transport and wait for a response.
+     * Read the response into a buffer provided and owned by the caller.
+     * @warning This will only succeed if you don't use delegates!
+     **/
+    public abstract int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 1000 );
+    /**
      * Read data from the transport into buffer provided and owned by caller.
      **/
-    public abstract int read( void* data, int len );
+    public abstract int read( void* data, int length );
+    /**
+     * Write data to the transport.
+     **/
+    public abstract int write( void* data, int length );
     /**
      * Pause reading and writing from/to the transport.
      **/
@@ -73,14 +87,6 @@ public abstract class FsoFramework.Transport : Object
      * Resume reading and writing from/to the transport.
      **/
     public abstract void thaw();
-    /**
-     * Close the transport. Closing an already closed transport is allowed.
-     **/
-    public abstract int write( void* data, int length );
-    /**
-     * Close the transport. Closing an already closed transport is allowed.
-     **/
-    public abstract void close();
     /**
      * Create @a FsoFramework.Transport as indicated by @a type
      **/
@@ -100,6 +106,10 @@ public abstract class FsoFramework.Transport : Object
                 return null;
         }
     }
+    /**
+     * Should not be here, but wants to be accessed from the command queue
+     **/
+    public FsoFramework.Logger logger;
 }
 
 //===========================================================================

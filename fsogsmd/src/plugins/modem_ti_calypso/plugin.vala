@@ -30,7 +30,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 {
     public override string repr()
     {
-        return "<Ti Calypso>";
+        return "<>";
     }
 
     protected override void createChannels()

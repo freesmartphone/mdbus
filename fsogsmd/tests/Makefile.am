@@ -40,23 +40,14 @@ $(testatcommand_SOURCES): $(testatcommand_VALASOURCES)
 testatcommand_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testatcommand_VALASOURCES)
 
-TEST_PROGS += testcommandqueue
-testcommandqueue_VALASOURCES = testcommandqueue.vala
-testcommandqueue_SOURCES = testcommandqueue.c
-$(testcommandqueue_SOURCES): $(testcommandqueue_VALASOURCES)
+TEST_PROGS += testatparser
+testatparser_VALASOURCES = testatparser.vala
+testatparser_SOURCES = testatparser.c
+$(testatparser_SOURCES): $(testatparser_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-testcommandqueue_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testcommandqueue_VALASOURCES)
-
-TEST_PROGS += testparser
-testparser_VALASOURCES = testparser.vala
-testparser_SOURCES = testparser.c
-$(testparser_SOURCES): $(testparser_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-testparser_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testparser_VALASOURCES)
+testatparser_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testatparser_VALASOURCES)
 
 CLEANFILES = \
     $(TEST_PROGS) \

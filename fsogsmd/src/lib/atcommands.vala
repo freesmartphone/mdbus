@@ -143,6 +143,14 @@ public class PlusCCLK : AbstractAtCommand
     }
 }
 
+public class PlusCEER : SimpleAtCommand<string>
+{
+    public PlusCEER()
+    {
+        base( "+CEER", false );
+    }
+}
+
 public class PlusCFUN : SimpleAtCommand<int>
 {
     public PlusCFUN()
@@ -188,6 +196,133 @@ public class PlusCGSN : SimpleAtCommand<string>
     public PlusCGSN()
     {
         base( "+CGSN", true );
+    }
+}
+
+public class PlusCHLD : AbstractAtCommand
+{
+    public enum Action
+    {
+        DROP_ALL_OR_SEND_BUSY = 0,
+        DROP_ALL_AND_ACCEPT_WAITING_OR_HELD = 1,
+        DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD = 1,
+        HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD = 2,
+        HOLD_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD = 2,
+        ACTIVATE_HELD = 3,
+        DROP_SELF_AND_CONNECT_ACTIVE = 4
+    }
+
+    public string issue( Action action, int cid = 0 )
+    {
+        if ( cid > 0 )
+        {
+            return "+CHLD=%d%d".printf( (int)action, cid );
+        }
+        else
+        {
+            return "+CHLD=%d".printf( (int)action );
+        }
+    }
+}
+
+public class PlusCIMI : SimpleAtCommand<string>
+{
+    public PlusCIMI()
+    {
+        base( "+CIMI", true );
+    }
+}
+
+public class PlusCLCC : AbstractAtCommand
+{
+    public XFreeSmartphone.GSM.CallDetail[] calls;
+
+    public PlusCLCC()
+    {
+        re = new Regex( """\+CLCC: (?P<id>\d),(?P<dir>\d),(?P<stat>\d),(?P<mode>\d),(?P<mpty>\d)(?:,"(?P<number>[\+0-9*#w]+)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?)?""");
+        prefix = { "+CLCC: " };
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        var c = new XFreeSmartphone.GSM.CallDetail[] {};
+        foreach ( var line in response )
+        {
+            base.parse( line );
+            var entry = XFreeSmartphone.GSM.CallDetail();
+            entry.id = to_int( "id" );
+            entry.status = Constants.instance().callStatusToString( to_int( "stat" ) );
+            //entry.status = Constants.instance().callStatusToEnum( to_int( "stat" ) );
+            entry.properties = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+
+            var strvalue = GLib.Value( typeof(string) );
+            strvalue = Constants.instance().callDirectionToString( to_int( "dir" ) );
+            entry.properties.insert( "direction", strvalue );
+
+            strvalue = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
+            entry.properties.insert( "peer", strvalue );
+
+            strvalue = Constants.instance().callTypeToString( to_int( "mode" ) );
+            entry.properties.insert( "type", strvalue );
+
+            c += entry;
+        }
+        calls = c;
+    }
+
+    public string execute()
+    {
+        return "+CLCC";
+    }
+}
+
+public class PlusCLCK : AbstractAtCommand
+{
+    public bool enabled;
+    public int klass;
+
+    public string facilities; // test
+
+    public enum Mode
+    {
+        DISABLE = 0,
+        ENABLE = 1,
+        QUERY = 2,
+    }
+
+    public PlusCLCK()
+    {
+        re = new Regex( """\+CLCK: (?P<enabled>[01])(?:,(?P<class>\d+))?""" );
+        tere = new Regex( """\+CLCK: \((?P<facilities>[^\)]*)\)""" );
+        prefix = { "+CLCK: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        enabled = to_int( "enabled" ) == 1;
+        klass = to_int( "class" );
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        facilities = to_string( "facilities" );
+    }
+
+    public string query( string facility )
+    {
+        return "+CLCK=\"%s\",%d".printf( facility, (int)Mode.QUERY );
+    }
+
+    public string issue( string facility, bool enable, string pin )
+    {
+        return "+CLCK=\"%s\",%d,\"%s\"".printf( facility, enable ? (int)Mode.ENABLE : (int)Mode.DISABLE, pin );
+    }
+
+    public string test()
+    {
+        return "+CLCK=?";
     }
 }
 
@@ -250,31 +385,53 @@ public class PlusCMUT : SimpleAtCommand<int>
     }
 }
 
-public class PlusCOPS_Test : AbstractAtCommand
+public class PlusCOPS : AbstractAtCommand
 {
-    public struct Provider
-    {
-        public string status;
-        public string shortname;
-        public string longname;
-        public string mccmnc;
-        public string act;
-    }
-    Provider[] providers;
+    public int format;
+    public int mode;
+    public string oper;
+    public string act;
+    public int status;
 
-    public PlusCOPS_Test()
+    public FreeSmartphone.GSM.NetworkProvider[] providers;
+
+    public enum Action
     {
-        re = new Regex( """\((?P<status>\d),"(?P<longname>[^"]*)","(?P<shortname>[^"]*)","(?P<mccmnc>[^"]*)"(?:,(?P<act>\d))?\)""" );
+        REGISTER_WITH_BEST_PROVIDER     = 0,
+        REGISTER_WITH_SPECIFIC_PROVIDER = 1,
+        UNREGISTER                      = 2,
+        SET_FORMAT                      = 3,
+    }
+
+    public enum Format
+    {
+        ALPHANUMERIC                    = 0,
+        NUMERIC                         = 2,
+    }
+
+    public PlusCOPS()
+    {
+        re = new Regex( """\+COPS:\ (?P<mode>\d)(,(?P<format>\d)?(,"(?P<oper>[^"]*)")?)?(?:,(?P<act>\d))?""" );
+        tere = new Regex( """\((?P<status>\d),(?:"(?P<longname>[^"]*)")?,(?:"(?P<shortname>[^"]*)")?,"(?P<mccmnc>[^"]*)"(?:,(?P<act>\d))?\)""" );
         prefix = { "+COPS: " };
     }
 
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        providers = new Provider[] {};
+        mode = to_int( "mode" );
+        format = to_int( "format" );
+        oper = to_string( "oper" );
+        act = Constants.instance().networkProviderActToString( to_int( "act" ) );
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        var providers = new FreeSmartphone.GSM.NetworkProvider[] {};
         do
         {
-            var p = Provider() {
+            var p = FreeSmartphone.GSM.NetworkProvider() {
                 status = Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
                 longname = to_string( "longname" ),
                 shortname = to_string( "shortname" ),
@@ -283,16 +440,79 @@ public class PlusCOPS_Test : AbstractAtCommand
             providers += p;
         }
         while ( mi.next() );
+        this.providers = providers;
     }
 
-    public string issue()
+    public string issue( Action action, Format format = Format.ALPHANUMERIC, int param = 0 )
+    {
+        if ( action == Action.REGISTER_WITH_BEST_PROVIDER )
+        {
+            return "+COPS=0,0";
+        }
+        else
+        {
+            return "+COPS=%d,%d,\"%d\"".printf( (int)action, (int)format, (int)param );
+        }
+    }
+
+    public string query( Format format = Format.ALPHANUMERIC )
+    {
+        return "+COPS=%d,%d;+COPS?".printf( (int)Action.SET_FORMAT, (int)format );
+    }
+
+    public string test()
     {
         return "+COPS=?";
     }
+}
 
-    public FreeSmartphone.GSM.NetworkProvider[] providerList()
+public class PlusCPBR : AbstractAtCommand
+{
+    public int min;
+    public int max;
+
+    public FreeSmartphone.GSM.SIMEntry[] phonebook;
+
+    public PlusCPBR()
     {
-        return (FreeSmartphone.GSM.NetworkProvider[]) providers;
+        re = new Regex( """\+CPBR: (?P<id>\d+),"(?P<number>[\+0-9*#w]*)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?""" );
+        tere = new Regex( """\+CPBR: \((?P<min>\d+)-(?P<max>\d+)\),\d+,\d+""" );
+        prefix = { "+CPBR: " };
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        var phonebook = new FreeSmartphone.GSM.SIMEntry[] {};
+        foreach ( var line in response )
+        {
+            base.parse( line );
+            var entry = FreeSmartphone.GSM.SIMEntry() {
+                index = to_int( "id" ),
+                number = to_string( "number" ),
+                name = decodeString( to_string( "name" ) )
+            };
+            phonebook += entry;
+        }
+        this.phonebook = phonebook;
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        min = to_int( "min" );
+        max = to_int( "max" );
+    }
+
+    public string issue( string cat, int first, int last )
+    {
+        //return @"+CPBS=\"$cat\";+CPBR=$first,$last";
+        return """+CPBS="%s";+CPBR=%d,%d""".printf( cat, first, last );
+    }
+
+    public string test( string cat )
+    {
+        //return @"+CPBS=\"%cat\";+CPBR=?";
+        return """+CPBS="%s";+CPBR=?""".printf( cat );
     }
 }
 
@@ -313,7 +533,6 @@ public class PlusCPBS : AbstractAtCommand
         do
         {
             books += Constants.instance().simPhonebookNameToString( to_string( "book" ) );
-            message( "adding book %s", Constants.instance().simPhonebookNameToString( to_string( "book" ) ) );
         }
         while ( mi.next() );
         phonebooks = books;
@@ -327,18 +546,18 @@ public class PlusCPBS : AbstractAtCommand
 
 public class PlusCPIN : AbstractAtCommand
 {
-    public string pin;
+    public FreeSmartphone.GSM.SIMAuthStatus status;
 
     public PlusCPIN()
     {
-        re = new Regex( """\+CPIN:\ "?(?P<pin>[^"]*)"?""" );
+        re = new Regex( """\+CPIN:\ "?(?P<status>[^"]*)"?""" );
         prefix = { "+CPIN: " };
     }
 
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        pin = to_string( "pin" );
+        status = Constants.instance().simAuthStatusToEnum( to_string( "status" ) );
     }
 
     public string issue( string pin, string? new_pin = null )
@@ -355,63 +574,152 @@ public class PlusCPIN : AbstractAtCommand
     }
 }
 
-public class PlusFCLASS : AbstractAtCommand
+public class PlusCPWD : AbstractAtCommand
 {
-    public string faxclass;
-
-    public PlusFCLASS()
+    public PlusCPWD()
     {
-        re = new Regex( """"?(?P<faxclass>[^"]*)"?""" );
+        re = new Regex( """\+CPWD:\ "?(?P<pin>[^"]*)"?""" );
+        prefix = { "+CPWD: " };
     }
 
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        faxclass = to_string( "faxclass" );
+    }
+
+    public string issue( string facility, string p1, string p2 )
+    {
+        return @"+CPWD=\"$facility\",\"$p1\",\"$p2\"";
     }
 
     public string query()
     {
-        return "+FCLASS?";
-    }
-
-    public string test()
-    {
-        return "+FCLASS=?";
+        return "+CPWD?";
     }
 }
 
-public class PlusCOPS : AbstractAtCommand
+public class PlusCREG : AbstractAtCommand
 {
-    public int status;
     public int mode;
-    public string oper;
+    public int status;
+    public string lac;
+    public string cid;
 
-    public PlusCOPS()
+    public PlusCREG()
     {
-        re = new Regex( """\+COPS:\ (?P<status>\d)(,(?P<mode>\d)?(,"(?P<oper>[^"]*)")?)?""" );
-        prefix = { "+COPS: " };
+        re = new Regex( """\+CREG: (?P<mode>\d),(?P<status>\d)(?:,"?(?P<lac>[0-9A-F]*)"?,"?(?P<cid>[0-9A-F]*)"?)?""" );
+        prefix = { "+CREG: " };
     }
 
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        status = to_int( "status" );
         mode = to_int( "mode" );
-        oper = to_string( "oper" );
-    }
-
-    public string issue( int mode, int format, int oper = 0 )
-    {
-        if ( oper == 0 )
-            return "+COPS=%d,%d".printf( mode, format );
-        else
-            return "+COPS=%d,%d,\"%d\"".printf( mode, format, oper );
+        status = to_int( "status" );
+        lac = to_string( "lac" );
+        cid = to_string( "cid" );
     }
 
     public string query()
     {
-        return "+COPS?";
+        return "+CREG?";
+    }
+
+    public string issue( int mode )
+    {
+        return "+CREG=%d";
+    }
+
+    public string queryFull( int restoreMode )
+    {
+        return @"+CREG=2;+CREG?;+CREG=$restoreMode";
+    }
+}
+
+public class PlusCRSM : AbstractAtCommand
+{
+    public string payload;
+
+    public PlusCRSM()
+    {
+        re = new Regex( """\+CRSM: 144,0,"?(?P<payload>[0-9A-Z]+)"?""" );
+        prefix = { "+CRSM: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        payload = to_string( "payload" );
+    }
+
+    public string issue( int command, int p1, int p2, int offset, int length )
+    {
+        return @"+CRSM=$command,$p1,$p2,$offset,$length";
+    }
+}
+
+public class PlusCSCA : AbstractAtCommand
+{
+    public string number;
+
+    public PlusCSCA()
+    {
+        re = new Regex( """\+CSCA: "(?P<number>%s*)",(?P<ntype>\d+)""".printf( Constants.PHONE_DIGITS_RE ) );
+        prefix = { "+CSCA: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        number = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "ntype" ) );
+    }
+
+    public string query()
+    {
+        return "+CSCA?";
+    }
+
+    public string issue( string number )
+    {
+        return "+CSCA=" + Constants.instance().phonenumberStringToTuple( number );
+    }
+}
+
+public class PlusCSCS : SimpleAtCommand<string>
+{
+    public PlusCSCS()
+    {
+        base( "+CSCS" );
+    }
+}
+
+public class PlusCSQ : AbstractAtCommand
+{
+    public int signal;
+
+    public PlusCSQ()
+    {
+        re = new Regex( """\+CSQ: (?P<signal>\d+),(?P<ber>\d+)""" );
+        prefix = { "+CSQ: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        signal = Constants.instance().networkSignalToPercentage( to_int( "signal" ) );
+    }
+
+    public string execute()
+    {
+        return "+CSQ";
+    }
+}
+
+public class PlusFCLASS : SimpleAtCommand<string>
+{
+    public PlusFCLASS()
+    {
+        base( "+FCLASS", true );
     }
 }
 
@@ -420,6 +728,57 @@ public class PlusGCAP : SimpleAtCommand<string>
     public PlusGCAP()
     {
         base( "+GCAP", true );
+    }
+}
+
+public class PlusVTS : AbstractAtCommand
+{
+    public const string DTMF_VALID_CHARS = "0123456789ABC+#";
+
+    public string issue( string tones )
+    {
+        /*
+        var tone = "";
+        for ( int i = 0; i < tone.length; ++i )
+        {
+            var c = tones[i];
+            if ( c in DTMF_VALID_CHARS )
+            {
+                tone += c;
+            }
+        }
+        */
+        return @"+VTS=$tones";
+    }
+}
+
+public class V250A : V250terCommand
+{
+    public V250A()
+    {
+        base( "A" );
+    }
+}
+
+public class V250D : V250terCommand
+{
+    public V250D()
+    {
+        base( "D" );
+    }
+
+    public string issue( string number, bool voice = true )
+    {
+        var postfix = voice ? ";" : "";
+        return @"D$number$postfix";
+    }
+}
+
+public class V250H : V250terCommand
+{
+    public V250H()
+    {
+        base( "H" );
     }
 }
 
@@ -432,6 +791,8 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 
     table[ "+CCLK" ]             = new FsoGsm.PlusCCLK();
 
+    table[ "+CEER" ]             = new FsoGsm.PlusCEER();
+
     table[ "+CFUN" ]             = new FsoGsm.PlusCFUN();
 
     table[ "+CGCLASS" ]          = new FsoGsm.PlusCGCLASS();
@@ -440,6 +801,12 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CGMR" ]             = new FsoGsm.PlusCGMR();
     table[ "+CGSN" ]             = new FsoGsm.PlusCGSN();
 
+    table[ "+CHLD" ]             = new FsoGsm.PlusCHLD();
+
+    table[ "+CIMI" ]             = new FsoGsm.PlusCIMI();
+
+    table[ "+CLCC" ]             = new FsoGsm.PlusCLCC();
+    table[ "+CLCK" ]             = new FsoGsm.PlusCLCK();
     table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
 
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
@@ -448,14 +815,31 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CNMI" ]             = new FsoGsm.PlusCNMI();
 
     table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
-    table[ "+COPS=?" ]           = new FsoGsm.PlusCOPS_Test();
 
+    table[ "+CPBR" ]             = new FsoGsm.PlusCPBR();
     table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
+    table[ "+CPWD" ]             = new FsoGsm.PlusCPWD();
+
+    table[ "+CREG" ]             = new FsoGsm.PlusCREG();
+    table[ "+CRSM" ]             = new FsoGsm.PlusCRSM();
+
+    table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
+    table[ "+CSCS" ]             = new FsoGsm.PlusCSCS();
+    table[ "+CSQ" ]              = new FsoGsm.PlusCSQ();
 
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
 
     table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
+
+    table[ "+VTS" ]              = new FsoGsm.PlusVTS();
+
+    table[ "CUSTOM" ]            = new FsoGsm.CustomAtCommand();
+
+    table[ "A" ]                 = new FsoGsm.V250A();
+    table[ "H" ]                 = new FsoGsm.V250H();
+    table[ "D" ]                 = new FsoGsm.V250D();
+
 }
 
 } /* namespace FsoGsm */

@@ -69,6 +69,8 @@ public class FsoGsm.BaseUnsolicitedResponseHandler : FsoGsm.UnsolicitedResponseH
 
     public bool dispatch( string prefix, string rhs, string? pdu = null )
     {
+        assert( logger.debug( @"dispatching AT unsolicited '$prefix', '$rhs'" ) );
+
         if ( pdu == null )
         {
             var urcwrapper = urcs[prefix];
@@ -104,7 +106,10 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     public AtUnsolicitedResponseHandler()
     {
         registerUrc( "+CALA", plusCALA );
+        registerUrc( "+CCWA", plusCCWA );
         registerUrc( "+CIEV", plusCIEV );
+        registerUrc( "+CREG", plusCREG );
+        registerUrc( "+CRING", plusCRING );
     }
 
     public virtual void plusCALA( string prefix, string rhs )
@@ -114,8 +119,26 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         obj.alarm( 0 );
     }
 
+    public virtual void plusCCWA( string prefix, string rhs )
+    {
+        // The call waiting parameters are irrelevant, as we're going to pull them
+        // immediately via +CLCC anyways. Note that we force type to be
+        // 'VOICE' since call waiting does only apply to voice calls.
+        theModem.callhandler.handleIncomingCall( "VOICE" );
+    }
+
     public virtual void plusCIEV( string prefix, string rhs )
     {
-        logger.debug( "plusCIEV: %s %s".printf( prefix, rhs ) );
+        //FIXME: Implement
+    }
+
+    public virtual void plusCREG( string prefix, string rhs )
+    {
+        //FIXME: Implement
+    }
+
+    public virtual void plusCRING( string prefix, string rhs )
+    {
+        theModem.callhandler.handleIncomingCall( rhs );
     }
 }

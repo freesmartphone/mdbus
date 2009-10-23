@@ -37,7 +37,7 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
 
     public override string repr()
     {
-        return "<Pseudo TTY %s (fd %d)>".printf( getName(), fd );
+        return "<PTY %s (fd %d)>".printf( getName(), fd );
     }
 
     public override bool open()

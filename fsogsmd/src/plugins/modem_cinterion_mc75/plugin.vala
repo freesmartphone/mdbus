@@ -30,7 +30,7 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
 {
     public override string repr()
     {
-        return "<Cinterion MC 75>";
+        return "<>";
     }
 
     protected override void createChannels()

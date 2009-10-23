@@ -59,17 +59,18 @@ public class BasePowerControl : FreeSmartphone.Device.PowerControl, FsoFramework
         FsoFramework.FileHandling.write( on ? onvalue : offvalue, powernode );
     }
 
-    // DBUS API
-    public bool get_power() throws DBus.Error
+    //
+    // DBUS API (org.freesmartphone.Device.PowerControl)
+    //
+    public async bool get_power() throws DBus.Error
     {
         return getPower();
     }
 
-    public void set_power( bool on ) throws DBus.Error
+    public async void set_power( bool on ) throws DBus.Error
     {
         setPower( on );
     }
-
 }
 
 }

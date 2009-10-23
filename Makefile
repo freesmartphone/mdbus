@@ -1,4 +1,5 @@
 SUBDIRS = \
+	misc-vapi \
 	libfsobasics \
 	libfsotransport \
 	libfsoresource \
@@ -6,6 +7,7 @@ SUBDIRS = \
 	fsodeviced \
 	fsousaged \
 	fsotimed \
+	fsogpsd \
 	fsogsmd \
 	fsonetworkd
 
