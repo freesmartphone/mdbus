@@ -84,6 +84,9 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         INVALID,
         START,
         START_R,
+        ECHO_A,
+        ECHO_INLINE,
+        ECHO_INLINE_R,
         INLINE,
         INLINE_R,
     }
@@ -121,6 +124,12 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
                 return start( c );
             case State.START_R:
                 return start_r( c );
+            case State.ECHO_A:
+                return echo_a( c );
+            case State.ECHO_INLINE:
+                return echo_inline( c );
+            case State.ECHO_INLINE_R:
+                return echo_inline_r( c );
             case State.INLINE:
                 return inline( c );
             case State.INLINE_R:
@@ -140,8 +149,47 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         {
             case '\r':
                 return State.START_R;
+            case 'A':
+            case 'a':
+                return State.ECHO_A;
         }
         return State.INVALID;
+    }
+
+    public State echo_a( char c )
+    {
+        switch ( c )
+        {
+            case 'T':
+            case 't':
+                warning( "Echo mode detected; ignoring, but please turn that thing off!" );
+                return State.ECHO_INLINE;
+        }
+        return State.INVALID;
+    }
+
+    public State echo_inline( char c )
+    {
+        switch ( c )
+        {
+            case '\r':
+                return State.ECHO_INLINE_R;
+            default:
+                return State.ECHO_INLINE;
+        }
+    }
+
+    public State echo_inline_r( char c )
+    {
+        switch ( c )
+        {
+            case '\r':
+                return State.START_R;
+            case '\n':
+                return State.INLINE;
+            default:
+                return State.INVALID;
+        }
     }
 
     public State start_r( char c )
