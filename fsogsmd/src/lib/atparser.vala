@@ -84,9 +84,9 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         INVALID,
         START,
         START_R,
+        V0_RESULT,
         ECHO_A,
         ECHO_INLINE,
-        ECHO_INLINE_R,
         INLINE,
         INLINE_R,
     }
@@ -128,8 +128,8 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
                 return echo_a( c );
             case State.ECHO_INLINE:
                 return echo_inline( c );
-            case State.ECHO_INLINE_R:
-                return echo_inline_r( c );
+            case State.V0_RESULT:
+                return v0_result( c );
             case State.INLINE:
                 return inline( c );
             case State.INLINE_R:
@@ -147,6 +147,12 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
     {
         switch (c)
         {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+                return State.V0_RESULT;
             case '\r':
                 return State.START_R;
             case 'A':
@@ -162,7 +168,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         {
             case 'T':
             case 't':
-                warning( "Echo mode detected; ignoring, but please turn that thing off!" );
+                warning( "Detected E1 mode (echo); ignoring, but please turn that off!" );
                 return State.ECHO_INLINE;
         }
         return State.INVALID;
@@ -173,20 +179,21 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         switch ( c )
         {
             case '\r':
-                return State.ECHO_INLINE_R;
+                return State.START;
             default:
                 return State.ECHO_INLINE;
         }
     }
 
-    public State echo_inline_r( char c )
+    public State v0_result( char c )
     {
         switch ( c )
         {
             case '\r':
-                return State.START_R;
-            case '\n':
-                return State.INLINE;
+                warning( "Detected V0 mode (nonverbose). Ignoring, but please turn that off!" );
+                curline += 'O';
+                curline += 'K';
+                return endofline();
             default:
                 return State.INVALID;
         }
@@ -196,6 +203,9 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
     {
         switch (c)
         {
+            case '\r':
+                warning( "Ignoring multiple \r at start of result. Your modem SUCKS!" );
+                return State.START_R;
             case '\n':
                 return State.INLINE;
         }
