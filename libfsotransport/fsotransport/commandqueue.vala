@@ -202,11 +202,9 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     protected void writeNextCommand()
     {
-#if DEBUG
-        debug( "Writing next command" );
-#endif
         current = q.poll_head();
         _writeRequestToTransport( current.request );
+        assert( transport.logger.debug( "Wrote '$current.request' to transport. Waiting for answer..." ) );
     }
 
     protected void onReadFromTransport( string response )
@@ -233,7 +231,7 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     protected void onSolicitedResponse( CommandBundle bundle, string[] response )
     {
-        transport.logger.info( "SRC: %s -> %s".printf( bundle.request, FsoFramework.StringHandling.stringListToString( response ) ) );
+        transport.logger.info( "SRC: \"%s\" -> %s".printf( bundle.request, FsoFramework.StringHandling.stringListToString( response ) ) );
 
         if ( bundle.callback != null )
         {
