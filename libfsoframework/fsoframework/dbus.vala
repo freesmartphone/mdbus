@@ -70,19 +70,24 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
         appear = new HashTable<string,List<DBusFuncDelegateHolder>>( str_hash, str_equal );
         disappear = new HashTable<string,List<DBusFuncDelegateHolder>>( str_hash, str_equal );
 
-        obj = DBus.Bus.get( DBus.BusType.SYSTEM ).get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
+        try
+        {
+            obj = DBus.Bus.get( DBus.BusType.SYSTEM ).get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
+        }
+        catch ( DBus.Error e )
+        {
+            logger.critical( @"Could not get handle on DBus object at system bus: $(e.message)" );
+        }
         obj.NameOwnerChanged += onNameOwnerChanged;
     }
 
     public override string repr()
     {
-        return "<>";
+        return "";
     }
 
     private void onNameOwnerChanged( dynamic DBus.Object obj, string name, string oldowner, string newowner )
     {
-        //message( "name owner changed: %s (%s => %s)", name, oldowner, newowner );
-
         weak List<weak DBusFuncDelegateHolder> list;
 
         // check for service appearing
@@ -93,13 +98,10 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
         else
             return;
 
-        //message( "list = %p", list );
-
         if ( list != null )
         {
             foreach ( var el in list )
             {
-                //message( "calling a func" );
                 el.func( name );
             }
         }
