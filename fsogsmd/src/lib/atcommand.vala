@@ -31,7 +31,7 @@ public errordomain FsoGsm.AtCommandError
     UNABLE_TO_PARSE,
 }
 
-public abstract interface FsoGsm.AtCommand : FsoFramework.CommandQueueCommand, GLib.Object
+public abstract interface FsoGsm.AtCommand : GLib.Object, FsoFramework.CommandQueueCommand
 {
     /* CommandQueueCommand */
     public abstract uint get_timeout();
@@ -55,7 +55,7 @@ public abstract interface FsoGsm.AtCommand : FsoFramework.CommandQueueCommand, G
     public abstract Constants.AtResponse validateMulti( string[] response );
 }
 
-public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueCommand, FsoGsm.AtCommand, GLib.Object
+public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoFramework.CommandQueueCommand, FsoGsm.AtCommand
 {
     protected Regex re;
     protected Regex tere;
