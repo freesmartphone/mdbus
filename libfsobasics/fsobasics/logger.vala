@@ -274,7 +274,7 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     public bool critical( string message )
     {
         write( format( message, "CRITICAL" ) );
-        stderr.printf( "Aborting due to call to logger.critical() error\n" );
+        stderr.printf( "Aborting due to critical error:\n'%s'\n".printf( message ) );
         Posix.exit( Posix.EXIT_FAILURE );
         return true;
         //FIXME: Trigger dumping a backtrace, if possible
