@@ -123,7 +123,8 @@ internal async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, 
 
     var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
     var response = yield theModem.processCommandAsync( cmd, cmd.query() );
-    if ( cmd.validate( response ) == Constants.AtResponse.VALID )
+    var rcode = cmd.validate( response );
+    if ( rcode == Constants.AtResponse.VALID )
     {
         if ( cmd.status != data.simAuthStatus )
         {
@@ -148,8 +149,16 @@ internal async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, 
             }
         }
     }
-
-    // TODO: Check error; we might be in NO_SIM_STATUS
+    else if ( rcode == Constants.AtResponse.CME_ERROR_010_SIM_NOT_INSERTED ||
+              rcode == Constants.AtResponse.CME_ERROR_013_SIM_FAILURE )
+    {
+        theModem.logger.info( "SIM not inserted or broken" );
+        theModem.advanceToState( Modem.Status.ALIVE_NO_SIM );
+    }
+    else
+    {
+        theModem.logger.warning( "Unhandled error while querying SIM PIN status" );
+    }
 }
 
 internal async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

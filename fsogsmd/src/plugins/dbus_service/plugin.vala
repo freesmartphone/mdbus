@@ -78,6 +78,7 @@ class DBusService.Device :
         subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
 
         modem = (FsoGsm.Modem) Object.new( modemclass );
+
         modem.parent = this;
 
         logger.info( "Ready. Configured for modem '%s'".printf( modemtype ) );
