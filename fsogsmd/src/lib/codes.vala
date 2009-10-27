@@ -46,4 +46,16 @@ public string hexToString( string hex, uint lowest = 0x20, uint highest = 0x7f, 
     return str.str;
 }
 
+public string decodeSmsPdu( string pdu )
+{
+    long items_written = -1;
+    char[] outbuffer = new char[1024];
+
+    message( "calling decode..." );
+    Conversions.decode_hex_own_buf( pdu, -1, out items_written, 0, outbuffer );
+    message( "%ld items", items_written );
+
+    return "";
+}
+
 } /* namespace Codec */

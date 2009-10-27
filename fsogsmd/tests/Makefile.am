@@ -49,6 +49,15 @@ $(testatparser_SOURCES): $(testatparser_VALASOURCES)
 testatparser_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testatparser_VALASOURCES)
 
+TEST_PROGS += testconversions
+testconversions_VALASOURCES = testconversions.vala
+testconversions_SOURCES = testconversions.c
+$(testconversions_SOURCES): $(testconversions_VALASOURCES)
+	$(VALAC) -C $(VALAC_ARGS) $^
+	touch $@
+testconversions_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testconversions_VALASOURCES)
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \

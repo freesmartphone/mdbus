@@ -350,7 +350,7 @@ public class PlusCMGL : AbstractAtCommand
 
     public PlusCMGL()
     {
-        re = new Regex( """\+CMGL: (?P<id>\d),(?P<stat>\d),(?:(?P<noidea>\d))?,(?P<length>\d+)""");
+        re = new Regex( """\+CMGL: (?P<id>\d),(?P<stat>\d),(?:(?P<noidea>\d+))?,(?P<tpdulen>\d+)""");
         prefix = { "+CMGL: " };
     }
 
@@ -358,6 +358,8 @@ public class PlusCMGL : AbstractAtCommand
     {
         var messagebook = new FreeSmartphone.GSM.SIMMessage[] {};
         var message = FreeSmartphone.GSM.SIMMessage();
+
+        var tpdulen = 0;
 
         for ( int i = 0; i < response.length; ++i )
         {
@@ -369,6 +371,7 @@ public class PlusCMGL : AbstractAtCommand
                 message.number = "unknown number";
                 message.contents = "unknown contents";
                 message.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+                tpdulen = to_int( "tpdulen" );
             }
             else
             {
