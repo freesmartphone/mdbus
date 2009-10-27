@@ -214,7 +214,7 @@ namespace Sms
         USIM_DOWNLOAD,
     }
 
-    [CCode (cname = "struct sms_address")]
+    [CCode (cname = "struct sms_address", destroy_function = "")]
     public struct Address
     {
         public Sms.NumberType number_type;
@@ -222,7 +222,7 @@ namespace Sms
         public char[] address; /* Max 20 in semi-octet, 11 in alnum */
     }
 
-    [CCode (cname = "struct sms_scts")]
+    [CCode (cname = "struct sms_scts", destroy_function = "")]
     public struct Scts
     {
         public uint8 year;
@@ -234,7 +234,7 @@ namespace Sms
         public int8 timezone;
     }
 
-    [CCode (cname = "struct sms_validity_period")]
+    [CCode (cname = "struct sms_validity_period", destroy_function = "")]
     public struct ValidityPeriod
     {
         public uint8 relative;
@@ -242,7 +242,7 @@ namespace Sms
         public uint8 enhanced;
     }
 
-    [CCode (cname = "struct sms_deliver")]
+    [CCode (cname = "struct sms_deliver", destroy_function = "")]
     public struct Deliver
     {
         public bool mms;
@@ -257,7 +257,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_deliver_err_report")]
+    [CCode (cname = "struct sms_deliver_err_report", destroy_function = "")]
     public struct DeliverErrorReport
     {
         public bool udhi;
@@ -269,7 +269,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_deliver_ack_report")]
+    [CCode (cname = "struct sms_deliver_ack_report", destroy_function = "")]
     public struct DeliverAckReport
     {
         public bool udhi;
@@ -280,7 +280,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_command")]
+    [CCode (cname = "struct sms_command", destroy_function = "")]
     public struct Command
     {
         public bool udhi;
@@ -294,7 +294,7 @@ namespace Sms
         public uint8 cd[];
     }
 
-    [CCode (cname = "struct sms_status_report")]
+    [CCode (cname = "struct sms_status_report", destroy_function = "")]
     public struct StatusReport
     {
         public bool udhi;
@@ -309,11 +309,12 @@ namespace Sms
         public uint8 pid;
         public uint8 dcs;
         public uint8 udl;
-        public uint8 ud[143];
+        public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_submit")]
-    public struct Submit {
+    [CCode (cname = "struct sms_submit", destroy_function = "")]
+    public struct Submit
+    {
         public bool rd;
         public Sms.ValidityPeriodFormat vpf;
         public bool rp;
@@ -328,18 +329,19 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_submit_ack_report")]
-    public struct SubmitAckReport {
+    [CCode (cname = "struct sms_submit_ack_report", destroy_function = "")]
+    public struct SubmitAckReport
+    {
         public bool udhi;
         public uint8 pi;
         public Sms.Scts scts;
         public uint8 pid;
         public uint8 dcs;
         public uint8 udl;
-        public uint8 ud[152];
+        public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_submit_err_report")]
+    [CCode (cname = "struct sms_submit_err_report", destroy_function = "")]
     public struct SubmitErrorReport
     {
         public bool udhi;
@@ -349,10 +351,10 @@ namespace Sms
         public uint8 pid;
         public uint8 dcs;
         public uint8 udl;
-        public uint8 ud[151];
+        public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms")]
+    [CCode (cname = "struct sms", destroy_function = "")]
     public struct Message
     {
         public Sms.Address sc_addr;
@@ -369,14 +371,14 @@ namespace Sms
         /* </union> */
     }
 
-    [CCode (cname = "struct sms_udh_iter")]
+    [CCode (cname = "struct sms_udh_iter", destroy_function = "")]
     public struct UserDataHeaderIter
     {
         public uint8 *data;
         public uint8 offset;
     }
 
-    [CCode (cname = "struct sms_assembly_node")]
+    [CCode (cname = "struct sms_assembly_node", destroy_function = "")]
     public struct AssemblyNode
     {
         public Sms.Address addr;
@@ -388,16 +390,26 @@ namespace Sms
         public uint bitmap[];
     }
 
-    [CCode (cname = "struct sms_assembly")]
+    [CCode (cname = "struct sms_assembly", destroy_function = "")]
     public struct Assembly
     {
         string imsi;
         GLib.SList<AssemblyNode?> assembly_list;
     }
 
-#if FOO
+    [CCode (cname = "sms_decode")]
+    public bool decode( char[] pdu, bool outgoing, int tpdu_len, out Sms.Message message );
+    [CCode (cname = "sms_encode")]
+    public bool encode( Sms.Message message,
+                        out int len,
+                        out int tpdu_len,
+                        [CCode (array_length = false)] char[] pdu );
+}
+
+namespace Cb
+{
     [CCode (cprefix = "CBS_LANGUAGE_")]
-    public enum CbsLanguage
+    public enum Language
     {
         GERMAN,
         ENGLISH,
@@ -423,7 +435,7 @@ namespace Sms
     }
 
     [CCode (cprefix = "CBS_GEO_SCOPE_")]
-    public enum CbsGeoScope
+    public enum GeoScope
     {
         CELL_IMMEDIATE,
         PLMN,
@@ -431,35 +443,44 @@ namespace Sms
         CELL_NORMAL
     }
 
-    struct cbs {
-        public enum cbs_geo_scope gs;          /* 2 bits */
-        guint16 message_code;           /* 10 bits */
-        uint8 update_number;           /* 4 bits */
-        guint16 message_identifier;     /* 16 bits */
-        uint8 dcs;             /* 8 bits */
-        uint8 max_pages;           /* 4 bits */
-        uint8 page;                /* 4 bits */
-        uint8 ud[82];
+    [CCode (cname = "cbs", destroy_function = "")]
+    public struct Message
+    {
+        public GeoScope gs;
+        public uint16 message_code;
+        public uint8 update_number;
+        public uint16 message_identifier;
+        public uint8 dcs;
+        public uint8 max_pages;
+        public uint8 page;
+        public uint8 ud[];
     }
 
-    struct cbs_assembly_node {
-        guint32 serial;
-        guint16 bitmap;
-        GSList *pages;
+    [CCode (cname = "cbs_assembly_node", destroy_function = "")]
+    public struct AssemblyNode
+    {
+        uint32 serial;
+        uint16 bitmap;
+        GLib.SList<void*> pages;
     }
 
-    struct cbs_assembly {
-        GSList *assembly_list;
-        GSList *recv_plmn;
-        GSList *recv_loc;
-        GSList *recv_cell;
+    [CCode (cname = "cbs_assembly", destroy_function = "")]
+    public struct Assembly
+    {
+        GLib.SList<void*> assembly_list;
+        GLib.SList<void*> recv_plmn;
+        GLib.SList<void*> recv_loc;
+        GLib.SList<void*> recv_cell;
     }
 
-    struct cbs_topic_range {
-        unsigned short min;
-        unsigned short max;
+    [CCode (cname = "cbs_topic_range", destroy_function = "")]
+    public struct TopicRange
+    {
+        ushort min;
+        ushort max;
     }
 
+    /*
     static inline bool is_bit_set(unsigned char oct, int bit)
     {
         int mask = 0x1 << bit;
@@ -472,11 +493,5 @@ namespace Sms
 
         return (oct >> start) & mask;
     }
-#endif
-
-    public bool decode( char[] pdu, bool outgoing, int tpdu_len, out Sms.Message message );
-    public bool encode( Sms.Message message,
-                        out int len,
-                        out int tpdu_len,
-                        [CCode (array_length = false)] char[] pdu );
+    */
 }
