@@ -274,9 +274,12 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 
         if ( pendingPDU )
         {
+#if DEBUG
+        debug( "endoflinePerhapsSolicited: detected pending PDU" );
+#endif
             solicited += (string)curline;
             pendingPDU = false;
-            return resetAll();
+            return resetLine();
         }
 
         var prefixExpected = expectedPrefix( (string)curline );
