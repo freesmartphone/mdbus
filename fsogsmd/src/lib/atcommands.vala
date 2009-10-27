@@ -334,6 +334,73 @@ public class PlusCLVL : SimpleAtCommand<int>
     }
 }
 
+public class PlusCMGL : AbstractAtCommand
+{
+    public enum Mode
+    {
+        INVALID     = -1,
+        REC_UNREAD  = 0,
+        REC_READ    = 1,
+        STO_UNSENT  = 2,
+        STO_SENT    = 3,
+        ALL         = 4,
+    }
+
+    public FreeSmartphone.GSM.SIMMessage[] messagebook;
+
+    public PlusCMGL()
+    {
+        re = new Regex( """\+CMGL: (?P<id>\d),(?P<stat>\d),(?:(?P<noidea>\d))?,(?P<length>\d+)""");
+        prefix = { "+CMGL: " };
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        var messagebook = new FreeSmartphone.GSM.SIMMessage[] {};
+        var message = FreeSmartphone.GSM.SIMMessage();
+
+        for ( int i = 0; i < response.length; ++i )
+        {
+            if ( i % 2 == 0 )
+            {
+                base.parse( response[i] );
+                message.index = to_int( "id" );
+                message.status = Constants.instance().simMessagebookStatusToString( to_int( "stat" ) );
+                message.number = "unknown number";
+                message.contents = "unknown contents";
+                message.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+            }
+            else
+            {
+                messagebook += message;
+            }
+        }
+        this.messagebook = messagebook;
+    }
+
+    public string issue( Mode mode )
+    {
+        assert( mode != Mode.INVALID );
+        return "+CMGL=%d".printf( (int)mode );
+    }
+}
+
+public class PlusCMICKEY : SimpleAtCommand<int>
+{
+    public PlusCMICKEY()
+    {
+        base( "+CMICKEY" );
+    }
+}
+
+public class PlusCMUT : SimpleAtCommand<int>
+{
+    public PlusCMUT()
+    {
+        base( "+CMUT" );
+    }
+}
+
 public class PlusCNMI : AbstractAtCommand
 {
     public int mode;
@@ -366,22 +433,6 @@ public class PlusCNMI : AbstractAtCommand
     public string issue( int mode, int mt, int bm, int ds, int bfr )
     {
         return "+CNMI=%d,%d,%d,%d,%d".printf( mode, mt, bm, ds, bfr );
-    }
-}
-
-public class PlusCMICKEY : SimpleAtCommand<int>
-{
-    public PlusCMICKEY()
-    {
-        base( "+CMICKEY" );
-    }
-}
-
-public class PlusCMUT : SimpleAtCommand<int>
-{
-    public PlusCMUT()
-    {
-        base( "+CMUT" );
     }
 }
 
@@ -809,6 +860,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CLCK" ]             = new FsoGsm.PlusCLCK();
     table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
 
+    table[ "+CMGL" ]             = new FsoGsm.PlusCMGL();
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
     table[ "+CMUT" ]             = new FsoGsm.PlusCMUT();
 

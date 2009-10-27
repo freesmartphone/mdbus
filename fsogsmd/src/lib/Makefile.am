@@ -19,6 +19,7 @@ AM_CFLAGS = \
 	$(NULL)
 
 VALAC_ARGS = \
+	-D DEBUG \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/3rdparty \
 	--pkg posix \
