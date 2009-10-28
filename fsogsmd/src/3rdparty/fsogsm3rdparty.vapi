@@ -214,9 +214,12 @@ namespace Sms
         USIM_DOWNLOAD,
     }
 
-    [CCode (cname = "struct sms_address", destroy_function = "")]
+    [CCode (cname = "struct sms_address", cprefix = "sms_address_", destroy_function = "")]
     public struct Address
     {
+        public unowned string to_string();
+        public void from_string( string str );
+
         public Sms.NumberType number_type;
         public Sms.NumberingPlan numbering_plan;
         public char[] address; /* Max 20 in semi-octet, 11 in alnum */
@@ -357,6 +360,31 @@ namespace Sms
     [CCode (cname = "struct sms", destroy_function = "")]
     public struct Message
     {
+        public string to_string()
+        {
+            var list = new GLib.SList<Sms.Message*>();
+            list.append( &this );
+            return Sms.decode_text( list );
+        }
+
+
+        public string number()
+        {
+            switch ( type )
+            {
+                case Sms.Type.DELIVER:
+                    return deliver.oaddr.to_string();
+                case Sms.Type.STATUS_REPORT:
+                    return status_report.raddr.to_string();
+                case Sms.Type.SUBMIT:
+                    return submit.daddr.to_string();
+                case Sms.Type.COMMAND:
+                    return command.daddr.to_string();
+                default:
+                    return "unknown";
+            }
+        }
+
         public Sms.Address sc_addr;
         public Sms.Type type;
         /* <union> */
@@ -390,7 +418,7 @@ namespace Sms
         public uint bitmap[];
     }
 
-    [CCode (cname = "struct sms_assembly", destroy_function = "")]
+    [CCode (cname = "struct sms_assembly", destroy_function = "sms_assembly_free")]
     public struct Assembly
     {
         string imsi;
@@ -399,11 +427,15 @@ namespace Sms
 
     [CCode (cname = "sms_decode")]
     public bool decode( char[] pdu, bool outgoing, int tpdu_len, out Sms.Message message );
+
     [CCode (cname = "sms_encode")]
     public bool encode( Sms.Message message,
                         out int len,
                         out int tpdu_len,
                         [CCode (array_length = false)] char[] pdu );
+
+    [CCode (cname = "sms_decode_text")]
+    public string decode_text( GLib.SList<Sms.Message*> sms_list );
 }
 
 namespace Cb
@@ -464,7 +496,7 @@ namespace Cb
         GLib.SList<void*> pages;
     }
 
-    [CCode (cname = "cbs_assembly", destroy_function = "")]
+    [CCode (cname = "cbs_assembly", destroy_function = "cbs_assembly_free")]
     public struct Assembly
     {
         GLib.SList<void*> assembly_list;

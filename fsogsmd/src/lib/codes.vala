@@ -46,39 +46,4 @@ public string hexToString( string hex, uint lowest = 0x20, uint highest = 0x7f, 
     return str.str;
 }
 
-public string decodeSmsPdu( string pdu, int pdulen )
-{
-    long items_written = -1;
-    char[] outbuffer = new char[1024];
-
-    message( "calling decode..." );
-    Conversions.decode_hex_own_buf( pdu, -1, out items_written, 0, outbuffer );
-    message( "%ld items", items_written );
-    //outbuffer.length = 34;
-
-    var sms = Sms.Message();
-
-    var res = Sms.decode( outbuffer, false, pdulen, out sms );
-    message( "decode: %d", (int)res );
-
-    if ( res )
-    {
-        message( "type: %d", sms.type );
-        message( "service center: %s", (string)sms.sc_addr.address );
-        message( "oaddr: %s", (string)sms.deliver.oaddr.address );
-        //message( "userdata: %s", (string)sms.deliver.ud );
-
-        message( "scts: %u/%u/%u %u:%u:%u +%d",
-                 sms.deliver.scts.year,
-                 sms.deliver.scts.month,
-                 sms.deliver.scts.day,
-                 sms.deliver.scts.hour,
-                 sms.deliver.scts.minute,
-                 sms.deliver.scts.second,
-                 sms.deliver.scts.timezone );
-    }
-
-    return "";
-}
-
 } /* namespace Codec */

@@ -56,6 +56,7 @@ libfsogsm_la_VALASOURCES = \
 	channel.vala \
 	mediator.vala \
 	modem.vala \
+	sms.vala \
 	structs.vala \
 	transport.vala \
 	$(NULL)

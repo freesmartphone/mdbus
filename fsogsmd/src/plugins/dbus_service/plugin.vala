@@ -273,7 +273,7 @@ class DBusService.Device :
 
     public async string get_issuer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Deprecated. Please use org.freesmartphone.GSM.SIM.GetSimInfo()" );
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_messagebook_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

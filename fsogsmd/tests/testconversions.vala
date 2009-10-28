@@ -25,7 +25,10 @@ void test_sms_decode()
 //===========================================================================
 {
     string pdu = "0791947107160000040C9194712716464600008021810270854008CB729D5D76B95C";
-    Codec.decodeSmsPdu( pdu, 26 );
+    int pdulen = 26;
+
+    var sms = ShortMessage.decodeFromHexPdu( pdu, pdulen );
+    assert( sms != null );
 }
 
 //===========================================================================

@@ -368,13 +368,19 @@ public class PlusCMGL : AbstractAtCommand
                 base.parse( response[i] );
                 message.index = to_int( "id" );
                 message.status = Constants.instance().simMessagebookStatusToString( to_int( "stat" ) );
-                message.number = "unknown number";
-                message.contents = "unknown contents";
-                message.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
                 tpdulen = to_int( "tpdulen" );
+                message.number = "unable to decode";
+                message.contents = "unable to decode";
+                message.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
             }
             else
             {
+                ShortMessage? sms = ShortMessage.decodeFromHexPdu( response[i], tpdulen );
+                if ( sms != null )
+                {
+                    message.number = sms.number;
+                    message.contents = sms.contents;
+                }
                 messagebook += message;
             }
         }
