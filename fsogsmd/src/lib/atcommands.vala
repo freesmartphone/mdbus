@@ -350,7 +350,7 @@ public class PlusCMGL : AbstractAtCommand
 
     public PlusCMGL()
     {
-        re = new Regex( """\+CMGL: (?P<id>\d),(?P<stat>\d),(?:(?P<noidea>\d+))?,(?P<tpdulen>\d+)""");
+        re = new Regex( """\+CMGL: (?P<id>\d),(?P<stat>\d),(?:"(?P<name>[0-9ABCDEF]*)")?,(?P<tpdulen>\d+)""");
         prefix = { "+CMGL: " };
     }
 
