@@ -32,13 +32,17 @@ public class ShortMessage
     //FIXME: might rather be a uint8[] (for binary SMS)?
     public string contents { get; set; }
 
-    public ShortMessage( string number, string contents )
+    public ShortMessage( string number, string contents, GLib.HashTable<string,Value?>? properties = null )
     {
         this.number = number;
         this.contents = contents;
+        if ( properties != null )
+        {
+            //FIXME handle properties
+        }
     }
 
-    public static ShortMessage decodeFromHexPdu( string pdu, int tpdulen  )
+    public static ShortMessage decodeFromHexPdu( string pdu, int tpdulen )
     {
         long items_written = -1;
         char[] outbuffer = new char[1024];
@@ -72,6 +76,57 @@ public class ShortMessage
         {
             return null;
         }
+    }
+
+    public struct HexPdu
+    {
+        string pdu;
+        int tpdulen;
+    }
+
+    public static HexPdu[] formatTextMessage( string number, string contents, uint8 reference )
+    {
+        int offset;
+        var smslist = Sms.text_prepare( contents, 0, true, out offset );
+
+        debug( "formatTextMessage: will create %u hexpdus", smslist.length() );
+
+        var hexpdus = new HexPdu[smslist.length()] {};
+
+        // set reference number and to address
+        smslist.foreach( (element) =>
+        {
+            var psms = (Sms.Message*)element;
+
+            if ( offset != 0 )
+            {
+                psms->submit.ud[offset] = (reference & 0xf0) >> 8;
+                psms->submit.ud[offset+1] = (reference & 0x0f);
+            }
+
+            psms->submit.daddr.from_string( number );
+        } );
+
+        char[] binpdu = new char[176];
+        char[] hexpdu = new char[1024];
+        var pdulen = 0;
+        var tpdulen = 0;
+        uint i = 0;
+
+        // convert to PDU
+        smslist.foreach( (element) =>
+        {
+            var psms = (Sms.Message*)element;
+
+            var ok = Sms.encode( *psms, out pdulen, out tpdulen, binpdu );
+            assert( ok );
+
+            Conversions.encode_hex_own_buf( binpdu, 0, hexpdu );
+            debug( "formatTextMessage: hexpdu created w/ tpdulen = %d", tpdulen );
+            hexpdus[i++] = HexPdu() { pdu=(string)hexpdu, tpdulen=tpdulen };
+        } );
+
+        return hexpdus;
     }
 }
 

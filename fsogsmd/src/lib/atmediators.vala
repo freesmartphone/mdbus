@@ -743,6 +743,25 @@ public class AtSimUnlock : SimUnlock
 }
 
 /**
+ * SMS Mediators
+ **/
+public class AtSmsSendMessage : SmsSendMessage
+{
+    public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        //FIXME: validate number
+        assert( contents != "" ); // only text messages supported for now
+        var hexpdus = ShortMessage.formatTextMessage( recipient_number, contents, 42 );
+        for ( var i = 0; i < hexpdus.length; ++i )
+        {
+            var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
+            var response = yield theModem.processCommandAsync( cmd, cmd.issue( hexpdus[i] ) );
+            //checkResponseOk( cmd, response );
+        }
+    }
+}
+
+/**
  * Network Mediators
  **/
 public class AtNetworkGetSignalStrength : NetworkGetSignalStrength
@@ -933,6 +952,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( AtSimSetServiceCenterNumber );
     table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
+
+    table[ typeof(SmsSendMessage) ]               = typeof( AtSmsSendMessage );
 
     table[ typeof(NetworkGetSignalStrength) ]     = typeof( AtNetworkGetSignalStrength );
     table[ typeof(NetworkGetStatus) ]             = typeof( AtNetworkGetStatus );

@@ -28,6 +28,11 @@ namespace Conversions {
                              out long items_written,
                              char terminator,
                              [CCode (array_length = false)] char[] outbuffer );
+
+    void encode_hex_own_buf( char[] inbuffer,
+                             /* long length, */
+                             char terminator,
+                             [CCode (array_length = false)] char[] outbuffer );
 }
 
 [CCode (cheader_filename = "conversions.h,util.h,smsutil.h", cprefix = "", lower_case_cprefix = "")]
@@ -425,17 +430,24 @@ namespace Sms
         GLib.SList<AssemblyNode?> assembly_list;
     }
 
+    //
+    // Methods
+    //
+
     [CCode (cname = "sms_decode")]
-    public bool decode( char[] pdu, bool outgoing, int tpdu_len, out Sms.Message message );
+    public bool decode( char[] binpdu, bool outgoing, int tpdu_len, out Sms.Message message );
 
     [CCode (cname = "sms_encode")]
     public bool encode( Sms.Message message,
                         out int len,
                         out int tpdu_len,
-                        [CCode (array_length = false)] char[] pdu );
+                        [CCode (array_length = false)] char[] binpdu );
 
     [CCode (cname = "sms_decode_text")]
     public string decode_text( GLib.SList<Sms.Message*> sms_list );
+
+    [CCode (cname = "sms_text_prepare")]
+    public GLib.SList<Sms.Message*> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
 }
 
 namespace Cb

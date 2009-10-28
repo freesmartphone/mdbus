@@ -394,6 +394,20 @@ public class PlusCMGL : AbstractAtCommand
     }
 }
 
+public class PlusCMGS : AbstractAtCommand
+{
+    public PlusCMGS()
+    {
+        re = new Regex( """\+CMGS: (?P<id>\d)(?:,"(?P<name>[0-9ABCDEF]*)")?""" );
+        prefix = { "+CMGS: " };
+    }
+
+    public string issue( ShortMessage.HexPdu hexpdu )
+    {
+        return """+CMGS=%d\r%s\01a""".printf( hexpdu.tpdulen, hexpdu.pdu );
+    }
+}
+
 public class PlusCMICKEY : SimpleAtCommand<int>
 {
     public PlusCMICKEY()
@@ -870,6 +884,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
 
     table[ "+CMGL" ]             = new FsoGsm.PlusCMGL();
+    table[ "+CMGS" ]             = new FsoGsm.PlusCMGS();
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
     table[ "+CMUT" ]             = new FsoGsm.PlusCMUT();
 

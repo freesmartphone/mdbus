@@ -213,6 +213,17 @@ public abstract class FsoGsm.SimUnlock : FsoGsm.AbstractMediator
 }
 
 //
+// org.freesmartphone.GSM.SMS.*
+//
+public abstract class FsoGsm.SmsSendMessage : FsoGsm.AbstractMediator
+{
+    public int transaction_index { get; set; }
+    public string timestamp { get; set; }
+
+    public abstract async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+//
 // org.freesmartphone.GSM.Network.*
 //
 public abstract class FsoGsm.NetworkGetSignalStrength : FsoGsm.AbstractMediator
