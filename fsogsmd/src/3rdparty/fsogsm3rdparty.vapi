@@ -253,6 +253,21 @@ namespace Sms
     [CCode (cname = "struct sms_deliver", destroy_function = "")]
     public struct Deliver
     {
+        public GLib.HashTable<string,GLib.Value?> properties()
+        {
+            var props = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+            props.insert( "mms", mms );
+            props.insert( "sri", sri );
+            props.insert( "udhi", udhi );
+            props.insert( "rp", rp );
+            props.insert( "pid", pid );
+            props.insert( "dcs", dcs );
+            props.insert( "udl", udl );
+            if ( udhi )
+                props.insert( "udh", "%02X %02X %02X %02X".printf( (ud[1] << 4) + ud[0], (ud[3] << 4) + ud[2], (ud[5] << 4) + ud[4], ud[6] ) );
+            return props;
+        }
+
         public bool mms;
         public bool sri;
         public bool udhi;
@@ -379,14 +394,41 @@ namespace Sms
             {
                 case Sms.Type.DELIVER:
                     return deliver.oaddr.to_string();
-                case Sms.Type.STATUS_REPORT:
-                    return status_report.raddr.to_string();
                 case Sms.Type.SUBMIT:
                     return submit.daddr.to_string();
                 case Sms.Type.COMMAND:
                     return command.daddr.to_string();
+                case Sms.Type.STATUS_REPORT:
+                    return status_report.raddr.to_string();
                 default:
                     return "unknown";
+            }
+        }
+
+        public GLib.HashTable<string,GLib.Value?> properties()
+        {
+            switch ( type )
+            {
+                case Sms.Type.DELIVER:
+                    return deliver.properties();
+                    /*
+                case Sms.Type.DELIVER_REPORT_ACK:
+                    return deliver_ack_report.properties();
+                case Sms.Type.DELIVER_REPORT_ERROR:
+                    return deliver_err_report.properties();
+                case Sms.Type.SUBMIT:
+                    return submit.properties();
+                case Sms.Type.SUBMIT_REPORT_ACK:
+                    return submit_ack_report.properties();
+                case Sms.Type.SUBMIT_REPORT_ERROR:
+                    return submit_err_report.properties();
+                case Sms.Type.COMMAND:
+                    return command.properties();
+                case Sms.Type.STATUS_REPORT:
+                    return status_report.properties();
+                    */
+                default:
+                    return new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
             }
         }
 

@@ -380,6 +380,7 @@ public class PlusCMGL : AbstractAtCommand
                 {
                     message.number = sms.number;
                     message.contents = sms.contents;
+                    message.properties = sms.properties;
                 }
                 messagebook += message;
             }

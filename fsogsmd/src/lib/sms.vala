@@ -31,15 +31,13 @@ public class ShortMessage
     public string number { get; set; }
     //FIXME: might rather be a uint8[] (for binary SMS)?
     public string contents { get; set; }
+    public GLib.HashTable<string,GLib.Value?> properties { get; set; }
 
-    public ShortMessage( string number, string contents, GLib.HashTable<string,Value?>? properties = null )
+    public ShortMessage( string number, string contents, GLib.HashTable<string,GLib.Value?>? properties = null )
     {
         this.number = number;
         this.contents = contents;
-        if ( properties != null )
-        {
-            //FIXME handle properties
-        }
+        this.properties = properties != null ? properties : new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
     }
 
     public static ShortMessage decodeFromHexPdu( string pdu, int tpdulen )
@@ -69,7 +67,7 @@ public class ShortMessage
                      sms.deliver.scts.timezone );
             message( "text: '%s'", sms.to_string() );
 
-            var instance = new ShortMessage( sms.number(), sms.to_string() );
+            var instance = new ShortMessage( sms.number(), sms.to_string(), sms.properties() );
             return instance;
         }
         else
@@ -97,12 +95,15 @@ public class ShortMessage
 
     public static HexPdu[] formatTextMessage( string number, string contents, out uint8 refnum )
     {
-        uint8 nextrefnum = nextReferenceNumber();
+        //uint16 nextrefnum = nextReferenceNumber();
+        uint8 nextrefnum = 42;
+
+        var encodeWithUcs2 = true;
 
         int offset;
-        var smslist = Sms.text_prepare( contents, 0, true, out offset );
+        var smslist = Sms.text_prepare( contents, 0, encodeWithUcs2, out offset );
 
-        debug( "formatTextMessage: will create %u hexpdus", smslist.length() );
+        debug( "formatTextMessage: will create %u hexpdus w/ offset=%d", smslist.length(), offset );
 
         var hexpdus = new HexPdu[smslist.length()] {};
 
@@ -113,7 +114,7 @@ public class ShortMessage
 
             if ( offset != 0 )
             {
-                psms->submit.ud[offset] = ( nextrefnum & 0xf0) >> 8;
+                psms->submit.ud[offset+0] = ( nextrefnum & 0xf0) >> 8;
                 psms->submit.ud[offset+1] = ( nextrefnum & 0x0f);
             }
 
@@ -135,7 +136,7 @@ public class ShortMessage
             assert( ok );
 
             Conversions.encode_hex_own_buf( binpdu, 0, hexpdu );
-            debug( "formatTextMessage: hexpdu created w/ tpdulen = %d", tpdulen );
+            debug( "   hexpdu created w/ tpdulen = %d: %s", tpdulen, (string)hexpdu );
             hexpdus[i++] = HexPdu() { pdu=(string)hexpdu, tpdulen=tpdulen };
         } );
 
