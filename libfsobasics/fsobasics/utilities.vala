@@ -59,9 +59,16 @@ public string read( string filename )
     return "";
 }
 
-public void write( string contents, string filename )
+public void write( string contents, string filename, bool create = false )
 {
-    var fd = Posix.open( filename, Posix.O_WRONLY );
+    Posix.mode_t mode = 0;
+    int flags = Posix.O_WRONLY;
+    if ( create )
+    {
+        mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
+        flags |= Posix.O_CREAT  | Posix.O_EXCL;
+    }
+    var fd = Posix.open( filename, flags, mode );
     if ( fd == -1 )
     {
         warning( "%s", "can't open for writing to %s: %s".printf( filename, Posix.strerror( Posix.errno ) ) );
@@ -71,7 +78,9 @@ public void write( string contents, string filename )
         var length = contents.len();
         ssize_t written = Posix.write( fd, contents, length );
         if ( written != length )
-            warning( "couldn't write all bytes" );
+        {
+            warning( "couldn't write all bytes to %s (%u of %ld)".printf( filename, (uint)written, length ) );
+        }
         Posix.close( fd );
     }
 }
