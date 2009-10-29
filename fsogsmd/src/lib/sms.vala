@@ -145,4 +145,74 @@ public class ShortMessage
     }
 }
 
+/**
+ * @class AtSmsHandler
+ **/
+public class SmsHandler : FsoFramework.AbstractObject
+{
+    private FsoFramework.SmartKeyFile smsconfig;
+    private string key;
+
+    public SmsHandler()
+    {
+        theModem.signalStatusChanged += onModemStatusChanged;
+
+        var smsconfigfilename = config.stringValue( "fsogsmd", "smsconfig", "/tmp/fsogsmd.smsdb.conf" );
+        smsconfig = new FsoFramework.SmartKeyFile();
+        smsconfig.loadFromFile( smsconfigfilename );
+
+        key = "unknown";
+    }
+
+    private override string repr()
+    {
+        return @"<$key>";
+    }
+
+    public void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
+    {
+        switch ( status )
+        {
+            case Modem.Status.ALIVE_SIM_READY:
+                simIsReady();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public async void simIsReady()
+    {
+        yield syncWithSim();
+    }
+
+    public async void syncWithSim()
+    {
+        // gather IMSI
+        var cimi = theModem.createAtCommand<PlusCGMR>( "+CIMI" );
+        var response = yield theModem.processCommandAsync( cimi, cimi.execute() );
+        if ( cimi.validate( response ) != Constants.AtResponse.VALID )
+        {
+            return;
+        }
+
+        key = @"IMSI.$(cimi.value)";
+
+        if ( smsconfig.hasSection( key ) )
+        {
+            assert( logger.debug( @"IMSI $(cimi.value) seen before" ) );
+        }
+        else
+        {
+            logger.info( @"IMSI $(cimi.value) never seen before" );
+        }
+
+        // ...
+
+        // write timestamp
+        smsconfig.write<int>( key, "last_sync", (int)GLib.TimeVal().tv_sec );
+    }
+}
+
+
 } /* namespace FsoGsm */

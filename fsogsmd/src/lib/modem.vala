@@ -142,6 +142,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     protected Object parent { get; set; } // the DBus object
     protected CallHandler callhandler { get; set; } // the Call handler
+    protected SmsHandler smshandler { get; set; } // the SMS handler
 
     construct
     {
@@ -174,6 +175,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         modem_data = new FsoGsm.Modem.Data();
 
+        //modem_data.simidentification = "unknown";
+
         modem_data.charset = "unknown";
         modem_data.simHasReadySignal = false;
 
@@ -198,7 +201,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         urc = createUnsolicitedHandler();
         callhandler = createCallHandler();
-        //TODO: binary sms handler, etc.
+        smshandler = createSmsHandler();
     }
 
     private void registerMediators()
@@ -245,6 +248,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected virtual CallHandler createCallHandler()
     {
         return new GenericAtCallHandler();
+    }
+
+    /**
+     * Override this to return a custom type of SMS handler to be used for this modem.
+     **/
+    protected virtual SmsHandler createSmsHandler()
+    {
+        return new SmsHandler();
     }
 
     /**

@@ -387,7 +387,6 @@ namespace Sms
             return Sms.decode_text( list );
         }
 
-
         public string number()
         {
             switch ( type )

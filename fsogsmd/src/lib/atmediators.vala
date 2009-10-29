@@ -701,6 +701,29 @@ public class AtSimRetrieveMessagebook : SimRetrieveMessagebook
     }
 }
 
+public class AtSimRetrieveTextMessages : SimRetrieveTextMessages
+{
+    public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cat = Constants.instance().simMessagebookStringToName( category );
+
+        if ( cat == PlusCMGL.Mode.INVALID )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Category needs to be one of ..." );
+        }
+
+        var cmd = theModem.createAtCommand<PlusCMGL>( "+CMGL" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( cat ) );
+
+        var valid = cmd.validateMulti( response );
+        if ( valid != Constants.AtResponse.VALID && valid != Constants.AtResponse.CME_ERROR_022_NOT_FOUND )
+        {
+            throwAppropriateError( valid, response[response.length-1] );
+        }
+        messagebook = cmd.messagebook;
+    }
+}
+
 public class AtSimSetAuthCodeRequired : SimSetAuthCodeRequired
 {
     public override async void run( bool required, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -960,6 +983,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimGetInformation) ]            = typeof( AtSimGetInformation );
     table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );
     table[ typeof(SimRetrieveMessagebook) ]       = typeof( AtSimRetrieveMessagebook );
+    table[ typeof(SimRetrieveTextMessages) ]      = typeof( AtSimRetrieveTextMessages );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
     table[ typeof(SimSetAuthCodeRequired) ]       = typeof( AtSimSetAuthCodeRequired );
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );
