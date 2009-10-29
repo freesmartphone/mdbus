@@ -75,13 +75,18 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoFramework.Comma
 
     public string decodeString( string str )
     {
-        if ( str == null || str.length == 0 )
+        if ( str == null )
             return "";
+        if ( str.length == 0 )
+            return "";
+
         var data = theModem.data();
         switch ( data.charset )
         {
             case "UCS2":
-                return Conversions.ucs2_to_utf8( str );
+                //FIXME: should this function be rather secured against (null)?
+                var res = Conversions.ucs2_to_utf8( str );
+                return ( res != null ) ? res : "";
             default:
                 return str;
         }
