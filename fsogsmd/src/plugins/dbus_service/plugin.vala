@@ -416,6 +416,14 @@ class DBusService.Device :
         transaction_index = m.transaction_index;
         timestamp = m.timestamp;
     }
+
+    public async uint get_size_for_text_message( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.SmsGetSizeForMessage>();
+        yield m.run( contents );
+        return m.size;
+    }
+
     //
     // DBUS (org.freesmartphone.GSM.Network.*)
     //

@@ -404,8 +404,28 @@ public class PlusCMGS : AbstractAtCommand
 
     public string issue( ShortMessage.HexPdu hexpdu )
     {
-        return """+CMGS=%d\r%s\01a""".printf( hexpdu.tpdulen, hexpdu.pdu );
+        return "AT+CMGS=%d\r\n%s%c".printf( hexpdu.tpdulen, hexpdu.pdu, '\x1A' );
     }
+
+    public override string get_prefix() { return ""; }
+    public override string get_postfix() { return ""; }
+}
+
+public class PlusCMGW : AbstractAtCommand
+{
+    public PlusCMGW()
+    {
+        re = new Regex( """\+CMGW: (?P<id>\d+)""" );
+        prefix = { "+CMGW: " };
+    }
+
+    public string issue( ShortMessage.HexPdu hexpdu )
+    {
+        return "AT+CMGW=%d\r\n%s%c".printf( hexpdu.tpdulen, hexpdu.pdu, '\x1A' );
+    }
+
+    public override string get_prefix() { return ""; }
+    public override string get_postfix() { return ""; }
 }
 
 public class PlusCMICKEY : SimpleAtCommand<int>

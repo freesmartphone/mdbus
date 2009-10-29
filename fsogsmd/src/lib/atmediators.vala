@@ -745,19 +745,32 @@ public class AtSimUnlock : SimUnlock
 /**
  * SMS Mediators
  **/
+public class AtSmsGetSizeForMessage : SmsGetSizeForMessage
+{
+    public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        uint8 refnum;
+        var hexpdus = ShortMessage.formatTextMessage( "+123456789", contents, out refnum );
+        size = hexpdus.length;
+    }
+}
+
 public class AtSmsSendMessage : SmsSendMessage
 {
     public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         //FIXME: validate number
         assert( contents != "" ); // only text messages supported for now
-        var hexpdus = ShortMessage.formatTextMessage( recipient_number, contents, 42 );
+        uint8 refnum;
+        var hexpdus = ShortMessage.formatTextMessage( recipient_number, contents, out refnum );
         for ( var i = 0; i < hexpdus.length; ++i )
         {
             var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
-            var response = yield theModem.processCommandAsync( cmd, cmd.issue( hexpdus[i] ) );
+            var response = yield theModem.processPduCommandAsync( cmd, cmd.issue( hexpdus[i] ) );
             //checkResponseOk( cmd, response );
         }
+        transaction_index = refnum;
+        timestamp = "now";
     }
 }
 
@@ -953,6 +966,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( AtSimSetServiceCenterNumber );
     table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
 
+    table[ typeof(SmsGetSizeForMessage) ]         = typeof( AtSmsGetSizeForMessage );
     table[ typeof(SmsSendMessage) ]               = typeof( AtSmsSendMessage );
 
     table[ typeof(NetworkGetSignalStrength) ]     = typeof( AtNetworkGetSignalStrength );

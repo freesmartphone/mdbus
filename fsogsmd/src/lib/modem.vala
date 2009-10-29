@@ -111,6 +111,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
     // Command Queue API
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
+    public abstract async string[] processPduCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
     public abstract FsoGsm.Channel channel( string category );
 
     // Misc. Accessors
@@ -356,6 +357,17 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         var channel = channelForCommand( command, request );
         var response = yield channel.enqueueAsyncYielding( command, request, retry );
+        return response;
+    }
+
+    public async string[] processPduCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY )
+    {
+        var channel = channelForCommand( command, request );
+        var pdurequest = request.split( "\n" );
+        assert( pdurequest.length == 2 );
+        var continuation = yield channel.enqueueAsyncYielding( command, pdurequest[0], retry );
+        assert( continuation.length == 1 && continuation[0] == "> " );
+        var response = yield channel.enqueueAsyncYielding( command, pdurequest[1], retry );
         return response;
     }
 

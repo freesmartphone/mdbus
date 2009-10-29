@@ -296,12 +296,12 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoFramework.Comma
         return 3;
     }
 
-    public string get_prefix()
+    public virtual string get_prefix()
     {
         return "AT";
     }
 
-    public string get_postfix()
+    public virtual string get_postfix()
     {
         return "\r\n";
     }

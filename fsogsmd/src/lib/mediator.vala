@@ -215,11 +215,16 @@ public abstract class FsoGsm.SimUnlock : FsoGsm.AbstractMediator
 //
 // org.freesmartphone.GSM.SMS.*
 //
+public abstract class FsoGsm.SmsGetSizeForMessage : FsoGsm.AbstractMediator
+{
+    public uint size { get; set; }
+    public abstract async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SmsSendMessage : FsoGsm.AbstractMediator
 {
     public int transaction_index { get; set; }
     public string timestamp { get; set; }
-
     public abstract async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 

@@ -35,8 +35,9 @@ void test_sms_decode()
 void test_sms_encode()
 //===========================================================================
 {
+    uint8 refnum;
     int tpdulen;
-    var pdus = ShortMessage.formatTextMessage( "+1234567890", "Keule...", 42 );
+    var pdus = ShortMessage.formatTextMessage( "+1234567890", "Keule...", out refnum );
 }
 
 //===========================================================================

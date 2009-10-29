@@ -78,14 +78,27 @@ public class ShortMessage
         }
     }
 
+    public static uint8 reference;
+
+    public static uint8 nextReferenceNumber()
+    {
+        if ( ShortMessage.reference == 0 )
+        {
+            ShortMessage.reference = (uint8) Random.int_range( 1, 65535 );
+        }
+        return ++ShortMessage.reference;
+    }
+
     public struct HexPdu
     {
         string pdu;
         int tpdulen;
     }
 
-    public static HexPdu[] formatTextMessage( string number, string contents, uint8 reference )
+    public static HexPdu[] formatTextMessage( string number, string contents, out uint8 refnum )
     {
+        uint8 nextrefnum = nextReferenceNumber();
+
         int offset;
         var smslist = Sms.text_prepare( contents, 0, true, out offset );
 
@@ -100,8 +113,8 @@ public class ShortMessage
 
             if ( offset != 0 )
             {
-                psms->submit.ud[offset] = (reference & 0xf0) >> 8;
-                psms->submit.ud[offset+1] = (reference & 0x0f);
+                psms->submit.ud[offset] = ( nextrefnum & 0xf0) >> 8;
+                psms->submit.ud[offset+1] = ( nextrefnum & 0x0f);
             }
 
             psms->submit.daddr.from_string( number );
@@ -126,6 +139,7 @@ public class ShortMessage
             hexpdus[i++] = HexPdu() { pdu=(string)hexpdu, tpdulen=tpdulen };
         } );
 
+        refnum = nextrefnum;
         return hexpdus;
     }
 }
