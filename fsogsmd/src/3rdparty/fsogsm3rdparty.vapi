@@ -377,7 +377,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms", cprefix = "sms_", destroy_function = "")]
+    [CCode (cname = "structsms", cprefix = "sms_", destroy_function = "")]
     public struct Message
     {
         public string to_string()
@@ -499,7 +499,15 @@ namespace Sms
         [CCode (cname = "sms_assembly_new")]
         public Assembly( string imsi );
 
-        public void add_fragment( Sms.Message sms, time_t ts, Sms.Address addr, uint16 uref, uint8 max, uint8 seq );
+        public uint length()
+        {
+            return assembly_list.length();
+        }
+
+        /**
+         * @returns the fragment_list for the node this has been inserted into.
+         **/
+        public GLib.SList<Sms.Message*> add_fragment( Sms.Message sms, time_t ts, Sms.Address addr, uint16 uref, uint8 max, uint8 seq );
 
         public string imsi;
         private GLib.SList<AssemblyNode?> assembly_list;
