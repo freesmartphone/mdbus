@@ -35,7 +35,7 @@ namespace Conversions {
                              [CCode (array_length = false)] char[] outbuffer );
 }
 
-[CCode (cheader_filename = "conversions.h,util.h,smsutil.h", cprefix = "", lower_case_cprefix = "")]
+[CCode (cheader_filename = "conversions.h,util.h,smsutil.h", cprefix = "SMS_", lower_case_cprefix = "sms_")]
 namespace Sms
 {
     public const int CBS_MAX_GSM_CHARS;
@@ -457,18 +457,24 @@ namespace Sms
     {
         public Sms.Address addr;
         public time_t ts;
-        //public GLib.SList *fragment_list;
-        //public uint8 ref;
+        public GLib.SList<Sms.Message*> fragment_list;
+        public uint8 @ref;
         public uint8 max_fragments;
         public uint8 num_fragments;
         public uint bitmap[];
     }
 
-    [CCode (cname = "struct sms_assembly", destroy_function = "sms_assembly_free")]
-    public struct Assembly
+    [CCode (cname = "struct sms_assembly")]
+    [Compact]
+    public class Assembly
     {
-        string imsi;
-        GLib.SList<AssemblyNode?> assembly_list;
+        [CCode (cname = "sms_assembly_new")]
+        public Assembly( string imsi );
+
+        public void add_fragment( Sms.Message sms, time_t ts, Sms.Address addr, uint16 uref, uint8 max, uint8 seq );
+
+        public string imsi;
+        private GLib.SList<AssemblyNode?> assembly_list;
     }
 
     //
