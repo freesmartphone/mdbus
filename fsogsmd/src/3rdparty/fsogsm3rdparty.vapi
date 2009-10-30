@@ -377,7 +377,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms", destroy_function = "")]
+    [CCode (cname = "struct sms", cprefix = "sms_", destroy_function = "")]
     public struct Message
     {
         public string to_string()
@@ -431,6 +431,34 @@ namespace Sms
             }
         }
 
+        public static Sms.Message newFromHexPdu( string hexpdu, int tpdulen )
+        {
+            long items_written = -1;
+            char[] binpdu = new char[1024];
+            Conversions.decode_hex_own_buf( hexpdu, -1, out items_written, 0, binpdu );
+            GLib.assert( items_written != -1 );
+
+            var sms = Sms.Message();
+            var res = Sms.decode( binpdu, false, tpdulen, out sms );
+            GLib.assert( res );
+
+            return sms;
+        }
+
+        public bool is_concatenated()
+        {
+            return ( extract_concatenation( null, null, null ) );
+        }
+
+        /* Methods */
+        [CCode (array_length_type = "guint8", array_length_pos = 2.5)]
+        public weak uint8[] extract_common( out bool udhi, out uint8 dcs, out uint8 max );
+
+        public bool extract_app_port( out int dst, out int src, out bool is_8bit );
+        public bool extract_concatenation( out uint16 ref_num, out uint8 max_msgs, out uint8 seq_num );
+        public bool extract_language_variant( out uint8 locking, out uint8 single );
+
+        /* Members */
         public Sms.Address sc_addr;
         public Sms.Type type;
         /* <union> */
