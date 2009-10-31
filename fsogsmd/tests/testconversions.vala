@@ -21,33 +21,11 @@ using GLib;
 using FsoGsm;
 
 //===========================================================================
-void test_sms_decode()
-//===========================================================================
-{
-    string pdu = "0791947107160000040C9194712716464600008021810270854008CB729D5D76B95C";
-    int tpdulen = 26;
-
-    var sms = ShortMessage.decodeFromHexPdu( pdu, tpdulen );
-    assert( sms != null );
-}
-
-//===========================================================================
-void test_sms_encode()
-//===========================================================================
-{
-    uint8 refnum;
-    int tpdulen;
-    var pdus = ShortMessage.formatTextMessage( "+1234567890", "Keule...", out refnum );
-}
-
-//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
     Test.init( ref args );
 
-    Test.add_func( "/Conversions/Sms/Decode", test_sms_decode );
-    Test.add_func( "/Conversions/Sms/Encode", test_sms_encode );
 
     Test.run();
 }

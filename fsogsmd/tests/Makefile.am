@@ -23,7 +23,6 @@ progs_ldadd = \
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
-	--vapidir $(top_srcdir)/src/3rdparty \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
@@ -61,14 +60,14 @@ $(testconversions_SOURCES): $(testconversions_VALASOURCES)
 testconversions_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testconversions_VALASOURCES)
 
-TEST_PROGS += test3rdparty
-test3rdparty_VALASOURCES = test3rdparty.vala
-test3rdparty_SOURCES = test3rdparty.c
-$(test3rdparty_SOURCES): $(test3rdparty_VALASOURCES)
+TEST_PROGS += testsms
+testsms_VALASOURCES = testsms.vala
+testsms_SOURCES = testsms.c
+$(testsms_SOURCES): $(testsms_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-test3rdparty_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(test3rdparty_VALASOURCES)
+testsms_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testsms_VALASOURCES)
 
 CLEANFILES = \
     $(TEST_PROGS) \

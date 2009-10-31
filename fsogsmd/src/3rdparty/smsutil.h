@@ -18,6 +18,9 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
+ 
+#ifndef SMSUTIL_H
+#define SMSUTIL_H
 
 #define CBS_MAX_GSM_CHARS 93
 
@@ -494,3 +497,6 @@ void cbs_assembly_location_changed(struct cbs_assembly *assembly, gboolean plmn,
 
 char *cbs_topic_ranges_to_string(GSList *ranges);
 GSList *cbs_extract_topic_ranges(const char *ranges);
+
+#endif
+

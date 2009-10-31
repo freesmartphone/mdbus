@@ -772,9 +772,11 @@ public class AtSmsGetSizeForMessage : SmsGetSizeForMessage
 {
     public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        /*
         uint8 refnum;
         var hexpdus = ShortMessage.formatTextMessage( "+123456789", contents, out refnum );
         size = hexpdus.length;
+        */
     }
 }
 
@@ -782,6 +784,7 @@ public class AtSmsSendMessage : SmsSendMessage
 {
     public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        /*
         //FIXME: validate number
         assert( contents != "" ); // only text messages supported for now
         uint8 refnum;
@@ -794,6 +797,7 @@ public class AtSmsSendMessage : SmsSendMessage
         }
         transaction_index = refnum;
         timestamp = "now";
+        */
     }
 }
 

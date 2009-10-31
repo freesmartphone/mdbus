@@ -375,12 +375,12 @@ public class PlusCMGL : AbstractAtCommand
             }
             else
             {
-                ShortMessage? sms = ShortMessage.decodeFromHexPdu( response[i], tpdulen );
+                var sms = Sms.Message.newFromHexPdu( response[i], tpdulen );
                 if ( sms != null )
                 {
-                    message.number = sms.number;
-                    message.contents = sms.contents;
-                    message.properties = sms.properties;
+                    message.number = sms.number();
+                    message.contents = sms.to_string();
+                    message.properties = sms.properties();
                 }
                 messagebook += message;
             }
@@ -403,10 +403,12 @@ public class PlusCMGS : AbstractAtCommand
         prefix = { "+CMGS: " };
     }
 
+    /*
     public string issue( ShortMessage.HexPdu hexpdu )
     {
         return "AT+CMGS=%d\r\n%s%c".printf( hexpdu.tpdulen, hexpdu.pdu, '\x1A' );
     }
+    */
 
     public override string get_prefix() { return ""; }
     public override string get_postfix() { return ""; }
@@ -420,10 +422,12 @@ public class PlusCMGW : AbstractAtCommand
         prefix = { "+CMGW: " };
     }
 
+    /*
     public string issue( ShortMessage.HexPdu hexpdu )
     {
         return "AT+CMGW=%d\r\n%s%c".printf( hexpdu.tpdulen, hexpdu.pdu, '\x1A' );
     }
+    */
 
     public override string get_prefix() { return ""; }
     public override string get_postfix() { return ""; }

@@ -13,7 +13,6 @@ THIRDPARTY_SOURCES = \
 AM_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/3rdparty \
-	-Ifoo/bar \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
@@ -23,7 +22,7 @@ AM_CFLAGS = \
 VALAC_ARGS = \
 	-D DEBUG \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/src/3rdparty \
+	--vapidir $(top_srcdir)/src/lib \
 	--pkg posix \
 	--pkg posixextra \
 	--pkg dbus-glib-1 \

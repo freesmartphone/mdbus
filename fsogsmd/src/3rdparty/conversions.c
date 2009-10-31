@@ -20,6 +20,7 @@
  */
 
 #include "util.h"
+#include "smsutil.h"
 
 char *ucs2_to_utf8(const char *str)
 {
@@ -33,3 +34,7 @@ char *ucs2_to_utf8(const char *str)
     return utf8;
 }
 
+void sms_copy( void* self, void* dup )
+{
+	memcpy( dup, self, sizeof( struct sms ) );
+}

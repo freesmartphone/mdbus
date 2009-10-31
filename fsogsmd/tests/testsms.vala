@@ -232,16 +232,14 @@ void test_sms_extraction()
     //assert( sms.extract_language_variant( out uint8 locking, out uint8 single );
 }
 
-void test_sms_assembly_new()
+void test_fso_sms_storage_new()
 {
-    var assembly = new Sms.Assembly( IMSI );
+    var storage = new SmsStorage( IMSI );
 }
 
-void test_sms_assembly_add_fragments()
+void test_fso_sms_storage_add()
 {
-    var assembly = new Sms.Assembly( IMSI );
-
-    message( "NEW assembly currently contains %u nodes", assembly.length() );
+    var storage = new SmsStorage( IMSI );
 
     var smses = new Sms.Message[asmpdulengths.length] {};
     for( int i = 0; i < asmpdulengths.length; ++i )
@@ -249,27 +247,32 @@ void test_sms_assembly_add_fragments()
         smses[i] = Sms.Message.newFromHexPdu( asmpdus[i], asmpdulengths[i] );
     }
 
+    /*
     for( int i = 0; i < pdulengths.length; ++i )
     {
+        var numFragments = storage.addFragment(
+
         uint16 ref_num = 0;
         uint8 max_msgs = 0;
         uint8 seq_num  = 0;
+
         assert( smses[i].extract_concatenation( out ref_num, out max_msgs, out seq_num ) );
 
-        var list = assembly.add_fragment( smses[i],
+        var list = storage.add_fragment( smses[i],
                                           (time_t)0,
                                           smses[i].deliver.oaddr,
                                           ref_num,
                                           max_msgs,
                                           seq_num );
 
-        message( "assembly currently contains %u nodes", assembly.length() );
+        message( "storage currently contains %u nodes", storage.length() );
         message( "last node contains %u elements", list.length() );
         if ( list.length() > 0 )
         {
             message( "node completed" );
         }
     }
+    */
 }
 
 //===========================================================================
@@ -283,13 +286,8 @@ void main( string[] args )
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Multiple/Concatenated/DefaultAlphabet", test_sms_decode_deliver_multiple_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Whole/Concatenated/DefaultAlphabet", test_sms_decode_deliver_whole_concatenated_default_alphabet );
 
-    /*
-    Test.add_func( "/3rdparty/Sms/TextPrepare", test_sms_text_prepare );
-    Test.add_func( "/3rdparty/Sms/ExtractInfo", test_sms_extraction );
-    */
-
-    Test.add_func( "/3rdparty/Sms/Assembly/New", test_sms_assembly_new );
-    Test.add_func( "/3rdparty/Sms/Assembly/AddFragments", test_sms_assembly_add_fragments );
+    Test.add_func( "/Fso/Sms/Storage/New", test_fso_sms_storage_new );
+    Test.add_func( "/Fso/Sms/Storage/Add", test_fso_sms_storage_add );
 
     Test.run();
 }

@@ -431,7 +431,7 @@ namespace Sms
             }
         }
 
-        public static Sms.Message newFromHexPdu( string hexpdu, int tpdulen )
+        public static Sms.Message? newFromHexPdu( string hexpdu, int tpdulen )
         {
             long items_written = -1;
             char[] binpdu = new char[1024];
@@ -440,9 +440,16 @@ namespace Sms
 
             var sms = Sms.Message();
             var res = Sms.decode( binpdu, false, tpdulen, out sms );
-            GLib.assert( res );
 
-            return sms;
+            if ( !res )
+            {
+                GLib.warning( @"Sms.Message::newFromHexPdu: could not decode message w/ tpdulen $(tpdulen) and hexpdu $(hexpdu)" );
+                return null;
+            }
+            else
+            {
+                return sms;
+            }
         }
 
         public bool is_concatenated()

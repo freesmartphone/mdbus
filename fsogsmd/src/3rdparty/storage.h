@@ -27,6 +27,9 @@
 
 #include <fcntl.h>
 
+#ifndef STORAGE_H
+#define STORAGE_H
+
 int create_dirs(const char *filename, const mode_t mode);
 
 ssize_t read_file(unsigned char *buffer, size_t len,
@@ -34,3 +37,5 @@ ssize_t read_file(unsigned char *buffer, size_t len,
 
 ssize_t write_file(const unsigned char *buffer, size_t len, mode_t mode,
 			const char *path_fmt, ...);
+
+#endif
