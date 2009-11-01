@@ -225,6 +225,9 @@ namespace Sms
         public unowned string to_string();
         public void from_string( string str );
 
+        [CCode (cname = "sms_assembly_encode_address")]
+        public bool encode( out unowned string straddr );
+
         public Sms.NumberType number_type;
         public Sms.NumberingPlan numbering_plan;
         public char[] address; /* Max 20 in semi-octet, 11 in alnum */
@@ -233,6 +236,17 @@ namespace Sms
     [CCode (cname = "struct sms_scts", destroy_function = "")]
     public struct Scts
     {
+        public string to_string()
+        {
+            return "%02u/%02u/%02u,%02u:%02u:%02u%s".printf( year, month, day, hour, minute, second, timezone > 0 ? "+%02d".printf( timezone ) : "%02d".printf( timezone ) );
+        }
+
+        public uint to_epoch()
+        {
+            var t = GLib.Time() { year=year, month=month, day=day, hour=hour, minute=minute, second=second };
+            return (uint)t.mktime();
+        }
+
         public uint8 year;
         public uint8 month;
         public uint8 day;
@@ -401,6 +415,44 @@ namespace Sms
                     return status_report.raddr.to_string();
                 default:
                     return "unknown";
+            }
+        }
+
+        /**
+         * @returns a hashable string for the message that serves as a unique identifier
+         * (considering the fragments of a concatenated message as being the same message)
+         */
+        public string hash()
+        {
+            // we only support deliver type messages for now
+            GLib.assert( type == Sms.Type.DELIVER );
+
+            uint16 ref_num;
+            uint8 max_msgs;
+            uint8 seq_num;
+
+            var oaddr = number();
+
+            if ( !extract_concatenation( out ref_num, out max_msgs, out seq_num ) )
+            {
+                // service center address, originating address, delivery timestamp
+                return @"$(sc_addr)_$(oaddr)_$(deliver.scts.to_epoch())_1".replace( "+", "" );
+            }
+            else
+            {
+                // service center address, originating address, reference number, # of fragments
+                //FIXME: This goes wrong (problem probably in sms_address_to_string)
+                //return @"$(sc_addr)_$(deliver.oaddr)_$(ref_num)_$(max_msgs)";
+                return @"$(sc_addr)_$(oaddr)_$(ref_num)_$(max_msgs)".replace( "+", "" );
+            }
+        }
+
+        public Sms.Scts timestamp()
+        {
+            switch ( type )
+            {
+                default:
+                    GLib.assert_not_reached();
             }
         }
 

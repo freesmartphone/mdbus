@@ -37,6 +37,8 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     private string imsi;
     private string storagedir;
 
+    //private
+
     static construct
     {
         storagedirprefix = SMS_STORAGE_DEFAULT_STORAGE_DIR;
@@ -60,7 +62,18 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     {
         this.imsi = imsi;
         this.storagedir = GLib.Path.build_filename( storagedirprefix, imsi );
+        FsoFramework.FileHandling.createDirectoryHierarchy( storagedir );
         //FIXME: read from backup
+        logger.info( "Created" );
+    }
+
+    public const int SMS_ALREADY_SEEN = -1;
+    public const int SMS_FRAGMENT_INCOMPLETE = 0;
+    public const int SMS_SINGLE_COMPLETE = 1;
+
+    public void clean()
+    {
+        Posix.remove( storagedir );
     }
 
     /**
@@ -69,38 +82,59 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
      * @note The storage will now own the message.
      * @returns -1, if the message is already known.
      * @returns 0, if the message is a fragment of an incomplete concatenated sms.
-     * @returns n, if the message is a fragment which completes an incomplete concatenated sms.
+     * @returns 1, if the message is not concatenated, hence complete.
+     * @returns n > 1, if the message is a fragment which completes an incomplete concatenated sms composed out of n fragments.
      **/
     public int addSms( owned Sms.Message message )
     {
-        return -1;
+        // generate hash
+        var smshash = message.hash();
+        debug( smshash );
+
+        uint16 ref_num;
+        uint8 max_msgs = 1;
+        uint8 seq_num = 1;
+
+        FsoFramework.FileHandling.createDirectoryHierarchy( GLib.Path.build_filename( storagedir, smshash ) );
+
+        if ( !message.extract_concatenation( out ref_num, out max_msgs, out seq_num ) )
+        {
+            // message is not concatenated
+            var filename = GLib.Path.build_filename( storagedir, smshash, "001" );
+            if ( FsoFramework.FileHandling.isPresent( filename ) )
+            {
+                return -1;
+            }
+            // message is not present, save it
+            FsoFramework.FileHandling.writeBuffer( &message, sizeof( Sms.Message ), filename, true );
+            return 1;
+        }
+        else
+        {
+            // message is concatenated
+            assert_not_reached();
+            return -1;
+        }
     }
 }
-
-
-
-
 
 /**
  * @class AtSmsHandler
  **/
 public class FsoGsm.SmsHandler : FsoFramework.AbstractObject
 {
-    private FsoFramework.SmartKeyFile smsconfig;
-    private string key;
+    protected SmsStorage storage;
 
     public SmsHandler()
     {
         theModem.signalStatusChanged += onModemStatusChanged;
 
-        var smsconfigfilename = config.stringValue( "fsogsmd", "sms_storage", "/tmp/fsogsmd/sms" );
-
-        key = "unknown";
+        var smsstoragedir = config.stringValue( "fsogsmd", "sms_storage", "/tmp/fsogsmd/sms" );
     }
 
     private override string repr()
     {
-        return @"<$key>";
+        return storage != null ? storage.repr() : "<None>";
     }
 
     public void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
@@ -130,21 +164,11 @@ public class FsoGsm.SmsHandler : FsoFramework.AbstractObject
             return;
         }
 
-        key = @"IMSI.$(cimi.value)";
-
-        if ( smsconfig.hasSection( key ) )
-        {
-            assert( logger.debug( @"IMSI $(cimi.value) seen before" ) );
-        }
-        else
-        {
-            logger.info( @"IMSI $(cimi.value) never seen before" );
-        }
-
-        // run through all and notify
+        // create Storage for current IMSI
+        storage = new SmsStorage( cimi.value );
 
         // write timestamp
-        smsconfig.write<int>( key, "last_sync", (int)GLib.TimeVal().tv_sec );
+        //smsconfig.write<int>( key, "last_sync", (int)GLib.TimeVal().tv_sec );
     }
 }
 
