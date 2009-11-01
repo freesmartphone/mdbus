@@ -238,35 +238,18 @@ void test_fso_sms_storage_add_concatenated()
     var storage = new SmsStorage( IMSI );
     storage.clean();
 
-    //result = storage.addSms( smses[0] );
-    //assert( result == 0 ); // msg incomplete
+    var smses = new Sms.Message[pdulengths1.length] {};
 
-    /*
-    for( int i = 0; i < pdulengths.length; ++i )
+    for( int i = 0; i < pdulengths1.length; ++i )
     {
-        var numFragments = storage.addFragment(
-
-        uint16 ref_num = 0;
-        uint8 max_msgs = 0;
-        uint8 seq_num  = 0;
-
-        assert( smses[i].extract_concatenation( out ref_num, out max_msgs, out seq_num ) );
-
-        var list = storage.add_fragment( smses[i],
-                                          (time_t)0,
-                                          smses[i].deliver.oaddr,
-                                          ref_num,
-                                          max_msgs,
-                                          seq_num );
-
-        message( "storage currently contains %u nodes", storage.length() );
-        message( "last node contains %u elements", list.length() );
-        if ( list.length() > 0 )
-        {
-            message( "node completed" );
-        }
+        smses[i] = Sms.Message.newFromHexPdu( pdus1[i], pdulengths1[i] );
     }
-    */
+
+    for( int i = 0; i < pdulengths1.length-1; ++i )
+    {
+        assert( storage.addSms( smses[i] ) == SmsStorage.SMS_MULTI_INCOMPLETE );
+    }
+    assert( storage.addSms( smses[pdulengths1.length-1] ) == pdulengths1.length );
 }
 
 //===========================================================================

@@ -22,6 +22,7 @@ using Gee;
 namespace FsoGsm {
 
     public const string SMS_STORAGE_DEFAULT_STORAGE_DIR = "/tmp/fsogsmd/sms";
+    public const int SMS_STORAGE_DIRECTORY_PERMISSIONS = (int)Posix.S_IRUSR|Posix.S_IWUSR|Posix.S_IXUSR|Posix.S_IRGRP|Posix.S_IXGRP|Posix.S_IROTH|Posix.S_IXOTH;
 
 } /* namespace FsoGsm */
 
@@ -62,13 +63,13 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     {
         this.imsi = imsi;
         this.storagedir = GLib.Path.build_filename( storagedirprefix, imsi );
-        FsoFramework.FileHandling.createDirectoryHierarchy( storagedir );
+        GLib.DirUtils.create_with_parents( storagedir, SMS_STORAGE_DIRECTORY_PERMISSIONS );
         //FIXME: read from backup
         logger.info( "Created" );
     }
 
     public const int SMS_ALREADY_SEEN = -1;
-    public const int SMS_FRAGMENT_INCOMPLETE = 0;
+    public const int SMS_MULTI_INCOMPLETE = 0;
     public const int SMS_SINGLE_COMPLETE = 1;
 
     public void clean()
@@ -89,13 +90,12 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     {
         // generate hash
         var smshash = message.hash();
-        debug( smshash );
 
         uint16 ref_num;
         uint8 max_msgs = 1;
         uint8 seq_num = 1;
 
-        FsoFramework.FileHandling.createDirectoryHierarchy( GLib.Path.build_filename( storagedir, smshash ) );
+        GLib.DirUtils.create_with_parents( GLib.Path.build_filename( storagedir, smshash ), SMS_STORAGE_DIRECTORY_PERMISSIONS );
 
         if ( !message.extract_concatenation( out ref_num, out max_msgs, out seq_num ) )
         {
@@ -103,29 +103,61 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
             var filename = GLib.Path.build_filename( storagedir, smshash, "001" );
             if ( FsoFramework.FileHandling.isPresent( filename ) )
             {
-                return -1;
+                return SMS_ALREADY_SEEN;
             }
             // message is not present, save it
             FsoFramework.FileHandling.writeBuffer( &message, sizeof( Sms.Message ), filename, true );
-            return 1;
+            return SMS_SINGLE_COMPLETE;
         }
         else
         {
             // message is concatenated
-            assert_not_reached();
-            return -1;
+            var filename = GLib.Path.build_filename( storagedir, smshash, "%03u".printf( seq_num ) );
+            if ( FsoFramework.FileHandling.isPresent( filename ) )
+            {
+                return SMS_ALREADY_SEEN;
+            }
+#if DEBUG
+            GLib.message( "fragment file %s now present, checking for completeness...", filename );
+#endif
+            // message is not present, save it
+            FsoFramework.FileHandling.writeBuffer( &message, sizeof( Sms.Message ), filename, true );
+            // check whether we have all fragments?
+            for( int i = 1; i <= max_msgs; ++i )
+            {
+                var fragmentfilename = GLib.Path.build_filename( storagedir, smshash, "%03u".printf( i ) );
+                if( !FsoFramework.FileHandling.isPresent( fragmentfilename ) )
+                {
+#if DEBUG
+                    GLib.message( "fragment file %s not present ==> INCOMPLETE", fragmentfilename );
+#endif
+                    return SMS_MULTI_INCOMPLETE;
+                }
+#if DEBUG
+                GLib.message( "fragment file %s present", fragmentfilename );
+#endif
+            }
+            return max_msgs; // SMS_MULTI_COMPLETE
         }
     }
 }
 
 /**
+ * @interface SmsHandler
+ */
+public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
+{
+    public abstract async void handleIncomingSmsOnSim( uint index );
+}
+
+/**
  * @class AtSmsHandler
  **/
-public class FsoGsm.SmsHandler : FsoFramework.AbstractObject
+public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 {
     protected SmsStorage storage;
 
-    public SmsHandler()
+    public AtSmsHandler()
     {
         theModem.signalStatusChanged += onModemStatusChanged;
 
@@ -169,6 +201,11 @@ public class FsoGsm.SmsHandler : FsoFramework.AbstractObject
 
         // write timestamp
         //smsconfig.write<int>( key, "last_sync", (int)GLib.TimeVal().tv_sec );
+    }
+
+    public async void handleIncomingSmsOnSim( uint index )
+    {
+        assert_not_reached();
     }
 }
 

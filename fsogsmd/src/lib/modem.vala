@@ -255,7 +255,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     protected virtual SmsHandler createSmsHandler()
     {
-        return new SmsHandler();
+        return new AtSmsHandler();
     }
 
     /**
