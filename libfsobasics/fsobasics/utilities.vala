@@ -85,6 +85,49 @@ public void write( string contents, string filename, bool create = false )
     }
 }
 
+public void writeBuffer( void* buffer, ulong length, string filename, bool create = false )
+{
+    Posix.mode_t mode = 0;
+    int flags = Posix.O_WRONLY;
+    if ( create )
+    {
+        mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
+        flags |= Posix.O_CREAT  | Posix.O_EXCL;
+    }
+    var fd = Posix.open( filename, flags, mode );
+    if ( fd == -1 )
+    {
+        warning( "Can't open for writing to %s: %s".printf( filename, Posix.strerror( Posix.errno ) ) );
+    }
+    else
+    {
+        ssize_t written = Posix.write( fd, buffer, length );
+        if ( written != length )
+        {
+            warning( "Couldn't write all bytes to %s (%u of %lu)".printf( filename, (uint)written, length ) );
+        }
+        Posix.close( fd );
+    }
+}
+
+public bool createDirectoryHierarchy( string path, Posix.mode_t mode = Posix.S_IRUSR|Posix.S_IWUSR|Posix.S_IXUSR|Posix.S_IRGRP|Posix.S_IXGRP|Posix.S_IROTH|Posix.S_IXOTH )
+{
+    var separator = GLib.Path.DIR_SEPARATOR.to_string();
+    var components = path.split( separator );
+    var dirpath = "";
+    for ( int i = 0; i < components.length; ++i )
+    {
+        dirpath += components[i] + separator;
+        var result = Posix.mkdir( dirpath, mode );
+        if ( result != 0 && Posix.errno != Posix.EEXIST )
+        {
+            warning( "Couldn't create directory %s: %s".printf( dirpath, Posix.strerror( Posix.errno ) ) );
+            return false;
+        }
+    }
+    return true;
+}
+
 } }
 
 namespace FsoFramework { namespace UserGroupHandling {
