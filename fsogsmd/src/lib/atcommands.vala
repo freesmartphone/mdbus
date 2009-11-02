@@ -395,6 +395,31 @@ public class PlusCMGL : AbstractAtCommand
     }
 }
 
+public class PlusCMGR : AbstractAtCommand
+{
+    public string hexpdu;
+    public int tpdulen;
+
+    public PlusCMGR()
+    {
+        re = new Regex( """\+CMGR: (?P<stat>\d),(?:"(?P<alpha>[0-9ABCDEF]*)")?,(?P<tpdulen>\d+)""");
+        prefix = { "+CMGR: " };
+        length = 2;
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        base.parse( response[0] );
+        tpdulen = to_int( "tpdulen" );
+        hexpdu = response[1];
+    }
+
+    public string issue( uint index )
+    {
+        return @"+CMGR=$index";
+    }
+}
+
 public class PlusCMGS : AbstractAtCommand
 {
     public PlusCMGS()
@@ -439,6 +464,25 @@ public class PlusCMICKEY : SimpleAtCommand<int>
     {
         base( "+CMICKEY" );
     }
+}
+
+public class PlusCMTI : AbstractAtCommand
+{
+    public string storage;
+    public int index;
+
+    public PlusCMTI()
+    {
+        re = new Regex( """\+CMTI: "(?P<storage>[^"])",(?P<id>\d+)""" );
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        storage = to_string( "storage" );
+        index = to_int( "id" );
+    }
+    // unsolicited only, not a command
 }
 
 public class PlusCMUT : SimpleAtCommand<int>
@@ -883,64 +927,66 @@ public class V250H : V250terCommand
 
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
-    // register commands
-    table[ "+CALA" ]             = new FsoGsm.PlusCALA();
+    // low level access (SIM, charset, etc.)
+    table[ "+CRSM" ]             = new FsoGsm.PlusCRSM();
+    table[ "+CSCS" ]             = new FsoGsm.PlusCSCS();
 
-    table[ "+CBC" ]              = new FsoGsm.PlusCBC();
-
-    table[ "+CCLK" ]             = new FsoGsm.PlusCCLK();
-
-    table[ "+CEER" ]             = new FsoGsm.PlusCEER();
-
-    table[ "+CFUN" ]             = new FsoGsm.PlusCFUN();
-
+    // informational
     table[ "+CGCLASS" ]          = new FsoGsm.PlusCGCLASS();
     table[ "+CGMI" ]             = new FsoGsm.PlusCGMI();
     table[ "+CGMM" ]             = new FsoGsm.PlusCGMM();
     table[ "+CGMR" ]             = new FsoGsm.PlusCGMR();
     table[ "+CGSN" ]             = new FsoGsm.PlusCGSN();
-
-    table[ "+CHLD" ]             = new FsoGsm.PlusCHLD();
-
     table[ "+CIMI" ]             = new FsoGsm.PlusCIMI();
+    table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
+    table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
 
-    table[ "+CLCC" ]             = new FsoGsm.PlusCLCC();
+    // access control
     table[ "+CLCK" ]             = new FsoGsm.PlusCLCK();
-    table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
-
-    table[ "+CMGL" ]             = new FsoGsm.PlusCMGL();
-    table[ "+CMGS" ]             = new FsoGsm.PlusCMGS();
-    table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
-    table[ "+CMUT" ]             = new FsoGsm.PlusCMUT();
-
-    table[ "+CNMI" ]             = new FsoGsm.PlusCNMI();
-
-    table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
-
-    table[ "+CPBR" ]             = new FsoGsm.PlusCPBR();
-    table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
     table[ "+CPWD" ]             = new FsoGsm.PlusCPWD();
 
-    table[ "+CREG" ]             = new FsoGsm.PlusCREG();
-    table[ "+CRSM" ]             = new FsoGsm.PlusCRSM();
+    // URC
+    table[ "+CNMI" ]             = new FsoGsm.PlusCNMI();
 
-    table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
-    table[ "+CSCS" ]             = new FsoGsm.PlusCSCS();
+    // device and peripheral control
+    table[ "+CBC" ]              = new FsoGsm.PlusCBC();
+    table[ "+CFUN" ]             = new FsoGsm.PlusCFUN();
+    table[ "+CLVL" ]             = new FsoGsm.PlusCLVL();
+    table[ "+CMUT" ]             = new FsoGsm.PlusCMUT();
+
+    // time and date related
+    table[ "+CALA" ]             = new FsoGsm.PlusCALA();
+    table[ "+CCLK" ]             = new FsoGsm.PlusCCLK();
+
+    // network
+    table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
+    table[ "+CREG" ]             = new FsoGsm.PlusCREG();
     table[ "+CSQ" ]              = new FsoGsm.PlusCSQ();
 
-    table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
-
-    table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
-
-    table[ "+VTS" ]              = new FsoGsm.PlusVTS();
-
-    table[ "CUSTOM" ]            = new FsoGsm.CustomAtCommand();
-
+    // call control
     table[ "A" ]                 = new FsoGsm.V250A();
     table[ "H" ]                 = new FsoGsm.V250H();
     table[ "D" ]                 = new FsoGsm.V250D();
+    table[ "+CEER" ]             = new FsoGsm.PlusCEER();
+    table[ "+CHLD" ]             = new FsoGsm.PlusCHLD();
+    table[ "+CLCC" ]             = new FsoGsm.PlusCLCC();
+    table[ "+VTS" ]              = new FsoGsm.PlusVTS();
 
+    // phonebook
+    table[ "+CPBR" ]             = new FsoGsm.PlusCPBR();
+    table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
+
+    // sms
+    table[ "+CMGL" ]             = new FsoGsm.PlusCMGL();
+    table[ "+CMGR" ]             = new FsoGsm.PlusCMGR();
+    table[ "+CMGS" ]             = new FsoGsm.PlusCMGS();
+    table[ "+CMTI" ]             = new FsoGsm.PlusCMTI();
+    table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
+
+    // misc
+    table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
+    table[ "CUSTOM" ]            = new FsoGsm.CustomAtCommand();
 }
 
 } /* namespace FsoGsm */

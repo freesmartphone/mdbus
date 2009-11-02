@@ -189,7 +189,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
     public async void syncWithSim()
     {
         // gather IMSI
-        var cimi = theModem.createAtCommand<PlusCGMR>( "+CIMI" );
+        var cimi = theModem.createAtCommand<PlusCIMI>( "+CIMI" );
         var response = yield theModem.processCommandAsync( cimi, cimi.execute() );
         if ( cimi.validate( response ) != Constants.AtResponse.VALID )
         {
@@ -205,7 +205,25 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
 
     public async void handleIncomingSmsOnSim( uint index )
     {
-        assert_not_reached();
+        // read SMS
+        var cmd = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( index ) );
+        if ( cmd.validate( response ) != Constants.AtResponse.VALID )
+        {
+            logger.warning( "Can't read new SMS from SIM." );
+            return;
+        }
+        var sms = Sms.Message.newFromHexPdu( cmd.hexpdu, cmd.tpdulen );
+        if ( sms == null )
+        {
+            logger.warning( "Can't parse SMS" );
+        }
+        var result = storage.addSms( sms );
+        if ( result > 0 )
+        {
+            logger.info( "Got new SMS" );
+            // compute text and send signal
+        }
     }
 }
 

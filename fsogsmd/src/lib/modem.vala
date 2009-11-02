@@ -108,6 +108,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract T theDevice<T>();
     public abstract Object parent { get; set; } // the DBus object
     public abstract CallHandler callhandler { get; set; } // the Call handler
+    public abstract SmsHandler smshandler { get; set; } // the Sms handler
 
     // Command Queue API
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );

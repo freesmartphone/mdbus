@@ -108,6 +108,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CALA", plusCALA );
         registerUrc( "+CCWA", plusCCWA );
         registerUrc( "+CIEV", plusCIEV );
+        registerUrc( "+CMTI", plusCMTI );
         registerUrc( "+CREG", plusCREG );
         registerUrc( "+CRING", plusCRING );
     }
@@ -140,5 +141,18 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     public virtual void plusCRING( string prefix, string rhs )
     {
         theModem.callhandler.handleIncomingCall( rhs );
+    }
+
+    public virtual void plusCMTI( string prefix, string rhs )
+    {
+        var cmti = theModem.createAtCommand<PlusCMTI>( "+CMTI" );
+        if ( cmti.validate( { prefix+rhs } ) == Constants.AtResponse.VALID )
+        {
+            theModem.smshandler.handleIncomingSmsOnSim( cmti.index );
+        }
+        else
+        {
+            logger.warning( @"Received invalid +CMTI message $rhs. Please report" );
+        }
     }
 }
