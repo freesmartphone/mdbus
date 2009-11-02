@@ -50,7 +50,8 @@ public abstract interface FsoGsm.AtCommand : GLib.Object, FsoFramework.CommandQu
 
     public abstract Constants.AtResponse validate( string[] response );
     public abstract Constants.AtResponse validateTest( string[] response );
-    public abstract Constants.AtResponse validateURC( string response );
+    public abstract Constants.AtResponse validateUrc( string response );
+    public abstract Constants.AtResponse validateUrcPdu( string[] response );
     public abstract Constants.AtResponse validateOk( string[] response );
     public abstract Constants.AtResponse validateMulti( string[] response );
 }
@@ -260,11 +261,36 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoFramework.Comma
     /**
      * Validate an URC for this At command
      **/
-    public virtual Constants.AtResponse validateURC( string response )
+    public virtual Constants.AtResponse validateUrc( string response )
     {
         try
         {
             parse( response );
+        }
+        catch ( AtCommandError e )
+        {
+            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
+            return Constants.AtResponse.UNABLE_TO_PARSE;
+        }
+        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
+        return Constants.AtResponse.VALID;
+    }
+
+    /**
+     * Validate an URC w/ PDU for this At command
+     **/
+    public virtual Constants.AtResponse validateUrcPdu( string[] response )
+    {
+        // check whether we have received enough lines
+        if ( response.length < 2 )
+        {
+            theModem.logger.warning( @"Unexpected length $(response.length) for $(Type.from_instance(this).name())" );
+            return Constants.AtResponse.UNEXPECTED_LENGTH;
+        }
+
+        try
+        {
+            parseMulti( response );
         }
         catch ( AtCommandError e )
         {

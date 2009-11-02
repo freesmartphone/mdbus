@@ -38,3 +38,16 @@ void sms_copy( void* self, void* dup )
 {
 	memcpy( dup, self, sizeof( struct sms ) );
 }
+
+struct sms* sms_new()
+{
+	struct sms* sms;
+	sms = g_malloc0( sizeof( struct sms ) );
+	return sms;
+}
+
+void sms_free( struct sms* self )
+{
+	g_free( self );
+}
+

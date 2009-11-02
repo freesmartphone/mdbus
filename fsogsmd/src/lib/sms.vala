@@ -86,8 +86,14 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
      * @returns 1, if the message is not concatenated, hence complete.
      * @returns n > 1, if the message is a fragment which completes an incomplete concatenated sms composed out of n fragments.
      **/
-    public int addSms( owned Sms.Message message )
+    public int addSms( Sms.Message message )
     {
+        // only deal with DELIVER types for now
+        if ( message.type != Sms.Type.DELIVER )
+        {
+            logger.info( "Ignoring message with type %u (!= DELIVER)".printf( (uint)message.type ) );
+            return SMS_ALREADY_SEEN;
+        }
         // generate hash
         var smshash = message.hash();
 
@@ -193,22 +199,39 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         var response = yield theModem.processCommandAsync( cimi, cimi.execute() );
         if ( cimi.validate( response ) != Constants.AtResponse.VALID )
         {
+            logger.warning( "Can't synchronize SMS storage with SIM" );
             return;
         }
 
         // create Storage for current IMSI
         storage = new SmsStorage( cimi.value );
 
-        // write timestamp
-        //smsconfig.write<int>( key, "last_sync", (int)GLib.TimeVal().tv_sec );
+        // read all messages
+        var cmgl = theModem.createAtCommand<PlusCMGL>( "+CMGL" );
+        var cmglresponse = yield theModem.processCommandAsync( cmgl, cmgl.issue( PlusCMGL.Mode.ALL ) );
+        if ( cmgl.validateMulti( cmglresponse ) != Constants.AtResponse.VALID )
+        {
+            logger.warning( "Can't synchronize SMS storage with SIM" );
+            return;
+        }
+
+        /*
+        foreach( var psms in cmgl.messagebook )
+        {
+            storage.addSms( *psms );
+        }
+        */
     }
 
     public async void handleIncomingSmsOnSim( uint index )
     {
+        /*
+
+
         // read SMS
         var cmd = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( index ) );
-        if ( cmd.validate( response ) != Constants.AtResponse.VALID )
+        if ( cmd.validateUrcPdu( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( "Can't read new SMS from SIM." );
             return;
@@ -224,6 +247,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
             logger.info( "Got new SMS" );
             // compute text and send signal
         }
+        */
     }
 }
 

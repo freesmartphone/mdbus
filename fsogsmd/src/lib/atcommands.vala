@@ -336,6 +336,8 @@ public class PlusCLVL : SimpleAtCommand<int>
 
 public class PlusCMGL : AbstractAtCommand
 {
+    public Gee.ArrayList<Sms.Message*> messagebook;
+
     public enum Mode
     {
         INVALID     = -1,
@@ -346,18 +348,15 @@ public class PlusCMGL : AbstractAtCommand
         ALL         = 4,
     }
 
-    public FreeSmartphone.GSM.SIMMessage[] messagebook;
-
     public PlusCMGL()
     {
-        re = new Regex( """\+CMGL: (?P<id>\d),(?P<stat>\d),(?:"(?P<name>[0-9ABCDEF]*)")?,(?P<tpdulen>\d+)""");
+        re = new Regex( """\+CMGL: (?P<id>\d+),(?P<stat>\d),(?:"(?P<alpha>[0-9ABCDEF]*)")?,(?P<tpdulen>\d+)""");
         prefix = { "+CMGL: " };
     }
 
     public override void parseMulti( string[] response ) throws AtCommandError
     {
-        var messagebook = new FreeSmartphone.GSM.SIMMessage[] {};
-        var message = FreeSmartphone.GSM.SIMMessage();
+        messagebook = new Gee.ArrayList<Sms.Message*>();
 
         var tpdulen = 0;
 
@@ -366,26 +365,17 @@ public class PlusCMGL : AbstractAtCommand
             if ( i % 2 == 0 )
             {
                 base.parse( response[i] );
-                message.index = to_int( "id" );
-                message.status = Constants.instance().simMessagebookStatusToString( to_int( "stat" ) );
                 tpdulen = to_int( "tpdulen" );
-                message.number = "unable to decode";
-                message.contents = "unable to decode";
-                message.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
             }
             else
             {
                 var sms = Sms.Message.newFromHexPdu( response[i], tpdulen );
                 if ( sms != null )
                 {
-                    message.number = sms.number();
-                    message.contents = sms.to_string();
-                    message.properties = sms.properties();
+                    messagebook.add( &sms );
                 }
-                messagebook += message;
             }
         }
-        this.messagebook = messagebook;
     }
 
     public string issue( Mode mode )

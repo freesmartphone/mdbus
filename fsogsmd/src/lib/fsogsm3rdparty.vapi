@@ -391,13 +391,14 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "structsms", cprefix = "sms_", destroy_function = "")]
-    public struct Message
+    [Compact]
+    [CCode (cname = "structsms", cprefix = "sms_")]
+    public class Message
     {
         public string to_string()
         {
-            var list = new GLib.SList<Sms.Message*>();
-            list.append( &this );
+            var list = new GLib.SList<weak Sms.Message>();
+            list.append( this );
             return Sms.decode_text( list );
         }
 
@@ -490,8 +491,8 @@ namespace Sms
             Conversions.decode_hex_own_buf( hexpdu, -1, out items_written, 0, binpdu );
             GLib.assert( items_written != -1 );
 
-            var sms = Sms.Message();
-            var res = Sms.decode( binpdu, false, tpdulen, out sms );
+            var sms = new Sms.Message();
+            var res = Sms.decode( binpdu, false, tpdulen, sms );
 
             if ( !res )
             {
@@ -510,6 +511,8 @@ namespace Sms
         }
 
         /* Methods */
+        public Message();
+
         [CCode (array_length_type = "guint8", array_length_pos = 2.5)]
         public weak uint8[] extract_common( out bool udhi, out uint8 dcs, out uint8 max );
 
@@ -531,6 +534,27 @@ namespace Sms
         public Sms.StatusReport status_report;
         /* </union> */
     }
+
+    //
+    // Methods
+    //
+
+    [CCode (cname = "sms_decode")]
+    public bool decode( char[] binpdu, bool outgoing, int tpdu_len, Sms.Message message );
+
+    [CCode (cname = "sms_encode")]
+    public bool encode( Sms.Message message,
+                        out int len,
+                        out int tpdu_len,
+                        [CCode (array_length = false)] char[] binpdu );
+
+    [CCode (cname = "sms_decode_text")]
+    public string decode_text( GLib.SList<Sms.Message> sms_list );
+
+    [CCode (cname = "sms_text_prepare")]
+    public GLib.SList<Sms.Message*> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
+
+    /*
 
     [CCode (cname = "struct sms_udh_iter", destroy_function = "")]
     public struct UserDataHeaderIter
@@ -563,33 +587,13 @@ namespace Sms
             return assembly_list.length();
         }
 
-        /**
-         * @returns the fragment_list for the node this has been inserted into.
-         **/
         public GLib.SList<Sms.Message*> add_fragment( Sms.Message sms, time_t ts, Sms.Address addr, uint16 uref, uint8 max, uint8 seq );
 
         public string imsi;
         private GLib.SList<AssemblyNode?> assembly_list;
     }
+    */
 
-    //
-    // Methods
-    //
-
-    [CCode (cname = "sms_decode")]
-    public bool decode( char[] binpdu, bool outgoing, int tpdu_len, out Sms.Message message );
-
-    [CCode (cname = "sms_encode")]
-    public bool encode( Sms.Message message,
-                        out int len,
-                        out int tpdu_len,
-                        [CCode (array_length = false)] char[] binpdu );
-
-    [CCode (cname = "sms_decode_text")]
-    public string decode_text( GLib.SList<Sms.Message*> sms_list );
-
-    [CCode (cname = "sms_text_prepare")]
-    public GLib.SList<Sms.Message*> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
 }
 
 namespace Cb

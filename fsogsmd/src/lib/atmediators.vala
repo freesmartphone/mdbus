@@ -96,7 +96,7 @@ internal void checkMultiResponseValid( FsoGsm.AtCommand command, string[] respon
 /**
  * Modem facilities helpers
  **/
-internal async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var data = theModem.data();
     if ( data.speakerVolumeMinimum == -1 )
@@ -117,7 +117,7 @@ internal async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, 
     }
 }
 
-internal async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var data = theModem.data();
 
@@ -161,7 +161,7 @@ internal async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, 
     }
 }
 
-internal async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var data = theModem.data();
     if ( data.simPhonebooks.size == 0 )
@@ -682,6 +682,7 @@ public class AtSimRetrieveMessagebook : SimRetrieveMessagebook
 {
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        /*
         var cat = Constants.instance().simMessagebookStringToName( category );
 
         if ( cat == PlusCMGL.Mode.INVALID )
@@ -698,6 +699,7 @@ public class AtSimRetrieveMessagebook : SimRetrieveMessagebook
             throwAppropriateError( valid, response[response.length-1] );
         }
         messagebook = cmd.messagebook;
+        */
     }
 }
 
@@ -705,6 +707,7 @@ public class AtSimRetrieveTextMessages : SimRetrieveTextMessages
 {
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        /*
         var cat = Constants.instance().simMessagebookStringToName( category );
 
         if ( cat == PlusCMGL.Mode.INVALID )
@@ -721,6 +724,7 @@ public class AtSimRetrieveTextMessages : SimRetrieveTextMessages
             throwAppropriateError( valid, response[response.length-1] );
         }
         messagebook = cmd.messagebook;
+        */
     }
 }
 
