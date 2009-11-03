@@ -185,6 +185,33 @@ public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeS
 }
 
 /**
+ * Debug Mediators
+ **/
+public class AtDebugAtCommand : DebugAtCommand
+{
+    public override async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+        var response = yield theModem.processCommandAsync( cmd, command );
+        var result = "";
+        for ( int i = 0; i < response.length-1; ++i )
+        {
+            result += "\r\n";
+            result += response[i];
+        }
+        this.response = result;
+    }
+}
+
+public class AtDebugInjectAtResponse : DebugInjectAtResponse
+{
+    public override async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        theModem.injectResponse( command, channel );
+    }
+}
+
+/**
  * Device Mediators
  **/
 public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
@@ -940,7 +967,9 @@ public class AtCallReleaseAll : CallReleaseAll
  **/
 public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
-    // register commands
+    table[ typeof(DebugAtCommand) ]               = typeof( AtDebugAtCommand );
+    table[ typeof(DebugInjectAtResponse) ]        = typeof( AtDebugInjectAtResponse );
+
     table[ typeof(DeviceGetAlarmTime) ]           = typeof( AtDeviceGetAlarmTime );
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
     table[ typeof(DeviceGetCurrentTime) ]         = typeof( AtDeviceGetCurrentTime );

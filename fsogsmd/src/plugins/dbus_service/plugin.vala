@@ -25,6 +25,7 @@ namespace DBusService {
 
 class DBusService.Device :
     FreeSmartphone.Device.RealtimeClock,
+    FreeSmartphone.GSM.Debug,
     FreeSmartphone.GSM.Device,
     FreeSmartphone.GSM.SIM,
     FreeSmartphone.GSM.SMS,
@@ -143,6 +144,21 @@ class DBusService.Device :
         var m = modem.createMediator<FsoGsm.DeviceSetAlarmTime>();
         yield m.run( seconds_since_epoch );
         this.wakeup_time_changed( seconds_since_epoch ); // DBUS SIGNAL
+    }
+
+    //
+    // DBUS (org.freesmartphone.GSM.Debug.*)
+    //
+    public async string debug_at_command( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DebugAtCommand>();
+        yield m.run( command, channel );
+        return m.response;
+    }
+    public async void debug_inject_at_response( string response, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DebugInjectAtResponse>();
+        yield m.run( response, channel );
     }
 
     //

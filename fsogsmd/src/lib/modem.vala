@@ -95,6 +95,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // DBus Service API
     public abstract bool open();
     public abstract void close();
+    public abstract void injectResponse( string command, string channel ); // DEBUG ONLY
 
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
@@ -319,6 +320,18 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         }
         // power off
         setPower( false );
+    }
+
+    public virtual void injectResponse( string command, string channel )
+    {
+        var chan = this.channels[channel];
+        if ( chan == null )
+        {
+            //FIXME: dbus error?
+            warning( @"No channel $channel" );
+            return;
+        }
+        chan.injectResponse( command );
     }
 
     public T theDevice<T>()
