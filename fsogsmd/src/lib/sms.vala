@@ -63,8 +63,6 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     private string imsi;
     private string storagedir;
 
-    //private
-
     static construct
     {
         storagedirprefix = SMS_STORAGE_DEFAULT_STORAGE_DIR;
@@ -172,23 +170,84 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
         }
     }
 
-    public FreeSmartphone.GSM.SIMMessage[] messagebook()
+    public Gee.ArrayList<string> keys()
     {
-        var mb = new FreeSmartphone.GSM.SIMMessage[] {};
+        var result = new Gee.ArrayList<string>();
         var dir = GLib.Dir.open( storagedir );
         for ( var smshash = dir.read_name(); smshash != null; smshash = dir.read_name() )
         {
-            if ( smshash.has_suffix( "_1" ) )
+            result.add( smshash );
+        }
+        return result;
+    }
+
+    public FreeSmartphone.GSM.SIMMessage message( string key )
+    {
+        var result = FreeSmartphone.GSM.SIMMessage() {
+            index = 0,
+            status = "unknown",
+            number = "unknown",
+            contents = "unknown",
+            properties = new GLib.HashTable<string,Value?>( str_hash, str_equal ) };
+
+        if ( ! ( key in keys() ) )
+        {
+            return result;
+        }
+
+        if ( key.has_suffix( "_1" ) )
+        {
+            // single SMS
+            string contents;
+            GLib.FileUtils.get_contents( GLib.Path.build_filename( storagedir, key, "001" ), out contents );
+            unowned Sms.Message message = (Sms.Message) contents;
+
+            result.status = "single";
+            result.number = message.number();
+            result.contents = message.to_string();
+            result.properties = message.properties();
+        }
+        else
+        {
+            // concatenated SMS
+            result.status = "concatenated";
+            var namecomponents = key.split( "_" );
+            var max_fragment = namecomponents[namecomponents.length-1].to_int();
+
+            debug( "number of fragments = %d", max_fragment );
+
+            var smslist = new GLib.SList<weak Sms.Message>();
+
+            for( int i = 1; i <= max_fragment; ++i )
             {
                 string contents;
-                GLib.FileUtils.get_contents( GLib.Path.build_filename( storagedir, smshash, "001" ), out contents );
-                //unowned Sms.Message message = (Sms.Message) contents;
-                //debug( "number: %s", message.number() );
+                var ok = GLib.FileUtils.get_contents( GLib.Path.build_filename( storagedir, key, "001" ), out contents );
+                if ( !ok )
+                {
+                    debug( "fragment %d of %d NOT present", i, max_fragment );
+                    result.status = "incomplete";
+                    return result;
+                }
+                debug( "fragment %d of %d ok", i, max_fragment );
+                smslist.append( (Sms.Message) contents );
             }
+            debug( "all fragments present" );
+            result.contents = Sms.decode_text( smslist );
+            //result.number = msg.number();
+            //result.properties = message.properties();
+        }
+        return result;
+    }
+
+    public FreeSmartphone.GSM.SIMMessage[] messagebook()
+    {
+        var mb = new FreeSmartphone.GSM.SIMMessage[] {};
+        foreach ( var key in keys() )
+        {
+            mb += message( key );
         }
         return mb;
     }
-
 }
 
 /**

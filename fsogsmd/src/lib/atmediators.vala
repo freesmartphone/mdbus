@@ -683,7 +683,16 @@ public class AtSimRetrieveMessagebook : SimRetrieveMessagebook
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         // ignore category for now
-        messagebook = theModem.smshandler.storage.messagebook();
+
+        //FIXME: Bug in Vala
+        //messagebook = theModem.smshandler.storage.messagebook();
+        //FIXME: Work around
+        var array = theModem.smshandler.storage.messagebook();
+        messagebook = new FreeSmartphone.GSM.SIMMessage[array.length] {};
+        for( int i = 0; i < array.length; ++i )
+        {
+            messagebook[i] = array[i];
+        }
     }
 }
 
