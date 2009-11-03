@@ -512,7 +512,7 @@ namespace Sms
 
         /* Methods */
         public Message();
-        public long size();
+        public static long size();
 
         [CCode (array_length_type = "guint8", array_length_pos = 2.5)]
         public weak uint8[] extract_common( out bool udhi, out uint8 dcs, out uint8 max );
@@ -553,7 +553,7 @@ namespace Sms
     public string decode_text( GLib.SList<Sms.Message> sms_list );
 
     [CCode (cname = "sms_text_prepare")]
-    public GLib.SList<Sms.Message*> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
+    public GLib.SList<Sms.Message> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
 
     /*
 

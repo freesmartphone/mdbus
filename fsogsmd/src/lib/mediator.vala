@@ -192,12 +192,6 @@ public abstract class FsoGsm.SimRetrieveMessagebook : FsoGsm.AbstractMediator
     public abstract async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
-public abstract class FsoGsm.SimRetrieveTextMessages : FsoGsm.AbstractMediator
-{
-    public FreeSmartphone.GSM.SIMMessage[] messagebook { get; set; }
-    public abstract async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-}
-
 public abstract class FsoGsm.SimSendAuthCode : FsoGsm.AbstractMediator
 {
     public abstract async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;

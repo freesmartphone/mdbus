@@ -181,10 +181,10 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
         return result;
     }
 
-    public FreeSmartphone.GSM.SIMMessage message( string key )
+    public FreeSmartphone.GSM.SIMMessage message( string key, int index = 0 )
     {
         var result = FreeSmartphone.GSM.SIMMessage() {
-            index = 0,
+            index = index,
             status = "unknown",
             number = "unknown",
             contents = "unknown",
@@ -213,28 +213,49 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
             result.status = "concatenated";
             var namecomponents = key.split( "_" );
             var max_fragment = namecomponents[namecomponents.length-1].to_int();
-
-            debug( "number of fragments = %d", max_fragment );
-
-            var smslist = new GLib.SList<weak Sms.Message>();
+#if DEBUG
+            GLib.message( "highest fragment = %d", max_fragment );
+#endif
+            var smses = new Sms.Message[max_fragment-1] {};
+            bool complete = true;
+            bool info = false;
 
             for( int i = 1; i <= max_fragment; ++i )
             {
-                string contents;
-                var ok = GLib.FileUtils.get_contents( GLib.Path.build_filename( storagedir, key, "001" ), out contents );
-                if ( !ok )
+                smses[i-1] = new Sms.Message();
+                var filename = GLib.Path.build_filename( storagedir, key, "%03u".printf( i ) );
+                if ( ! FsoFramework.FileHandling.isPresent( filename ) )
                 {
-                    debug( "fragment %d of %d NOT present", i, max_fragment );
+                    complete = false;
                     result.status = "incomplete";
-                    return result;
+
+                    smses[i-1] = null;
                 }
-                debug( "fragment %d of %d ok", i, max_fragment );
-                smslist.append( (Sms.Message) contents );
+                else
+                {
+                    string contents;
+                    GLib.FileUtils.get_contents( filename, out contents );
+                    Memory.copy( smses[i-1], contents, Sms.Message.size() );
+
+                    if ( !info )
+                    {
+                        result.number = smses[i-1].number();
+                        result.properties = smses[i-1].properties();
+                        info = true;
+                    }
+                }
             }
-            debug( "all fragments present" );
-            result.contents = Sms.decode_text( smslist );
-            //result.number = msg.number();
-            //result.properties = message.properties();
+
+            var smslist = new SList<weak Sms.Message>();
+            for( int i = 0; i < max_fragment-1; ++i )
+            {
+                if ( smses[i] != null )
+                {
+                        smslist.append( smses[i] );
+                }
+            }
+            var text = Sms.decode_text( smslist );
+            result.contents = ( text != null ) ? text : "decode error";
         }
         return result;
     }
@@ -242,9 +263,10 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     public FreeSmartphone.GSM.SIMMessage[] messagebook()
     {
         var mb = new FreeSmartphone.GSM.SIMMessage[] {};
+        var index = 0;
         foreach ( var key in keys() )
         {
-            mb += message( key );
+            mb += message( key, index = index++ );
         }
         return mb;
     }
