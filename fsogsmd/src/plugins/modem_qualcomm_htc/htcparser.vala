@@ -167,6 +167,10 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 return State.ECHO_A;
             case '[':
                 return State.START_HTC_BOGUS_BRACKET_LINE;
+            case '+':
+                warning( "AT violation. Unsolicited without \\r\\n header (ignoring). Your modem sucks." );
+                curline = { '+' };
+                return State.INLINE;
         }
         return State.INVALID;
     }
