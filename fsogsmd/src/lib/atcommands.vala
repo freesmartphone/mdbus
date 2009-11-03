@@ -336,7 +336,7 @@ public class PlusCLVL : SimpleAtCommand<int>
 
 public class PlusCMGL : AbstractAtCommand
 {
-    public Gee.ArrayList<Sms.Message*> messagebook;
+    public Gee.ArrayList<WrapSms> messagebook;
 
     public enum Mode
     {
@@ -356,7 +356,7 @@ public class PlusCMGL : AbstractAtCommand
 
     public override void parseMulti( string[] response ) throws AtCommandError
     {
-        messagebook = new Gee.ArrayList<Sms.Message*>();
+        messagebook = new Gee.ArrayList<WrapSms>();
 
         var tpdulen = 0;
 
@@ -372,7 +372,7 @@ public class PlusCMGL : AbstractAtCommand
                 var sms = Sms.Message.newFromHexPdu( response[i], tpdulen );
                 if ( sms != null )
                 {
-                    messagebook.add( &sms );
+                    messagebook.add( new WrapSms( (owned) sms) );
                 }
             }
         }

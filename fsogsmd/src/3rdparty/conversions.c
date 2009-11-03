@@ -43,11 +43,13 @@ struct sms* sms_new()
 {
 	struct sms* sms;
 	sms = g_malloc0( sizeof( struct sms ) );
+	g_debug( "sms %p has been created", sms );
 	return sms;
 }
 
 void sms_free( struct sms* self )
 {
+	g_debug( "sms %p is being destroyed", self );
 	g_free( self );
 }
 

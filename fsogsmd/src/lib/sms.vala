@@ -26,6 +26,31 @@ namespace FsoGsm {
 
 } /* namespace FsoGsm */
 
+/**
+ * @class WrapSms
+ *
+ * A helper class
+ */
+public class WrapSms
+{
+    public Sms.Message message;
+    public WrapSms( owned Sms.Message message )
+    {
+        this.message = (owned) message;
+        if ( this.message.type == Sms.Type.DELIVER )
+        {
+            debug( "WRAPSMS: Created for message hash %s", this.message.hash() );
+        }
+    }
+
+    ~WrapSms()
+    {
+        if ( message.type == Sms.Type.DELIVER )
+        {
+            debug( "WRAPSMS: Destructed for message hash %s", this.message.hash() );
+        }
+    }
+}
 
 /**
  * @class SmsStorage
@@ -74,7 +99,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
 
     public void clean()
     {
-        Posix.remove( storagedir );
+        //NYI
     }
 
     /**
@@ -215,12 +240,10 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
             return;
         }
 
-        /*
-        foreach( var psms in cmgl.messagebook )
+        foreach( var sms in cmgl.messagebook )
         {
-            storage.addSms( *psms );
+            storage.addSms( sms.message );
         }
-        */
     }
 
     public async void handleIncomingSmsOnSim( uint index )
