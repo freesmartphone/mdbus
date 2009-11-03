@@ -137,7 +137,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
                 return SMS_ALREADY_SEEN;
             }
             // message is not present, save it
-            FsoFramework.FileHandling.writeBuffer( &message, sizeof( Sms.Message ), filename, true );
+            FsoFramework.FileHandling.writeBuffer( message, message.size(), filename, true );
             return SMS_SINGLE_COMPLETE;
         }
         else
@@ -152,7 +152,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
             GLib.message( "fragment file %s now present, checking for completeness...", filename );
 #endif
             // message is not present, save it
-            FsoFramework.FileHandling.writeBuffer( &message, sizeof( Sms.Message ), filename, true );
+            FsoFramework.FileHandling.writeBuffer( message, message.size(), filename, true );
             // check whether we have all fragments?
             for( int i = 1; i <= max_msgs; ++i )
             {
@@ -171,6 +171,24 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
             return max_msgs; // SMS_MULTI_COMPLETE
         }
     }
+
+    public FreeSmartphone.GSM.SIMMessage[] messagebook()
+    {
+        var mb = new FreeSmartphone.GSM.SIMMessage[] {};
+        var dir = GLib.Dir.open( storagedir );
+        for ( var smshash = dir.read_name(); smshash != null; smshash = dir.read_name() )
+        {
+            if ( smshash.has_suffix( "_1" ) )
+            {
+                string contents;
+                GLib.FileUtils.get_contents( GLib.Path.build_filename( storagedir, smshash, "001" ), out contents );
+                //unowned Sms.Message message = (Sms.Message) contents;
+                //debug( "number: %s", message.number() );
+            }
+        }
+        return mb;
+    }
+
 }
 
 /**
@@ -178,6 +196,8 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
  */
 public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
 {
+    public abstract SmsStorage storage { get; set; }
+
     public abstract async void handleIncomingSmsOnSim( uint index );
 }
 
@@ -186,7 +206,7 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
  **/
 public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 {
-    protected SmsStorage storage;
+    public SmsStorage storage { get; set; }
 
     public AtSmsHandler()
     {

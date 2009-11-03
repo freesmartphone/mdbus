@@ -36,6 +36,7 @@ char *ucs2_to_utf8(const char *str)
 
 void sms_copy( void* self, void* dup )
 {
+	g_warning( "sms %p being copied", self );
 	memcpy( dup, self, sizeof( struct sms ) );
 }
 
@@ -51,5 +52,10 @@ void sms_free( struct sms* self )
 {
 	g_debug( "sms %p is being destroyed", self );
 	g_free( self );
+}
+
+long sms_size()
+{
+	return sizeof( struct sms );
 }
 

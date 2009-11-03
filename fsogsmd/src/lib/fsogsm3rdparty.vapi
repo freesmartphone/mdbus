@@ -512,6 +512,7 @@ namespace Sms
 
         /* Methods */
         public Message();
+        public long size();
 
         [CCode (array_length_type = "guint8", array_length_pos = 2.5)]
         public weak uint8[] extract_common( out bool udhi, out uint8 dcs, out uint8 max );

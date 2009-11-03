@@ -682,24 +682,8 @@ public class AtSimRetrieveMessagebook : SimRetrieveMessagebook
 {
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        /*
-        var cat = Constants.instance().simMessagebookStringToName( category );
-
-        if ( cat == PlusCMGL.Mode.INVALID )
-        {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Category needs to be one of ..." );
-        }
-
-        var cmd = theModem.createAtCommand<PlusCMGL>( "+CMGL" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( cat ) );
-
-        var valid = cmd.validateMulti( response );
-        if ( valid != Constants.AtResponse.VALID && valid != Constants.AtResponse.CME_ERROR_022_NOT_FOUND )
-        {
-            throwAppropriateError( valid, response[response.length-1] );
-        }
-        messagebook = cmd.messagebook;
-        */
+        // ignore category for now
+        messagebook = theModem.smshandler.storage.messagebook();
     }
 }
 
