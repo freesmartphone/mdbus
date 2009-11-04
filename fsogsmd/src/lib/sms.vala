@@ -349,15 +349,12 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
 
     public async void handleIncomingSmsOnSim( uint index )
     {
-        /*
-
-
         // read SMS
         var cmd = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( index ) );
         if ( cmd.validateUrcPdu( response ) != Constants.AtResponse.VALID )
         {
-            logger.warning( "Can't read new SMS from SIM." );
+            logger.warning( @"Can't read new SMS from SIM storage at index $index." );
             return;
         }
         var sms = Sms.Message.newFromHexPdu( cmd.hexpdu, cmd.tpdulen );
@@ -366,12 +363,21 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
             logger.warning( "Can't parse SMS" );
         }
         var result = storage.addSms( sms );
-        if ( result > 0 )
+        if ( result == SmsStorage.SMS_ALREADY_SEEN )
         {
-            logger.info( "Got new SMS" );
-            // compute text and send signal
+            logger.warning( @"Ignoring CMTI for already seen SMS w/ index $index" );
+            return;
         }
-        */
+        else if ( result == SmsStorage.SMS_MULTI_INCOMPLETE )
+        {
+            logger.info( @"Got new fragment for still-incomplete concatenated SMS on index $index" );
+            return;
+        }
+        else /* complete */
+        {
+            logger.info( @"Got new SMS from $(sms.number())" );
+            // compute text and send dbus signal
+        }
     }
 }
 

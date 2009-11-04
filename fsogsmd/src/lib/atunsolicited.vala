@@ -146,7 +146,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     public virtual void plusCMTI( string prefix, string rhs )
     {
         var cmti = theModem.createAtCommand<PlusCMTI>( "+CMTI" );
-        if ( cmti.validate( { prefix+rhs } ) == Constants.AtResponse.VALID )
+        if ( cmti.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
             theModem.smshandler.handleIncomingSmsOnSim( cmti.index );
         }

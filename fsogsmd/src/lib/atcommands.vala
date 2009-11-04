@@ -463,7 +463,7 @@ public class PlusCMTI : AbstractAtCommand
 
     public PlusCMTI()
     {
-        re = new Regex( """\+CMTI: "(?P<storage>[^"])",(?P<id>\d+)""" );
+        re = new Regex( """\+CMTI: "(?P<storage>[^"]*)",(?P<id>\d+)""" );
     }
 
     public override void parse( string response ) throws AtCommandError
