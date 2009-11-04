@@ -41,7 +41,7 @@ internal FsoFramework.Logger theDefaultLogger = null;
 public delegate string ReprDelegate();
 
 /**
- * Logger
+ * @interface Logger
  */
 public interface FsoFramework.Logger : Object
 {
@@ -80,8 +80,8 @@ public interface FsoFramework.Logger : Object
                 return Logger.createFromKeyFile( smk, group, domain );
             }
         }
-        GLib.warning( "could not find %s anywhere, returning NullLogger", filename );
-        return new NullLogger( domain );
+        GLib.warning( @"Could not find $filename anywhere, returning StdErrLogger" );
+        return new StdErrLogger( domain );
     }
 
     /**
@@ -90,7 +90,7 @@ public interface FsoFramework.Logger : Object
     public static Logger createFromKeyFile( FsoFramework.SmartKeyFile smk, string group, string domain )
     {
 #if DEBUG
-        GLib.debug( "creating for domain '%s' from group '%s'", domain, group );
+        GLib.debug( @"creating for domain $domain from group '$group", domain, group );
 #endif
         string log_level = Environment.get_variable( ENV_OVERRIDE_LOG_LEVEL );
         if ( log_level == null )
@@ -108,7 +108,7 @@ public interface FsoFramework.Logger : Object
 
         FsoFramework.Logger theLogger = null;
 #if DEBUG
-        GLib.debug( "logging to %s", log_to );
+        GLib.debug( @"logging to $log_to" );
 #endif
         switch ( log_to )
         {
@@ -137,8 +137,8 @@ public interface FsoFramework.Logger : Object
                 theLogger = logger;
                 break;
             default:
-                GLib.warning( "Don't know how to instanciate logger type '%s'. Using NullLogger.", log_to );
-                var logger = new NullLogger( domain );
+                GLib.warning( @"Don't know how to instanciate logger type $log_to. Using StderrLogger.", log_to );
+                var logger = new StdErrLogger( domain );
                 theLogger = logger;
                 break;
         }
@@ -148,7 +148,7 @@ public interface FsoFramework.Logger : Object
 }
 
 /**
- * AbstractLogger
+ * @class AbstractLogger
  */
 public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
 {
@@ -323,7 +323,7 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
 }
 
 /**
- * NullLogger
+ * @class NullLogger
  */
 public class FsoFramework.NullLogger : FsoFramework.AbstractLogger
 {
@@ -338,7 +338,7 @@ public class FsoFramework.NullLogger : FsoFramework.AbstractLogger
 }
 
 /**
- * FileLogger
+ * @class FileLogger
  */
 public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
 {
@@ -362,7 +362,6 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
             this.destination = null;
             Posix.close( file );
         }
-
         if ( filename == "stderr" )
         {
             file = stderr.fileno();
@@ -373,15 +372,28 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
             file = Posix.open( filename, flags, Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH);
         }
         if ( file == -1 )
+        {
             GLib.error( "%s: %s", filename, Posix.strerror( Posix.errno ) );
-
+        }
         this.destination  = filename;
     }
 
 }
 
 /**
- * SyslogLogger
+ * @class StdErrLogger
+ */
+public class FsoFramework.StdErrLogger : FsoFramework.FileLogger
+{
+    public class StdErrLogger( string domain )
+    {
+        base( domain );
+        setFile( "stderr" );
+    }
+}
+
+/**
+ * @class SyslogLogger
  */
 public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
 {
@@ -406,8 +418,9 @@ public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
     {
         base( domain );
         if ( basename == null )
+        {
             basename = "%s".printf( FsoFramework.Utility.programName() );
+        }
         Posix.openlog( basename, Posix.LOG_PID | Posix.LOG_CONS, Posix.LOG_DAEMON );
     }
 }
-

@@ -4,12 +4,9 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	-I../fsobasics \
+	-I$(top_srcdir)/fsobasics \
 	$(GLIB_CFLAGS) \
 	$(NULL)
-
-INCLUDES = \
-	-I../fsobasics
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
