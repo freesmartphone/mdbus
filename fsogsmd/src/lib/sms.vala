@@ -247,7 +247,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
             }
 
             var smslist = new SList<weak Sms.Message>();
-            for( int i = 0; i < max_fragment-1; ++i )
+            for( int i = 0; i < max_fragment; ++i )
             {
                 if ( smses[i] != null )
                 {
