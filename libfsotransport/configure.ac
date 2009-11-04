@@ -1,4 +1,4 @@
-AC_INIT([libfsotransport], [0.9.5.9], [smartphones-userland@linuxtogo.org], [libfsotransport])
+AC_INIT([libfsotransport], [0.9.6], [smartphones-userland@linuxtogo.org], [libfsotransport])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
