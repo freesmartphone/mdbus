@@ -4,6 +4,7 @@ NULL =
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
+	--vapidir ../vapi/ \
 	--pkg posix \
 	--pkg posixextra \
 	--pkg linux \
