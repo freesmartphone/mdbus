@@ -83,7 +83,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
     {
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
-            warning( "HUP on kobject uevent socket. will no longer get any notifications" );
+            error( "HUP on kobject uevent socket, will no longer get any notifications" );
             return false;
         }
 
@@ -103,7 +103,8 @@ public class FsoFramework.BaseKObjectNotifier : Object
             return true;
         }
 
-        assert_not_reached(); // fail on unexpected IOCondition
+        critical( "Unsupported IOCondition %u", (int)condition );
+        return true;
     }
 
     protected void handleMessage( string[] parts )
@@ -123,8 +124,9 @@ public class FsoFramework.BaseKObjectNotifier : Object
         assert( action != null );
         var subsystem = properties.lookup( "SUBSYSTEM" );
         assert( subsystem != null );
-
-        message( "dealing with action '%s' for subsystem '%s'", action, subsystem );
+#if DEBUG
+        debug( @"Dealing with action $action for subsystem $subsystem" );
+#endif
 
         HashTable<string, List<DelegateHolder>> table = null;
 
@@ -140,7 +142,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 table = remove;
                 break;
             default:
-                critical( "unrecognized kobject message action '%s' invalid, must be one of { add, change, remove }", action );
+                warning( @"Unsupported kobject message action $action, must be one of { add, change, remove }" );
                 break;
         }
 
@@ -168,7 +170,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 table = remove;
                 break;
             default:
-                critical( "addMatch action '%s' invalid, must be one of { add, change, remove }", action );
+                critical( @"Unsupported action $action in _addMatch, must be one of { add, change, remove }" );
                 break;
         }
 
@@ -177,13 +179,17 @@ public class FsoFramework.BaseKObjectNotifier : Object
         {
             List<DelegateHolder> newlist = new List<DelegateHolder>();
             newlist.append( new DelegateHolder( callback ) );
-            message( "# delegates for action '%s' and subsystem '%s' now %u", action, subsystem, newlist.length() );
+#if DEBUG
+            debug( @"# delegates for action $action and subsystem $subsystem now $(newlist.length())" );
+#endif
             table.insert( subsystem, (owned) newlist );
         }
         else
         {
             list.append( new DelegateHolder( callback ) );
-            message( "# delegates for action '%s' and subsystem '%s' now %u", action, subsystem, list.length() );
+#if DEBUG
+            debug( @"# delegates for action $action and subsystem $subsystem now $(list.length())" );
+#endif
         }
     }
 
