@@ -23,8 +23,6 @@ VALAC_ARGS = \
 	-D DEBUG \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
-	--pkg posix \
-	--pkg posixextra \
 	--pkg dbus-glib-1 \
 	--pkg glib-2.0 \
 	--pkg fsogsm3rdparty \
