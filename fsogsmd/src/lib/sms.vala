@@ -366,6 +366,11 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
             debug( "processing element %p", smslist.nth_data( i ) );
 #endif
             unowned Sms.Message msgelement = (Sms.Message) smslist.nth_data( i );
+            // FIXME: encode service center address?
+            //msgelement.sc_addr.from_string( "+490000000" );
+            // encode destination address
+            msgelement.submit.daddr.from_string( number );
+            // decode to hex pdu
             var tpdulen = 0;
             var hexpdu = msgelement.toHexPdu( out tpdulen );
             assert( tpdulen > 0 );
@@ -374,9 +379,14 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
 
 /*
         smslist.foreach ( (element) => {
-            debug( "processing element %p", element );
-        
-            unowned Sms.Message msgelement = (Sms.Message) element;
+            debug( "processing element %p", smslist.nth_data( i ) );
+#endif
+            unowned Sms.Message msgelement = (Sms.Message) smslist.nth_data( i );
+            // FIXME: encode service center address?
+            //msgelement.sc_addr.from_string( "+490000000" );
+            // encode destination address
+            msgelement.submit.daddr.from_string( number );
+            // decode to hex pdu
             var tpdulen = 0;
             var hexpdu = msgelement.toHexPdu( out tpdulen );
             assert( tpdulen > 0 );

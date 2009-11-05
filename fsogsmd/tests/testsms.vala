@@ -21,9 +21,15 @@ using GLib;
 using FsoGsm;
 
 public const string IMSI = "26203123456789";
-public const string LONG_TEXT = """
-            freesmartphone.org is a collaboration platform for open source and open discussion software projects working on interoperability and shared technology for Linux-based SmartPhones. freesmartphone.org works on a service layer (middleware) that allows developers to concentrate on their application business logic rather than dealing with device specifics. freesmartphone.org honours and bases on specifications and software created by the freedesktop.org community.""";
+public const string LONG_TEXT = """freesmartphone.org is a collaboration platform for open source and open discussion software projects working on interoperability and shared technology for Linux-based SmartPhones. freesmartphone.org works on a service layer (middleware) that allows developers to concentrate on their application business logic rather than dealing with device specifics. freesmartphone.org honours and bases on specifications and software created by the freedesktop.org community.""";
 public const uint16 LONG_TEXT_REF = 1;
+public const string LONG_TEXT_PDUS[] = {
+    "0051000B919421436587F90000A7A0060804000104016679B93C6F87E57438FAED2EBBDEF233283D078541E3379B1D16BFE5617AFAED06C1D961BAF92D6F83CC6F39E80D2FBB41F3775D3E2E83C26E32E80D2FBB41E4F47C5C9FCFD36F3768FE36D3EF6179190497BFD5E5317D0EBABFE5EBB4FB0C7ABB416937BD2C7FC3CBF2B038CD4ED3F3A0B09B0C9AA3C3F23219442F8FD1EE37FB7DCE83CC000000000000000000000000000000000000000000",
+    "0051000B919421436587F90000A7A0060804000104026F39889976D7F12D71785E2683A6EDB09C0E45BFDDE5B90B649697CBF376584E87A3DFEEB2EB2D3F83EE6FF97A0E7ABB4161D0BC2CB7A7C765103B9C2FCB41A8769A4C6697EF61793905A2A3C3745098CD7EDFE72072D95E66BFE165F91C447F83C66FF7B8ECA6CBC3F432E8ED06D1D1E5B41C1486C3D9E971989E7EBB41E2FA3CED2ECFE7000000000000000000000000000000000000000000",
+    "0051000B919421436587F90000A7A00608040001040320F6FB9C1E83E4613ABA2C07D1D16137885C0EB3D3EE33E89EA6A341E4B23D3D2E83E6F0F2386D4E8FE72E90595E2ECFDB61391D8E7EBBCBAEB7FC0C42BFDDEFBA7C0E0ABBC92071785E9E83DE6ED01C5E1EA7CDE971989E7EBBE7A0B09B0C9ABFCDF47B585E068DE5E530BD4C0689F3203ABA0C32CBCB657279BEA6BFE1AEB7FC0C1ABFDB000000000000000000000000000000000000000000",
+    "0051000B919421436587F90000A70F06080400010404EDBA3B4DCFBB00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    };
+public const int LONG_TEXT_PDULENS[] = { 154, 154, 154, 28 };
 
 public const string SHORT_TEXT = "Hoffentlich diesmal mit ACKPDU";
 public const string PHONE_NUMBER = "+49123456789";
@@ -68,6 +74,9 @@ public const string pdu3 = "0791947106004034040C91947139003033410090019100021080
 public const int pdulength3 = 97;
 
 SList<weak Sms.Message> smslist;
+
+/******************************************************************************************
+ ******************************************************************************************/
 
 void test_sms_decode_deliver_single_default_alphabet()
 {
@@ -179,6 +188,48 @@ void test_sms_decode_deliver_whole_concatenated_default_alphabet()
     assert( text.has_suffix( "zwischen Delenn und Lennier angedeutet zu werden." ) );
 }
 
+/******************************************************************************************
+ ******************************************************************************************/
+
+void test_sms_encode_submit_single_default_alphabet()
+{
+    int offset;
+    smslist = Sms.text_prepare( SHORT_TEXT, 0, true, out offset );
+    assert( smslist.length() == 1 );
+    unowned Sms.Message sms = (Sms.Message)smslist.nth_data( 0 );
+    assert( sms.type == Sms.Type.SUBMIT );
+    assert( sms.to_string() == SHORT_TEXT );
+
+    bool udhi;
+    uint dcs;
+    uint8 max;
+
+    var ud = sms.extract_common( out udhi, out dcs, out max );
+    assert( ud != null );
+    assert( ud.length == SHORT_TEXT.length );
+    assert( dcs == 0 );
+    assert( max == 140 );
+    assert( !udhi );
+}
+
+void test_sms_encode_submit_concatenated_default_alphabet()
+{
+    SmsHandler handler = new AtSmsHandler();
+    var pdu = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT );
+    assert( pdu.size == 4 );
+
+    assert( pdu[0].hexpdu == LONG_TEXT_PDUS[0] );
+    assert( pdu[0].tpdulen == LONG_TEXT_PDULENS[0] );
+    assert( pdu[1].hexpdu == LONG_TEXT_PDUS[1] );
+    assert( pdu[1].tpdulen == LONG_TEXT_PDULENS[1] );
+    assert( pdu[2].hexpdu == LONG_TEXT_PDUS[2] );
+    assert( pdu[2].tpdulen == LONG_TEXT_PDULENS[2] );
+    assert( pdu[3].hexpdu == LONG_TEXT_PDUS[3] );
+    assert( pdu[3].tpdulen == LONG_TEXT_PDULENS[3] );
+}
+
+/******************************************************************************************
+ ******************************************************************************************/
 void test_sms_extraction()
 {
     /*
@@ -250,38 +301,6 @@ void test_fso_sms_storage_add_concatenated()
     assert( storage.addSms( smses[pdulengths1.length-1] ) == pdulengths1.length );
 }
 
-void test_sms_encode_submit_single_default_alphabet()
-{
-    int offset;
-    smslist = Sms.text_prepare( SHORT_TEXT, 0, true, out offset );
-    assert( smslist.length() == 1 );
-    unowned Sms.Message sms = (Sms.Message)smslist.nth_data( 0 );
-    assert( sms.type == Sms.Type.SUBMIT );
-    assert( sms.to_string() == SHORT_TEXT );
-
-    bool udhi;
-    uint dcs;
-    uint8 max;
-
-    var ud = sms.extract_common( out udhi, out dcs, out max );
-    assert( ud != null );
-    assert( ud.length == SHORT_TEXT.length );
-    assert( dcs == 0 );
-    assert( max == 140 );
-    assert( !udhi );
-}
-
-void test_sms_encode_submit_concatenated_default_alphabet()
-{
-    SmsHandler handler = new AtSmsHandler();
-    var hexpdus = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT );
-    assert( hexpdus.size == 4 );
-
-    foreach ( var pdu in hexpdus )
-    {
-        message( "hexpdu: %s, len %u", pdu.hexpdu, pdu.tpdulen );
-    }
-}
 
 //===========================================================================
 void main( string[] args )
@@ -289,22 +308,23 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-#if FOO
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Single/DefaultAlphabet", test_sms_decode_deliver_single_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Single/Concatenated/DefaultAlphabet", test_sms_decode_deliver_single_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Multiple/Concatenated/DefaultAlphabet", test_sms_decode_deliver_multiple_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Whole/Concatenated/DefaultAlphabet", test_sms_decode_deliver_whole_concatenated_default_alphabet );
 
+    Test.add_func( "/3rdparty/Sms/Encode/Submit/Single/DefaultAlphabet", test_sms_encode_submit_single_default_alphabet );
+    Test.add_func( "/3rdparty/Sms/Encode/Submit/Concatenated/DefaultAlphabet", test_sms_encode_submit_concatenated_default_alphabet );
+    //Test.add_func( "/3rdparty/Sms/Encode/Submit/Multiple/Concatenated/DefaultAlphabet", test_sms_encode_submit_multiple_concatenated_default_alphabet );
+    //Test.add_func( "/3rdparty/Sms/Encode/Submit/Whole/Concatenated/DefaultAlphabet", test_sms_encode_submit_whole_concatenated_default_alphabet );
+
+
+#if FOO
     Test.add_func( "/Fso/Sms/Storage/New", test_fso_sms_storage_new );
     //Test.add_func( "/Fso/Sms/Storage/Existing", test_fso_sms_storage_new_existing );
     Test.add_func( "/Fso/Sms/Storage/Add/Single", test_fso_sms_storage_add_single );
     Test.add_func( "/Fso/Sms/Storage/Add/Concatenated", test_fso_sms_storage_add_concatenated );
     //Test.add_func( "/Fso/Sms/Storage/Add/Random", test_fso_sms_storage_add_random );
 #endif
-    Test.add_func( "/3rdparty/Sms/Encode/Submit/Single/DefaultAlphabet", test_sms_encode_submit_single_default_alphabet );
-    Test.add_func( "/3rdparty/Sms/Encode/Submit/Concatenated/DefaultAlphabet", test_sms_encode_submit_concatenated_default_alphabet );
-    //Test.add_func( "/3rdparty/Sms/Encode/Submit/Multiple/Concatenated/DefaultAlphabet", test_sms_encode_submit_multiple_concatenated_default_alphabet );
-    //Test.add_func( "/3rdparty/Sms/Encode/Submit/Whole/Concatenated/DefaultAlphabet", test_sms_encode_submit_whole_concatenated_default_alphabet );
-
     Test.run();
 }
