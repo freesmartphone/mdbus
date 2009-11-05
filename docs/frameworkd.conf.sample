@@ -168,6 +168,9 @@ channel_suspend_main = +PREPARE_FOR_SUSPEND
 # Channel resume string to send (per channel)
 channel_resume_main = +RECOVER_AFTER_RESUME
 
+# Where to store SMS: <path> (default=/tmp/fsogsmd/sms/)
+sms_storage_dir = /tmp/fsogsmd/sms/
+
 [fsogsm.modem_singleline]
 # No settings yet
 

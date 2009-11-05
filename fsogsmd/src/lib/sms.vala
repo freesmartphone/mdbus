@@ -68,6 +68,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
         storagedirprefix = SMS_STORAGE_DEFAULT_STORAGE_DIR;
     }
 
+    // for debugging purposes mainly
     public static void setStorageDir( string dirname )
     {
         storagedirprefix = dirname;
@@ -85,9 +86,9 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     public SmsStorage( string imsi )
     {
         this.imsi = imsi;
+        storagedirprefix = config.stringValue( "sms_storage_dir", SMS_STORAGE_DEFAULT_STORAGE_DIR );      
         this.storagedir = GLib.Path.build_filename( storagedirprefix, imsi );
         GLib.DirUtils.create_with_parents( storagedir, SMS_STORAGE_DIRECTORY_PERMISSIONS );
-        //FIXME: read from backup
         logger.info( "Created" );
     }
 
