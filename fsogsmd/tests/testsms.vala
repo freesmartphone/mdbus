@@ -25,6 +25,9 @@ public const string LONG_TEXT = """
             freesmartphone.org is a collaboration platform for open source and open discussion software projects working on interoperability and shared technology for Linux-based SmartPhones. freesmartphone.org works on a service layer (middleware) that allows developers to concentrate on their application business logic rather than dealing with device specifics. freesmartphone.org honours and bases on specifications and software created by the freedesktop.org community.""";
 public const uint16 LONG_TEXT_REF = 1;
 
+public const string SHORT_TEXT = "Hoffentlich diesmal mit ACKPDU";
+public const string PHONE_NUMBER = "+49123456789";
+
 public const int pdulengths1[] = { 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 54 };
 
 public const string pdus1[] = {
@@ -176,13 +179,6 @@ void test_sms_decode_deliver_whole_concatenated_default_alphabet()
     assert( text.has_suffix( "zwischen Delenn und Lennier angedeutet zu werden." ) );
 }
 
-void test_sms_text_prepare()
-{
-    int offset;
-    smslist = Sms.text_prepare( LONG_TEXT, LONG_TEXT_REF, true, out offset );
-    assert( smslist.length() == 4 );
-}
-
 void test_sms_extraction()
 {
     /*
@@ -254,12 +250,46 @@ void test_fso_sms_storage_add_concatenated()
     assert( storage.addSms( smses[pdulengths1.length-1] ) == pdulengths1.length );
 }
 
+void test_sms_encode_submit_single_default_alphabet()
+{
+    int offset;
+    smslist = Sms.text_prepare( SHORT_TEXT, 0, true, out offset );
+    assert( smslist.length() == 1 );
+    unowned Sms.Message sms = (Sms.Message)smslist.nth_data( 0 );
+    assert( sms.type == Sms.Type.SUBMIT );
+    assert( sms.to_string() == SHORT_TEXT );
+
+    bool udhi;
+    uint dcs;
+    uint8 max;
+
+    var ud = sms.extract_common( out udhi, out dcs, out max );
+    assert( ud != null );
+    assert( ud.length == SHORT_TEXT.length );
+    assert( dcs == 0 );
+    assert( max == 140 );
+    assert( !udhi );
+}
+
+void test_sms_encode_submit_concatenated_default_alphabet()
+{
+    SmsHandler handler = new AtSmsHandler();
+    var hexpdus = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT );
+    assert( hexpdus.size == 4 );
+
+    foreach ( var pdu in hexpdus )
+    {
+        message( "hexpdu: %s, len %u", pdu.hexpdu, pdu.tpdulen );
+    }
+}
+
 //===========================================================================
 void main( string[] args )
 //===========================================================================
 {
     Test.init( ref args );
 
+#if FOO
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Single/DefaultAlphabet", test_sms_decode_deliver_single_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Single/Concatenated/DefaultAlphabet", test_sms_decode_deliver_single_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Multiple/Concatenated/DefaultAlphabet", test_sms_decode_deliver_multiple_concatenated_default_alphabet );
@@ -270,7 +300,11 @@ void main( string[] args )
     Test.add_func( "/Fso/Sms/Storage/Add/Single", test_fso_sms_storage_add_single );
     Test.add_func( "/Fso/Sms/Storage/Add/Concatenated", test_fso_sms_storage_add_concatenated );
     //Test.add_func( "/Fso/Sms/Storage/Add/Random", test_fso_sms_storage_add_random );
-
+#endif
+    Test.add_func( "/3rdparty/Sms/Encode/Submit/Single/DefaultAlphabet", test_sms_encode_submit_single_default_alphabet );
+    Test.add_func( "/3rdparty/Sms/Encode/Submit/Concatenated/DefaultAlphabet", test_sms_encode_submit_concatenated_default_alphabet );
+    //Test.add_func( "/3rdparty/Sms/Encode/Submit/Multiple/Concatenated/DefaultAlphabet", test_sms_encode_submit_multiple_concatenated_default_alphabet );
+    //Test.add_func( "/3rdparty/Sms/Encode/Submit/Whole/Concatenated/DefaultAlphabet", test_sms_encode_submit_whole_concatenated_default_alphabet );
 
     Test.run();
 }

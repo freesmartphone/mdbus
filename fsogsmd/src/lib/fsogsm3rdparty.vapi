@@ -505,6 +505,24 @@ namespace Sms
             }
         }
 
+        public string toHexPdu( out int tpdulen )
+        {
+            int binlen;
+            // FIXME: Check why it breaks if you create a larger buffer here
+            char[] binpdu = new char[176];
+
+            var res = Sms.encode( this, out binlen, out tpdulen, binpdu );
+            if ( !res )
+            {
+                GLib.warning( @"Sms.Message::toHexPdu: could not encode message" );
+                tpdulen = -1;
+                return "";
+            }         
+            char[] hexpdu = new char[1024];
+            Conversions.encode_hex_own_buf( binpdu, 0, hexpdu );
+            return "%s".printf( (string) hexpdu );
+        }
+
         public bool is_concatenated()
         {
             return ( extract_concatenation( null, null, null ) );
@@ -537,7 +555,7 @@ namespace Sms
     }
 
     //
-    // Methods
+    // Global methods
     //
 
     [CCode (cname = "sms_decode")]
@@ -553,7 +571,7 @@ namespace Sms
     public string decode_text( GLib.SList<Sms.Message> sms_list );
 
     [CCode (cname = "sms_text_prepare")]
-    public GLib.SList<Sms.Message> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
+    public GLib.SList<weak Sms.Message> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
 
     /*
 

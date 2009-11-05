@@ -53,6 +53,23 @@ public class WrapSms
 }
 
 /**
+ * @class WrapHexPdu
+ *
+ * A helper class
+ */
+public class WrapHexPdu
+{
+    public string hexpdu;
+    public uint tpdulen;
+
+    public WrapHexPdu( string hexpdu, uint tpdulen )
+    {
+        this.hexpdu = hexpdu;
+        this.tpdulen = tpdulen;
+    }
+}
+
+/**
  * @class SmsStorage
  *
  * A high level persistent SMS Storage abstraction.
@@ -89,7 +106,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
         storagedirprefix = config.stringValue( "sms_storage_dir", SMS_STORAGE_DEFAULT_STORAGE_DIR );      
         this.storagedir = GLib.Path.build_filename( storagedirprefix, imsi );
         GLib.DirUtils.create_with_parents( storagedir, SMS_STORAGE_DIRECTORY_PERMISSIONS );
-        logger.info( "Created" );
+        logger.info( @"Created w/ storage dir $(this.storagedir)" );
     }
 
     public const int SMS_ALREADY_SEEN = -1;
@@ -281,6 +298,10 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
     public abstract SmsStorage storage { get; set; }
 
     public abstract async void handleIncomingSmsOnSim( uint index );
+
+    public abstract uint16 nextReferenceNumber();
+
+    public abstract Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents );
 }
 
 /**
@@ -289,12 +310,20 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
 public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 {
     public SmsStorage storage { get; set; }
+    private uint16 increasingReferenceNumber;
 
     public AtSmsHandler()
     {
-        theModem.signalStatusChanged += onModemStatusChanged;
-
-        var smsstoragedir = config.stringValue( "fsogsmd", "sms_storage", "/tmp/fsogsmd/sms" );
+        //FIXME: Use random init or read from file, so that it is increasing even during relaunches
+        increasingReferenceNumber = 0;
+        if ( theModem != null )
+        {
+            theModem.signalStatusChanged += onModemStatusChanged;
+        }
+        else
+        {
+            logger.error( "Handler created before modem was created" );
+        }
     }
 
     private override string repr()
@@ -312,6 +341,51 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
             default:
                 break;
         }
+    }
+
+    public uint16 nextReferenceNumber()
+    {
+        return ++increasingReferenceNumber;
+    }
+
+    public Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents )
+    {
+        uint16 inref = nextReferenceNumber();    
+        int byteOffsetForRefnum;
+
+        var hexpdus = new Gee.ArrayList<WrapHexPdu>();
+
+        var smslist = Sms.text_prepare( contents, inref, true, out byteOffsetForRefnum );
+#if DEBUG
+        debug( "message prepared in %u smses", smslist.length() );
+#endif
+
+        for( int i = 0; i < smslist.length(); ++i )
+        {
+#if DEBUG
+            debug( "processing element %p", smslist.nth_data( i ) );
+#endif
+            unowned Sms.Message msgelement = (Sms.Message) smslist.nth_data( i );
+            var tpdulen = 0;
+            var hexpdu = msgelement.toHexPdu( out tpdulen );
+            assert( tpdulen > 0 );
+            hexpdus.add( new WrapHexPdu( hexpdu, tpdulen ) );
+        }
+
+/*
+        smslist.foreach ( (element) => {
+            debug( "processing element %p", element );
+        
+            unowned Sms.Message msgelement = (Sms.Message) element;
+            var tpdulen = 0;
+            var hexpdu = msgelement.toHexPdu( out tpdulen );
+            assert( tpdulen > 0 );
+            hexpdus.add( new WrapHexPdu( hexpdu, tpdulen ) );
+        } );
+        */
+
+        debug( "message encoded in %u hexpdus", hexpdus.size );
+        return hexpdus;
     }
 
     public async void simIsReady()

@@ -418,12 +418,10 @@ public class PlusCMGS : AbstractAtCommand
         prefix = { "+CMGS: " };
     }
 
-    /*
-    public string issue( ShortMessage.HexPdu hexpdu )
+    public string issue( WrapHexPdu pdu )
     {
-        return "AT+CMGS=%d\r\n%s%c".printf( hexpdu.tpdulen, hexpdu.pdu, '\x1A' );
+        return "AT+CMGS=%u\r\n%s%c".printf( pdu.tpdulen, pdu.hexpdu, '\x1A' );
     }
-    */
 
     public override string get_prefix() { return ""; }
     public override string get_postfix() { return ""; }
@@ -473,6 +471,14 @@ public class PlusCMTI : AbstractAtCommand
         index = to_int( "id" );
     }
     // unsolicited only, not a command
+}
+
+public class PlusCMMS : SimpleAtCommand<int>
+{
+    public PlusCMMS()
+    {
+        base( "+CMMS" );
+    }
 }
 
 public class PlusCMUT : SimpleAtCommand<int>
@@ -971,6 +977,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CMGL" ]             = new FsoGsm.PlusCMGL();
     table[ "+CMGR" ]             = new FsoGsm.PlusCMGR();
     table[ "+CMGS" ]             = new FsoGsm.PlusCMGS();
+    table[ "+CMMS" ]             = new FsoGsm.PlusCMMS();
     table[ "+CMTI" ]             = new FsoGsm.PlusCMTI();
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
 

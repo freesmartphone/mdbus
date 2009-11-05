@@ -93,6 +93,25 @@ internal void checkMultiResponseValid( FsoGsm.AtCommand command, string[] respon
     }
 }
 
+internal void validatePhoneNumber( string number ) throws FreeSmartphone.Error
+{
+    if ( number == "" )
+    {
+        throw new FreeSmartphone.Error.INVALID_PARAMETER( "Number too short" );
+    }
+
+    for ( var i = ( number[0] == '+' ? 1 : 0 ); i < number.length; ++i )
+    {
+        if (number[i] >= '0' && number[i] <= '9')
+                continue;
+
+        if (number[i] == '*' || number[i] == '#')
+                continue;
+
+        throw new FreeSmartphone.Error.INVALID_PARAMETER( "Number contains invalid character '%c' at position %u", number[i], i );
+    }
+}
+
 /**
  * Modem facilities helpers
  **/
@@ -754,6 +773,7 @@ public class AtSimSetServiceCenterNumber : SimSetServiceCenterNumber
 {
     public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        validatePhoneNumber( number );
         var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( number ) );
         checkResponseOk( cmd, response );
@@ -777,11 +797,8 @@ public class AtSmsGetSizeForMessage : SmsGetSizeForMessage
 {
     public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        /*
-        uint8 refnum;
-        var hexpdus = ShortMessage.formatTextMessage( "+123456789", contents, out refnum );
-        size = hexpdus.length;
-        */
+        var hexpdus = theModem.smshandler.formatTextMessage( "+123456789", contents );
+        size = hexpdus.size;
     }
 }
 
@@ -789,20 +806,19 @@ public class AtSmsSendMessage : SmsSendMessage
 {
     public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        /*
-        //FIXME: validate number
+        validatePhoneNumber( recipient_number );
         assert( contents != "" ); // only text messages supported for now
-        uint8 refnum;
-        var hexpdus = ShortMessage.formatTextMessage( recipient_number, contents, out refnum );
-        for ( var i = 0; i < hexpdus.length; ++i )
+        uint8 refnum = 0;
+
+        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents );
+        foreach( var hexpdu in hexpdus )
         {
             var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
-            var response = yield theModem.processPduCommandAsync( cmd, cmd.issue( hexpdus[i] ) );
-            //checkResponseOk( cmd, response );
+            var response = yield theModem.processPduCommandAsync( cmd, cmd.issue( hexpdu ) );
+            checkResponseOk( cmd, response );
         }
         transaction_index = refnum;
         timestamp = "now";
-        */
     }
 }
 
@@ -921,6 +937,7 @@ public class AtCallInitiate : CallInitiate
 {
     public override async void run( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        validatePhoneNumber( number );
         id = yield theModem.callhandler.initiate( number, ctype );
     }
 }
