@@ -1,4 +1,4 @@
-AC_INIT([libfsoresource], [0.1.0.0], [smartphones-userland@linuxtogo.org], [libfsoresource])
+AC_INIT([libfsoresource], [0.1.1], [smartphones-userland@linuxtogo.org], [libfsoresource])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
