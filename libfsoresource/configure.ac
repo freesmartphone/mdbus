@@ -2,6 +2,7 @@ AC_INIT([libfsoresource], [0.1.1], [smartphones-userland@linuxtogo.org], [libfso
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
