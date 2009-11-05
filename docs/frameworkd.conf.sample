@@ -10,26 +10,85 @@ log_to = stderr
 # Override via environment as FSO_LOG_DESTINATION
 log_destination = /tmp/frameworkd.log
 
+########################################################################################
+#                 F R E E   S M A R T P H O N E   O R G      -2-
+########################################################################################
+# To enable a subsystem, create an empty group for it, e.g. [fsodevice]
+# To enable a plugin, create an empty group for it, e.g. [fsodevice.alsa_audio]
+# log_level and friends belong in the daemon configuration, e.g. [fsodeviced]
+# (note the additional 'd')
+# Note that plugins are loaded in the order of declaration! Do NOT reorder lightheartedly.
 #
-# FSO2
-#
+
 [cornucopia]
 # Can use this to inject another sysfs root, e.g. for development
 #sysfs_root = /mnt/neo/sys
 
+[libfsotransport]
+log_level = INFO
+log_to = stderr:colors
+
+[libfsoframework]
+log_level = DEBUG
+log_to = stderr:colors
+
+[fsodeviced]
+log_level = DEBUG
+log_to = stderr:colors
+
+
+########################################################################################
+# FSO Usage Daemon
+########################################################################################
+
+[fsousage]
+# Which low level suspend/resume variant to use: none (default), kernel26, openmoko
+#lowlevel_type = kernel26
+lowlevel_type = openmoko
+# FOR DEBUGGING ONLY: Do not suspend, but instead sleep a couple of seconds
+debug_do_not_suspend = 1
+# FOR DEBUGGING ONLY: Enable every registered resource on startup
+debug_enable_on_startup = 1
+# FOR DEBUGGING ONLY: Whether resource activation should be synchronized with the registration lifecycle: always (default), startup, shutdown, never
+sync_resources_with_lifecycle=never
+
+[fsousage.dbus_service]
+[fsousage.lowlevel_kernel26]
+[fsousage.lowlevel_openmoko]
+
+
+#######################################################################################
+# FSO Device Daemon
+########################################################################################
+
 [fsodevice]
+# no settings yet
+
+[fsodevice.accelerometer]
+# Which accelerometer variant plugin to use: none (default) lis302
+#device_type = lis302
+
+[fsodevice.accelerometer_lis302]
+# Which input node to read from
+inputnode = /input/event3
 
 [fsodevice.alsa_audio]
+# No settings yet
 
 [fsodevice.kernel26_display]
+# No settings yet
 
 [fsodevice.kernel26_leds]
+# No settings yet
 
 [fsodevice.kernel26_powersupply]
+# No settings yet
 
 [fsodevice.kernel26_rtc]
+# No settings yet
 
 [fsodevice.kernel_info]
+# No settings yet
 
 [fsodevice.kernel_input]
 # Which input objects to ignore (by product id substring)
@@ -47,6 +106,45 @@ log_destination = /tmp/frameworkd.log
 # Which input objects to ignore (by physical path substring)
 #ignore_by_path = usb
 
+########################################################################################
+# FSO Network Daemon
+########################################################################################
+
+[fsonetworkd]
+log_level = DEBUG
+log_to = stderr:colors
+
+[fsonetwork]
+# No settings yet
+
+[fsonetwork.sharing]
+# No settings yet
+
+
+########################################################################################
+# FSO Time Daemon
+########################################################################################
+
+[fsotimed]
+log_level = DEBUG
+log_to = stderr:colors
+
+[fsotime]
+# No settings yet
+
+[fsotime.alarm]
+# No settings yet
+
+
+
+########################################################################################
+# FSO GSM Daemon
+########################################################################################
+
+[fsogsmd]
+log_level = DEBUG
+log_to = stderr:colors
+
 [fsogsm]
 # Which modem to use: singleline, ti_calypso, freescale_neptune, cinterion_mc75, qualcomm_msm
 modem_type = singleline
@@ -54,14 +152,52 @@ modem_type = singleline
 modem_transport = serial
 # Which port to communicate with: <serial port> or <filename>
 modem_port = /dev/ttyUSB0
-# Which speed to use for the transport and the port
+# Which speed to use for the transport/port
 modem_speed = 115200
 
+# Modem init strings to send; note that it is modem-specific whether these settings are used or not
+modem_init = E0V1;+CMEE=1;+CRC=1;+CSCS="UCS2"
+# Channel init string to send (per channel)
+channel_init_main = +CSNS=0;+CMGF=0;+CLIP=1
+# Channel unlock string to send (per channel)
+channel_unlocked_main = +SIM_NOW_UNLOCKED;+CSDH=1;+COLP=1;+CCWA=1;+CNMI=2,1,2,2,1
+# Channel registered string to send (per channel)
+channel_registered_main = +NET_NOW_REGISTERED
+# Channel suspend string to send (per channel)
+channel_suspend_main = +PREPARE_FOR_SUSPEND
+# Channel resume string to send (per channel)
+channel_resume_main = +RECOVER_AFTER_RESUME
+
 [fsogsm.modem_singleline]
+# No settings yet
 
 [fsogsm.modem_cinterion_mc75]
+# No settings yet
 
 [fsogsm.modem_ti_calypso]
+# No settings yet
 
-[fsogsm.gsm_device]
+[fsogsm.dbus_service]
+# No settings yet
 
+########################################################################################
+# FSO GPS Daemon
+########################################################################################
+
+[fsogpsd]
+log_level = DEBUG
+log_to = stderr:colors
+
+[fsogps]
+# Which receiver to use: nmea
+receiver_type = nmea
+# Which transport channel: serial, pty, socket
+receiver_transport = serial
+# Which port to communicate with: <serial port> or <filename>
+receiver_port = /dev/rfcomm0
+# Which speed to use for the transport/port
+receiver_speed = 115200
+
+[fsogps.dbus_service]
+
+[fsogps.receiver_nmea]
