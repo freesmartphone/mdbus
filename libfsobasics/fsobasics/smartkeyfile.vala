@@ -44,7 +44,9 @@ public class FsoFramework.SmartKeyFile : Object
         }
         catch ( Error e )
         {
-            message( "can't load keyfile from '%s': %s".printf( filename, e.message ) );
+#if DEBUG
+            warning( "can't load keyfile from '%s': %s".printf( filename, e.message ) );
+#endif
             return false;
         }
         loaded = true;
@@ -93,7 +95,9 @@ public class FsoFramework.SmartKeyFile : Object
         }
         else
         {
+#if DEBUG
             warning( "SmartKeyFile::getValue: unknown type code '%d'. Returning default value", typeof(T) );
+#endif
             return defaultvalue;
         }
     }
