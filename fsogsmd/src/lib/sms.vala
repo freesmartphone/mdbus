@@ -115,7 +115,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
 
     public void clean()
     {
-        //NYI
+        FsoFramework.FileHandling.removeTree( this.storagedir );
     }
 
     /**
