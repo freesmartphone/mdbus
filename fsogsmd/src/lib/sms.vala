@@ -21,6 +21,7 @@ using Gee;
 
 namespace FsoGsm {
 
+    public const string CONFIG_SECTION = "fsogsm";
     public const string SMS_STORAGE_DEFAULT_STORAGE_DIR = "/tmp/fsogsmd/sms";
     public const int SMS_STORAGE_DIRECTORY_PERMISSIONS = (int)Posix.S_IRUSR|Posix.S_IWUSR|Posix.S_IXUSR|Posix.S_IRGRP|Posix.S_IXGRP|Posix.S_IROTH|Posix.S_IXOTH;
 
@@ -103,7 +104,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     public SmsStorage( string imsi )
     {
         this.imsi = imsi;
-        storagedirprefix = config.stringValue( "sms_storage_dir", SMS_STORAGE_DEFAULT_STORAGE_DIR );      
+        storagedirprefix = config.stringValue( CONFIG_SECTION, "sms_storage_dir", SMS_STORAGE_DEFAULT_STORAGE_DIR );
         this.storagedir = GLib.Path.build_filename( storagedirprefix, imsi );
         GLib.DirUtils.create_with_parents( storagedir, SMS_STORAGE_DIRECTORY_PERMISSIONS );
         logger.info( @"Created w/ storage dir $(this.storagedir)" );

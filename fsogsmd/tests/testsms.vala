@@ -106,7 +106,9 @@ void test_sms_decode_deliver_single_default_alphabet()
     assert( !udhi );
 }
 
+//===========================================================================
 void test_sms_decode_deliver_single_concatenated_default_alphabet()
+//===========================================================================
 {
     Sms.Message sms = Sms.Message.newFromHexPdu( "0791947101670000440C91947120270030000090010321614440A0050003040B02C6683A885C978FD1A034DA0D4297E5E1FADC9C7693CB6ED09AEF7697DD2CD0BCCC16CFE9A07BD9ED06CDD365505A7E2EBBC9F7B0DB0D9A97D36E50B41E96D3D36539A82C37BFD96779393D4683EC65F93DECD6D341E83D9D5E76BB14CCB79BFC06A1C3747A19242D8FD1741039DC4ED3592072D803B2A6E520F77B8C06B9D363341D242ECBCB", 159 );
 
@@ -152,7 +154,9 @@ void test_sms_decode_deliver_single_concatenated_default_alphabet()
     */
 }
 
+//===========================================================================
 void test_sms_decode_deliver_multiple_concatenated_default_alphabet()
+//===========================================================================
 {
     for( int i = 0; i < pdulengths1.length; ++i )
     {
@@ -167,7 +171,9 @@ void test_sms_decode_deliver_multiple_concatenated_default_alphabet()
     }
 }
 
+//===========================================================================
 void test_sms_decode_deliver_whole_concatenated_default_alphabet()
+//===========================================================================
 {
     var smses = new Sms.Message[pdulengths1.length] {};
 
@@ -188,10 +194,9 @@ void test_sms_decode_deliver_whole_concatenated_default_alphabet()
     assert( text.has_suffix( "zwischen Delenn und Lennier angedeutet zu werden." ) );
 }
 
-/******************************************************************************************
- ******************************************************************************************/
-
+//===========================================================================
 void test_sms_encode_submit_single_default_alphabet()
+//===========================================================================
 {
     int offset;
     smslist = Sms.text_prepare( SHORT_TEXT, 0, true, out offset );
@@ -212,7 +217,9 @@ void test_sms_encode_submit_single_default_alphabet()
     assert( !udhi );
 }
 
+//===========================================================================
 void test_sms_encode_submit_concatenated_default_alphabet()
+//===========================================================================
 {
     SmsHandler handler = new AtSmsHandler();
     var pdu = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT );
@@ -228,41 +235,9 @@ void test_sms_encode_submit_concatenated_default_alphabet()
     assert( pdu[3].tpdulen == LONG_TEXT_PDULENS[3] );
 }
 
-/******************************************************************************************
- ******************************************************************************************/
-void test_sms_extraction()
-{
-    /*
-    int dst;
-    int src;
-    bool is_8bit;
-
-    //assert( sms.extract_app_port( out dst, out src, out is_8bit ) );
-
-    for( uint8 refnum = 0; refnum < 65535; ++refnum )
-    {
-        int offset;
-        smslist = Sms.text_prepare( LONG_TEXT, refnum, true, out offset );
-
-        uint16 ref_num = 0;
-        uint8 max_msgs = 0;
-        uint8 seq_num  = 0;
-
-        for( int i = 0; i < smslist.length(); ++i )
-        {
-            unowned Sms.Message sms = *( (Sms.Message*) smslist.nth_data( i ) );
-            assert( sms.extract_concatenation( out ref_num, out max_msgs, out seq_num ) );
-            assert( max_msgs == smslist.length() );
-            assert( seq_num == i+1 );
-        }
-        message( "ref_num = %u", ref_num );
-        assert( ref_num == refnum );
-    }
-    //assert( sms.extract_language_variant( out uint8 locking, out uint8 single );
-    */
-}
-
+//===========================================================================
 void test_fso_sms_storage_new()
+//===========================================================================
 {
     var storage = new SmsStorage( IMSI );
 }
@@ -282,7 +257,9 @@ void test_fso_sms_storage_add_single()
     assert( storage.addSms( sms ) == SmsStorage.SMS_ALREADY_SEEN );
 }
 
+//===========================================================================
 void test_fso_sms_storage_add_concatenated()
+//===========================================================================
 {
     var storage = new SmsStorage( IMSI );
     storage.clean();
@@ -301,7 +278,6 @@ void test_fso_sms_storage_add_concatenated()
     assert( storage.addSms( smses[pdulengths1.length-1] ) == pdulengths1.length );
 }
 
-
 //===========================================================================
 void main( string[] args )
 //===========================================================================
@@ -315,16 +291,11 @@ void main( string[] args )
 
     Test.add_func( "/3rdparty/Sms/Encode/Submit/Single/DefaultAlphabet", test_sms_encode_submit_single_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Encode/Submit/Concatenated/DefaultAlphabet", test_sms_encode_submit_concatenated_default_alphabet );
-    //Test.add_func( "/3rdparty/Sms/Encode/Submit/Multiple/Concatenated/DefaultAlphabet", test_sms_encode_submit_multiple_concatenated_default_alphabet );
-    //Test.add_func( "/3rdparty/Sms/Encode/Submit/Whole/Concatenated/DefaultAlphabet", test_sms_encode_submit_whole_concatenated_default_alphabet );
 
-
-#if FOO
     Test.add_func( "/Fso/Sms/Storage/New", test_fso_sms_storage_new );
     //Test.add_func( "/Fso/Sms/Storage/Existing", test_fso_sms_storage_new_existing );
     Test.add_func( "/Fso/Sms/Storage/Add/Single", test_fso_sms_storage_add_single );
     Test.add_func( "/Fso/Sms/Storage/Add/Concatenated", test_fso_sms_storage_add_concatenated );
-    //Test.add_func( "/Fso/Sms/Storage/Add/Random", test_fso_sms_storage_add_random );
-#endif
+
     Test.run();
 }
