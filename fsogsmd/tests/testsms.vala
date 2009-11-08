@@ -95,7 +95,7 @@ void test_sms_decode_deliver_single_default_alphabet()
     assert( sms.to_string() == "Hoffentlich diesmal mit ACKPDU" );
 
     bool udhi;
-    uint dcs;
+    uint8 dcs;
     uint8 max;
 
     var ud = sms.extract_common( out udhi, out dcs, out max );
@@ -122,7 +122,7 @@ void test_sms_decode_deliver_single_concatenated_default_alphabet()
     assert( sms.deliver.scts.timezone  == +4 );
 
     bool udhi;
-    uint dcs;
+    uint8 dcs;
     uint8 max;
     var ud = sms.extract_common( out udhi, out dcs, out max );
 
@@ -201,7 +201,7 @@ void test_sms_encode_submit_single_default_alphabet()
     assert( sms.to_string() == SHORT_TEXT );
 
     bool udhi;
-    uint dcs;
+    uint8 dcs;
     uint8 max;
 
     var ud = sms.extract_common( out udhi, out dcs, out max );
