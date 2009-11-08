@@ -50,8 +50,8 @@ void test_utilities_filehandling_remove_tree()
 //===========================================================================
 {
     assert( !FileHandling.removeTree( "this_tree_not_existing" ) );
-    DirUtils.create_with_parents( "/this/tree/existing", 0777 );
-    assert( !FileHandling.removeTree( "this" ) );
+    DirUtils.create_with_parents( "./this/tree/existing", 0777 );
+    assert( FileHandling.removeTree( "this" ) );
 }
 
 //===========================================================================

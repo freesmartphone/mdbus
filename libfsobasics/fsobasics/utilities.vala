@@ -15,7 +15,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
- */
+ **/
 
 internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
 internal const string PROC_SELF_EXE     = "/proc/self/exe";
@@ -29,30 +29,46 @@ namespace FsoFramework { namespace FileHandling {
 
 public bool removeTree( string path )
 {
+#if DEBUG
+    debug( "removeTree: %s", path );
+#endif
     var dir = Posix.opendir( path );
     if ( dir == null )
     {
+#if DEBUG
+        debug( "can't open dir: %s", path );
+#endif
         return false;
     }
     for ( unowned Posix.DirEnt entry = Posix.readdir( dir ); entry != null; entry = Posix.readdir( dir ) )
     {
-        switch ( entry.d_type )
+        if ( ( "." == (string)entry.d_name ) || ( ".." == (string)entry.d_name ) )
         {
-            case Linux.DirEntType.DT_REG:
-                if ( Posix.unlink( "%s/%s".printf( path, (string)entry.d_name ) ) != 0 )
-                {
-                    return false;
-                }
-                break;
-            case Linux.DirEntType.DT_DIR:
-                if ( removeTree( "%s/%s".printf( path, (string)entry.d_name ) ) )
-                {
-                    return false;
-                }
-                break;
-            default:
-                return false;
+#if DEBUG
+            debug( "skipping %s", (string)entry.d_name );
+#endif
+            continue;
         }
+#if DEBUG
+        debug( "processing %s", (string)entry.d_name );
+#endif
+        var result = Posix.unlink( "%s/%s".printf( path, (string)entry.d_name ) );
+        if ( result == 0 )
+        {
+#if DEBUG
+            debug( "%s removed", (string)entry.d_name );
+#endif
+            continue;
+        }
+        if ( Posix.errno == Posix.EISDIR )
+        {
+            if ( !removeTree( "%s/%s".printf( path, (string)entry.d_name ) ) )
+            {
+                return false;
+            }
+            continue;
+        }
+        return false;
     }
     return true;
 }
