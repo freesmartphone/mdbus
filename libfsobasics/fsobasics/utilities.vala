@@ -27,6 +27,36 @@ namespace FsoFramework { namespace FileHandling {
 
 //Logger logger = createLogger( "utilities" );
 
+public bool removeTree( string path )
+{
+    var dir = Posix.opendir( path );
+    if ( dir == null )
+    {
+        return false;
+    }
+    for ( unowned Posix.DirEnt entry = Posix.readdir( dir ); entry != null; entry = Posix.readdir( dir ) )
+    {
+        switch ( entry.d_type )
+        {
+            case Linux.DirEntType.DT_REG:
+                if ( Posix.unlink( "%s/%s".printf( path, (string)entry.d_name ) ) != 0 )
+                {
+                    return false;
+                }
+                break;
+            case Linux.DirEntType.DT_DIR:
+                if ( removeTree( "%s/%s".printf( path, (string)entry.d_name ) ) )
+                {
+                    return false;
+                }
+                break;
+            default:
+                return false;
+        }
+    }
+    return true;
+}
+
 public bool isPresent( string filename )
 {
     Posix.Stat structstat;

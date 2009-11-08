@@ -137,7 +137,7 @@ public interface FsoFramework.Logger : Object
                 theLogger = logger;
                 break;
             default:
-                GLib.warning( @"Don't know how to instanciate logger type $log_to. Using StderrLogger.", log_to );
+                GLib.warning( @"Don't know how to instanciate logger type $log_to. Using StderrLogger." );
                 var logger = new StdErrLogger( domain );
                 theLogger = logger;
                 break;
