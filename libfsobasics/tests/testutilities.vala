@@ -98,6 +98,14 @@ void test_utilities_utility_prefix_for_executable()
 }
 
 //===========================================================================
+void test_utilities_utility_create_backtrace()
+//===========================================================================
+{
+    var backtrace = Utility.createBacktrace();
+    assert( backtrace.length > 2 );
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -112,6 +120,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/Network/ipv4AddressForInterface", test_utilities_network_ipv4address_for_interface );
     Test.add_func( "/Utilities/Utility/programName", test_utilities_utility_program_name );
     Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );
+    Test.add_func( "/Utilities/Utility/createBacktrace", test_utilities_utility_create_backtrace );
 
     Test.run();
 }
