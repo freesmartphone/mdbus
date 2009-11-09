@@ -84,7 +84,7 @@ public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractOb
         if ( !(FsoFramework.FileHandling.isPresent( Path.build_filename( sys_class_net, iface ) ) ) )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Interface %s not present".printf( iface ) );
 
-        string ip = FsoFramework.Network.ipv4AddressForInterface( iface );
+        string ip = FsoNetwork.ipv4AddressForInterface( iface );
         if (ip == "")
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Interface %s not ready".printf( iface ) );
 

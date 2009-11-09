@@ -5,6 +5,7 @@ NULL =
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
+	$(LIBNL_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(NULL)
 
@@ -15,7 +16,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsonetwork_la_VALASOURCES = \
-	dummy.vala \
+	utils.vala \
 	$(NULL)
 
 libfsonetwork_la_SOURCES = \
@@ -31,7 +32,8 @@ $(BUILT_SOURCES): $(libfsonetwork_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) \
 	            --vapidir $(top_srcdir)/vapi \
 	            --pkg posix \
-	            --pkg posixextra \
+	            --pkg linux \
+	            --pkg libnl-2.0 \
 	            --pkg glib-2.0 \
 	            --pkg gio-2.0 \
 	            --header fsonetwork.h \
@@ -40,6 +42,7 @@ $(BUILT_SOURCES): $(libfsonetwork_la_VALASOURCES)
 
 libfsonetwork_la_LIBADD = \
 	$(FSO_LIBS) \
+	$(LIBNL_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 
