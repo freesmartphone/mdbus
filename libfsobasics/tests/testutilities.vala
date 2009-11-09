@@ -76,14 +76,6 @@ void test_utilities_stringhandling_enum()
 }
 
 //===========================================================================
-void test_utilities_network_ipv4address_for_interface()
-//===========================================================================
-{
-    assert( Network.ipv4AddressForInterface( "lo" ) == "127.0.0.1" );
-    assert( Network.ipv4AddressForInterface( "murks1" ) == "unknown" );
-}
-
-//===========================================================================
 void test_utilities_utility_program_name()
 //===========================================================================
 {
@@ -117,7 +109,6 @@ void main( string[] args )
     Test.add_func( "/Utilities/FileHandling/RemoveTree", test_utilities_filehandling_remove_tree );
     Test.add_func( "/Utilities/StringHandling/List", test_utilities_stringhandling_list );
     Test.add_func( "/Utilities/StringHandling/Enum", test_utilities_stringhandling_enum );
-    Test.add_func( "/Utilities/Network/ipv4AddressForInterface", test_utilities_network_ipv4address_for_interface );
     Test.add_func( "/Utilities/Utility/programName", test_utilities_utility_program_name );
     Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );
     Test.add_func( "/Utilities/Utility/createBacktrace", test_utilities_utility_create_backtrace );

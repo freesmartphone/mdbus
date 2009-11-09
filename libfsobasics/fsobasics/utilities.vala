@@ -240,24 +240,6 @@ public string enumToString( Type enum_type, int value )
 
 } }
 
-namespace FsoFramework { namespace Network {
-
-    public string ipv4AddressForInterface( string iface )
-    {
-        var fd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
-        assert( fd != -1 );
-
-        Linux.Network.IfReq ifreq = {};
-        Posix.memcpy( ifreq.ifr_name, iface, 16 );
-        var ok = Posix.ioctl( fd, Linux.Network.SIOCGIFADDR, &ifreq );
-        if ( ok < 0 )
-            return "unknown";
-
-        return "%s".printf( PosixExtra.inet_ntoa( ((PosixExtra.SockAddrIn*)(&ifreq.ifr_addr))->sin_addr ) );
-    }
-
-} }
-
 namespace FsoFramework { namespace Utility {
 
     const uint BUF_SIZE = 1024; // should be Posix.PATH_MAX
@@ -302,7 +284,6 @@ namespace FsoFramework { namespace Utility {
     public string[] createBacktrace()
     {
         string[] result = new string[] { };
-#if HAVE_LINUX_BACKTRACE
         void* buffer = malloc0( BACKTRACE_SIZE * sizeof(string) );
         var size = Linux.backtrace( buffer, BACKTRACE_SIZE );
         string[] symbols = Linux.backtrace_symbols( buffer, size );
@@ -312,7 +293,6 @@ namespace FsoFramework { namespace Utility {
             result += "%s\n".printf( symbols[i] );
         }
         result += "--- END BACKTRACE ---\n";
-#endif
         return result;
     }
 } }
