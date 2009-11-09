@@ -75,8 +75,8 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
         var address = addresses.nth_data(0);
         logger.info( "Resolved $name to $address" );
 
-        PosixExtra.InAddr inaddr = { 0 };
-        var res = PosixExtra.inet_aton( address.to_string(), out inaddr );
+        Posix.InAddr inaddr = { 0 };
+        var res = Linux.inet_aton( address.to_string(), out inaddr );
         if ( res == -1 )
         {
             logger.error( "Could not convert address: %s".printf( Posix.strerror( Posix.errno ) ) );
