@@ -24,25 +24,49 @@ using FsoTime;
 namespace NetworkTimeProtocol {
     const string MODULE_NAME = "fsotime.source_ntp";
     const string DEFAULT_SERVER = "pool.ntp.org";
-    const uint PACKET_LENGTH = 48;
     const uint16 PORT = 123;
+    const uint32 BASETIME = (uint32) 2208988800;
+
+    struct TimeStamp
+    {
+        uint32 secs;
+        uint32 usecs;
+    }
+
+    struct Packet
+    {
+        uint8 flags;
+        uint8 stratum;
+        uint8 poll;
+        int8 precision;
+        int root_delay;
+        int root_dispersion;
+        char refaddr[4];
+        TimeStamp reference;
+        TimeStamp originate;
+        TimeStamp received;
+        TimeStamp transmit;
+    } /* size == 48 */
 }
 
 class Source.Ntp : FsoTime.AbstractSource
 {
     private string servername;
     private InetAddress serveraddr;
-    private char[] request;
     private Socket socket;
 
     private IOChannel channel;
     private uint watch;
 
+    private NetworkTimeProtocol.Packet request;
+    private NetworkTimeProtocol.Packet packet;
+
     construct
     {
         servername = config.stringValue( "fsotime", "ntp_server", NetworkTimeProtocol.DEFAULT_SERVER );
-        request = new char[48];
-        request[0] = '\x1b'; // GET TIMESTAMP
+        request = NetworkTimeProtocol.Packet() { flags = 0x1b };
+        packet = NetworkTimeProtocol.Packet();
+        assert( 48 == sizeof( NetworkTimeProtocol.Packet ) );
 
         Idle.add( () => { triggerQuery(); return false; } );
     }
@@ -65,7 +89,7 @@ class Source.Ntp : FsoTime.AbstractSource
         }
 
         var targetaddr = new InetSocketAddress( serveraddr, NetworkTimeProtocol.PORT );
-	    var sent = socket.send_to( targetaddr, (string)request, NetworkTimeProtocol.PACKET_LENGTH, null );
+	    var sent = socket.send_to( targetaddr, (string)(&request), sizeof( NetworkTimeProtocol.Packet ), null );
 	    assert( logger.debug( @"Sent $sent bytes to socket to request NTP timestamp." ) );
 
         channel = new IOChannel.unix_new( socket.fd );
@@ -85,14 +109,33 @@ class Source.Ntp : FsoTime.AbstractSource
         if ( ( condition & IOCondition.IN ) == IOCondition.IN )
         {
       	    unowned SocketAddress reply_address;
-            var buffer = new char[NetworkTimeProtocol.PACKET_LENGTH];
-	    
-            var received = socket.receive_from( out reply_address, (string)buffer, NetworkTimeProtocol.PACKET_LENGTH, null );
+            var received = socket.receive_from( out reply_address, (string)(&packet), sizeof( NetworkTimeProtocol.Packet ), null );
             assert( logger.debug( @"Received $received bytes from socket." ) );
+            Idle.add( handleUpdatePacket );
             return true;
         }
 
         logger.warning( "onIncomingSocketData called with unknown condition %d".printf( condition ) );
+        return false;
+    }
+
+    private bool handleUpdatePacket()
+    {
+        uint32 tempstmp = Posix.ntohl( packet.transmit.secs );
+        uint32 tempfrac = Posix.ntohl( packet.transmit.usecs );
+
+        time_t temptime = tempstmp - NetworkTimeProtocol.BASETIME;
+        var bd = Time.gm( temptime );
+        var fractime = bd.second + tempfrac / 4294967296.0;
+
+        logger.info( "NTP: %04d-%02d-%02d %02d:%02d:%07.4f UTC".printf(
+            bd.year + 1900,
+            bd.month,
+            bd.day,
+            bd.hour,
+			bd.minute,
+            fractime ) );
+
         return false;
     }
 
