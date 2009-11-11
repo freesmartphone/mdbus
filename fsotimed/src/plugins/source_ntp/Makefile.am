@@ -1,5 +1,4 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AM_CPPFLAGS = \

@@ -17,26 +17,21 @@
  *
  */
 
-using Gee;
+using GLib;
+using FsoTime;
 
-namespace FsoTime { public FsoTime.Source theSource; }
-
-public interface FsoTime.Source : FsoFramework.AbstractObject
+//===========================================================================
+void test_it()
+//===========================================================================
 {
-    public abstract void triggerQuery();
+    var source = new Source.Ntp();
 }
 
-public abstract class FsoTime.AbstractSource : FsoTime.Source, FsoFramework.AbstractObject
+//===========================================================================
+void main (string[] args)
+//===========================================================================
 {
-    public abstract void triggerQuery();
-
-    construct
-    {
-    }
-
-    ~AbstractSource()
-    {
-    }
-
+    Test.init (ref args);
+    Test.add_func( "/FsoTime/SourceNtp/all", test_it );
+    Test.run ();
 }
-
