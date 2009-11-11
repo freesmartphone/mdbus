@@ -21,7 +21,8 @@ using GLib;
 
 using FsoTime;
 
-namespace NetworkTimeProtocol {
+namespace NetworkTimeProtocol
+{
     const string MODULE_NAME = "fsotime.source_ntp";
     const string DEFAULT_SERVER = "pool.ntp.org";
     const uint16 PORT = 123;
@@ -125,6 +126,10 @@ class Source.Ntp : FsoTime.AbstractSource
         uint32 tempfrac = Posix.ntohl( packet.transmit.usecs );
 
         time_t temptime = tempstmp - NetworkTimeProtocol.BASETIME;
+
+        this.reportTime( (int)temptime, this ); // SIGNAL
+
+        // the rest is just for debugging
         var bd = Time.gm( temptime );
         var fractime = bd.second + tempfrac / 4294967296.0;
 

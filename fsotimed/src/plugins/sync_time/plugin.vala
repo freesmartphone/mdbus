@@ -72,12 +72,29 @@ class SyncTime.Service : FsoFramework.AbstractObject
         }
         sources[name] = (FsoTime.Source) Object.new( sourceclass );
         logger.info( @"Added source $name ($typename)" );
+        sources[name].reportTime.connect( onTimeReport );
+        sources[name].reportZone.connect( onZoneReport );
     }
 
     public override string repr()
     {
         return @"<$(sources.size)>";
     }
+
+    public void onTimeReport( int since_epoch, FsoTime.Source source )
+    {
+        time_t now = time_t();
+        int offset = since_epoch-(int)now;
+
+        assert( logger.debug( "%s reports %u, we think %u, offset = %d".printf( ((FsoFramework.AbstractObject)source).classname, (uint)since_epoch, (uint)now, (int)offset ) ) );
+    }
+
+    public void onZoneReport( int zone, FsoTime.Source source )
+    {
+        //FIXME: Implement
+        assert( logger.debug( "%s reports time zone %d".printf( ((FsoFramework.AbstractObject)source).classname, zone ) ) );
+    }
+
 }
 
 SyncTime.Service service;
