@@ -1,7 +1,7 @@
 NULL =
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir) \
+	-I$(top_srcdir)/src/lib \
 	$(FSO_GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
