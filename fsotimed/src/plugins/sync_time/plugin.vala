@@ -19,62 +19,68 @@
 
 using GLib;
 
-namespace DBusService {
+namespace SyncTime {
     const string MODULE_NAME = "fsotime.sync_time";
 }
 
-class DBusService.Device :
-    FsoFramework.AbstractObject
+class SyncTime.Service : FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
-    private static FsoTime.Source Source;
-    public static Type Sourceclass;
+    private Gee.HashMap<string,FsoTime.Source> sources;
 
-    public Device( FsoFramework.Subsystem subsystem )
+    public Service( FsoFramework.Subsystem subsystem )
     {
-        var gpstype = config.stringValue( "fsotime", "Source_type", "DummySource" );
-        if ( gpstype == "DummySource" )
+        sources = new Gee.HashMap<string,FsoTime.Source>();
+        var sourcenames = config.stringListValue( "fsotime", "sources", {} );
+        foreach ( var source in sourcenames )
         {
-            logger.critical( "Source_type not specified and DummySource not implemented yet" );
-            return;
-        }
-        string typename;
-
-        switch ( gpstype )
-        {
-            case "nmea":
-                typename = "NmeaSource";
-                break;
-            default:
-                logger.critical( "Invalid Source_type '%s'; corresponding Source plugin loaded?".printf( gpstype ) );
-                return;
-        }
-
-        Sourceclass = Type.from_name( typename );
-        if ( Sourceclass == Type.INVALID  )
-        {
-            logger.warning( "Can't find Source for Source_type = '%s'".printf( gpstype ) );
-            return;
+            addSource( source );
         }
 
         /*
-        subsystem.registerServiceName( FsoFramework.GPS.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.GPS.ServiceDBusName, FsoFramework.GPS.DeviceServicePath, this );
+        subsystem.registerServiceName( FsoFramework.Time.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Time.ServiceDBusName, FsoFramework.Time.DeviceServicePath, this );
         */
 
-        //logger.info( "Ready. Configured for Source '%s'".printf( gpstype ) );
+        logger.info( @"Ready. Configured for $(sources.size) sources" );
+    }
+
+    public void addSource( string name )
+    {
+        var typename = "unknown";
+
+        switch ( name )
+        {
+            case "ntp":
+                typename = "SourceNtp";
+                break;
+            case "gps":
+                typename = "SourceGps";
+                break;
+            case "gsm":
+                typename = "SourceGsm";
+                break;
+            default:
+                logger.warning( @"Unknown source $name - Ignoring" );
+                return;
+        }
+        var sourceclass = Type.from_name( typename );
+        if ( sourceclass == Type.INVALID  )
+        {
+            logger.warning( @"Can't find source $name (type=$typename) - plugin loaded?" );
+            return;
+        }
+        sources[name] = (FsoTime.Source) Object.new( sourceclass );
+        logger.info( @"Added source $name ($typename)" );
     }
 
     public override string repr()
     {
-        return "<DBusService>";
+        return @"<$(sources.size)>";
     }
 }
 
-/*
-DBusService.Device device;
-DBusService.Resource resource;
-*/
+SyncTime.Service service;
 
 /**
  * This function gets called on plugin initialization time.
@@ -84,14 +90,8 @@ DBusService.Resource resource;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    /*
-    sycndevice = new DBusService.Device( subsystem );
-    if ( DBusService.Device.Sourceclass != Type.INVALID )
-    {
-        resource = new DBusService.Resource( subsystem );
-    }
-    */
-    return null;
+    service = new SyncTime.Service( subsystem );
+    return SyncTime.MODULE_NAME;
 }
 
 [ModuleInit]

@@ -32,7 +32,7 @@ VALAC_ARGS = \
 #
 # plugin
 #
-modlibexecdir = $(libdir)/cornucopia/modules/fsonetwork
+modlibexecdir = $(libdir)/cornucopia/modules/fsotime
 modlibexec_LTLIBRARIES = sync_time.la
 sync_time_la_SOURCES = plugin.c
 sync_time_la_VALASOURCES = plugin.vala
