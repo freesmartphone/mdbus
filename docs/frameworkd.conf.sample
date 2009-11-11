@@ -52,10 +52,9 @@ debug_enable_on_startup = 1
 # FOR DEBUGGING ONLY: Whether resource activation should be synchronized with the registration lifecycle: always (default), startup, shutdown, never
 sync_resources_with_lifecycle=never
 
-[fsousage.dbus_service]
 [fsousage.lowlevel_kernel26]
 [fsousage.lowlevel_openmoko]
-
+[fsousage.dbus_service]
 
 #######################################################################################
 # FSO Device Daemon
