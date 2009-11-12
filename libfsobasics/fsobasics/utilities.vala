@@ -19,7 +19,7 @@
 
 internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
 internal const string PROC_SELF_EXE     = "/proc/self/exe";
-internal const uint READ_BUF_SIZE = 1024;
+internal const uint READ_BUF_SIZE = 1024 * 1024;
 internal const int BACKTRACE_SIZE = 50;
 internal static string _prefix = null;
 internal static string _program = null;
