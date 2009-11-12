@@ -685,14 +685,15 @@ public class AtSimListPhonebooks : SimListPhonebooks
     {
         yield gatherPhonebookParams();
         var data = theModem.data();
+        //FIXME: This doesn't work, returns an empty array -- bug in libgee?
+        //phonebooks = (string[]) data.simPhonebooks.keys.to_array();
+        // slow workaround instead:
         var a = new string[] {};
         foreach ( var key in data.simPhonebooks.keys )
         {
             a += key;
         }
         phonebooks = a;
-        //FIXME: This doesn't work, returns an empty array -- bug in libgee?
-        //phonebooks = (string[]) data.simPhonebooks.keys.to_array();
     }
 }
 
@@ -811,6 +812,12 @@ public class AtSmsSendMessage : SmsSendMessage
         uint8 refnum = 0;
 
         var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents );
+
+        // signalize that we're sending a couple of MMS
+        var cmms = theModem.createAtCommand<PlusCMMS>( "+CMMS" );
+        yield theModem.processCommandAsync( cmms, cmms.issue( 1 ) );
+
+        // send the MMS one after another     
         foreach( var hexpdu in hexpdus )
         {
             var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );

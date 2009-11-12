@@ -20,7 +20,6 @@
 /**
  * Mobile Broadband Provider Info
  **/
-
 namespace MBPI {
 
 public class Country
@@ -73,12 +72,19 @@ public class Database : FsoFramework.AbstractObject
     private bool gsm;
     private int depth;
 
+    private static Database _instance;
+
+    private Database()
+    {
+        load();
+    }
+
     public override string repr()
     {
         return countries == null ? "<null>" : "<loaded>";
     }
 
-    public void load()
+    private void load()
     {
         countries = new Gee.HashMap<string,Country>();
         
@@ -196,6 +202,43 @@ public class Database : FsoFramework.AbstractObject
             parseNode( iter );
         }
     }
+
+    //
+    // public API
+    //
+    public static Database instance()
+    {
+        if ( _instance == null )
+        {
+            _instance = new Database();
+        }
+        return _instance;
+    }
+
+    public Gee.Map<string,Provider> providersForCountry( string code )
+    {
+        var country = countries[code];
+        if ( country == null )
+        {
+            return null;
+        }
+        return country.providers;
+    }
+
+    public Gee.Map<string,AccessPoint> accessPointsForMccMnc( string mccmnc )
+    {
+        foreach ( var country in countries.values )
+        {
+            foreach ( var provider in country.providers.values )
+            {
+                if ( mccmnc in provider.codes )
+                {
+                    return provider.gsm;
+                }
+            }
+        }
+        return null;
+    }  
 }
 
 } /* namespace */

@@ -358,16 +358,6 @@ public class FsoGsm.Constants
         return _instance;
     }
 
-    MBPI.Database mbpi;
-
-    private Constants()
-    {
-        // init...
-        mbpi = new MBPI.Database();
-        mbpi.load();
-    }
-
-
     //
     // public API
     //

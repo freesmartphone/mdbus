@@ -24,7 +24,17 @@ using FsoGsm;
 public void test_const_mbpi_create()
 //===========================================================================
 {
-    var c = Constants.instance();
+    var mbpi = MBPI.Database.instance();
+}
+
+//===========================================================================
+public void test_const_lookup_access_points()
+//===========================================================================
+{
+    var mbpi = MBPI.Database.instance();
+    var aps = mbpi.accessPointsForMccMnc( "26203" );
+    assert( aps.size == 1 );
+    assert( aps["internet.eplus.de"].name == "internet.eplus.de" );
 }
 
 //===========================================================================
@@ -34,6 +44,7 @@ void main( string[] args )
     Test.init( ref args );
 
     Test.add_func( "/Const/MBPI/Create", test_const_mbpi_create );
+    Test.add_func( "/Const/MBPI/LookupAccessPoints", test_const_lookup_access_points );
 
     Test.run();
 }
