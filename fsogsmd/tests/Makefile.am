@@ -60,6 +60,15 @@ $(testconversions_SOURCES): $(testconversions_VALASOURCES)
 testconversions_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testconversions_VALASOURCES)
 
+TEST_PROGS += testconst
+testconst_VALASOURCES = testconst.vala
+testconst_SOURCES = testconst.c
+$(testconst_SOURCES): $(testconst_VALASOURCES)
+	$(VALAC) -C $(VALAC_ARGS) $^
+	touch $@
+testconst_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testconst_VALASOURCES)
+
 TEST_PROGS += testsms
 testsms_VALASOURCES = testsms.vala
 testsms_SOURCES = testsms.c
