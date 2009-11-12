@@ -27,6 +27,7 @@ FSO_GLIB_REQUIRED=0.2.0
 FSO_FRAMEWORK_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.5.9
 FSO_RESOURCE_REQUIRED=0.1.0
+MBPI_REQUIRED=20090918
 
 # vala
 PKG_CHECK_MODULES(VALA,
@@ -67,6 +68,16 @@ PKG_CHECK_MODULES(FSO,
   fsoresource-2.0 >= $FSO_RESOURCE_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
+
+# mobile broadband provider info database
+PKG_CHECK_MODULES(MBPI,
+  mobile-broadband-provider-info >= $MBPI_REQUIRED)
+MBPI_DATABASE="`$PKG_CONFIG --variable=database mobile-broadband-provider-info`"
+if (test -z "{MPBI_DATABASE}"); then
+  AC_ERROR([Can't find mobile broadband provider info database file])
+fi
+AC_SUBST(MBPI_DATABASE)
+AC_DEFINE_UNQUOTED([MBPI_DATABASE],["${MBPI_DATABASE}"],[path to xml service provider file])
 
 AC_CONFIG_FILES([
   Makefile
