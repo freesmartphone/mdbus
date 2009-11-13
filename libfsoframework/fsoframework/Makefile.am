@@ -40,7 +40,6 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) \
 	            --vapidir ../vapi \
 	            --pkg posix \
-	            --pkg posixextra \
 	            --pkg linux \
 	            --pkg glib-2.0 \
 	            --pkg gmodule-2.0 \

@@ -31,7 +31,7 @@ public errordomain FsoGsm.AtCommandError
     UNABLE_TO_PARSE,
 }
 
-public abstract interface FsoGsm.AtCommand : FsoFramework.CommandQueueCommand, GLib.Object
+public abstract interface FsoGsm.AtCommand : GLib.Object, FsoFramework.CommandQueueCommand
 {
     /* CommandQueueCommand */
     public abstract uint get_timeout();
@@ -50,12 +50,13 @@ public abstract interface FsoGsm.AtCommand : FsoFramework.CommandQueueCommand, G
 
     public abstract Constants.AtResponse validate( string[] response );
     public abstract Constants.AtResponse validateTest( string[] response );
-    public abstract Constants.AtResponse validateURC( string response );
+    public abstract Constants.AtResponse validateUrc( string response );
+    public abstract Constants.AtResponse validateUrcPdu( string[] response );
     public abstract Constants.AtResponse validateOk( string[] response );
     public abstract Constants.AtResponse validateMulti( string[] response );
 }
 
-public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueCommand, FsoGsm.AtCommand, GLib.Object
+public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoFramework.CommandQueueCommand, FsoGsm.AtCommand
 {
     protected Regex re;
     protected Regex tere;
@@ -75,13 +76,18 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
 
     public string decodeString( string str )
     {
-        if ( str == null || str.length == 0 )
+        if ( str == null )
             return "";
+        if ( str.length == 0 )
+            return "";
+
         var data = theModem.data();
         switch ( data.charset )
         {
             case "UCS2":
-                return Conversions.ucs2_to_utf8( str );
+                //FIXME: should this function be rather secured against (null)?
+                var res = Conversions.ucs2_to_utf8( str );
+                return ( res != null ) ? res : "";
             default:
                 return str;
         }
@@ -255,11 +261,36 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
     /**
      * Validate an URC for this At command
      **/
-    public virtual Constants.AtResponse validateURC( string response )
+    public virtual Constants.AtResponse validateUrc( string response )
     {
         try
         {
             parse( response );
+        }
+        catch ( AtCommandError e )
+        {
+            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
+            return Constants.AtResponse.UNABLE_TO_PARSE;
+        }
+        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
+        return Constants.AtResponse.VALID;
+    }
+
+    /**
+     * Validate an URC w/ PDU for this At command
+     **/
+    public virtual Constants.AtResponse validateUrcPdu( string[] response )
+    {
+        // check whether we have received enough lines
+        if ( response.length < 2 )
+        {
+            theModem.logger.warning( @"Unexpected length $(response.length) for $(Type.from_instance(this).name())" );
+            return Constants.AtResponse.UNEXPECTED_LENGTH;
+        }
+
+        try
+        {
+            parseMulti( response );
         }
         catch ( AtCommandError e )
         {
@@ -296,12 +327,12 @@ public abstract class FsoGsm.AbstractAtCommand : FsoFramework.CommandQueueComman
         return 3;
     }
 
-    public string get_prefix()
+    public virtual string get_prefix()
     {
         return "AT";
     }
 
-    public string get_postfix()
+    public virtual string get_postfix()
     {
         return "\r\n";
     }

@@ -5,33 +5,37 @@ NULL =
 # third party
 THIRDPARTY_SOURCES = \
 	$(top_srcdir)/src/3rdparty/conversions.c \
+	$(top_srcdir)/src/3rdparty/smsutil.c \
+	$(top_srcdir)/src/3rdparty/storage.c \
 	$(top_srcdir)/src/3rdparty/util.c \
 	$(NULL)
 	
 AM_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/3rdparty \
-	-Ifoo/bar \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(XML_CFLAGS) \
 	$(GSMMUX_CFLAGS) \
 	$(NULL)
 
 VALAC_ARGS = \
+	-D DEBUG \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/src/3rdparty \
-	--pkg posix \
-	--pkg posixextra \
+	--vapidir $(top_srcdir)/vapi \
+	--vapidir $(top_srcdir)/src/lib \
 	--pkg dbus-glib-1 \
 	--pkg glib-2.0 \
 	--pkg fsogsm3rdparty \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
+	--pkg libxml-2.0 \
 	--pkg gsm0710mux-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
+	--pkg config \
 	--header fsogsm.h \
 	--library fsogsm-2.0
 
@@ -51,8 +55,10 @@ libfsogsm_la_VALASOURCES = \
 	codes.vala \
 	consts.vala \
 	channel.vala \
+	mbpi.vala \
 	mediator.vala \
 	modem.vala \
+	sms.vala \
 	structs.vala \
 	transport.vala \
 	$(NULL)
@@ -74,6 +80,7 @@ libfsogsm_la_LIBADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
+	$(XML_LIBS) \
 	$(GSMMUX_LIBS) \
 	$(THIRDPARTY_LIBS) \
 	$(NULL)

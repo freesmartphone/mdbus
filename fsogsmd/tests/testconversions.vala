@@ -17,9 +17,15 @@
  *
  */
 
-[CCode (cheader_filename = "conversions.h,util.h", cprefix = "", lower_case_cprefix = "")]
-namespace Conversions {
+using GLib;
+using FsoGsm;
 
-    string ucs2_to_utf8( string data );
-    string sim_string_to_utf8( string buffer, int length );
+//===========================================================================
+void main( string[] args )
+//===========================================================================
+{
+    Test.init( ref args );
+
+
+    Test.run();
 }

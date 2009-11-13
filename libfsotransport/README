@@ -3,5 +3,4 @@ freesmartphone.org transport library
 ====================================
 
 This library contains transport classes useful for
-serial programming.
-
+serial / pty / socket programming.

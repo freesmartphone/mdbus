@@ -1,7 +1,8 @@
-AC_INIT([libfsobasics], [0.8.3.2], [smartphones-userland@linuxtogo.org], [libfsobasics])
+AC_INIT([libfsobasics], [0.9.0], [smartphones-userland@linuxtogo.org], [libfsobasics])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -18,8 +19,7 @@ AC_SUBST(LDFLAGS)
 #
 PKG_PROG_PKG_CONFIG
 
-VALA_REQUIRED=0.7.7
-MISC_VAPI_REQUIRED=0.5.0
+VALA_REQUIRED=0.7.8.1
 GLIB_REQUIRED=2.18.0
 
 # vala
@@ -28,12 +28,6 @@ AC_SUBST(VALAC)
 PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
 
-#
-# fso misc vapi files
-#
-PKG_CHECK_MODULES(MISC_VAPI,
-	misc-vapi-1.0 >= $MISC_VAPI_REQUIRED)
-
 # glib and friends
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
@@ -41,12 +35,6 @@ PKG_CHECK_MODULES(GLIB,
   gio-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
-
-#
-# we need eventfd
-#
-AC_CHECK_HEADER(sys/eventfd.h, , [AC_MSG_ERROR(
-[Couldn't find sys/eventfd.h... your glibc is too old :(] )])
 
 #
 # output

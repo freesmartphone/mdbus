@@ -49,6 +49,20 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
 }
 
 //
+// org.freesmartphone.GSM.Debug.*
+//
+public abstract class FsoGsm.DebugAtCommand : FsoGsm.AbstractMediator
+{
+    public string response { get; set; }
+    public abstract async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DebugInjectAtResponse : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+//
 // org.freesmartphone.GSM.Device.*
 //
 public abstract class FsoGsm.DeviceGetAlarmTime : FsoGsm.AbstractMediator
@@ -210,6 +224,22 @@ public abstract class FsoGsm.SimSetServiceCenterNumber : FsoGsm.AbstractMediator
 public abstract class FsoGsm.SimUnlock : FsoGsm.AbstractMediator
 {
     public abstract async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+//
+// org.freesmartphone.GSM.SMS.*
+//
+public abstract class FsoGsm.SmsGetSizeForMessage : FsoGsm.AbstractMediator
+{
+    public uint size { get; set; }
+    public abstract async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.SmsSendMessage : FsoGsm.AbstractMediator
+{
+    public int transaction_index { get; set; }
+    public string timestamp { get; set; }
+    public abstract async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 //

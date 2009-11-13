@@ -21,6 +21,9 @@
 
 #include <glib.h>
 
+#ifndef UTIL_H
+#define UTIL_H
+
 enum gsm_dialect {
 	GSM_DIALECT_DEFAULT = 0,
 	GSM_DIALECT_TURKISH,
@@ -79,3 +82,6 @@ unsigned char *pack_7bit(const unsigned char *in, long len, int byte_offset,
 				long *items_written, unsigned char terminator);
 
 char *sim_string_to_utf8(const unsigned char *buffer, int length);
+
+#endif
+

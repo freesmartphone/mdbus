@@ -66,7 +66,7 @@ public class Controller : FsoFramework.AbstractObject
     private bool disable_on_shutdown;
 
     private PersistentData data;
-    private weak HashMap<string,Resource> resources;
+    private HashMap<string,Resource> resources;
 
     dynamic DBus.Object dbus;
     dynamic DBus.Object idlenotifier;
@@ -96,8 +96,9 @@ public class Controller : FsoFramework.AbstractObject
         // get handle to IdleNotifier
         idlenotifier = dbusconn.get_object( FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH, FSO_IDLENOTIFIER_IFACE );
 
-        // delayed init
-        Idle.add( onIdleForInit );
+        // init resources and low level helpers
+        initResources();
+        initLowlevel();
     }
 
     public override string repr()
@@ -132,7 +133,7 @@ public class Controller : FsoFramework.AbstractObject
     }
 #endif
 
-    private bool onIdleForInit()
+    private void initLowlevel()
     {
         // check preferred low level suspend/resume plugin and instanciate
         var lowleveltype = config.stringValue( CONFIG_SECTION, "lowlevel_type", DEFAULT_LOWLEVEL_MODULE );
@@ -148,7 +149,7 @@ public class Controller : FsoFramework.AbstractObject
                 break;
             default:
                 warning( "Invalid lowlevel_type '%s'; suspend/resume will NOT be available!".printf( lowleveltype ) );
-                return false; // don't call me again
+                return;
         }
 
         if ( lowleveltype != "none" )
@@ -157,12 +158,16 @@ public class Controller : FsoFramework.AbstractObject
             if ( lowlevelclass == Type.INVALID  )
             {
                 logger.warning( "Can't find plugin for lowlevel_type = '%s'".printf( lowleveltype ) );
-                return false; // don't call me again
+                return;
             }
 
             lowlevel = Object.new( lowlevelclass ) as FsoUsage.LowLevel;
             logger.info( "Ready. Using lowlevel plugin '%s' to handle suspend/resume".printf( lowleveltype ) );
         }
+    }
+
+    public void initResources()
+    {
 #if PERSISTENCE
         // check whether we have crash data
         if ( loadPersistentData() )
@@ -174,10 +179,10 @@ public class Controller : FsoFramework.AbstractObject
 #endif
         {
             data = new PersistentData();
+            //data.resources = new HashMap<string,Resource>( str_hash, str_equal );
             resources = data.resources;
         }
-
-        return false; // don't call me again
+        assert( resources != null );
     }
 
     private void onResourceAppearing( Resource r )

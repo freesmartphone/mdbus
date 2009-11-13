@@ -127,18 +127,24 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
 
     public override bool load()
     {
-        message( "%s load (GType is in use)", filename );
+#if DEBUG
+        debug( @"$filename load (GType is in use)" );
+#endif
         return true;
     }
 
     public override void unload()
     {
-        message( "%s unload (GType is no longer in use)", filename );
+#if DEBUG
+        debug( @"$filename unload (GType is no longer in use)" );
+#endif
     }
 
     public void shutdown()
     {
-        message( "%s shutdown", filename );
+#if DEBUG
+        message( @"$filename shutdown" );
+#endif
         // try to resolve shutdown method
         void* func;
         var ok = module.symbol( FSO_SHUTDOWN_FUNCTION, out func );

@@ -58,7 +58,7 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
 
     public override string repr()
     {
-        return "<Socket %s (fd %d)>".printf( getName(), fd );
+        return "<%s (fd %d)>".printf( getName(), fd );
     }
 
     public override bool open()
@@ -66,31 +66,32 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
         fd = Posix.socket( domain, stype, 0 );
         if ( fd == -1 )
         {
-            warning( "could not create socket: %s".printf( Posix.strerror( Posix.errno ) ) );
+            logger.error( "Could not create socket: %s".printf( Posix.strerror( Posix.errno ) ) );
             return false;
         }
 
-        string ip = "127.0.0.1";
-        if ( name != "localhost" )
-            critical( "dns not supported yet" );
+        var resolver = Resolver.get_default();
+        unowned List<InetAddress> addresses = resolver.lookup_by_name( name, null );
+        var address = addresses.nth_data(0);
+        logger.info( "Resolved $name to $address" );
 
-        PosixExtra.InAddr inaddr = { 0 };
-        var res = PosixExtra.inet_aton( ip, out inaddr );
+        Posix.InAddr inaddr = { 0 };
+        var res = Linux.inet_aton( address.to_string(), out inaddr );
         if ( res == -1 )
         {
-            warning( "could not convert address: %s".printf( Posix.strerror( Posix.errno ) ) );
+            logger.error( "Could not convert address: %s".printf( Posix.strerror( Posix.errno ) ) );
             return false;
         }
 
         PosixExtra.SockAddrIn addr = { 0 };
         addr.sin_family = Posix.AF_INET;
-        addr.sin_port = PosixExtra.htons( port );
+        addr.sin_port = Posix.htons( port );
         addr.sin_addr.s_addr = inaddr.s_addr;
 
-        res = PosixExtra.connect( fd, &addr, sizeof( PosixExtra.SockAddrIn ) );
+        res = Posix.connect( fd, &addr, sizeof( PosixExtra.SockAddrIn ) );
         if ( res == -1 )
         {
-            warning( "could not bind to socket: %s".printf( Posix.strerror( Posix.errno ) ) );
+            logger.error( "Could not bind to socket: %s".printf( Posix.strerror( Posix.errno ) ) );
             return false;
         }
 

@@ -25,8 +25,10 @@ namespace DBusService {
 
 class DBusService.Device :
     FreeSmartphone.Device.RealtimeClock,
+    FreeSmartphone.GSM.Debug,
     FreeSmartphone.GSM.Device,
     FreeSmartphone.GSM.SIM,
+    FreeSmartphone.GSM.SMS,
     FreeSmartphone.GSM.Network,
     XFreeSmartphone.GSM.Call,
     FsoFramework.AbstractObject
@@ -78,6 +80,7 @@ class DBusService.Device :
         subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
 
         modem = (FsoGsm.Modem) Object.new( modemclass );
+
         modem.parent = this;
 
         logger.info( "Ready. Configured for modem '%s'".printf( modemtype ) );
@@ -141,6 +144,21 @@ class DBusService.Device :
         var m = modem.createMediator<FsoGsm.DeviceSetAlarmTime>();
         yield m.run( seconds_since_epoch );
         this.wakeup_time_changed( seconds_since_epoch ); // DBUS SIGNAL
+    }
+
+    //
+    // DBUS (org.freesmartphone.GSM.Debug.*)
+    //
+    public async string debug_at_command( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DebugAtCommand>();
+        yield m.run( command, channel );
+        return m.response;
+    }
+    public async void debug_inject_at_response( string response, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.DebugInjectAtResponse>();
+        yield m.run( response, channel );
     }
 
     //
@@ -272,7 +290,7 @@ class DBusService.Device :
 
     public async string get_issuer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Deprecated. Please use org.freesmartphone.GSM.SIM.GetSimInfo()" );
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_messagebook_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -387,6 +405,39 @@ class DBusService.Device :
     {
         var m = modem.createMediator<FsoGsm.SimUnlock>();
         yield m.run( puk, new_pin );
+    }
+
+    //
+    // DBUS (org.freesmartphone.GSM.SMS.*)
+    //
+    public async void ack_message( string contents, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void nack_message( string contents, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void send_message( string recipient_number, string contents, GLib.HashTable<string,GLib.Value?> properties, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void send_text_message( string recipient_number, string contents, bool want_report, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.SmsSendMessage>();
+        yield m.run( recipient_number, contents, want_report );
+        transaction_index = m.transaction_index;
+        timestamp = m.timestamp;
+    }
+
+    public async uint get_size_for_text_message( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.SmsGetSizeForMessage>();
+        yield m.run( contents );
+        return m.size;
     }
 
     //

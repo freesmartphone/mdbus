@@ -25,6 +25,13 @@ FsoFramework.Subsystem subsystem;
 public static void sighandler( int signum )
 {
     Posix.signal( signum, null ); // restore original sighandler
+#if LINUX_HAVE_BACKTRACE
+    var backtrace = FsoFramework.Utility.createBacktrace();
+    foreach ( var line in backtrace )
+    {
+        logger.error( line );
+    }
+#endif
     logger.info( "received signal -%d, shutting down...".printf( signum ) );
     subsystem.shutdown();
     mainloop.quit();

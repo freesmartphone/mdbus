@@ -358,11 +358,6 @@ public class FsoGsm.Constants
         return _instance;
     }
 
-    private Constants()
-    {
-        // init...
-    }
-
     //
     // public API
     //
@@ -454,6 +449,44 @@ public class FsoGsm.Constants
         }
         warning( "simFilesystemEntryNameToCode: '%s' not found", name );
         return -1; // not found
+    }
+
+    public PlusCMGL.Mode simMessagebookStringToName( string category )
+    {
+        switch ( category )
+        {
+            case "unread":
+                return PlusCMGL.Mode.REC_UNREAD;
+            case "read":
+                return PlusCMGL.Mode.REC_READ;
+            case "unsent":
+                return PlusCMGL.Mode.STO_UNSENT;
+            case "sent":
+                return PlusCMGL.Mode.STO_SENT;
+            case "all":
+                return PlusCMGL.Mode.ALL;
+            default:
+                warning( @"Unsupported sim messagebook category $category" );
+                return PlusCMGL.Mode.INVALID;
+        }
+    }
+
+    public string simMessagebookStatusToString( int code )
+    {
+        switch ( code )
+        {
+            case PlusCMGL.Mode.REC_UNREAD:
+                return "unread";
+            case PlusCMGL.Mode.REC_READ:
+                return "read";
+            case PlusCMGL.Mode.STO_UNSENT:
+                return "unsent";
+            case PlusCMGL.Mode.STO_SENT:
+                return "sent";
+            default:
+                warning( @"Unsupported sim messagebook code $code" );
+                return "unknown";
+        }
     }
 
     public string simPhonebookNameToString( string name )

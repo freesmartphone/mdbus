@@ -1,5 +1,4 @@
 SUBDIRS = \
-	misc-vapi \
 	libfsobasics \
 	libfsotransport \
 	libfsoresource \

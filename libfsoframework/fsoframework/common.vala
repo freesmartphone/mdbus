@@ -42,11 +42,13 @@ public static SmartKeyFile theMasterKeyFile()
         {
             if ( _masterkeyfile.loadFromFile( location ) )
             {
-                message( "Using framework configuration file at '%s'", location );
+#if DEBUG
+                debug( @"Using framework configuration file at $location" );
+#endif
                 return _masterkeyfile;
             }
         }
-        warning( "could not find framework configuration file." );
+        warning( "Could not find framework configuration file in any location" );
         return _masterkeyfile;
     }
     return _masterkeyfile;

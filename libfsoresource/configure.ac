@@ -1,7 +1,8 @@
-AC_INIT([libfsoresource], [0.1.0.0], [smartphones-userland@linuxtogo.org], [libfsoresource])
+AC_INIT([libfsoresource], [0.1.1], [smartphones-userland@linuxtogo.org], [libfsoresource])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -17,9 +18,9 @@ AC_SUBST(LDFLAGS)
 #
 PKG_PROG_PKG_CONFIG
 
-VALA_REQUIRED=0.7.7
+VALA_REQUIRED=0.7.8
 GLIB_REQUIRED=2.18.0
-FSO_BASICS_REQUIRED=0.8.3
+FSO_BASICS_REQUIRED=0.8.9.9
 FSO_FRAMEWORK_REQUIRED=0.2.3.1
 FSO_GLIB_REQUIRED=0.2.0
 

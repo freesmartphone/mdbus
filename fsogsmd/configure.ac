@@ -2,6 +2,7 @@ AC_INIT([fsogsmd], [0.2.0.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -16,16 +17,18 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-VALA_REQUIRED=0.7.7
+VALA_REQUIRED=0.7.8
 GLIB_REQUIRED=2.18.0
 GEE_REQUIRED=0.5.0
+XML_REQUIRED=2.7.3
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
 GSMMUX_REQUIRED=0.3.4
 FSO_GLIB_REQUIRED=0.2.0
-FSO_FRAMEWORK_REQUIRED=0.2.3.1
-FSO_TRANSPORT_REQUIRED=0.9.5.1
+FSO_FRAMEWORK_REQUIRED=0.2.3
+FSO_TRANSPORT_REQUIRED=0.9.5.9
 FSO_RESOURCE_REQUIRED=0.1.0
+MBPI_REQUIRED=20090918
 
 # vala
 PKG_CHECK_MODULES(VALA,
@@ -45,12 +48,35 @@ PKG_CHECK_MODULES(GEE,
 AC_SUBST(GEE_CFLAGS)
 AC_SUBST(GEE_LIBS)
 
+# xml
+PKG_CHECK_MODULES(XML,
+  libxml-2.0 >= $XML_REQUIRED)
+AC_SUBST(XML_CFLAGS)
+AC_SUBST(XML_LIBS)
+
 # dbus and dbus-glib
 PKG_CHECK_MODULES(DBUS,
   dbus-1 >= $DBUS_REQUIRED
   dbus-glib-1 >= $DBUS_GLIB_REQUIRED)
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
+
+# dbus conf directory
+DBUS_DIR="`$PKG_CONFIG --variable=sysconfdir dbus-1`"
+if (test -z "{DBUS_DIR}"); then
+  DBUS_DIR="${sysconfdir}/dbus-1"
+else
+  DBUS_DIR="$DBUS_DIR/dbus-1"
+fi
+AC_SUBST(DBUS_DIR)
+
+# dbus service directory
+DBUS_SERVICE_DIR="`$PKG_CONFIG --variable=session_bus_services_dir dbus-1`"
+if (test -z "{DBUS_SERVICE_DIR}"); then
+  DBUS_SERVICE_DIR="${datadir}/dbus-1/services"
+fi
+AC_SUBST(DBUS_SERVICE_DIR)
+
 
 # gsm0710mux
 PKG_CHECK_MODULES(GSMMUX,
@@ -67,6 +93,25 @@ PKG_CHECK_MODULES(FSO,
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 
+# mobile broadband provider info database
+PKG_CHECK_MODULES(MBPI,
+  mobile-broadband-provider-info >= $MBPI_REQUIRED)
+MBPI_DATABASE="`$PKG_CONFIG --variable=database mobile-broadband-provider-info`"
+if (test -z "{MPBI_DATABASE}"); then
+  AC_ERROR([Can't find mobile broadband provider info database file])
+fi
+AC_SUBST(MBPI_DATABASE)
+AC_DEFINE_UNQUOTED([MBPI_DATABASE_PATH], ["${MBPI_DATABASE}"], [Path to xml service provider file])
+
+# datadir
+if test "x$prefix" != "xNONE"; then
+  pkgdatadir='${prefix}/share/fsogsmd'
+else
+  pkgdatadir='/usr/local/share/fsogsmd'
+fi
+eval PACKAGE_DATADIR="${pkgdatadir}"
+AC_DEFINE_UNQUOTED([PACKAGE_DATADIR], ["${PACKAGE_DATADIR}"], [Shared data directory])
+
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
@@ -78,6 +123,8 @@ AC_CONFIG_FILES([
   src/plugins/modem_singleline/Makefile
   src/plugins/modem_ti_calypso/Makefile
   src/plugins/modem_qualcomm_htc/Makefile
+  data/Makefile
+  data/org.freesmartphone.ogsmd.service
   tests/Makefile
 ])
 

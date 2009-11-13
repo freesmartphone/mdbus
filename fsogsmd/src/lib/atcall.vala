@@ -225,81 +225,26 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
             visited[call.id] = true;
         }
 
-        // ...and synthesize updates for released calls
+        // ...and synthesize updates for (now) released calls
         for ( int i = 0; i != Constants.CALL_INDEX_MAX; ++i )
         {
-            if ( ! visited[i] )
+            if ( ! visited[i] && calls[i].detail.status != "release" )
             {
                 var detail = XFreeSmartphone.GSM.CallDetail();
                 detail.id = i;
                 detail.status = "release";
                 detail.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
 
-                //FIXME: SIGSEGV in gvalue.c:
-/*
-                (process:23937): GLib-GObject-WARNING **: /build/buildd/glib2.0-2.20.1/gobject/gvalue.c:185: cannot initialize GValue with type `gchararray', the value has already been initialized as `gchararray'
-
-                        (process:23937): GLib-GObject-WARNING **: /build/buildd/glib2.0-2.20.1/gobject/gvalue.c:185: cannot initialize GValue with type `gchararray', the value has already been initialized as `gchararray'
-                                *** glibc detected *** fsogsmd: double free or corruption (out): 0x09755cd0 ***
-                                        ======= Backtrace: =========
-/lib/tls/i686/cmov/libc.so.6[0xb7ab7604]
-/lib/tls/i686/cmov/libc.so.6(cfree+0x96)[0xb7ab95b6]
-/usr/lib/libglib-2.0.so.0(g_free+0x36)[0xb7bed126]
-/usr/lib/libgobject-2.0.so.0(g_value_set_string+0x9b)[0xb7c9b0fb]
-/usr/local/lib/libfsogsm.so.0[0xb79684c5]
-/usr/lib/libgio-2.0.so.0(g_simple_async_result_complete+0x82)[0xb7ce20d2]
-/usr/local/lib/libfsogsm.so.0[0xb79a6b48]
-/usr/lib/libgio-2.0.so.0(g_simple_async_result_complete+0x82)[0xb7ce20d2]
-/usr/local/lib/libfsotransport.so.0[0xb80adefc]
-/usr/local/lib/libfsotransport.so.0(fso_framework_base_command_queue_onSolicitedResponse+0x100)[0xb80acfc0]
-/usr/local/lib/libfsotransport.so.0(_fso_framework_base_command_queue_solicitedCompleted+0x3f)[0xb80ad46f]
-/usr/local/lib/libfsotransport.so.0[0xb80ad54b]
-/usr/local/lib/libfsogsm.so.0(fso_gsm_state_based_at_parser_endoflineSurelySolicited+0x77)[0xb7988df7]
-/usr/local/lib/libfsogsm.so.0(fso_gsm_state_based_at_parser_endoflinePerhapsSolicited+0x128)[0xb7989558]
-/usr/local/lib/libfsogsm.so.0(fso_gsm_state_based_at_parser_endofline+0x57)[0xb7989667]
-/usr/local/lib/libfsogsm.so.0(fso_gsm_state_based_at_parser_inline_r+0x70)[0xb7989740]
-/usr/local/lib/libfsogsm.so.0(fso_gsm_state_based_at_parser_dispatch+0x7f)[0xb798991f]
-/usr/local/lib/libfsogsm.so.0[0xb7989a25]
-/usr/local/lib/libfsotransport.so.0(fso_framework_base_parser_feed+0x1f)[0xb80aedbf]
-/usr/local/lib/libfsotransport.so.0(fso_framework_parser_feed+0x41)[0xb80af8d1]
-/usr/local/lib/libfsotransport.so.0(fso_framework_base_command_queue_onReadFromTransport+0x54)[0xb80ad2a4]
-/usr/local/lib/libfsotransport.so.0(_fso_framework_base_command_queue_onReadFromTransport+0x60)[0xb80ad360]
-/usr/local/lib/libfsotransport.so.0[0xb80ad3c4]
-/usr/local/lib/libfsotransport.so.0[0xb80ab776]
-/usr/lib/libglib-2.0.so.0[0xb7c1bdad]
-/usr/lib/libglib-2.0.so.0(g_main_context_dispatch+0x1e8)[0xb7be4b88]
-/usr/lib/libglib-2.0.so.0[0xb7be80eb]
-/usr/lib/libglib-2.0.so.0(g_main_loop_run+0x1ca)[0xb7be85ba]
-                                        fsogsmd[0x8048b8d]
-                                        fsogsmd[0x8048bef]
-/lib/tls/i686/cmov/libc.so.6(__libc_start_main+0xe5)[0xb7a5e775]
-                                        fsogsmd[0x8048931]
-                                        ======= Memory map: ========
-                                        08048000-08049000 r-xp 00000000 08:05 633445     /usr/local/bin/fsogsmd
-                                        08049000-0804a000 r--p 00000000 08:05 633445     /usr/local/bin/fsogsmd
-                                        0804a000-0804b000 rw-p 00001000 08:05 633445     /usr/local/bin/fsogsmd
-                                        09743000-09781000 rw-p 09743000 00:00 0          [heap]
-                                        b77f1000-b77fe000 r-xp 00000000 08:05 667902     /lib/libgcc_s.so.1
-                                        b77fe000-b77ff000 r--p 0000c000 08:05 667902     /lib/libgcc_s.so.1
-                                        b77ff000-b7800000 rw-p 0000d000 08:05 667902     /lib/libgcc_s.so.1
-                                        b7800000-b7821000 rw-p b7800000 00:00 0
-                                        b7821000-b7900000 ---p b7821000 00:00 0
-                                        b7921000-b793d000 r-xp 00000000 08:05 630938     /usr/local/lib/cornucopia/modules/fsogsm/dbus_service.so
-                                        b793d000-b793e000 r--p 0001b000 08:05 630938     /usr/local/lib/cornucopia/modules/fsogsm/dbus_service.so
-                                        b793e000-b793f000 rw-p 0001c000 08:05 630938     /usr/local/lib/cornucopia/modules/fsogsm/dbus_service.so
-                                        b793f000-b794c000 r-xp 00000000 08:05 127742     /usr/local/lib/libgsm0710mux.so.0.0.0
-                                        b794c000-b794d000 r--p 0000c000 08:05 127742     /usr/local/lib/libgsm0710mux.so.0.0.0Aborted
-
-                /*
                 var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
                 var result = yield theModem.processCommandAsync( ceer, ceer.execute() );
                 if ( ceer.validate( result ) == Constants.AtResponse.VALID )
                 {
-                    var cause = Value( typeof(string) );
-                    cause = ceer.value;
-                    detail.properties.insert( "cause", cause );
+                    //FIXME: Use after https://bugzilla.gnome.org/show_bug.cgi?id=599568 has been FIXED.
+                    //var cause = Value( typeof(string) );
+                    //cause = ceer.value
+                    //detail.properties.insert( "cause", ceer.value );
                 }
-                */
+
                 calls[i].update( detail );
             }
         }

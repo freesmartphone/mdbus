@@ -46,6 +46,15 @@ void test_utilities_filehandling_write()
 }
 
 //===========================================================================
+void test_utilities_filehandling_remove_tree()
+//===========================================================================
+{
+    assert( !FileHandling.removeTree( "this_tree_not_existing" ) );
+    DirUtils.create_with_parents( "./this/tree/existing", 0777 );
+    assert( FileHandling.removeTree( "this" ) );
+}
+
+//===========================================================================
 void test_utilities_stringhandling_list()
 //===========================================================================
 {
@@ -67,14 +76,6 @@ void test_utilities_stringhandling_enum()
 }
 
 //===========================================================================
-void test_utilities_network_ipv4address_for_interface()
-//===========================================================================
-{
-    assert( Network.ipv4AddressForInterface( "lo" ) == "127.0.0.1" );
-    assert( Network.ipv4AddressForInterface( "murks1" ) == "unknown" );
-}
-
-//===========================================================================
 void test_utilities_utility_program_name()
 //===========================================================================
 {
@@ -89,6 +90,14 @@ void test_utilities_utility_prefix_for_executable()
 }
 
 //===========================================================================
+void test_utilities_utility_create_backtrace()
+//===========================================================================
+{
+    var backtrace = Utility.createBacktrace();
+    assert( backtrace.length > 2 );
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -97,11 +106,12 @@ void main( string[] args )
     Test.add_func( "/Utilities/FileHandling/Presence", test_utilities_filehandling_presence );
     Test.add_func( "/Utilities/FileHandling/Read", test_utilities_filehandling_read );
     Test.add_func( "/Utilities/FileHandling/Write", test_utilities_filehandling_write );
+    Test.add_func( "/Utilities/FileHandling/RemoveTree", test_utilities_filehandling_remove_tree );
     Test.add_func( "/Utilities/StringHandling/List", test_utilities_stringhandling_list );
     Test.add_func( "/Utilities/StringHandling/Enum", test_utilities_stringhandling_enum );
-    Test.add_func( "/Utilities/Network/ipv4AddressForInterface", test_utilities_network_ipv4address_for_interface );
     Test.add_func( "/Utilities/Utility/programName", test_utilities_utility_program_name );
     Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );
+    Test.add_func( "/Utilities/Utility/createBacktrace", test_utilities_utility_create_backtrace );
 
     Test.run();
 }

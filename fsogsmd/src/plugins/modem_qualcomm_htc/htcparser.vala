@@ -89,6 +89,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         V0_RESULT,
         ECHO_A,
         ECHO_INLINE,
+        CONTINUATION,
         INLINE,
         INLINE_R,
     }
@@ -126,14 +127,16 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 return start( c );
             case State.START_R:
                 return start_r( c );
+            case State.V0_RESULT:
+                return v0_result( c );
             case State.START_HTC_BOGUS_BRACKET_LINE:
                 return start_htc_bogus_bracket_line( c );
             case State.ECHO_A:
                 return echo_a( c );
             case State.ECHO_INLINE:
                 return echo_inline( c );
-            case State.V0_RESULT:
-                return v0_result( c );
+            case State.CONTINUATION:
+                return continuation( c );
             case State.INLINE:
                 return inline( c );
             case State.INLINE_R:
@@ -164,6 +167,10 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 return State.ECHO_A;
             case '[':
                 return State.START_HTC_BOGUS_BRACKET_LINE;
+            case '+':
+                warning( "AT violation. Unsolicited without \\r\\n header (ignoring). Your modem sucks." );
+                curline = { '+' };
+                return State.INLINE;
         }
         return State.INVALID;
     }
@@ -215,6 +222,18 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         }
     }
 
+    public State continuation( char c )
+    {
+        switch (c)
+        {
+            case ' ':
+                curline = { '>', ' ' };
+                return endoflineSurelySolicited();
+            default:
+                return State.INVALID;
+        }
+    }
+
     public State start_r( char c )
     {
         switch (c)
@@ -229,6 +248,8 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
     {
         switch (c)
         {
+            case '>':
+                return State.CONTINUATION;
             case '\r':
                 // HTC madness bug in ATV1, does not include the mandatory \n
                 // when the terminal response is an error message
@@ -295,9 +316,12 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
 
         if ( pendingPDU )
         {
+#if DEBUG
+        debug( "endoflinePerhapsSolicited: detected pending PDU" );
+#endif
             solicited += (string)curline;
             pendingPDU = false;
-            return resetAll();
+            return resetLine();
         }
 
         var prefixExpected = expectedPrefix( (string)curline );

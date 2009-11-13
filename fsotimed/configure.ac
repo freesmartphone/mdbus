@@ -2,6 +2,7 @@ AC_INIT([fsotimed], [0.1.1], [smartphones-userland@linuxtogo.org], [fsotimed])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -16,7 +17,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-VALA_REQUIRED=0.7.7
+VALA_REQUIRED=0.7.8
 GLIB_REQUIRED=2.18.0
 GEE_REQUIRED=0.5.0
 DBUS_REQUIRED=1.2.1
@@ -84,6 +85,9 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/alarm/Makefile
+  src/plugins/source_ntp/Makefile
+  src/plugins/sync_time/Makefile
+  tests/Makefile
 ])
 
 AC_OUTPUT

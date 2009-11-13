@@ -30,9 +30,7 @@ fsobasicsinclude_HEADERS = fsobasics.h
 
 fsobasics-2.0.vapi fsobasics.vala.stamp: $(libfsobasics_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) \
-	            --vapidir ../vapi \
 	            --pkg posix \
-	            --pkg posixextra \
 	            --pkg linux \
 	            --pkg glib-2.0 \
 	            --pkg gio-2.0 \

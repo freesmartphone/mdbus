@@ -58,6 +58,7 @@ $(plugin_la_SOURCES): $(plugin_la_VALASOURCES)
 plugin_la_LIBADD = $(progs_ldadd)
 plugin_la_LDFLAGS = -no-undefined -module -avoid-version
 plugin_la_LIBTOOLFLAGS = --tag=disable-static
+EXTRA_DIST += $(plugin_la_VALASOURCES)
 
 #
 # plugin a for the subsystem test
@@ -72,6 +73,7 @@ $(plugina_la_SOURCES): $(plugina_la_VALASOURCES)
 plugina_la_LIBADD = $(progs_ldadd)
 plugina_la_LDFLAGS = -no-undefined -module -avoid-version
 plugina_la_LIBTOOLFLAGS = --tag=disable-static
+EXTRA_DIST += $(plugina_la_VALASOURCES)
 
 #
 # plugin b for the subsystem test
@@ -86,6 +88,7 @@ $(pluginb_la_SOURCES): $(pluginb_la_VALASOURCES)
 pluginb_la_LIBADD = $(progs_ldadd)
 pluginb_la_LDFLAGS = -no-undefined -module -avoid-version
 pluginb_la_LIBTOOLFLAGS = --tag=disable-static
+EXTRA_DIST += $(pluginb_la_VALASOURCES)
 
 #
 # plugin c for the subsystem test
@@ -100,6 +103,7 @@ $(pluginc_la_SOURCES): $(pluginc_la_VALASOURCES)
 pluginc_la_LIBADD = $(progs_ldadd)
 pluginc_la_LDFLAGS = -no-undefined -module -avoid-version
 pluginc_la_LIBTOOLFLAGS = --tag=disable-static
+EXTRA_DIST += $(pluginc_la_VALASOURCES)
 
 #
 # plugin test

@@ -26,6 +26,7 @@ public class FsoFramework.SmartKeyFile : Object
 {
     private KeyFile kf = null;
     private bool loaded = false;
+    private string filename;
 
     /**
      * Load keyfile into memory
@@ -34,6 +35,7 @@ public class FsoFramework.SmartKeyFile : Object
     public bool loadFromFile( string filename )
     {
         assert( !loaded );
+        this.filename = filename;
         kf = new KeyFile();
 
         try
@@ -42,7 +44,9 @@ public class FsoFramework.SmartKeyFile : Object
         }
         catch ( Error e )
         {
-            message( "can't load keyfile from '%s': %s".printf( filename, e.message ) );
+#if DEBUG
+            warning( "can't load keyfile from '%s': %s".printf( filename, e.message ) );
+#endif
             return false;
         }
         loaded = true;
@@ -91,7 +95,9 @@ public class FsoFramework.SmartKeyFile : Object
         }
         else
         {
+#if DEBUG
             warning( "SmartKeyFile::getValue: unknown type code '%d'. Returning default value", typeof(T) );
+#endif
             return defaultvalue;
         }
     }
@@ -214,6 +220,30 @@ public class FsoFramework.SmartKeyFile : Object
                     list.append( key );
         }
         return list;
+    }
+
+    public void write<T>( string section, string key, T value )
+    {
+        if ( typeof(T) == typeof(int) )
+        {
+            kf.set_integer( section, key, (int)value );
+            markDirty();
+        }
+        else if ( typeof(T) == typeof(string) )
+        {
+            kf.set_string( section, key, (string)value );
+            markDirty();
+        }
+        else
+        {
+            assert_not_reached();
+        }
+    }
+
+    private void markDirty()
+    {
+        //FIXME: trigger delayed updates
+        FileHandling.write( kf.to_data(), filename, true );
     }
 }
 

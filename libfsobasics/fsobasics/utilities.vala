@@ -15,17 +15,64 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
- */
+ **/
 
 internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
 internal const string PROC_SELF_EXE     = "/proc/self/exe";
-internal const uint READ_BUF_SIZE = 1024;
+internal const uint READ_BUF_SIZE = 1024 * 1024;
+internal const int BACKTRACE_SIZE = 50;
 internal static string _prefix = null;
 internal static string _program = null;
 
 namespace FsoFramework { namespace FileHandling {
 
 //Logger logger = createLogger( "utilities" );
+
+public bool removeTree( string path )
+{
+#if DEBUG
+    debug( "removeTree: %s", path );
+#endif
+    var dir = Posix.opendir( path );
+    if ( dir == null )
+    {
+#if DEBUG
+        debug( "can't open dir: %s", path );
+#endif
+        return false;
+    }
+    for ( unowned Posix.DirEnt entry = Posix.readdir( dir ); entry != null; entry = Posix.readdir( dir ) )
+    {
+        if ( ( "." == (string)entry.d_name ) || ( ".." == (string)entry.d_name ) )
+        {
+#if DEBUG
+            debug( "skipping %s", (string)entry.d_name );
+#endif
+            continue;
+        }
+#if DEBUG
+        debug( "processing %s", (string)entry.d_name );
+#endif
+        var result = Posix.unlink( "%s/%s".printf( path, (string)entry.d_name ) );
+        if ( result == 0 )
+        {
+#if DEBUG
+            debug( "%s removed", (string)entry.d_name );
+#endif
+            continue;
+        }
+        if ( Posix.errno == Posix.EISDIR )
+        {
+            if ( !removeTree( "%s/%s".printf( path, (string)entry.d_name ) ) )
+            {
+                return false;
+            }
+            continue;
+        }
+        return false;
+    }
+    return true;
+}
 
 public bool isPresent( string filename )
 {
@@ -59,9 +106,16 @@ public string read( string filename )
     return "";
 }
 
-public void write( string contents, string filename )
+public void write( string contents, string filename, bool create = false )
 {
-    var fd = Posix.open( filename, Posix.O_WRONLY );
+    Posix.mode_t mode = 0;
+    int flags = Posix.O_WRONLY;
+    if ( create )
+    {
+        mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
+        flags |= Posix.O_CREAT  | Posix.O_EXCL;
+    }
+    var fd = Posix.open( filename, flags, mode );
     if ( fd == -1 )
     {
         warning( "%s", "can't open for writing to %s: %s".printf( filename, Posix.strerror( Posix.errno ) ) );
@@ -71,7 +125,34 @@ public void write( string contents, string filename )
         var length = contents.len();
         ssize_t written = Posix.write( fd, contents, length );
         if ( written != length )
-            warning( "couldn't write all bytes" );
+        {
+            warning( "couldn't write all bytes to %s (%u of %ld)".printf( filename, (uint)written, length ) );
+        }
+        Posix.close( fd );
+    }
+}
+
+public void writeBuffer( void* buffer, ulong length, string filename, bool create = false )
+{
+    Posix.mode_t mode = 0;
+    int flags = Posix.O_WRONLY;
+    if ( create )
+    {
+        mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
+        flags |= Posix.O_CREAT  | Posix.O_EXCL;
+    }
+    var fd = Posix.open( filename, flags, mode );
+    if ( fd == -1 )
+    {
+        warning( "Can't open for writing to %s: %s".printf( filename, Posix.strerror( Posix.errno ) ) );
+    }
+    else
+    {
+        ssize_t written = Posix.write( fd, buffer, length );
+        if ( written != length )
+        {
+            warning( "Couldn't write all bytes to %s (%u of %lu)".printf( filename, (uint)written, length ) );
+        }
         Posix.close( fd );
     }
 }
@@ -159,24 +240,6 @@ public string enumToString( Type enum_type, int value )
 
 } }
 
-namespace FsoFramework { namespace Network {
-
-    public string ipv4AddressForInterface( string iface )
-    {
-        var fd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
-        assert( fd != -1 );
-
-        Linux.Network.IfReq ifreq = {};
-        Posix.memcpy( ifreq.ifr_name, iface, 16 );
-        var ok = Posix.ioctl( fd, Linux.Network.SIOCGIFADDR, &ifreq );
-        if ( ok < 0 )
-            return "unknown";
-
-        return "%s".printf( PosixExtra.inet_ntoa( ((PosixExtra.SockAddrIn*)(&ifreq.ifr_addr))->sin_addr ) );
-    }
-
-} }
-
 namespace FsoFramework { namespace Utility {
 
     const uint BUF_SIZE = 1024; // should be Posix.PATH_MAX
@@ -216,6 +279,21 @@ namespace FsoFramework { namespace Utility {
             }
         }
         return _prefix;
+    }
+
+    public string[] createBacktrace()
+    {
+        string[] result = new string[] { };
+        void* buffer = malloc0( BACKTRACE_SIZE * sizeof(string) );
+        var size = Linux.backtrace( buffer, BACKTRACE_SIZE );
+        string[] symbols = Linux.backtrace_symbols( buffer, size );
+        result += "--- BACKTRACE (%zd frames) ---\n".printf( size );
+        for ( var i = 0; i < size; ++i )
+        {
+            result += "%s\n".printf( symbols[i] );
+        }
+        result += "--- END BACKTRACE ---\n";
+        return result;
     }
 } }
 

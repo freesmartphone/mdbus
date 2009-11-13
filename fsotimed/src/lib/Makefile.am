@@ -15,7 +15,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsotime_la_VALASOURCES = \
-	dummy.vala \
+	source.vala \
 	$(NULL)
 
 libfsotime_la_SOURCES = \
@@ -30,10 +30,10 @@ fsotimeinclude_HEADERS = fsotime.h
 $(BUILT_SOURCES): $(libfsotime_la_VALASOURCES)
 	$(VALAC) -C --basedir $(top_srcdir) \
 	            --vapidir $(top_srcdir)/vapi \
-	            --pkg posix \
-	            --pkg posixextra \
 	            --pkg glib-2.0 \
 	            --pkg gio-2.0 \
+	            --pkg gee-1.0 \
+	            --pkg fsoframework-2.0 \
 	            --header fsotime.h \
 	            --library fsotime-2.0 $^
 	touch $@

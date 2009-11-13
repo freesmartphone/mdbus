@@ -1,7 +1,8 @@
-AC_INIT([fsonetworkd], [0.0.1.1], [smartphones-userland@linuxtogo.org], [fsonetworkd])
+AC_INIT([fsonetworkd], [0.1.0], [smartphones-userland@linuxtogo.org], [fsonetworkd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -16,12 +17,13 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-VALA_REQUIRED=0.7.7
+VALA_REQUIRED=0.7.8.1
 GLIB_REQUIRED=2.18.0
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
 FSO_GLIB_REQUIRED=0.2.0
 FSO_REQUIRED=0.2.3
+LIBNL_REQUIRED=2.0
 
 # vala
 PKG_CHECK_MODULES(VALA,
@@ -63,6 +65,12 @@ PKG_CHECK_MODULES(FSO,
   fsoframework-2.0 >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
+
+# libnl
+PKG_CHECK_MODULES(LIBNL,
+  libnl-2.0 >= $LIBNL_REQUIRED)
+AC_SUBST(LIBNL_CFLAGS)
+AC_SUBST(LIBNL_LIBS)
 
 # fso-glib
 PKG_CHECK_MODULES(FSO_GLIB,

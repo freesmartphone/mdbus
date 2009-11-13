@@ -43,6 +43,7 @@ void test_atcommand_PlusCFUN()
 {
     FsoGsm.PlusCFUN cmd = (FsoGsm.PlusCFUN) atCommandFactory( "+CFUN" );
     cmd.parse( "+CFUN: 0" );
+    message( "cmd.value = %d", cmd.value );
     assert( cmd.value == 0 );
 
     cmd.parse( "+CFUN: 1" );
@@ -222,9 +223,7 @@ void main( string[] args )
 //===========================================================================
 {
     Test.init( ref args );
-
     setup();
-
     Test.add_func( "/AtCommand/+CFUN", test_atcommand_PlusCFUN );
     Test.add_func( "/AtCommand/+CGCLASS", test_atcommand_PlusCGCLASS );
     Test.add_func( "/AtCommand/+CGMM", test_atcommand_PlusCGMM );
@@ -233,5 +232,5 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+COPS", test_atcommand_PlusCOPS );
     Test.add_func( "/AtCommand/+CPIN", test_atcommand_PlusCPIN );
     Test.add_func( "/AtCommand/+FCLASS", test_atcommand_PlusFCLASS );
-    Test.run();
+    //Test.run();
 }

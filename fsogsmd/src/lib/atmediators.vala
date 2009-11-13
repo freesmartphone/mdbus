@@ -93,10 +93,29 @@ internal void checkMultiResponseValid( FsoGsm.AtCommand command, string[] respon
     }
 }
 
+internal void validatePhoneNumber( string number ) throws FreeSmartphone.Error
+{
+    if ( number == "" )
+    {
+        throw new FreeSmartphone.Error.INVALID_PARAMETER( "Number too short" );
+    }
+
+    for ( var i = ( number[0] == '+' ? 1 : 0 ); i < number.length; ++i )
+    {
+        if (number[i] >= '0' && number[i] <= '9')
+                continue;
+
+        if (number[i] == '*' || number[i] == '#')
+                continue;
+
+        throw new FreeSmartphone.Error.INVALID_PARAMETER( "Number contains invalid character '%c' at position %u", number[i], i );
+    }
+}
+
 /**
  * Modem facilities helpers
  **/
-internal async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var data = theModem.data();
     if ( data.speakerVolumeMinimum == -1 )
@@ -117,13 +136,14 @@ internal async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, 
     }
 }
 
-internal async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var data = theModem.data();
 
     var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
     var response = yield theModem.processCommandAsync( cmd, cmd.query() );
-    if ( cmd.validate( response ) == Constants.AtResponse.VALID )
+    var rcode = cmd.validate( response );
+    if ( rcode == Constants.AtResponse.VALID )
     {
         if ( cmd.status != data.simAuthStatus )
         {
@@ -148,11 +168,19 @@ internal async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, 
             }
         }
     }
-
-    // TODO: Check error; we might be in NO_SIM_STATUS
+    else if ( rcode == Constants.AtResponse.CME_ERROR_010_SIM_NOT_INSERTED ||
+              rcode == Constants.AtResponse.CME_ERROR_013_SIM_FAILURE )
+    {
+        theModem.logger.info( "SIM not inserted or broken" );
+        theModem.advanceToState( Modem.Status.ALIVE_NO_SIM );
+    }
+    else
+    {
+        theModem.logger.warning( "Unhandled error while querying SIM PIN status" );
+    }
 }
 
-internal async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var data = theModem.data();
     if ( data.simPhonebooks.size == 0 )
@@ -172,6 +200,33 @@ internal async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, Fre
                 assert( theModem.logger.debug( @"Found phonebook '$pbname' w/ indices $(cpbr.min)-$(cpbr.max)" ) );
             }
         }
+    }
+}
+
+/**
+ * Debug Mediators
+ **/
+public class AtDebugAtCommand : DebugAtCommand
+{
+    public override async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+        var response = yield theModem.processCommandAsync( cmd, command );
+        var result = "";
+        for ( int i = 0; i < response.length-1; ++i )
+        {
+            result += "\r\n";
+            result += response[i];
+        }
+        this.response = result;
+    }
+}
+
+public class AtDebugInjectAtResponse : DebugInjectAtResponse
+{
+    public override async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        theModem.injectResponse( command, channel );
     }
 }
 
@@ -630,14 +685,15 @@ public class AtSimListPhonebooks : SimListPhonebooks
     {
         yield gatherPhonebookParams();
         var data = theModem.data();
+        //FIXME: This doesn't work, returns an empty array -- bug in libgee?
+        //phonebooks = (string[]) data.simPhonebooks.keys.to_array();
+        // slow workaround instead:
         var a = new string[] {};
         foreach ( var key in data.simPhonebooks.keys )
         {
             a += key;
         }
         phonebooks = a;
-        //FIXME: This doesn't work, returns an empty array -- bug in libgee?
-        //phonebooks = (string[]) data.simPhonebooks.keys.to_array();
     }
 }
 
@@ -673,7 +729,23 @@ public class AtSimRetrieveMessagebook : SimRetrieveMessagebook
 {
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.SYSTEM_ERROR( "Not yet implemented" );
+        // ignore category for now
+
+        //FIXME: Bug in Vala
+        //messagebook = theModem.smshandler.storage.messagebook();
+        //FIXME: Work around
+        var array = theModem.smshandler.storage.messagebook();
+        messagebook = new FreeSmartphone.GSM.SIMMessage[array.length] {};
+        for( int i = 0; i < array.length; ++i )
+        {
+            messagebook[i] = array[i];
+        }
+#if DEBUG
+        foreach ( var entry in messagebook )
+        {
+            debug( "%i %s %s %s, %p", entry.index, entry.number, entry.status, entry.contents, entry.properties );
+        }
+#endif
     }
 }
 
@@ -702,6 +774,7 @@ public class AtSimSetServiceCenterNumber : SimSetServiceCenterNumber
 {
     public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        validatePhoneNumber( number );
         var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( number ) );
         checkResponseOk( cmd, response );
@@ -715,6 +788,44 @@ public class AtSimUnlock : SimUnlock
         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( puk, newpin ) );
         checkResponseOk( cmd, response );
+    }
+}
+
+/**
+ * SMS Mediators
+ **/
+public class AtSmsGetSizeForMessage : SmsGetSizeForMessage
+{
+    public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var hexpdus = theModem.smshandler.formatTextMessage( "+123456789", contents );
+        size = hexpdus.size;
+    }
+}
+
+public class AtSmsSendMessage : SmsSendMessage
+{
+    public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        validatePhoneNumber( recipient_number );
+        assert( contents != "" ); // only text messages supported for now
+        uint8 refnum = 0;
+
+        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents );
+
+        // signalize that we're sending a couple of MMS
+        var cmms = theModem.createAtCommand<PlusCMMS>( "+CMMS" );
+        yield theModem.processCommandAsync( cmms, cmms.issue( 1 ) );
+
+        // send the MMS one after another     
+        foreach( var hexpdu in hexpdus )
+        {
+            var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
+            var response = yield theModem.processPduCommandAsync( cmd, cmd.issue( hexpdu ) );
+            checkResponseOk( cmd, response );
+        }
+        transaction_index = refnum;
+        timestamp = "now";
     }
 }
 
@@ -833,6 +944,7 @@ public class AtCallInitiate : CallInitiate
 {
     public override async void run( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        validatePhoneNumber( number );
         id = yield theModem.callhandler.initiate( number, ctype );
     }
 }
@@ -879,7 +991,9 @@ public class AtCallReleaseAll : CallReleaseAll
  **/
 public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
-    // register commands
+    table[ typeof(DebugAtCommand) ]               = typeof( AtDebugAtCommand );
+    table[ typeof(DebugInjectAtResponse) ]        = typeof( AtDebugInjectAtResponse );
+
     table[ typeof(DeviceGetAlarmTime) ]           = typeof( AtDeviceGetAlarmTime );
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
     table[ typeof(DeviceGetCurrentTime) ]         = typeof( AtDeviceGetCurrentTime );
@@ -903,11 +1017,15 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimGetServiceCenterNumber) ]    = typeof( AtSimGetServiceCenterNumber );
     table[ typeof(SimGetInformation) ]            = typeof( AtSimGetInformation );
     table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );
+    table[ typeof(SimRetrieveMessagebook) ]       = typeof( AtSimRetrieveMessagebook );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
     table[ typeof(SimSetAuthCodeRequired) ]       = typeof( AtSimSetAuthCodeRequired );
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( AtSimSetServiceCenterNumber );
     table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
+
+    table[ typeof(SmsGetSizeForMessage) ]         = typeof( AtSmsGetSizeForMessage );
+    table[ typeof(SmsSendMessage) ]               = typeof( AtSmsSendMessage );
 
     table[ typeof(NetworkGetSignalStrength) ]     = typeof( AtNetworkGetSignalStrength );
     table[ typeof(NetworkGetStatus) ]             = typeof( AtNetworkGetStatus );

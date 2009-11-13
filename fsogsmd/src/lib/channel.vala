@@ -120,5 +120,10 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
             var response = yield enqueueAsyncYielding( cmd, element );
         }
     }
+
+    public void injectResponse( string response )
+    {
+        onReadFromTransport( response );
+    }
 }
 

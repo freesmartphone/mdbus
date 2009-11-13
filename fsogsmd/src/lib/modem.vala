@@ -95,6 +95,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // DBus Service API
     public abstract bool open();
     public abstract void close();
+    public abstract void injectResponse( string command, string channel ); // DEBUG ONLY
 
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
@@ -108,9 +109,11 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract T theDevice<T>();
     public abstract Object parent { get; set; } // the DBus object
     public abstract CallHandler callhandler { get; set; } // the Call handler
+    public abstract SmsHandler smshandler { get; set; } // the Sms handler
 
     // Command Queue API
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
+    public abstract async string[] processPduCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
     public abstract FsoGsm.Channel channel( string category );
 
     // Misc. Accessors
@@ -141,6 +144,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     protected Object parent { get; set; } // the DBus object
     protected CallHandler callhandler { get; set; } // the Call handler
+    protected SmsHandler smshandler { get; set; } // the SMS handler
 
     construct
     {
@@ -173,6 +177,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         modem_data = new FsoGsm.Modem.Data();
 
+        //modem_data.simidentification = "unknown";
+
         modem_data.charset = "unknown";
         modem_data.simHasReadySignal = false;
 
@@ -197,7 +203,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         urc = createUnsolicitedHandler();
         callhandler = createCallHandler();
-        //TODO: binary sms handler, etc.
+        smshandler = createSmsHandler();
     }
 
     private void registerMediators()
@@ -244,6 +250,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected virtual CallHandler createCallHandler()
     {
         return new GenericAtCallHandler();
+    }
+
+    /**
+     * Override this to return a custom type of SMS handler to be used for this modem.
+     **/
+    protected virtual SmsHandler createSmsHandler()
+    {
+        return new AtSmsHandler();
     }
 
     /**
@@ -308,6 +322,18 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         setPower( false );
     }
 
+    public virtual void injectResponse( string command, string channel )
+    {
+        var chan = this.channels[channel];
+        if ( chan == null )
+        {
+            //FIXME: dbus error?
+            warning( @"No channel $channel" );
+            return;
+        }
+        chan.injectResponse( command );
+    }
+
     public T theDevice<T>()
     {
         assert( parent != null );
@@ -356,6 +382,17 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         var channel = channelForCommand( command, request );
         var response = yield channel.enqueueAsyncYielding( command, request, retry );
+        return response;
+    }
+
+    public async string[] processPduCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY )
+    {
+        var channel = channelForCommand( command, request );
+        var pdurequest = request.split( "\n" );
+        assert( pdurequest.length == 2 );
+        var continuation = yield channel.enqueueAsyncYielding( command, pdurequest[0], retry );
+        assert( continuation.length == 1 && continuation[0] == "> " );
+        var response = yield channel.enqueueAsyncYielding( command, pdurequest[1], retry );
         return response;
     }
 

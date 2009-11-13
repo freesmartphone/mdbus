@@ -93,7 +93,7 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
 
     public override string repr()
     {
-        return "<Device %s>".printf( name );
+        return @"<$name>";
     }
 
     private MixerControl controlForId( uint idx ) throws SoundError
@@ -144,7 +144,11 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
                 throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
         }
         else
-            message( "ignoring IEC958 setting" );
+        {
+#if DEBUG
+            debug( "Ignoring IEC958 setting" );
+#endif
+        }
     }
 
     /**
@@ -213,10 +217,12 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
                     control.value.set_byte( i, (uchar) ( segments[i].to_int() & 0xff ) );
                 break;
             case ElemType.IEC958:
-                message( "can't restore IEC958 element" );
+#if DEBUG
+                debug( "Can't restore IEC958 element" );
+#endif
                 break;
             default:
-                message( "unknown type %d... ignoring".printf( control.info.get_type() ) );
+                warning( "Unknown type %d... ignoring".printf( control.info.get_type() ) );
                 break;
         }
         return control;
