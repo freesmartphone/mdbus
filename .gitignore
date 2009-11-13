@@ -28,3 +28,6 @@ stamp-h1
 *.vapi
 
 test*
+
+build
+
