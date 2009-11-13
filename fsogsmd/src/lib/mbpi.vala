@@ -77,6 +77,8 @@ public class Database : FsoFramework.AbstractObject
     private Database()
     {
         load();
+        message( "PACKAGE_DATADIR = %s", Config.PACKAGE_DATADIR );
+        //FIXME: load iso 3361 file
     }
 
     public override string repr()

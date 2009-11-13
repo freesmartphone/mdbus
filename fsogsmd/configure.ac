@@ -101,8 +101,16 @@ if (test -z "{MPBI_DATABASE}"); then
   AC_ERROR([Can't find mobile broadband provider info database file])
 fi
 AC_SUBST(MBPI_DATABASE)
-AC_DEFINE_UNQUOTED([MBPI_DATABASE_PATH],["${MBPI_DATABASE}"],[path to xml service provider 
-file])
+AC_DEFINE_UNQUOTED([MBPI_DATABASE_PATH], ["${MBPI_DATABASE}"], [Path to xml service provider file])
+
+# datadir
+if test "x$prefix" != "xNONE"; then
+  pkgdatadir='${prefix}/share/fsogsmd'
+else
+  pkgdatadir='/usr/local/share/fsogsmd'
+fi
+eval PACKAGE_DATADIR="${pkgdatadir}"
+AC_DEFINE_UNQUOTED([PACKAGE_DATADIR], ["${PACKAGE_DATADIR}"], [Shared data directory])
 
 AC_CONFIG_FILES([
   Makefile
