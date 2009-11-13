@@ -22,6 +22,8 @@
  **/
 namespace MBPI {
 
+internal const string ISO_3361_DATABASE = Config.PACKAGE_DATADIR + "/list-en1-semic-3.txt";
+
 public class Country
 {
     public Country()
@@ -76,9 +78,8 @@ public class Database : FsoFramework.AbstractObject
 
     private Database()
     {
-        load();
-        message( "PACKAGE_DATADIR = %s", Config.PACKAGE_DATADIR );
-        //FIXME: load iso 3361 file
+        loadMbpi();
+        loadIso3361();
     }
 
     public override string repr()
@@ -86,7 +87,7 @@ public class Database : FsoFramework.AbstractObject
         return countries == null ? "<null>" : "<loaded>";
     }
 
-    private void load()
+    private void loadMbpi()
     {
         countries = new Gee.HashMap<string,Country>();
         
@@ -101,13 +102,17 @@ public class Database : FsoFramework.AbstractObject
         if ( root == null )
         {
             delete doc;
-            warning( "Could not parse mobile broadband provider file" );
+            logger.warning( "Could not parse mobile broadband provider file" );
             return;
         }
 
         parseNode( root );
-
         delete doc;
+
+        foreach ( var key in countries.keys )
+        {
+            debug( @"got providers in country '$key'" );
+        }
     }
 
     private void parseNode( Xml.Node* node )
@@ -132,13 +137,17 @@ public class Database : FsoFramework.AbstractObject
                 country = new Country() { name = props["code"] };
                 handleChildren( node );
                 countries[country.name] = country;
+#if DEBUG
                 debug( @"new country $(country.name)" );
+#endif
                 break;
             case "provider":
                 provider = new Provider();
                 handleChildren( node );
                 country.providers[provider.name] = provider;
+#if DEBUG
                 debug( @"new provider $(provider.name)" );               
+#endif
                 break;
             case "gsm":
                 gsm = true;
@@ -157,7 +166,9 @@ public class Database : FsoFramework.AbstractObject
                 if ( gsm )
                 {
                     provider.gsm[accesspoint.name] = accesspoint;
-                    debug( @"new apn $(accesspoint.name)" );               
+#if DEBUG
+                    debug( @"new apn $(accesspoint.name)" );
+#endif
                 }
                 else
                 {
@@ -184,7 +195,9 @@ public class Database : FsoFramework.AbstractObject
                 accesspoint.dns.add( content );
                 break;
             default:
+#if DEBUG
                 debug( @"ignoring unknown node name $name" );
+#endif
                 break;
         }
         depth--;
@@ -199,9 +212,37 @@ public class Database : FsoFramework.AbstractObject
 
             var node_name = iter->name;
             var node_content = iter->get_content();
-            //debug( @"node $node_name, content $(node_content.escape(""))" );
             
             parseNode( iter );
+        }
+    }
+
+    private void loadIso3361()
+    {
+        var file = FsoFramework.FileHandling.read( MBPI.ISO_3361_DATABASE );
+        foreach ( var line in file.split( "\r\n" ) )
+        {
+            var elements = line.split( ";" );
+            if ( elements.length != 2 )
+            {
+                continue;
+            }
+            var ccode = elements[1].down();
+            var name = elements[0].down(); // casefold?
+            var country = countries[ccode];
+            if ( country != null )
+            {
+                country.name = name;
+#if DEBUG
+                debug( @"ccode $ccode equals $name" );
+#endif
+            }
+            else
+            {
+#if DEBUG
+                debug( @"ccode '$ccode' has no providers" );
+#endif
+            }
         }
     }
 
@@ -215,6 +256,11 @@ public class Database : FsoFramework.AbstractObject
             _instance = new Database();
         }
         return _instance;
+    }
+
+    public Gee.Map<string,Country> allCountries()
+    {
+        return countries;
     }
 
     public Gee.Map<string,Provider> providersForCountry( string code )
