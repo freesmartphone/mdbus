@@ -93,6 +93,16 @@ namespace FsoFramework
         public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Network";
         public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Network";
     }
+    namespace MusicPlayer
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".omusicd";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".MusicPlayer";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/MusicPlayer";
+
+        public const string PlaylistServiceFace = ServiceFacePrefix + ".Playlist";
+        public const string PlaylistServicePathPrefix = ServicePathPrefix + "/Playlists";
+    }
 
     namespace Resource
     {
