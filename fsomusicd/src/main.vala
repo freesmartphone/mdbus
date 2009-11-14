@@ -1,7 +1,7 @@
 /* 
- * File Name: 
+ * File Name: main.vala
  * Creation Date: 23-08-2009
- * Last Modified:
+ * Last Modified: 14-11-2009 15:18:47
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -24,28 +24,34 @@ using GLib;
 using DBus;
 using Posix;
 
-namespace FreeSmartphone.MusicPlayer
+GLib.MainLoop mainloop;
+FsoFramework.Logger logger;
+FsoFramework.Subsystem subsystem;
+
+namespace FsoMusic
 {
-    static MainLoop ml;
 
     public static int main( string[] args )
     {
-        sighandler_t handle;
         try
         {
             Gst.init( ref args );
-            ml = new MainLoop( null, false );
-            var con = Bus.get( BusType.SESSION );
-            var dbus = con.get_object( DBUS_BUS, DBUS_PATH ) as DBusService;
-            uint req = dbus.request_name( BUSNAME, (uint)0);
-            if( req == DBus.RequestNameReply.PRIMARY_OWNER )
+            var bin = FsoFramework.Utility.programName();
+            logger = FsoFramework.createLogger( bin, bin );
+            logger.info( "%s starting up...".printf( bin ) );
+            subsystem = new FsoFramework.DBusSubsystem( "fsomusic" );
+            subsystem.registerPlugins();
+            if( subsystem.registerServiceName( FsoFramework.MusicPlayer.ServiceDBusName ) )
             {
+                uint count = subsystem.loadPlugins();
+                logger.info("loaded %u plugins".printf( count ) );
+                mainloop = new MainLoop( null, false );
                 KeyFile kf = new KeyFile();
                 MusicPlayer mp = null;
                 try
                 {
                     kf.load_from_file( Config.get_config_path(), KeyFileFlags.NONE );
-                    mp = new MusicPlayer( con, new ObjectPath( BASE_OBJECT_PATH ), kf );
+                    mp = new MusicPlayer( kf );
                 }
                 catch (GLib.FileError e)
                 {
@@ -53,19 +59,23 @@ namespace FreeSmartphone.MusicPlayer
                     //create a small default config
                     kf.set_string(Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYED, "");
                     kf.set_string(Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYLIST, "");
-                    var pl = new Playlist.from_dir( "all", kf ,Config.get_music_dir() );
-                    mp = new MusicPlayer( con, new ObjectPath( BASE_OBJECT_PATH ), kf );
+                    mp = new MusicPlayer( kf );
+                    var pl = new Playlist.from_dir( "all", kf ,Config.get_music_dir(), mp );
                     mp.add_playlist( "all", pl );
                 }
-                con.register_object( BASE_OBJECT_PATH, mp );
-                handle = signal( SIGINT, sig_handle );
-                ml.run();
+                subsystem.registerServiceObject( FsoFramework.MusicPlayer.ServiceDBusName,
+                                                FsoFramework.MusicPlayer.ServicePathPrefix, mp );
+                logger.info( "fsodeviced => mainloop" );
+                signal( SIGINT, sig_handle );
+                signal( SIGTERM, sig_handle );
+                mainloop.run();
+                logger.info( "mainloop => fsodevicde" );
                 mp = null;
                 save_keyfile( kf, Config.get_config_path() );
             }
             else
             {
-                error("Can't request Busname: %s", BUSNAME );
+                error("Can't request Busname: %s", FsoFramework.MusicPlayer.ServicePathPrefix );
             }
         }
         catch (DBus.Error de)
@@ -90,7 +100,7 @@ namespace FreeSmartphone.MusicPlayer
     }
     public static void sig_handle( int signal )
     {
-        debug("Received signal: %i", signal );
-        ml.quit();
+        logger.debug("Received signal: %i".printf( signal ) );
+        mainloop.quit();
     }
 }

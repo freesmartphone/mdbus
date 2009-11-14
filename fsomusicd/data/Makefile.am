@@ -1,6 +1,9 @@
 EXTRA_DIST = $(service_DATA)
 
-servicedir = $(datadir)/dbus-1/services
+dbusconfdir = @DBUS_DIR@/system.d
+dist_dbusconf_DATA = fsomusicd.conf
+
+servicedir = @DBUS_SERVICE_DIR@/../system-services
 
 service_in_files = org.freesmartphone.omusicd.service.in
 

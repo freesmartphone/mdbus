@@ -1,7 +1,7 @@
 /* 
- * File Name: 
+ * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified:
+ * Last Modified: 14-11-2009 23:43:08
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -22,23 +22,23 @@
  */
 using GLib;
 using DBus;
+using FreeSmartphone;
 
-namespace FreeSmartphone.MusicPlayer
+namespace FsoMusic
 {
-    public class Playlist: GLib.Object, IPlaylist
+    public class Playlist: FsoFramework.AbstractObject, MusicPlayerPlaylist
     {
         private unowned KeyFile key_file;
         private string _name;
         private List<string> files;
         private static string[] supported_extensions = { ".mp3", ".ogg", ".flac", ".wav", ".sid", ".mod" };
         private weak List<string> _current;
+        private MusicPlayer musicplayer;
         private weak List<string> current
         {
             get{ return _current; }
             set
             {
-                debug("value:%p", value );
-                debug("value:%p", value.data);
                 if( _current != value )
                 {
                     if( value != null && value.data != null )
@@ -49,35 +49,35 @@ namespace FreeSmartphone.MusicPlayer
                 }
             }
         }
-        private delegate string DoGetNext() throws PlaylistError;
-        private delegate string DoGetPrevious() throws PlaylistError;
+        private delegate string DoGetNext() throws MusicPlayerPlaylistError;
+        private delegate string DoGetPrevious() throws MusicPlayerPlaylistError;
 
         private DoGetNext do_get_next;
         private DoGetPrevious do_get_previous;
 
-        private PlaylistMode _mode;
-        public PlaylistMode mode
+        private MusicPlayerPlaylistMode _mode;
+        public MusicPlayerPlaylistMode mode
         {
             get{ return _mode; }
             set
             {
                 switch( value )
                 {
-                    case( PlaylistMode.NORMAL ):
+                    case( MusicPlayerPlaylistMode.NORMAL ):
                         do_get_next = get_next_normal;
                         do_get_previous = get_previous_normal;
                         break;
-                    case( PlaylistMode.RANDOM ):
+                    case( MusicPlayerPlaylistMode.RANDOM ):
                         //Both would return a randome file
                         do_get_next = get_next_random;
                         do_get_previous = get_next_random;
                         break;
-                    case( PlaylistMode. ENDLESS ):
+                    case( MusicPlayerPlaylistMode. ENDLESS ):
                         do_get_next = get_next_endless;
                         do_get_previous = get_previous_endless;
                         break;
                     default:
-                        debug( "Illegal Mode: %i", value );
+                        logger.error( "Illegal Mode" );
                         assert_not_reached();
                 }
                 _mode = value;
@@ -87,10 +87,13 @@ namespace FreeSmartphone.MusicPlayer
 
         private int position;
 
-        public Playlist( string name, KeyFile kf )
+        public Playlist( string name, KeyFile kf, MusicPlayer mp )
         {
+            base();
             this.key_file = kf;
             this._name = name;
+            musicplayer = mp;
+            logger = FsoFramework.createLogger( FsoFramework.Utility.programName(), @"$classname.$name" );
             try
             {
                 position = kf.get_integer( name, Config.LAST_PLAYED );
@@ -99,29 +102,22 @@ namespace FreeSmartphone.MusicPlayer
             }
             catch (GLib.Error e)
             {
-                debug( "Ignoring Error: %s", e.message );
+                logger.error( @"Ignoring Error: $(e.message)" );
                 position = 0;
             }
             try
             {
-                mode = (PlaylistMode)kf.get_integer( name, Config.PLAYLIST_MODE );
+                mode = (MusicPlayerPlaylistMode)kf.get_integer( name, Config.PLAYLIST_MODE );
             }
             catch (GLib.Error e)
             {
-                debug( "Ignoring Error: %s", e.message );
+                logger.error( "Ignoring Error: $(e.message)" );
             }
         }
-        public Playlist.from_dir( string name, KeyFile kf, string dir )
+        public Playlist.from_dir( string name, KeyFile kf, string dir, MusicPlayer mp )
         {
-            this( name, kf );
-            try
-            {
-                insert_dir( 0, dir, true );
-            }
-            catch ( GLib.Error e )
-            {
-                debug( "Playlist.from_dir: %s", e.message );
-            }
+            this( name, kf, mp );
+            insert_dir( 0, dir, true, () =>{ logger.info( @"Load $dir for $name finished" );} );
             position = 0;
             current = files;
         }
@@ -129,23 +125,28 @@ namespace FreeSmartphone.MusicPlayer
         {
             files = new List<string>();
             this.position = 0;
-            debug("playlist construct");
             _current = files;
-            this.mode = PlaylistMode.NORMAL;
+            this.mode = MusicPlayerPlaylistMode.NORMAL;
         }
         //
         // org.freesmartphone.MusicPlayer.Playlist
         //
-        public string get_name() throws PlaylistError, DBus.Error
+        public async int add( string file ) throws DBus.Error, MusicPlayerPlaylistError
+        {
+            int new_pos = (int)this.files.length();
+            yield insert( new_pos, file );
+            return new_pos;
+        }
+        public async string get_name() throws MusicPlayerPlaylistError, DBus.Error
         {
             return _name;
         }
-        public void change_name( string new_name ) throws PlaylistError, DBus.Error
+        public async void change_name( string new_name ) throws MusicPlayerPlaylistError, DBus.Error
         {
             this._name = new_name;
             name( this._name );
         }
-        public string[] get_files() throws PlaylistError, DBus.Error
+        public async string[] get_files() throws MusicPlayerPlaylistError, DBus.Error
         {
             string[] ret = new string[this.files.length()];
             int i = 0;
@@ -155,25 +156,26 @@ namespace FreeSmartphone.MusicPlayer
             }
             return ret;
         }
-        public void set_mode( PlaylistMode m )
+        public async void set_mode( MusicPlayerPlaylistMode m )
         {
             mode = m;
         }
-        public PlaylistMode get_mode()
+        public async MusicPlayerPlaylistMode get_mode()
         {
             return mode;
         }
-        public void insert( int position, string file ) throws PlaylistError, DBus.Error
+        public async void insert( int position, string file ) throws MusicPlayerPlaylistError, DBus.Error
         {
-            debug("Adding %s to %s", file, _name );
             if( ! file_supported( file ) )
-                 throw new PlaylistError.FILETYPE_NOT_SUPPORTED( "Filetype for %s is not supported".printf( file ));
+                 throw new MusicPlayerPlaylistError.FILETYPE_NOT_SUPPORTED( "Filetype for %s is not supported".printf( file ));
             this.files.insert( file, position );
-            file_added(position,file);
+            if( current == null )
+                 current = files;
+            file_added( position,file );
             if( position < this.position )
                  this.position++;
         }
-        public void insert_dir( int position, string dir, bool recursive ) throws PlaylistError, DBus.Error
+        public async void insert_dir( int position, string dir, bool recursive ) throws MusicPlayerPlaylistError, DBus.Error
         {
             try
             {
@@ -185,31 +187,42 @@ namespace FreeSmartphone.MusicPlayer
                     {
                         if( recursive )
                         {
-                            insert_dir( position, full_path, recursive );
+                            yield insert_dir( position, full_path, recursive );
                         }
                     }
                     else if( FileUtils.test( full_path, FileTest.EXISTS ) )
                     {
                         try
                         {
-                            insert( position, full_path );
+                            yield insert( position, full_path );
                             position ++;
                         }
-                        catch (PlaylistError e)
+                        catch (MusicPlayerPlaylistError e)
                         {
-                            debug( "insert into Playlist: %s", e.message );
+                            logger.error( @"insert into Playlist: $(e.message)" );
                         }
                     }
                     else
-                         throw new PlaylistError.FILE_NOT_FOUND( "Can't find file %s", full_path );
+                         throw new MusicPlayerPlaylistError.FILE_NOT_FOUND( "Can't find file %s", full_path );
                 }
             }
             catch ( GLib.FileError fe )
             {
-                debug("File Error: %s", fe.message );
+                logger.debug( @"InserDir: $(fe.message)" );
             }
         }
-        public void remove( int position ) throws PlaylistError
+
+        public async void jump_to( int position ) throws MusicPlayerPlaylistError
+        {
+            if( files == null )
+                 throw new MusicPlayerPlaylistError.EMPTY( "The playlist is empty" );
+            unowned List<string> nth = files.nth( position );
+            if( nth == null )
+                 throw new MusicPlayerPlaylistError.OUT_OF_RANGE( @"$position is to big. Playlist size: $(files.length())" );
+            current = nth;
+            yield musicplayer.jump_to_file_in_playlist( this );
+        }
+        public async void remove( int position ) throws MusicPlayerPlaylistError
         {
             var f = files.nth_data( position );
             if( f != null )
@@ -217,24 +230,23 @@ namespace FreeSmartphone.MusicPlayer
                 this.files.remove( f );
             }
             else
-                 throw new PlaylistError.OUT_OF_RANGE( "%i is to big. Playlist size: %i", position, files.length());
+                 throw new MusicPlayerPlaylistError.OUT_OF_RANGE( "%i is to big. Playlist size: %i", position, files.length());
             if( position < this.position)
                  this.position--;
         }
-        public string get_at_position( int position ) throws PlaylistError, DBus.Error
+        public async string get_at_position( int position ) throws MusicPlayerPlaylistError, DBus.Error
         {
             if( position > files.length())
-                 throw new PlaylistError.OUT_OF_RANGE( "%u is out of range. List size: %u".printf(position,this.files.length()));
+                 throw new MusicPlayerPlaylistError.OUT_OF_RANGE( "%u is out of range. List size: %u".printf(position,this.files.length()));
             var f = this.files.nth_data( position );
             return f;
         }
-        public  void load_from_file( string file ) throws PlaylistError, DBus.Error
+        public async void load_from_file( string file ) throws MusicPlayerPlaylistError, DBus.Error
         {
-            debug( "%s: %s", Log.METHOD, file );
             this.files = new List<string>();
             var fs = FileStream.open( file, "r" );
             if( fs == null )
-                 throw new PlaylistError.FILE_NOT_FOUND( "Can't open file: %s".printf(file));
+                 throw new MusicPlayerPlaylistError.FILE_NOT_FOUND( "Can't open file: %s".printf(file));
             while(!fs.eof())
             {
                 string? line = fs.read_line();
@@ -242,7 +254,6 @@ namespace FreeSmartphone.MusicPlayer
                     this.files.prepend( line );
             }
             this.files.reverse();
-            debug("New Playlist.length: %ll", file.len());
         }
         //
         // None DBus methods
@@ -257,7 +268,7 @@ namespace FreeSmartphone.MusicPlayer
             }
             catch ( GLib.Error e )
             {
-                debug( "Ignoring: %s", e.message );
+                logger.debug( @"Ignoring: $(e.message)" );
             }
         }
         public bool file_supported( string file )
@@ -283,97 +294,95 @@ namespace FreeSmartphone.MusicPlayer
                     if( file != null )
                         fs.printf( "%s\n", file );
         }
-        public string get_next() throws PlaylistError
+        public string get_next() throws MusicPlayerPlaylistError
         {
-            debug("this: %p", this );
-            debug("delegate: %p", (void*)this.do_get_next );
-            debug("Mode: %i", _mode);
             return this.do_get_next();
         }
-        public string get_previous() throws PlaylistError
+        public string get_previous() throws MusicPlayerPlaylistError
         {
             return this.do_get_previous();
         }
 
         //
-        // Private methods for differen random modes
+        // Private methods for different random modes
         //
 
-        private string get_next_normal() throws PlaylistError
+        private string get_next_normal() throws MusicPlayerPlaylistError
         {
             if( this.files.length() == 0 )
-                 throw new PlaylistError.EMPTY( "No files in playlist" );
+                 throw new MusicPlayerPlaylistError.EMPTY( "No files in playlist" );
             if( this.current == null )
-                 throw new PlaylistError.NO_FILE_SELECTED( "No file selected" );
+                 throw new MusicPlayerPlaylistError.NO_FILE_SELECTED( "No file selected" );
             if( this.current.next == null )
-                 throw new PlaylistError.OUT_OF_FILES( "No more file in the playlist" );
+                 throw new MusicPlayerPlaylistError.OUT_OF_FILES( "No more file in the playlist" );
             this.current = this.current.next;
             position++;
             return this.current.data;
         }
-        private string get_previous_normal() throws PlaylistError
+        private string get_previous_normal() throws MusicPlayerPlaylistError
         {
             if( this.files.length() == 0 )
-                 throw new PlaylistError.EMPTY( "No files in playlist" );
+                 throw new MusicPlayerPlaylistError.EMPTY( "No files in playlist" );
             if( this.current == null )
-                 throw new PlaylistError.NO_FILE_SELECTED( "No file selected" );
+                 throw new MusicPlayerPlaylistError.NO_FILE_SELECTED( "No file selected" );
             if( this.current.prev == null )
-                 throw new PlaylistError.OUT_OF_FILES( "No more file in the playlist" );
+                 throw new MusicPlayerPlaylistError.OUT_OF_FILES( "No more file in the playlist" );
             this.current = this.current.prev;
             position--;
             return this.current.data;
         }
-        private string get_next_endless() throws PlaylistError
+        private string get_next_endless() throws MusicPlayerPlaylistError
         {
-            debug( "next_endless: %i next: %p", position, this.current.next );
-            debug( "length: %u", this.files.length() );
-            foreach( var d in files )
-            {
-                debug("file: %p", d );
-            }
             string result;
-            try
+            result = get_next_normal();
+            if( result == null )
             {
-                result = get_next_normal();
-            }
-            catch ( PlaylistError.OUT_OF_FILES e )
-            {
-                debug( "Playlist get first" );
                 this.current = this.files.first();
                 this.position = 0;
                 result = this.current.data;
             }
             return result;
         }
-        private string get_previous_endless() throws PlaylistError
+        private string get_previous_endless() throws MusicPlayerPlaylistError
         {
-            debug( "prev_endless: %i prev: %p", position, this.current.prev );
-            string result;
-            try
+            string result = get_previous_normal();
+            if( result == null )
             {
-                result = get_previous_normal();
-            }
-            catch ( PlaylistError.OUT_OF_FILES e )
-            {
-                debug( "Playlist get last" );
                 this.current = this.files.last();
                 this.position = (int)(this.files.length() - 1);
                 result = this.current.data;
             }
             return result;
         }
-        private string get_next_random() throws PlaylistError
+        private string get_next_random() throws MusicPlayerPlaylistError
         {
             if( this.files.length() == 0 )
-                 throw new PlaylistError.EMPTY( "No files in playlist" );
+                 throw new MusicPlayerPlaylistError.EMPTY( "No files in playlist" );
             if( this.current == null )
-                 throw new PlaylistError.NO_FILE_SELECTED( "No file selected" );
+                 throw new MusicPlayerPlaylistError.NO_FILE_SELECTED( "No file selected" );
             var rand = new Rand();
             uint nr = (uint) rand.int_range( 0, (int)this.files.length() - 1 );
             this.current = this.files.nth( nr );
             this.position = (int)nr;
-            debug( "random nr: %i %s", this.position, this.current.data );
             return this.current.data;
         }
+        //
+        // AbstractObject methods
+        //
+        public override string repr()
+        {
+            return "<%s>".printf( this.get_type().name() );
+        }
+
+        //
+        // public methods
+        //
+        public string get_current_file() throws MusicPlayerPlaylistError
+        {
+            if( files.length() == 0 )
+                 throw new MusicPlayerPlaylistError.EMPTY( "Playlist is empty" );
+            return current.data;
+        }
+        
     }
 }

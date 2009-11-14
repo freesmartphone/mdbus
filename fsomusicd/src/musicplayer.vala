@@ -1,7 +1,7 @@
 /* 
- * File Name: 
+ * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified:
+ * Last Modified: 14-11-2009 23:32:45
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -23,13 +23,12 @@
 using GLib;
 using DBus;
 using Gst;
+using FreeSmartphone;
 
-namespace FreeSmartphone.MusicPlayer
+namespace FsoMusic
 {
-    public class MusicPlayer:GLib.Object , IMusicPlayer
+    public class MusicPlayer: FsoFramework.AbstractObject , FreeSmartphone.MusicPlayer
     {
-        private Connection conn;
-        private ObjectPath path;
         private unowned KeyFile key_file;
         private HashTable<string,string> audio_codecs;
         private HashTable<string,string> audio_srcs;
@@ -39,7 +38,7 @@ namespace FreeSmartphone.MusicPlayer
             get { return _current_song; }
             set
             {
-                debug( "current song: %s", value );
+                logger.debug( @"current song: $value" );
                 this._current_song = value;
                 set_playing( value );
             }
@@ -51,13 +50,25 @@ namespace FreeSmartphone.MusicPlayer
             get{ return _current_playlist; }
             set 
             {
-                _current_playlist = value;
                 var playlist = playlists.lookup( value );
-                current_song = playlist.get_next();
+                if( playlist != null )
+                {
+                    try
+                    {
+                        current_song = playlist.get_current_file();
+                    }
+                    catch (MusicPlayerPlaylistError e)
+                    {
+                        logger.debug( @"Get current song for $value: $(e.message)" );
+                    }
+                    _current_playlist = value;
+                    logger.debug( @"new CurrentPlaylist: $value" );
+                }
+                else
+                     logger.error( @"Cannot find a Playlist for: $value" );
             }
         }
         private ObjectPath _current_playlist;
-        private string playlist_path;
         private Gst.Pipeline audio_pipeline;
         private Gst.Bus audio_bus;
         private Gst.Element volume;
@@ -66,8 +77,8 @@ namespace FreeSmartphone.MusicPlayer
         //Save some time to avoid recreating of the Pipeline
         private string last_extension;
         private string last_protcol;
-        private FreeSmartphone.MusicPlayer.State cur_state = FreeSmartphone.MusicPlayer.State.STOPPED;
-        private FreeSmartphone.MusicPlayer.State _state { 
+        private MusicPlayerState cur_state = FreeSmartphone.MusicPlayerState.STOPPED;
+        private MusicPlayerState _state { 
             get{ return this.cur_state; }
             set
             {
@@ -96,13 +107,12 @@ namespace FreeSmartphone.MusicPlayer
         private HashTable<string,GLib.Value?> cur_song_info;
         private HashTable<string,GLib.Value?> file_info;
 
+        private int current_volume = 100;
 
-        public MusicPlayer( Connection con, ObjectPath path, KeyFile kf )
+
+        public MusicPlayer( KeyFile kf )
         {
-            this.conn = con;
-            this.path = path;
             this.key_file = kf;
-            this.playlist_path = ((string)path) + "/Playlists/";
 
             var playlist_dir = Config.get_playlist_dir();
             try
@@ -111,14 +121,14 @@ namespace FreeSmartphone.MusicPlayer
 
                 for( string file = dir.read_name(); file != null; file = dir.read_name() )
                 {
-                    debug( "FILENAME: %s", file );
-                    var pl = new Playlist( file, key_file );
+                    logger.debug( @"Try open playlist from $file" );
+                    var pl = new Playlist( file, key_file, this );
                     add_playlist( file, pl );
                 }
             }
             catch (GLib.Error e)
             {
-                debug( "Open playlists: %s", e.message );
+                logger.debug( @"Open config directory $playlist_dir for playlist: $(e.message)" );
             }
         }
         construct
@@ -140,11 +150,10 @@ namespace FreeSmartphone.MusicPlayer
         //
         // org.freesmartphone.MusicPlayer
         //
-        public HashTable<string,GLib.Value?> get_info_for_file( string file ) throws MusicPlayerError, DBus.Error
+        public async HashTable<string,GLib.Value?> get_info_for_file( string file ) throws MusicPlayerError, DBus.Error
         {
             if( ! FileUtils.test( file, FileTest.EXISTS ) )
-                 throw new MusicPlayerError.FILE_NOT_FOUND( "The file '%s does not exist".printf( file ) );
-            //gst-launch filesrc location=file.mp3 ! id3demux ! fakesink -t
+                 throw new MusicPlayerError.FILE_NOT_FOUND( @"The file $file does not exist" );
             file_info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
             file_info.insert( "filename", file );
             var pipe = new Pipeline( "file_pipeline" );
@@ -177,8 +186,6 @@ namespace FreeSmartphone.MusicPlayer
                     switch( message.type )
                     {
                         case MessageType.TAG:
-                            debug( "got Tag for %s", file );
-
                             Gst.TagList tag_list;
                             message.parse_tag ( out tag_list );
                             tag_list.foreach ( file_foreach_tag );
@@ -190,10 +197,11 @@ namespace FreeSmartphone.MusicPlayer
                             GLib.Error err;
                             string debug;
                             message.parse_error( out err, out debug );
-                            GLib.debug( "Message ERROR: %s %s", debug, err.message );
+                            logger.debug( @"Parsing file tags for $file failed: $(err.message)." );
+                            stop = true;
                             break;
                         default:
-                            debug( "ignoring %s for %s", message.type.to_string(), file );
+                            logger.info( @"Ignoring $(message.type) for $file" );
                             break;
                     }
                 }
@@ -203,28 +211,28 @@ namespace FreeSmartphone.MusicPlayer
 
             return file_info;
         }
-        public HashTable<string,GLib.Value?> get_playing_info() throws MusicPlayerError, DBus.Error
+        public async HashTable<string,GLib.Value?> get_playing_info() throws MusicPlayerError, DBus.Error
         {
             return this.cur_song_info;
         }
-        public string get_playing() throws MusicPlayerError, DBus.Error
+        public async string get_playing() throws MusicPlayerError, DBus.Error
         {
+            if( current_song == null )
+                 throw new MusicPlayerError.NO_FILE_SELECTED( "No file selected" );
             return current_song;
         }
-        public void set_playing( string file ) throws MusicPlayerError, DBus.Error
+        public async void set_playing( string file ) throws MusicPlayerError, DBus.Error
         {
             string ext = file.rchr( file.len(), '.' );
             string protocol = get_protocol_for_uri( file );
             if( last_extension != null && last_extension == ext && last_protcol == protocol )
             {
                 audio_pipeline.set_state( Gst.State.NULL );
-                debug( "Same extension" );
                 var src = audio_pipeline.get_by_name( "source" );
                 src.set( "location", file );
             }
             else
             {
-                debug( "Creating new pipeline" );
                 if( audio_pipeline != null )
                     audio_pipeline.set_state( Gst.State.NULL );
 
@@ -235,56 +243,61 @@ namespace FreeSmartphone.MusicPlayer
                 var codec = audio_codecs.lookup( ext );
                 if( codec == null )
                      throw new MusicPlayerError.FILETYPE_NOT_SUPPORTED( "Can't open %s".printf( file ) );
-                var el = "".concat( srcs, " ! ",codec, " ! ", element_tail ).split( " " );
+                var el = "".concat( srcs, " ! ",codec, " ! ", element_tail );
 
 
-                debug( "Elements: \"%s\"", string.joinv( "\" \"", el ) );
+                logger.debug( @"Elements: \"$el\" for $file" );
 
                 try
                 {
-                    var element = parse_launchv( el );
+                    var element = parse_launch( el );
                     audio_pipeline = element as Pipeline;
                     volume = audio_pipeline.get_by_name( "volume" );
+                    set_volume( current_volume );
                     core_stream = audio_pipeline.get_by_name( "core" );
                     source = audio_pipeline.get_by_name( "source" );
                     source.set( "location", file );
+                    audio_bus = audio_pipeline.get_bus();
+                    audio_bus.add_watch( bus_callback );
+                    last_extension = ext;
+                    last_protcol = protocol;
+                    Source.remove( timeout_pos_handle );
+                    this.audio_pipeline.set_state( Gst.State.READY );
+                    this._state = FreeSmartphone.MusicPlayerState.STOPPED;
+
+                    this.cur_song_info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
+                    this.cur_song_info.insert( "filename", file );
+                    playing_changed( file );
                 }
                 catch (GLib.Error e)
                 {
-                    error( "parsing arguments: %s \"%s\"", e.message, string.joinv( "\" \"", el ) );
+                    logger.error( @"Parsing arguments: \"$(el)\" $(e.message)" );
                 }
-                audio_bus = audio_pipeline.get_bus();
-                audio_bus.add_watch( bus_callback );
-                last_extension = ext;
-                last_protcol = protocol;
-                Source.remove( timeout_pos_handle );
             }
-            this.audio_pipeline.set_state( Gst.State.READY );
-            this._state = FreeSmartphone.MusicPlayer.State.STOPPED;
-
-            this.cur_song_info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
-            this.cur_song_info.insert( "filename", file );
-            playing_changed( file );
         }
-        public void play() throws MusicPlayerError, DBus.Error
+        public async void play() throws MusicPlayerError, DBus.Error
         {
+            if( audio_pipeline == null )
+                 throw new FreeSmartphone.MusicPlayerError.NO_FILE_SELECTED( "No file selected" );
             this.audio_pipeline.set_state( Gst.State.PLAYING );
-            this._state = FreeSmartphone.MusicPlayer.State.PLAYING;
+            this._state = FreeSmartphone.MusicPlayerState.PLAYING;
             timeout_pos_handle = Timeout.add( Config.poll_timeout, position_timeout );
         }
-        public void pause() throws MusicPlayerError, DBus.Error
+        public async void pause() throws MusicPlayerError, DBus.Error
         {
+            if( audio_pipeline == null )
+                 throw new FreeSmartphone.MusicPlayerError.NO_FILE_SELECTED( "No file selected" );
             this.audio_pipeline.set_state( Gst.State.PAUSED );
-            this._state = FreeSmartphone.MusicPlayer.State.PAUSED;
+            this._state = FreeSmartphone.MusicPlayerState.PAUSED;
             Source.remove( this.timeout_pos_handle );
         }
-        public void stop() throws MusicPlayerError, DBus.Error
+        public async void stop() throws MusicPlayerError, DBus.Error
         {
             this.audio_pipeline.set_state( Gst.State.READY );
-            this._state = FreeSmartphone.MusicPlayer.State.STOPPED;
+            this._state = FreeSmartphone.MusicPlayerState.STOPPED;
             Source.remove( this.timeout_pos_handle );
         }
-        public void previous() throws MusicPlayerError, DBus.Error
+        public async void previous() throws MusicPlayerError, DBus.Error
         {
             if( current_playlist == null )
                  throw new MusicPlayerError.NO_PLAYLIST_SELECTED( "No Playlist Selected" );
@@ -293,13 +306,13 @@ namespace FreeSmartphone.MusicPlayer
             {
                 this.current_song = playlist.get_previous();
             }
-            catch (PlaylistError e)
+            catch (MusicPlayerPlaylistError e)
             {
                  throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "Playlist %s has no more elements".printf(this.current_playlist));
             }
             play();
         }
-        public void next() throws MusicPlayerError, DBus.Error
+        public async void next() throws MusicPlayerError, DBus.Error
         {
             if( current_playlist == null )
                  throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "No Playlist Selected" );
@@ -308,26 +321,25 @@ namespace FreeSmartphone.MusicPlayer
             {
                 this.current_song = playlist.get_next();
             }
-            catch (PlaylistError e)
+            catch (MusicPlayerPlaylistError e)
             {
                  throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "Playlist %s has no more elements".printf(this.current_playlist));
             }
             play();
         }
-        public void seek_forward( int step ) throws MusicPlayerError, DBus.Error
+        public async void seek_forward( int step ) throws MusicPlayerError, DBus.Error
         {
             jump( current_position + step );
         }
-        public void seek_backward( int step ) throws MusicPlayerError, DBus.Error
+        public async void seek_backward( int step ) throws MusicPlayerError, DBus.Error
         {
             jump( current_position - step );
         }
-        public void jump( int pos ) throws MusicPlayerError, DBus.Error
+        public async void jump( int pos ) throws MusicPlayerError, DBus.Error
         {
-            debug( "Jump to position: %ll", ((int64)pos) * 1000000000LL / Config.precision );
             audio_pipeline.seek_simple( Gst.Format.TIME, Gst.SeekFlags.NONE, ((int64)pos) * 1000000000 / Config.precision );
         }
-        public ObjectPath[] get_playlists() throws MusicPlayerError, DBus.Error
+        public async ObjectPath[] get_playlists() throws MusicPlayerError, DBus.Error
         {
             var keys = this.playlists.get_keys();
             ObjectPath[] paths = new ObjectPath[keys.length()];
@@ -338,61 +350,65 @@ namespace FreeSmartphone.MusicPlayer
             }
             return paths;
         }
-        public ObjectPath get_current_playlist() throws MusicPlayerError, DBus.Error
+        public async ObjectPath get_current_playlist() throws MusicPlayerError, DBus.Error
         {
             if( current_playlist == null )
                  throw new MusicPlayerError.NO_PLAYLIST_SELECTED( "No current playlist" );
             return current_playlist;
         }
-        public void set_current_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error
+        public async void set_current_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error
         {
             var playlist = playlists.lookup( list );
             if( playlist == null )
                  throw new MusicPlayerError.UNKNOWN_PLAYLIST( "Playlist not found for %s".printf( list.rchr( list.len(),'/' ).next_char() ) );
             current_playlist = list;
         }
-        public void delete_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error
+        public async void delete_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error
         {
             var the_list = playlists.lookup( list );
             the_list.delete_files();
             playlists.remove( list );
             playlist_removed( list );
-            debug( " deleting playlist refcount: %u", the_list.ref_count );
+            logger.debug( @"deleting playlist $list refcount: $(the_list.ref_count)" );
             the_list = null;
             
         }
-        public ObjectPath new_playlist( string name ) throws MusicPlayerError, DBus.Error
+        public async ObjectPath new_playlist( string name ) throws MusicPlayerError, DBus.Error
         {
-            var list = new Playlist( name, key_file );
+            var list = new Playlist( name, key_file, this );
             return add_playlist( name, list );
         }
         public ObjectPath add_playlist( string name, Playlist pl ) throws MusicPlayerError, DBus.Error
         {
-            var obj_path = new ObjectPath(playlist_path + name);
+            var obj_path = generate_path_for_playlist( name );
+            var tmpobj = playlists.lookup( obj_path );
+            if( tmpobj != null )
+                 return obj_path;
             playlists.insert( obj_path, pl );
             playlist_added( obj_path );
-            this.conn.register_object( playlist_path + name, pl );
+            subsystem.registerServiceObject( FsoFramework.MusicPlayer.ServiceDBusName,
+                                              obj_path, pl );
             return obj_path;
         }
         public string[] search( string query ) throws MusicPlayerError, DBus.Error
         {
             return new string[0];
         }
-        public int get_volume() throws DBus.Error
+        public async int get_volume() throws DBus.Error
         {
             Gst.Value ret = Gst.Value();
             ret.init( typeof( double ) );
             Gst.ChildProxy.get_property( volume, "volume", out ret );
-            debug("Volume: %lf", ret.get_double() );
             return (int)( ret.get_double() * 100.0 );
         }
-        public void set_volume( int vol ) throws MusicPlayerError, DBus.Error
+        public async void set_volume( int vol ) throws MusicPlayerError, DBus.Error
         {
             if( vol > 1000 )
                  vol = 1000;
             else if( vol < 0 )
                  vol = 0;
             Gst.ChildProxy.set( volume, "volume", (double)( vol / 100.0 ) );
+            current_volume = vol;
         }
         //
         // None DBus Interface methods
@@ -404,13 +420,13 @@ namespace FreeSmartphone.MusicPlayer
                 case Gst.State.READY:
                 case Gst.State.NULL:
                 case Gst.State.VOID_PENDING:
-                    _state = FreeSmartphone.MusicPlayer.State.STOPPED;
+                    _state = FreeSmartphone.MusicPlayerState.STOPPED;
                     break;
                 case Gst.State.PAUSED:
-                    _state = FreeSmartphone.MusicPlayer.State.PAUSED;
+                    _state = FreeSmartphone.MusicPlayerState.PAUSED;
                     break;
                 case Gst.State.PLAYING:
-                    _state = FreeSmartphone.MusicPlayer.State.PLAYING;
+                    _state = FreeSmartphone.MusicPlayerState.PLAYING;
                     break;
                 default:
                     break;
@@ -432,36 +448,26 @@ namespace FreeSmartphone.MusicPlayer
         //
         private void setup_audio_elements()
         {
-            register_element( { "mad", "name=core" }, ".mp3", audio_codecs );
-            if( ! register_element( { "oggdemux", "!", "ivorbisdec", "name=core", "!", "audioconvert" }, ".ogg", audio_codecs ) )
-                 register_element( { "oggdemux", "!", "vorbisdec", "name=core", "!", "audioconvert" }, ".ogg", audio_codecs );
-            register_element( { "flacdec", "name=core", "!", "audioconvert" }, ".flac", audio_codecs );
-            register_element( { "waveparse", "name=core" }, ".wav", audio_codecs );
-            register_element( { "siddec", "name=core" }, ".sid", audio_codecs );
-            register_element( { "modplug", "name=core" }, ".mod", audio_codecs );
+            register_element( "mad name=core", ".mp3", audio_codecs );
+            if( ! register_element( "oggdemux ! ivorbisdec ! name=core ! audioconvert", ".ogg", audio_codecs ) )
+                 register_element( "oggdemux ! vorbisdec name=core ! audioconvert", ".ogg", audio_codecs );
+            register_element( "flacdec name=core ! audioconvert", ".flac", audio_codecs );
+            register_element( "waveparse name=core", ".wav", audio_codecs );
+            register_element( "siddec name=core" , ".sid", audio_codecs );
+            register_element( "modplug name=core", ".mod", audio_codecs );
         }
         private void setup_source_elements()
         {
-            register_element( { "filesrc", "name=source" }, "", audio_srcs );
-            register_element( { "filesrc", "name=source" }, "file" , audio_srcs );
-            if( ! register_element( { "souphttpsrc", "name=source" }, "http", audio_srcs ) )
-                register_element( { "neonhttpsrc", "name=source" }, "http", audio_srcs );
-            register_element( { "mmssrc", "name=source" }, "mms" , audio_srcs );
+            register_element( "filesrc name=source", "", audio_srcs );
+            register_element( "filesrc name=source", "file" , audio_srcs );
+            if( ! register_element( "souphttpsrc name=source", "http", audio_srcs ) )
+                register_element( "neonhttpsrc name=source", "http", audio_srcs );
+            register_element( "mmssrc name=source", "mms" , audio_srcs );
         }
-        private bool register_element( string[] elements, string extension, HashTable<string,string> to )
+        private bool register_element( string elements, string extension, HashTable<string,string> to )
         {
-            try
-            {
-                var test = Gst.parse_launchv( elements );
-                to.insert( extension, string.joinv( " ", elements ) );
-                debug( "Registered audio elements \"%s\" for %s", string.joinv( " ", elements ), extension );
-                test = null;
-            }
-            catch (GLib.Error e)
-            {
-                debug( "Cannot register audio elements \"%s\" for %s: %s", string.joinv( " ", elements ), extension, e.message );
-                return false;
-            }
+            to.insert( extension, elements );
+            debug( @"Registered audio elements \"$elements\" for $extension" );
             return true;
         }
         private string get_protocol_for_uri( string uri )
@@ -469,10 +475,24 @@ namespace FreeSmartphone.MusicPlayer
             if( uri.has_prefix( "/" ) )
                  return "file";
             string prefix = uri.split( ":", 2 )[0];
-            debug( "PREFIX: \"%s\"",prefix );
             return prefix;
         }
 
+        private DBus.ObjectPath generate_path_for_playlist( string name )
+        {
+            DBus.ObjectPath ret = null;
+            try
+            {
+                var regex = new Regex( "[^[:alnum:]_]+" );
+                var tmp = regex.replace( name, name.len(), 0, "_" );
+                ret = new DBus.ObjectPath ( FsoFramework.MusicPlayer.PlaylistServicePathPrefix + "/" + tmp );
+            }
+            catch( RegexError e )
+            {
+                logger.error( @"Replacing $name for ObjectPath: $(e.message)" );
+            }
+            return ret;
+        }
 
         //
         // Bus Callbacks
@@ -492,22 +512,22 @@ namespace FreeSmartphone.MusicPlayer
                     GLib.Error err;
                     string debug;
                     message.parse_error( out err, out debug );
-                    GLib.debug( "Message ERROR: %s %s", debug, err.message );
+                    logger.error( "Message: $debug $err" );
                     break;
                 case MessageType.WARNING:
                     GLib.Error err;
                     string debug;
                     message.parse_warning( out err, out debug );
-                    GLib.debug( "Message WARNING: %s %s", debug, err.message );
+                    logger.warning( "Message: $debug $err" );
                     break;
                 case MessageType.INFO:
                     GLib.Error err;
                     string debug;
                     message.parse_info( out err, out debug );
-                    GLib.debug( "Message INFO: %s %s", debug, err.message );
+                    logger.info( "Message: $debug $err" );
                     break;
                 case MessageType.EOS:
-                    debug("End of stream");
+                    logger.info("End of stream");
                     next();
                     break;
                 case MessageType.STATE_CHANGED:
@@ -522,30 +542,8 @@ namespace FreeSmartphone.MusicPlayer
                     message.parse_tag (out tag_list);
                     tag_list.foreach (foreach_tag);
                     break;
-                case MessageType.SEGMENT_START:
-                    Gst.Format fmt;
-                    int64 pos;
-                    message.parse_segment_start( out fmt, out pos );
-                    debug( "SEGMENT_START: %i %ll", fmt, pos );
-                    break;
-                case MessageType.DURATION:
-                    Gst.Format fmt;
-                    int64 dur;
-                    message.parse_duration( out fmt, out dur );
-                    break;
-                case MessageType.CLOCK_PROVIDE:
-                    Gst.Clock clk;
-                    bool ready;
-                    message.parse_clock_provide( out clk, out ready );
-                    debug( "CLOCK_PROVIDE: ready:%s type: %s",ready.to_string(), clk.get_type().name() );
-                    break;
-                case MessageType.NEW_CLOCK:
-                    Gst.Clock clk;
-                    message.parse_new_clock( out clk );
-                    debug("NEW_CLOCK: %s", clk.get_type().name() );
-                    break;
                 case MessageType.BUFFERING:
-                    this._state = FreeSmartphone.MusicPlayer.State.BUFFERING;
+                    this._state = FreeSmartphone.MusicPlayerState.BUFFERING;
                     break;
                 default:
                     debug( "ignored message: %s", message.type.to_string() );
@@ -563,7 +561,7 @@ namespace FreeSmartphone.MusicPlayer
             }
             else
             {
-                debug("ERROR in timeout");
+                logger.error("Get position");
             }
             //Call me again
             return true;
@@ -572,9 +570,43 @@ namespace FreeSmartphone.MusicPlayer
         {
             Gst.Value val;
             Gst.TagList.copy_value( out val, list, tag );
-            debug( "new file tag: %s", tag );
             if( ! val.holds( typeof( Gst.Buffer ) ) && ! val.holds( typeof( Gst.Date ) ) )
                 file_info.insert( tag, val );
+        }
+        //
+        // FsoFramework.AbstractObject
+        //
+        public override string repr()
+        {
+            return @"<$(this.get_type().name())>";
+        }
+        //
+        // public methods
+        //
+
+        public async void jump_to_file_in_playlist( Playlist pl )
+        {
+            string name = null;
+            try
+            {
+                name = yield pl.get_name();
+            }
+            catch (GLib.Error e)
+            {
+                logger.error( @"Lookup name for JumpTo: $(e.message)" );
+                return;
+            }
+            var objpath = generate_path_for_playlist( name );
+            current_playlist = objpath;
+            try
+            {
+                current_song = pl.get_current_file();
+
+            }
+            catch (MusicPlayerPlaylistError mppe)
+            {
+                logger.debug( @"Tried to jump into playlist '$name': $(mppe.message)" );
+            }
         }
     }
 }

@@ -23,99 +23,10 @@
 using GLib;
 using DBus;
 
-namespace FreeSmartphone.MusicPlayer
+namespace DBus
 {
-    public enum State
-    {
-        PLAYING,
-        PAUSED,
-        STOPPED,
-        BUFFERING
-    }
-    [DBus (name="org.freesmartphone.MusicPlayer.MusicPlayerError")]
-    public errordomain MusicPlayerError
-    {
-        NO_FILE_SELECTED,
-        NO_PLAYLIST_SELECTED,
-        END_OF_LIST,
-        UNKNOWN_PLAYLIST,
-        PLAYLIST_OUT_OF_FILES,
-        FILE_NOT_FOUND,
-        FILETYPE_NOT_SUPPORTED,
-        PROTOCOL_NOT_SUPPORTED
-    }
-    public const string BASE_OBJECT_PATH = "/org/freesmartphone/MusicPlayer";
-    public const string BUSNAME = "org.freesmartphone.omusicd";
-
-    [DBus (name="org.freesmartphone.MusicPlayer")]
-    public interface IMusicPlayer: GLib.Object
-    {
-        public abstract HashTable<string,Value?> get_info_for_file( string file ) throws MusicPlayerError, DBus.Error;
-        public abstract string get_playing() throws MusicPlayerError, DBus.Error;
-        public abstract GLib.HashTable<string,Value?> get_playing_info() throws MusicPlayerError, DBus.Error;
-        public abstract void set_playing( string file ) throws MusicPlayerError, DBus.Error;
-        public abstract void play() throws MusicPlayerError, DBus.Error;
-        public abstract void pause() throws MusicPlayerError, DBus.Error;
-        public abstract void stop() throws MusicPlayerError, DBus.Error;
-        public abstract void previous() throws MusicPlayerError, DBus.Error;
-        public abstract void next() throws MusicPlayerError, DBus.Error;
-        public abstract void seek_forward( int step ) throws MusicPlayerError, DBus.Error;
-        public abstract void seek_backward( int step ) throws MusicPlayerError, DBus.Error;
-        public abstract void jump( int pos ) throws MusicPlayerError, DBus.Error;
-        public abstract ObjectPath[] get_playlists() throws MusicPlayerError, DBus.Error;
-        public abstract ObjectPath get_current_playlist() throws MusicPlayerError, DBus.Error;
-        public abstract void set_current_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error;
-        public abstract void delete_playlist( ObjectPath list ) throws MusicPlayerError, DBus.Error;
-        public abstract ObjectPath new_playlist( string name ) throws MusicPlayerError, DBus.Error;
-        public abstract string[] search( string query ) throws MusicPlayerError, DBus.Error;
-        public abstract int get_volume() throws DBus.Error;
-        public abstract void set_volume( int vol ) throws MusicPlayerError, DBus.Error;
-        public abstract signal void progress( int progress );
-        public abstract signal void playing_changed( string file );
-        public abstract signal void state( State state );
-        public abstract signal void playlist_added( ObjectPath path );
-        public abstract signal void playlist_removed( ObjectPath path );
-    }
-    [DBus (name="org.freesmartphone.MusicPlayer.Playlist")]
-    public interface IPlaylist: GLib.Object
-    {
-        public abstract string[] get_files() throws PlaylistError, DBus.Error;
-        public abstract void insert( int position, string file ) throws PlaylistError, DBus.Error;
-        public abstract void remove( int position ) throws PlaylistError, DBus.Error;
-        public abstract void insert_dir( int position, string dir, bool recursive ) throws PlaylistError, DBus.Error;
-        public abstract string get_at_position( int position ) throws PlaylistError, DBus.Error;
-        public abstract void load_from_file( string filename ) throws PlaylistError, DBus.Error;
-        public abstract string get_name() throws PlaylistError, DBus.Error;
-        public abstract void change_name( string new_name ) throws PlaylistError, DBus.Error;
-        public abstract void set_mode( PlaylistMode m ) throws PlaylistError, DBus.Error;
-        public abstract PlaylistMode get_mode() throws PlaylistError, DBus.Error;
-        public abstract signal void name( string name );
-        public abstract signal void playing( string file );
-        public abstract signal void deleted();
-        public abstract signal void file_removed( int position );
-        public abstract signal void file_added( int position, string filename);
-        public abstract signal void mode_changed( PlaylistMode mode );
-    }
-
-    [DBus (name="org.freesmartphone.MusicPlayer.Playlist.PlaylistError")]
-    public errordomain PlaylistError
-    {
-        FILE_NOT_FOUND,
-        OUT_OF_RANGE,
-        FILETYPE_NOT_SUPPORTED,
-        EMPTY,
-        NO_FILE_SELECTED,
-        OUT_OF_FILES
-    }
-    public enum PlaylistMode
-    {
-        NORMAL,
-        ENDLESS,
-        RANDOM
-    }
-
     [DBus (name = "org.freedesktop.DBus")]
-    public interface DBusService : GLib.Object 
+    public interface Service : GLib.Object 
     {
         public abstract string hello() throws DBus.Error;
         public abstract uint request_name(string param0, uint param1) throws DBus.Error;
