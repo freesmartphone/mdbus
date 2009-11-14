@@ -25,6 +25,7 @@ public void test_const_mbpi_create()
 //===========================================================================
 {
     var mbpi = MBPI.Database.instance();
+    assert( mbpi.allCountries()["de"].name == "germany" );
 }
 
 //===========================================================================
