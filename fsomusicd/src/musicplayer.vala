@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 14-11-2009 23:32:45
+ * Last Modified: 15-11-2009 00:59:02
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -24,11 +24,15 @@ using GLib;
 using DBus;
 using Gst;
 using FreeSmartphone;
+using Gee;
 
 namespace FsoMusic
 {
     public class MusicPlayer: FsoFramework.AbstractObject , FreeSmartphone.MusicPlayer
     {
+        private bool was_playing = false;
+        private FreeSmartphone.Device.Audio sys_audio;
+        private Gee.ArrayList<string> sys_sound_ids = new Gee.ArrayList<string>();
         private unowned KeyFile key_file;
         private HashTable<string,string> audio_codecs;
         private HashTable<string,string> audio_srcs;
@@ -129,6 +133,18 @@ namespace FsoMusic
             catch (GLib.Error e)
             {
                 logger.debug( @"Open config directory $playlist_dir for playlist: $(e.message)" );
+            }
+            try
+            {
+                var con = ((FsoFramework.DBusSubsystem)subsystem).dbusConnection();
+                sys_audio = con.get_object( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.AudioServicePath )
+                        as FreeSmartphone.Device.Audio;
+                sys_audio.sound_status.connect( on_sys_play_sound );
+
+            }
+            catch ( DBus.Error e )
+            {
+                logger.error( @"Gathering Device.Audio: $(e.message)" );
             }
         }
         construct
@@ -606,6 +622,45 @@ namespace FsoMusic
             catch (MusicPlayerPlaylistError mppe)
             {
                 logger.debug( @"Tried to jump into playlist '$name': $(mppe.message)" );
+            }
+        }
+
+        //
+        // FreeSmartphone.Device.Audio callbacks
+        //
+
+        private void on_sys_play_sound( string id, FreeSmartphone.Device.SoundState status, GLib.HashTable<string,GLib.Value?> properties )
+        {
+            if( status == FreeSmartphone.Device.SoundState.STOPPED )
+            {
+                if( !sys_sound_ids.remove( id ) )
+                {
+                    logger.error( @"Cannot remove $id from system sound IDs" );
+                }
+                else
+                {
+                    if( sys_sound_ids.size == 0 && was_playing )
+                         play();
+                }
+            }
+            else
+            {
+                if( !sys_sound_ids.add( id ) )
+                {
+                    logger.error( @"Cannot add $id to system sound IDs" );
+                }
+                else
+                {
+                    if( sys_sound_ids.size == 1 )
+                    {
+                        if( this.cur_state == MusicPlayerState.PLAYING )
+                        {
+                            was_playing = true;
+                            pause();
+                        }
+                        else was_playing = false;
+                    }
+                }
             }
         }
     }

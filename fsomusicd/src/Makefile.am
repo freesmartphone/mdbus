@@ -38,6 +38,7 @@ fsomusicd_SOURCES = \
 	    --pkg fsobasics-2.0 \
 	    --pkg fsoframework-2.0 \
 	    --pkg fso-glib-1.0 \
+		--pkg gee-1.0 \
 	    --vapidir=. \
 	    --save-temps  $^
 	touch $@
