@@ -22,7 +22,7 @@
  **/
 namespace MBPI {
 
-internal const string ISO_3361_DATABASE = Config.PACKAGE_DATADIR + "/list-en1-semic-3.txt";
+internal const string ISO_3361_DATABASE = Config.PACKAGE_DATADIR + "/iso3361+tz.txt";
 
 public class Country
 {
@@ -30,8 +30,18 @@ public class Country
     {
         providers = new Gee.HashMap<string,Provider>();
     }
+    public void addTimezone( string tz )
+    {
+        if ( timezones == null )
+        {
+            timezones = new Gee.ArrayList<string>();
+        }
+        timezones.add( tz );
+    }
     public string name;
+    public string dialprefix;
     public Gee.HashMap<string,Provider> providers;
+    public Gee.ArrayList<string> timezones;
 }
 
 public class Provider
@@ -111,7 +121,7 @@ public class Database : FsoFramework.AbstractObject
 
         foreach ( var key in countries.keys )
         {
-            debug( @"got providers in country '$key'" );
+            debug( @"found providers in country '$key'" );
         }
     }
 
@@ -220,27 +230,40 @@ public class Database : FsoFramework.AbstractObject
     private void loadIso3361()
     {
         var file = FsoFramework.FileHandling.read( MBPI.ISO_3361_DATABASE );
-        foreach ( var line in file.split( "\r\n" ) )
+        foreach ( var line in file.split( "\n" ) )
         {
-            var elements = line.split( ";" );
-            if ( elements.length != 2 )
+            if ( line[0] == '#' )
             {
                 continue;
             }
-            var ccode = elements[1].down();
-            var name = elements[0].down(); // casefold?
+            var elements = line.split( "\t" );
+            if ( elements.length != 5 )
+            {
+                continue;
+            }
+            var ccode = elements[0];
+            var name = elements[1];
+            var dialprefix = elements[2];
+            var timezone1 = elements[3];
+            var timezone2 = elements[4];
             var country = countries[ccode];
             if ( country != null )
             {
                 country.name = name;
 #if DEBUG
-                debug( @"ccode $ccode equals $name" );
+                debug( @"augmenting country $ccode w/ additional information" );
 #endif
+                country.dialprefix = dialprefix;
+                country.addTimezone( timezone1 );
+                if ( timezone2 != timezone1 )
+                {
+                    country.addTimezone( timezone2 );
+                }
             }
             else
             {
 #if DEBUG
-                debug( @"ccode '$ccode' has no providers" );
+                debug( @"ccode '$ccode' has no providers; not adding any information" );
 #endif
             }
         }

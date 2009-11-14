@@ -25,7 +25,12 @@ public void test_const_mbpi_create()
 //===========================================================================
 {
     var mbpi = MBPI.Database.instance();
-    assert( mbpi.allCountries()["de"].name == "germany" );
+    var germany = mbpi.allCountries()["de"];
+    assert( germany != null );
+    assert( germany.name.down() == "germany" );
+    assert( germany.dialprefix == "49" );
+    assert( germany.timezones.size == 1 );
+    assert( germany.timezones[0] == "UTC+01:00" );
 }
 
 //===========================================================================
