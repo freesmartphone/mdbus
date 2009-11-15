@@ -103,6 +103,19 @@ public class FsoGsm.BaseUnsolicitedResponseHandler : FsoGsm.UnsolicitedResponseH
 
 public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedResponseHandler
 {
+    private async void triggerUpdateNetworkStatus()
+    {
+        // gather info
+        var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
+        yield m.run();
+        // send dbus signal
+        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        obj.status( m.status );
+    }
+
+    //
+    // public API
+    //
     public AtUnsolicitedResponseHandler()
     {
         registerUrc( "+CALA", plusCALA );
@@ -135,7 +148,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCREG( string prefix, string rhs )
     {
-        //FIXME: Implement
+        triggerUpdateNetworkStatus();
     }
 
     public virtual void plusCRING( string prefix, string rhs )
@@ -155,4 +168,6 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
             logger.warning( @"Received invalid +CMTI message $rhs. Please report" );
         }
     }
+
+
 }
