@@ -24,6 +24,7 @@ using FsoGsm;
 namespace TiCalypso
 {
     const string MODULE_NAME = "fsogsm.modem_ti_calypso";
+    const string CHANNEL_NAME = "main";
 }
 
 class TiCalypso.Modem : FsoGsm.AbstractModem
@@ -33,14 +34,34 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         return "<>";
     }
 
+    protected override void configureData()
+    {
+        modem_data = new FsoGsm.Modem.Data();
+        modem_data.simHasReadySignal = true;
+    }
+
     protected override void createChannels()
     {
-        //TODO: create channels here
+        var mode = config.stringValue( MODULE_NAME, "mode", "single" );
+        if ( mode == "mux" )
+        {
+            logger.warning( "MUX mode not yet supported. Using single" );
+        }
+
+        var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+        var parser = new FsoGsm.StateBasedAtParser();
+        var chan = new Channel( CHANNEL_NAME, transport, parser );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        //TODO: return proper channel here
+        // nothing to do here as singleline only has one channel
+        return channels[ CHANNEL_NAME ];
+    }
+
+    public void responseHandler( FsoGsm.AtCommand command, string[] response )
+    {
+        debug( "handler called with '%s'", response[0] );
         assert_not_reached();
     }
 }
