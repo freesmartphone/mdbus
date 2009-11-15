@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 15-11-2009 02:40:18
+ * Last Modified: 15-11-2009 20:39:16
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -35,31 +35,33 @@ namespace FsoMusic
         private bool waiting = false;
         private int wait_counter{ default=0; get{return _wait_counter;}
             set{
-                _wait_counter = value;
-                if( _wait_counter == 1 && ! waiting )
+                if( value < 0 )
+                    logger.error( @"someone tried to set wait_counter to: $value < 0 waiting $waiting" );
+                else
                 {
-                    waiting = true;
-                    if( cur_state == FreeSmartphone.MusicPlayerState.PLAYING )
-                         was_playing = true;
-                    else
-                         was_playing = false;
-                }
-                else if( _wait_counter == 0 && waiting )
-                {
-                    play();
-                    waiting = false;
-                    was_playing = false;
+                    logger.info( @"Set wait_counter: $wait_counter -> $value wating: $waiting" );
+                    _wait_counter = value;
+                    if( _wait_counter == 1 && ! waiting )
+                    {
+                        waiting = true;
+                        if( cur_state == FreeSmartphone.MusicPlayerState.PLAYING )
+                             was_playing = true;
+                        else
+                             was_playing = false;
+                        logger.info( @"Restart playing: $was_playing" );
+                        pause();
+                    }
+                    else if( _wait_counter == 0 && waiting )
+                    {
+                        waiting = false;
+                        if( was_playing )
+                            play();
+                        logger.info( @"Pausing play: $was_playing" );
+                    }
                 }
             }
         }
         private bool was_playing = false;
-        private FreeSmartphone.Device.Audio sys_audio;
-        private Gee.ArrayList<string> sys_sound_ids = new Gee.ArrayList<string>();
-
-        private Gee.ArrayList<FreeSmartphone.GSM.CallStatus> call_pause_stati = new Gee.ArrayList<FreeSmartphone.GSM.CallStatus>();
-        private Gee.ArrayList<FreeSmartphone.GSM.CallStatus> call_play_stati = new Gee.ArrayList<FreeSmartphone.GSM.CallStatus>();
-        private ArrayList<int> call_ids = new ArrayList<int>();
-        private FreeSmartphone.GSM.Call call;
 
         private unowned KeyFile key_file;
         private HashTable<string,string> audio_codecs;
@@ -162,13 +164,6 @@ namespace FsoMusic
             {
                 logger.debug( @"Open config directory $playlist_dir for playlist: $(e.message)" );
             }
-            var con = ((FsoFramework.DBusSubsystem)subsystem).dbusConnection();
-            sys_audio = con.get_object( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.AudioServicePath )
-                    as FreeSmartphone.Device.Audio;
-            sys_audio.sound_status.connect( on_sys_play_sound );
-            call = con.get_object( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath )
-                    as FreeSmartphone.GSM.Call;
-            call.call_status.connect( on_call_status );
         }
         construct
         {
@@ -180,12 +175,6 @@ namespace FsoMusic
             audio_srcs = new HashTable<string,string>(str_hash, str_equal);
             setup_audio_elements();
             setup_source_elements();
-            foreach( var status in config.stringListValue( Config.MUSIC_PLAYER_GROUP, "pause_stati", 
-                                                    { "INCOMING", "OUTGOING", "ACTIVE" } ) )
-                call_pause_stati.add( string_to_call_status( status ) );
-            foreach( var status in config.stringListValue( Config.MUSIC_PLAYER_GROUP, "play_stati", 
-                                                    { "RELEASE" } ) )
-                call_play_stati.add( string_to_call_status( status ) );
         }
         ~MusicPlayer()
         {
@@ -322,11 +311,16 @@ namespace FsoMusic
         }
         public async void play() throws MusicPlayerError, DBus.Error
         {
-            if( audio_pipeline == null )
-                 throw new FreeSmartphone.MusicPlayerError.NO_FILE_SELECTED( "No file selected" );
-            this.audio_pipeline.set_state( Gst.State.PLAYING );
-            this._state = FreeSmartphone.MusicPlayerState.PLAYING;
-            timeout_pos_handle = Timeout.add( Config.poll_timeout, position_timeout );
+            if( ! waiting )
+            {
+                if( audio_pipeline == null )
+                     throw new FreeSmartphone.MusicPlayerError.NO_FILE_SELECTED( "No file selected" );
+                this.audio_pipeline.set_state( Gst.State.PLAYING );
+                this._state = FreeSmartphone.MusicPlayerState.PLAYING;
+                timeout_pos_handle = Timeout.add( Config.poll_timeout, position_timeout );
+            }
+            else
+                 logger.info( @"Reject playing, because we are waiting for some system events" );
         }
         public async void pause() throws MusicPlayerError, DBus.Error
         {
@@ -454,6 +448,17 @@ namespace FsoMusic
                  vol = 0;
             Gst.ChildProxy.set( volume, "volume", (double)( vol / 100.0 ) );
             current_volume = vol;
+        }
+
+        public async void push_pause()
+        {
+            wait_counter ++;
+            logger.info( @"push_pause: $wait_counter" );
+        }
+        public async void pop_pause()
+        {
+            wait_counter --;
+            logger.info( @"pop_pause: $wait_counter" );
         }
         //
         // None DBus Interface methods
@@ -652,76 +657,6 @@ namespace FsoMusic
             {
                 logger.debug( @"Tried to jump into playlist '$name': $(mppe.message)" );
             }
-        }
-
-        //
-        // FreeSmartphone.Device.Audio callbacks
-        //
-
-        private void on_sys_play_sound( string id, FreeSmartphone.Device.SoundState status, GLib.HashTable<string,GLib.Value?> properties )
-        {
-            if( status == FreeSmartphone.Device.SoundState.STOPPED )
-            {
-                if( !sys_sound_ids.remove( id ) )
-                {
-                    logger.error( @"Cannot remove $id from system sound IDs" );
-                }
-                wait_counter --;
-            }
-            else
-            {
-                if( !sys_sound_ids.add( id ) )
-                {
-                    logger.error( @"Cannot add $id to system sound IDs" );
-                }
-                wait_counter ++;
-            }
-        }
-        //
-        // FreeSmartphone.GSM.Call callbacks
-        //
-
-        private void on_call_status( int id, FreeSmartphone.GSM.CallStatus status, GLib.HashTable<string, GLib.Value?> Properties )
-        {
-            if( status in call_pause_stati )
-            {
-                call_ids.add( id );
-                wait_counter ++;
-            }
-            else if( status in call_play_stati && call_ids.contains( id ) )
-            {
-                call_ids.remove( id );
-                wait_counter --;
-            }
-        }
-        //
-        // Helpers
-        //
-        static FreeSmartphone.GSM.CallStatus string_to_call_status( string s )
-        {
-            FreeSmartphone.GSM.CallStatus ret = FreeSmartphone.GSM.CallStatus.INCOMING;
-            switch( s )
-            {
-                case "INCOMING":
-                    ret = FreeSmartphone.GSM.CallStatus.INCOMING;
-                    break;
-                case "OUTGOING":
-                    ret = FreeSmartphone.GSM.CallStatus.OUTGOING;
-                    break;
-                case "ACTIVE":
-                    ret = FreeSmartphone.GSM.CallStatus.ACTIVE;
-                    break;
-                case "HELD":
-                    ret = FreeSmartphone.GSM.CallStatus.HELD;
-                    break;
-                case "RELEASE":
-                    ret = FreeSmartphone.GSM.CallStatus.RELEASE;
-                    break;
-                default:
-                    FsoFramework.Logger.defaultLogger().error( @"Illegal value $s as CallStatus" );
-                    break;
-            }
-            return ret;
         }
     }
 }
