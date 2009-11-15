@@ -28,6 +28,8 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     protected bool hard;
     protected int fd = -1;
 
+    private bool buffered;
+
     private IOChannel channel;
 
     private uint readwatch;
@@ -238,13 +240,22 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             termios.c_oflag &= ~(Posix.OPOST | Linux.Termios.OLCUC | Posix.ONLRET | Posix.ONOCR | Posix.OCRNL );
 
             // no special character handling
+
+            /*
             termios.c_cc[Posix.VMIN] = 0;
             termios.c_cc[Posix.VTIME] = 2;
             termios.c_cc[Posix.VINTR] = 0;
             termios.c_cc[Posix.VQUIT] = 0;
             termios.c_cc[Posix.VSTART] = 0;
             termios.c_cc[Posix.VSTOP] = 0;
-
+            termios.c_cc[Posix.VSUSP] = 0;
+            */
+            termios.c_cc[Posix.VMIN] = 1;
+            termios.c_cc[Posix.VTIME] = 0;
+            termios.c_cc[Posix.VINTR] = 0;
+            termios.c_cc[Posix.VQUIT] = 0;
+            termios.c_cc[Posix.VSTART] = 0;
+            termios.c_cc[Posix.VSTOP] = 0;
             termios.c_cc[Posix.VSUSP] = 0;
         }
         var ok = Posix.tcsetattr( fd, Posix.TCSANOW, termios);
@@ -280,6 +291,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         this.raw = raw;
         this.hard = hard;
         buffer = new ByteArray();
+        buffered = true;
 
         // FIXME: Creating the debug logger may be better done in the global
         // library initializer (e.g. void __attribute__ ((constructor)) my_init(void); )
@@ -294,7 +306,6 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         {
             logger = new FsoFramework.NullLogger( "none" );
         }
-
         assert( logger.debug( "created" ) );
     }
 
@@ -371,27 +382,41 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         assert( fd != -1 );
         assert( data != null );
         ssize_t bytesread = Posix.read( fd, data, len );
+        assert( logger.debug( "read %u bytes".printf( (uint)bytesread ) ) );
         //TODO: what to do if we got 0 bytes?
         return (int)bytesread;
     }
 
     public override int write( void* data, int len )
     {
-        assert( logger.debug( "writing %d bytes".printf( len ) ) );
-        assert( data != null );
-        if ( fd == -1 )
+        if ( !buffered )
         {
-            logger.warning( "writing although transport still closed; buffering." );
+            return _write( data, len );
         }
-        var restart = ( fd != -1 && buffer.len == 0 );
-        //TODO: avoid copying the buffer
-        var temp = new uint8[len];
-        Memory.copy( temp, data, len );
-        buffer.append( temp );
+        else
+        {
+            assert( logger.debug( "writing %d bytes".printf( len ) ) );
+            assert( data != null );
+            if ( fd == -1 )
+            {
+                logger.warning( "writing although transport still closed; buffering." );
+            }
+            var restart = ( fd != -1 && buffer.len == 0 );
+            //TODO: avoid copying the buffer
+            var temp = new uint8[len];
+            Memory.copy( temp, data, len );
+            buffer.append( temp );
 
-        if ( restart )
-            restartWriter();
-        return len;
+            if ( restart )
+                restartWriter();
+            return len;
+        }
+    }
+
+    public override void setBuffered( bool on )
+    {
+        //FIXME: check whether buffer is empty, if not, drain it before changing to unbuffered
+        buffered = on;
     }
 
     public override int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 1000 )
