@@ -1,0 +1,220 @@
+Albania	 355	 GMT+01:00	 
+Algeria	 213	 GMT	 
+Andorra	 376	 GMT+01:00	 
+Angola	 244	 GMT+01:00	 
+Anguilla	 264	 GMT-04:00	 
+Antigua and Barbuda	 268	 GMT-04:00	 
+Argentina	 54	 GMT-03:00	 
+Armenia	 374	 GMT+04:00	 
+Aruba	 297	 GMT-04:00	 
+Ascension Island	 247	 GMT	 
+Australia	 61	 GMT+10:00	 GMT+07:00
+Austria	 43	 GMT+01:00	 
+Azerbaijan	 994	 GMT+04:00	 
+Bahamas	 242	 GMT-05:00	 
+Bahrain	 973	 GMT+03:00	 
+Bangladesh	 880	 GMT+06:00	 
+Barbados	 246	 GMT-04:00	 
+Belarus	 375	 GMT+03:00	 
+Belgium	 32	 GMT+01:00	 
+Belize	 501	 GMT-06:00	 
+Benin	 229	 GMT+01:00	 
+Bermuda	 441	 GMT-04:00	 
+Bhutan	 975	 GMT+05:30	 
+Bolivia	 591	 GMT-04:00	 
+Bosnia	 387	 GMT+01:00	 
+Botswana	 267	 GMT+02:00	 
+Brazil	 55	 GMT-03:00	 GMT-05:00
+Brunei	 673	 GMT+08:00	 
+Bulgaria	 359	 GMT+02:00	 
+Burkina Faso	 226	 GMT	 
+Burundi	 257	 GMT+02:00	 
+Cambodia	 855	 GMT+07:00	 
+Cameroon	 237	 GMT+01:00	 
+Canada	 1	 GMT-04:00	 GMT-08:00
+Cape Verde Islands	 238	 GMT-01:00	 
+Cayman Islands	 345	 GMT-05:00	 
+Central Africa Republic	 236	 GMT+01:00	 
+Chad	 235	 GMT+01:00	 
+Chile	 56	 GMT-04:00	 
+China	 86	 GMT+08:00	 
+Columbia	 57	 GMT-05:00	 
+Comoros Island	 269	 GMT+03:00	 
+Congo	 242	 GMT+01:00	 
+Cook Islands	 682	 GMT-10:00	 
+Costa Rica	 506	 GMT-06:00	 
+Croatia	 385	 GMT+01:00	 
+Cuba	 53	 GMT-03:00	 
+Cyprus	 357	 GMT+02:00	 
+Czech Republic	 420	 GMT+01:00	 
+Democratic Republic of Congo (Zaire)	 243	 GMT+02:00	 GMT+01:00
+Denmark	 45	 GMT+01:00	 
+Diego Garcia	 246	 GMT+05:00	 
+Djibouti	 253	 GMT+03:00	 
+Dominica Islands	 767	 GMT-04:00	 
+Dominican Republic	 809	 GMT-04:00	 
+Ecuador	 593	 GMT-05:00	 
+Egypt	 20	 GMT+02:00	 
+El Salvador	 503	 GMT-06:00	 
+Equatorial Guinea	 240	 GMT+01:00	 
+Eritrea	 291	 GMT+03:00	 
+Estonia	 372	 GMT+03:00	 
+Ethiopia	 251	 GMT+03:00	 
+Faeroe Islands	 298	 GMT	 
+Falkland Islands	 500	 GMT-04:00	 
+Fiji Islands	 679	 GMT+12:00	 
+Finland	 358	 GMT+02:00	 
+France	 33	 GMT+01:00	 
+French Guiana 	 594	 GMT-04:00	 
+French Polynesia	 689	 GMT-10:00	 
+Gabon	 241	 GMT+01:00	 
+Georgia	 995	 GMT+04:00	 
+Germany	 49	 GMT+01:00	 
+Ghana	 233	 GMT	 
+Gibraltar	 350	 GMT+01:00	 
+Greece	 30	 GMT+02:00	 
+Greenland	 299	 GMT-03:00	 
+Grenada	 473	 GMT-04:00	 
+Guadeloupe	 590	 GMT-04:00	 
+Guam	 671	 GMT+10:00	 
+Guatemala	 502	 GMT-06:00	 
+Guinea Bissau	 245	 GMT-01:00	 
+Guinea Republic	 224	 GMT	 
+Guyana	 592	 GMT-03:00	 
+Haiti	 509	 GMT-05:00	 
+Honduras	 503	 GMT-06:00	 
+Hong Kong	 852	 GMT+08:00	 
+Hungary	 36	 GMT+01:00	 
+Iceland	 354	 GMT	 
+India	 91	 GMT+05:30	 
+Indonesia	 62	 GMT+09:00	 GMT+07:00
+Iran	 98	 GMT+03:30	 
+Iraq	 964	 GMT+03:00	 
+Ireland	 353	 GMT	 
+Israel	 972	 GMT+02:00	 
+Italy	 39	 GMT+01:00	 
+Ivory Coast	 225	 GMT	 
+Jamaica	 876	 GMT-05:00	 
+Japan	 81	 GMT+09:00	 
+Jordan	 962	 GMT+02:00	 
+Kazakhstan	 7	 GMT+06:00	 
+Kenya	 254	 GMT+03:00	 
+Kiribati	 686	 GMT+12:00	 
+Korea, North	 850	 GMT+09:00	 
+Korea, South	 82	 GMT+09:00	 
+Kuwait	 965	 GMT+03:00	 
+Kyrgyzstan	 996	 GMT+06:00	 
+Laos	 856	 GMT+07:00	 
+latvia	 371	 GMT+03:00	 
+Lebanon	 961	 GMT+02:00	 
+Lesotho	 266	 GMT+02:00	 
+Liberia	 231	 GMT	 
+Libya	 218	 GMT+02:00	 
+Liechtenstein	 423	 GMT+01:00	 
+Lithuania	 370	 GMT+02:00	 
+Luxembourg	 352	 GMT+01:00	 
+Macau	 853	 GMT+08:00	 
+Macedonia (Fyrom)	 389	 GMT+01:00	 
+Madagascar	 261	 GMT+03:00	 
+Malawi	 265	 GMT+02:00	 
+Malaysia	 60	 GMT+08:00	 
+Maldives Republic	 960	 GMT+05:00	 
+Mali	 223	 GMT	 
+Malta	 356	 GMT+01:00	 
+Mariana Islands	 670	 GMT+10:00	 
+Marshall Islands	 692	 GMT+10:00	 
+Martinique	 596	 GMT-04:00	 
+Mauritius	 230	 GMT+04:00	 
+Mayotte Islands	 269	 GMT+03:00	 
+Mexico	 52	 GMT-06:00	 GMT-08:00
+Micronesia	 691	 GMT+10:00	 
+Moldova	 373	 GMT+03:00	 
+Monaco	 377	 GMT+01:00	 
+Mongolia	 976	 GMT+08:00	 
+Montserrat	 664	 GMT-04:00	 
+Morocco	 212	 GMT	 
+Mozambique	 258	 GMT+02:00	 
+Myanmar (Burma)	 95	 GMT+06:30	 
+Namibia	 264	 GMT+02:00	 
+Nauru	 674	 GMT+12:00	 
+Nepal	 977	 GMT+05:30	 
+Netherlands	 31	 GMT+01:00	 
+Netherlands Antilles	 599	 GMT-04:00	 
+New Caledonia	 687	 GMT+11:00	 
+New Zealand	 64	 GMT+12:00	 
+Nicaragua	 505	 GMT-06:00	 
+Niger	 227	 GMT+01:00	 
+Nigeria	 234	 GMT+01:00	 
+Niue Island	 683	 GMT-11:00	 
+Norfolk Island	 672	 GMT+11:30	 
+Norway	 47	 GMT+01:00	 
+Oman	 968	 GMT+04:00	 
+Pakistan	 92	 GMT+05:00	 
+Palau	 680	 GMT+09:00	 
+Palestine	 970	 GMT+02:00	 
+Panama	 507	 GMT-05:00	 
+Papua New Guinea	 675	 GMT+10:00	 
+Paraguay	 595	 GMT-04:00	 
+Peru	 51	 GMT-05:00	 
+Philippines	 63	 GMT+08:00	 
+Poland	 48	 GMT+01:00	 
+Portugal	 351	 GMT+01:00	 
+Puerto Rico	 787	 GMT-04:00	 
+Qatar	 974	 GMT+03:00	 
+Reunion Island	 262	 GMT+04:00	 
+Romania	 40	 GMT+02:00	 
+Russia	 7	 GMT+03:00	 
+Rwanda	 250	 GMT+02:00	 
+Samoa (American)	 684	 GMT-11:00	 
+Samoa (Western)	 685	 GMT-11:00	 
+San Marino	 378	 GMT+01:00	 
+Sao Tome & Principe	 239	 GMT	 
+Saudi Arabia	 966	 GMT+03:00	 
+Senegal	 221	 GMT	 
+Serbia	 381	 GMT+01:00	 
+Seychelles	 248	 GMT+04:00	 
+Sierra Leone	 232	 GMT	 
+Singapore	 65	 GMT+08:00	 
+Slovak Republic	 421	 GMT+01:00	 
+Slovenia	 386	 GMT+01:00	 
+Solomon Islands	 677	 GMT+11:00	 
+Somalia	 252	 GMT+03:00	 
+South Africa	 27	 GMT+02:00	 
+Spain	 34	 GMT+01:00	 
+Sri Lanka	 94	 GMT+05:30	 
+St Helena	 290	 GMT	 
+St Kitts & Nevia	 869	 GMT-04:00	 
+St Lucia	 758	 GMT-04:00	 
+Sudan	 249	 GMT+02:00	 
+Surinam	 597	 GMT-03:30	 
+Swaziland	 268	 GMT+02:00	 
+Sweden	 46	 GMT+01:00	 
+Switzerland	 41	 GMT+01:00	 
+Syria	 963	 GMT+02:00	 
+Taiwan	 886	 GMT+08:00	 
+Tajikistan	 992	 GMT+06:00	 
+Tanzania	 255	 GMT+03:00	 
+Thailand	 66	 GMT+07:00	 
+The Gambia	 220	 GMT	 
+Togo	 228	 GMT	 
+Tonga	 676	 GMT+13:00	 
+Trinidad & Tobago	 868	 GMT-04:00	 
+Tunisia	 216	 GMT+01:00	 
+Turkey	 90	 GMT+02:00	 
+Turkmenistan	 993	 GMT+05:00	 
+Turks & Caicos Islands	 649	 GMT-05:00	 
+Tuvalu	 688	 GMT+12:00	 
+Uganda	 256	 GMT+03:00	 
+Ukraine	 380	 GMT+03:00	 
+United Arab Emirates	 971	 GMT+04:00	 
+United Kingdom	 44	 GMT	 
+Uruguay	 598	 GMT-03:00	 
+USA	 1	 GMT-05:00	 GMT-11:00
+Uzbekistan	 998	 GMT+06:00	 
+Vanuatu	 678	 GMT+11:00	 
+Venezuela	 58	 GMT-04:00	 
+Vietnam	 84	 GMT+07:00	 
+Wallis & Futuna Islands	 681	 GMT+12:00	 
+Yemen Arab Republic	 967	 GMT+03:00	 
+Zambia	 260	 GMT+02:00	 
+Zimbabwe	 263	 GMT+02:00
