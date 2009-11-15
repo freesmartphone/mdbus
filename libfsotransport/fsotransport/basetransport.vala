@@ -47,7 +47,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     private bool actionCallback( IOChannel source, IOCondition condition )
     {
-        assert( logger.debug( "actionCallback called with condition = %d".printf( condition ) ) );
+        assert( logger.debug( "ActionCallback called with condition = %d".printf( condition ) ) );
 
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
@@ -63,21 +63,21 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             return true;
         }
 
-        logger.warning( "actionCallback called with unknown condition %d".printf( condition ) );
+        logger.warning( "ActionCallback called with unknown condition %d".printf( condition ) );
 
         return false;
     }
 
     private bool writeCallback( IOChannel source, IOCondition condition )
     {
-        assert( logger.debug( "writeCallback called with %u bytes in buffer".printf( buffer.len ) ) );
+        assert( logger.debug( "WriteCallback called with %u bytes in buffer".printf( buffer.len ) ) );
         /*
         for( int i = 0; i < buffer.len; ++i )
         logger.debug( "byte: 0x%02x".printf( buffer.data[i] ) );
         */
         int len = 64 > buffer.len? (int)buffer.len : 64;
         var byteswritten = _write( buffer.data, len );
-        assert( logger.debug( "writeCallback wrote %d bytes".printf( (int)byteswritten ) ) );
+        assert( logger.debug( "WriteCallback wrote %d bytes".printf( (int)byteswritten ) ) );
         buffer.remove_range( 0, (int)byteswritten );
 
         return ( buffer.len != 0 );
@@ -194,7 +194,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
                 tspeed = Linux.Termios.B4000000;
                 break;
             default:
-                logger.warning( "invalid speed '%u' selected. using '0'".printf( speed ) );
+                logger.warning( @"Invalid speed $speed selected. using 0" );
                 tspeed = Posix.B0;
                 break;
         }
@@ -250,7 +250,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         var ok = Posix.tcsetattr( fd, Posix.TCSANOW, termios);
         if ( ok == -1 )
         {
-            logger.error( "could not configure fd %d: %s".printf( fd, Posix.strerror( Posix.errno ) ) );
+            logger.error( "Could not configure fd %d: %s".printf( fd, Posix.strerror( Posix.errno ) ) );
         }
 
         if ( hard )
@@ -319,7 +319,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         }
         catch ( GLib.IOChannelError e )
         {
-            logger.warning( "error while setting channel encoding to null" );
+            logger.warning( "Error while setting channel encoding to null" );
         }
         channel.set_buffer_size( 32768 );
         // setup watch
@@ -328,7 +328,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( buffer.len > 0 )
             restartWriter();
 
-        assert( logger.debug( "opened" ) );
+        assert( logger.debug( "Opened" ) );
         return true;
     }
 
@@ -340,7 +340,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( fd != -1 )
             Posix.close( fd );
         fd = -1; // mark closed
-        assert( logger.debug( "closed" ) );
+        assert( logger.debug( "Closed" ) );
     }
 
     public override bool isOpen()
@@ -416,7 +416,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     {
         if ( buffer.len > 0 )
         {
-            logger.warning( "freeze called while buffer not yet empty" );
+            logger.warning( "Freeze called while buffer not yet empty" );
         }
         if ( readwatch != 0 )
         {
@@ -428,7 +428,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             Source.remove( writewatch );
             writewatch = 0;
         }
-        assert( logger.debug( "frozen" ) );
+        assert( logger.debug( "Frozen" ) );
     }
 
     public override void thaw()
@@ -438,6 +438,6 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         // we might have already queued something up in the buffer
         if ( buffer.len > 0 )
             restartWriter();
-        logger.debug( "thawn" );
+        assert( logger.debug( "Thawn" ) );
     }
 }
