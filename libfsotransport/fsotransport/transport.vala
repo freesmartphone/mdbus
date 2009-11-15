@@ -66,6 +66,10 @@ public abstract class FsoFramework.Transport : Object
      **/
     public abstract void setPriorities( int rp, int wp );
     /**
+     * Set buffered or unbuffered mode
+     **/
+    public abstract void setBuffered( bool on );
+    /**
      * Write data to the transport and wait for a response.
      * Read the response into a buffer provided and owned by the caller.
      * @warning This will only succeed if you don't use delegates!
