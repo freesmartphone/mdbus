@@ -147,9 +147,13 @@ public class Resource : Object
         users.insert( 0, user );
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 1 )
+        {
             enable();
+        }
         else
+        {
             updateStatus();
+        }
     }
 
     public void delUser( string user ) throws FreeSmartphone.UsageError
@@ -212,27 +216,29 @@ public class Resource : Object
         }
     }
 
-    public void enable() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void enable() throws FreeSmartphone.ResourceError, DBus.Error
     {
         try
         {
-            proxy.enable(updateStatus);
+            yield proxy.enable();
             status = ResourceStatus.ENABLED;
+            updateStatus();
         }
         catch ( DBus.Error e )
         {
             instance.logger.error( "Resource %s can't be enabled: %s. Trying to disable instead".printf( name, e.message ) );
-            proxy.disable();
+            yield proxy.disable();
             throw e;
         }
     }
 
-    public void disable() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void disable() throws FreeSmartphone.ResourceError, DBus.Error
     {
         try
         {
-            proxy.disable(updateStatus);
+            yield proxy.disable();
             status = ResourceStatus.DISABLED;
+            updateStatus();
         }
         catch ( DBus.Error e )
         {
@@ -242,19 +248,20 @@ public class Resource : Object
         }
     }
 
-    public void suspend() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void suspend() throws FreeSmartphone.ResourceError, DBus.Error
     {
         if ( status == ResourceStatus.ENABLED )
         {
             try
             {
-                proxy.suspend(updateStatus);
+                yield proxy.suspend();
                 status = ResourceStatus.SUSPENDED;
+                updateStatus();
             }
             catch ( DBus.Error e )
             {
                 instance.logger.error( "Resource %s can't be suspended: %s. Trying to disable instead".printf( name, e.message ) );
-                proxy.disable();
+                yield proxy.disable();
                 throw e;
             }
         }
@@ -264,19 +271,20 @@ public class Resource : Object
         }
     }
 
-    public void resume() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void resume() throws FreeSmartphone.ResourceError, DBus.Error
     {
         if ( status == ResourceStatus.SUSPENDED )
         {
             try
             {
-                proxy.resume(updateStatus);
+                yield proxy.resume();
                 status = ResourceStatus.ENABLED;
+                updateStatus();
             }
             catch ( DBus.Error e )
             {
                 instance.logger.error( "Resource %s can't be resumed: %s. Trying to disable instead".printf( name, e.message ) );
-                proxy.disable();
+                yield proxy.disable();
                 throw e;
             }
         }

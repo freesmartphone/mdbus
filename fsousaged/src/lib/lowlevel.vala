@@ -81,4 +81,23 @@ public interface LowLevel : FsoFramework.AbstractObject
     public abstract ResumeReason resume();
 }
 
+public class NullLowLevel : LowLevel, FsoFramework.AbstractObject
+{
+    public override string repr()
+    {
+        return "";
+    }
+
+    public void suspend()
+    {
+        logger.warning( "NullLowlevel::suspend() - this is probably not what you want" );
+    }
+
+    public ResumeReason resume()
+    {
+        logger.warning( "NullLowlevel::resume() - this is probably not what you want" );
+        return ResumeReason.Unknown;
+    }
+}
+
 }
