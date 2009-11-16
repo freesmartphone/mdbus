@@ -24,6 +24,7 @@ using FsoGsm;
 namespace CinterionMc75
 {
     const string MODULE_NAME = "fsogsm.modem_cinterion_mc75";
+    const string CHANNEL_NAMES[] = { "call", "main", "misc" };
 }
 
 class CinterionMc75.Modem : FsoGsm.AbstractModem
@@ -33,14 +34,30 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         return "<>";
     }
 
+    public override void configureData()
+    {
+        modem_data = new FsoGsm.Modem.Data();
+        modem_data.simHasReadySignal = true;
+    }
+
     protected override void createChannels()
     {
-        //TODO: create channels here
+        for ( int i = 0; i < CHANNEL_NAMES.length; ++i )
+        {
+            var transport = new FsoGsm.LibGsm0710muxTransport( i+1 );
+            var parser = new FsoGsm.StateBasedAtParser();
+            new Channel( CHANNEL_NAMES[i], transport, parser );
+        }
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        //TODO: return proper channel here
+        return channels[ "main" ];
+    }
+
+    public void responseHandler( FsoGsm.AtCommand command, string[] response )
+    {
+        debug( "handler called with '%s'", response[0] );
         assert_not_reached();
     }
 }

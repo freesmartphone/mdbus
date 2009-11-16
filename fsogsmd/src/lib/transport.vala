@@ -20,7 +20,7 @@
 using GLib;
 
 //===========================================================================
-public class LibGsm0710muxTransport : FsoFramework.BaseTransport
+public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 //===========================================================================
 {
     Gsm0710mux.Manager manager;
