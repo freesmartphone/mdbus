@@ -61,6 +61,20 @@ void test_transport_base()
 }
 
 //===========================================================================
+void test_transport_null()
+//===========================================================================
+{
+    var t = new NullTransport();
+    assert( t.open() );
+    assert( t.isOpen() );
+    assert( t.write( (void*)0xdeadbeef, 10 ) == 10 );
+    assert( t.read( (void*)0xdeadbeef, 42 ) == 42 );
+    t.freeze();
+    t.thaw();
+}
+
+
+//===========================================================================
 void test_transport_serial()
 //===========================================================================
 {
@@ -206,7 +220,8 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/Transport/Base/Create", test_transport_base );
+    Test.add_func( "/Transport/Base/*", test_transport_base );
+    Test.add_func( "/Transport/Null/*", test_transport_null );
     Test.add_func( "/Transport/Serial/OpenClose", test_transport_serial );
     Test.add_func( "/Transport/Pty/OpenClose", test_transport_pty );
     Test.add_func( "/Transport/Pty/Write", test_transport_pty_write );

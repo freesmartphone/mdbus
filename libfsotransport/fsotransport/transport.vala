@@ -34,6 +34,59 @@ public enum FsoFramework.TransportState
     DEAD,
 }
 
+public struct FsoFramework.TransportSpec
+{
+    public TransportSpec( string type, string name = "", uint speed = 0, bool raw = true, bool hard = true )
+    {
+        this.type = type;
+        this.name = name;
+        this.speed = speed;
+        this.raw = raw;
+        this.hard = hard;
+    }
+
+    public void create()
+    {
+        switch ( type )
+        {
+            case "serial":
+                transport = new FsoFramework.SerialTransport( name, speed, raw, hard );
+                break;
+            case "pty":
+                transport = new FsoFramework.PtyTransport();
+                break;
+            case "unix":
+            case "udp":
+            case "tcp":
+                transport = new FsoFramework.SocketTransport( type, name, speed );
+                break;
+            case "null":
+                transport = new FsoFramework.NullTransport();
+                break;
+            default:
+                warning( @"Invalid transport type $type. Using NullTransport" );
+                transport = new FsoFramework.NullTransport();
+                break;
+        }
+    }
+
+    public bool open()
+    {
+        if ( transport == null )
+        {
+            create();
+        }
+        return transport.open();
+    }
+
+    public string type;
+    public string name;
+    public uint speed;
+    public bool raw;
+    public bool hard;
+    public Transport transport;
+}
+
 //===========================================================================
 public abstract class FsoFramework.Transport : Object
 {
