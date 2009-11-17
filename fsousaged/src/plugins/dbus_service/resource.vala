@@ -118,7 +118,7 @@ public class Resource : Object
             ( this.policy = policy );
 
         /* does not work, bug in vala async */
-#if VALA_ASYNC_BUG_FIXED
+#if VALA_BUG_602200_FIXED
         switch ( policy )
         {
             case FreeSmartphone.UsageResourcePolicy.DISABLED:
@@ -136,7 +136,7 @@ public class Resource : Object
             default:
                 assert_not_reached();
         }
-#endif
+#else
         if ( policy == FreeSmartphone.UsageResourcePolicy.DISABLED )
         {
             yield disable();
@@ -155,15 +155,12 @@ public class Resource : Object
             {
                 yield disable();
             }
-            /* vala should support this syntax... it doesn't yet */
-#if VALA_YIELD_BUG_FIXED
-            yield ( user.size > 0 ) ? enable() : disable();
-#endif
         }
         else
         {
             instance.logger.error( "Unknown usage resouce policy. Ignoring" );
         }
+#endif
     }
 
     public async void addUser( string user ) throws FreeSmartphone.UsageError
