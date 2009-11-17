@@ -65,7 +65,7 @@ sync_resources_with_lifecycle=never
 
 [fsodevice.accelerometer]
 # Which accelerometer variant plugin to use: none (default) lis302
-#device_type = lis302
+device_type = lis302
 
 [fsodevice.accelerometer_lis302]
 # Which input node to read from
@@ -104,6 +104,12 @@ inputnode = /input/event3
 #ignore_by_id = Microsoft;Macintosh
 # Which input objects to ignore (by physical path substring)
 #ignore_by_path = usb
+
+# Enable this on openmoko devices
+#[fsodevice.powercontrol_openmoko]
+
+# Enable this on thinkpad devices
+#[fsodevice.powercontrol.thinkpad]
 
 ########################################################################################
 # FSO Network Daemon
