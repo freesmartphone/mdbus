@@ -19,12 +19,10 @@
 
 using Gee;
 
-namespace FsoGsm {
-
-    public const string CONFIG_SECTION = "fsogsm";
+namespace FsoGsm
+{
     public const string SMS_STORAGE_DEFAULT_STORAGE_DIR = "/tmp/fsogsmd/sms";
     public const int SMS_STORAGE_DIRECTORY_PERMISSIONS = (int)Posix.S_IRUSR|Posix.S_IWUSR|Posix.S_IXUSR|Posix.S_IRGRP|Posix.S_IXGRP|Posix.S_IROTH|Posix.S_IXOTH;
-
 } /* namespace FsoGsm */
 
 /**
@@ -351,7 +349,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
 
     public Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents )
     {
-        uint16 inref = nextReferenceNumber();    
+        uint16 inref = nextReferenceNumber();
         int byteOffsetForRefnum;
 
         var hexpdus = new Gee.ArrayList<WrapHexPdu>();

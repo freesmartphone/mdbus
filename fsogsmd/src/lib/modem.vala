@@ -19,7 +19,11 @@
 
 using Gee;
 
-namespace FsoGsm { public FsoGsm.Modem theModem; }
+namespace FsoGsm
+{
+    public FsoGsm.Modem theModem;
+    public const string CONFIG_SECTION = "fsogsm";
+}
 
 public class PhonebookParams
 {
@@ -152,10 +156,24 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         assert( FsoGsm.theModem == null );
         FsoGsm.theModem = this;
 
-        modem_transport = config.stringValue( "fsogsm", "modem_transport", "serial" );
-        modem_port = config.stringValue( "fsogsm", "modem_port", "/dev/null" );
-        modem_speed = config.intValue( "fsogsm", "modem_speed", 115200 );
-        modem_init = config.stringListValue( "fsogsm", "modem_init", { "E0Q0V1", "+CMEE=1", "+CRC=1" } );
+        // combined modem access string takes preference over individual config strings
+        var modem_config = config.stringValue( CONFIG_SECTION, "modem_access", "" );
+        var params = modem_config.split( ":" );
+        if ( params.length == 3 )
+        {
+            var values = modem_config.split( ":" );
+            modem_transport = values[0];
+            modem_port = values[1];
+            modem_speed = values[2].to_int();
+        }
+        else
+        {
+            modem_transport = config.stringValue( CONFIG_SECTION, "modem_transport", "serial" );
+            modem_port = config.stringValue( CONFIG_SECTION, "modem_port", "/dev/null" );
+            modem_speed = config.intValue( CONFIG_SECTION, "modem_speed", 115200 );
+        }
+
+        modem_init = config.stringListValue( CONFIG_SECTION, "modem_init", { "E0Q0V1", "+CMEE=1", "+CRC=1" } );
 
         registerHandlers();
         registerMediators();
