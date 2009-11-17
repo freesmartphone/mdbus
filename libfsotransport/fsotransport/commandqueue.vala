@@ -204,7 +204,7 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
     {
         current = q.poll_head();
         _writeRequestToTransport( current.request );
-        assert( transport.logger.debug( "Wrote '$current.request' to transport. Waiting for answer..." ) );
+        assert( transport.logger.debug( @"Wrote '$(current.request)' to transport. Waiting for answer..." ) );
     }
 
     protected void onReadFromTransport( string response )
