@@ -1,4 +1,4 @@
-/*
+/**
  * Resource Controller DBus Service
  *
  * Written by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
@@ -505,15 +505,23 @@ public class Controller : FsoFramework.AbstractObject
     public async void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         logger.debug( @"Set resource policy for $name to $policy" );
+        var resource = getResource( name );
 
-        if ( policy == "enabled" )
-            getResource( name ).setPolicy( FreeSmartphone.UsageResourcePolicy.ENABLED );
-        else if ( policy == "disabled" )
-            getResource( name ).setPolicy( FreeSmartphone.UsageResourcePolicy.DISABLED );
-        else if ( policy == "auto" )
-            getResource( name ).setPolicy( FreeSmartphone.UsageResourcePolicy.AUTO );
-        else
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "ResourcePolicy needs to be one of { \"enabled\", \"disabled\", \"auto\" }" );
+        switch ( policy )
+        {
+            case "enabled":
+                yield resource.setPolicy( FreeSmartphone.UsageResourcePolicy.ENABLED );
+                break;
+            case "disabled":
+                yield resource.setPolicy( FreeSmartphone.UsageResourcePolicy.DISABLED );
+                break;
+            case "auto":
+                yield resource.setPolicy( FreeSmartphone.UsageResourcePolicy.AUTO );
+                break;
+            default:
+                throw new FreeSmartphone.Error.INVALID_PARAMETER( "ResourcePolicy needs to be one of { \"enabled\", \"disabled\", \"auto\" }" );
+                break;
+        }
     }
 
     public async bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBus.Error
@@ -536,12 +544,14 @@ public class Controller : FsoFramework.AbstractObject
 
     public async void request_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        getResource( name ).addUser( sender );
+        var resource = getResource( name );
+        yield resource.addUser( sender );
     }
 
     public async void release_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        getResource( name ).delUser( sender );
+        var resource = getResource( name );
+        yield resource.delUser( sender );
     }
 
     public async void shutdown() throws DBus.Error

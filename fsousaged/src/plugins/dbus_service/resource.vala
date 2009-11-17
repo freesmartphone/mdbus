@@ -1,5 +1,5 @@
-/*
- * Generic Resource Controller
+/**
+ * Resource Abstraction
  *
  * Written by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  * All Rights Reserved
@@ -110,33 +110,63 @@ public class Resource : Object
         return ( user in users );
     }
 
-    public void setPolicy( FreeSmartphone.UsageResourcePolicy policy )
+    public async void setPolicy( FreeSmartphone.UsageResourcePolicy policy )
     {
         if ( policy == this.policy )
             return;
         else
             ( this.policy = policy );
 
+        /* does not work, bug in vala async */
+#if VALA_ASYNC_BUG_FIXED
         switch ( policy )
         {
             case FreeSmartphone.UsageResourcePolicy.DISABLED:
-                disable();
+                yield disable();
                 break;
             case FreeSmartphone.UsageResourcePolicy.ENABLED:
-                enable();
+                yield enable();
                 break;
             case FreeSmartphone.UsageResourcePolicy.AUTO:
                 if ( users.size > 0 )
-                    enable();
+                    yield enable();
                 else
-                    disable();
+                    yield disable();
                 break;
             default:
                 assert_not_reached();
         }
+#endif
+        if ( policy == FreeSmartphone.UsageResourcePolicy.DISABLED )
+        {
+            yield disable();
+        }
+        else if ( policy == FreeSmartphone.UsageResourcePolicy.ENABLED )
+        {
+            yield enable();
+        }
+        else if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO )
+        {
+            if ( users.size > 0 )
+            {
+                yield enable();
+            }
+            else
+            {
+                yield disable();
+            }
+            /* vala should support this syntax... it doesn't yet */
+#if VALA_YIELD_BUG_FIXED
+            yield ( user.size > 0 ) ? enable() : disable();
+#endif
+        }
+        else
+        {
+            instance.logger.error( "Unknown usage resouce policy. Ignoring" );
+        }
     }
 
-    public void addUser( string user ) throws FreeSmartphone.UsageError
+    public async void addUser( string user ) throws FreeSmartphone.UsageError
     {
         if ( user in users )
             throw new FreeSmartphone.UsageError.USER_EXISTS( "Resource %s already requested by user %s".printf( name, user ) );
@@ -148,7 +178,7 @@ public class Resource : Object
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 1 )
         {
-            enable();
+            yield enable();
         }
         else
         {
@@ -156,7 +186,7 @@ public class Resource : Object
         }
     }
 
-    public void delUser( string user ) throws FreeSmartphone.UsageError
+    public async void delUser( string user ) throws FreeSmartphone.UsageError
     {
         if ( !(user in users) )
             throw new FreeSmartphone.UsageError.USER_UNKNOWN( "Resource %s never been requested by user %s".printf( name, user ) );
@@ -164,7 +194,7 @@ public class Resource : Object
         users.remove( user );
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 0 )
-            disable();
+            yield disable();
     }
 
     public void syncUsers()
