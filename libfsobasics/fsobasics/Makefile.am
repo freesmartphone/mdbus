@@ -14,6 +14,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsobasics_la_VALASOURCES = \
+	libinitexit.vala \
 	logger.vala \
 	smartkeyfile.vala \
 	types.vala \
@@ -23,6 +24,7 @@ libfsobasics_la_VALASOURCES = \
 libfsobasics_la_SOURCES = \
 	fsobasics.vala.stamp \
 	$(libfsobasics_la_VALASOURCES:.vala=.c) \
+	gcc_libinitexit.c \
 	$(NULL)
 
 fsobasicsincludedir = $(includedir)/fsoframework-2.0
@@ -58,12 +60,14 @@ EXTRA_DIST += \
 	fsobasics.vala.stamp
 
 CLEANFILES = \
-    $(BUILT_SOURCES) \
-    $(libfsobasics_la_SOURCES) \
-    $(NULL)
+	$(BUILT_SOURCES) \
+	$(libfsobasics_la_VALASOURCES:.vala=.c) \
+	$(NULL)
 
 
 MAINTAINERCLEANFILES = \
 	$(BUILT_SOURCES) \
-	$(libfsobasics_la_SOURCES) \
-	Makefile.in
+	$(libfsobasics_la_VALASOURCES:.vala=.c) \
+	Makefile.in \
+	$(NULL)
+
