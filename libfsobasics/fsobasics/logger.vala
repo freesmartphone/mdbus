@@ -368,7 +368,7 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
         }
         else
         {
-            int flags = Posix.O_WRONLY | ( append? Posix.O_APPEND : Posix.O_CREAT );
+            int flags = Posix.O_WRONLY | ( append? Posix.O_APPEND | Posix.O_CREAT : Posix.O_CREAT );
             file = Posix.open( filename, flags, Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH);
         }
         if ( file == -1 )
