@@ -2,11 +2,10 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir) \
+AM_CFLAGS = \
+	-I../fsotransport \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
-	-I../fsotransport \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

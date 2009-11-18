@@ -47,6 +47,12 @@ public struct FsoFramework.TransportSpec
 
     public void create()
     {
+        if ( transport != null )
+        {
+            warning( "Transport already created" );
+        }
+        return;
+
         switch ( type )
         {
             case "serial":
@@ -103,17 +109,17 @@ public abstract class FsoFramework.Transport : Object
      **/
     public abstract void close();
     /**
-     * Transport Configure the transport. @returns true, if successful; else false.
+     * Return the transport identification.
      **/
     public abstract string getName();
     /**
-     * Set delegates being called when there is something to read or there has been an exception.
+     * Set delegates for being called when there is something to read or there has been an exception.
      **/
-    public abstract void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc );
+    public abstract void setDelegates( TransportFunc? readfunc, TransportFunc? hupfunc );
     /**
      * Get delegates
      **/
-    public abstract void getDelegates( out TransportReadFunc? readfun, out TransportHupFunc? hupfun );
+    public abstract void getDelegates( out TransportFunc? readfun, out TransportFunc? hupfun );
     /**
      * Set priorities for reading and writing
      **/
@@ -170,5 +176,6 @@ public abstract class FsoFramework.Transport : Object
 }
 
 //===========================================================================
-public delegate void FsoFramework.TransportReadFunc( Transport transport );
-public delegate void FsoFramework.TransportHupFunc( Transport transport );
+public delegate void FsoFramework.TransportFunc( Transport transport );
+public delegate int FsoFramework.TransportDataFunc( void* data, int length, Transport transport );
+public delegate bool FsoFramework.TransportBoolFunc( Transport transport );

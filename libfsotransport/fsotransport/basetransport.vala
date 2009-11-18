@@ -37,8 +37,8 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     private uint writewatch;
     private int writepriority;
 
-    protected TransportHupFunc hupfunc;
-    protected TransportReadFunc readfunc;
+    protected TransportFunc hupfunc;
+    protected TransportFunc readfunc;
 
     protected ByteArray buffer;
 
@@ -359,7 +359,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return ( fd != -1 );
     }
 
-    public override void setDelegates( TransportReadFunc? readfunc, TransportHupFunc? hupfunc )
+    public override void setDelegates( TransportFunc? readfunc, TransportFunc? hupfunc )
     {
         this.readfunc = readfunc;
         this.hupfunc = hupfunc;
@@ -371,7 +371,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         this.writepriority = wp;
     }
 
-    public override void getDelegates( out TransportReadFunc? readfun, out TransportHupFunc? hupfun )
+    public override void getDelegates( out TransportFunc? readfun, out TransportFunc? hupfun )
     {
         readfun = this.readfunc;
         hupfun = this.hupfunc;
@@ -392,6 +392,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( !buffered )
         {
             return _write( data, len );
+            Posix.tcdrain( fd );
         }
         else
         {
