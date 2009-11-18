@@ -23,30 +23,36 @@ using GLib;
 public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 //===========================================================================
 {
-    Gsm0710mux.Manager manager;
-    Gsm0710mux.ChannelInfo channelinfo;
+    static Gsm0710mux.Manager manager;
+    private Gsm0710mux.ChannelInfo channelinfo;
+
+    static construct
+    {
+        manager = new Gsm0710mux.Manager();
+    }
 
     public LibGsm0710muxTransport( int channel = 0 )
     {
-        manager = new Gsm0710mux.Manager();
         var version = manager.getVersion();
         var hasAutoSession = manager.hasAutoSession();
         assert( hasAutoSession ); // we do not support non-autosession yet
 
+        channelinfo.tspec = FsoFramework.TransportSpec( "foo", "bar" );
+        channelinfo.tspec.transport = new FsoFramework.DelegateTransport( delegateWrite,
+                                                                          delegateRead,
+                                                                          delegateHup,
+                                                                          delegateOpen,
+                                                                          delegateClose,
+                                                                          delegateFreeze,
+                                                                          delegateThaw );
         channelinfo.number = channel;
+        channelinfo.consumer = "fsogsmd";
 
-        debug( "TransportLibGsm0710mux created, using libgsm0710mux version %s; autosession is %s".printf( version, hasAutoSession.to_string() ) );
+        debug( "FsoFramework.TransportLibGsm0710mux created, using libgsm0710mux version %s; autosession is %s".printf( version, hasAutoSession.to_string() ) );
     }
 
     public override bool open()
     {
-        assert( readfunc != null );
-        assert( hupfunc != null );
-
-        channelinfo.type = Gsm0710mux.ChannelType.DELEGATE;
-        channelinfo.readfunc = readfunc;
-        channelinfo.hupfunc = hupfunc;
-
         try
         {
             manager.allocChannel( ref channelinfo );
@@ -60,9 +66,69 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         return true;
     }
 
-    public override string repr()
+    public override int read( void* data, int length )
     {
-        return "<LibGsm0710muxTransport>";
+        message( @"READ $length" );
+        return 0;
     }
 
+    public override int write( void* data, int length )
+    {
+        message( @"WRITE $length" );
+        return 0;
+    }
+
+    public override void freeze()
+    {
+    }
+
+    public override void thaw()
+    {
+    }
+
+    public override string repr()
+    {
+        return "<LibGsm0710muxFsoFramework.Transport>";
+    }
+
+    //
+    // delegate transport interface
+    //
+    public bool delegateOpen( FsoFramework.Transport t )
+    {
+        message( "FROM MODEM OPEN ACK" );
+        return true;
+    }
+
+    public void delegateClose( FsoFramework.Transport t )
+    {
+        message( "FROM MODEM CLOSE REQ" );
+    }
+
+    public int delegateWrite( void* data, int length, FsoFramework.Transport t )
+    {
+        message( "FROM MODEM WRITE %d bytes", length );
+        return 0;
+    }
+
+    public int delegateRead( void* data, int length, FsoFramework.Transport t )
+    {
+        message( "FROM MODEM READ %d bytes", length );
+        return 0;
+    }
+
+    public void delegateHup( FsoFramework.Transport t )
+    {
+        message( "FROM MODEM HUP" );
+    }
+
+    public void delegateFreeze( FsoFramework.Transport t )
+    {
+        message( "FROM MODEM FREEZE REQ" );
+    }
+
+    public void delegateThaw( FsoFramework.Transport t )
+    {
+        message( "FROM MODEM THAW REQ" );
+    }
 }

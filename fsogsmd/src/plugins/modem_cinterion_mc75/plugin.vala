@@ -24,7 +24,8 @@ using FsoGsm;
 namespace CinterionMc75
 {
     const string MODULE_NAME = "fsogsm.modem_cinterion_mc75";
-    const string CHANNEL_NAMES[] = { "call", "main", "misc" };
+    //const string CHANNEL_NAMES[] = { "call", "main", "misc" };
+    const string CHANNEL_NAMES[] = { "main" };
 }
 
 class CinterionMc75.Modem : FsoGsm.AbstractModem
