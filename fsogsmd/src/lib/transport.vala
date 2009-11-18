@@ -19,12 +19,21 @@
 
 using GLib;
 
+namespace FsoGsm
+{
+    public const int MUX_TRANSPORT_MAX_BUFFER = 1024;
+}
+
 //===========================================================================
 public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 //===========================================================================
 {
     static Gsm0710mux.Manager manager;
     private Gsm0710mux.ChannelInfo channelinfo;
+    private FsoFramework.DelegateTransport tdelegate;
+
+    private char[] buffer;
+    private int length;
 
     static construct
     {
@@ -33,22 +42,30 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public LibGsm0710muxTransport( int channel = 0 )
     {
+        base( "LibGsm0710muxTransport" );
+
+        buffer = new char[1024];
+        length = 0;
+
         var version = manager.getVersion();
         var hasAutoSession = manager.hasAutoSession();
         assert( hasAutoSession ); // we do not support non-autosession yet
 
+        tdelegate = new FsoFramework.DelegateTransport(
+                                                      delegateWrite,
+                                                      delegateRead,
+                                                      delegateHup,
+                                                      delegateOpen,
+                                                      delegateClose,
+                                                      delegateFreeze,
+                                                      delegateThaw );
+
         channelinfo.tspec = FsoFramework.TransportSpec( "foo", "bar" );
-        channelinfo.tspec.transport = new FsoFramework.DelegateTransport( delegateWrite,
-                                                                          delegateRead,
-                                                                          delegateHup,
-                                                                          delegateOpen,
-                                                                          delegateClose,
-                                                                          delegateFreeze,
-                                                                          delegateThaw );
+        channelinfo.tspec.transport = tdelegate;
         channelinfo.number = channel;
         channelinfo.consumer = "fsogsmd";
 
-        debug( "FsoFramework.TransportLibGsm0710mux created, using libgsm0710mux version %s; autosession is %s".printf( version, hasAutoSession.to_string() ) );
+        logger.debug( "Created. Using libgsm0710mux version %s; autosession is %s".printf( version, hasAutoSession.to_string() ) );
     }
 
     public override bool open()
@@ -68,14 +85,25 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public override int read( void* data, int length )
     {
-        message( @"READ $length" );
-        return 0;
+        assert( this.length > 0 );
+        assert( this.length < length );
+        GLib.Memory.copy( data, this.buffer, this.length );
+        message( @"READ %d from MUX: %s", length, ((string)data).escape( "" ) );
+        var l = this.length;
+        this.length = 0;
+        return l;
     }
 
     public override int write( void* data, int length )
     {
-        message( @"WRITE $length" );
-        return 0;
+        assert( this.length == 0 ); // NOT REENTRANT!
+        assert( length < MUX_TRANSPORT_MAX_BUFFER );
+        message( @"WRITE %d to MUX: %s", length, ((string)data).escape( "" ) );
+        this.length = length;
+        GLib.Memory.copy( this.buffer, data, length );
+        tdelegate.readfunc( tdelegate );
+        assert( this.length == 0 ); // everything has been consumed
+        return length;
     }
 
     public override void freeze()
@@ -107,14 +135,25 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public int delegateWrite( void* data, int length, FsoFramework.Transport t )
     {
+        assert( this.length == 0 );
         message( "FROM MODEM WRITE %d bytes", length );
-        return 0;
+        assert( length < MUX_TRANSPORT_MAX_BUFFER );
+        GLib.Memory.copy( this.buffer, data, length ); // prepare data
+        this.length = length;
+        this.readfunc( this ); // signalize data being available
+        assert( this.length == 0 ); // all has been consumed
+        return length;
     }
 
     public int delegateRead( void* data, int length, FsoFramework.Transport t )
     {
+        assert( this.length > 0 );
         message( "FROM MODEM READ %d bytes", length );
-        return 0;
+        assert( length > this.length );
+        GLib.Memory.copy( data, this.buffer, this.length );
+        var l = this.length;
+        this.length = 0;
+        return l;
     }
 
     public void delegateHup( FsoFramework.Transport t )
