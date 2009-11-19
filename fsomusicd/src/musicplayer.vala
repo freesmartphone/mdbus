@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 19-11-2009 21:52:16
+ * Last Modified: 19-11-2009 22:14:08
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -437,7 +437,9 @@ namespace FsoMusic
         {
             Gst.Value ret = Gst.Value();
             ret.init( typeof( double ) );
-            Gst.ChildProxy.get_property( volume, "volume", out ret );
+            //workround for vala bug in gst bidings
+            //get_volume won't work anymore
+            Gst.ChildProxy.get_property( volume, "volume", ret );
             return (int)( ret.get_double() * 100.0 );
         }
         public async void set_volume( int vol ) throws MusicPlayerError, DBus.Error
