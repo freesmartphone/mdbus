@@ -1,7 +1,7 @@
 /* 
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified: 19-11-2009 21:52:23
+ * Last Modified: 19-11-2009 22:36:00
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -299,6 +299,7 @@ namespace FsoMusic
         public void save()
         {
             logger.info( @"Saving Playlist $_name" );
+            logger.info( "key_file: %p".printf( key_file ) );
             key_file.set_integer( _name, Config.LAST_PLAYED, position );
             key_file.set_integer( _name, Config.PLAYLIST_MODE, mode );
             key_file.set_string( _name, Config.PLAYLIST_NAME, _name );

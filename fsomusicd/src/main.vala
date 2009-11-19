@@ -1,7 +1,7 @@
 /* 
  * File Name: main.vala
  * Creation Date: 23-08-2009
- * Last Modified: 19-11-2009 22:22:08
+ * Last Modified: 19-11-2009 23:41:19
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -72,8 +72,9 @@ namespace FsoMusic
                 while( mp.ref_count > 1 )
                 {
                     mp.unref();
-                    debug( "%u", mp.ref_count );
+                    debug( "MusicPlayer countdown: %u", mp.ref_count );
                 }
+                mp = null;
                 save_keyfile( kf, Config.get_config_path() );
             }
             else

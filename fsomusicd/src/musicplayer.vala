@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 19-11-2009 22:25:53
+ * Last Modified: 19-11-2009 22:28:23
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -278,7 +278,7 @@ namespace FsoMusic
                 var codec = audio_codecs.lookup( ext );
                 if( codec == null )
                      throw new MusicPlayerError.FILETYPE_NOT_SUPPORTED( "Can't open %s".printf( file ) );
-                var el = "".concat( srcs, " ! ",codec, " ! ", element_tail );
+                var el = @"$srcs ! $codec ! $element_tail";
 
 
                 logger.debug( @"Elements: \"$el\" for $file" );
