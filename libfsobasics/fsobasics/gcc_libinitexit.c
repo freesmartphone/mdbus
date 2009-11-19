@@ -17,6 +17,8 @@
  *
  */
 
+#include <glib.h>
+
 // Unfortunately we need to do this in a C file, since Vala
 // does not have support for it yet. I have created a bug
 // report for that but chances are it won't make it upstream
@@ -27,6 +29,9 @@ void gcc_library_fini() __attribute__((destructor));
 
 void gcc_library_init()
 {
+    //FIXME: Find out whether it's ok to call g_type_init() multiple times,
+    //since Vala is (unconditionally) calling it before launching main()
+    g_type_init();
     vala_library_init();
 }
 
