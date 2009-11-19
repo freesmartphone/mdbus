@@ -206,14 +206,14 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     private void initScenarios()
     {
         allscenarios = new HashMap<string,BunchOfMixerControls>( str_hash, str_equal );
-        currentscenario = "";
+        currentscenario = "unknown";
 
         // init scenarios
         FsoFramework.SmartKeyFile alsaconf = new FsoFramework.SmartKeyFile();
         if ( alsaconf.loadFromFile( FSO_ALSA_CONF_PATH ) )
         {
             device = FsoFramework.SoundDevice.create( alsaconf.stringValue( "alsa", "cardname", "default" ) );
-            currentscenario = alsaconf.stringValue( "alsa", "default_scenario", "stereoout" );
+            var defaultscenario = alsaconf.stringValue( "alsa", "default_scenario", "stereoout" );
 
             var sections = alsaconf.sectionsWithPrefix( "scenario." );
             foreach ( var section in sections )
@@ -234,10 +234,31 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
                     }
                 }
             }
+
+            if ( defaultscenario in allscenarios )
+            {
+                push_scenario( defaultscenario ); // ASYNC
+            }
+            else
+            {
+                logger.warning( "Default scenario not found; can't push it to scenario stack" );
+            }
         }
         else
         {
             logger.warning( "Could not load %s. No scenarios available.".printf( FSO_ALSA_CONF_PATH ) );
+        }
+    }
+
+    private void updateScenarioIfChanged( string scenario )
+    {
+        if ( currentscenario != scenario )
+        {
+            assert ( device != null );
+            device.setAllMixerControls( allscenarios[scenario].controls );
+
+            currentscenario = scenario;
+            this.scenario( currentscenario, "N/A" ); // DBUS SIGNAL
         }
     }
 
@@ -272,7 +293,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         Value scenarios = get_available_scenarios();
         dict.insert( "scenarios", value );
         */
-        return dict;
+        return   dict;
     }
 
     public async string get_scenario() throws DBus.Error
@@ -282,32 +303,35 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public async string pull_scenario() throws FreeSmartphone.Device.AudioError, DBus.Error
     {
-        var scenario = scenarios.pop_head();
+        scenarios.pop_head();
+        var scenario = scenarios.peek_head();
         if ( scenario == null )
-            throw new FreeSmartphone.Device.AudioError.SCENARIO_STACK_UNDERFLOW( "No scenario to pull" );
-        set_scenario( scenario );
+        {
+            throw new FreeSmartphone.Device.AudioError.SCENARIO_STACK_UNDERFLOW( "No scenario left to activate" );
+        }
+        yield set_scenario( scenario );
         return scenario;
     }
 
-    public async void push_scenario( string scenario ) throws DBus.Error
+    public async void push_scenario( string scenario ) throws FreeSmartphone.Error, DBus.Error
     {
+        // try to set this scenario, will error out if not successful
+        yield set_scenario( scenario );
+        // push on the stack
         scenarios.push_head( scenario );
-        set_scenario( scenario );
     }
 
-    public async void set_scenario( string scenario ) throws /* FreeSmartphone.Error, */ DBus.Error
+    public async void set_scenario( string scenario ) throws FreeSmartphone.Error, DBus.Error
     {
         if ( !( scenario in allscenarios.keys ) )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not find scenario %s".printf( scenario ) );
 
-        assert ( device != null );
-
-        device.setAllMixerControls( allscenarios[scenario].controls );
+        updateScenarioIfChanged( scenario );
     }
 
     //
     // Sound
-    public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, DBus.Error
+    public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error, DBus.Error
     {
         PlayingSound sound = sounds[name];
         if ( sound != null )
@@ -333,11 +357,11 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         foreach ( var name in sounds.keys )
         {
             //message( "stopping sound '%s' (%0x)", name, Quark.from_string( name ) );
-            stop_sound( name );
+            yield stop_sound( name );
         }
     }
 
-    public async void stop_sound( string name ) throws DBus.Error
+    public async void stop_sound( string name ) throws FreeSmartphone.Error, DBus.Error
     {
         PlayingSound sound = sounds[name];
         if ( sound == null )
