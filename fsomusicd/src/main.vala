@@ -1,7 +1,7 @@
 /* 
  * File Name: main.vala
  * Creation Date: 23-08-2009
- * Last Modified: 14-11-2009 15:18:47
+ * Last Modified: 16-11-2009 00:19:33
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -60,8 +60,6 @@ namespace FsoMusic
                     kf.set_string(Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYED, "");
                     kf.set_string(Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYLIST, "");
                     mp = new MusicPlayer( kf );
-                    var pl = new Playlist.from_dir( "all", kf ,Config.get_music_dir(), mp );
-                    mp.add_playlist( "all", pl );
                 }
                 subsystem.registerServiceObject( FsoFramework.MusicPlayer.ServiceDBusName,
                                                 FsoFramework.MusicPlayer.ServicePathPrefix, mp );
@@ -70,17 +68,18 @@ namespace FsoMusic
                 signal( SIGTERM, sig_handle );
                 mainloop.run();
                 logger.info( "mainloop => fsodevicde" );
-                mp = null;
+                //XXX: Workaround for circular reference
+                while( mp.ref_count > 1 )
+                {
+                    mp.unref();
+                    debug( "%u", mp.ref_count );
+                }
                 save_keyfile( kf, Config.get_config_path() );
             }
             else
             {
                 error("Can't request Busname: %s", FsoFramework.MusicPlayer.ServicePathPrefix );
             }
-        }
-        catch (DBus.Error de)
-        {
-            error("DBus: %s",de.message);
         }
         catch (GLib.Error e)
         {

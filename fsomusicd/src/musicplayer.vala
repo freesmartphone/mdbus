@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 15-11-2009 20:39:16
+ * Last Modified: 19-11-2009 21:52:16
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -151,13 +151,14 @@ namespace FsoMusic
             var playlist_dir = Config.get_playlist_dir();
             try
             {
-                var dir = Dir.open( playlist_dir );
-
-                for( string file = dir.read_name(); file != null; file = dir.read_name() )
+                foreach( var group in kf.get_groups() )
                 {
-                    logger.debug( @"Try open playlist from $file" );
-                    var pl = new Playlist( file, key_file, this );
-                    add_playlist( file, pl );
+                    if( group != Config.MUSIC_PLAYER_GROUP )
+                    {
+                        logger.debug( @"Try open playlist from '$group'" );
+                        var pl = new Playlist( group, key_file, this );
+                        add_playlist( group, pl );
+                    }
                 }
             }
             catch (GLib.Error e)
@@ -408,7 +409,6 @@ namespace FsoMusic
             the_list.delete_files();
             playlists.remove( list );
             playlist_removed( list );
-            logger.debug( @"deleting playlist $list refcount: $(the_list.ref_count)" );
             the_list = null;
             
         }
@@ -484,14 +484,18 @@ namespace FsoMusic
         }
         public void save()
         {
+            logger.debug( "Saving MusicPlayer" );
             var song = this.current_song == null ? "": this.current_song;
             var list = this.current_playlist == null ? "" : this.current_playlist;
             key_file.set_string( Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYED, song );
             key_file.set_string( Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYLIST, list );
+
             foreach( var k in playlists.get_values() )
             { 
                 k.save();
             }
+            logger.info( @"saving config to $(Config.get_config_path())" );
+            save_keyfile_to_file( key_file, Config.get_config_path() );
         }
         //
         // private methods
@@ -656,6 +660,22 @@ namespace FsoMusic
             catch (MusicPlayerPlaylistError mppe)
             {
                 logger.debug( @"Tried to jump into playlist '$name': $(mppe.message)" );
+            }
+        }
+
+        //
+        // Helpers
+        //
+        public static void save_keyfile_to_file( GLib.KeyFile kf, string file )
+        {
+            var f = FileStream.open( file, "w" );
+            if( f == null )
+                 FsoFramework.Logger.defaultLogger().error( @"Cannot open $file: $(strerror(GLib.errno))");
+            else
+            {
+                string data = kf.to_data();
+                FsoFramework.Logger.defaultLogger().info( @"Saving KeyFile to $file" );
+                f.puts(data);
             }
         }
     }

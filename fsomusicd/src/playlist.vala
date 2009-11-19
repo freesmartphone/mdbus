@@ -1,7 +1,7 @@
 /* 
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified: 14-11-2009 23:43:08
+ * Last Modified: 19-11-2009 21:52:23
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -33,7 +33,7 @@ namespace FsoMusic
         private List<string> files;
         private static string[] supported_extensions = { ".mp3", ".ogg", ".flac", ".wav", ".sid", ".mod" };
         private weak List<string> _current;
-        private MusicPlayer musicplayer;
+        private unowned MusicPlayer musicplayer;
         private weak List<string> current
         {
             get{ return _current; }
@@ -93,7 +93,8 @@ namespace FsoMusic
             this.key_file = kf;
             this._name = name;
             musicplayer = mp;
-            logger = FsoFramework.createLogger( FsoFramework.Utility.programName(), @"$classname.$name" );
+            logger = FsoFramework.createLogger( FsoFramework.Utility.programName() + ".playlist" , @"$classname.$name" );
+            logger.info( @"New Playlist named '$name'" );
             try
             {
                 position = kf.get_integer( name, Config.LAST_PLAYED );
@@ -113,11 +114,23 @@ namespace FsoMusic
             {
                 logger.error( "Ignoring Error: $(e.message)" );
             }
+            try
+            {
+                var playlist_path = kf.get_string( name, Config.PLAYLIST_PATH );
+                logger.debug( @"Load from path: $playlist_path" );
+                load_from_file( playlist_path, (a,b) => { logger.info( @"finished loading files for $(this._name)" );} );
+            }
+            catch (GLib.Error e)
+            {
+                logger.error( @"Loading playlist: $(e.message)" );
+            }
         }
         public Playlist.from_dir( string name, KeyFile kf, string dir, MusicPlayer mp )
         {
             this( name, kf, mp );
-            insert_dir( 0, dir, true, () =>{ logger.info( @"Load $dir for $name finished" );} );
+            //workaround for #147937
+            var load_dir = dir;
+            insert_dir( 0, dir, true, () =>{ logger.info( @"Load $load_dir for $(this._name) finished" );} );
             position = 0;
             current = files;
         }
@@ -285,11 +298,16 @@ namespace FsoMusic
         }
         public void save()
         {
+            logger.info( @"Saving Playlist $_name" );
             key_file.set_integer( _name, Config.LAST_PLAYED, position );
             key_file.set_integer( _name, Config.PLAYLIST_MODE, mode );
+            key_file.set_string( _name, Config.PLAYLIST_NAME, _name );
 
             var playlist_path = Path.build_filename( Config.get_playlist_dir(), _name );
-            var fs = FileStream.open( playlist_path, "w+" );
+            key_file.set_string( _name, Config.PLAYLIST_PATH, playlist_path );
+
+            logger.info( @"Saving $_name to $playlist_path" );
+            var fs = FileStream.open( playlist_path, "w" );
             foreach( var file in files )
                     if( file != null )
                         fs.printf( "%s\n", file );
