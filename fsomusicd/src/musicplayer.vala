@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 19-11-2009 22:14:08
+ * Last Modified: 19-11-2009 22:25:53
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -505,7 +505,7 @@ namespace FsoMusic
         private void setup_audio_elements()
         {
             register_element( "mad name=core", ".mp3", audio_codecs );
-            if( ! register_element( "oggdemux ! ivorbisdec ! name=core ! audioconvert", ".ogg", audio_codecs ) )
+            if( ! register_element( "oggdemux ! ivorbisdec name=core ! audioconvert", ".ogg", audio_codecs ) )
                  register_element( "oggdemux ! vorbisdec name=core ! audioconvert", ".ogg", audio_codecs );
             register_element( "flacdec name=core ! audioconvert", ".flac", audio_codecs );
             register_element( "waveparse name=core", ".wav", audio_codecs );
