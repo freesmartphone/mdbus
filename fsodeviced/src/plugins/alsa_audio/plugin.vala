@@ -272,7 +272,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         Value scenarios = get_available_scenarios();
         dict.insert( "scenarios", value );
         */
-        return dict;
+        return   dict;
     }
 
     public async string get_scenario() throws DBus.Error
@@ -285,17 +285,17 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         var scenario = scenarios.pop_head();
         if ( scenario == null )
             throw new FreeSmartphone.Device.AudioError.SCENARIO_STACK_UNDERFLOW( "No scenario to pull" );
-        set_scenario( scenario );
+        yield set_scenario( scenario );
         return scenario;
     }
 
-    public async void push_scenario( string scenario ) throws DBus.Error
+    public async void push_scenario( string scenario ) throws FreeSmartphone.Error, DBus.Error
     {
         scenarios.push_head( scenario );
-        set_scenario( scenario );
+        yield set_scenario( scenario );
     }
 
-    public async void set_scenario( string scenario ) throws /* FreeSmartphone.Error, */ DBus.Error
+    public async void set_scenario( string scenario ) throws FreeSmartphone.Error, DBus.Error
     {
         if ( !( scenario in allscenarios.keys ) )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not find scenario %s".printf( scenario ) );
@@ -307,7 +307,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     //
     // Sound
-    public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, DBus.Error
+    public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error, DBus.Error
     {
         PlayingSound sound = sounds[name];
         if ( sound != null )
@@ -333,11 +333,11 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         foreach ( var name in sounds.keys )
         {
             //message( "stopping sound '%s' (%0x)", name, Quark.from_string( name ) );
-            stop_sound( name );
+            yield stop_sound( name );
         }
     }
 
-    public async void stop_sound( string name ) throws DBus.Error
+    public async void stop_sound( string name ) throws FreeSmartphone.Error, DBus.Error
     {
         PlayingSound sound = sounds[name];
         if ( sound == null )
