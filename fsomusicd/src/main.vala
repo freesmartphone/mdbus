@@ -1,7 +1,7 @@
 /* 
  * File Name: main.vala
  * Creation Date: 23-08-2009
- * Last Modified: 16-11-2009 00:19:33
+ * Last Modified: 19-11-2009 22:22:08
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -63,11 +63,11 @@ namespace FsoMusic
                 }
                 subsystem.registerServiceObject( FsoFramework.MusicPlayer.ServiceDBusName,
                                                 FsoFramework.MusicPlayer.ServicePathPrefix, mp );
-                logger.info( "fsodeviced => mainloop" );
+                logger.info( "fsomusicd => mainloop" );
                 signal( SIGINT, sig_handle );
                 signal( SIGTERM, sig_handle );
                 mainloop.run();
-                logger.info( "mainloop => fsodevicde" );
+                logger.info( "mainloop => fsomusicd" );
                 //XXX: Workaround for circular reference
                 while( mp.ref_count > 1 )
                 {
