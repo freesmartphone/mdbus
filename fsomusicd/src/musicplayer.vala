@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 20-11-2009 23:09:22
+ * Last Modified: 20-11-2009 23:14:48
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -595,19 +595,19 @@ namespace FsoMusic
                     GLib.Error err;
                     string debug;
                     message.parse_error( out err, out debug );
-                    logger.error( "Message: $debug $err" );
+                    logger.error( @"Message: $debug $(err.message)" );
                     break;
                 case MessageType.WARNING:
                     GLib.Error err;
                     string debug;
                     message.parse_warning( out err, out debug );
-                    logger.warning( "Message: $debug $err" );
+                    logger.warning( @"Message: $debug $(err.message)" );
                     break;
                 case MessageType.INFO:
                     GLib.Error err;
                     string debug;
                     message.parse_info( out err, out debug );
-                    logger.info( "Message: $debug $err" );
+                    logger.info( @"Message: $debug $(err.message)" );
                     break;
                 case MessageType.EOS:
                     logger.info("End of stream");
@@ -629,7 +629,7 @@ namespace FsoMusic
                     this._state = FreeSmartphone.MusicPlayerState.BUFFERING;
                     break;
                 default:
-                    debug( "ignored message: %s", message.type.to_string() );
+                    debug( @"ignored message: $(message.type)" );
                     break;
             }
             return true;

@@ -1,7 +1,7 @@
 /* 
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified: 19-11-2009 22:36:00
+ * Last Modified: 20-11-2009 23:11:05
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -112,7 +112,7 @@ namespace FsoMusic
             }
             catch (GLib.Error e)
             {
-                logger.error( "Ignoring Error: $(e.message)" );
+                logger.error( @"Ignoring Error: $(e.message)" );
             }
             try
             {
