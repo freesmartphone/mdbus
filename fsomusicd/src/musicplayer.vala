@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 19-11-2009 22:28:23
+ * Last Modified: 20-11-2009 20:35:23
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -326,7 +326,7 @@ namespace FsoMusic
         public async void pause() throws MusicPlayerError, DBus.Error
         {
             if( audio_pipeline == null )
-                 throw new FreeSmartphone.MusicPlayerError.NO_FILE_SELECTED( "No file selected" );
+                throw new FreeSmartphone.MusicPlayerError.NO_FILE_SELECTED( "No file selected" );
             this.audio_pipeline.set_state( Gst.State.PAUSED );
             this._state = FreeSmartphone.MusicPlayerState.PAUSED;
             Source.remove( this.timeout_pos_handle );
@@ -340,7 +340,7 @@ namespace FsoMusic
         public async void previous() throws MusicPlayerError, DBus.Error
         {
             if( current_playlist == null )
-                 throw new MusicPlayerError.NO_PLAYLIST_SELECTED( "No Playlist Selected" );
+                throw new MusicPlayerError.NO_PLAYLIST_SELECTED( "No Playlist Selected" );
             var playlist = playlists.lookup( current_playlist );
             try
             {
@@ -348,14 +348,18 @@ namespace FsoMusic
             }
             catch (MusicPlayerPlaylistError e)
             {
-                 throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "Playlist %s has no more elements".printf(this.current_playlist));
+                stop();
+                throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "Playlist %s has no more elements".printf(this.current_playlist));
             }
             play();
         }
         public async void next() throws MusicPlayerError, DBus.Error
         {
             if( current_playlist == null )
-                 throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "No Playlist Selected" );
+            {
+                stop();
+                throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "No Playlist Selected" );
+            }
             var playlist = playlists.lookup( current_playlist );
             try
             {
@@ -363,7 +367,8 @@ namespace FsoMusic
             }
             catch (MusicPlayerPlaylistError e)
             {
-                 throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "Playlist %s has no more elements".printf(this.current_playlist));
+                stop();
+                throw new MusicPlayerError.PLAYLIST_OUT_OF_FILES( "Playlist %s has no more elements".printf(this.current_playlist));
             }
             play();
         }
