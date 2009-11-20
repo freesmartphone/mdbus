@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 20-11-2009 20:35:23
+ * Last Modified: 20-11-2009 21:47:30
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -286,17 +286,18 @@ namespace FsoMusic
                 try
                 {
                     var element = parse_launch( el );
-                    audio_pipeline = element as Pipeline;
-                    volume = audio_pipeline.get_by_name( "volume" );
+                    var tmp_pipe = element as Pipeline;
+                    volume = tmp_pipe.get_by_name( "volume" );
                     set_volume( current_volume );
-                    core_stream = audio_pipeline.get_by_name( "core" );
-                    source = audio_pipeline.get_by_name( "source" );
+                    core_stream = tmp_pipe.get_by_name( "core" );
+                    source = tmp_pipe.get_by_name( "source" );
                     source.set( "location", file );
-                    audio_bus = audio_pipeline.get_bus();
+                    audio_bus = tmp_pipe.get_bus();
                     audio_bus.add_watch( bus_callback );
                     last_extension = ext;
                     last_protcol = protocol;
                     Source.remove( timeout_pos_handle );
+                    audio_pipeline = tmp_pipe;
                     this.audio_pipeline.set_state( Gst.State.READY );
                     this._state = FreeSmartphone.MusicPlayerState.STOPPED;
 
