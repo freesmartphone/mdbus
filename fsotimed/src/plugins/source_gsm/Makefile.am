@@ -3,6 +3,7 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
+	$(FSO_GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
@@ -12,6 +13,7 @@ AM_CPPFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
+	$(FSO_GLIB_LIBS) \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
