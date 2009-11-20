@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 20-11-2009 21:47:30
+ * Last Modified: 20-11-2009 23:09:22
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -56,7 +56,7 @@ namespace FsoMusic
                         waiting = false;
                         if( was_playing )
                             play();
-                        logger.info( @"Pausing play: $was_playing" );
+                        logger.info( @"Restarted playing: $was_playing" );
                     }
                 }
             }
@@ -528,6 +528,8 @@ namespace FsoMusic
         }
         private bool register_element( string elements, string extension, HashTable<string,string> to )
         {
+            if( ! gst_plugins_installed( elements ) )
+                 return false;
             to.insert( extension, elements );
             debug( @"Registered audio elements \"$elements\" for $extension" );
             return true;
@@ -554,6 +556,25 @@ namespace FsoMusic
                 logger.error( @"Replacing $name for ObjectPath: $(e.message)" );
             }
             return ret;
+        }
+
+        private bool gst_plugins_installed( string pipe )
+        {
+            //split into elements
+            logger.debug( @"pipe: $pipe" );
+            var pipe_splitted = pipe.split( "!" );
+            foreach( var p in pipe_splitted )
+            {
+                logger.debug( @"element full: $p" );
+                var element_name = p.strip().split( " ", 2 )[0];
+
+                if( Gst.ElementFactory.make( element_name, null) == null )
+                {
+                    logger.error( @"Cannot load '$element_name'. Try install gst-plugin-'$element_name'" );
+                    return false;
+                }
+            }
+            return true; 
         }
 
         //
