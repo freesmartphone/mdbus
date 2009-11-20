@@ -17,17 +17,66 @@
  *
  */
 
-// inject useful constants into namespace until they are in dbus-glib-1.vapi
+// inject useful things into the DBus namespace until they are in dbus-glib-1.vapi
 namespace DBus
 {
     public const string DBUS_SERVICE_DBUS             = "org.freedesktop.DBus";
     public const string DBUS_PATH_DBUS                = "/org/freedesktop/DBus";
-    public const string DBUS_INTERFACE_DBUS           = "org.freedesktop.DBus";
 
     public const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectable";
     public const string DBUS_INTERFACE_PROPERTIES     = "org.freedesktop.DBus.Properties";
     public const string DBUS_INTERFACE_PEER           = "org.freedesktop.DBus.Peer";
+    public const string DBUS_INTERFACE_DBUS           = "org.freedesktop.DBus";
+
+    [DBus (name = "org.freedesktop.DBus.Introspectable")]
+    public interface IIntrospectable : GLib.Object
+    {
+        public abstract async string Introspect () throws DBus.Error;
+    }
+
+    [DBus (name = "org.freedesktop.DBus.Properties")]
+    public interface IProperties : GLib.Object
+    {
+        //public abstract async GLib.Value? Get (string iface, string prop) throws DBus.Error;
+        //public abstract async void  Set (string iface, string prop, Value? val) throws DBus.Error;
+        //public abstract async GLib.HashTable<string,Value?> GetAll (string iface) throws DBus.Error;
+    }
+
+    [DBus (name = "org.freedesktop.DBus.Peer")]
+    public interface IPeer : GLib.Object
+    {
+        public abstract async void Ping () throws DBus.Error;
+    }
+
+    [DBus (name = "org.freedesktop.DBus")]
+    public interface IDBus : GLib.Object
+    {
+        public abstract async void     AddMatch( string match ) throws DBus.Error;
+        public abstract async uint8[]  GetAdtAuditSessionData( string type ) throws DBus.Error;
+        public abstract async uint8[]  GetConnectionSELinuxSecurityContext( string type ) throws DBus.Error;
+        public abstract async uint32   GetConnectionUnixProcessID( string conn ) throws DBus.Error;
+        public abstract async uint32   GetConnectionUnixUser( string conn ) throws DBus.Error;
+        public abstract async string   GetId() throws DBus.Error;
+        public abstract async string   GetNameOwner( string name ) throws DBus.Error;
+        public abstract async string   Hello() throws DBus.Error;
+        public abstract async string[] ListActivatableNames() throws DBus.Error;
+        public abstract async string[] ListNames() throws DBus.Error;
+        public abstract async string[] ListQueuedOwners( string None ) throws DBus.Error;
+        public abstract async bool     NameHasOwner( string name ) throws DBus.Error;
+        public abstract async uint32   ReleaseName( string name ) throws DBus.Error;
+        public abstract async void     ReloadConfig() throws DBus.Error;
+        public abstract async void     RemoveMatch( string match ) throws DBus.Error;
+        public abstract async uint32   RequestName( string name, uint32 param ) throws DBus.Error;
+        public abstract async uint32   StartServiceByName( string name, uint32 param ) throws DBus.Error;
+        public abstract async void     UpdateActivationEnvironment( GLib.HashTable<string,string> environment ) throws DBus.Error;
+
+        public signal void             NameAcquired( string name );
+        public signal void             NameLost( string name );
+        public signal void             NameOwnerChanged( string name, string oldowner, string newowner );
+    }
 }
+
+
 
 public delegate void FsoFramework.DBusServiceEventFunc( string busname );
 
