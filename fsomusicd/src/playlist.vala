@@ -1,7 +1,7 @@
 /* 
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified: 21-11-2009 23:31:02
+ * Last Modified: 21-11-2009 23:35:41
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -398,8 +398,6 @@ namespace FsoMusic
         {
             if( this.files.length() == 0 )
                  throw new MusicPlayerPlaylistError.EMPTY( "No files in playlist" );
-            if( this.current == null )
-                 throw new MusicPlayerPlaylistError.NO_FILE_SELECTED( "No file selected" );
             var rand = new Rand();
             uint nr = (uint) rand.int_range( 0, (int)this.files.length() - 1 );
             this.current = this.files.nth( nr );
