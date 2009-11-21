@@ -1,7 +1,7 @@
 /* 
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified: 21-11-2009 22:21:11
+ * Last Modified: 21-11-2009 23:04:30
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -180,13 +180,14 @@ namespace FsoMusic
         public async void insert( int position, string file ) throws MusicPlayerPlaylistError, DBus.Error
         {
             if( ! file_supported( file ) )
-                 throw new MusicPlayerPlaylistError.FILETYPE_NOT_SUPPORTED( "Filetype for %s is not supported".printf( file ));
+                 throw new MusicPlayerPlaylistError.FILETYPE_NOT_SUPPORTED( @"Filetype for $file is not supported" );
             this.files.insert( file, position );
             if( current == null )
                  current = files;
             file_added( position,file );
             if( position < this.position )
                  this.position++;
+            logger.debug( "Inserted $file at $position" );
         }
         public async void insert_dir( int position, string dir, bool recursive ) throws MusicPlayerPlaylistError, DBus.Error
         {
@@ -217,7 +218,7 @@ namespace FsoMusic
                             }
                             catch (MusicPlayerPlaylistError mppe)
                             {
-                                logger.error( @"insert into Playlist: $(mppe.message)" );
+                                logger.debug( @"insert into Playlist: $(mppe.message)" );
                             }
                         }
                         else
