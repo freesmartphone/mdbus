@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 20-11-2009 23:14:48
+ * Last Modified: 21-11-2009 14:09:04
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -64,8 +64,8 @@ namespace FsoMusic
         private bool was_playing = false;
 
         private unowned KeyFile key_file;
-        private HashTable<string,string> audio_codecs;
-        private HashTable<string,string> audio_srcs;
+        private HashTable<string,string> audio_codecs = new HashTable<string,string>( str_hash, str_equal);
+        private HashTable<string,string> audio_srcs = new HashTable<string,string>( str_hash, str_equal);
         private static string element_tail = "volume name=volume ! alsasink" ;
         private string current_song
         {
@@ -78,7 +78,7 @@ namespace FsoMusic
             }
         }
         private string _current_song = "";
-        private HashTable<ObjectPath,Playlist> playlists;
+        private HashTable<ObjectPath,Playlist> playlists = new HashTable<ObjectPath,Playlist>( str_hash, str_equal);
         private ObjectPath current_playlist
         {
             get{ return _current_playlist; }
@@ -109,8 +109,8 @@ namespace FsoMusic
         private Gst.Element core_stream;
         private Gst.Element source;
         //Save some time to avoid recreating of the Pipeline
-        private string last_extension;
-        private string last_protcol;
+        private string last_extension = null;
+        private string last_protcol = null;
         private MusicPlayerState cur_state = FreeSmartphone.MusicPlayerState.STOPPED;
         private MusicPlayerState _state { 
             get{ return this.cur_state; }
@@ -123,8 +123,8 @@ namespace FsoMusic
                 }
             }
         }
-        private uint timeout_pos_handle;
-        private int _current_position;
+        private uint timeout_pos_handle = -1;
+        private int _current_position = 0;
         private int current_position
         {
             get{ return _current_position; }
@@ -138,8 +138,7 @@ namespace FsoMusic
             }
         }
 
-        private HashTable<string,GLib.Value?> cur_song_info;
-        private HashTable<string,GLib.Value?> file_info;
+        private HashTable<string,GLib.Value?> cur_song_info = new HashTable<string,GLib.Value?>( str_hash, str_equal);
 
         private int current_volume = 100;
 
@@ -168,83 +167,87 @@ namespace FsoMusic
         }
         construct
         {
-            playlists = new HashTable<ObjectPath,Playlist>( str_hash, str_equal );
-            audio_pipeline = null;
-            last_extension = null;
-            last_protcol = null;
-            audio_codecs = new HashTable<string,string>(str_hash, str_equal);
-            audio_srcs = new HashTable<string,string>(str_hash, str_equal);
             setup_audio_elements();
             setup_source_elements();
         }
         ~MusicPlayer()
         {
             save();
-            audio_pipeline.set_state( Gst.State.NULL );
+            if( audio_pipeline != null )
+                audio_pipeline.set_state( Gst.State.NULL );
         }
         //
         // org.freesmartphone.MusicPlayer
         //
         public async HashTable<string,GLib.Value?> get_info_for_file( string file ) throws MusicPlayerError, DBus.Error
         {
+            var helper = new TagHelper();
             if( ! FileUtils.test( file, FileTest.EXISTS ) )
                  throw new MusicPlayerError.FILE_NOT_FOUND( @"The file $file does not exist" );
-            file_info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
-            file_info.insert( "filename", file );
-            var pipe = new Pipeline( "file_pipeline" );
-
-            var filesrc = Gst.ElementFactory.make( "filesrc", "src" );
-            filesrc.set( "location", file );
-
-            var id3demux = Gst.ElementFactory.make( "id3demux", "demux" );
-
-            var fakesink = Gst.ElementFactory.make( "fakesink", "sink" );
-
-            pipe.add_many( filesrc, id3demux, fakesink );
-            filesrc.link( id3demux );
-            id3demux.link( fakesink );
-            id3demux.link( filesrc );
-            fakesink.link( id3demux );
-
-            var file_bus = pipe.get_bus();
-            pipe.set_state( Gst.State.PLAYING );
-
-            bool stop = false;
-
-            while( ! stop )
+            var info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
+            try
             {
-                if( ! file_bus.have_pending() )
-                     stop = true;
-                else
+                var pipe = new Pipeline( "file_pipeline" );
+
+                var filesrc = Gst.ElementFactory.make( "filesrc", "src" );
+                filesrc.set( "location", file );
+
+                var id3demux = Gst.ElementFactory.make( "id3demux", "demux" );
+
+                var fakesink = Gst.ElementFactory.make( "fakesink", "sink" );
+
+                pipe.add_many( filesrc, id3demux, fakesink );
+                filesrc.link( id3demux );
+                id3demux.link( fakesink );
+                id3demux.link( filesrc );
+                fakesink.link( id3demux );
+
+                //var pipe = parse_launch( "filesrc name=source ! id3demux ! fakesink" ) as Pipeline;
+                //pipe.get_by_name( "source" ).set( "location", file );
+
+                var file_bus = pipe.get_bus();
+                pipe.set_state( Gst.State.PLAYING );
+
+                bool stop = false;
+
+                while( !stop )
                 {
-                    var message = file_bus.pop();
-                    switch( message.type )
+    
+                    if( ! file_bus.have_pending() )
+                         continue;
+                    else
                     {
-                        case MessageType.TAG:
-                            Gst.TagList tag_list;
-                            message.parse_tag ( out tag_list );
-                            tag_list.foreach ( file_foreach_tag );
-                            break;
-                        case MessageType.EOS:
-                            stop = true;
-                            break;
-                        case MessageType.ERROR:
-                            GLib.Error err;
-                            string debug;
-                            message.parse_error( out err, out debug );
-                            logger.debug( @"Parsing file tags for $file failed: $(err.message)." );
-                            stop = true;
-                            break;
-                        default:
-                            logger.info( @"Ignoring $(message.type) for $file" );
-                            break;
+                        var message = file_bus.pop();
+                        switch( message.type )
+                        {
+                            case MessageType.TAG:
+                                debug("new tag");
+                                Gst.TagList tag_list;
+                                message.parse_tag ( out tag_list );
+                                tag_list.foreach ( helper.foreach_tag );
+                                break;
+                            case MessageType.ERROR:
+                                GLib.Error err;
+                                string debug;
+                                message.parse_error( out err, out debug );
+                                logger.debug( @"Parsing file tags for $file failed: $(err.message)." );
+                                stop = true;
+                                break;
+                            default:
+                                logger.info( @"Ignoring $(message.type) for $file" );
+                                break;
+                        }
                     }
                 }
+                pipe.set_state( Gst.State.NULL );
+            }
+            catch (GLib.Error e)
+            {
+                debug( @"Error in foreach: $(e.message)" );
             }
 
-            pipe.set_state( Gst.State.NULL );
 
-            return file_info;
+            return helper.tags;
         }
         public async HashTable<string,GLib.Value?> get_playing_info() throws MusicPlayerError, DBus.Error
         {
@@ -259,8 +262,9 @@ namespace FsoMusic
         public async void set_playing( string file ) throws MusicPlayerError, DBus.Error
         {
             string ext = file.rchr( file.len(), '.' );
+            ext = ext == null ? "": ext;
             string protocol = get_protocol_for_uri( file );
-            if( last_extension != null && last_extension == ext && last_protcol == protocol )
+            if( last_extension == ext && last_protcol == protocol )
             {
                 audio_pipeline.set_state( Gst.State.NULL );
                 var src = audio_pipeline.get_by_name( "source" );
@@ -649,13 +653,6 @@ namespace FsoMusic
             //Call me again
             return true;
         }
-        private void file_foreach_tag (Gst.TagList list, string tag)
-        {
-            Gst.Value val;
-            Gst.TagList.copy_value( out val, list, tag );
-            if( ! val.holds( typeof( Gst.Buffer ) ) && ! val.holds( typeof( Gst.Date ) ) )
-                file_info.insert( tag, val );
-        }
         //
         // FsoFramework.AbstractObject
         //
@@ -690,6 +687,23 @@ namespace FsoMusic
             {
                 logger.debug( @"Tried to jump into playlist '$name': $(mppe.message)" );
             }
+        }
+
+        private class TagHelper: GLib.Object
+        {
+            public HashTable<string,GLib.Value?> tags{ 
+                get; 
+                set; 
+                default = new HashTable<string,GLib.Value?>(str_hash, str_equal );}
+            public void foreach_tag( Gst.TagList list, string tag )
+            {
+                debug( @"new tag $tag" );
+                Gst.Value val;
+                Gst.TagList.copy_value( out val, list, tag );
+                if( ! val.holds( typeof( Gst.Buffer ) ) && ! val.holds( typeof( Gst.Date ) ) )
+                    tags.insert( tag, val );
+            }
+
         }
 
         //
