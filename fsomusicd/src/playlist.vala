@@ -1,7 +1,7 @@
 /* 
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified: 20-11-2009 23:11:05
+ * Last Modified: 21-11-2009 20:58:40
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -77,8 +77,7 @@ namespace FsoMusic
                         do_get_previous = get_previous_endless;
                         break;
                     default:
-                        logger.error( "Illegal Mode" );
-                        assert_not_reached();
+                        logger.error( @"Illegal Mode: $(FsoFramework.StringHandling.enumToString(typeof(MusicPlayerPlaylistMode), value))" );
                 }
                 _mode = value;
                 mode_changed( value );
