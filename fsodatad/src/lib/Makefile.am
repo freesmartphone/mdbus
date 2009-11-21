@@ -5,6 +5,8 @@ NULL =
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
+	$(XML_CFLAGS) \
+	$(GEE_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(NULL)
 
@@ -15,7 +17,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsodata_la_VALASOURCES = \
-	dummy.vala \
+	mbpi.vala \
 	$(NULL)
 
 libfsodata_la_SOURCES = \
@@ -33,13 +35,17 @@ $(BUILT_SOURCES): $(libfsodata_la_VALASOURCES)
 	            --pkg glib-2.0 \
 	            --pkg gio-2.0 \
 	            --pkg gee-1.0 \
+	            --pkg libxml-2.0 \
 	            --pkg fsoframework-2.0 \
+	            --pkg config \
 	            --header fsodata.h \
 	            --library fsodata-2.0 $^
 	touch $@
 
 libfsodata_la_LIBADD = \
 	$(FSO_LIBS) \
+	$(XML_LIBS) \
+	$(GEE_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 

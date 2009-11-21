@@ -20,7 +20,7 @@
 /**
  * Mobile Broadband Provider Info
  **/
-namespace MBPI {
+namespace FsoData.MBPI {
 
 internal const string ISO_3361_DATABASE = Config.PACKAGE_DATADIR + "/iso3361+tz.txt";
 
@@ -100,14 +100,14 @@ public class Database : FsoFramework.AbstractObject
     private void loadMbpi()
     {
         countries = new Gee.HashMap<string,Country>();
-        
+
         var doc = Xml.Parser.parse_file( Config.MBPI_DATABASE_PATH );
         if ( doc == null)
         {
             logger.warning( "Could not load mobile broadband provider info from $(Config.MBPI_DATABASE)" );
             return;
         }
-        
+
         var root = doc->get_root_element();
         if ( root == null )
         {
@@ -156,7 +156,7 @@ public class Database : FsoFramework.AbstractObject
                 handleChildren( node );
                 country.providers[provider.name] = provider;
 #if DEBUG
-                debug( @"new provider $(provider.name)" );               
+                debug( @"new provider $(provider.name)" );
 #endif
                 break;
             case "gsm":
@@ -222,7 +222,7 @@ public class Database : FsoFramework.AbstractObject
 
             var node_name = iter->name;
             var node_content = iter->get_content();
-            
+
             parseNode( iter );
         }
     }
@@ -309,7 +309,7 @@ public class Database : FsoFramework.AbstractObject
             }
         }
         return null;
-    }  
+    }
 }
 
 } /* namespace */
