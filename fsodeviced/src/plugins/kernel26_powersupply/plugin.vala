@@ -227,34 +227,65 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
     public void onPowerSupplyChangeNotification( HashTable<string,string> properties )
     {
         var name = properties.lookup( "POWER_SUPPLY_NAME" );
-        assert( name != null );
-        var typ = properties.lookup( "POWER_SUPPLY_TYPE" ).down();
-        assert( typ != null );
+        if ( name == null )
+        {
+            logger.warning( "POWER_SUPPLY_NAME not present, ignoring power supply change notification" );
+            return;
+        }
+        var typ = properties.lookup( "POWER_SUPPLY_TYPE" );
+        if ( typ == null )
+        {
+            logger.warning( "POWER_SUPPLY_TYPE not present, ignoring power supply change notification" );
+            return;
+        }
 
         var status = "unknown";
         var present = false;
 
-        message( "name = %s, type = %s", name, typ );
-
-        if ( typ != "battery" )
+        if ( typ.down() != "battery" )
         {
-            present = ( properties.lookup( "POWER_SUPPLY_ONLINE" ).down() == "1" );
+            var online = properties.lookup( "POWER_SUPPLY_ONLINE" );
+            if ( online == null )
+            {
+                logger.warning( "POWER_SUPPLY_ONLY not present, ignoring power supply change notification" );
+                return;
+            }
+            present = ( online.down() == "1" );
             status = present ? "online" : "offline";
         }
         else
         {
-            status = properties.lookup( "POWER_SUPPLY_STATUS" ).down();
-            present = ( properties.lookup( "POWER_SUPPLY_PRESENT" ).down() == "1" );
-
-            if ( status == "not charging" )
+            var pres = properties.lookup( "POWER_SUPPLY_PRESENT" );
+            if ( pres == null )
             {
-                status = present ? "full" : "removed";
+                logger.warning( "POWER_SUPPLY_PRESENT not present, ignoring power supply change notification" );
+                return;
+            }
+            var stat = properties.lookup( "POWER_SUPPLY_STATUS" );
+            if ( stat == null )
+            {
+                logger.warning( "POWER_SUPPLY_STATUS not present, battery might have been removed"  );
+                stat = "unknown";
+            }
+            present = ( pres.down() == "1" );
+            status = stat.down();
+
+            if ( !present )
+            {
+                status = "removed";
+            }
+            else
+            {
+                if ( status == "not charging" )
+                {
+                    status = "full";
+                }
             }
         }
 
         assert( status != null );
 
-        logger.info( "got power status change notification for %s: %s".printf( name, status ) );
+        logger.info( "Got power status change notification for %s: %s".printf( name, status ) );
 
         // set status in instance
         foreach ( var supply in instances )
