@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.freesmartphone.odatad
+Exec=@prefix@/bin/fsodatad
+User=root
