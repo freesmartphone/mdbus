@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 21-11-2009 14:10:17
+ * Last Modified: 21-11-2009 21:46:14
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -185,69 +185,59 @@ namespace FsoMusic
             var helper = new TagHelper();
             if( ! FileUtils.test( file, FileTest.EXISTS ) )
                  throw new MusicPlayerError.FILE_NOT_FOUND( @"The file $file does not exist" );
-            var info = new HashTable<string,GLib.Value?>( str_hash, str_equal );
-            try
+            var pipe = new Pipeline( "file_pipeline" );
+
+            var filesrc = Gst.ElementFactory.make( "filesrc", "src" );
+            filesrc.set( "location", file );
+
+            var id3demux = Gst.ElementFactory.make( "id3demux", "demux" );
+
+            var fakesink = Gst.ElementFactory.make( "fakesink", "sink" );
+
+            pipe.add_many( filesrc, id3demux, fakesink );
+            filesrc.link( id3demux );
+            id3demux.link( fakesink );
+            id3demux.link( filesrc );
+            fakesink.link( id3demux );
+
+            //var pipe = parse_launch( "filesrc name=source ! id3demux ! fakesink" ) as Pipeline;
+            //pipe.get_by_name( "source" ).set( "location", file );
+
+            var file_bus = pipe.get_bus();
+            pipe.set_state( Gst.State.PLAYING );
+
+            bool stop = false;
+
+            while( !stop )
             {
-                var pipe = new Pipeline( "file_pipeline" );
 
-                var filesrc = Gst.ElementFactory.make( "filesrc", "src" );
-                filesrc.set( "location", file );
-
-                var id3demux = Gst.ElementFactory.make( "id3demux", "demux" );
-
-                var fakesink = Gst.ElementFactory.make( "fakesink", "sink" );
-
-                pipe.add_many( filesrc, id3demux, fakesink );
-                filesrc.link( id3demux );
-                id3demux.link( fakesink );
-                id3demux.link( filesrc );
-                fakesink.link( id3demux );
-
-                //var pipe = parse_launch( "filesrc name=source ! id3demux ! fakesink" ) as Pipeline;
-                //pipe.get_by_name( "source" ).set( "location", file );
-
-                var file_bus = pipe.get_bus();
-                pipe.set_state( Gst.State.PLAYING );
-
-                bool stop = false;
-
-                while( !stop )
+                if( ! file_bus.have_pending() )
+                     continue;
+                else
                 {
-    
-                    if( ! file_bus.have_pending() )
-                         continue;
-                    else
+                    var message = file_bus.pop();
+                    switch( message.type )
                     {
-                        var message = file_bus.pop();
-                        switch( message.type )
-                        {
-                            case MessageType.TAG:
-                                debug("new tag");
-                                Gst.TagList tag_list;
-                                message.parse_tag ( out tag_list );
-                                tag_list.foreach ( helper.foreach_tag );
-                                break;
-                            case MessageType.ERROR:
-                                GLib.Error err;
-                                string debug;
-                                message.parse_error( out err, out debug );
-                                logger.debug( @"Parsing file tags for $file failed: $(err.message)." );
-                                stop = true;
-                                break;
-                            default:
-                                logger.info( @"Ignoring $(message.type) for $file" );
-                                break;
-                        }
+                        case MessageType.TAG:
+                            debug("new tag");
+                            Gst.TagList tag_list;
+                            message.parse_tag ( out tag_list );
+                            tag_list.foreach ( helper.foreach_tag );
+                            break;
+                        case MessageType.ERROR:
+                            GLib.Error err;
+                            string debug;
+                            message.parse_error( out err, out debug );
+                            logger.debug( @"Parsing file tags for $file failed: $(err.message)." );
+                            stop = true;
+                            break;
+                        default:
+                            logger.info( @"Ignoring $(message.type) for $file" );
+                            break;
                     }
                 }
-                pipe.set_state( Gst.State.NULL );
             }
-            catch (GLib.Error e)
-            {
-                debug( @"Error in foreach: $(e.message)" );
-            }
-
-
+            pipe.set_state( Gst.State.NULL );
             return helper.tags;
         }
         public async HashTable<string,GLib.Value?> get_playing_info() throws MusicPlayerError, DBus.Error

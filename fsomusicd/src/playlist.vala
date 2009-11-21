@@ -1,7 +1,7 @@
 /* 
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified: 21-11-2009 20:58:40
+ * Last Modified: 21-11-2009 22:21:11
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -78,6 +78,7 @@ namespace FsoMusic
                         break;
                     default:
                         logger.error( @"Illegal Mode: $(FsoFramework.StringHandling.enumToString(typeof(MusicPlayerPlaylistMode), value))" );
+                        break;
                 }
                 _mode = value;
                 mode_changed( value );
@@ -189,38 +190,45 @@ namespace FsoMusic
         }
         public async void insert_dir( int position, string dir, bool recursive ) throws MusicPlayerPlaylistError, DBus.Error
         {
+            logger.debug( @"Insert $dir at $position. recursive: $recursive" );
             try
             {
-                var curdir = GLib.Dir.open( dir, 0 );
-                for( string file =  curdir.read_name(); file != null; file = curdir.read_name() )
+                var curdir = File.new_for_path( dir );
+                var iter = yield curdir.enumerate_children_async (FILE_ATTRIBUTE_STANDARD_NAME, 0, Priority.DEFAULT, null);
+                while (true) 
                 {
-                    var full_path = Path.build_filename( dir, file );
-                    if( FileUtils.test( full_path, FileTest.IS_DIR ) )
+                    var files = yield iter.next_files_async (10, Priority.DEFAULT, null);
+                    if (files == null) 
+                            break;
+                    foreach (var file in files) 
                     {
-                        if( recursive )
+                        var full_path = Path.build_filename( dir, file.get_name() );
+                        if( FileUtils.test( full_path, FileTest.IS_DIR ) )
                         {
-                            yield insert_dir( position, full_path, recursive );
+                            if( recursive )
+                                yield insert_dir( position, full_path, recursive );
                         }
+                        else if( FileUtils.test( full_path, FileTest.EXISTS ) )
+                        {
+                            try
+                            {
+                                yield insert( position, full_path );
+                                position ++;
+                            }
+                            catch (MusicPlayerPlaylistError mppe)
+                            {
+                                logger.error( @"insert into Playlist: $(mppe.message)" );
+                            }
+                        }
+                        else
+                             throw new MusicPlayerPlaylistError.FILE_NOT_FOUND( @"Cannot find file $full_path" );
                     }
-                    else if( FileUtils.test( full_path, FileTest.EXISTS ) )
-                    {
-                        try
-                        {
-                            yield insert( position, full_path );
-                            position ++;
-                        }
-                        catch (MusicPlayerPlaylistError e)
-                        {
-                            logger.error( @"insert into Playlist: $(e.message)" );
-                        }
-                    }
-                    else
-                         throw new MusicPlayerPlaylistError.FILE_NOT_FOUND( "Can't find file %s", full_path );
                 }
+                yield iter.close_async( Priority.DEFAULT, null );
             }
-            catch ( GLib.FileError fe )
+            catch ( GLib.Error e )
             {
-                logger.debug( @"InserDir: $(fe.message)" );
+                logger.debug( @"InserDir: $(e.message)" );
             }
         }
 
