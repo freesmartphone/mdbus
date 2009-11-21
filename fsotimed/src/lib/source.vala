@@ -26,7 +26,7 @@ public interface FsoTime.Source : FsoFramework.AbstractObject
     public abstract void triggerQuery();
 
     public signal void reportTime( int since_epoch, FsoTime.Source source );
-    public signal void reportZone( int zone, FsoTime.Source source );
+    public signal void reportZone( string zone, FsoTime.Source source );
 }
 
 public abstract class FsoTime.AbstractSource : FsoTime.Source, FsoFramework.AbstractObject

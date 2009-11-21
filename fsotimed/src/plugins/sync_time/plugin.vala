@@ -87,12 +87,14 @@ class SyncTime.Service : FsoFramework.AbstractObject
         int offset = since_epoch-(int)now;
 
         assert( logger.debug( "%s reports %u, we think %u, offset = %d".printf( ((FsoFramework.AbstractObject)source).classname, (uint)since_epoch, (uint)now, (int)offset ) ) );
+
+        //FIXME: Adjust time here
     }
 
-    public void onZoneReport( int zone, FsoTime.Source source )
+    public void onZoneReport( string zone, FsoTime.Source source )
     {
         //FIXME: Implement
-        assert( logger.debug( "%s reports time zone %d".printf( ((FsoFramework.AbstractObject)source).classname, zone ) ) );
+        assert( logger.debug( "%s reports time zone %s".printf( ((FsoFramework.AbstractObject)source).classname, zone ) ) );
     }
 
 }

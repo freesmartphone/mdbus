@@ -28,22 +28,29 @@ namespace Source
 
 class Source.Gsm : FsoTime.AbstractSource
 {
-    FreeSmartphone.GSM.Network dev;
-    DBus.IDBus obj;
+    FreeSmartphone.GSM.Network ogsmd_device;
+    FreeSmartphone.Data.World odatad_world;
+    DBus.IDBus dbus_dbus;
 
     construct
     {
         DBus.Connection conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-        dev = conn.get_object( FsoFramework.GSM.ServiceDBusName,
-                               FsoFramework.GSM.ServicePathPrefix + "/Device",
+
+        ogsmd_device = conn.get_object( FsoFramework.GSM.ServiceDBusName,
+                               FsoFramework.GSM.DeviceServicePath,
                                FsoFramework.GSM.ServiceFacePrefix + ".Network" ) as FreeSmartphone.GSM.Network;
 
-        obj = conn.get_object( DBus.DBUS_SERVICE_DBUS,
-                               DBus.DBUS_PATH_DBUS,
-                               DBus.DBUS_INTERFACE_DBUS ) as DBus.IDBus;
+        odatad_world = conn.get_object( FsoFramework.Data.ServiceDBusName,
+                               FsoFramework.Data.WorldServicePath,
+                               FsoFramework.Data.WorldServiceFace ) as FreeSmartphone.Data.World;
 
-        dev.status.connect( onGsmNetworkStatusSignal );
-        
+        dbus_dbus = conn.get_object( DBus.DBUS_SERVICE_DBUS,
+                                DBus.DBUS_PATH_DBUS,
+                                DBus.DBUS_INTERFACE_DBUS ) as DBus.IDBus;
+
+        //FIXME: Work around bug in Vala (signal handlers can't be async yet)
+        ogsmd_device.status.connect( (status) => { onGsmNetworkStatusSignal( status ); } );
+
         Idle.add( () => { triggerQuery(); return false; } );
     }
 
@@ -67,14 +74,14 @@ class Source.Gsm : FsoTime.AbstractSource
     private async void triggerQueryAsync()
     {
         // we don't want to autoactivate ogsmd, if it's not already present
-        var names = yield obj.ListNames();
+        var names = yield dbus_dbus.ListNames();
 
         if ( arrayContainsElement( names, FsoFramework.GSM.ServiceDBusName ) )
         {
             try
             {
-                var status = yield dev.get_status();
-                onGsmNetworkStatusSignal( status );
+                var status = yield ogsmd_device.get_status();
+                yield onGsmNetworkStatusSignal( status );
             }
             catch ( DBus.Error e )
             {
@@ -92,14 +99,30 @@ class Source.Gsm : FsoTime.AbstractSource
         triggerQueryAsync();
     }
 
-    private void onGsmNetworkStatusSignal( GLib.HashTable<string,GLib.Value?> status )
+    private async void onGsmNetworkStatusSignal( GLib.HashTable<string,GLib.Value?> status )
     {
         logger.info( "Received GSM network status signal" );
-        /* TODO:
-         * check 'code' (string) we are currently registered with
-         * resolve it to a timezone
-         * report to time controller
-         */
+
+        var code = status.lookup( "code" );
+        if ( code == null )
+        {
+            logger.info( "No provider code, ignoring." );
+            return;
+        }
+
+        string countrycode = "";
+
+        try
+        {
+            countrycode = yield odatad_world.get_country_code_for_mcc_mnc( code.get_string() );
+        }
+        catch ( DBus.Error e )
+        {
+            logger.warning( @"Could not query odatad: $(e.message)" );
+            return;
+        }
+
+        this.reportZone( countrycode, this ); // SIGNAL
     }
 }
 
