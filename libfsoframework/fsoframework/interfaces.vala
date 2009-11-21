@@ -26,6 +26,17 @@ namespace FsoFramework
     public const string ServicePathPrefix = "/org/freesmartphone";
     public const string ServiceFacePrefix = "org.freesmartphone";
 
+    namespace Data
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".odatad";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Data";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Data";
+
+        public const string WorldServiceFace = ServiceFacePrefix + ".World";
+        public const string WorldServicePath = ServicePathPrefix + "/World";
+    }
+
     namespace Device
     {
         public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".odeviced";
@@ -93,6 +104,7 @@ namespace FsoFramework
         public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Network";
         public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Network";
     }
+
     namespace MusicPlayer
     {
         public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".omusicd";
