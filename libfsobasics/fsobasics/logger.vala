@@ -22,7 +22,7 @@ using GLib;
 /**
  * Internal constants
  */
-internal const string DEFAULT_LOG_TYPE = "none";
+internal const string DEFAULT_LOG_TYPE = "stderr";
 internal const string DEFAULT_LOG_LEVEL = "INFO";
 internal const string DEFAULT_LOG_DESTINATION = "/tmp/frameworkd.log";
 
@@ -68,7 +68,7 @@ public interface FsoFramework.Logger : Object
      **/
     public static Logger createFromKeyFileName( string filename, string group, string domain )
     {
-        var smk = new SmartKeyFile();
+        var smk = SmartKeyFile.createFromConfig( filename );
         string[] locations = { "./.%s".printf( filename ),
                                "%s/.%s".printf( Environment.get_home_dir(), filename ),
                                "/etc/%s".printf( filename ) };
@@ -113,8 +113,7 @@ public interface FsoFramework.Logger : Object
         switch ( log_to )
         {
             case "stderr":
-                var logger = new FileLogger( domain );
-                logger.setFile( log_to );
+                var logger = new StdErrLogger( domain );
                 theLogger = logger;
                 break;
             case "stderr:colors":

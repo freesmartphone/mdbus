@@ -74,15 +74,24 @@ class Source.Ntp : FsoTime.AbstractSource
 
     public override string repr()
     {
-        return @"<$serveraddr>";
+        return ( serveraddr == null ) ? "<unknown>" : @"<$serveraddr>";
     }
 
     public override void triggerQuery()
     {
         if ( serveraddr == null )
         {
-            var resolver = Resolver.get_default ();
-            unowned List<InetAddress> addresses = resolver.lookup_by_name( servername, null );
+            var resolver = Resolver.get_default();
+            unowned List<InetAddress> addresses = null;
+            try
+            {
+                 addresses = resolver.lookup_by_name( servername, null );
+            }
+            catch ( GLib.Error e )
+            {
+                logger.warning( @"Could not resolve NTP server address $(e.message). Will try again next time." );
+                return;
+            }
             serveraddr = addresses.nth_data( 0 );
             assert( logger.debug( @"Resolved $servername to $serveraddr" ) );
 

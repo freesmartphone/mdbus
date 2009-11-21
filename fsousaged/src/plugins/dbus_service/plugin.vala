@@ -556,21 +556,21 @@ public class Controller : FsoFramework.AbstractObject
 
     public async void shutdown() throws DBus.Error
     {
-        //this.system_action( FreeSmartphone.UsageSystemAction.SHUTDOWN ); // DBUS SIGNAL
+        this.system_action( FreeSmartphone.UsageSystemAction.SHUTDOWN ); // DBUS SIGNAL
         yield disableAllResources();
         Idle.add( onIdleForShutdown );
     }
 
     public async void reboot() throws DBus.Error
     {
-        //this.system_action( FreeSmartphone.UsageSystemAction.REBOOT ); // DBUS SIGNAL
+        this.system_action( FreeSmartphone.UsageSystemAction.REBOOT ); // DBUS SIGNAL
         yield disableAllResources();
         Idle.add( onIdleForReboot );
     }
 
     public async void suspend() throws DBus.Error
     {
-        //this.system_action( FreeSmartphone.UsageSystemAction.SUSPEND ); // DBUS SIGNAL
+        this.system_action( FreeSmartphone.UsageSystemAction.SUSPEND ); // DBUS SIGNAL
         yield suspendAllResources();
         // we need to suspend async, otherwise the dbus call would timeout
         Idle.add( onIdleForSuspend );

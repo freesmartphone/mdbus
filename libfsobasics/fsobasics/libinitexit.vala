@@ -16,12 +16,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
  */
+
+namespace FsoFramework
+{
+    public Logger theLogger;
+    public SmartKeyFile theConfig;
+}
+
 internal static void vala_library_init()
 {
-    message( "INIT" );
+    var bin = FsoFramework.Utility.programName();
+    FsoFramework.theConfig = FsoFramework.SmartKeyFile.createFromConfig( bin );
+    FsoFramework.theLogger = FsoFramework.Logger.createFromKeyFile( FsoFramework.theConfig, "logging", bin );
+    var classname = Type.from_instance( FsoFramework.theLogger ).name();
+    FsoFramework.theLogger.info( @"Binary launched successful ($classname created as theLogger)" );
 }
 
 internal static void vala_library_fini()
 {
-    message( "FINI" );
+    FsoFramework.theConfig = null;
+    FsoFramework.theLogger = null;
+}
+
+// only for Vala
+internal static void silence_unused_warning()
+{
+    vala_library_fini();
+    vala_library_init();
+    silence_unused_warning();
 }

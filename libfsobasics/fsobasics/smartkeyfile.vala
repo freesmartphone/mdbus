@@ -29,8 +29,33 @@ public class FsoFramework.SmartKeyFile : Object
     private string filename;
 
     /**
-     * Load keyfile into memory
-     * @return true, if successful. false, otherwise.
+     * Load keyfile into memory, searching in several well-known locations.
+     *
+     * @returns key file, if found. null, otherwise.
+     **/
+    public static SmartKeyFile createFromConfig( string filename )
+    {
+        var smk = new SmartKeyFile();
+        string[] locations = { @"./$filename.conf",
+                               @"$(Environment.get_home_dir())/.$filename.conf",
+                               @"/etc/freesmartphone/$filename.conf",
+                               @"/etc/$filename.conf" };
+
+        foreach ( var location in locations )
+        {
+            if ( smk.loadFromFile( location ) )
+            {
+                return smk;
+            }
+        }
+        GLib.warning( @"Could not find configuration file for $filename anywhere, returning empty keyfile" );
+        return smk;
+    }
+
+    /**
+     * Load keyfile into memory.
+     *
+     * @returns true, if successful. false, otherwise.
      */
     public bool loadFromFile( string filename )
     {
@@ -45,7 +70,7 @@ public class FsoFramework.SmartKeyFile : Object
         catch ( Error e )
         {
 #if DEBUG
-            warning( "can't load keyfile from '%s': %s".printf( filename, e.message ) );
+            GLib.debug( "can't load keyfile from '%s': %s".printf( filename, e.message ) );
 #endif
             return false;
         }
@@ -103,7 +128,7 @@ public class FsoFramework.SmartKeyFile : Object
     }
     */
 
-    //TODO: Rewrite this once Vala has generics
+    //TODO: Consider rewriting this once Vala has generics
     public string stringValue( string section, string key, string defaultvalue = "" )
     {
         string value;

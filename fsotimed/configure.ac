@@ -85,6 +85,7 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/alarm/Makefile
+  src/plugins/source_gsm/Makefile
   src/plugins/source_ntp/Makefile
   src/plugins/sync_time/Makefile
   tests/Makefile
