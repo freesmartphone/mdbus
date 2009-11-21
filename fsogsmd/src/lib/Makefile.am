@@ -9,14 +9,13 @@ THIRDPARTY_SOURCES = \
 	$(top_srcdir)/src/3rdparty/storage.c \
 	$(top_srcdir)/src/3rdparty/util.c \
 	$(NULL)
-	
+
 AM_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/3rdparty \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
-	$(XML_CFLAGS) \
 	$(GSMMUX_CFLAGS) \
 	$(NULL)
 
@@ -30,7 +29,6 @@ VALAC_ARGS = \
 	--pkg fsogsm3rdparty \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
-	--pkg libxml-2.0 \
 	--pkg gsm0710mux-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
@@ -79,7 +77,6 @@ libfsogsm_la_LIBADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(XML_LIBS) \
 	$(GSMMUX_LIBS) \
 	$(THIRDPARTY_LIBS) \
 	$(NULL)
