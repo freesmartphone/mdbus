@@ -23,17 +23,16 @@ namespace World {
     const string MODULE_NAME = "fsodata.world";
 }
 
-class World.Info : FsoFramework.AbstractObject
+class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
     public Info( FsoFramework.Subsystem subsystem )
     {
+        this.subsystem = subsystem;
 
-        /*
-        subsystem.registerServiceName( FsoFramework.Time.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Time.ServiceDBusName, FsoFramework.Time.DeviceServicePath, this );
-        */
+        subsystem.registerServiceName( FsoFramework.Data.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath, this );
 
         logger.info( @"Created" );
     }
@@ -41,6 +40,58 @@ class World.Info : FsoFramework.AbstractObject
     public override string repr()
     {
         return "<>";
+    }
+
+    //
+    // DBus API (org.freesmartphone.Data.World)
+    //
+    public async FreeSmartphone.Data.WorldCountry[] get_all_countries() throws DBus.Error
+    {
+        var countries = new FreeSmartphone.Data.WorldCountry[] {};
+
+        foreach ( var country in FsoData.MBPI.Database.instance().allCountries().values )
+        {
+            if ( country.name == null )
+            {
+                country.name = @"Unknown:$(country.code)";
+            }
+            countries += FreeSmartphone.Data.WorldCountry() { code = country.code, name = country.name };
+        }
+
+        return countries;
+    }
+
+    public async string get_country_code_for_mcc_mnc( string mcc_mnc ) throws FreeSmartphone.Error, DBus.Error
+    {
+        foreach ( var country in FsoData.MBPI.Database.instance().allCountries().values )
+        {
+            foreach ( var provider in country.providers.values )
+            {
+                foreach ( var code1 in provider.codes )
+                {
+                    if ( code1 == mcc_mnc )
+                    {
+                        return country.code;
+                    }
+                }
+#if DEBUG
+                debug( @"Exact match not found for $mcc_mnc; trying first three digits..." );
+#endif
+                var mcc = "%c%c%c".printf( (int)mcc_mnc[0], (int)mcc_mnc[1], (int)mcc_mnc[2] );
+
+                foreach ( var code2 in provider.codes )
+                {
+                    if ( code2.has_prefix( mcc ) )
+                    {
+                        return country.code;
+                    }
+                }
+#if DEBUG
+                debug( @"No provider with MCC $mcc found" );
+#endif
+            }
+        }
+        return "";
     }
 }
 
