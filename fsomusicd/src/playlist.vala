@@ -1,7 +1,7 @@
 /* 
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified: 21-11-2009 23:04:30
+ * Last Modified: 21-11-2009 23:31:02
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -264,16 +264,29 @@ namespace FsoMusic
         }
         public async void load_from_file( string file ) throws MusicPlayerPlaylistError, DBus.Error
         {
-            this.files = new List<string>();
-            var fs = FileStream.open( file, "r" );
-            if( fs == null )
+            if( ! FileUtils.test( file, FileTest.IS_REGULAR ))
                  throw new MusicPlayerPlaylistError.FILE_NOT_FOUND( "Can't open file: %s".printf(file));
-            while(!fs.eof())
+            this.files = new List<string>();
+            try
             {
-                string? line = fs.read_line();
-                if( line != null && line.len() > 0 )
-                    this.files.prepend( line );
+                var f = File.new_for_path( file );
+                var in_stream = yield f.read_async( Priority.DEFAULT, null );
+                var data_stream = new DataInputStream( in_stream ); 
+                while( true )
+                {
+                    size_t len;
+                    var line = yield data_stream.read_line_async( Priority.DEFAULT, null, out len );
+                    if( line == null )
+                         break;
+                    if( len > 0 )
+                         files.prepend( line );
+                }
             }
+            catch (GLib.Error e)
+            {
+                logger.error( @"LoadFromFile: $(e.message)" );
+            }
+
             this.files.reverse();
         }
         //
