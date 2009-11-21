@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 21-11-2009 14:09:04
+ * Last Modified: 21-11-2009 14:10:17
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -97,6 +97,7 @@ namespace FsoMusic
                     }
                     _current_playlist = value;
                     logger.debug( @"new CurrentPlaylist: $value" );
+                    playing_changed( value );
                 }
                 else
                      logger.error( @"Cannot find a Playlist for: $value" );
