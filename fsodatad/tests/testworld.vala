@@ -44,11 +44,24 @@ public void test_world_mbpi_lookup_access_points()
 }
 
 //===========================================================================
+public void test_world_mbpi_lookup_countries()
+//===========================================================================
+{
+    var mbpi = MBPI.Database.instance();
+    var notfound = mbpi.countryForMccMnc( "999999" );
+    assert( notfound == null );
+    var germany = mbpi.countryForMccMnc( "26203" );
+    assert( germany != null );
+    assert( germany.name.down() == "germany" );
+    assert( germany.code.down() == "de" );
+}
+//===========================================================================
 void main (string[] args)
 //===========================================================================
 {
     Test.init (ref args);
     Test.add_func( "/FsoData/World/MBPI/Create", test_world_mbpi_create );
     Test.add_func( "/FsoData/World/MBPI/LookupAPN", test_world_mbpi_lookup_access_points );
+    Test.add_func( "/FsoData/World/MBPI/LookupCountry", test_world_mbpi_lookup_countries );
     Test.run ();
 }

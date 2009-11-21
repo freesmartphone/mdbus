@@ -38,6 +38,7 @@ public class Country
         }
         timezones.add( tz );
     }
+    public string code;
     public string name;
     public string dialprefix;
     public Gee.HashMap<string,Provider> providers;
@@ -144,11 +145,11 @@ public class Database : FsoFramework.AbstractObject
                 handleChildren( node );
                 break;
             case "country":
-                country = new Country() { name = props["code"] };
+                country = new Country() { code = props["code"] };
                 handleChildren( node );
-                countries[country.name] = country;
+                countries[country.code] = country;
 #if DEBUG
-                debug( @"new country $(country.name)" );
+                debug( @"new country $(country.code)" );
 #endif
                 break;
             case "provider":
@@ -294,6 +295,21 @@ public class Database : FsoFramework.AbstractObject
             return null;
         }
         return country.providers;
+    }
+
+    public Country? countryForMccMnc( string mccmnc )
+    {
+        foreach ( var country in countries.values )
+        {
+            foreach ( var provider in country.providers.values )
+            {
+                if ( mccmnc in provider.codes )
+                {
+                    return country;
+                }
+            }
+        }
+        return null;
     }
 
     public Gee.Map<string,AccessPoint> accessPointsForMccMnc( string mccmnc )
