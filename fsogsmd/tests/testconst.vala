@@ -21,36 +21,9 @@ using GLib;
 using FsoGsm;
 
 //===========================================================================
-public void test_const_mbpi_create()
-//===========================================================================
-{
-    var mbpi = MBPI.Database.instance();
-    var germany = mbpi.allCountries()["de"];
-    assert( germany != null );
-    assert( germany.name.down() == "germany" );
-    assert( germany.dialprefix == "49" );
-    assert( germany.timezones.size == 1 );
-    assert( germany.timezones[0] == "UTC+01:00" );
-}
-
-//===========================================================================
-public void test_const_lookup_access_points()
-//===========================================================================
-{
-    var mbpi = MBPI.Database.instance();
-    var aps = mbpi.accessPointsForMccMnc( "26203" );
-    assert( aps.size == 1 );
-    assert( aps["internet.eplus.de"].name == "internet.eplus.de" );
-}
-
-//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
     Test.init( ref args );
-
-    Test.add_func( "/Const/MBPI/Create", test_const_mbpi_create );
-    Test.add_func( "/Const/MBPI/LookupAccessPoints", test_const_lookup_access_points );
-
     Test.run();
 }

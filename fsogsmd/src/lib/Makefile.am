@@ -55,7 +55,6 @@ libfsogsm_la_VALASOURCES = \
 	codes.vala \
 	consts.vala \
 	channel.vala \
-	mbpi.vala \
 	mediator.vala \
 	modem.vala \
 	sms.vala \
