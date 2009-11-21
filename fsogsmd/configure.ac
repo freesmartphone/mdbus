@@ -28,7 +28,6 @@ FSO_GLIB_REQUIRED=0.2.0
 FSO_FRAMEWORK_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.5.9
 FSO_RESOURCE_REQUIRED=0.1.0
-MBPI_REQUIRED=20090918
 
 # vala
 PKG_CHECK_MODULES(VALA,
@@ -77,7 +76,6 @@ if (test -z "{DBUS_SERVICE_DIR}"); then
 fi
 AC_SUBST(DBUS_SERVICE_DIR)
 
-
 # gsm0710mux
 PKG_CHECK_MODULES(GSMMUX,
   gsm0710mux-1.0 >= $GSMMUX_REQUIRED)
@@ -92,16 +90,6 @@ PKG_CHECK_MODULES(FSO,
   fsoresource-2.0 >= $FSO_RESOURCE_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
-
-# mobile broadband provider info database
-PKG_CHECK_MODULES(MBPI,
-  mobile-broadband-provider-info >= $MBPI_REQUIRED)
-MBPI_DATABASE="`$PKG_CONFIG --variable=database mobile-broadband-provider-info`"
-if (test -z "{MPBI_DATABASE}"); then
-  AC_ERROR([Can't find mobile broadband provider info database file])
-fi
-AC_SUBST(MBPI_DATABASE)
-AC_DEFINE_UNQUOTED([MBPI_DATABASE_PATH], ["${MBPI_DATABASE}"], [Path to xml service provider file])
 
 # datadir
 if test "x$prefix" != "xNONE"; then

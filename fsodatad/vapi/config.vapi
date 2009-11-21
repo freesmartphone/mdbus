@@ -3,5 +3,6 @@ namespace Config
 {
     public const string PACKAGE_VERSION;
     public const string PACKAGE_DATADIR;
+    public const string MBPI_DATABASE_PATH;
 }
                                   
