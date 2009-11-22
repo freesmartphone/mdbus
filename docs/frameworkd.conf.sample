@@ -140,7 +140,23 @@ log_to = stderr:colors
 [fsotime.alarm]
 # No settings yet
 
+[fsotime.source_gsm]
+# No settings yet
 
+[fsotime.source_gps]
+# No settings yet
+
+[fsotime.source_ntp]
+# Which server to use; default is 'pool.ntp.org'
+server = pool.ntp.org
+
+[fsotime.sync_time]
+# Which sources to use; what is available depends on the loaded modules
+sources = ntp;gsm;gps
+# Which current timezone file to use; default is /etc/timezone
+timezone_file = /etc/timezone
+# Path to zoneinfo files
+zoneinfo_dir = /usr/share/zoneinfo
 
 ########################################################################################
 # FSO GSM Daemon
