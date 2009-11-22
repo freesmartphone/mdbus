@@ -1,4 +1,4 @@
 [D-BUS Service]
 Name=org.freesmartphone.ogsmd
-Exec=@prefix@/bin/fsogsmd
+Exec=@prefix@/sbin/fsogsmd
 User=root

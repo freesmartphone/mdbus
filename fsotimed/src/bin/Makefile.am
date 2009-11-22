@@ -10,7 +10,7 @@ INCLUDES = \
 
 BUILT_SOURCES = .vala.stamp
 
-bin_PROGRAMS = fsotimed
+sbin_PROGRAMS = fsotimed
 
 fsotimed_VALASOURCES = \
 	main.vala \

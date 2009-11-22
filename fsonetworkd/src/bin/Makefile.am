@@ -10,7 +10,7 @@ INCLUDES = \
 
 BUILT_SOURCES = .vala.stamp
 
-bin_PROGRAMS = fsonetworkd
+sbin_PROGRAMS = fsonetworkd
 
 fsonetworkd_VALASOURCES = \
 	main.vala \

@@ -1,4 +1,13 @@
-* Add Transport classes from libgsm0710mux to fsoframework
+libfsobasics:
+ * add SmartKeyFile.pathValue( section, key, constraints, defaultpath ) querying for a path from the configuration,
+ checking several whether the constraints are met; if not, return the default.
+
+
+
+
+
+
+
 * Add unit tests for transport classes, including MockTransport
 * Make libgsm0710mux use fsoframework
 
@@ -7,3 +16,4 @@
 
 * Write libgsmprotocols as C library
 * Write libgpsprotocols as C library
+

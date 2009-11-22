@@ -1,4 +1,4 @@
 [D-BUS Service]
 Name=org.freesmartphone.onetworkd
-Exec=@prefix@/bin/fsonetworkd
+Exec=@prefix@/sbin/fsonetworkd
 User=root
