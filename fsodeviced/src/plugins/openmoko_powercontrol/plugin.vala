@@ -64,7 +64,7 @@ class UsbHostModeControl : FsoDevice.BasePowerControl
         base( Path.build_filename( sysfsnode, "hostmode" ) );
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
-        this.umodenode = Path.build_filename( sysfs_root, "devices", "s3c-ohci", "usb_mode" );
+        this.umodenode = Path.build_filename( sysfs_root, "devices", "platform", "s3c-ohci", "usb_mode" );
         this.name = Path.get_basename( sysfsnode );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
