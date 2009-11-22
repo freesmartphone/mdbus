@@ -52,7 +52,10 @@ public void test_world_mbpi_lookup_countries()
     assert( germany != null );
     assert( germany.name.down() == "germany" );
     assert( germany.code.down() == "de" );
+    assert( germany.timezones.size == 1 );
+    assert( "Europe/Berlin" in germany.timezones.values );
 }
+
 //===========================================================================
 void main (string[] args)
 //===========================================================================

@@ -30,11 +30,13 @@ public class Country
     public Country()
     {
         providers = new Gee.HashMap<string,Provider>();
+        timezones = new Gee.HashMap<string,string>();
     }
     public string code;
     public string name;
     public string dialprefix;
     public Gee.HashMap<string,Provider> providers;
+    public Gee.HashMap<string,string> timezones;
 }
 
 public class Provider
@@ -113,10 +115,12 @@ public class Database : FsoFramework.AbstractObject
         parseNode( root );
         delete doc;
 
+#if DEBUG
         foreach ( var key in countries.keys )
         {
             debug( @"found providers in country '$key'" );
         }
+#endif
     }
 
     private void parseNode( Xml.Node* node )
@@ -130,8 +134,9 @@ public class Database : FsoFramework.AbstractObject
         {
             props[prop->name] = prop->children->content;
         }
+#if DEBUG
         debug( @"node $name" );
-
+#endif
         switch ( name )
         {
             case "serviceproviders":
@@ -238,19 +243,20 @@ public class Database : FsoFramework.AbstractObject
             var ccode = elements[0];
             var name = elements[1];
             var dialprefix = elements[2];
+
             var country = countries[ccode];
             if ( country != null )
             {
                 country.name = name;
 #if DEBUG
-                debug( @"augmenting country $ccode w/ additional information" );
+                debug( @"augmenting country $ccode w/ $name, $dialprefix" );
 #endif
                 country.dialprefix = dialprefix;
             }
             else
             {
 #if DEBUG
-                debug( @"ccode '$ccode' has no providers; creating new country" );
+                debug( @"ccode $ccode has no providers; creating new country for $name, $dialprefix" );
 #endif
                 countries[ccode] = new Country() { code = ccode, name = name, dialprefix = dialprefix };
             }
@@ -267,37 +273,28 @@ public class Database : FsoFramework.AbstractObject
                 continue;
             }
             var elements = line.split( "\t" );
-            /*
-            if ( elements.length  )
+            if ( elements.length < 3 )
             {
                 continue;
             }
-            var ccode = elements[0];
-            var name = elements[1];
-            var dialprefix = elements[2];
-            var timezone1 = elements[3];
-            var timezone2 = elements[4];
+            var ccode = elements[0].down();
+            var coords = elements[1];
+            var tzname = elements[2];
+
             var country = countries[ccode];
             if ( country != null )
             {
-                country.name = name;
 #if DEBUG
-                debug( @"augmenting country $ccode w/ additional information" );
+                debug( @"augmenting country $ccode w/ timezone $tzname in coords $coords" );
 #endif
-                country.dialprefix = dialprefix;
-                country.addTimezone( timezone1 );
-                if ( timezone2 != timezone1 )
-                {
-                    country.addTimezone( timezone2 );
-                }
+                country.timezones[coords] = tzname;
             }
             else
             {
 #if DEBUG
-                debug( @"ccode '$ccode' has no providers; not adding any information" );
+                debug( @"ccode '$ccode' unknown; not adding any information" );
 #endif
             }
-            */
         }
     }
 
