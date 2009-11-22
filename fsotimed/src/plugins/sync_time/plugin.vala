@@ -88,7 +88,13 @@ class SyncTime.Service : FsoFramework.AbstractObject
 
         assert( logger.debug( "%s reports %u, we think %u, offset = %d".printf( ((FsoFramework.AbstractObject)source).classname, (uint)since_epoch, (uint)now, (int)offset ) ) );
 
-        //FIXME: Adjust time here
+        var tv = Posix.timeval() { tv_sec = (time_t)offset };
+        var res = Linux.adjtime( tv );
+
+        if ( res != 0 )
+        {
+            logger.warning( @"Can't adjtime(2): $(strerror(errno))" );
+        }
     }
 
     public void onZoneReport( string zone, FsoTime.Source source )
@@ -112,6 +118,17 @@ class SyncTime.Service : FsoFramework.AbstractObject
         if ( res != 0 )
         {
             logger.warning( @"Can't symlink $timezone_file -> $newzone: $(strerror(errno))" );
+        }
+        else
+        {
+            /* found in mktime.c:
+             * "POSIX.1 8.1.1 requires that whenever mktime() is called, the
+             * time zone names contained in the external variable `tzname' shall
+             * be set as if the tzset() function had been called."
+             *
+             * Hence, timezones will be reread, this we should be ok. */
+            var t = GLib.Time();
+            t.mktime();
         }
     }
 }
