@@ -57,7 +57,6 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
             }
             countries += FreeSmartphone.Data.WorldCountry() { code = country.code, name = country.name };
         }
-
         return countries;
     }
 

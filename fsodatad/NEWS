@@ -1,4 +1,0 @@
-fsogsmd 0.0.1.0
-===============
- * Basic structure with command queue, low level parser, modem abstraction, done.
- * Further work pending Vala support for async. dbus.

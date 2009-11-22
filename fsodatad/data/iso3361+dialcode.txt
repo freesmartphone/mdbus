@@ -208,6 +208,7 @@ ug	Uganda	256
 us	United States of America	1
 uy	Uruguay	598
 uz	Uzbekistan	998
+vc	Saint Vincent and The Grenadines	1784
 ve	Venezuela	58
 vn	Vietnam	84
 vu	Vanuatu	678
