@@ -22,7 +22,8 @@
  **/
 namespace FsoData.MBPI {
 
-internal const string ISO_3361_DATABASE = Config.PACKAGE_DATADIR + "/iso3361+tz.txt";
+internal const string ISO_3361_DATABASE = Config.PACKAGE_DATADIR + "/iso3361+dialcode.txt";
+internal const string ISO_ZONE_DATABASE = Config.PACKAGE_DATADIR + "/zone.tab";
 
 public class Country
 {
@@ -30,19 +31,10 @@ public class Country
     {
         providers = new Gee.HashMap<string,Provider>();
     }
-    public void addTimezone( string tz )
-    {
-        if ( timezones == null )
-        {
-            timezones = new Gee.ArrayList<string>();
-        }
-        timezones.add( tz );
-    }
     public string code;
     public string name;
     public string dialprefix;
     public Gee.HashMap<string,Provider> providers;
-    public Gee.ArrayList<string> timezones;
 }
 
 public class Provider
@@ -91,6 +83,7 @@ public class Database : FsoFramework.AbstractObject
     {
         loadMbpi();
         loadIso3361();
+        loadZoneTab();
     }
 
     public override string repr()
@@ -238,7 +231,44 @@ public class Database : FsoFramework.AbstractObject
                 continue;
             }
             var elements = line.split( "\t" );
-            if ( elements.length != 5 )
+            if ( elements.length != 3 )
+            {
+                continue;
+            }
+            var ccode = elements[0];
+            var name = elements[1];
+            var dialprefix = elements[2];
+            var country = countries[ccode];
+            if ( country != null )
+            {
+                country.name = name;
+#if DEBUG
+                debug( @"augmenting country $ccode w/ additional information" );
+#endif
+                country.dialprefix = dialprefix;
+            }
+            else
+            {
+#if DEBUG
+                debug( @"ccode '$ccode' has no providers; creating new country" );
+#endif
+                countries[ccode] = new Country() { code = ccode, name = name, dialprefix = dialprefix };
+            }
+        }
+    }
+
+    private void loadZoneTab()
+    {
+        var file = FsoFramework.FileHandling.read( MBPI.ISO_ZONE_DATABASE );
+        foreach ( var line in file.split( "\n" ) )
+        {
+            if ( line[0] == '#' )
+            {
+                continue;
+            }
+            var elements = line.split( "\t" );
+            /*
+            if ( elements.length  )
             {
                 continue;
             }
@@ -267,6 +297,7 @@ public class Database : FsoFramework.AbstractObject
                 debug( @"ccode '$ccode' has no providers; not adding any information" );
 #endif
             }
+            */
         }
     }
 
@@ -287,7 +318,7 @@ public class Database : FsoFramework.AbstractObject
         return countries;
     }
 
-    public Gee.Map<string,Provider> providersForCountry( string code )
+    public Gee.Map<string,Provider>? providersForCountry( string code )
     {
         var country = countries[code];
         if ( country == null )
@@ -312,7 +343,7 @@ public class Database : FsoFramework.AbstractObject
         return null;
     }
 
-    public Gee.Map<string,AccessPoint> accessPointsForMccMnc( string mccmnc )
+    public Gee.Map<string,AccessPoint>? accessPointsForMccMnc( string mccmnc )
     {
         foreach ( var country in countries.values )
         {

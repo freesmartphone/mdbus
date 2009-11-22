@@ -8,8 +8,8 @@ dbusservicedir = @DBUS_SERVICE_DIR@/../system-services
 dbusservice_in_file = org.freesmartphone.odatad.service.in
 dist_dbusservice_DATA = $(dbusservice_in_file:.service.in=.service)
 
-isocodesdir = $(datadir)/fsogsmd
-dist_isocodes_DATA = iso3361+tz.txt
+worldcodesdir = $(datadir)/fsodatad
+dist_worldcodes_DATA = iso3361+dialcode.txt zone.tab
 
 CLEANFILES = $(dist_dbusservice_DATA)
 MAINTAINERCLEANFILES = Makefile.in

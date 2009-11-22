@@ -96,9 +96,9 @@ AC_DEFINE_UNQUOTED([MBPI_DATABASE_PATH], ["${MBPI_DATABASE}"], [Path to xml serv
 
 # datadir
 if test "x$prefix" != "xNONE"; then
-  pkgdatadir='${prefix}/share/fsogsmd'
+  pkgdatadir='${prefix}/share/fsodatad'
 else
-  pkgdatadir='/usr/local/share/fsogsmd'
+  pkgdatadir='/usr/local/share/fsodatad'
 fi
 eval PACKAGE_DATADIR="${pkgdatadir}"
 AC_DEFINE_UNQUOTED([PACKAGE_DATADIR], ["${PACKAGE_DATADIR}"], [Shared data directory])

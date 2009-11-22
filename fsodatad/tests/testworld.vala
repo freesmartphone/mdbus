@@ -29,8 +29,6 @@ public void test_world_mbpi_create()
     assert( germany != null );
     assert( germany.name.down() == "germany" );
     assert( germany.dialprefix == "49" );
-    assert( germany.timezones.size == 1 );
-    assert( germany.timezones[0] == "UTC+01:00" );
 }
 
 //===========================================================================

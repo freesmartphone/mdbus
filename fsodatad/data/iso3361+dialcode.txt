@@ -1,0 +1,220 @@
+# ccode	realname	dialcode
+ac	Ascension Island	247
+ad	Andorra	376
+ae	United Arab Emirates	971
+ag	Antigua and Barbuda	268
+ai	Anguilla	264
+al	Albania	355
+am	Armenia	374
+an	Netherlands Antilles	599
+ao	Angola	244
+ar	Argentina	54
+as	American Samoa	1684
+at	Austria	43
+au	Australia	61
+aw	Aruba	297
+ax	Falkland Islands	500
+az	Azerbaijan	994
+ba	Bosnia and Herzegovina	387
+bb	Barbados	246
+bd	Bangladesh	880
+be	Belgium	32
+bf	Burkina Faso	226
+bg	Bulgaria	359
+bh	Bahrain	973
+bi	Burundi	257
+bj	Benin	229
+bm	Bermuda	441
+bn	Brunei	673
+bo	Bolivia	591
+br	Brazil	55
+bs	Bahamas	242
+bt	Bhutan	975
+bw	Botswana	267
+by	Belarus	375
+bz	Belize	501
+ca	Canada	1
+cd	Congo (Zaire)	243
+cf	Central Africa Republic	236
+cg	Congo	242
+ch	Switzerland	41
+ci	Ivory Coast	225
+ck	Cook Islands	682
+cl	Chile	56
+cm	Cameroon	237
+cn	China	86
+co	Columbia	57
+cr	Costa Rica	506
+cu	Cuba	53
+cv	Cape Verde	238
+cy	Cyprus	357
+cz	Czech Republic	420
+de	Germany	49
+dj	Djibouti	253
+dk	Denmark	45
+dm	Dominica	1767
+do	Dominican Republic	809
+dz	Algeria	213
+ec	Ecuador	593
+ee	Estonia	372
+eg	Egypt	20
+er	Eritrea	291
+es	Spain	34
+et	Ethiopia	251
+fi	Finland	358
+fj	Fiji Islands	679
+fm	Micronesia	691
+fo	Faeroe Islands	298
+fr	France	33
+ga	Gabon	241
+gb	United Kingdom	44
+gd	Grenada	473
+ge	Georgia	995
+gf	French Guiana 	594
+gh	Ghana	233
+gi	Gibraltar	350
+gl	Greenland	299
+gm	Gambia	220
+gn	Guinea	224
+gp	Guadeloupe	590
+gq	Equatorial Guinea	240
+gr	Greece	30
+gt	Guatemala	502
+gu	Guam	671
+gw	Guinea Bissau	245
+gy	Guyana	592
+hk	Hong Kong	852
+hn	Honduras	503
+hr	Croatia	385
+ht	Haiti	509
+hu	Hungary	36
+id	Indonesia	62
+ie	Ireland	353
+il	Israel	972
+in	India	91
+ir	Iran	98
+iq	Iraq	964
+is	Iceland	354
+it	Italy	39
+jm	Jamaica	876
+jo	Jordan	962
+jp	Japan	81
+ke	Kenya	254
+kg	Kyrgyzstan	996
+kh	Cambodia	855
+ki	Kiribati	686
+km	Comoro Islands	269
+kn	St Kitts and Nevia	869
+kp	North Corea	850
+kr	South Corea	82
+kw	Kuwait	965
+ky	Cayman Islands	345
+kz	Kazakhstan	7
+la	Laos	856
+lb	Lebanon	961
+lc	St Lucia	758
+li	Liechtenstein	423
+lk	Sri Lanka	94
+lr	Liberia	231
+ls	Lesotho	266
+lt	Lithuania	370
+lu	Luxembourg	352
+lv	latvia	371
+ly	Libya	218
+ma	Morocco	212
+mc	Monaco	377
+md	Moldova	373
+mg	Madagascar	261
+mh	Marshall Islands	692
+ml	Mali	223
+mk	Macedonia	389
+mm	Myanmar (Burma)	95
+mn	Mongolia	976
+mo	Macau	853
+mp	Northern Mariana Islands	1670
+mq	Martinique	596
+ms	Montserrat	664
+mt	Malta	356
+mu	Mauritius	230
+mv	Maldives	960
+mw	Malawi	265
+mx	Mexico	52
+my	Malaysia	60
+mz	Mozambique	258
+na	Namibia	264
+nc	New Caledonia	687
+ne	Niger	227
+nf	Norfolk Island	672
+ng	Nigeria	234
+ni	Nicaragua	505
+nl	Netherlands	31
+no	Norway	47
+np	Nepal	977
+nr	Nauru	674
+nu	Niue Island	683
+nz	New Zealand	64
+om	Oman	968
+pa	Panama	507
+pe	Peru	51
+pf	French Polynesia	689
+pg	Papua New Guinea	675
+ph	Philippines	63
+pk	Pakistan	92
+pl	Poland	48
+pr	Puerto Rico	787
+ps	Palestine	970
+pt	Portugal	351
+pw	Palau	680
+py	Paraguay	595
+qa	Qatar	974
+ro	Romania	40
+rs	Serbia	381
+ru	Russia 7
+rw	Rwanda	250
+sa	Saudi Arabia	966
+sb	Solomon Islands	677
+sc	Seychelles	248
+sd	Sudan	249
+se	Sweden	46
+sg	Singapore	65
+sh	St Helena	290
+si	Slovenia	386
+sl	Sierra Leone	232
+sk	Slovakia	421
+sm	San Marino	378
+sn	Senegal	221
+so	Somalia	252
+sr	Surinam	597
+st	Sao Tome and Principe	239
+su	Russia 7
+sv	El Salvador	503
+sy	Syria	963
+sz	Swaziland	268
+tc	Turks and Caicos Islands	649
+td	Chad	235
+tg	Togo	228
+th	Thailand	66
+tj	Tajikistan	992
+tm	Turkmenistan	993
+tn	Tunisia	216
+to	Tonga	676
+tr	Turkey	90
+tt	Trinidad and Tobago	868
+tv	Tuvalu	688
+tw	Taiwan	(ROC) 886
+tz	Tanzania	255
+ua	Ukraine	380
+ug	Uganda	256
+us	United States of America	1
+uy	Uruguay	598
+uz	Uzbekistan	998
+ve	Venezuela	58
+vn	Vietnam	84
+vu	Vanuatu	678
+wf	Wallis and Futuna Islands	681
+ws	Western Samoa	685
+ye	Yemen	967
+yt	Mayotte	262
+za	South Africa	27
+zm	Zambia	260
+zw	Zimbabwe	263
