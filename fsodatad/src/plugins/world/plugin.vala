@@ -92,6 +92,21 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
         }
         return "";
     }
+
+    public async GLib.HashTable<string,string> get_timezones_for_country_code( string country_code ) throws FreeSmartphone.Error, DBus.Error
+    {
+        var country = FsoData.MBPI.Database.instance().allCountries()[country_code];
+        if ( country == null )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"No country for $country_code found" );
+        }
+        var timezones = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
+        foreach ( var key in country.timezones.keys )
+        {
+            timezones.insert( key, country.timezones[key] );
+        }
+        return timezones;
+    }
 }
 
 World.Info instance;
