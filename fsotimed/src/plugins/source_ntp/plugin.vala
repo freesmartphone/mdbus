@@ -23,7 +23,6 @@ using FsoTime;
 
 namespace NetworkTimeProtocol
 {
-    const string MODULE_NAME = "fsotime.source_ntp";
     const string DEFAULT_SERVER = "pool.ntp.org";
     const uint16 PORT = 123;
     const uint32 BASETIME = (uint32) 2208988800;
@@ -52,6 +51,8 @@ namespace NetworkTimeProtocol
 
 class Source.Ntp : FsoTime.AbstractSource
 {
+    const string MODULE_NAME = "fsotime.source_ntp";
+
     private string servername;
     private InetAddress serveraddr;
     private Socket socket;
@@ -64,7 +65,7 @@ class Source.Ntp : FsoTime.AbstractSource
 
     construct
     {
-        servername = config.stringValue( "fsotime", "ntp_server", NetworkTimeProtocol.DEFAULT_SERVER );
+        servername = config.stringValue( MODULE_NAME, "server", NetworkTimeProtocol.DEFAULT_SERVER );
         request = NetworkTimeProtocol.Packet() { flags = 0x1b };
         packet = NetworkTimeProtocol.Packet();
         assert( 48 == sizeof( NetworkTimeProtocol.Packet ) );
@@ -95,7 +96,7 @@ class Source.Ntp : FsoTime.AbstractSource
             serveraddr = addresses.nth_data( 0 );
             assert( logger.debug( @"Resolved $servername to $serveraddr" ) );
 
-            socket = new Socket( SocketFamily.IPV4, SocketType.DATAGRAM, SocketProtocol.UDP );           
+            socket = new Socket( SocketFamily.IPV4, SocketType.DATAGRAM, SocketProtocol.UDP );
         }
 
         var targetaddr = new InetSocketAddress( serveraddr, NetworkTimeProtocol.PORT );
@@ -164,7 +165,7 @@ class Source.Ntp : FsoTime.AbstractSource
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     debug( "fsotime.source_ntp fso_factory_function" );
-    return NetworkTimeProtocol.MODULE_NAME;
+    return Source.Ntp.MODULE_NAME;
 }
 
 [ModuleInit]

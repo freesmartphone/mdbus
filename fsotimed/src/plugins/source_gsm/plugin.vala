@@ -52,6 +52,17 @@ class Source.Gsm : FsoTime.AbstractSource
         ogsmd_device.status.connect( (status) => { onGsmNetworkStatusSignal( status ); } );
 
         Idle.add( () => { triggerQuery(); return false; } );
+
+        //NOTE: For debugging only
+        //Idle.add( () => { testing(); return false; } );
+    }
+
+    private void testing()
+    {
+        var status = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        //status.insert( "code", "310038" );
+        status.insert( "code", "26203" );
+        onGsmNetworkStatusSignal( status );
     }
 
     public override string repr()
@@ -59,7 +70,7 @@ class Source.Gsm : FsoTime.AbstractSource
         return "";
     }
 
-    public bool arrayContainsElement( string[] array, string element )
+    private bool arrayContainsElement( string[] array, string element )
     {
         for ( int i = 0; i < array.length; ++i )
         {
@@ -103,18 +114,21 @@ class Source.Gsm : FsoTime.AbstractSource
     {
         logger.info( "Received GSM network status signal" );
 
-        var code = status.lookup( "code" );
-        if ( code == null )
+        var codev = status.lookup( "code" );
+        if ( codev == null )
         {
-            logger.info( "No provider code, ignoring." );
+            logger.info( "No provider code contained, ignoring." );
             return;
         }
+        var code = codev.get_string();
 
         string countrycode = "";
+        GLib.HashTable<string,string> timezones = null;
 
         try
         {
-            countrycode = yield odatad_world.get_country_code_for_mcc_mnc( code.get_string() );
+            countrycode = yield odatad_world.get_country_code_for_mcc_mnc( code );
+            timezones = yield odatad_world.get_timezones_for_country_code( countrycode );
         }
         catch ( DBus.Error e )
         {
@@ -122,7 +136,16 @@ class Source.Gsm : FsoTime.AbstractSource
             return;
         }
 
-        this.reportZone( countrycode, this ); // SIGNAL
+        var zonecount = timezones.size();
+
+        logger.info( @"Resolved provider $code to country '$countrycode' w/ $zonecount timezone(s)" );
+        if ( zonecount > 1 )
+        {
+            logger.info( @"Country has more than one timezone; not reporting change." );
+            return;
+        }
+
+        this.reportZone( (string)timezones.get_values().nth_data(0), this ); // SIGNAL
     }
 }
 

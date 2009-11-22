@@ -21,27 +21,27 @@ using GLib;
 
 namespace SyncTime {
     const string MODULE_NAME = "fsotime.sync_time";
+    const string TIMEZONE_FILE_DEFAULT = "/etc/timezone";
+    const string ZONEINFO_DIR_DEFAULT = "/usr/share/zoneinfo";
 }
 
 class SyncTime.Service : FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
     private Gee.HashMap<string,FsoTime.Source> sources;
+    private string timezone_file;
+    private string zoneinfo_dir;
 
     public Service( FsoFramework.Subsystem subsystem )
     {
         sources = new Gee.HashMap<string,FsoTime.Source>();
-        var sourcenames = config.stringListValue( "fsotime", "sources", {} );
+        var sourcenames = config.stringListValue( MODULE_NAME, "sources", {} );
         foreach ( var source in sourcenames )
         {
             addSource( source );
         }
-
-        /*
-        subsystem.registerServiceName( FsoFramework.Time.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Time.ServiceDBusName, FsoFramework.Time.DeviceServicePath, this );
-        */
-
+        timezone_file = config.stringValue( MODULE_NAME, "timezone_file", TIMEZONE_FILE_DEFAULT );
+        zoneinfo_dir = config.stringValue( MODULE_NAME, "zoneinfo_dir", ZONEINFO_DIR_DEFAULT );
         logger.info( @"Ready. Configured for $(sources.size) sources" );
     }
 
@@ -93,10 +93,27 @@ class SyncTime.Service : FsoFramework.AbstractObject
 
     public void onZoneReport( string zone, FsoTime.Source source )
     {
-        //FIXME: Implement
-        assert( logger.debug( "%s reports time zone %s".printf( ((FsoFramework.AbstractObject)source).classname, zone ) ) );
-    }
+        assert( logger.debug( "%s reports time zone '%s'".printf( ((FsoFramework.AbstractObject)source).classname, zone ) ) );
 
+        var newzone = GLib.Path.build_filename( zoneinfo_dir, zone );
+        if ( !FsoFramework.FileHandling.isPresent( newzone ) )
+        {
+            logger.warning( @"Timezone file $newzone not present; ignoring zone report" );
+            return;
+        }
+        assert( logger.debug( @"Removing $timezone_file and symlinking to $newzone" ) );
+
+        var res = GLib.FileUtils.remove( timezone_file );
+        if ( res != 0 )
+        {
+            logger.warning( @"Can't remove $(timezone_file): $(strerror(errno))" );
+        }
+        res = GLib.FileUtils.symlink( newzone, timezone_file );
+        if ( res != 0 )
+        {
+            logger.warning( @"Can't symlink $timezone_file -> $newzone: $(strerror(errno))" );
+        }
+    }
 }
 
 SyncTime.Service service;
