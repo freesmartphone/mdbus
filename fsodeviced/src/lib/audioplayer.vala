@@ -26,4 +26,19 @@ public interface AudioPlayer : GLib.Object
     public abstract async void stop_all_sounds();
 }
 
+public class NullPlayer : AudioPlayer, GLib.Object
+{
+    public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error
+    {
+    }
+
+    public async void stop_sound( string name ) throws FreeSmartphone.Error
+    {
+    }
+    
+    public async void stop_all_sounds()
+    {
+    }
+}
+
 } /* namespace FsoDevice */

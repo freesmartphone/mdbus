@@ -64,15 +64,22 @@ sync_resources_with_lifecycle=never
 # no settings yet
 
 [fsodevice.accelerometer]
-# Which accelerometer variant plugin to use: none (default) lis302
+# Which accelerometer variant plugin to use: none (default), lis302
 device_type = lis302
 
 [fsodevice.accelerometer_lis302]
 # Which input node to read from
 inputnode = /input/event3
 
-[fsodevice.alsa_audio]
+[fsodevice.player_alsa]
 # No settings yet
+
+[fsodevice.player_canberra]
+# No settings yet
+
+[fsodevice.alsa_audio]
+# Which Audio Player variant plugin to use: none (default), canberra, alsa
+player_type = canberra
 
 [fsodevice.kernel26_display]
 # No settings yet

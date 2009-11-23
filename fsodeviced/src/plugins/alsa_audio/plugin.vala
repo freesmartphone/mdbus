@@ -38,6 +38,8 @@ class BunchOfMixerControls
  **/
 class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 {
+    private const string MODULE_NAME = "fsodevice.alsa_audio";
+    
     private FsoFramework.Subsystem subsystem;
     private FsoFramework.SoundDevice device;
     private HashMap<string,BunchOfMixerControls> allscenarios;
@@ -45,6 +47,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     private GLib.Queue<string> scenarios;
 
     private FsoDevice.AudioPlayer player;
+    private string typename;
 
     public AudioPlayer( FsoFramework.Subsystem subsystem )
     {
@@ -55,27 +58,45 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
                                          FsoFramework.Device.AudioServicePath,
                                          this );
 
-        
+        // gather requested player type and instanciate object
+        var playername = config.stringValue( MODULE_NAME, "player_type", "unknown" );
+        typename = "";
 
-        // init player
-        var typ = GLib.Type.from_name( "PlayerLibCanberra" );
-        assert( typ != GLib.Type.INVALID );
-        player = (FsoDevice.AudioPlayer) GLib.Object.new( typ );
+        switch ( playername )
+        {
+            case "canberra":
+                typename = "PlayerLibCanberra";
+                break;
+            default:
+                typename = "PlayerUnknown";
+                break;
+        }       
+        var playertyp = GLib.Type.from_name( typename );
+        if ( playertyp == GLib.Type.INVALID )
+        {
+            logger.warning( @"Can't instanciate player type $typename; will not be able to play audio" );
+            player = new FsoDevice.NullPlayer();
+            typename = "NullPlayer";
+        }
+        else
+        {
+            player = (FsoDevice.AudioPlayer) GLib.Object.new( playertyp );
+        }
 
         // init scenarios
         initScenarios();
         if ( currentscenario != "" )
+        {
             device.setAllMixerControls( allscenarios[currentscenario].controls );
+        }
         scenarios = new GLib.Queue<string>();
-
-        //mutex = new Mutex();
 
         logger.info( "created." );
     }
 
     public override string repr()
     {
-        return "<ALSA>";
+        return @"<$typename>";
     }
 
     private void addScenario( string scenario, File file )
