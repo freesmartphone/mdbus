@@ -66,8 +66,8 @@ namespace DBus
         public abstract async uint32   ReleaseName( string name ) throws DBus.Error;
         public abstract async void     ReloadConfig() throws DBus.Error;
         public abstract async void     RemoveMatch( string match ) throws DBus.Error;
-        public abstract async uint32   RequestName( string name, uint32 param ) throws DBus.Error;
-        public abstract async uint32   StartServiceByName( string name, uint32 param ) throws DBus.Error;
+        public abstract async uint32   RequestName( string name, uint32 flags ) throws DBus.Error;
+        public abstract async uint32   StartServiceByName( string name, uint32 flags ) throws DBus.Error;
         public abstract async void     UpdateActivationEnvironment( GLib.HashTable<string,string> environment ) throws DBus.Error;
 
         public signal void             NameAcquired( string name );

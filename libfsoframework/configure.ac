@@ -65,6 +65,16 @@ AC_SUBST(FSOBASICS_LIBS)
 AC_CHECK_HEADER(sys/eventfd.h, , [AC_MSG_ERROR(
 [Couldn't find sys/eventfd.h... your glibc is too old :(] )])
 
+# libdir
+if test "x$prefix" != "xNONE"; then
+  pkglibdir='${prefix}/lib/cornucopia'
+else
+  pkglibdir='/usr/local/lib/cornucopia'
+fi
+eval PACKAGE_LIBDIR="${pkglibdir}"
+AC_DEFINE_UNQUOTED([PACKAGE_LIBDIR], ["${PACKAGE_LIBDIR}"], [Module directory])
+
+
 #
 # output
 #
@@ -86,6 +96,8 @@ echo "$PACKAGE_NAME $PACKAGE_VERSION"
 echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options Summary:"
+echo
+echo "  Modules directory.........: $packagelibdir"
 echo
 echo "  Compilation...............: make"
 echo

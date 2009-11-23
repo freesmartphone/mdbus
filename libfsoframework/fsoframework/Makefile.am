@@ -47,6 +47,7 @@ fsoframework-1.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 	            --pkg dbus-glib-1 \
 	            --pkg alsa \
 	            --pkg fsobasics-2.0 \
+	            --pkg config \
 	            --header fsoframework.h \
 	            --library fsoframework-2.0 $^
 	touch $@
