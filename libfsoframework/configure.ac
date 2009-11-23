@@ -97,7 +97,7 @@ echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options Summary:"
 echo
-echo "  Modules directory.........: $packagelibdir"
+echo "  Modules directory.........: $pkglibdir"
 echo
 echo "  Compilation...............: make"
 echo
