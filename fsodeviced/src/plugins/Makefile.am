@@ -7,6 +7,7 @@ SUBDIRS = \
 	accelerometer_lis302 \
 	\
 	alsa_audio \
+	player_alsa \
 	player_canberra \
 	\
 	kernel26_display \

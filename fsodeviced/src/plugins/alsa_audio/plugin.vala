@@ -64,6 +64,9 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
         switch ( playername )
         {
+            case "alsa":
+                typename = "PlayerLibAlsa";
+                break;
             case "canberra":
                 typename = "PlayerLibCanberra";
                 break;

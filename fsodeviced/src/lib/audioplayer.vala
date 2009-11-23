@@ -20,7 +20,7 @@ namespace FsoDevice
 {
 
 public interface AudioPlayer : GLib.Object
-{   
+{
     public abstract async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error;
     public abstract async void stop_sound( string name ) throws FreeSmartphone.Error;
     public abstract async void stop_all_sounds();
@@ -35,7 +35,7 @@ public class NullPlayer : AudioPlayer, GLib.Object
     public async void stop_sound( string name ) throws FreeSmartphone.Error
     {
     }
-    
+
     public async void stop_all_sounds()
     {
     }
@@ -53,13 +53,16 @@ public class PlayingSound
     public int length;
     public bool finished;
 
+    public uint32 data;
+
     public uint watch;
 
-    public PlayingSound( string name, int loop, int length )
+    public PlayingSound( string name, int loop, int length, uint32 data = 0 )
     {
         this.name = name;
         this.loop = loop;
         this.length = length;
+        this.data = data;
 
         if ( length > 0 )
         {
