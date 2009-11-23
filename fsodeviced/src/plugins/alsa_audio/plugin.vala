@@ -17,7 +17,6 @@
  *
  */
 
-using GLib;
 using Gee;
 
 const string FSO_ALSA_CONF_PATH = "/etc/freesmartphone/alsa/default.conf";
@@ -25,41 +24,6 @@ const string FSO_ALSA_DATA_PATH = "/etc/freesmartphone/alsa/default/";
 
 namespace Alsa
 {
-
-/**
- * Helper class, encapsulating a sound that's currently playing
- **/
-public class PlayingSound
-{
-    public string name;
-    public int loop;
-    public int length;
-    public bool finished;
-
-    public uint watch;
-
-    public PlayingSound( string name, int loop, int length )
-    {
-        this.name = name;
-        this.loop = loop;
-        this.length = length;
-
-        if ( length > 0 )
-            watch = Timeout.add_seconds( length, onTimeout );
-    }
-
-    public bool onTimeout()
-    {
-        instance.stop_sound( name );
-        return false;
-    }
-
-    ~PlayingSound()
-    {
-        if ( watch > 0 )
-            Source.remove( watch );
-    }
-}
 
 /**
  * Scenario
@@ -75,17 +39,12 @@ class BunchOfMixerControls
 class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-
-    private Canberra.Context context;
-    private HashMap<string,PlayingSound> sounds;
-    private FsoFramework.Async.EventFd eventfd;
-
     private FsoFramework.SoundDevice device;
     private HashMap<string,BunchOfMixerControls> allscenarios;
     private string currentscenario;
     private GLib.Queue<string> scenarios;
 
-    //private Mutex mutex;
+    private FsoDevice.AudioPlayer player;
 
     public AudioPlayer( FsoFramework.Subsystem subsystem )
     {
@@ -96,10 +55,12 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
                                          FsoFramework.Device.AudioServicePath,
                                          this );
 
-        // init sounds
-        sounds = new HashMap<string,PlayingSound>( str_hash, str_equal );
-        Canberra.Context.create( out context );
-        eventfd = new FsoFramework.Async.EventFd( 0, onAsyncEvent );
+        
+
+        // init player
+        var typ = GLib.Type.from_name( "PlayerLibCanberra" );
+        assert( typ != GLib.Type.INVALID );
+        player = (FsoDevice.AudioPlayer) GLib.Object.new( typ );
 
         // init scenarios
         initScenarios();
@@ -115,65 +76,6 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     public override string repr()
     {
         return "<ALSA>";
-    }
-
-    /* CAUTION: Note the following quote from the libcanberra API documentation:
-     * "The context this callback is called in is undefined, it might or might not be
-     * called from a background thread, and from any stack frame. The code implementing
-     * this function may not call any libcanberra API call from this callback -- this
-     * might result in a deadlock. Instead it may only be used to asynchronously signal
-     * some kind of notification object (semaphore, message queue, ...).
-     */
-    public void onPlayingSoundFinished( Canberra.Context context, uint32 id, int code )
-    {
-        message( "number of keys in hashmap = %d", sounds.size );
-        //mutex.lock();
-
-        message( "onPlayingSoundFinished w/ id: %0x", id );
-        var name = ( (Quark) id ).to_string();
-        logger.debug( "Sound finished with name %s (%0x), code %s".printf( name, id, Canberra.strerror( code ) ) );
-        PlayingSound sound = sounds[name];
-        assert ( sound != null );
-
-        sound.finished = true;
-
-        if ( (Canberra.Error)code == Canberra.Error.CANCELED || sound.loop == 0 )
-        {
-            message( "removing sound w/ id %0x", id );
-            sounds.remove( name );
-            //FIXME send signal
-        }
-        else
-        {
-            // wake up mainloop to repeat
-            eventfd.write( (int)id );
-        }
-
-        //mutex.unlock();
-    }
-
-    public bool onAsyncEvent( IOChannel channel, IOCondition condition )
-    {
-        uint id = eventfd.read();
-        var name = ( (Quark) id ).to_string();
-        PlayingSound sound = sounds[name];
-        if ( sound.finished && sound.loop-- > 0 )
-        {
-            sound.finished = false;
-
-            Canberra.Proplist p = null;
-            Canberra.Proplist.create( out p );
-            p.sets( Canberra.PROP_MEDIA_FILENAME, sound.name );
-
-            Canberra.Error res = (Canberra.Error) context.play_full( Quark.from_string( sound.name ), p, onPlayingSoundFinished );
-        }
-        else
-        {
-            message( "removing sound w/ id %0x", id );
-            sounds.remove( name );
-            //FIXME send stopped signal
-        }
-        return true; // MainLoop: call me again
     }
 
     private void addScenario( string scenario, File file )
@@ -333,44 +235,18 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     // Sound
     public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error, DBus.Error
     {
-        PlayingSound sound = sounds[name];
-        if ( sound != null )
-            throw new FreeSmartphone.Device.AudioError.ALREADY_PLAYING( "%s is already playing".printf( name ) );
-
-        Canberra.Proplist p = null;
-        Canberra.Proplist.create( out p );
-        p.sets( Canberra.PROP_MEDIA_FILENAME, name );
-
-        //message( "canberra context.play_full %s (%0x)", name, Quark.from_string( name ) );
-        Canberra.Error res = (Canberra.Error) context.play_full( Quark.from_string( name ), p, onPlayingSoundFinished );
-
-        if ( res != Canberra.SUCCESS )
-        {
-            throw new FreeSmartphone.Device.AudioError.PLAYER_ERROR( "Can't play song %s: %s".printf( name, Canberra.strerror( res ) ) );
-        }
-
-        sounds[name] = new PlayingSound( name, loop, length );
+        yield player.play_sound( name, loop, length );
     }
 
     public async void stop_all_sounds() throws DBus.Error
     {
-        foreach ( var name in sounds.keys )
-        {
-            //message( "stopping sound '%s' (%0x)", name, Quark.from_string( name ) );
-            yield stop_sound( name );
-        }
+        yield player.stop_all_sounds();
     }
 
     public async void stop_sound( string name ) throws FreeSmartphone.Error, DBus.Error
     {
-        PlayingSound sound = sounds[name];
-        if ( sound == null )
-            return;
-
-        Canberra.Error res = (Canberra.Error) context.cancel( Quark.from_string( name ) );
-        logger.debug( "cancelling %s (%0x) result: %s".printf( sound.name, Quark.from_string( name ), Canberra.strerror( res ) ) );
+        yield player.stop_sound( name );
     }
-
 }
 
 } /* namespace */

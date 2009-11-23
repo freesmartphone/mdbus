@@ -7,6 +7,7 @@ SUBDIRS = \
 	accelerometer_lis302 \
 	\
 	alsa_audio \
+	player_canberra \
 	\
 	kernel26_display \
 	kernel26_leds \
@@ -17,7 +18,7 @@ SUBDIRS = \
 	kernel_info \
 	kernel_input \
 	\
-	thinkpad_powercontrol \
 	openmoko_powercontrol \
+	thinkpad_powercontrol \
 	\
 	$(NULL)

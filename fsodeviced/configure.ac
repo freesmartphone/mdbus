@@ -97,8 +97,9 @@ AC_CONFIG_FILES([
   src/plugins/kernel_idle/Makefile
   src/plugins/kernel_info/Makefile
   src/plugins/kernel_input/Makefile
-  src/plugins/thinkpad_powercontrol/Makefile
   src/plugins/openmoko_powercontrol/Makefile
+  src/plugins/player_canberra/Makefile
+  src/plugins/thinkpad_powercontrol/Makefile
   tests/Makefile
 ])
 

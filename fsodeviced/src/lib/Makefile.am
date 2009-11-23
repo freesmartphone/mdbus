@@ -28,6 +28,7 @@ lib_LTLIBRARIES = \
 
 libfsodevice_la_VALASOURCES = \
 	accelerometer.vala \
+	audioplayer.vala \
 	dispatcher.vala \
 	powercontrol.vala \
 	resource.vala \
