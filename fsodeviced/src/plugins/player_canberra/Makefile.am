@@ -5,7 +5,7 @@ AM_CPPFLAGS = \
 	$(CANBERRA_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
-	$(GEE_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -15,7 +15,7 @@ progs_ldadd = \
 	$(CANBERRA_LIBS) \
 	$(FSO_LIBS) \
 	$(DBUS_LIBS) \
-	$(GEE_LIBS) \
+	$(GLIB_LIBS) \
 	$(NULL)
 
 VALAC_ARGS = \

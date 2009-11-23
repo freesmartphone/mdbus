@@ -19,55 +19,18 @@
 
 using GLib;
 using Gee;
-
-/**
- * Helper class, encapsulating a sound that's currently playing
- **/
-public class PlayingSound
-{
-    public string name;
-    public int loop;
-    public int length;
-    public bool finished;
-
-    public uint watch;
-
-    public PlayingSound( string name, int loop, int length )
-    {
-        this.name = name;
-        this.loop = loop;
-        this.length = length;
-
-        if ( length > 0 )
-            watch = Timeout.add_seconds( length, onTimeout );
-    }
-
-    public bool onTimeout()
-    {
-        message( "NYI: STOP SOUND" );
-        //instance.stop_sound( name );
-        return false;
-    }
-
-    ~PlayingSound()
-    {
-        if ( watch > 0 )
-            Source.remove( watch );
-    }
-}
+using FsoDevice;
 
 /**
  * AudioPlayer using libcanberra
  **/
-class Player.LibCanberra : FsoDevice.AudioPlayer, GLib.Object
+class Player.LibCanberra : FsoDevice.BaseAudioPlayer
 {
     private Canberra.Context context;
-    private HashMap<string,PlayingSound> sounds;
     private FsoFramework.Async.EventFd eventfd;
 
     construct /* this class will be created via Object.new */
     {
-        sounds = new HashMap<string,PlayingSound>( str_hash, str_equal );
         Canberra.Context.create( out context );
         eventfd = new FsoFramework.Async.EventFd( 0, onAsyncEvent );
     }
@@ -129,7 +92,7 @@ class Player.LibCanberra : FsoDevice.AudioPlayer, GLib.Object
     //
     // AudioPlayer API
     //
-    public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error
+    public override async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error
     {
         PlayingSound sound = sounds[name];
         if ( sound != null )
@@ -148,9 +111,10 @@ class Player.LibCanberra : FsoDevice.AudioPlayer, GLib.Object
         }
 
         sounds[name] = new PlayingSound( name, loop, length );
+        sounds[name].soundFinished.connect( (name) => { stop_sound( name ); } );
     }
 
-    public async void stop_all_sounds()
+    public override async void stop_all_sounds()
     {
         foreach ( var name in sounds.keys )
         {
@@ -159,7 +123,7 @@ class Player.LibCanberra : FsoDevice.AudioPlayer, GLib.Object
         }
     }
 
-    public async void stop_sound( string name ) throws FreeSmartphone.Error
+    public override async void stop_sound( string name ) throws FreeSmartphone.Error
     {
         PlayingSound sound = sounds[name];
         if ( sound == null )

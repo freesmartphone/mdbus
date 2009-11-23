@@ -41,4 +41,60 @@ public class NullPlayer : AudioPlayer, GLib.Object
     }
 }
 
+/**
+ * @class PlayingSound
+ *
+ * Helper class, wraps a sound that's currently playing
+ **/
+public class PlayingSound
+{
+    public string name;
+    public int loop;
+    public int length;
+    public bool finished;
+
+    public uint watch;
+
+    public PlayingSound( string name, int loop, int length )
+    {
+        this.name = name;
+        this.loop = loop;
+        this.length = length;
+
+        if ( length > 0 )
+        {
+            watch = Timeout.add_seconds( length, onTimeout );
+        }
+    }
+
+    public bool onTimeout()
+    {
+        this.soundFinished( name ); // GOBJECT SIGNAL
+        return false;
+    }
+
+    ~PlayingSound()
+    {
+        if ( watch > 0 )
+        {
+            Source.remove( watch );
+        }
+    }
+
+    public signal void soundFinished( string name );
+}
+
+public abstract class BaseAudioPlayer : AudioPlayer, GLib.Object
+{
+    protected Gee.HashMap<string,PlayingSound> sounds;
+
+    construct
+    {
+        sounds = new Gee.HashMap<string,PlayingSound>();
+    }
+    public abstract async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error;
+    public abstract async void stop_sound( string name ) throws FreeSmartphone.Error;
+    public abstract async void stop_all_sounds();
+}
+
 } /* namespace FsoDevice */

@@ -31,17 +31,14 @@ CANBERRA_REQUIRED=0.17
 PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
 
-# glib and friends
+# glib and friends + gee
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
   gobject-2.0 >= $GLIB_REQUIRED
-  gio-2.0 >= $GLIB_REQUIRED)
+  gio-2.0 >= $GLIB_REQUIRED
+  gee-1.0 >= $GEE_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
-
-# gee
-PKG_CHECK_MODULES(GEE,
-  gee-1.0 >= $GEE_REQUIRED)
 
 # dbus and dbus-glib
 PKG_CHECK_MODULES(DBUS,

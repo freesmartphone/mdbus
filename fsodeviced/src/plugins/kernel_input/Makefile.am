@@ -4,7 +4,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
-	$(GEE_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -13,7 +13,7 @@ progs_ldadd = \
 	$(top_srcdir)/src/lib/libfsodevice.la \
 	$(FSO_LIBS) \
 	$(DBUS_LIBS) \
-	$(GEE_LIBS) \
+	$(GLIB_LIBS) \
 	$(NULL)
 
 VALAC_ARGS = \
