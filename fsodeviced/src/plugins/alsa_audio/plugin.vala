@@ -39,7 +39,7 @@ class BunchOfMixerControls
 class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 {
     private const string MODULE_NAME = "fsodevice.alsa_audio";
-    
+
     private FsoFramework.Subsystem subsystem;
     private FsoFramework.SoundDevice device;
     private HashMap<string,BunchOfMixerControls> allscenarios;
@@ -70,7 +70,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
             default:
                 typename = "PlayerUnknown";
                 break;
-        }       
+        }
         var playertyp = GLib.Type.from_name( typename );
         if ( playertyp == GLib.Type.INVALID )
         {
@@ -85,7 +85,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
         // init scenarios
         initScenarios();
-        if ( currentscenario != "" )
+        if ( currentscenario != "unknown" )
         {
             device.setAllMixerControls( allscenarios[currentscenario].controls );
         }
