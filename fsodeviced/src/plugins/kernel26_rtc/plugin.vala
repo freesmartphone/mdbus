@@ -41,6 +41,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
     private string devnode;
     private int rtc_fd;
     private IOChannel channel;
+    private uint watch;
     private static uint counter;
 
     public Rtc( FsoFramework.Subsystem subsystem, string sysfsnode )
@@ -49,28 +50,43 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         this.sysfsnode = sysfsnode;
         this.devnode = sysfsnode.replace( "/sys/class/rtc/", "/dev/" );
 
-        rtc_fd = Posix.open( this.devnode, Posix.O_RDONLY );
-        if ( rtc_fd == -1 )
-        {
-            logger.warning( "Can't open %s (%s). Full RTC control not available.".printf( devnode, Posix.strerror( Posix.errno ) ) );
-        }
-        else
-        {
-            channel = new IOChannel.unix_new( rtc_fd );
-            channel.add_watch( IOCondition.IN, onInputEvent );
-        }
-
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          "%s/%u".printf( FsoFramework.Device.RtcServicePath, counter++ ),
                                          this );
 
+        rtc_fd = -1;
         logger.info( "Created new Rtc object." );
     }
 
     public override string repr()
     {
         return "<FsoFramework.Device.Rtc @ %s : %s>".printf( sysfsnode, devnode );
+    }
+
+    private void openRtc() throws FreeSmartphone.Error
+    {
+        if ( channel == null ) // not waiting for any alarm
+        {
+            rtc_fd = Posix.open( this.devnode, Posix.O_RDONLY );
+            if ( rtc_fd == -1 )
+            {
+                throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
+            }
+        }
+    }
+
+    private void closeRtc( bool raise = false ) throws FreeSmartphone.Error
+    {
+        var e = @"$(Posix.strerror(Posix.errno))";
+        if ( channel == null && rtc_fd != -1 ) // not waiting for any alarm, rtc opened
+        {
+            Posix.close( rtc_fd );
+        }
+        if ( raise )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e );
+        }
     }
 
     private bool onInputEvent( IOChannel source, IOCondition condition )
@@ -92,19 +108,19 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
                 logger.debug( "Read %d bytes from RTC".printf( (int)bytesread ) );
             }
         }
+        set_wakeup_time( 0 ); // disable
         var now = TimeVal();
-        this.alarm( (int)now.tv_sec ); // send dbus signal
-        return true;
+        this.alarm( (int)now.tv_sec ); // DBUS SIGNAL
+        return false; // don't call again
     }
 
     private int _getCurrentTime() throws FreeSmartphone.Error
     {
+        openRtc();
         GLib.Time t = {};
         var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_RD_TIME, &t );
-        if ( res == -1 )
-            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
+        closeRtc( res == -1 );
         logger.info( "RTC time equals %s".printf( t.to_string() ) );
-
         return (int)Linux.timegm( t );
     }
 
@@ -123,20 +139,19 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
 
     public async void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
+        openRtc();
         var t = GLib.Time.gm( (time_t) seconds_since_epoch ); // VALABUG: cast is necessary here, otherwise things go havoc
         logger.info( "Setting RTC time to %s (dst=%d)".printf( t.to_string(), t.isdst ) );
         var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_SET_TIME, &t );
-        if ( res == -1 )
-            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
+        closeRtc( res == -1 );
     }
 
     public async int get_wakeup_time() throws FreeSmartphone.Error, DBus.Error
     {
+        openRtc();
         Linux.Rtc.WakeAlarm alarm = {};
         var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_WKALM_RD, &alarm );
-        if ( res == -1 )
-            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
-
+        closeRtc( res == -1 );
         GLib.Time t = {};
         t.second = alarm.time.tm_sec;
         t.minute = alarm.time.tm_min;
@@ -154,9 +169,10 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
     public async void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
     {
         var rtctime = _getCurrentTime();
-        if ( rtctime >= seconds_since_epoch )
+        if ( seconds_since_epoch > 0 && rtctime >= seconds_since_epoch )
+        {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "RTC Wakeup time not in the future" );
-
+        }
         Linux.Rtc.WakeAlarm alarm = {};
         var t = GLib.Time.gm( (time_t) seconds_since_epoch );
 
@@ -173,15 +189,31 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         alarm.enabled = seconds_since_epoch > 0 ? 1 : 0;
         alarm.pending = 0;
 
+        openRtc();
         var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_WKALM_SET, &alarm );
         if ( res == -1 )
-            throw new FreeSmartphone.Error.SYSTEM_ERROR( Posix.strerror( Posix.errno ) );
-        this.wakeup_time_changed( seconds_since_epoch ); // send dbus signal
+        {
+            closeRtc( true );
+        }
+        if ( alarm.enabled == 1 )
+        {
+            if ( channel == null ) // not yet waiting for alarm
+            {
+                channel = new IOChannel.unix_new( rtc_fd );
+                watch = channel.add_watch( IOCondition.IN, onInputEvent );
+            }
+            this.wakeup_time_changed( seconds_since_epoch ); // DBUS SIGNAL
+        }
+        else
+        {
+            if ( watch > 0 )
+            {
+                Source.remove( watch );
+            }
+            channel = null;
+            closeRtc();
+        }
     }
-
-    // DBUS SIGNALS
-    /* public void wakeup_time_changed( int seconds_since_epoch ); */
-    /* public void alarm( int seconds_since_epoch ); */
 }
 
 } /* namespace */
