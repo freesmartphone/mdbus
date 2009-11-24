@@ -26,15 +26,25 @@ using FsoDevice;
  **/
 class Player.LibAlsa : FsoDevice.BaseAudioPlayer
 {
+    private const int FORCED_STOP = 42;
+
     public void onChildWatchEvent( Pid pid, int status )
     {
         debug( "CHILD WATCH EVENT FOR %d: %d", (int)pid, status );
         Process.close_pid( pid );
+        Posix.kill( (Posix.pid_t)pid, Posix.SIGTERM );
 
         foreach ( var name in sounds.keys )
         {
-            if ( sounds[name].data == (uint32)pid )
+            if ( ( sounds[name].data == (uint32)pid ) && status != FORCED_STOP )
             {
+                if ( sounds[name].loop > 0 )
+                {
+                    var nam = name.dup();
+                    var lop = sounds[name].loop;
+                    var len = sounds[name].length;
+                    Idle.add( () => { play_sound( nam, lop-1, len ); return false; } );
+                }
                 sounds.remove( name );
                 return;
             }
@@ -85,16 +95,13 @@ class Player.LibAlsa : FsoDevice.BaseAudioPlayer
 
     public override async void stop_sound( string name ) throws FreeSmartphone.Error
     {
-        /*
         PlayingSound sound = sounds[name];
         if ( sound == null )
+        {
             return;
-
-        Alsa.Error res = (Alsa.Error) context.cancel( Quark.from_string( name ) );
-        debug( "cancelling %s (%0x) result: %s".printf( sound.name, Quark.from_string( name ), Alsa.strerror( res ) ) );
-        */
+        }
+        onChildWatchEvent( (Pid)sound.data, FORCED_STOP );
     }
-
 }
 
 /**
