@@ -160,6 +160,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
             {
                 logger.warning( "Default scenario not found; can't push it to scenario stack" );
             }
+            // listen for changes
+            FsoFramework.INotifier.add( FSO_ALSA_DATA_PATH, Linux.InotifyMaskFlags.MODIFY, onModifiedScenario );
         }
         else
         {
@@ -176,6 +178,53 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
             currentscenario = scenario;
             this.scenario( currentscenario, "N/A" ); // DBUS SIGNAL
+        }
+    }
+
+    private void onModifiedScenario( Linux.InotifyMaskFlags flags, uint32 cookie, string? name )
+    {
+#if DEBUG
+        debug( "onModifiedScenario: %s", name );
+#endif
+        assert( name != null );
+
+        if ( ! ( name in allscenarios ) )
+        {
+            assert( logger.debug( @"$name is not a recognized scenario. Ignoring" ) );
+            return;
+        }
+
+        if ( name == currentscenario )
+        {
+            logger.info( @"Scenario $name has been changed (being also the current scenario); invalidating cache and reloading" );
+            var file = File.new_for_path( Path.build_filename( FSO_ALSA_DATA_PATH, name ) );
+            if ( !file.query_exists(null) )
+            {
+                logger.warning( @"Scenario file $(file.get_path()) doesn't exist. Ignoring." );
+            }
+            else
+            {
+                addScenario( name, file );
+                device.setAllMixerControls( allscenarios[name].controls );
+            }
+        }
+        else
+        {
+            logger.info( @"Scenario $name has been changed; invalidating cache for this." );
+            // save current one
+            var scene = new FsoFramework.BunchOfMixerControls( device.allMixerControls() );
+            // reload changed one from disk
+            var file = File.new_for_path( Path.build_filename( FSO_ALSA_DATA_PATH, name ) );
+            if ( !file.query_exists(null) )
+            {
+                logger.warning( @"Scenario file $(file.get_path()) doesn't exist. Ignoring." );
+            }
+            else
+            {
+                addScenario( name, file );
+            }
+            // restore saved one
+            device.setAllMixerControls( scene.controls );
         }
     }
 
