@@ -51,16 +51,19 @@ public class FsoFramework.INotifier : Object
     public INotifier()
     {
         buffer = new char[BUFFER_LENGTH];
-
-        fd = Linux.inotify_init();
-        assert( fd != -1 );
-
         delegates = new HashTable<int,INotifyDelegateHolder>( direct_hash, direct_equal );
 
+        fd = Linux.inotify_init();
+        if ( fd == -1 )
+        {
+            error( @"Can not init the inotify subsystem: $(strerror(errno)); some features will not work" );
+            return;
+        }
         channel = new IOChannel.unix_new( fd );
         watch = channel.add_watch( IOCondition.IN | IOCondition.HUP, onActionFromInotify );
-
+#if DEBUG
         debug( "inotifier created" );
+#endif
     }
 
     ~INotifier()
@@ -76,7 +79,7 @@ public class FsoFramework.INotifier : Object
     {
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
-            error( "HUP on inotfy, will no longer get any notifications" );
+            error( "HUP on inotify, will no longer get any notifications" );
             return false;
         }
 
@@ -98,8 +101,9 @@ public class FsoFramework.INotifier : Object
 
     protected void handleEvent( Linux.InotifyEvent event )
     {
+#if DEBUG
         message( "got inotify event" );
-
+#endif
         unowned INotifyDelegateHolder holder = delegates.lookup( event.wd );
         assert( holder != null );
 
@@ -109,7 +113,9 @@ public class FsoFramework.INotifier : Object
     protected uint _add( string path, Linux.InotifyMaskFlags mask, INotifyNotifierFunc cb )
     {
         var wd = Linux.inotify_add_watch( fd, path, mask );
+#if DEBUG
         debug( "wd = %d", wd );
+#endif
         if ( wd == -1 )
         {
             error( @"inotify_add_watch: $(strerror(errno))" );
@@ -117,9 +123,10 @@ public class FsoFramework.INotifier : Object
         }
         else
         {
-            message( "b" );
             delegates.insert( wd, new INotifyDelegateHolder( cb ) );
+#if DEBUG
             debug( "inotifier watch added, total %u", delegates.size() );
+#endif
             return wd;
         }
     }
@@ -131,7 +138,9 @@ public class FsoFramework.INotifier : Object
         {
             Linux.inotify_rm_watch( fd, (int)source );
             delegates.remove( (int)source );
+#if DEBUG
             debug( "inotifier watch removed, total %u", delegates.size() );
+#endif
         }
     }
 
@@ -155,6 +164,5 @@ public class FsoFramework.INotifier : Object
         }
         INotifier.instance._remove( source );
     }
-
 }
 
