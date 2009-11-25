@@ -31,6 +31,29 @@ public errordomain FsoFramework.SoundError
 }
 
 /**
+ * @class FsoFramework.BunchOfMixerControls
+ **/
+public class FsoFramework.BunchOfMixerControls
+{
+    public FsoFramework.MixerControl[] controls;
+
+    public BunchOfMixerControls( FsoFramework.MixerControl[] controls )
+    {
+        this.controls = controls;
+    }
+
+    public string to_string()
+    {
+        var str = "";
+        for ( int i = 0; i < controls.length; ++i )
+        {
+            str += @"$(controls[i])\n";
+        }
+        return str;
+    }
+}
+
+/**
  * @class FsoFramework.SoundDevice
  **/
 public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
@@ -284,7 +307,7 @@ public class FsoFramework.MixerControl
                     infoline += "<unknown>,";
                 break;
         }
-        return infoline;
+        return ( infoline[infoline.length-1] == ',' ) ? infoline.substring( 0, infoline.length-1 ) : infoline;
     }
 }
 
