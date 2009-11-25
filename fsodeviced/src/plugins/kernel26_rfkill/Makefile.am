@@ -18,6 +18,8 @@ progs_ldadd = \
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
+	--vapidir $(top_srcdir)/vapi \
+	--pkg rfkill \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg fso-glib-1.0 \
