@@ -69,7 +69,13 @@ device_type = lis302
 
 [fsodevice.accelerometer_lis302]
 # Which input node to read from
-inputnode = /input/event3
+inputnode = /input/event2
+# How many samples to process, when in use
+sample_rate = 100
+# Threshhold to program, when in use
+threshold = 100
+# Scale to program, when in use
+full_scale = 2.3
 
 [fsodevice.player_alsa]
 # No settings yet
