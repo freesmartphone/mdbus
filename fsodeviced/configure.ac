@@ -90,6 +90,7 @@ AC_CONFIG_FILES([
   src/plugins/kernel26_display/Makefile
   src/plugins/kernel26_leds/Makefile
   src/plugins/kernel26_powersupply/Makefile
+  src/plugins/kernel26_rfkill/Makefile
   src/plugins/kernel26_rtc/Makefile
   src/plugins/kernel_idle/Makefile
   src/plugins/kernel_info/Makefile

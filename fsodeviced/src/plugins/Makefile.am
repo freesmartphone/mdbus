@@ -13,6 +13,7 @@ SUBDIRS = \
 	kernel26_display \
 	kernel26_leds \
 	kernel26_powersupply \
+	kernel26_rfkill \
 	kernel26_rtc \
 	\
 	kernel_idle \

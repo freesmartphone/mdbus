@@ -27,7 +27,6 @@ public class BasePowerControl : FreeSmartphone.Device.PowerControl, FsoFramework
     private string onvalue;
     private string offvalue;
     private uint switchtimeout;
-
     protected static uint counter;
 
     public BasePowerControl( string? powernode = null, string onvalue = "1", string offvalue = "0", uint switchtimeout = 3 )
