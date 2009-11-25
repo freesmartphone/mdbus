@@ -26,14 +26,6 @@ namespace Alsa
 {
 
 /**
- * Scenario
- **/
-class BunchOfMixerControls
-{
-    public FsoFramework.MixerControl[] controls;
-}
-
-/**
  * Alsa Audio Player
  **/
 class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
@@ -42,7 +34,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     private FsoFramework.Subsystem subsystem;
     private FsoFramework.SoundDevice device;
-    private HashMap<string,BunchOfMixerControls> allscenarios;
+    private HashMap<string,FsoFramework.BunchOfMixerControls> allscenarios;
     private string currentscenario;
     private GLib.Queue<string> scenarios;
 
@@ -119,8 +111,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
                 controls += control;
             }
             logger.debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
-            var bunch = new BunchOfMixerControls();
-            bunch.controls = controls;
+            var bunch = new FsoFramework.BunchOfMixerControls( controls );
             allscenarios[scenario] = bunch;
         }
         catch (IOError e)
@@ -131,7 +122,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     private void initScenarios()
     {
-        allscenarios = new HashMap<string,BunchOfMixerControls>( str_hash, str_equal );
+        allscenarios = new HashMap<string,FsoFramework.BunchOfMixerControls>( str_hash, str_equal );
         currentscenario = "unknown";
 
         // init scenarios
@@ -253,6 +244,17 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not find scenario %s".printf( scenario ) );
 
         updateScenarioIfChanged( scenario );
+    }
+
+    public async void save_scenario( string scenario ) throws FreeSmartphone.Error, DBus.Error
+    {
+        if ( !( scenario in allscenarios.keys ) )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not find scenario %s".printf( scenario ) );
+
+        var scene = new FsoFramework.BunchOfMixerControls( device.allMixerControls() );
+
+        var filename = Path.build_filename( FSO_ALSA_DATA_PATH, scenario );
+        FsoFramework.FileHandling.write( scene.to_string(), filename );
     }
 
     //
