@@ -71,11 +71,20 @@ PKG_CHECK_MODULES(FSO,
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 
-# libcanberra
-PKG_CHECK_MODULES(CANBERRA,
-  libcanberra >= $CANBERRA_REQUIRED)
-AC_SUBST(CANBERRA_CFLAGS)
-AC_SUBST(CANBERRA_LIBS)
+# optional feature: player_canberra
+AC_ARG_ENABLE(player_canberra,
+  [  --enable-player-canberra            Enable building the libcanberra audio player plugin (default=disabled)],
+  canberra="yes", canberra="no")
+
+if test x$canberra = "xyes"; then
+    # libcanberra
+    PKG_CHECK_MODULES(CANBERRA,
+      libcanberra >= $CANBERRA_REQUIRED)
+    AC_SUBST(CANBERRA_CFLAGS)
+    AC_SUBST(CANBERRA_LIBS)
+fi
+
+AM_CONDITIONAL( [BUILD_CANBERRA], [test x"$canberra" = x"yes"])
 
 AC_CONFIG_FILES([
   Makefile
@@ -103,3 +112,22 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
+#
+# Info
+#
+echo
+echo
+echo
+echo "------------------------------------------------------------------------"
+echo "$PACKAGE_NAME $PACKAGE_VERSION"
+echo "------------------------------------------------------------------------"
+echo
+echo "Configuration Options:"
+echo
+echo "  player_canberra......................: $canberra"
+echo
+echo "  prefix..................: $prefix"
+echo
+echo "------------------------------------------------------------------------"
+echo
+echo "Now type 'make' to compile and 'make install' to install this package."

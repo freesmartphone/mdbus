@@ -1,4 +1,4 @@
-NULL = 
+NULL =
 
 AUTOMAKE_OPTIONS = subdir-objects
 
@@ -8,7 +8,6 @@ SUBDIRS = \
 	\
 	alsa_audio \
 	player_alsa \
-	player_canberra \
 	\
 	kernel26_display \
 	kernel26_leds \
@@ -24,3 +23,7 @@ SUBDIRS = \
 	thinkpad_powercontrol \
 	\
 	$(NULL)
+
+if BUILD_CANBERRA
+SUBDIRS += player_canberra
+endif
