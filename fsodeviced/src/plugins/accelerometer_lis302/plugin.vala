@@ -175,11 +175,11 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     debug( "accelerometer_lis302 fso_factory_function" );
-    return "fsodeviced.accelerometer_lis302";
+    return "fsodevice.accelerometer_lis302";
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    // do not remove this function
+    debug( "fsodevice.accelerometer_lis302 fso_register_function" );
 }

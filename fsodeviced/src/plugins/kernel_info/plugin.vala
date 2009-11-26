@@ -96,5 +96,5 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "info fso_register_function()" );
+    debug( "fsodevice.kernel_info fso_register_function()" );
 }
