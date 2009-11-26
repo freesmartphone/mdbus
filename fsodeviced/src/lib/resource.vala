@@ -26,9 +26,9 @@ namespace FsoDevice {
  */
 public class BasePowerControlResource : FsoFramework.AbstractDBusResource
 {
-    private weak BasePowerControl bpc;
+    private weak ISimplePowerControl bpc;
 
-    public BasePowerControlResource( BasePowerControl bpc, string name, FsoFramework.Subsystem subsystem )
+    public BasePowerControlResource( ISimplePowerControl bpc, string name, FsoFramework.Subsystem subsystem )
     {
         base( name, subsystem );
         this.bpc = bpc;
