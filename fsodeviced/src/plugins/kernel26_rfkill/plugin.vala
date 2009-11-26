@@ -27,16 +27,19 @@ namespace Kernel26
  *
  * Implementing org.freesmartphone.Device.PowerControl via Linux 2.6 rfkill API
  **/
-class RfKillPowerControl : FreeSmartphone.Device.PowerControl, FsoFramework.AbstractObject
+class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.PowerControl, FsoFramework.AbstractObject
 {
+    const string[] opValue = { "Add", "Del", "Change", "ChangeAll", "unknown:4", "unknown:5", "unknown:6" };
+    const string[] typeValue = { "All", "WiFi", "Bluetooth", "UWB", "WiMax", "WWan", "unknown:6", "unknown:7" };
+    
     protected static uint counter;
 
     private uint id;
     private string type;
-    private bool softblock;
-    private bool hardblock;
+    private bool softoff;
+    private bool hardoff;
 
-    private RfKillPowerControl( uint id, Linux.RfKillType type, bool softblock, bool hardblock )
+    private RfKillPowerControl( uint id, Linux.RfKillType type, bool softoff, bool hardoff )
     {
         this.id = id;
         switch ( type )
@@ -56,8 +59,8 @@ class RfKillPowerControl : FreeSmartphone.Device.PowerControl, FsoFramework.Abst
                 this.type = "unknown:%u".printf( (uint)type );
                 break;
         }
-        this.softblock = softblock;
-        this.hardblock = hardblock;
+        this.softoff = softoff;
+        this.hardoff = hardoff;
         
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
@@ -69,7 +72,7 @@ class RfKillPowerControl : FreeSmartphone.Device.PowerControl, FsoFramework.Abst
 
     public override string repr()
     {
-        return "<%u:%s:%s:%s>".printf( id, type, softblock.to_string(), hardblock.to_string() );
+        return "<%u:%s:soft%s:hard%s>".printf( id, type, softoff ? "off":"on", hardoff ? "off":"on" );
     }
 
     private void init()
@@ -117,7 +120,13 @@ class RfKillPowerControl : FreeSmartphone.Device.PowerControl, FsoFramework.Abst
 
     protected static void handleEvent( Linux.RfKillEvent event )
     {
-        message( "got rfkill event: %u, %u, %u, %u, %u", event.idx, event.type, event.op, event.soft, event.hard );
+        message( "got rfkill event: ID %u, %s, %s, SOFTBLOCK %s, HARDBLOCK %s",
+            event.idx,
+            typeValue[event.type],
+            opValue[event.op],
+            event.soft == 1 ? "true" : "false",
+            event.hard == 1 ? "true" : "false" );
+
         switch ( event.op )
         {
             case Linux.RfKillOp.ADD:
@@ -126,19 +135,47 @@ class RfKillPowerControl : FreeSmartphone.Device.PowerControl, FsoFramework.Abst
             case Linux.RfKillOp.DEL:
                 instances.remove( (int)event.idx );
                 break;
+            case Linux.RfKillOp.CHANGE:
+                var instance = instances.lookup( (int)event.idx );
+                if ( instance == null )
+                {
+                    warning( "Got rfkill change event for unknown IDX; ignoring" );
+                    return;
+                }
+                instance.powerChangedTo( event.soft == 1, event.hard == 1 );
+                break;
             default:
                 critical( "unknown rfkill op %u; ignoring", event.op );
                 break;
         }
     }
 
+    public void powerChangedTo( bool softoff, bool hardoff )
+    {
+        assert( logger.debug( @"Status changed from..." ) );
+        this.softoff = softoff;
+        this.hardoff = hardoff;
+        assert( logger.debug( @"... to" ) );
+        //FIXME: Send DBus signal on power change?
+    }
+
     public bool getPower()
     {
-        return false;
+        return ( this.hardoff ) ? false : !this.softoff;
     }
 
     public void setPower( bool on )
     {
+        var event = Linux.RfKillEvent() {
+            idx   = this.id,
+            op    = Linux.RfKillOp.CHANGE,
+            soft  = (uint8)(!on) };
+        
+        var bwritten = Posix.write( fd, &event, sizeof( Linux.RfKillEvent ) );
+        if ( bwritten == -1 )
+        {
+            logger.error( @"Could not write rfkill event: $(strerror(errno))" );
+        }
     }
 
     //
