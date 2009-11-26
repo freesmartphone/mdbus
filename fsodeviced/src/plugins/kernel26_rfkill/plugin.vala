@@ -32,12 +32,33 @@ class RfKillPowerControl : FreeSmartphone.Device.PowerControl, FsoFramework.Abst
     protected static uint counter;
 
     private uint id;
-    private Linux.RfKillType type;
+    private string type;
     private bool softblock;
     private bool hardblock;
 
     private RfKillPowerControl( uint id, Linux.RfKillType type, bool softblock, bool hardblock )
     {
+        this.id = id;
+        switch ( type )
+        {
+            case Linux.RfKillType.WLAN:
+                this.type = "WiFi"; break;
+            case Linux.RfKillType.BLUETOOTH:
+                this.type = "Bluetooth"; break;
+            case Linux.RfKillType.UWB:
+                this.type = "UWB"; break;
+            case Linux.RfKillType.WIMAX:
+                this.type = "WiMax"; break;
+            case Linux.RfKillType.WWAN:
+                this.type = "WWan"; break;
+            default:
+                logger.warning( "Unknown RfKillType %u - please report" );
+                this.type = "unknown:%u".printf( (uint)type );
+                break;
+        }
+        this.softblock = softblock;
+        this.hardblock = hardblock;
+        
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
@@ -48,7 +69,7 @@ class RfKillPowerControl : FreeSmartphone.Device.PowerControl, FsoFramework.Abst
 
     public override string repr()
     {
-        return "<%u:%s:%s>".printf( id, softblock.to_string(), hardblock.to_string() );
+        return "<%u:%s:%s:%s>".printf( id, type, softblock.to_string(), hardblock.to_string() );
     }
 
     private void init()
@@ -86,7 +107,7 @@ class RfKillPowerControl : FreeSmartphone.Device.PowerControl, FsoFramework.Abst
                 return true;
             }
             message( "read %d bytes", (int)bytesread );
-            handleEvent( ref event );
+            handleEvent( event );
             return true;
         }
 
@@ -94,13 +115,13 @@ class RfKillPowerControl : FreeSmartphone.Device.PowerControl, FsoFramework.Abst
         return true;
     }
 
-    protected static void handleEvent( ref Linux.RfKillEvent event )
+    protected static void handleEvent( Linux.RfKillEvent event )
     {
         message( "got rfkill event: %u, %u, %u, %u, %u", event.idx, event.type, event.op, event.soft, event.hard );
         switch ( event.op )
         {
             case Linux.RfKillOp.ADD:
-                instances.insert( (int)event.idx, new Kernel26.RfKillPowerControl( event.idx, event.type, (bool)event.soft, (bool)event.hard ) );
+                instances.insert( (int)event.idx, new Kernel26.RfKillPowerControl( event.idx, event.type, event.soft == 1, event.hard == 1 ) );
                 break;
             case Linux.RfKillOp.DEL:
                 instances.remove( (int)event.idx );
