@@ -39,6 +39,8 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
     private bool softoff;
     private bool hardoff;
 
+    private FsoDevice.BasePowerControlResource resource;
+
     private RfKillPowerControl( uint id, Linux.RfKillType type, bool softoff, bool hardoff )
     {
         this.id = id;
@@ -66,6 +68,11 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
                                          this );
+
+        Idle.add( () => {
+            this.resource = new FsoDevice.BasePowerControlResource( this, this.type, subsystem );
+            return false;
+        } );
 
         logger.info( "created." );
     }
