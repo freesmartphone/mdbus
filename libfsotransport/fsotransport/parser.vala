@@ -103,6 +103,9 @@ public class FsoFramework.LineByLineParser : FsoFramework.BaseParser
 
     private void resetLine()
     {
+#if DEBUG
+        debug( "reset line" );
+#endif
         curline = {};
         index = 0;
         matched = 0;
@@ -127,6 +130,9 @@ public class FsoFramework.LineByLineParser : FsoFramework.BaseParser
         {
             index = 0;
             matched = 0;
+#if DEBUG
+            debug( "adding '%c' to '%s'", c, (string)curline );
+#endif
             curline += c;
         }
     }
@@ -146,6 +152,7 @@ public class FsoFramework.LineByLineParser : FsoFramework.BaseParser
         {
             solicitedCompleted( { (string)curline } );
         }
+        resetLine();
     }
 
     //
