@@ -100,6 +100,7 @@ class Player.LibAlsa : FsoDevice.BaseAudioPlayer
         {
             return;
         }
+        sound.loop = 0;
         onChildWatchEvent( (Pid)sound.data, FORCED_STOP );
     }
 }
