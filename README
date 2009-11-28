@@ -26,3 +26,6 @@ Build Order:
 3. libfsoframework
 4. libgsm0710
 5. libgsm0710mux
+6. libfso-glib
+7. libfsoresource
+
