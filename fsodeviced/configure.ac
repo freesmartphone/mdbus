@@ -17,6 +17,8 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
+##############################################################################
+# required versions
 VALA_REQUIRED=0.7.8.2
 GLIB_REQUIRED=2.18.0
 GEE_REQUIRED=0.5.0
@@ -27,10 +29,12 @@ FSO_FRAMEWORK_REQUIRED=0.2.4
 FSO_RESOURCE_REQUIRED=0.1.0
 CANBERRA_REQUIRED=0.17
 
+##############################################################################
 # vala
 PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
 
+##############################################################################
 # glib and friends + gee
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
@@ -40,6 +44,7 @@ PKG_CHECK_MODULES(GLIB,
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
+##############################################################################
 # dbus and dbus-glib
 PKG_CHECK_MODULES(DBUS,
   dbus-1 >= $DBUS_REQUIRED
@@ -47,6 +52,7 @@ PKG_CHECK_MODULES(DBUS,
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
 
+##############################################################################
 # dbus conf directory
 DBUS_DIR="`$PKG_CONFIG --variable=sysconfdir dbus-1`"
 if (test -z "{DBUS_DIR}"); then
@@ -56,6 +62,7 @@ else
 fi
 AC_SUBST(DBUS_DIR)
 
+##############################################################################
 # dbus service directory
 DBUS_SERVICE_DIR="`$PKG_CONFIG --variable=session_bus_services_dir dbus-1`"
 if (test -z "{DBUS_SERVICE_DIR}"); then
@@ -63,6 +70,7 @@ if (test -z "{DBUS_SERVICE_DIR}"); then
 fi
 AC_SUBST(DBUS_SERVICE_DIR)
 
+##############################################################################
 # fso-glib and framework
 PKG_CHECK_MODULES(FSO,
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED
@@ -71,6 +79,19 @@ PKG_CHECK_MODULES(FSO,
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 
+##############################################################################
+# optional feature: kernel26_rfkill
+AC_ARG_ENABLE(kernel26_rfkill,
+  [  --enable-kernel26-rfkill            Enable building the rfkill power control plugin (default=disabled)],
+  rfkill="yes", rfkill="no")
+
+if test x$rfkill = "xyes"; then
+    # linux/rfkill.h
+    AC_CHECK_HEADER([linux/rfkill.h],,[AC_MSG_ERROR([cannot find linux/rfkill.h (linux-libc-headers too old?) necessary for kernel26_rfkill])])
+fi
+AM_CONDITIONAL( [WANT_RFKILL], [test x"$rfkill" = x"yes"])
+
+##############################################################################
 # optional feature: player_canberra
 AC_ARG_ENABLE(player_canberra,
   [  --enable-player-canberra            Enable building the libcanberra audio player plugin (default=disabled)],
@@ -82,9 +103,10 @@ if test x$canberra = "xyes"; then
       libcanberra >= $CANBERRA_REQUIRED)
     AC_SUBST(CANBERRA_CFLAGS)
     AC_SUBST(CANBERRA_LIBS)
+    # sys/eventfd.h
+	AC_CHECK_HEADER([sys/eventfd.h],,[AC_MSG_ERROR([cannot find all headers (glibc too old?) necessary for player-canberra])])
 fi
-
-AM_CONDITIONAL( [BUILD_CANBERRA], [test x"$canberra" = x"yes"])
+AM_CONDITIONAL( [WANT_CANBERRA], [test x"$canberra" = x"yes"])
 
 AC_CONFIG_FILES([
   Makefile
@@ -124,6 +146,7 @@ echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
 echo
+echo "  kernel26_rfkill......................: $rfkill"
 echo "  player_canberra......................: $canberra"
 echo
 echo "  prefix..................: $prefix"
