@@ -5,8 +5,8 @@ SUBDIRS = \
 	libfsoframework \
 	fsodatad \
 	fsodeviced \
-	fsogpsd \
 	fsogsmd \
+	fsolocationd \
 	fsonetworkd \
 	fsomusicd \
 	fsousaged \
