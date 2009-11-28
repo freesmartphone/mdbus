@@ -17,7 +17,7 @@ progs_ldadd = \
 	$(GEE_LIBS) \
 	$(DBUS_LIBS) \
 	$(FSO_LIBS) \
-	../src/lib/libfsogps.la
+	../src/lib/libfsolocation.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -29,7 +29,7 @@ VALAC_ARGS = \
 	--pkg dbus-glib-1 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
-	--pkg fsogps-2.0
+	--pkg fsolocation-2.0
 
 TEST_PROGS += testparser
 testparser_VALASOURCES = testparser.vala

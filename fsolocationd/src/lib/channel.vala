@@ -19,7 +19,7 @@
 
 using GLib;
 
-public class FsoGps.Channel : FsoFramework.BaseCommandQueue<void>
+public class FsoGps.Channel : FsoFramework.BaseCommandQueue
 {
     protected string name;
 
