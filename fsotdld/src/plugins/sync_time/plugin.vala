@@ -74,6 +74,7 @@ class SyncTime.Service : FsoFramework.AbstractObject
         logger.info( @"Added source $name ($typename)" );
         sources[name].reportTime.connect( onTimeReport );
         sources[name].reportZone.connect( onZoneReport );
+        sources[name].reportLocation.connect( onLocationReport );
     }
 
     public override string repr()
@@ -130,6 +131,11 @@ class SyncTime.Service : FsoFramework.AbstractObject
             var t = GLib.Time();
             t.mktime();
         }
+    }
+
+    public void onLocationReport( double lat, double lon, int height, FsoTime.Source source )
+    {
+        assert( logger.debug( "%s reports position %.2f %.2f - %d".printf( ((FsoFramework.AbstractObject)source).classname, lat, lon, height ) ) );
     }
 }
 

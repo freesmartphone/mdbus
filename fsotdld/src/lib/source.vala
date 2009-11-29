@@ -27,6 +27,7 @@ public interface FsoTime.Source : FsoFramework.AbstractObject
 
     public signal void reportTime( int since_epoch, FsoTime.Source source );
     public signal void reportZone( string zone, FsoTime.Source source );
+    public signal void reportLocation( double lat, double lon, int height, FsoTime.Source source );
 }
 
 public abstract class FsoTime.AbstractSource : FsoTime.Source, FsoFramework.AbstractObject

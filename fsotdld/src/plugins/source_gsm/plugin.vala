@@ -145,7 +145,55 @@ class Source.Gsm : FsoTime.AbstractSource
             return;
         }
 
-        this.reportZone( (string)timezones.get_values().nth_data(0), this ); // SIGNAL
+        this.reportZone( (string)timezones.get_values().nth_data(0), this ); // GOBJECT SIGNAL
+
+        /*
+         * Latitude and longitude of the zone's principal location
+         * in ISO 6709 sign-degrees-minutes-seconds format,
+         * either +-DDMM+-DDDMM or +-DDMMSS+-DDDMMSS,
+         * first latitude (+ is north), then longitude (+ is east)
+         */
+        double lat = 0.0;
+        double lon = 0.0;
+
+        var coords = timezones.get_keys().nth_data(0);
+        if ( coords.length == 11 ) // +-DDMM+-DDDMM
+        {
+            lat = coords.substring( 1, 4 ).to_double();
+            lon = coords.substring( 6, 5 ).to_double();
+            if ( coords[0] == '-' )
+            {
+                lat = -lat;
+            }
+            if ( coords[5] == '-' )
+            {
+                lon = -lon;
+            }
+            lat /= 100.0;
+            lon /= 100.0;
+        }
+        else if ( coords.length == 15 ) // +-DDMMSS+-DDDMMSS
+        {
+            lat = coords.substring( 1, 6 ).to_double();
+            lon = coords.substring( 8, 7 ).to_double();
+            if ( coords[0] == '-' )
+            {
+                lat = -lat;
+            }
+            if ( coords[7] == '-' )
+            {
+                lon = -lon;
+            }
+            lat /= 10000.0;
+            lon /= 10000.0;
+        }
+        else
+        {
+            logger.warning( @"Timezone lat/lon format unknown (length=$(coords.length))" );
+            return;
+        }
+
+        this.reportLocation( lat, lon, 0, this ); // GOBJECT SIGNAL
     }
 }
 
