@@ -83,9 +83,9 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
         assert( FsoGps.theReceiver == null );
         FsoGps.theReceiver = this;
 
-        receiver_transport = config.stringValue( "fsolocation", "receiver_transport", "serial" );
-        receiver_port = config.stringValue( "fsolocation", "receiver_port", "/dev/null" );
-        receiver_speed = config.intValue( "fsolocation", "receiver_speed", 115200 );
+        receiver_transport = config.stringValue( "fsotdl", "gps_receiver_transport", "serial" );
+        receiver_port = config.stringValue( "fsotdl", "gps_receiver_port", "/dev/null" );
+        receiver_speed = config.intValue( "fsotdl", "gps_receiver_speed", 115200 );
 
         registerHandlers();
         channels = new HashMap<string,FsoGps.Channel>();
