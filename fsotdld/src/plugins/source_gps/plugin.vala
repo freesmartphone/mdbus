@@ -21,13 +21,10 @@ using GLib;
 
 using FsoTime;
 
-namespace Source
+class Source.Gps : FsoTime.AbstractSource
 {
-    public const string MODULE_NAME_GSM = "source_gps";
-}
+    public const string MODULE_NAME = "source_gps";
 
-class Source.Gsm : FsoTime.AbstractSource
-{
     FreeSmartphone.GSM.Network ogpsd_device;
     FreeSmartphone.Data.World odatad_world;
     DBus.IDBus dbus_dbus;
@@ -158,7 +155,7 @@ class Source.Gsm : FsoTime.AbstractSource
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     debug( "fsotdl.source_gps fso_factory_function" );
-    return Source.MODULE_NAME_GSM;
+    return Source.Gps.MODULE_NAME;
 }
 
 [ModuleInit]

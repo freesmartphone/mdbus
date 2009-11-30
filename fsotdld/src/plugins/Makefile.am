@@ -5,6 +5,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
 	alarm \
+	provider_gps \
 	provider_gps_nmea \
 	source_gps \
 	source_gsm \

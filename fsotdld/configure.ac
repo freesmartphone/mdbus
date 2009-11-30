@@ -25,6 +25,7 @@ DBUS_GLIB_REQUIRED=0.76
 FSO_GLIB_REQUIRED=0.2.0
 FSO_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.6
+FSO_RESOURCE_REQUIRED=0.1.0
 
 # vala
 PKG_CHECK_MODULES(VALA,
@@ -70,7 +71,8 @@ AC_SUBST(DBUS_SERVICE_DIR)
 # framework
 PKG_CHECK_MODULES(FSO,
   fsoframework-2.0 >= $FSO_REQUIRED
-  fsotransport-2.0 >= $FSO_TRANSPORT_REQUIRED)
+  fsotransport-2.0 >= $FSO_TRANSPORT_REQUIRED
+  fsoresource-2.0  >= $FSO_RESOURCE_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 
@@ -87,6 +89,7 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/alarm/Makefile
+  src/plugins/provider_gps/Makefile
   src/plugins/provider_gps_nmea/Makefile
   src/plugins/source_gps/Makefile
   src/plugins/source_gsm/Makefile
