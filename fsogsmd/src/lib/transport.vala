@@ -65,7 +65,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         channelinfo.number = channel;
         channelinfo.consumer = "fsogsmd";
 
-        logger.debug( "Created. Using libgsm0710mux version %s; autosession is %s".printf( version, hasAutoSession.to_string() ) );
+        assert( logger.debug( @"Created. Using libgsm0710mux version $version; autosession is $hasAutoSession" ) );
     }
 
     public override bool open()
@@ -74,12 +74,11 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         {
             manager.allocChannel( ref channelinfo );
         }
-        catch ( FsoFramework.TransportError e )
+        catch ( Gsm0710mux.MuxerError e )
         {
-            debug( "error: %s", e.message );
+            logger.error( @"Can't open allocate channel from MUX: $(e.message)" );
             return false;
         }
-
         return true;
     }
 
