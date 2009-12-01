@@ -6,11 +6,10 @@ SUBDIRS = \
 	fsodatad \
 	fsodeviced \
 	fsogsmd \
-	fsolocationd \
 	fsonetworkd \
 	fsomusicd \
 	fsousaged \
-	fsotimed
+	fsotdld
 
 all:
 	for i in $(SUBDIRS); do $(MAKE) -C $$i; done

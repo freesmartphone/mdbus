@@ -136,7 +136,7 @@ class Nmea.Protocol : Object
         var holder = delegates[prefix];
         if ( holder == null )
         {
-            debug( @"Unhandled NMEA datum; fix me?" );
+            debug( @"Unhandled NMEA datum $prefix; fix me?" );
             return;
         }
         if ( !match( holder.re, datum ) )
@@ -157,7 +157,7 @@ class Nmea.Protocol : Object
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "fsolocationd.provider_gps_nmea fso_factory_function" );
+    debug( "fsoltdl.provider_gps_nmea fso_factory_function" );
     return Nmea.MODULE_NAME;
 }
 
