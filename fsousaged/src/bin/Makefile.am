@@ -21,8 +21,9 @@ fsousaged_SOURCES = \
 	$(NULL)
 
 $(BUILT_SOURCES): $(fsousaged_VALASOURCES)
-	$(VALAC) -C --vapidir vapi \
+	$(VALAC) -C --vapidir $(top_srcdir)/vapi \
 				--pkg posix \
+				--pkg config \
 				--pkg gio-2.0 \
 				--pkg dbus-glib-1 \
 				--pkg fsoframework-2.0 \

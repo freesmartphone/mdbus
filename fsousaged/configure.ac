@@ -91,6 +91,10 @@ PKG_CHECK_MODULES(FSO,
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 
+# git version
+GITV=`cat ../.git/refs/heads/master || echo "unknown"`
+AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
+
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
@@ -106,3 +110,20 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
+#
+# Info
+#
+echo
+echo
+echo
+echo "------------------------------------------------------------------------"
+echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
+echo "------------------------------------------------------------------------"
+echo
+echo "Configuration Options:"
+echo
+echo "  prefix..................: $prefix"
+echo
+echo "------------------------------------------------------------------------"
+echo
+echo "Now type 'make' to compile and 'make install' to install this package."
