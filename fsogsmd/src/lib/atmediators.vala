@@ -231,9 +231,14 @@ public class AtDebugAtCommand : DebugAtCommand
 
 public class AtDebugInjectAtResponse : DebugInjectAtResponse
 {
-    public override async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void run( string command, string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        theModem.injectResponse( command, channel );
+        var channel = theModem.channel( category );
+        if ( channel == null )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Channel $category not known" );
+        }
+        theModem.injectResponse( command, category );
     }
 }
 
