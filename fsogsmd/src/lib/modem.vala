@@ -118,7 +118,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // Command Queue API
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
     public abstract async string[] processPduCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
-    public abstract FsoGsm.Channel channel( string category );
+    public abstract FsoGsm.Channel? channel( string category );
 
     // Misc. Accessors
     public abstract Modem.Status status();
@@ -368,9 +368,25 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return modem_data;
     }
 
-    public virtual FsoGsm.Channel channel( string category )
+    public virtual FsoGsm.Channel? channel( string category )
     {
-        return channels[category];
+        if ( channels.size == 0 )
+        {
+            return null;
+        }
+
+        if ( category == "" )
+        {
+            foreach ( var chan in channels.values )
+            {
+                return chan;
+            }
+        }
+        else
+        {
+            return channels[category];
+        }
+        return null;
     }
 
     public T createMediator<T>() throws FreeSmartphone.Error

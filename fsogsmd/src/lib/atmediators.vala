@@ -208,10 +208,17 @@ public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeS
  **/
 public class AtDebugAtCommand : DebugAtCommand
 {
-    public override async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void run( string command, string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
-        var response = yield theModem.processCommandAsync( cmd, command );
+
+        var channel = theModem.channel( category );
+        if ( channel == null )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Channel $category not known" );
+        }
+
+        var response = yield channel.enqueueAsyncYielding( cmd, command, 0 );
         var result = "";
         for ( int i = 0; i < response.length-1; ++i )
         {
@@ -817,7 +824,7 @@ public class AtSmsSendMessage : SmsSendMessage
         var cmms = theModem.createAtCommand<PlusCMMS>( "+CMMS" );
         yield theModem.processCommandAsync( cmms, cmms.issue( 1 ) );
 
-        // send the MMS one after another     
+        // send the MMS one after another
         foreach( var hexpdu in hexpdus )
         {
             var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
