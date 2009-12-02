@@ -115,7 +115,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public override string repr()
     {
-        return "<LibGsm0710muxFsoFramework.Transport>";
+        return @"<gsm0710mux:$(channelinfo.number)>";
     }
 
     //
