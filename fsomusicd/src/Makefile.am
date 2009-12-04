@@ -16,7 +16,7 @@ INCLUDES = \
 
 BUILT_SOURCES = .vala.stamp
 
-bin_PROGRAMS = fsomusicd
+sbin_PROGRAMS = fsomusicd
 
 fsomusicd_VALASOURCES = \
 	playlist.vala \

@@ -12,5 +12,4 @@ service_DATA = $(service_in_files:.service.in=.service)
 MAINTAINERCLEANFILE = Makefile.in $(service_DATA)
 
 $(service_DATA): $(service_in_files)
-	echo $(bindir) $< $@
-	@sed -e "s|\@bindir\@|$(bindir)|" $<> $@
+	@sed -e "s|\@prefix\@|$(prefix)|" $<> $@
