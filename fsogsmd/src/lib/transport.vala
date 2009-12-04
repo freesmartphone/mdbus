@@ -63,9 +63,14 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         channelinfo.tspec = FsoFramework.TransportSpec( "foo", "bar" );
         channelinfo.tspec.transport = tdelegate;
         channelinfo.number = channel;
-        channelinfo.consumer = "fsogsmd";
+        channelinfo.consumer = @"fsogsmd:$channel";
 
         assert( logger.debug( @"Created. Using libgsm0710mux version $version; autosession is $hasAutoSession" ) );
+    }
+
+    public override string repr()
+    {
+        return @"<0710:$(channelinfo.number)>";
     }
 
     public override bool open()
@@ -113,11 +118,10 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     {
     }
 
-    public override string repr()
+    public override void close()
     {
-        return @"<gsm0710mux:$(channelinfo.number)>";
+        manager.releaseChannel( channelinfo.consumer );
     }
-
     //
     // delegate transport interface
     //

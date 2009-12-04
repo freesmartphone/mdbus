@@ -26,8 +26,11 @@ public static void sighandler( int signum )
 {
     Posix.signal( signum, null ); // restore original sighandler
     logger.info( "received signal -%d, exiting.".printf( signum ) );
-    subsystem.shutdown();
-    mainloop.quit();
+    Idle.add( () => {
+        subsystem.shutdown();
+        mainloop.quit();
+        return false;
+    } );
 }
 
 public static int main( string[] args )

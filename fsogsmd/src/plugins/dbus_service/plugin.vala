@@ -642,10 +642,37 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     return DBusService.MODULE_NAME;
 }
 
+/**
+ * This function gets called on subsystem shutdown time.
+ **/
+public static void fso_shutdown_function() throws Error
+{
+    debug( "SHUTDOWN ENTER" );
+    running = true;
+    async_helper();
+    while ( running )
+    {
+        GLib.MainContext.default().iteration( true );
+    }
+    debug( "SHUTDOWN LEAVE" );
+}
+
+static bool running;
+internal async void async_helper()
+{
+    debug( "ASYNC_HELPER ENTER" );
+    yield resource.disableResource();
+    running = false;
+    debug( "ASYNC_HELPER_DONE" );
+}
+
+/**
+ * Module init function, DON'T REMOVE THIS!
+ **/
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "dbus_service fso_register_function" );
+    debug( "fsogsmd.dbus_service fso_register_function" );
 }
 
 /**
