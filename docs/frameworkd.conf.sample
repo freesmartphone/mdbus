@@ -13,6 +13,9 @@ log_destination = /tmp/frameworkd.log
 ########################################################################################
 #                 F R E E   S M A R T P H O N E   O R G      -2-
 ########################################################################################
+#
+# NOTE: This configuration file is for distribution integrators, not users!
+#
 # To enable a subsystem, create an empty group for it, e.g. [fsodevice]
 # To enable a plugin, create an empty group for it, e.g. [fsodevice.alsa_audio]
 # log_level and friends belong in the daemon configuration, e.g. [fsodeviced]
