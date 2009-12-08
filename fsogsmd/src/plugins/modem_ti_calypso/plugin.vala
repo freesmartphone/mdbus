@@ -24,7 +24,7 @@ using FsoGsm;
 namespace TiCalypso
 {
     const string MODULE_NAME = "fsogsm.modem_ti_calypso";
-    const string CHANNEL_NAME = "main";
+    const string CHANNEL_NAMES[] = { "call", "main", "misc" };
 }
 
 class TiCalypso.Modem : FsoGsm.AbstractModem
@@ -34,7 +34,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         return "<>";
     }
 
-    protected override void configureData()
+    public override void configureData()
     {
         modem_data = new FsoGsm.Modem.Data();
         modem_data.simHasReadySignal = true;
@@ -42,21 +42,17 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        var mode = config.stringValue( MODULE_NAME, "mode", "single" );
-        if ( mode == "mux" )
+        for ( int i = 0; i < CHANNEL_NAMES.length; ++i )
         {
-            logger.warning( "MUX mode not yet supported. Using single" );
+            var transport = new FsoGsm.LibGsm0710muxTransport( i+1 );
+            var parser = new FsoGsm.StateBasedAtParser();
+            new Channel( CHANNEL_NAMES[i], transport, parser );
         }
-
-        var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
-        var parser = new FsoGsm.StateBasedAtParser();
-        var chan = new Channel( CHANNEL_NAME, transport, parser );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        // nothing to do here as singleline only has one channel
-        return channels[ CHANNEL_NAME ];
+        return channels[ "main" ];
     }
 
     public void responseHandler( FsoGsm.AtCommand command, string[] response )
@@ -74,14 +70,14 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "calypso fso_factory_function" );
+    debug( "fsogsm.ti_calypso fso_factory_function" );
     return TiCalypso.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "calypso fso_register_function" );
+    debug( "cfsogsm.ti_calypso fso_register_function" );
     // do not remove this function
 }
 
