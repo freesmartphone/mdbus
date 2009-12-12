@@ -21,6 +21,7 @@ namespace FsoDevice
 
 public interface AudioPlayer : GLib.Object
 {
+    public abstract string[] supportedFormats();
     public abstract async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error;
     public abstract async void stop_sound( string name ) throws FreeSmartphone.Error;
     public abstract async void stop_all_sounds();
@@ -28,6 +29,11 @@ public interface AudioPlayer : GLib.Object
 
 public class NullPlayer : AudioPlayer, GLib.Object
 {
+    public string[] supportedFormats()
+    {
+        return { "caf", "mod", "mp3", "wav", "ogg", "sid" };
+    }
+
     public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error
     {
     }
@@ -95,6 +101,7 @@ public abstract class BaseAudioPlayer : AudioPlayer, GLib.Object
     {
         sounds = new Gee.HashMap<string,PlayingSound>();
     }
+    public abstract string[] supportedFormats();
     public abstract async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error;
     public abstract async void stop_sound( string name ) throws FreeSmartphone.Error;
     public abstract async void stop_all_sounds();

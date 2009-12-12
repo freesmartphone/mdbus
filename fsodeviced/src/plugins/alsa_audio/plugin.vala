@@ -37,9 +37,8 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     private HashMap<string,FsoFramework.BunchOfMixerControls> allscenarios;
     private string currentscenario;
     private GLib.Queue<string> scenarios;
-
-    private FsoDevice.AudioPlayer player;
-    private string typename;
+    private Gee.HashMap<string,FsoDevice.AudioPlayer> players;
+    private string playertypes;
 
     public AudioPlayer( FsoFramework.Subsystem subsystem )
     {
@@ -50,32 +49,64 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
                                          FsoFramework.Device.AudioServicePath,
                                          this );
 
-        // gather requested player type and instanciate object
-        var playername = config.stringValue( MODULE_NAME, "player_type", "unknown" );
-        typename = "";
+        // gather requested player types and instanciate object
+        players = new Gee.HashMap<string,FsoDevice.AudioPlayer>();
+        var playernames = config.stringListValue( MODULE_NAME, "player_type", {} );
 
-        switch ( playername )
+        playertypes = "";
+
+        foreach ( var playername in playernames )
         {
-            case "alsa":
-                typename = "PlayerLibAlsa";
-                break;
-            case "canberra":
-                typename = "PlayerLibCanberra";
-                break;
-            default:
-                typename = "PlayerUnknown";
-                break;
+            var typename = "";
+
+            switch ( playername )
+            {
+                case "alsa":
+                    typename = "PlayerLibAlsa";
+                    break;
+                case "canberra":
+                    typename = "PlayerLibCanberra";
+                    break;
+                case "gstreamer":
+                    typename = "PlayerGstreamer";
+                    break;
+                default:
+                    typename = "PlayerUnknown";
+                    break;
+            }
+            var playertyp = GLib.Type.from_name( typename );
+            if ( playertyp == GLib.Type.INVALID )
+            {
+                logger.warning( @"Can't instanciate requested player type $typename" );
+            }
+            else
+            {
+                var player = (FsoDevice.AudioPlayer) GLib.Object.new( playertyp );
+                foreach ( var format in player.supportedFormats() )
+                {
+                    if ( players[format] == null ) // might have already been claimed
+                    {
+                        assert( logger.debug( @"Registering $playername ($typename) to handle format $format" ) );
+                        players[format] = player;
+                    }
+                    else
+                    {
+                        assert( logger.debug( @"Can't register $playername ($typename) to handle format $format (already handled)" ) );
+                    }
+                }
+                playertypes += @"%s$typename".printf( playertypes != "" ? "," : "" );
+            }
         }
-        var playertyp = GLib.Type.from_name( typename );
-        if ( playertyp == GLib.Type.INVALID )
+
+        if ( players.size == 0 )
         {
-            logger.warning( @"Can't instanciate player type $typename; will not be able to play audio" );
-            player = new FsoDevice.NullPlayer();
-            typename = "NullPlayer";
-        }
-        else
-        {
-            player = (FsoDevice.AudioPlayer) GLib.Object.new( playertyp );
+            logger.warning( "No player_type requested or available; will not be able to play audio" );
+            var player = new FsoDevice.NullPlayer();
+            foreach ( var format in player.supportedFormats() )
+            {
+                players[format] = player;
+                playertypes = "NullPlayer";
+            }
         }
 
         // init scenarios
@@ -91,7 +122,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
 
     public override string repr()
     {
-        return @"<$typename>";
+        return playertypes != null ? @"<$playertypes>" : "<>";
     }
 
     private void addScenario( string scenario, File file )
@@ -259,7 +290,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         Value scenarios = get_available_scenarios();
         dict.insert( "scenarios", value );
         */
-        return   dict;
+        return dict;
     }
 
     public async string get_scenario() throws DBus.Error
@@ -298,7 +329,7 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     public async void save_scenario( string scenario ) throws FreeSmartphone.Error, DBus.Error
     {
         if ( !( scenario in allscenarios.keys ) )
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not find scenario %s".printf( scenario ) );
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Could not find scenario $scenario" );
 
         var scene = new FsoFramework.BunchOfMixerControls( device.allMixerControls() );
 
@@ -310,16 +341,41 @@ class AudioPlayer : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     // Sound
     public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error, DBus.Error
     {
+        var parts = name.split( "." );
+        if ( parts.length == 0 )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not guess media format; need an extension" );
+        }
+        var extension = parts[ parts.length - 1 ]; // darn, I miss negative array indices
+        var player = players[extension];
+        if ( player == null )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Format .$extension not handled by any player" );
+        }
         yield player.play_sound( name, loop, length );
     }
 
     public async void stop_all_sounds() throws DBus.Error
     {
-        yield player.stop_all_sounds();
+        foreach ( var player in players.values )
+        {
+            yield player.stop_all_sounds();
+        }
     }
 
     public async void stop_sound( string name ) throws FreeSmartphone.Error, DBus.Error
     {
+        var parts = name.split( "." );
+        if ( parts.length == 0 )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not guess media format; need an extension" );
+        }
+        var extension = parts[ parts.length - 1 ]; // darn, I miss negative array indices
+        var player = players[extension];
+        if ( player == null )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Format .$extension not handled by any player" );
+        }
         yield player.stop_sound( name );
     }
 }

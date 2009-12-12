@@ -27,6 +27,10 @@ if WANT_CANBERRA
 SUBDIRS += player_canberra
 endif
 
+if WANT_GSTREAMER
+SUBDIRS += player_gstreamer
+endif
+
 if WANT_RFKILL
 SUBDIRS += kernel26_rfkill
 endif

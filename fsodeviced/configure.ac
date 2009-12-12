@@ -28,6 +28,7 @@ FSO_GLIB_REQUIRED=0.2.0
 FSO_FRAMEWORK_REQUIRED=0.2.4
 FSO_RESOURCE_REQUIRED=0.1.0
 CANBERRA_REQUIRED=0.17
+GSTREAMER_REQUIRED=0.10.20
 
 ##############################################################################
 # vala
@@ -108,6 +109,21 @@ if test x$canberra = "xyes"; then
 fi
 AM_CONDITIONAL( [WANT_CANBERRA], [test x"$canberra" = x"yes"])
 
+##############################################################################
+# optional feature: player_gstreamer
+AC_ARG_ENABLE(player_gstreamer,
+  [  --enable-player-gstreamer            Enable building the gstreamer audio player plugin (default=disabled)],
+  gstreamer="yes", gstreamer="no")
+
+if test x$gstreamer = "xyes"; then
+    # gstreamer
+    PKG_CHECK_MODULES(GSTREAMER,
+      gstreamer-0.10 >= $GSTREAMER_REQUIRED)
+    AC_SUBST(GSTREAMER_CFLAGS)
+    AC_SUBST(GSTREAMER_LIBS)
+fi
+AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
+
 AC_CONFIG_FILES([
   Makefile
   data/Makefile
@@ -129,6 +145,7 @@ AC_CONFIG_FILES([
   src/plugins/openmoko_powercontrol/Makefile
   src/plugins/player_alsa/Makefile
   src/plugins/player_canberra/Makefile
+  src/plugins/player_gstreamer/Makefile
   src/plugins/thinkpad_powercontrol/Makefile
   tests/Makefile
 ])
@@ -148,6 +165,7 @@ echo "Configuration Options:"
 echo
 echo "  kernel26_rfkill......................: $rfkill"
 echo "  player_canberra......................: $canberra"
+echo "  player_gstreamer.....................: $gstreamer"
 echo
 echo "  prefix..................: $prefix"
 echo

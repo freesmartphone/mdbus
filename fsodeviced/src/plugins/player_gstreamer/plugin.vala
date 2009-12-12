@@ -22,9 +22,9 @@ using Gee;
 using FsoDevice;
 
 /**
- * AudioPlayer using libalsa
+ * AudioPlayer using gstreamer
  **/
-class Player.LibAlsa : FsoDevice.BaseAudioPlayer
+class Player.Gstreamer : FsoDevice.BaseAudioPlayer
 {
     private const int FORCED_STOP = 42;
 
@@ -56,7 +56,7 @@ class Player.LibAlsa : FsoDevice.BaseAudioPlayer
     //
     public override string[] supportedFormats()
     {
-        return { "wav" };
+        return {};
     }
 
     public override async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error
@@ -118,14 +118,14 @@ class Player.LibAlsa : FsoDevice.BaseAudioPlayer
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    // instances will be created on demand by alsa_audio
-    return "fsodevice.player_alsa";
+    // instances will be created on demand by gstreamer_audio
+    return "fsodevice.player_gstreamer";
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "fsodevice.player_alsa fso_register_function()" );
+    debug( "fsodevice.player_gstreamer fso_register_function()" );
 }
 
 /**

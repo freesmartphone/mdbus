@@ -92,6 +92,11 @@ class Player.LibCanberra : FsoDevice.BaseAudioPlayer
     //
     // AudioPlayer API
     //
+    public override string[] supportedFormats()
+    {
+        return { "wav", "ogg" };
+    }
+
     public override async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error
     {
         PlayingSound sound = sounds[name];
