@@ -63,6 +63,85 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
         }
     }
 
+    private bool onGstreamerMessage( Gst.Bus bus, Gst.Message message, PlayingSound sound )
+    {
+        assert( FsoFramework.theLogger.debug( @"Gstreamer: $(message.type) for sound $(sound.name)" ) );
+
+        var pipeline = sound.data as Gst.Pipeline;
+
+        switch ( message.type )
+        {
+            case Gst.MessageType.EOS:
+            {
+                if ( sound.loop-- > 0 )
+                {
+                    pipeline.seek_simple( Gst.Format.TIME, Gst.SeekFlags.FLUSH, 0 );
+                }
+                else
+                {
+                    stop( sound );
+                }
+                break;
+            }
+            case Gst.MessageType.ERROR:
+            {
+                GLib.Error e;
+                string debug;
+                message.parse_error( out e, out debug );
+                FsoFramework.theLogger.warning( @"Gstreamer: Error $(e.message): $debug" );
+                break;
+            }
+            case Gst.MessageType.STATE_CHANGED:
+            {
+                Gst.State previous;
+                Gst.State current;
+                Gst.State pending;
+
+                message.parse_state_changed( out previous, out current, out pending );
+
+                //logger.debug( "G: STATE NOW: (%s) -> %s -> (%s)" % ( previous, current, pending ) )
+
+                if ( previous == Gst.State.READY && current == Gst.State.PAUSED && pending == Gst.State.PLAYING )
+                {
+                    // TODO: send signal
+                    if ( sound.length > 0 )
+                    {
+                        Timeout.add_seconds( sound.length, () => {
+                            stop( sound );
+                            return false;
+                        } );
+                    }
+                    // SEND SIGNAL
+                    // add timeout
+                }
+                else if ( previous == Gst.State.PLAYING && current == Gst.State.PAUSED && pending == Gst.State.READY )
+                {
+                    // TODO: send signal
+                    stop( sound );
+                }
+                else
+                {
+                    // uninteresting state change
+                }
+                break;
+            }
+            default:
+            {
+                FsoFramework.theLogger.warning( @"Gstreamer: Unhandled message w/ type $(message.type)" );
+                break;
+            }
+        }
+        return true;
+    }
+
+    private void stop( PlayingSound sound )
+    {
+        //TODO: send signal
+        var pipeline = sound.data as Gst.Pipeline;
+        pipeline.set_state( Gst.State.NULL );
+        sounds.remove( sound.name );
+    }
+
     //
     // AudioPlayer API
     //
@@ -81,7 +160,38 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
     {
         PlayingSound sound = sounds[name];
         if ( sound != null )
+        {
             throw new FreeSmartphone.Device.AudioError.ALREADY_PLAYING( "%s is already playing".printf( name ) );
+        }
+
+        var parts = name.split( "." );
+        if ( parts.length == 0 )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Could not guess media format; need an extension" );
+        }
+        var extension = parts[ parts.length - 1 ]; // darn, I miss negative array indices
+        var decoder = decoders[extension];
+        assert( decoder != null );
+
+        assert( this != null );
+
+        try
+        {
+            var pipeline = Gst.parse_launch( @"filesrc location=\"$name\" ! $decoder ! alsasink" );
+            sound = new PlayingSound( name, loop, length, (uint32)pipeline );
+
+            Gst.Bus bus = pipeline.get_bus();
+            bus.add_watch( ( bus, message ) => {
+                assert( this != null );
+                return onGstreamerMessage( bus, message, sound );
+            } );
+            pipeline.set_state( Gst.State.PLAYING );
+        }
+        catch ( GLib.Error e )
+        {
+            FsoFramework.theLogger.warning( @"Could not create/launch GStreamer pipeline: $(e.message)" );
+            return;
+        }
     }
 
     public override async void stop_all_sounds()
