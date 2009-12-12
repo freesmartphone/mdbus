@@ -28,26 +28,38 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
 {
     private const int FORCED_STOP = 42;
 
-    public void onChildWatchEvent( Pid pid, int status )
-    {
-        debug( "CHILD WATCH EVENT FOR %d: %d", (int)pid, status );
-        Process.close_pid( pid );
-        Posix.kill( (Posix.pid_t)pid, Posix.SIGTERM );
+    private Gee.HashMap<string,string> decoders;
 
-        foreach ( var name in sounds.keys )
+    construct
+    {
+        // check which decoders we support
+        decoders = new Gee.HashMap<string,string>();
+        trySetupDecoder( "mod", "modplug" );
+        trySetupDecoder( "mp3", "mad" );
+        trySetupDecoder( "sid", "siddec" );
+        trySetupDecoder( "wav", "wavparse" );
+        // ogg fixed point decoder, found on embedded systems
+        bool haveIt = trySetupDecoder( "ogg", "oggdemux ! ivorbisdec ! audioconvert" );
+        if ( !haveIt )
         {
-            if ( ( sounds[name].data == (uint32)pid ) && status != FORCED_STOP )
-            {
-                if ( sounds[name].loop > 0 )
-                {
-                    var nam = name.dup();
-                    var lop = sounds[name].loop;
-                    var len = sounds[name].length;
-                    Idle.add( () => { play_sound( nam, lop-1, len ); return false; } );
-                }
-                sounds.remove( name );
-                return;
-            }
+            // ogg w/ floating point vorbis decoder, found on desktop systems
+            trySetupDecoder( "ogg", "oggdemux ! vorbisdec ! audioconvert" );
+        }
+    }
+
+    private bool trySetupDecoder( string extension, string decoder )
+    {
+        // FIXME might even save the bin's already, not just the description
+        try
+        {
+            Gst.parse_bin_from_description( decoder, false );
+            decoders[extension] = decoder;
+            return true;
+        }
+        catch ( GLib.Error e )
+        {
+            FsoFramework.theLogger.warning( @"Gstreamer does not understand $decoder; not adding to map" );
+            return false;
         }
     }
 
@@ -56,7 +68,13 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
     //
     public override string[] supportedFormats()
     {
-        return {};
+        // work around Gee.Collection.to_array() not populating the length attribute of an array
+        string[] keys = {};
+        foreach ( var key in decoders.keys )
+        {
+            keys += key;
+        }
+        return keys;
     }
 
     public override async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error
@@ -64,29 +82,6 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
         PlayingSound sound = sounds[name];
         if ( sound != null )
             throw new FreeSmartphone.Device.AudioError.ALREADY_PLAYING( "%s is already playing".printf( name ) );
-
-        var params = new string[] { "aplay", name, null };
-        Pid pid;
-        var res = 0;
-        try
-        {
-            GLib.Process.spawn_async( GLib.Environment.get_variable( "PWD" ),
-                                      params,
-                                      null,
-                                      GLib.SpawnFlags.DO_NOT_REAP_CHILD | GLib.SpawnFlags.SEARCH_PATH,
-                                      null,
-                                      out pid );
-        }
-        catch ( SpawnError e )
-        {
-            warning( @"Can't spawn aplay: $(strerror(errno))" );
-            throw new FreeSmartphone.Device.AudioError.PLAYER_ERROR( "Can't play song %s: %s".printf( name, Alsa.strerror( res ) ) );
-        }
-
-        GLib.ChildWatch.add( pid, onChildWatchEvent );
-
-        sounds[name] = new PlayingSound( name, loop, length, (uint32)pid );
-        sounds[name].soundFinished.connect( (name) => { stop_sound( name ); } );
     }
 
     public override async void stop_all_sounds()
@@ -105,8 +100,6 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
         {
             return;
         }
-        sound.loop = 0;
-        onChildWatchEvent( (Pid)sound.data, FORCED_STOP );
     }
 }
 
@@ -118,7 +111,10 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    // instances will be created on demand by gstreamer_audio
+    string[] args = {};
+    // instances will be created on demand by alsa_audio
+    GLib.g_thread_init(); // from thread.vapi
+    Gst.init( ref args );
     return "fsodevice.player_gstreamer";
 }
 

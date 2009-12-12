@@ -2,7 +2,7 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
-	$(CANBERRA_CFLAGS) \
+	$(GSTREAMER_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(GLIB_CFLAGS) \
@@ -12,15 +12,19 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
 	$(top_srcdir)/src/lib/libfsodevice.la \
-	$(CANBERRA_LIBS) \
+	$(GSTREAMER_LIBS) \
 	$(FSO_LIBS) \
 	$(DBUS_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 
 VALAC_ARGS = \
+	--thread \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
+	--vapidir $(top_srcdir)/vapi \
+	--pkg thread \
+	--pkg gstreamer-0.10 \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
 	--pkg dbus-glib-1 \
