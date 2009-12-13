@@ -29,6 +29,7 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
     private const int FORCED_STOP = 42;
 
     private Gee.HashMap<string,string> decoders;
+    private Gee.HashMap<string,Gst.Pipeline> pipelines;
 
     construct
     {
@@ -45,11 +46,13 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
             // ogg w/ floating point vorbis decoder, found on desktop systems
             trySetupDecoder( "ogg", "oggdemux ! vorbisdec ! audioconvert" );
         }
+
+        pipelines = new Gee.HashMap<string,Gst.Pipeline>();
     }
 
     private bool trySetupDecoder( string extension, string decoder )
     {
-        // FIXME might even save the bin's already, not just the description
+        // FIXME might even save the elements already, not just the description
         try
         {
             Gst.parse_bin_from_description( decoder, false );
@@ -103,7 +106,6 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
 
                 if ( previous == Gst.State.READY && current == Gst.State.PAUSED && pending == Gst.State.PLAYING )
                 {
-                    // TODO: send signal
                     if ( sound.length > 0 )
                     {
                         Timeout.add_seconds( sound.length, () => {
@@ -111,12 +113,10 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
                             return false;
                         } );
                     }
-                    // SEND SIGNAL
-                    // add timeout
+                    // TODO: send signal
                 }
                 else if ( previous == Gst.State.PLAYING && current == Gst.State.PAUSED && pending == Gst.State.READY )
                 {
-                    // TODO: send signal
                     stop( sound );
                 }
                 else
@@ -140,6 +140,7 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
         var pipeline = sound.data as Gst.Pipeline;
         pipeline.set_state( Gst.State.NULL );
         sounds.remove( sound.name );
+        pipelines.remove( sound.name );
     }
 
     //
@@ -177,15 +178,17 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
 
         try
         {
-            var pipeline = Gst.parse_launch( @"filesrc location=\"$name\" ! $decoder ! alsasink" );
+            var pipeline = Gst.parse_launch( @"filesrc location=\"$name\" ! $decoder ! alsasink" ) as Gst.Pipeline;
             sound = new PlayingSound( name, loop, length, (uint32)pipeline );
 
             Gst.Bus bus = pipeline.get_bus();
-            bus.add_watch( ( bus, message ) => {
+            bus.add_watch_full( 0, ( bus, message ) => {
                 assert( this != null );
                 return onGstreamerMessage( bus, message, sound );
             } );
             pipeline.set_state( Gst.State.PLAYING );
+            pipelines[name] = pipeline;
+            sounds[name] = sound;
         }
         catch ( GLib.Error e )
         {
@@ -196,10 +199,12 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
 
     public override async void stop_all_sounds()
     {
-        foreach ( var name in sounds.keys )
+        foreach ( var sound in sounds.values )
         {
-            //message( "stopping sound '%s' (%0x)", name, Quark.from_string( name ) );
-            yield stop_sound( name );
+            Idle.add( () => {
+                stop( sound );
+                return false;
+            } );
         }
     }
 
@@ -210,6 +215,7 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
         {
             return;
         }
+        stop( sound );
     }
 }
 
