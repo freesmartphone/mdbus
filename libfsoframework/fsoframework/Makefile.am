@@ -25,6 +25,7 @@ libfsoframework_la_VALASOURCES = \
 	interfaces.vala \
 	kobjectnotifier.vala \
 	object.vala \
+	overlay.vala \
 	plugin.vala \
 	process.vala \
 	subsystem.vala \
