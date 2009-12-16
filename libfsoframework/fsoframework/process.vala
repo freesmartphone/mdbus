@@ -24,10 +24,12 @@ public interface FsoFramework.IProcessGuard : GLib.Object
 {
     public abstract bool launch( string[] command );
     public abstract void stop( int sig = Posix.SIGTERM );
+
+    public abstract bool sendSignal( int sig );
     public abstract bool isRunning();
 
-    public signal void running(  );
-    public signal void stopped(  );
+    public signal void running();
+    public signal void stopped();
 }
 
 /**
@@ -78,18 +80,20 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         return true;
     }
 
-    public void stopSendSignal( bool send )
-    {
-        _stop( Posix.SIGKILL );
-        if ( send )
-        {
-            this.stopped();
-        }
-    }
-
     public void stop( int sig = Posix.SIGTERM )
     {
         stopSendSignal( true );
+    }
+
+    public bool sendSignal( int sig )
+    {
+        if ( pid == (Pid)0 )
+        {
+            return false;
+        }
+
+        var res = Posix.kill( (Posix.pid_t)pid, sig );
+        return res == 0;
     }
 
     public bool isRunning()
@@ -100,7 +104,16 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
     //
     // private API
     //
-    public void onChildWatchEvent( Pid pid, int status )
+    private void stopSendSignal( bool send )
+    {
+        _stop( Posix.SIGKILL );
+        if ( send )
+        {
+            this.stopped();
+        }
+    }
+
+    private void onChildWatchEvent( Pid pid, int status )
     {
         if ( this.pid != pid )
         {
@@ -113,7 +126,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         stopSendSignal( true );
     }
 
-    public void _stop( int sig )
+    private void _stop( int sig )
     {
 #if DEBUG
         debug( "stopping pid %d", (int)pid );
@@ -129,5 +142,5 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
             GLib.Source.remove( watch );
         }
         pid = (Pid)0;
-    }    
+    }
 }
