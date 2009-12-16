@@ -1,8 +1,8 @@
-/*
+/**
  * plugin.vala
- * 
- * Written by Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
- * All Rights Reserved
+ *
+ * Written by Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com> and
+ *            Michael 'Mickey' Lauer <mickey@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,15 +18,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- */
-
+ **/
 
 using GLib;
 
 namespace Sharing
 {
     public const string MODULE_NAME = "fsonetwork.sharing";
-    
+
     private const string UDHCPD_TEMPLATE = """# freesmartphone.org /etc/udhcpd.conf
 start           192.168.0.20  # lease range
 end             192.168.0.199 # lease range
@@ -37,7 +36,6 @@ opt     router  %s            # address of interface
 option  lease   864000        # 10 days of seconds""";
 
 }
-
 
 public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractObject
 {
@@ -51,7 +49,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
     {
         this.subsystem = subsystem;
         this.subsystem.registerServiceName( FsoFramework.Network.ServiceDBusName );
-        this.subsystem.registerServiceObject( FsoFramework.Network.ServiceDBusName, 
+        this.subsystem.registerServiceObject( FsoFramework.Network.ServiceDBusName,
                                               FsoFramework.Network.ServicePathPrefix, this );
     }
 
@@ -94,17 +92,21 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
     //
     public async void start_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBus.Error
     {
-        if ( !(FsoFramework.FileHandling.isPresent( Path.build_filename( sys_class_net, iface ) ) ) )
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Interface %s not present".printf( iface ) );
+        if ( ! (FsoFramework.FileHandling.isPresent( Path.build_filename( sys_class_net, iface ) ) ) )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Interface $iface not present" );
+        }
 
-        string ip = FsoNetwork.ipv4AddressForInterface( iface );
-        if (ip == "")
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Interface %s not ready".printf( iface ) );
+        var ip = FsoNetwork.ipv4AddressForInterface( iface );
+        if ( ip == "unknown" )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Interface $iface not configured" );
+        }
 
         string[] commands = {
-            "iptables -I INPUT 1 -s 192.168.0.0/24 -j ACCEPT",
-            "iptables -I OUTPUT 1 -s %s -j ACCEPT".printf( ip ),
-            "iptables -A POSTROUTING -t nat -j MASQUERADE -s 192.168.0.0/24"
+            "iptables -I INPUT  1           -s 192.168.0.0/24 -j ACCEPT",
+            "iptables -I OUTPUT 1           -s %s             -j ACCEPT".printf( ip ),
+            "iptables -A POSTROUTING -t nat -s 192.168.0.0/24 -j MASQUERADE"
         };
 
         try
@@ -112,7 +114,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
             foreach( string command in commands )
             {
                 Process.spawn_command_line_async( command );
-                logger.debug( "executing %s".printf( command ) );
+                assert( logger.debug( @"executing $command" ) );
             }
             FsoFramework.FileHandling.write( "1", IP_FORWARD );
 
@@ -131,7 +133,42 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
 
     public async void stop_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBus.Error
     {
-    	throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        if ( ! (FsoFramework.FileHandling.isPresent( Path.build_filename( sys_class_net, iface ) ) ) )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Interface $iface not present" );
+        }
+
+        var ip = FsoNetwork.ipv4AddressForInterface( iface );
+        if ( ip == "unknown" )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Interface $iface not configured" );
+        }
+
+        string[] commands = {
+            "iptables -D INPUT                             -s 192.168.0.0/24 -j ACCEPT",
+            "iptables -D OUTPUT                            -s %s             -j ACCEPT".printf( ip ),
+            "iptables -D POSTROUTING -t nat                -s 192.168.0.0/24 -j MASQUERADE"
+        };
+
+        try
+        {
+            foreach( string command in commands )
+            {
+                Process.spawn_command_line_async( command );
+                assert( logger.debug( @"executing $command" ) );
+            }
+            FsoFramework.FileHandling.write( "1", IP_FORWARD );
+
+            string nameservers = get_nameservers();
+            FsoFramework.FileHandling.write( UDHCPD_TEMPLATE.printf( iface, nameservers, ip ), ETC_UDHCPD_CONF );
+
+            /* Stop udhcpd */
+            Process.spawn_command_line_async( "killall udhcpd" );
+        }
+        catch ( GLib.SpawnError e )
+        {
+            logger.warning( e.message );
+        }
     }
 }
 
