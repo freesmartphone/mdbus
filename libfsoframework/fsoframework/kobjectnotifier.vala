@@ -22,10 +22,10 @@ using GLib;
 public delegate void FsoFramework.KObjectNotifierFunc( HashTable<string, string> properties );
 
 [Compact]
-internal class DelegateHolder
+internal class KObjectDelegateHolder
 {
     public FsoFramework.KObjectNotifierFunc func;
-    public DelegateHolder( FsoFramework.KObjectNotifierFunc func )
+    public KObjectDelegateHolder( FsoFramework.KObjectNotifierFunc func )
     {
         this.func = func;
     }
@@ -46,17 +46,17 @@ public class FsoFramework.BaseKObjectNotifier : Object
 
     private const ssize_t BUFFER_LENGTH = 4096;
 
-    private HashTable<string, List<DelegateHolder>> add;
-    private HashTable<string, List<DelegateHolder>> change;
-    private HashTable<string, List<DelegateHolder>> remove;
+    private HashTable<string, List<KObjectDelegateHolder>> add;
+    private HashTable<string, List<KObjectDelegateHolder>> change;
+    private HashTable<string, List<KObjectDelegateHolder>> remove;
 
     public BaseKObjectNotifier()
     {
         buffer = new char[BUFFER_LENGTH];
 
-        add = new HashTable<string, List<DelegateHolder>>( str_hash, str_equal );
-        change = new HashTable<string, List<DelegateHolder>>( str_hash, str_equal );
-        remove = new HashTable<string, List<DelegateHolder>>( str_hash, str_equal );
+        add = new HashTable<string, List<KObjectDelegateHolder>>( str_hash, str_equal );
+        change = new HashTable<string, List<KObjectDelegateHolder>>( str_hash, str_equal );
+        remove = new HashTable<string, List<KObjectDelegateHolder>>( str_hash, str_equal );
 
         fd = Posix.socket( Linux.Netlink.AF_NETLINK, Posix.SOCK_DGRAM, Linux.Netlink.NETLINK_KOBJECT_UEVENT );
         assert( fd != -1 );
@@ -128,7 +128,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
         debug( @"Dealing with action $action for subsystem $subsystem" );
 #endif
 
-        HashTable<string, List<DelegateHolder>> table = null;
+        HashTable<string, List<KObjectDelegateHolder>> table = null;
 
         switch( action )
         {
@@ -146,7 +146,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 break;
         }
 
-        weak List<weak DelegateHolder> list = table.lookup( subsystem );
+        weak List<weak KObjectDelegateHolder> list = table.lookup( subsystem );
         if ( list == null )
             return;
 
@@ -156,7 +156,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
 
     protected void _addMatch( string action, string subsystem, KObjectNotifierFunc callback )
     {
-        HashTable<string, List<DelegateHolder>> table = null;
+        HashTable<string, List<KObjectDelegateHolder>> table = null;
 
         switch( action )
         {
@@ -174,11 +174,11 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 break;
         }
 
-        weak List<DelegateHolder> list = table.lookup( subsystem );
+        weak List<KObjectDelegateHolder> list = table.lookup( subsystem );
         if ( list == null )
         {
-            List<DelegateHolder> newlist = new List<DelegateHolder>();
-            newlist.append( new DelegateHolder( callback ) );
+            List<KObjectDelegateHolder> newlist = new List<KObjectDelegateHolder>();
+            newlist.append( new KObjectDelegateHolder( callback ) );
 #if DEBUG
             debug( @"# delegates for action $action and subsystem $subsystem now $(newlist.length())" );
 #endif
@@ -186,7 +186,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
         }
         else
         {
-            list.append( new DelegateHolder( callback ) );
+            list.append( new KObjectDelegateHolder( callback ) );
 #if DEBUG
             debug( @"# delegates for action $action and subsystem $subsystem now $(list.length())" );
 #endif
