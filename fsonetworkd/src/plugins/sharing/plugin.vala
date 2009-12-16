@@ -89,7 +89,6 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         return nameservers;
     }
 
-
     //
     // FreeSmartphone.Network (DBUS API)
     //
@@ -130,6 +129,10 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         }
     }
 
+    public async void stop_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBus.Error
+    {
+    	throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
 }
 
 static string sys_class_net;
