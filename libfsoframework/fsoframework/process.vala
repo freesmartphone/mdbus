@@ -24,9 +24,11 @@ public interface FsoFramework.IProcessGuard : GLib.Object
 {
     public abstract bool launch( string[] command );
     public abstract void stop( int sig = Posix.SIGTERM );
+    public abstract void setAutoRelaunch( bool on );
 
     public abstract bool sendSignal( int sig );
     public abstract bool isRunning();
+
 
     public signal void running();
     public signal void stopped();
@@ -39,6 +41,8 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
 {
     private Pid pid;
     private uint watch;
+    private string[] command;
+    private bool relaunch;
 
     ~GProcessGuard()
     {
@@ -47,12 +51,15 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
 #if DEBUG
             debug( "Implicit kill of pid %d due to guard being freed", (int)pid );
 #endif
+            relaunch = false;
             stopSendSignal( false );
         }
     }
 
     public bool launch( string[] command )
     {
+        this.command = command; // save for possible relaunching
+
         if ( pid != (Pid)0 )
         {
             warning( @"Can't launch $(command[0]); already running as pid %d".printf( (int)pid ) );
@@ -83,6 +90,11 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
     public void stop( int sig = Posix.SIGTERM )
     {
         stopSendSignal( true );
+    }
+
+    public void setAutoRelaunch( bool on )
+    {
+        relaunch = on;
     }
 
     public bool sendSignal( int sig )
@@ -124,6 +136,18 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         debug( "CHILD WATCH EVENT FOR %d: %d", (int)pid, status );
 #endif
         stopSendSignal( true );
+
+        if ( relaunch )
+        {
+#if DEBUG
+            debug( "Relanching requested..." );
+#endif
+            if ( ! launch( command ) )
+            {
+                warning( @"Could not relaunch $(command[0]); disabling." );
+                relaunch = false;
+            }
+        }
     }
 
     private void _stop( int sig )
