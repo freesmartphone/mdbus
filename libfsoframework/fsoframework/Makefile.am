@@ -26,7 +26,9 @@ libfsoframework_la_VALASOURCES = \
 	kobjectnotifier.vala \
 	object.vala \
 	plugin.vala \
+	process.vala \
 	subsystem.vala \
+	syncasync.vala \
 	$(NULL)
 
 libfsoframework_la_SOURCES = \

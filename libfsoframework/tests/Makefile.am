@@ -189,6 +189,19 @@ $(testsoundsystem_SOURCES): $(testsoundsystem_VALASOURCES)
 testsoundsystem_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testsoundsystem_VALASOURCES)
 
+#
+# process test
+#
+TEST_PROGS += testprocess
+testprocess_VALASOURCES = testprocess.vala
+testprocess_SOURCES = testprocess.c
+$(testprocess_SOURCES): $(testprocess_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testprocess_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testprocess_VALASOURCES)
+
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \

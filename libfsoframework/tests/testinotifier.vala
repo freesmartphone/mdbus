@@ -32,7 +32,7 @@ public void myCallback( Linux.InotifyMaskFlags flags, uint32 cookie, string? nam
 void test_inotifier_add()
 //===========================================================================
 {
-    INotifier.add( "/tmp/foo", Linux.InotifyMaskFlags.CREATE, myCallback );
+    INotifier.add( "/tmp/foo", Linux.InotifyMaskFlags.MODIFY, myCallback );
     loop = new MainLoop();
     loop.run();
 }
