@@ -201,6 +201,17 @@ $(testprocess_SOURCES): $(testprocess_VALASOURCES)
 testprocess_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testprocess_VALASOURCES)
 
+#
+# overlay test
+#
+TEST_PROGS += testoverlay
+testoverlay_VALASOURCES = testoverlay.vala
+testoverlay_SOURCES = testoverlay.c
+$(testoverlay_SOURCES): $(testoverlay_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testoverlay_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testoverlay_VALASOURCES)
 
 CLEANFILES = \
     $(TEST_PROGS) \
