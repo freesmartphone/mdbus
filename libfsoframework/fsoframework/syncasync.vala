@@ -45,29 +45,45 @@ public class FsoFramework.WaitForPredicate : GLib.Object
 {
     private GLib.SourceFunc func;
     private GLib.MainLoop   loop;
-    private uint secs;
-    public  bool timeout;
+    private int secs;
+    private  bool timeout;
+
+    public static bool Wait( uint secs, owned GLib.SourceFunc func )
+    {
+        var w = new WaitForPredicate( secs, func );
+#if DEBUG
+        debug( "ended with timeout %d", (int)w.timeout );
+#endif
+        return w.timeout;
+    }
 
     public WaitForPredicate( uint secs, owned GLib.SourceFunc func )
     {
-        this.secs = secs;
+        this.secs = (int)secs;
         this.func = func;
         loop = new MainLoop();
-        Idle.add( onIdle );
+        Timeout.add_seconds( 1, onTimeout );
         loop.run();
     }
 
-    protected bool onIdle()
+    protected bool onTimeout()
     {
-        var now = time_t();
-        var then = now + (time_t) secs;
-
-        while ( time_t() < then && func() )
+#if DEBUG
+        debug( "onTimeout: secs = %d", secs );
+#endif
+        if ( secs-- == 0 )
         {
-            loop.get_context().iteration( false );
+            timeout = true;
+            loop.quit();
+            return false;
         }
+
         timeout = func();
-        loop.quit();
-        return false;
+        if ( !timeout )
+        {
+            loop.quit();
+            return false;
+        }
+        return true;
     }
 }

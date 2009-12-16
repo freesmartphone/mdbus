@@ -23,10 +23,11 @@
 public interface FsoFramework.IProcessGuard : GLib.Object
 {
     public abstract bool launch( string[] command );
-    public abstract void kill( int sig = Posix.SIGTERM );
+    public abstract void stop( int sig = Posix.SIGTERM );
+    public abstract bool isRunning();
 
-    public signal void running( FsoFramework.IProcessGuard self );
-    public signal void stopped( FsoFramework.IProcessGuard self );
+    public signal void running(  );
+    public signal void stopped(  );
 }
 
 /**
@@ -36,6 +37,17 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
 {
     private Pid pid;
     private uint watch;
+
+    ~GProcessGuard()
+    {
+        if ( pid != (Pid)0 )
+        {
+#if DEBUG
+            debug( "Implicit kill of pid %d due to guard being freed", (int)pid );
+#endif
+            stopSendSignal( false );
+        }
+    }
 
     public bool launch( string[] command )
     {
@@ -62,18 +74,27 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         }
 
         watch = GLib.ChildWatch.add( pid, onChildWatchEvent );
-        this.running( this ); // SIGNAL
+        this.running(); // SIGNAL
         return true;
     }
 
-    public void kill( int sig = Posix.SIGTERM )
+    public void stopSendSignal( bool send )
     {
-        GLib.Process.close_pid( pid );
-        Posix.kill( (Posix.pid_t)pid, sig );
-        if ( watch > 0 )
+        _stop( Posix.SIGKILL );
+        if ( send )
         {
-            GLib.Source.remove( watch );
+            this.stopped();
         }
+    }
+
+    public void stop( int sig = Posix.SIGTERM )
+    {
+        stopSendSignal( true );
+    }
+
+    public bool isRunning()
+    {
+        return ( pid != (Pid)0 );
     }
 
     //
@@ -81,10 +102,32 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
     //
     public void onChildWatchEvent( Pid pid, int status )
     {
+        if ( this.pid != pid )
+        {
+            critical( "D'OH!" );
+            return;
+        }
 #if DEBUG
         debug( "CHILD WATCH EVENT FOR %d: %d", (int)pid, status );
 #endif
-        assert( this.pid == pid );
-        this.stopped( this ); // SIGNAL
+        stopSendSignal( true );
     }
+
+    public void _stop( int sig )
+    {
+#if DEBUG
+        debug( "stopping pid %d", (int)pid );
+#endif
+        if ( pid == (Pid)0 )
+        {
+            return;
+        }
+        GLib.Process.close_pid( pid );
+        Posix.kill( (Posix.pid_t)pid, sig );
+        if ( watch > 0 )
+        {
+            GLib.Source.remove( watch );
+        }
+        pid = (Pid)0;
+    }    
 }
