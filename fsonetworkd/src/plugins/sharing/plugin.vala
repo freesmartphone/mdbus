@@ -1,5 +1,6 @@
 /*
  * plugin.vala
+ * 
  * Written by Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
  * All Rights Reserved
  *
@@ -24,8 +25,21 @@ using GLib;
 
 namespace Sharing
 {
+    public const string MODULE_NAME = "fsonetwork.sharing";
+    
+    private const string UDHCPD_TEMPLATE = """# freesmartphone.org /etc/udhcpd.conf
+start           192.168.0.20  # lease range
+end             192.168.0.199 # lease range
+interface       %s            # listen on interface
+option dns      %s            # grab from resolv.conf
+option  subnet  255.255.255.0
+opt     router  %s            # address of interface
+option  lease   864000        # 10 days of seconds""";
 
-public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractObject
+}
+
+
+public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
 
@@ -118,18 +132,6 @@ public class ConnectionSharing : FreeSmartphone.Network, FsoFramework.AbstractOb
 
 }
 
-private const string UDHCPD_TEMPLATE = """# freesmartphone.org /etc/udhcpd.conf
-start           192.168.0.20  # lease range
-end             192.168.0.199 # lease range
-interface       %s            # listen on interface
-option dns      %s            # grab from resolv.conf
-option  subnet  255.255.255.0
-opt     router  %s            # address of interface
-option  lease   864000        # 10 days of seconds""";
-
-} /* end namespace */
-
-
 static string sys_class_net;
 Sharing.ConnectionSharing instance;
 
@@ -141,7 +143,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     sys_class_net = "%s/class/net".printf( sysfs_root );
     // create instance
     instance = new Sharing.ConnectionSharing( subsystem );
-    return "fsonetwork.sharing";
+    return Sharing.MODULE_NAME;
 }
 
 
