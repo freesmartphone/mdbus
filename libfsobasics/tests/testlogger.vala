@@ -130,10 +130,10 @@ void test_logger_create_from_keyfilename()
 //===========================================================================
 {
     FsoFramework.Logger logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "nologger", TEST_LOG_DOMAIN );
-    assert( Type.from_instance( logger ) == typeof( NullLogger ) );
+    assert( Type.from_instance( logger ) == typeof( StdErrLogger ) ); // auto fall back to StdErr
 
     logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "stderr", TEST_LOG_DOMAIN );
-    assert( Type.from_instance( logger ) == typeof( FileLogger ) );
+    assert( Type.from_instance( logger ) == typeof( StdErrLogger ) );
     assert( logger.getLevel() == LogLevelFlags.LEVEL_DEBUG );
 
     logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "syslog", TEST_LOG_DOMAIN );
@@ -154,10 +154,10 @@ void test_logger_create_from_keyfile()
     smk.loadFromFile( TEST_LOG_KEYFILE );
 
     FsoFramework.Logger logger = Logger.createFromKeyFile( smk, "nologger", TEST_LOG_DOMAIN );
-    assert( Type.from_instance( logger ) == typeof( NullLogger ) );
+    assert( Type.from_instance( logger ) == typeof( StdErrLogger ) );
 
     logger = Logger.createFromKeyFile( smk, "stderr", TEST_LOG_DOMAIN );
-    assert( Type.from_instance( logger ) == typeof( FileLogger ) );
+    assert( Type.from_instance( logger ) == typeof( StdErrLogger ) );
     assert( logger.getLevel() == LogLevelFlags.LEVEL_DEBUG );
 
     logger = Logger.createFromKeyFile( smk, "syslog", TEST_LOG_DOMAIN );

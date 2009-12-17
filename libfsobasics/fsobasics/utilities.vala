@@ -295,6 +295,19 @@ namespace FsoFramework { namespace Utility {
         result += "--- END BACKTRACE ---\n";
         return result;
     }
+
+    public string? firstAvailableProgram( string[] candidates )
+    {
+        for ( int i = 0; i < candidates.length; ++i )
+        {
+            var pte = Environment.find_program_in_path( candidates[i] );
+            if ( pte != null )
+            {
+                return pte;
+            }
+        }
+        return null;
+    }
 } }
 
 namespace FsoFramework { namespace Async {

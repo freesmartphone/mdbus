@@ -48,7 +48,9 @@ public class FsoFramework.SmartKeyFile : Object
                 return smk;
             }
         }
-        GLib.warning( @"Could not find configuration file for $filename anywhere, returning empty keyfile" );
+#if DEBUG
+        GLib.debug( @"Could not find configuration file for $filename anywhere, returning empty keyfile" );
+#endif
         return smk;
     }
 
@@ -70,7 +72,7 @@ public class FsoFramework.SmartKeyFile : Object
         catch ( Error e )
         {
 #if DEBUG
-            GLib.debug( "can't load keyfile from '%s': %s".printf( filename, e.message ) );
+            GLib.debug( @"Can't load keyfile from $filename: $(e.message)" );
 #endif
             return false;
         }

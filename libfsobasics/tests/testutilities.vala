@@ -90,6 +90,14 @@ void test_utilities_utility_prefix_for_executable()
 }
 
 //===========================================================================
+void test_utilities_utility_first_available_program()
+//===========================================================================
+{
+    assert( Utility.firstAvailableProgram( { "foo", "bar", "yo", "kurt" } ) == null );
+    assert( Utility.firstAvailableProgram( { "bash", "dash", "ash" } ) == "/bin/bash" );
+}
+
+//===========================================================================
 void test_utilities_utility_create_backtrace()
 //===========================================================================
 {
@@ -111,6 +119,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/StringHandling/Enum", test_utilities_stringhandling_enum );
     Test.add_func( "/Utilities/Utility/programName", test_utilities_utility_program_name );
     Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );
+    Test.add_func( "/Utilities/Utility/firstAvailableProgram", test_utilities_utility_first_available_program );
     Test.add_func( "/Utilities/Utility/createBacktrace", test_utilities_utility_create_backtrace );
 
     Test.run();

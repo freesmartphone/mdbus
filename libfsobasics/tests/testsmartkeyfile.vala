@@ -71,14 +71,14 @@ void test_smartkeyfile_values_generics()
 //===========================================================================
 {
 
-    /* enable when generics support works
-
     var smk = new SmartKeyFile();
     var ok = smk.loadFromFile( TEST_FILE_NAME );
     assert( ok );
 
+    /* enable when generics work again
     var stringvar = smk.getValue<string>( "section1", "keypresent", "defaultvalue" );
     assert ( stringvar == "present" );
+    */
 
     var stringvar2 = smk.stringValue( "section1", "notpresent", "defaultvalue" );
     assert ( stringvar2 == "defaultvalue" );
@@ -110,9 +110,6 @@ void test_smartkeyfile_values_generics()
 
     var stringlistvar3 = smk.stringListValue( "section4", "stillNotPresent" );
     assert ( stringlistvar3 == null );
-
-    */
-
 }
 
 //===========================================================================
