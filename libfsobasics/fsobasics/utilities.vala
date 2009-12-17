@@ -351,22 +351,22 @@ namespace FsoFramework { namespace Async {
      **/
     public class ReactorChannel
     {
-        public delegate void DataReadyFunc( void* data, ssize_t length );
+        public delegate void ActionFunc( void* data, ssize_t length );
 
         private int fd;
         private uint watch;
         private GLib.IOChannel channel;
-        private DataReadyFunc datareadyfunc;
+        private ActionFunc actionfunc;
         private char[] buffer;
         private size_t bufferlength;
 
-        public ReactorChannel( int fd, GLib.IOCondition condition, size_t bufferlength, owned DataReadyFunc datareadyfunc )
+        public ReactorChannel( int fd, GLib.IOCondition condition, size_t bufferlength, owned ActionFunc actionfunc )
         {
             assert( fd > -1 );
             channel = new GLib.IOChannel.unix_new( fd );
             watch = channel.add_watch( condition, onActionFromChannel );
             this.fd = fd;
-            this.datareadyfunc = datareadyfunc;
+            this.actionfunc = actionfunc;
             buffer = new char[ bufferlength ];
         }
 
@@ -384,8 +384,10 @@ namespace FsoFramework { namespace Async {
         {
             if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
             {
-                error( "HUP on source, will no longer get any notifications" );
-                return false;
+                // On exceptional condition, the delegate is being called with (null, 0) to do
+                // whatever necessary to bring us back on track.
+                actionfunc( null, 0 );
+                return true;
             }
 
             if ( ( condition & IOCondition.IN ) == IOCondition.IN )
@@ -393,11 +395,11 @@ namespace FsoFramework { namespace Async {
                 assert( fd != -1 );
                 assert( buffer != null );
                 ssize_t bytesread = Posix.read( fd, buffer, buffer.length );
-                datareadyfunc( buffer, bytesread );
+                actionfunc( buffer, bytesread );
                 return true;
             }
 
-            critical( "Unsupported IOCondition %u", (int)condition );
+            error( "Unsupported IOCondition %u", (int)condition );
             return true;
         }
     }
