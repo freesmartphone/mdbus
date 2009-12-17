@@ -22,6 +22,13 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg fsobasics-2.0
+	
+EXTRA_DIST += \
+	.testlogger.ini \
+	testsmartkeyfile.ini \
+	frameworkd.conf \
+	textfile.txt \
+	$(NULL)
 
 #
 # smartkeyfile test
