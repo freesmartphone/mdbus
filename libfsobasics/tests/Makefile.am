@@ -19,16 +19,29 @@ VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsobasics \
 	--pkg posix \
+	--pkg linux \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg fsobasics-2.0
-	
+
 EXTRA_DIST += \
 	.testlogger.ini \
 	testsmartkeyfile.ini \
 	frameworkd.conf \
 	textfile.txt \
 	$(NULL)
+
+#
+# async test
+#
+TEST_PROGS += testasync
+testasync_VALASOURCES = testasync.vala
+testasync_SOURCES = testasync.c
+$(testasync_SOURCES): $(testasync_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testasync_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testasync_VALASOURCES)
 
 #
 # smartkeyfile test

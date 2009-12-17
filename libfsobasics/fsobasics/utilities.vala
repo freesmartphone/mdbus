@@ -312,6 +312,9 @@ namespace FsoFramework { namespace Utility {
 
 namespace FsoFramework { namespace Async {
 
+    /**
+     * @class EventFd
+     **/
     [Compact]
     public class EventFd
     {
@@ -343,45 +346,59 @@ namespace FsoFramework { namespace Async {
         }
     }
 
-    /*
-    [Compact]
-    class IOChannel
+    /**
+     * @class ReactorChannel
+     **/
+    public class ReactorChannel
     {
-        public int fd;
-        public uint watch;
-        public GLib.IOChannel channel;
-        public GLib.IOCondition condition;
-        public GLib.SourceFunc callback;
+        public delegate void DataReadyFunc( void* data, ssize_t length );
 
-        public IOChannel( int fd, GLib.IOCondition condition, GLib.SourceFunc callback )
+        private int fd;
+        private uint watch;
+        private GLib.IOChannel channel;
+        private DataReadyFunc datareadyfunc;
+        private char[] buffer;
+        private size_t bufferlength;
+
+        public ReactorChannel( int fd, GLib.IOCondition condition, size_t bufferlength, owned DataReadyFunc datareadyfunc )
         {
-            if ( ( condition & GLib.IOCondition.IN ) == GLib.IOCondition.IN )
-            {
-                fd = Posix.open( fd, Posix.O_RDWR );
-            }
-            else
-            {
-                fd = Posix.open( fd, Posix.O_RDONLY );
-            }
-
-            _registerWatch();
+            assert( fd > -1 );
+            channel = new GLib.IOChannel.unix_new( fd );
+            watch = channel.add_watch( condition, onActionFromChannel );
+            this.fd = fd;
+            this.datareadyfunc = datareadyfunc;
+            buffer = new char[ bufferlength ];
         }
 
-        ~IOChannel()
+        //
+        // private API
+        //
+        ~ReactorChannel()
         {
+            channel = null;
             GLib.Source.remove( watch );
             Posix.close( fd );
         }
 
-        public void _registerWatch()
+        private bool onActionFromChannel( GLib.IOChannel source, GLib.IOCondition condition )
         {
-            if ( fd != -1 )
+            if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
             {
-                channel = GLib.IOChannel.unix_new( fd );
-                channel.add_watch( fd, condition, callback );
+                error( "HUP on source, will no longer get any notifications" );
+                return false;
             }
+
+            if ( ( condition & IOCondition.IN ) == IOCondition.IN )
+            {
+                assert( fd != -1 );
+                assert( buffer != null );
+                ssize_t bytesread = Posix.read( fd, buffer, buffer.length );
+                datareadyfunc( buffer, bytesread );
+                return true;
+            }
+
+            critical( "Unsupported IOCondition %u", (int)condition );
+            return true;
         }
     }
-    */
-
 } }
