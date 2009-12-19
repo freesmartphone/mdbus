@@ -50,8 +50,8 @@ public struct FsoFramework.TransportSpec
         if ( transport != null )
         {
             warning( "Transport already created" );
+            return;
         }
-        return;
 
         switch ( type )
         {
