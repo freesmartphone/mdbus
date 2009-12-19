@@ -1,4 +1,4 @@
-AC_INIT([fsodeviced], [0.1.0.0], [smartphones-userland@linuxtogo.org], [fsodeviced])
+AC_INIT([fsodeviced], [0.9.0], [smartphones-userland@linuxtogo.org], [fsodeviced])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -19,7 +19,7 @@ AC_SUBST(LDFLAGS)
 
 ##############################################################################
 # required versions
-VALA_REQUIRED=0.7.8.2
+VALA_REQUIRED=0.7.9
 GLIB_REQUIRED=2.18.0
 GEE_REQUIRED=0.5.0
 DBUS_REQUIRED=1.2.1
