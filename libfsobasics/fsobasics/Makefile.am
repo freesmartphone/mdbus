@@ -16,6 +16,7 @@ libfsobasics_la_VALASOURCES = \
 	libinitexit.vala \
 	logger.vala \
 	smartkeyfile.vala \
+	threading.vala \
 	types.vala \
 	utilities.vala \
 	$(NULL)
@@ -30,7 +31,10 @@ fsobasicsincludedir = $(includedir)/fsoframework-2.0
 fsobasicsinclude_HEADERS = fsobasics.h
 
 fsobasics-2.0.vapi fsobasics.vala.stamp: $(libfsobasics_la_VALASOURCES)
-	$(VALAC) -C --basedir $(top_srcdir) \
+	$(VALAC) -C --thread \
+	            --basedir $(top_srcdir) \
+	            --vapidir $(top_srcdir)/vapi \
+	            --pkg morelinux \
 	            --pkg posix \
 	            --pkg linux \
 	            --pkg glib-2.0 \

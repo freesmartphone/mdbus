@@ -16,8 +16,11 @@ progs_ldadd = \
 
 VALAC_ARGS = \
 	-C \
+	--thread \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsobasics \
+	--vapidir $(top_srcdir)/vapi \
+	--pkg morelinux \
 	--pkg posix \
 	--pkg linux \
 	--pkg glib-2.0 \
@@ -78,6 +81,18 @@ $(testutilities_SOURCES): $(testutilities_VALASOURCES)
 	touch $@
 testutilities_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testutilities_VALASOURCES)
+
+#
+# threading test
+#
+TEST_PROGS += testthreading
+testthreading_VALASOURCES = testthreading.vala
+testthreading_SOURCES = testthreading.c
+$(testthreading_SOURCES): $(testthreading_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testthreading_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testthreading_VALASOURCES)
 
 #
 #
