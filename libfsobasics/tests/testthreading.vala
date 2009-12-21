@@ -22,27 +22,47 @@ using FsoFramework;
 
 MainLoop loop;
 
-public static void* thread_func()
+public static void* thread_func_async()
 {
     debug( "thread running..." );
     assert( ! Threading.isMainThread() );
     Thread.usleep( 10 );
-    Threading.callDelegateOnMainThread<VoidFunc>( someDelegate, false );
+    Threading.callDelegateOnMainThread( someDelegate );
     return null;
 }
 
-public void someDelegate()
+public static void* thread_func_sync()
 {
-    debug( "delegate called!" );
-    loop.quit();
+    debug( "thread running..." );
+    assert( ! Threading.isMainThread() );
+    Thread.usleep( 10 );
+    Threading.callDelegateOnMainThread( someDelegate, true );
+    return null;
+}
+
+public void someDelegate( void* data )
+{
+    debug( "delegate ENTER launching quit in 2 seconds" );
+    Timeout.add_seconds( 2, () => { loop.quit(); return false; } );
+    Thread.usleep( 500 );
+    debug( "delegate LEAVE" );
 }
 
 //===========================================================================
-void test_threading_call_delegate_on_main_thread()
+void test_threading_call_delegate_on_main_thread_async()
 //===========================================================================
 {  
-    loop = new MainLoop();    
-    Thread.create( thread_func, false);
+    loop = new MainLoop();
+    Thread.create( thread_func_async, false);
+    loop.run();
+}
+
+//===========================================================================
+void test_threading_call_delegate_on_main_thread_sync()
+//===========================================================================
+{
+    loop = new MainLoop();
+    Thread.create( thread_func_sync, false);
     loop.run();
 }
 
@@ -52,7 +72,8 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/Threading/callDelegateOnMainThread", test_threading_call_delegate_on_main_thread );
+    Test.add_func( "/Threading/callDelegateOnMainThread/ASync", test_threading_call_delegate_on_main_thread_async );
+    Test.add_func( "/Threading/callDelegateOnMainThread/Sync", test_threading_call_delegate_on_main_thread_sync );
 
     Test.run();
 }
