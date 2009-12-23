@@ -21,6 +21,7 @@ using GLib;
 using FsoFramework;
 
 MainLoop loop;
+int counter;
 
 public static void* thread_func_async()
 {
@@ -48,6 +49,13 @@ public void someDelegate( void* data )
     debug( "delegate LEAVE" );
 }
 
+public void anotherDelegate( void* data )
+{
+    debug( "delegate ENTER %p", data );
+    Thread.usleep( 1000 * 1000  );
+    debug( "delegate LEAVE %p", data );
+}
+
 //===========================================================================
 void test_threading_call_delegate_on_main_thread_async()
 //===========================================================================
@@ -67,6 +75,21 @@ void test_threading_call_delegate_on_main_thread_sync()
 }
 
 //===========================================================================
+void test_threading_call_delegate_on_new_thread()
+//===========================================================================
+{
+    loop = new MainLoop();
+    for ( int i = 0; i < 20; ++i )
+    {
+        debug( "creating thread %d", i );
+        Threading.callDelegateOnNewThread( anotherDelegate, (void*)i );
+        debug( "sleeping..." );
+        Thread.usleep( 500 );
+    }
+    loop.run();
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -74,6 +97,7 @@ void main( string[] args )
 
     Test.add_func( "/Threading/callDelegateOnMainThread/ASync", test_threading_call_delegate_on_main_thread_async );
     Test.add_func( "/Threading/callDelegateOnMainThread/Sync", test_threading_call_delegate_on_main_thread_sync );
+    //Test.add_func( "/Threading/callDelegateOnNewThread", test_threading_call_delegate_on_new_thread );
 
     Test.run();
 }

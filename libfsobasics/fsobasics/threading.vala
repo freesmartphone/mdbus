@@ -17,21 +17,9 @@
  *
  **/
 
-
 namespace FsoFramework { namespace Threading {
 
 public delegate void VoidFuncWithVoidStarParam( void* param );
-
-internal bool initialized;
-
-public void init()
-{
-    if ( initialized )
-    {
-        return;
-    }
-    initialized = true;
-}
 
 public bool isMainThread()
 {
@@ -44,8 +32,6 @@ public void callDelegateOnMainThread( VoidFuncWithVoidStarParam func,
 {
     var mutex = new GLib.Mutex();
     var cond = new GLib.Cond();
-
-    init();
 
     if ( isMainThread() )
     {
@@ -60,12 +46,10 @@ public void callDelegateOnMainThread( VoidFuncWithVoidStarParam func,
     }
     else
     {
-        assert( GLib.Thread.supported() );
         if ( waitForCompletion )
         {
             Idle.add( () => { func( param ); cond.broadcast(); return false; } );
             debug( "sleeping on conditional now..." );
-            //mutex.lock();
             cond.wait( mutex );
             debug( "woke up from sleeping" );
         }
@@ -75,5 +59,12 @@ public void callDelegateOnMainThread( VoidFuncWithVoidStarParam func,
         }
     }
 }
+
+public void callDelegateOnNewThread( VoidFuncWithVoidStarParam func,
+                                      void* param )
+{
+    Thread.create( () => { func(param); return null; }, false );
+}
+
 
 } }
