@@ -24,11 +24,13 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
     private static int numChannelsInitialized;
 
     protected string name;
-    private string[] initSequence;
-    private string[] unlockedSequence;
-    private string[] registeredSequence;
-    private string[] suspendSequence;
-    private string[] resumeSequence;
+    protected string[] initSequence;
+    protected string[] unlockedSequence;
+    protected string[] registeredSequence;
+    protected string[] suspendSequence;
+    protected string[] resumeSequence;
+
+    private bool isMainChannel;
 
     static construct
     {
@@ -48,6 +50,15 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
         registeredSequence = theModem.config.stringListValue( "fsogsm", @"channel_registered_$name", { } );
         suspendSequence = theModem.config.stringListValue( "fsogsm", @"channel_suspend_$name", { } );
         resumeSequence = theModem.config.stringListValue( "fsogsm", @"channel_resume_$name", { } );
+
+        if ( numChannelsInitialized++ < 1 )
+        {
+            this.isMainChannel = true;
+        }
+        else
+        {
+            this.isMainChannel = false;
+        }
     }
 
     public void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
@@ -67,9 +78,8 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
 
     private async void initialize()
     {
-        if ( numChannelsInitialized < 1 ) // global modem init only sent once
+        if ( this.isMainChannel )
         {
-            numChannelsInitialized++;
             var sequence = theModem.commandSequence( "init" );
             yield sendCommandSequence( sequence );
         }
@@ -83,12 +93,15 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
         }
         else
         {
-            theModem.logger.info( @"Modem successfully configured for charset '$charset'" );
+            theModem.logger.info( @"Channel successfully configured for charset '$charset'" );
         }
         theModem.data().charset = charset;
 
-        // charset ok, now it's save to call mediators
-        gatherSimStatusAndUpdate();
+        if ( this.isMainChannel )
+        {
+            // charset ok, now it's save to call mediators
+            gatherSimStatusAndUpdate();
+        }
     }
 
     private async void simIsReady()

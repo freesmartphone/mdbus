@@ -29,6 +29,8 @@ namespace TiCalypso
 
 class TiCalypso.Modem : FsoGsm.AbstractModem
 {
+    private string powerNode;
+
     public override string repr()
     {
         return "<>";
@@ -38,6 +40,28 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
     {
         modem_data = new FsoGsm.Modem.Data();
         modem_data.simHasReadySignal = true;
+
+        // power node
+        powerNode = config.stringValue( MODULE_NAME, "power_node", "unknown" );
+
+        // init sequences
+        //registerCommandSequence( "init", "call" );
+    }
+
+    protected override void setPower( bool on )
+    {
+        if ( powerNode == "unknown" )
+        {
+            return;
+        }
+
+        FsoFramework.FileHandling.write( "0\n", powerNode );
+        Thread.usleep( 1000 * 1000 );
+        if ( on )
+        {
+            FsoFramework.FileHandling.write( "1\n", powerNode );
+            Thread.usleep( 1000 * 1000 );
+        }
     }
 
     protected override void createChannels()
@@ -77,7 +101,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "cfsogsm.ti_calypso fso_register_function" );
+    debug( "fsogsm.ti_calypso fso_register_function" );
     // do not remove this function
 }
 

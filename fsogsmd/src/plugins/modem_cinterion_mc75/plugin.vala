@@ -38,6 +38,9 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
     {
         modem_data = new FsoGsm.Modem.Data();
         modem_data.simHasReadySignal = true;
+
+        // init sequences
+        //registerCommandSequence( "init", "call" );
     }
 
     protected override void createChannels()

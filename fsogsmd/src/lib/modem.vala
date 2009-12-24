@@ -104,7 +104,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
     public abstract void advanceToState( Modem.Status status );
-    public abstract string[] commandSequence( string purpose );
+    public abstract string[] commandSequence( string purpose ); // FIXME: add Channel name
     public signal void signalStatusChanged( Modem.Status status );
 
     // Mediator API
