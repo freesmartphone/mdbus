@@ -97,6 +97,25 @@ public struct FsoFramework.TransportSpec
 public abstract class FsoFramework.Transport : Object
 {
     /**
+     * Create @a FsoFramework.Transport as indicated by @a type
+     **/
+    public static Transport? create( string type, string name = "", uint speed = 0, bool raw = true, bool hard = true )
+    {
+        switch ( type )
+        {
+            case "serial":
+                return new FsoFramework.SerialTransport( name, speed, raw, hard );
+            case "pty":
+                return new FsoFramework.PtyTransport();
+            case "unix":
+            case "udp":
+            case "tcp":
+                return new FsoFramework.SocketTransport( type, name, speed );
+            default:
+                return null;
+        }
+    }
+    /**
      * @returns true, if the @a transport is open; else false.
      */
     public abstract bool isOpen();
@@ -131,7 +150,6 @@ public abstract class FsoFramework.Transport : Object
     /**
      * Write data to the transport and wait for a response.
      * Read the response into a buffer provided and owned by the caller.
-     * @warning This will only succeed if you don't use delegates!
      **/
     public abstract int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 1000 );
     /**
@@ -151,24 +169,13 @@ public abstract class FsoFramework.Transport : Object
      **/
     public abstract void thaw();
     /**
-     * Create @a FsoFramework.Transport as indicated by @a type
+     * Drain the transport (wait until everything has been written to the underlying device)
      **/
-    public static Transport? create( string type, string name = "", uint speed = 0, bool raw = true, bool hard = true )
-    {
-        switch ( type )
-        {
-            case "serial":
-                return new FsoFramework.SerialTransport( name, speed, raw, hard );
-            case "pty":
-                return new FsoFramework.PtyTransport();
-            case "unix":
-            case "udp":
-            case "tcp":
-                return new FsoFramework.SocketTransport( type, name, speed );
-            default:
-                return null;
-        }
-    }
+    public abstract void drain();
+    /**
+     * Flush the transport (discard everything in the buffers not sent)
+     **/
+    public abstract void flush();
     /**
      * Should not be here, but wants to be accessed from the command queue
      **/

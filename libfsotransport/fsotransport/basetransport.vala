@@ -460,4 +460,14 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             restartWriter();
         assert( logger.debug( "Thawn" ) );
     }
+
+    public override void drain()
+    {
+        Posix.tcdrain( fd );
+    }
+
+    public override void flush()
+    {
+        Posix.tcflush( fd, Posix.TCIOFLUSH );
+    }
 }
