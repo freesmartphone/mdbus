@@ -13,9 +13,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-#
 # pkg-config requirements
-#
 PKG_PROG_PKG_CONFIG
 
 VALA_REQUIRED=0.7.8
@@ -41,9 +39,17 @@ PKG_CHECK_MODULES(GLIB,
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
-#
+# check for debugging
+AC_ARG_ENABLE(debug,
+  [  --enable-debug            Enable debug build (default=disabled)],
+  debug="yes", debug="no")
+AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
+
+# git version
+GITV=`cat ../.git/refs/heads/master || echo "unknown"`
+AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
+
 # output
-#
 AC_CONFIG_FILES([Makefile
   fsoresource-2.0.pc
   fsoresource/Makefile
@@ -51,19 +57,20 @@ AC_CONFIG_FILES([Makefile
 
 AC_OUTPUT
 
-#
-# Info
-#
+# info
 echo
 echo
 echo
 echo "------------------------------------------------------------------------"
-echo "$PACKAGE_NAME $PACKAGE_VERSION"
+echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
 echo "------------------------------------------------------------------------"
 echo
-echo "  Compilation...............: make"
+echo "Configuration Options:"
 echo
-echo "  Installation..............: make install"
+echo "  debug build.............: $debug"
 echo
-echo "    prefix..................: $prefix"
+echo "  prefix..................: $prefix"
 echo
+echo "------------------------------------------------------------------------"
+echo
+echo "Now type 'make' to compile and 'make install' to install this package."

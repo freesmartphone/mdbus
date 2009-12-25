@@ -2,6 +2,11 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
+AM_CPPFLAGS = \
+	-I$(top_srcdir) \
+	$(GLIB_CFLAGS) \
+	$(NULL)
+
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--pkg glib-2.0 \
@@ -12,10 +17,10 @@ VALAC_ARGS = \
 	--header fsoresource.h \
 	--library fsoresource-2.0
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(GLIB_CFLAGS) \
-	$(NULL)
+if WANT_DEBUG
+VALAC_ARGS += -g -D DEBUG
+AM_CFLAGS = -ggdb -O0
+endif
 
 BUILT_SOURCES = .vala.stamp
 
