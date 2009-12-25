@@ -36,12 +36,11 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
 
     public override void configureData()
     {
-        modem_data = new FsoGsm.Modem.Data();
+        assert( modem_data != null );
         modem_data.simHasReadySignal = true;
 
         // modem specific init sequences
         var seq = modem_data.cmdSequences;
-
     }
 
     protected override void createChannels()

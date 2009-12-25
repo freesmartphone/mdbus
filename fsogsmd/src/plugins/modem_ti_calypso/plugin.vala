@@ -38,7 +38,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
     public override void configureData()
     {
-        modem_data = new FsoGsm.Modem.Data();
+        assert( modem_data != null );
         modem_data.simHasReadySignal = true;
 
         // power node

@@ -194,6 +194,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             modem_speed = config.intValue( CONFIG_SECTION, "modem_speed", 115200 );
         }
 
+        initData();
+        advanceToState( Modem.Status.CLOSED );
+
         modem_init = config.stringListValue( CONFIG_SECTION, "modem_init", { "E0Q0V1", "+CMEE=1", "+CRC=1" } );
 
         registerHandlers();
@@ -212,8 +215,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     private void initData()
     {
-        advanceToState( Modem.Status.CLOSED );
-
         modem_data = new FsoGsm.Modem.Data();
 
         //modem_data.simidentification = "unknown";
@@ -353,7 +354,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         // power on
         setPower( true );
-        initData();
 
         var channels = this.channels.values;
         //FIXME: If we can't open all channels, we should close all others
