@@ -42,8 +42,10 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         modem_data.simHasReadySignal = true;
 
         registerCommandSequence( "main", "init", new CommandSequence( {
-            "+CREG=2",
-            "^SSET=1" } ) );
+            "+CREG=2",      /* +CREG URC = enable */
+            "^SM20",        /* M20 compatibility (ATD behaviour) = enable */
+            "^SSET=1"       /* ^SSIM_READY URC = enable */
+        } ) );
 
         // modem specific init sequences
         var seq = modem_data.cmdSequences;
