@@ -37,7 +37,13 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
     public override void configureData()
     {
         assert( modem_data != null );
+
+        // mc75 has a SIM READY signal, enable via AT^SSET
         modem_data.simHasReadySignal = true;
+
+        registerCommandSequence( "main", "init", new CommandSequence( {
+            "+CREG=2",
+            "^SSET=1" } ) );
 
         // modem specific init sequences
         var seq = modem_data.cmdSequences;
@@ -51,6 +57,11 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
             var parser = new FsoGsm.StateBasedAtParser();
             new Channel( CHANNEL_NAMES[i], transport, parser );
         }
+    }
+
+    protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
+    {
+        return new CinterionMc75.UnsolicitedResponseHandler();
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

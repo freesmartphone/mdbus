@@ -27,7 +27,7 @@ namespace FsoGsm
 
 public class FsoGsm.CommandSequence
 {
-    public string[] commands;
+    protected string[] commands;
 
     public CommandSequence( string[] commands )
     {
@@ -144,6 +144,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // Misc. Accessors
     public abstract Modem.Status status();
     public abstract FsoGsm.Modem.Data data();
+    public abstract void registerCommandSequence( string channel, string purpose, CommandSequence sequence );
 }
 
 /**
@@ -533,6 +534,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         var seq = modem_data.cmdSequences[ @"$channel-$purpose" ];
         return ( seq != null ) ? seq : modem_data.cmdSequences["null"];
+    }
+
+    public void registerCommandSequence( string channel, string purpose, CommandSequence sequence )
+    {
+        assert( modem_data != null && modem_data.cmdSequences != null );
+        modem_data.cmdSequences[ @"$channel-$purpose" ] = sequence;
     }
 }
 
