@@ -117,12 +117,12 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
         // reset the parser state before continuing
         if ( current.retry-- > 0 )
         {
-            warning( "Transport did not reply to command '%s'. Resending...".printf( current.request ) );
+            transport.logger.warning( @"Transport did not reply to command '$(current.request)'. Resending..." );
             _writeRequestToTransport( current.request );
         }
         else
         {
-            error( "Transport did (even after retrying) not reply to command '%s'".printf( current.request ) );
+            transport.logger.error( @"Transport did (even after retrying) not reply to command '$(current.request)'" );
 
             onResponseTimeout( current );
 
@@ -179,7 +179,7 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
         }
         else
         {
-            critical( "Can't handle URC w/ more than 2 lines!" );
+            transport.logger.critical( @"Can't handle URC w/ $(response.length) lines (max 2) yet!" );
         }
     }
 
@@ -224,7 +224,7 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
     protected void onHupFromTransport()
     {
-        warning( "HUP from transport. closing." );
+        transport.logger.warning( "HUP from transport. closing." );
         transport.close();
         //FIXME: Try to open again or leave that to the higher layers?
     }

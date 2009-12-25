@@ -45,7 +45,7 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
         fd = Posix.posix_openpt( Posix.O_RDWR | Posix.O_NOCTTY | Posix.O_NONBLOCK );
         if ( fd == -1 )
         {
-            warning( "could not open %s: %s".printf( name, Posix.strerror( Posix.errno ) ) );
+            logger.warning( "could not open %s: %s".printf( name, Posix.strerror( Posix.errno ) ) );
             return false;
         }
 
@@ -56,7 +56,9 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
         int flags = Posix.fcntl( fd, Posix.F_GETFL );
         int res = Posix.fcntl( fd, Posix.F_SETFL, flags | Posix.O_NONBLOCK );
         if ( res < 0 )
-            warning( "can't set pty master to NONBLOCK: %s".printf( Posix.strerror( Posix.errno ) ) );
+        {
+            logger.warning( "can't set pty master to NONBLOCK: %s".printf( Posix.strerror( Posix.errno ) ) );
+        }
 
         configure();
 
