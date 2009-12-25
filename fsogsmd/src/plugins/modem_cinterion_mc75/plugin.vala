@@ -38,12 +38,12 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
     {
         assert( modem_data != null );
 
-        // mc75 has a SIM READY signal, enable via AT^SSET
+        // mc75 has a SIM READY signal, can be enabled via ^SSET=1
         modem_data.simHasReadySignal = true;
 
         registerCommandSequence( "main", "init", new CommandSequence( {
             "+CREG=2",      /* +CREG URC = enable */
-            "^SM20",        /* M20 compatibility (ATD behaviour) = enable */
+            "^SM20=0,0",    /* M20 compatibility behavior = disable */
             "^SSET=1"       /* ^SSIM_READY URC = enable */
         } ) );
 
@@ -70,12 +70,6 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
     {
         return channels[ "main" ];
     }
-
-    public void responseHandler( FsoGsm.AtCommand command, string[] response )
-    {
-        debug( "handler called with '%s'", response[0] );
-        assert_not_reached();
-    }
 }
 
 /**
@@ -93,7 +87,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "calypso fso_register_function" );
+    debug( "mc75 fso_register_function" );
     // do not remove this function
 }
 

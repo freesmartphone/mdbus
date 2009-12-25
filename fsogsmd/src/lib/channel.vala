@@ -57,12 +57,15 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
     {
         if ( this.isMainChannel )
         {
-            var sequence = theModem.commandSequence( "global", "init" );
-            yield sequence.performOnChannel( this );
+            var seq1 = theModem.commandSequence( "MODEM", "init" );
+            yield seq1.performOnChannel( this );
         }
 
-        var seq = theModem.commandSequence( name, "init" );
-        yield seq.performOnChannel( this );
+        var seq2 = theModem.commandSequence( "CHANNEL", "init" );
+        yield seq2.performOnChannel( this );
+
+        var seq3 = theModem.commandSequence( name, "init" );
+        yield seq3.performOnChannel( this );
 
         var charset = yield configureCharset( { "UTF8", "UCS2", "IRA" } );
 

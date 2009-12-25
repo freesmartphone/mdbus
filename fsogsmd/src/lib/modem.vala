@@ -244,7 +244,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         seq["null"] = new CommandSequence( {} );
 
-        seq["init"] = new CommandSequence( {
+        registerCommandSequence( "MODEM", "init", new CommandSequence( {
             "E0Q0V1",       /* echo off, Q0, verbose on */
             "+CMEE=1",      /* report mobile equipment errors = numerical format */
             "+CRC=1",       /* extended cellular result codes = enable */
@@ -255,7 +255,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             "+COLP=0",      /* connected line id present = disable */
             "+CCWA=0",      /* call waiting = disable */
             "+CSMS=1"       /* gsm phase 2+ commands = enable */
-        } );
+        } ) );
 
         configureData();
     }
@@ -478,7 +478,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         assert( urc != null );
         if ( !urc.dispatch( prefix, righthandside, pdu ) )
         {
-            logger.warning( "No handler for URC '%s', please report to smartphones-userland@linuxtogo.org".printf( prefix ) );
+            logger.warning( @"No handler for URC '$prefix', please report to smartphones-userland@linuxtogo.org" );
         }
     }
 
@@ -517,6 +517,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     public void advanceToState( Modem.Status next )
     {
+        // do nothing, if we're already in the requested state
+        if ( next == modem_status )
+        {
+            return;
+        }
+
         // if there is no SIM readyness signal, assume it's ready NOW
         if ( ( next == Modem.Status.ALIVE_SIM_UNLOCKED ) && ( !modem_data.simHasReadySignal ) )
         {
