@@ -20,35 +20,20 @@
 using GLib;
 using FsoFramework;
 
-const string TEST_FILE_NAME = "/tmp/logfile.txt";
-const string TEST_LOG_DOMAIN = "my.logging.domain";
-
-//===========================================================================
-void test_common_create_logger()
-//===========================================================================
-{
-    var logger = createLogger( "testcommon", TEST_LOG_DOMAIN );
-    logger.debug( "debug" );
-    logger.info( "info" );
-    logger.warning( "warning" );
-    logger.error( "error" );
-}
-
 //===========================================================================
 void test_common_masterkeyfile()
 //===========================================================================
 {
     var mkf = theMasterKeyFile();
 }
-    
+
 //===========================================================================
-void main (string[] args)
+void main( string[] args )
 //===========================================================================
 {
-    Test.init (ref args);
+    Test.init( ref args );
 
-    Test.add_func ("/Common/createLogger", test_common_create_logger);
-    Test.add_func ("/Common/masterKeyFile", test_common_masterkeyfile);    
+    Test.add_func( "/Common/masterKeyFile", test_common_masterkeyfile );
 
-    Test.run ();
+    Test.run();
 }

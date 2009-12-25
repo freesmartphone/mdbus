@@ -76,7 +76,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
     public AbstractSubsystem( string name )
     {
         _name = name;
-        logger = FsoFramework.createLogger( "libfsoframework", "subsystem" );
+        logger = Logger.createLogger( "libfsoframework", "subsystem" );
     }
 
     public uint registerPlugins()

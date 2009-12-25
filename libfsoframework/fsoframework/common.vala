@@ -59,7 +59,8 @@ public static SmartKeyFile theMasterKeyFile()
  **/
 public static Logger createLogger( string group, string domain )
 {
-    return Logger.createFromKeyFile( theMasterKeyFile(), group, domain );
+    warning( "FsoFramework.createLogger is DEPRECATED, please use Logger.createLogger" );
+    return Logger.createLogger( group, domain );
 }
 
 /**

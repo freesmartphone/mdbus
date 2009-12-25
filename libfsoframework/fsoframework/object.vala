@@ -29,8 +29,8 @@ public abstract class FsoFramework.AbstractObject : GLib.Object
     construct
     {
         classname = Type.from_instance( this ).name();
-        config = FsoFramework.theMasterKeyFile();
-        logger = FsoFramework.createLogger( FsoFramework.Utility.programName(), classname );
+        config = SmartKeyFile.defaultKeyFile();
+        logger = Logger.createFromKeyFile( config, "logging", classname );
         logger.setReprDelegate( repr );
 #if DEBUG
         debug( @"FsoFramework.AbstractObject: created logger for domain $classname" );
