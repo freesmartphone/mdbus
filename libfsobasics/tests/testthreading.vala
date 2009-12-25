@@ -25,7 +25,7 @@ int counter;
 
 public static void* thread_func_async()
 {
-    debug( "thread running..." );
+    //debug( "thread running..." );
     assert( ! Threading.isMainThread() );
     Thread.usleep( 10 );
     Threading.callDelegateOnMainThread( someDelegate );
@@ -34,7 +34,7 @@ public static void* thread_func_async()
 
 public static void* thread_func_sync()
 {
-    debug( "thread running..." );
+    //debug( "thread running..." );
     assert( ! Threading.isMainThread() );
     Thread.usleep( 10 );
     Threading.callDelegateOnMainThread( someDelegate, true );
@@ -43,17 +43,21 @@ public static void* thread_func_sync()
 
 public void someDelegate( void* data )
 {
-    debug( "delegate ENTER launching quit in 2 seconds" );
+    //debug( "delegate ENTER launching quit in 2 seconds" );
     Timeout.add_seconds( 2, () => { loop.quit(); return false; } );
     Thread.usleep( 500 );
-    debug( "delegate LEAVE" );
+    //debug( "delegate LEAVE" );
 }
 
 public void anotherDelegate( void* data )
 {
-    debug( "delegate ENTER %p", data );
-    Thread.usleep( 1000 * 1000  );
-    debug( "delegate LEAVE %p", data );
+    //debug( "delegate ENTER %p", data );
+    Thread.usleep( Random.next_int() % ( 1000 * 1000 ) );
+    //debug( "delegate LEAVE %p", data );
+    if ( --counter == 0 )
+    {
+        loop.quit();
+    }
 }
 
 //===========================================================================
@@ -79,11 +83,12 @@ void test_threading_call_delegate_on_new_thread()
 //===========================================================================
 {
     loop = new MainLoop();
-    for ( int i = 0; i < 20; ++i )
+    for ( int i = 1; i <= 50; ++i )
     {
-        debug( "creating thread %d", i );
+        //debug( "creating thread %d", i );
+        counter++;
         Threading.callDelegateOnNewThread( anotherDelegate, (void*)i );
-        debug( "sleeping..." );
+        //debug( "sleeping..." );
         Thread.usleep( 500 );
     }
     loop.run();
@@ -97,7 +102,7 @@ void main( string[] args )
 
     Test.add_func( "/Threading/callDelegateOnMainThread/ASync", test_threading_call_delegate_on_main_thread_async );
     Test.add_func( "/Threading/callDelegateOnMainThread/Sync", test_threading_call_delegate_on_main_thread_sync );
-    //Test.add_func( "/Threading/callDelegateOnNewThread", test_threading_call_delegate_on_new_thread );
+    Test.add_func( "/Threading/callDelegateOnNewThread", test_threading_call_delegate_on_new_thread );
 
     Test.run();
 }

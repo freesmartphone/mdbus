@@ -21,6 +21,45 @@ namespace FsoFramework { namespace Threading {
 
 public delegate void VoidFuncWithVoidStarParam( void* param );
 
+internal class DummyThread
+{
+    private VoidFuncWithVoidStarParam func;
+    private void* param;
+    public DummyThread* pself;
+    
+    public DummyThread( VoidFuncWithVoidStarParam func, void* param )
+    {
+        this.func = func;
+        this.param = param;
+#if DEBUG
+        debug( "Thread %p %p construct", (void*)this.func, this.param );
+#endif
+    }
+
+    public void launch( DummyThread* pself )
+    {
+        assert( pself != null );
+        this.pself = pself;
+        Thread.create( main, false );
+    }
+
+    public void* main()
+    {
+        assert( this != null );
+        assert( func != null );
+        func( param );
+        delete pself;
+        return null;
+    }
+
+    ~DummyThread()
+    {
+#if DEBUG
+        debug( "Thread %p %p destruct", (void*)this.func, this.param );
+#endif
+    }
+}
+
 public bool isMainThread()
 {
     return ( Linux.gettid() == Posix.getpid() );
@@ -49,9 +88,13 @@ public void callDelegateOnMainThread( VoidFuncWithVoidStarParam func,
         if ( waitForCompletion )
         {
             Idle.add( () => { func( param ); cond.broadcast(); return false; } );
+#if DEBUG
             debug( "sleeping on conditional now..." );
+#endif
             cond.wait( mutex );
+#if DEBUG
             debug( "woke up from sleeping" );
+#endif
         }
         else
         {
@@ -63,8 +106,8 @@ public void callDelegateOnMainThread( VoidFuncWithVoidStarParam func,
 public void callDelegateOnNewThread( VoidFuncWithVoidStarParam func,
                                       void* param )
 {
-    Thread.create( () => { func(param); return null; }, false );
+    DummyThread* thread = new DummyThread( func, param );
+    thread->launch( thread );
 }
-
 
 } }
