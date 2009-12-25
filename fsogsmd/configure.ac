@@ -1,4 +1,4 @@
-AC_INIT([fsogsmd], [0.2.0.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
+AC_INIT([fsogsmd], [0.3.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -10,12 +10,12 @@ AC_GNU_SOURCE
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-AC_PATH_PROG(VALAC, valac, valac)
-AC_SUBST(VALAC)
-
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
+
+# pkg-config requirements
+PKG_PROG_PKG_CONFIG
 
 VALA_REQUIRED=0.7.8
 GLIB_REQUIRED=2.18.0
@@ -30,6 +30,8 @@ FSO_TRANSPORT_REQUIRED=0.9.5.9
 FSO_RESOURCE_REQUIRED=0.1.0
 
 # vala
+AC_PATH_PROG(VALAC, valac, valac)
+AC_SUBST(VALAC)
 PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
 
@@ -94,6 +96,16 @@ fi
 eval PACKAGE_DATADIR="${pkgdatadir}"
 AC_DEFINE_UNQUOTED([PACKAGE_DATADIR], ["${PACKAGE_DATADIR}"], [Shared data directory])
 
+# check for debugging
+AC_ARG_ENABLE(debug,
+  [  --enable-debug            Enable debug build (default=disabled)],
+  debug="yes", debug="no")
+AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
+
+# git version
+GITV=`cat ../.git/refs/heads/master || echo "unknown"`
+AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
+
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
@@ -111,3 +123,23 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
+
+# info
+echo
+echo
+echo
+echo "------------------------------------------------------------------------"
+echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
+echo "------------------------------------------------------------------------"
+echo
+echo "Configuration Options:"
+echo
+echo "  shared data directory...: $pkgdatadir"
+echo
+echo "  debug build.............: $debug"
+echo
+echo "  prefix..................: $prefix"
+echo
+echo "------------------------------------------------------------------------"
+echo
+echo "Now type 'make' to compile and 'make install' to install this package."

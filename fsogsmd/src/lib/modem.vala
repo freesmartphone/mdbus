@@ -25,7 +25,26 @@ namespace FsoGsm
     public const string CONFIG_SECTION = "fsogsm";
 }
 
-public class PhonebookParams
+public class FsoGsm.CommandSequence
+{
+    public string[] commands;
+
+    public CommandSequence( string[] commands )
+    {
+        this.commands = commands;
+    }
+
+    public async void performOnChannel( Channel channel )
+    {
+        foreach( var element in commands )
+        {
+            var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+            var response = yield channel.enqueueAsyncYielding( cmd, element );
+        }
+    }
+}
+
+public class FsoGsm.PhonebookParams
 {
     public int min;
     public int max;
@@ -65,6 +84,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public bool simUnlocked;
         public bool simReady;
         public bool simRegistered;
+
+        public HashMap<string,CommandSequence> cmdSequences;
     }
 
     public const uint DEFAULT_RETRY = 3;
@@ -104,7 +125,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
     public abstract void advanceToState( Modem.Status status );
-    public abstract string[] commandSequence( string purpose ); // FIXME: add Channel name
+    public abstract CommandSequence commandSequence( string channel, string purpose );
     public signal void signalStatusChanged( Modem.Status status );
 
     // Mediator API
@@ -213,6 +234,26 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.cnmiSmsDirectNoCb    = AtNewMessageIndication() { mode=2, mt=2, bm=0, ds=0, bfr=0 };
 
         modem_data.simPhonebooks = new HashMap<string,PhonebookParams>();
+
+        modem_data.cmdSequences = new HashMap<string,CommandSequence>();
+
+        // add some basic sequences
+        var seq = modem_data.cmdSequences;
+
+        seq["null"] = new CommandSequence( {} );
+
+        seq["init"] = new CommandSequence( {
+            "E0Q0V1",       /* echo off, Q0, verbose on */
+            "+CMEE=1",      /* report mobile equipment errors = numerical format */
+            "+CRC=1",       /* extended cellular result codes = enable */
+            "+CSNS=0",      /* single numbering scheme = voice */
+            "+CMGF=0",      /* sms mode = PDU */
+            "+CLIP=0",      /* calling line id present = disable */
+            "+CLIR=0",      /* calling line id restrict = disable */
+            "+COLP=0",      /* connected line id present = disable */
+            "+CCWA=0",      /* call waiting = disable */
+            "+CSMS=1"       /* gsm phase 2+ commands = enable */
+        } );
 
         configureData();
     }
@@ -488,16 +529,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         logger.info( "Modem Status changed to %s".printf( FsoFramework.StringHandling.enumToString( typeof(Modem.Status), modem_status ) ) );
     }
 
-    public string[] commandSequence( string purpose )
+    public CommandSequence commandSequence( string channel, string purpose )
     {
-        if ( purpose == "init" )
-        {
-            return modem_init;
-        }
-        else
-        {
-            return { "" };
-        }
+        var seq = modem_data.cmdSequences[ @"$channel-$purpose" ];
+        return ( seq != null ) ? seq : modem_data.cmdSequences["null"];
     }
 }
 

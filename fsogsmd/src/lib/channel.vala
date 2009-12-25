@@ -24,18 +24,8 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
     private static int numChannelsInitialized;
 
     protected string name;
-    protected string[] initSequence;
-    protected string[] unlockedSequence;
-    protected string[] registeredSequence;
-    protected string[] suspendSequence;
-    protected string[] resumeSequence;
 
     private bool isMainChannel;
-
-    static construct
-    {
-        numChannelsInitialized = 0;
-    }
 
     public Channel( string name, FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
@@ -45,20 +35,7 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
 
         theModem.signalStatusChanged += onModemStatusChanged;
 
-        initSequence = theModem.config.stringListValue( "fsogsm", @"channel_init_$name", { } );
-        unlockedSequence = theModem.config.stringListValue( "fsogsm", @"channel_unlocked_$name", { } );
-        registeredSequence = theModem.config.stringListValue( "fsogsm", @"channel_registered_$name", { } );
-        suspendSequence = theModem.config.stringListValue( "fsogsm", @"channel_suspend_$name", { } );
-        resumeSequence = theModem.config.stringListValue( "fsogsm", @"channel_resume_$name", { } );
-
-        if ( numChannelsInitialized++ < 1 )
-        {
-            this.isMainChannel = true;
-        }
-        else
-        {
-            this.isMainChannel = false;
-        }
+        this.isMainChannel = ( name == "main" );
     }
 
     public void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
@@ -80,10 +57,12 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
     {
         if ( this.isMainChannel )
         {
-            var sequence = theModem.commandSequence( "init" );
-            yield sendCommandSequence( sequence );
+            var sequence = theModem.commandSequence( "global", "init" );
+            yield sequence.performOnChannel( this );
         }
-        yield sendCommandSequence( initSequence );
+
+        var seq = theModem.commandSequence( name, "init" );
+        yield seq.performOnChannel( this );
 
         var charset = yield configureCharset( { "UTF8", "UCS2", "IRA" } );
 
@@ -106,7 +85,8 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
 
     private async void simIsReady()
     {
-        yield sendCommandSequence( unlockedSequence );
+        var seq = theModem.commandSequence( name, "unlocked" );
+        yield seq.performOnChannel( this );
     }
 
     private async string configureCharset( string[] charsets )
@@ -123,15 +103,6 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
             }
         }
         return "unknown";
-    }
-
-    private async void sendCommandSequence( string[] sequence )
-    {
-        foreach( var element in sequence )
-        {
-            var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
-            var response = yield enqueueAsyncYielding( cmd, element );
-        }
     }
 
     public void injectResponse( string response )

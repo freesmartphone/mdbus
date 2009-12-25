@@ -20,7 +20,6 @@ AM_CFLAGS = \
 	$(NULL)
 
 VALAC_ARGS = \
-	-D DEBUG \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--vapidir $(top_srcdir)/src/lib \
@@ -36,6 +35,11 @@ VALAC_ARGS = \
 	--pkg config \
 	--header fsogsm.h \
 	--library fsogsm-2.0
+
+if WANT_DEBUG
+VALAC_ARGS += -g -D DEBUG
+AM_CFLAGS += -ggdb -O0
+endif
 
 BUILT_SOURCES = .vala.stamp fsogsm-2.0.vapi
 
@@ -100,4 +104,3 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
 	$(CLEANFILES) \
 	Makefile.in
-
