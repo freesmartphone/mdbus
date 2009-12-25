@@ -19,7 +19,11 @@
 
 using GLib;
 
-//===========================================================================
+/**
+ * @class FsoFramework.BaseTransport
+ *
+ * Base class for FsoFramework Transport Classes
+ **/
 public class FsoFramework.BaseTransport : FsoFramework.Transport
 {
     protected string name;
@@ -293,25 +297,15 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         buffer = new ByteArray();
         buffered = true;
 
-        // FIXME: Creating the debug logger may be better done in the global
-        // library initializer (e.g. void __attribute__ ((constructor)) my_init(void); )
-        var smk = new FsoFramework.SmartKeyFile();
-        // FIXME: Do not hardcode this
-        if ( smk.loadFromFile( "/etc/frameworkd.conf" ) )
-        {
-            logger = FsoFramework.Logger.createFromKeyFile( smk, "libfsotransport", "libfsotransport" );
-            logger.setReprDelegate( repr );
-        }
-        else
-        {
-            logger = new FsoFramework.NullLogger( "none" );
-        }
-        assert( logger.debug( "created" ) );
+        logger = FsoFramework.Logger.createLogger( "libfsotransport", "libfsotransport" );
+        logger.setReprDelegate( repr );
+
+        assert( logger.debug( "Created" ) );
     }
 
     ~BaseTransport()
     {
-        assert( logger.debug( "destroyed" ) );
+        assert( logger.debug( "Destroyed" ) );
     }
 
     public override string getName()
@@ -330,7 +324,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         }
         catch ( GLib.IOChannelError e )
         {
-            logger.warning( "Error while setting channel encoding to null" );
+            logger.warning( @"Can't set channel encoding to null: $(e.message)" );
         }
         channel.set_buffer_size( 32768 );
         // setup watch
@@ -396,11 +390,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         }
         else
         {
-            assert( logger.debug( "writing %d bytes".printf( len ) ) );
+            assert( logger.debug( @"Writing $len bytes" ) );
             assert( data != null );
             if ( fd == -1 )
             {
-                logger.warning( "writing although transport still closed; buffering." );
+                logger.warning( "Writing although transport still closed; buffering." );
             }
             var restart = ( fd != -1 && buffer.len == 0 );
             //TODO: avoid copying the buffer
