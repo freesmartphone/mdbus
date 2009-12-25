@@ -24,9 +24,21 @@ using GLib;
  */
 public class FsoFramework.SmartKeyFile : Object
 {
+    private static HashTable<string,SmartKeyFile> instances;
+
     private KeyFile kf = null;
     private bool loaded = false;
     private string filename;
+
+    public SmartKeyFile()
+    {
+        kf = new KeyFile();
+    }
+
+    public static SmartKeyFile defaultKeyFile()
+    {
+        return SmartKeyFile.createFromConfig( FsoFramework.Utility.programName() );
+    }
 
     /**
      * Load keyfile into memory, searching in several well-known locations.
@@ -35,7 +47,24 @@ public class FsoFramework.SmartKeyFile : Object
      **/
     public static SmartKeyFile createFromConfig( string filename )
     {
-        var smk = new SmartKeyFile();
+        if ( instances == null )
+        {
+            instances = new HashTable<string,SmartKeyFile>( str_hash, str_equal );
+        }
+
+#if DEBUG
+        GLib.debug( @"SmartKeyFile::createFromConfig $filename" );
+#endif
+        var smk = instances.lookup( filename );
+        if ( smk != null )
+        {
+#if DEBUG
+            GLib.debug( @" -- loading from cache" );
+#endif
+            return smk;
+        }
+
+        smk = new SmartKeyFile();
         string[] locations = { @"./$filename.conf",
                                @"$(Environment.get_home_dir())/.$filename.conf",
                                @"/etc/freesmartphone/$filename.conf",
@@ -43,14 +72,23 @@ public class FsoFramework.SmartKeyFile : Object
 
         foreach ( var location in locations )
         {
-            if ( smk.loadFromFile( location ) )
+            if ( !FsoFramework.FileHandling.isPresent( location ) )
             {
+                continue;
+            }
+            if (  smk.loadFromFile( location ) )
+            {
+#if DEBUG
+                GLib.debug( @"Loaded $filename from $location to smk %p".printf( smk ) );
+#endif
+                instances.insert( filename, smk );
                 return smk;
             }
         }
 #if DEBUG
         GLib.debug( @"Could not find configuration file for $filename anywhere, returning empty keyfile" );
 #endif
+        instances.insert( filename, smk );
         return smk;
     }
 
@@ -61,9 +99,15 @@ public class FsoFramework.SmartKeyFile : Object
      */
     public bool loadFromFile( string filename )
     {
-        assert( !loaded );
+#if DEBUG
+        GLib.debug( @"SmartKeyFile::loadFromFile $filename" );
+#endif
+        if ( loaded && filename != this.filename )
+        {
+            GLib.error( @"Can't load keyfile from different file after once loaded" );
+            return false;
+        }
         this.filename = filename;
-        kf = new KeyFile();
 
         try
         {

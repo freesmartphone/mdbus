@@ -6,6 +6,23 @@ AM_CPPFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(NULL)
 
+VALAC_ARGS = \
+	--thread \
+	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/vapi \
+	--pkg morelinux \
+	--pkg posix \
+	--pkg linux \
+	--pkg glib-2.0 \
+	--pkg gio-2.0 \
+	--header fsobasics.h \
+	--library fsobasics-2.0
+
+if WANT_DEBUG
+VALAC_ARGS += -g -D DEBUG
+AM_CFLAGS = -ggdb -O0
+endif
+
 BUILT_SOURCES = fsobasics.vala.stamp
 
 lib_LTLIBRARIES = \
@@ -31,16 +48,7 @@ fsobasicsincludedir = $(includedir)/fsoframework-2.0
 fsobasicsinclude_HEADERS = fsobasics.h
 
 fsobasics-2.0.vapi fsobasics.vala.stamp: $(libfsobasics_la_VALASOURCES)
-	$(VALAC) -C --thread \
-	            --basedir $(top_srcdir) \
-	            --vapidir $(top_srcdir)/vapi \
-	            --pkg morelinux \
-	            --pkg posix \
-	            --pkg linux \
-	            --pkg glib-2.0 \
-	            --pkg gio-2.0 \
-	            --header fsobasics.h \
-	            --library fsobasics-2.0 $^
+	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
 
 libfsobasics_la_LIBADD = \

@@ -31,11 +31,6 @@ internal const string ENV_OVERRIDE_LOG_DESTINATION = "FSO_LOG_DESTINATION";
 internal const string ENV_OVERRIDE_LOG_LEVEL = "FSO_LOG_LEVEL";
 
 /**
- * First created logger will become default logger (one per process)
- **/
-internal FsoFramework.Logger theDefaultLogger = null;
-
-/**
  * Delegates
  */
 public delegate string ReprDelegate();
@@ -60,28 +55,35 @@ public interface FsoFramework.Logger : Object
 
     public static Logger defaultLogger()
     {
-        return ( theDefaultLogger == null ? new NullLogger( "null" ) : theDefaultLogger );
+        assert( FsoFramework.theLogger != null );
+        return FsoFramework.theLogger;
     }
 
     /**
-     * @returns @a Logger configured as requested in a certain conf file
+     * @returns @a Logger
+     **/
+    public static Logger createLogger( string group, string domain )
+    {
+        return Logger.createFromKeyFile( SmartKeyFile.defaultKeyFile(), group, domain );
+    }
+
+    /**
+     * @returns @a Logger configured as requested in configuration file
+     **/
+    public static Logger createFromConfig( string filename, string group, string domain )
+    {
+        var smk = SmartKeyFile.createFromConfig( filename );
+        return Logger.createFromKeyFile( smk, group, domain );
+    }
+
+    /**
+     * @returns @a Logger configured as requested in named key file
      **/
     public static Logger createFromKeyFileName( string filename, string group, string domain )
     {
-        var smk = SmartKeyFile.createFromConfig( filename );
-        string[] locations = { "./.%s".printf( filename ),
-                               "%s/.%s".printf( Environment.get_home_dir(), filename ),
-                               "/etc/%s".printf( filename ) };
-
-        foreach ( var location in locations )
-        {
-            if ( smk.loadFromFile( location ) )
-            {
-                return Logger.createFromKeyFile( smk, group, domain );
-            }
-        }
-        GLib.warning( @"Could not find $filename anywhere, returning StdErrLogger" );
-        return new StdErrLogger( domain );
+        var smk = new SmartKeyFile();
+        smk.loadFromFile( filename );
+        return Logger.createFromKeyFile( smk, group, domain );
     }
 
     /**
@@ -90,7 +92,7 @@ public interface FsoFramework.Logger : Object
     public static Logger createFromKeyFile( FsoFramework.SmartKeyFile smk, string group, string domain )
     {
 #if DEBUG
-        GLib.debug( @"creating for domain $domain from group '$group", domain, group );
+        GLib.debug( @"Logger::createFromKeyFile: creating for domain $domain from group $group", domain, group );
 #endif
         string log_level = Environment.get_variable( ENV_OVERRIDE_LOG_LEVEL );
         if ( log_level == null )
@@ -108,7 +110,7 @@ public interface FsoFramework.Logger : Object
 
         FsoFramework.Logger theLogger = null;
 #if DEBUG
-        GLib.debug( @"logging to $log_to" );
+        GLib.debug( @"--- logging to $log_to" );
 #endif
         switch ( log_to )
         {
@@ -136,7 +138,7 @@ public interface FsoFramework.Logger : Object
                 theLogger = logger;
                 break;
             default:
-                GLib.warning( @"Don't know how to instanciate logger type $log_to. Using StderrLogger." );
+                GLib.warning( @"Don't know how to instanciate logger type $log_to. Using StdErrLogger." );
                 var logger = new StdErrLogger( domain );
                 theLogger = logger;
                 break;
@@ -203,8 +205,6 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     public AbstractLogger( string domain )
     {
         this.domain = domain;
-        if ( theDefaultLogger == null )
-            theDefaultLogger = this;
     }
 
     public void setLevel( LogLevelFlags level )

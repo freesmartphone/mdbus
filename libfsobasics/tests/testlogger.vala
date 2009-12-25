@@ -23,7 +23,7 @@ using FsoFramework;
 const string TEST_FILE_NAME = "/tmp/logfile.txt";
 const string TEST_LOG_DOMAIN = "my.logging.domain";
 
-const string TEST_LOG_KEYFILE_NAME = "testlogger.ini";
+const string TEST_LOG_KEYFILE_NAME = ".testlogger.ini";
 const string TEST_LOG_KEYFILE = ".testlogger.ini";
 
 //===========================================================================
