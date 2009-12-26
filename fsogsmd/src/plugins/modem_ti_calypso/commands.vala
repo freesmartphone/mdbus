@@ -20,3 +20,30 @@
 using FsoGsm;
 using Gee;
 
+namespace TiCalypso
+{
+
+public class PercentCSTAT : AbstractAtCommand
+{
+    public string subsystem;
+    public bool ready;
+
+    public PercentCSTAT()
+    {
+        re = new Regex( """%CSTAT: (?P<subsystem>[A-Z]+),(?P<ready>[01])""" );
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        subsystem = to_string( "subsystem" );
+        ready = to_int( "ready" ) == 1;
+    }
+}
+
+public void registerCustomAtCommands( HashMap<string,AtCommand> table )
+{
+    table[ "%CSTAT" ]             = new PercentCSTAT();
+}
+
+} /* namespace TiCalypso */

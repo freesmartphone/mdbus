@@ -24,6 +24,22 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 {
     private bool phbReady;
     private bool smsReady;
+    private bool fullReady;
+
+    private void updateReadyness()
+    {
+        var newFullReady = phbReady && smsReady;
+        if ( newFullReady != fullReady )
+        {
+            fullReady = newFullReady;
+
+            if ( fullReady )
+            {
+                theModem.logger.info( "ti calypso sim ready" );
+                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+            }
+        }
+    }
 
     public UnsolicitedResponseHandler()
     {
@@ -49,33 +65,22 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
      **/
     public virtual void percentCSTAT( string prefix, string rhs )
     {
-
-        /*
-        def percentCSTAT( self, righthandside ):
-
-        subsystem, available = safesplit( righthandside, "," )
-        if not bool(int(available)): # not ready
-            if subsystem in ( "PHB", "SMS" ):
-                self.subsystemReadyness[subsystem] = False
-                logger.info( "subsystem %s readyness now %s" % ( subsystem, self.subsystemReadyness[subsystem] ) )
-                if not self.fullReadyness == False:
-                    self._object.ReadyStatus( False )
-                    self.fullReadyness = False
-        else: # ready
-            if subsystem in ( "PHB", "SMS" ):
-                self.subsystemReadyness[subsystem] = True
-                logger.info( "subsystem %s readyness now %s" % ( subsystem, self.subsystemReadyness[subsystem] ) )
-                newFullReadyness = self.subsystemReadyness["PHB"] and self.subsystemReadyness["SMS"]
-                if newFullReadyness and ( not self.fullReadyness == True ):
-                    self._object.ReadyStatus( True )
-                    self.fullReadyness = True
-
-        logger.info( "full readyness now %s" % self.fullReadyness )
-        */
-
-
-        theModem.logger.info( "ti calypso sim ready" );
-        theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+        var cstat = theModem.createAtCommand<PercentCSTAT>( "%CSTAT" );
+        if ( cstat.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            switch ( cstat.subsystem )
+            {
+                case "PHB":
+                    phbReady = cstat.ready;
+                    updateReadyness();
+                    break;
+                case "SMS":
+                    smsReady = cstat.ready;
+                    updateReadyness();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
-
 }

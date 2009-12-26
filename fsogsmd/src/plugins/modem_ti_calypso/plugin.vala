@@ -93,6 +93,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
     protected override void registerCustomAtCommands( HashMap<string,FsoGsm.AtCommand> commands )
     {
+        TiCalypso.registerCustomAtCommands( commands );
     }
 
     protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
