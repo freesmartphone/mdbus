@@ -161,7 +161,9 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
 
         if ( ! ( ":" in response[0] ) ) // test for free-form URC
         {
-            urchandler( "", response[0], "" );
+            //FIXME: ???
+            //urchandler( "", response[0], "" );
+            urchandler( response[0], "", "" );
             return;
         }
 
