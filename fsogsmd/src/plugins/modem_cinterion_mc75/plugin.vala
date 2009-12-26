@@ -24,9 +24,23 @@ using FsoGsm;
 namespace CinterionMc75
 {
     const string MODULE_NAME = "fsogsm.modem_cinterion_mc75";
-    const string CHANNEL_NAMES[] = { "call", "main", "misc" };
+    const string CHANNEL_NAMES[] = { "call", "main", "data" };
 }
 
+/**
+ * @class CinterionMc75.Modem
+ *
+ * This modem plugin supports a wide variety of SIEMENS / CINTERION industrial
+ * modems, however the main target is the mc75(i).
+ *
+ * We're operating this modem in basic MUX mode (NOT the SIEMENS proprietary MUX mode)
+ * and use all of its three channels:
+ * 'call': First channel will be reserved for calling commands (ATD and friends).
+ * 'main': Second channel will be used for receiving URC and sending misc. commands.
+ * 'data': Third channel will be used for data connectivity (ppp), but also misc. commands,
+ * when the data connection is not in use.
+ *
+ **/
 class CinterionMc75.Modem : FsoGsm.AbstractModem
 {
     public override string repr()

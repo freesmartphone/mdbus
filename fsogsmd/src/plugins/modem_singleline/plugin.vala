@@ -21,6 +21,12 @@ using GLib;
 
 using FsoGsm;
 
+/**
+ * @class Singleline.Modem
+ *
+ * This modem plugin supports standard AT modems that do not use a multiplexing mode.
+ *
+ **/
 class Singleline.Modem : FsoGsm.AbstractModem
 {
     private const string CHANNEL_NAME = "main";
@@ -39,7 +45,7 @@ class Singleline.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        // nothing to do here as singleline only has one channel
+        // nothing to round-robin here as singleline only has one channel
         return channels[ CHANNEL_NAME ];
     }
 

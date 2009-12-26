@@ -21,6 +21,14 @@ using GLib;
 
 using FsoGsm;
 
+/**
+ * @class QualcommHtc.Modem
+ *
+ * This modem plugin supports the Qualcomm MSM 7xxx chipset with HTC firmware.
+ *
+ * HTC firmware comes with some bugs in the parser and non-standard AT extensions,
+ * therefore we can't cover these modems with the 'singleline' plugin.
+ **/
 class QualcommHtc.Modem : FsoGsm.AbstractModem
 {
     private const string CHANNEL_NAME = "main";

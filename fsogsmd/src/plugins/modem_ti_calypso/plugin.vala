@@ -24,9 +24,22 @@ using FsoGsm;
 namespace TiCalypso
 {
     const string MODULE_NAME = "fsogsm.modem_ti_calypso";
-    const string CHANNEL_NAMES[] = { "call", "main", "misc" };
+    const string CHANNEL_NAMES[] = { "call", "main", "urc", "data" };
 }
 
+/**
+ * @class TiCalypso.Modem
+ *
+ * This modem plugin supports the TEXAS INSTRUMENTS Calypso chipset.
+ *
+ * We're operating this modem in advanced MUX mode and use all of its four channels:
+ * 'call': First channel will be reserved for calling commands (ATD and friends).
+ * 'main': Second channel will be used for misc. commands.
+ * 'urc': Third channel will be used for receiving URCs.
+ * 'data': Fourth channel will be used for data connectivity (ppp), but also misc. commands,
+ * when the data connection is not in use.
+ *
+ **/
 class TiCalypso.Modem : FsoGsm.AbstractModem
 {
     private string powerNode;
