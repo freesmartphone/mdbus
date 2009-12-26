@@ -42,9 +42,33 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         modem_data.simHasReadySignal = true;
 
         registerCommandSequence( "main", "init", new CommandSequence( {
-            "+CREG=2",      /* +CREG URC = enable */
-            "^SM20=0,0",    /* M20 compatibility behavior = disable */
-            "^SSET=1"       /* ^SSIM_READY URC = enable */
+            """+CREG=2""",              /* +CREG URC = enable */
+            """^SM20=0,0""",            /* M20 compatibility behavior = disable */
+            """^SSET=1""",              /* ^SSIM_READY URC = enable */
+
+            """^SIND="battchg",1""",    /* Include indicator in +CIND URC = enable */
+            """^SIND="signal",1""",
+            """^SIND="service",1""",
+            """^SIND="sounder",1""",
+            """^SIND="message",1""",
+            """^SIND="call",1""",
+            """^SIND="roam",1""",
+            """^SIND="smsfull",1""",
+            """^SIND="rssi",1""",
+            """^SIND="audio",1""",
+            """^SIND="simstatus",1""",
+            """^SIND="vmwait1",1""",
+            """^SIND="vmwait2",1""",
+            """^SIND="ciphcall",1""",
+            """^SIND="adnread",1""",
+            """^SIND="eons",1""",
+            """^SIND="nitz",1""",
+            """^SIND="lsta",1""",
+            """^SIND="band",1""",
+            """^SIND="simlocal",1""",
+
+            """+CMER=3,0,2,0"""         /* +CIND URC = enable */
+
         } ) );
 
         // modem specific init sequences

@@ -32,4 +32,11 @@ public class CinterionMc75.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResp
         theModem.logger.info( "mc75i sim ready" );
         theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
     }
+
+    public override void plusCIEV( string prefix, string rhs )
+    {
+        // give base class a chance to handle the indicators it knows about
+        base.plusCIEV( prefix, rhs );
+        // handle proprietary indicators
+    }
 }
