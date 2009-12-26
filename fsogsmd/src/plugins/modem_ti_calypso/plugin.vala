@@ -57,8 +57,25 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         // power node
         powerNode = config.stringValue( MODULE_NAME, "power_node", "unknown" );
 
-        // init sequences
-        //registerCommandSequence( "init", "call" );
+        // sequence for initializing the channel urc
+        registerCommandSequence( "urc", "init", new CommandSequence( {
+            """+CLIP=1""",
+            """+COLP=0""",
+            """+CCWA=1""",
+            """+CSSN=1,1""",
+            """+CTZU=1""",
+            """+CTZR=1""",
+            """+CREG=2""",
+            """+CGEREP=2,1""",
+            """+CGREG=2""",
+
+            """%CPI=3""",
+            """%CSCN=1,2,1,2""",
+            """%CPRI=1""",
+            """%CNIV=1""",
+            """%CSTAT=1""",
+            """@ST="-26""""
+        } ) );
     }
 
     protected override void setPower( bool on )
