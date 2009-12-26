@@ -18,7 +18,7 @@
  */
 
 using GLib;
-
+using Gee;
 using FsoGsm;
 
 namespace TiCalypso
@@ -85,6 +85,19 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             var parser = new FsoGsm.StateBasedAtParser();
             new Channel( CHANNEL_NAMES[i], transport, parser );
         }
+    }
+
+    protected override void registerCustomMediators( HashMap<Type,Type> mediators )
+    {
+    }
+
+    protected override void registerCustomAtCommands( HashMap<string,FsoGsm.AtCommand> commands )
+    {
+    }
+
+    protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
+    {
+        return new TiCalypso.UnsolicitedResponseHandler();
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

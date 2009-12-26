@@ -38,8 +38,8 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_ti_calypso.la
-modem_ti_calypso_la_SOURCES = plugin.c
-modem_ti_calypso_la_VALASOURCES = plugin.vala
+modem_ti_calypso_la_SOURCES = commands.c mediators.c unsolicited.c plugin.c
+modem_ti_calypso_la_VALASOURCES = commands.vala mediators.vala unsolicited.vala plugin.vala
 $(modem_ti_calypso_la_SOURCES): $(modem_ti_calypso_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
