@@ -124,6 +124,8 @@ if test x$gstreamer = "xyes"; then
 fi
 AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
 
+##############################################################################
+# output
 AC_CONFIG_FILES([
   Makefile
   data/Makefile

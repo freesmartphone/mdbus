@@ -92,9 +92,7 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
-#
-# Info
-#
+# info
 echo
 echo
 echo

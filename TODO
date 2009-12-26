@@ -9,11 +9,8 @@ libfsobasics:
 
 
 * Add unit tests for transport classes, including MockTransport
-* Make libgsm0710mux use fsoframework
 
-* Write kobject dispatcher for fsoframework
 * Write netlink dispatcher for fsoframework
 
-* Write libgsmprotocols as C library
 * Write libgpsprotocols as C library
 
