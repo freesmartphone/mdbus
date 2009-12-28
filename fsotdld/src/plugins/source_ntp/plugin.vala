@@ -83,7 +83,7 @@ class Source.Ntp : FsoTime.AbstractSource
         if ( serveraddr == null )
         {
             var resolver = Resolver.get_default();
-            unowned List<InetAddress> addresses = null;
+            List<InetAddress> addresses = null;
             try
             {
                  addresses = resolver.lookup_by_name( servername, null );
