@@ -29,7 +29,7 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg dbus-glib-1 \
 	--pkg fsoframework-2.0 \
-	--pkg fsotime-2.0
+	--pkg fsotdl-2.0
 
 TEST_PROGS += testsourcentp
 testsourcentp_VALASOURCES = testsourcentp.vala ../src/plugins/source_ntp/plugin.vala
