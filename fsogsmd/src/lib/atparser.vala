@@ -137,6 +137,8 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
                 return inline( c );
             case State.INLINE_R:
                 return inline_r( c );
+            case State.INVALID:
+                return invalid( c );
             default:
                 assert_not_reached();
         }
@@ -251,6 +253,19 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
                 return State.INLINE_R;
             case '\n':
                 return endofline();
+        }
+        return State.INVALID;
+    }
+
+    public State invalid( char c )
+    {
+        warning( "Invalid Parser State. Line up to this point is '%s'. Trying to resync...".printf( (string)curline ) );
+        switch (c)
+        {
+            case '\n':
+                return State.START;
+            default:
+                return State.INVALID;
         }
         return State.INVALID;
     }
