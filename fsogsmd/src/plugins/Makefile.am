@@ -6,6 +6,9 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
 	dbus_service \
+	\
+	lowlevel_openmoko \
+	\
 	modem_cinterion_mc75 \
 	modem_singleline \
 	modem_ti_calypso \
