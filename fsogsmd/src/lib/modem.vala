@@ -383,15 +383,20 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual bool open()
     {
-        lowlevel.poweron();
+        if ( !lowlevel.poweron() )
+        {
+            return false;
+        }
 
         var channels = this.channels.values;
         //FIXME: If we can't open all channels, we should close all others
         logger.info( "will open %u channel(s)...".printf( channels.size ) );
         foreach( var channel in channels )
         {
-            if (!channel.open())
+            if ( !channel.open() )
+            {
                 return false;
+            }
         }
 
         advanceToState( Modem.Status.INITIALIZING );
