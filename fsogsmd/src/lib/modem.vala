@@ -114,7 +114,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         SUSPENDED,
         /** Resume commands are being sent **/
         RESUMING,
-        /* ALIVE */
+        /** Shutdown commands are being sent **/
+        CLOSING,
     }
 
     // DBus Service API
@@ -152,10 +153,10 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
  **/
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
 {
-    protected string modem_type;
-    protected string modem_transport;
-    protected string modem_port;
-    protected int modem_speed;
+    public string modem_type;
+    public string modem_transport;
+    public string modem_port;
+    public int modem_speed;
 
     protected string[] modem_init;
 
@@ -171,6 +172,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected Object parent { get; set; } // the DBus object
     protected CallHandler callhandler { get; set; } // the Call handler
     protected SmsHandler smshandler { get; set; } // the SMS handler
+
+    protected FsoGsm.LowLevel lowlevel;
 
     construct
     {
@@ -195,6 +198,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             modem_speed = config.intValue( CONFIG_SECTION, "modem_speed", 115200 );
         }
 
+        initLowlevel();
+
         initData();
         advanceToState( Modem.Status.CLOSED );
 
@@ -212,6 +217,38 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     ~AbstractModem()
     {
         logger.debug( "FsoGsm.AbstractModem destroyed: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
+    }
+
+    private void initLowlevel()
+    {
+        // check preferred low level poweron/poweroff plugin and instanciate
+        var lowleveltype = config.stringValue( CONFIG_SECTION, "lowlevel_type", "none" );
+        string typename = "none";
+
+        switch ( lowleveltype )
+        {
+            case "openmoko":
+                typename = "LowLevelOpenmoko";
+                break;
+            default:
+                warning( "Invalid lowlevel_type '%s'; vendor specifics will NOT be available!".printf( lowleveltype ) );
+                lowlevel = new FsoGsm.NullLowLevel();
+                return;
+        }
+
+        if ( lowleveltype != "none" )
+        {
+            var lowlevelclass = Type.from_name( typename );
+            if ( lowlevelclass == Type.INVALID  )
+            {
+                logger.warning( "Can't find plugin for lowlevel_type = '%s'; vendor specifics will NOT be available!".printf( lowleveltype ) );
+                lowlevel = new FsoGsm.NullLowLevel();
+                return;
+            }
+
+            lowlevel = Object.new( lowlevelclass ) as FsoGsm.LowLevel;
+            logger.info( "Ready. Using lowlevel plugin '%s' to handle vendor specifics".printf( lowleveltype ) );
+        }
     }
 
     private void initData()
@@ -336,13 +373,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     }
 
     /**
-     * Override this for modem-specific power handling
-     **/
-    protected virtual void setPower( bool on )
-    {
-    }
-
-    /**
      * Implement this to create the command/channel-assignment function.
      **/
     protected abstract FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string request );
@@ -353,8 +383,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual bool open()
     {
-        // power on
-        setPower( true );
+        lowlevel.poweron();
 
         var channels = this.channels.values;
         //FIXME: If we can't open all channels, we should close all others
@@ -372,14 +401,17 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual void close()
     {
+
+        advanceToState( Modem.Status.CLOSING );
+
         // close all channels
         var channels = this.channels.values;
         foreach( var channel in channels )
         {
             channel.close();
         }
-        // power off
-        setPower( false );
+
+        lowlevel.poweroff();
     }
 
     public virtual void injectResponse( string command, string channel )

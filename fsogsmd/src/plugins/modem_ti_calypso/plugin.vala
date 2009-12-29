@@ -56,9 +56,6 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         assert( modem_data != null );
         modem_data.simHasReadySignal = true;
 
-        // power node
-        powerNode = config.stringValue( MODULE_NAME, "power_node", "unknown" );
-
         // sequence for initializing the channel urc
         registerCommandSequence( "urc", "init", new CommandSequence( {
             """+CLIP=1""",
@@ -78,46 +75,6 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """%CSTAT=1""",
             """@ST="-26""""
         } ) );
-    }
-
-    protected override void setPower( bool on )
-    {
-        if ( powerNode == "unknown" )
-        {
-            return;
-        }
-
-        FsoFramework.FileHandling.write( "0\n", powerNode );
-        Thread.usleep( 1000 * 1000 );
-        if ( on )
-        {
-            FsoFramework.FileHandling.write( "1\n", powerNode );
-            Thread.usleep( 1000 * 1000 );
-
-            var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
-            transport.open();
-
-            assert( transport.isOpen() );
-
-            var buf = new char[512];
-
-            while ( true )
-            {
-                var bread = transport.writeAndRead( "ATE0Q0V1\r\n", 10, buf, 512 );
-                buf[bread] = '\0';
-                assert( logger.debug( "setPower: got %d bytes in buf: '%s'".printf( (int)bread, (string)buf ) ) );
-                if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
-                {
-                    assert( logger.debug( "setPower: answer OK, ready to send first command" ) );
-                    bread = transport.writeAndRead( "AT%SLEEP=2\r\n", 12, buf, 512 );
-                    if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
-                    {
-                        assert( logger.debug( "setPower: answer OK, modem prepared for MUX commands" ) );
-                        return;
-                    }
-                }
-            }
-        }
     }
 
     protected override void createChannels()
