@@ -24,7 +24,7 @@ using FsoFramework;
 void test_common_masterkeyfile()
 //===========================================================================
 {
-    var mkf = theMasterKeyFile();
+    var mkf = SmartKeyFile.defaultKeyFile();
 }
 
 //===========================================================================

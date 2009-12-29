@@ -84,21 +84,21 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         assert ( _plugins == null ); // this method can only be called once
         _plugins = new List<FsoFramework.Plugin>();
 
-        if ( !FsoFramework.theMasterKeyFile().hasSection( _name ) )
+        if ( !FsoFramework.SmartKeyFile.defaultKeyFile().hasSection( _name ) )
         {
             logger.warning( @"No section for $_name in configuration file. Not looking for plugins." );
             return 0;
         }
-        if ( FsoFramework.theMasterKeyFile().boolValue( _name, "disabled", false ) )
+        if ( FsoFramework.SmartKeyFile.defaultKeyFile().boolValue( _name, "disabled", false ) )
         {
             logger.info( @"Subsystem $_name has been disabled in configuration file. Not looking for plugins." );
             return 0;
         }
 
-        var names = FsoFramework.theMasterKeyFile().sectionsWithPrefix( _name + "." );
+        var names = FsoFramework.SmartKeyFile.defaultKeyFile().sectionsWithPrefix( _name + "." );
         var defaultpath = GLib.Path.build_filename( Config.PACKAGE_LIBDIR, "modules" );
         //FIXME: document plugin_path setting
-        var pluginpath = FsoFramework.theMasterKeyFile().stringValue( "cornucopia", "plugin_path", defaultpath );
+        var pluginpath = FsoFramework.SmartKeyFile.defaultKeyFile().stringValue( "cornucopia", "plugin_path", defaultpath );
 
         assert( logger.debug( @"Pluginpath is $pluginpath" ) );
 

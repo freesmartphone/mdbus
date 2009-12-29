@@ -19,40 +19,9 @@
 
 using GLib;
 
-namespace FsoFramework
-{
-internal static SmartKeyFile _masterkeyfile = null;
+namespace FsoFramework {
 
 internal static DBusServiceNotifier _dbusservicenotifier = null;
-
-/**
- * @returns @a SmartKeyFile for frameworkd.conf
- **/
-public static SmartKeyFile theMasterKeyFile()
-{
-    if ( _masterkeyfile == null )
-    {
-        _masterkeyfile = new SmartKeyFile();
-
-        string[] locations = { "./frameworkd.conf",
-                               "%s/.frameworkd.conf".printf( Environment.get_home_dir() ),
-                               "/etc/frameworkd.conf" };
-
-        foreach ( var location in locations )
-        {
-            if ( _masterkeyfile.loadFromFile( location ) )
-            {
-#if DEBUG
-                debug( @"Using framework configuration file at $location" );
-#endif
-                return _masterkeyfile;
-            }
-        }
-        warning( "Could not find framework configuration file in any location" );
-        return _masterkeyfile;
-    }
-    return _masterkeyfile;
-}
 
 /**
  * @returns @a Logger configured as requested in frameworkd.conf
