@@ -25,6 +25,8 @@ namespace TiCalypso
 {
     const string MODULE_NAME = "fsogsm.modem_ti_calypso";
     const string CHANNEL_NAMES[] = { "call", "main", "urc", "data" };
+
+    const string MODEM_BANNER = "AT-Command Interpreter ready\r\n";
 }
 
 /**
@@ -82,7 +84,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         for ( int i = 0; i < CHANNEL_NAMES.length; ++i )
         {
             var transport = new FsoGsm.LibGsm0710muxTransport( i+1 );
-            var parser = new FsoGsm.StateBasedAtParser();
+            var parser = new FsoGsm.StateBasedAtParser( MODEM_BANNER );
             new Channel( CHANNEL_NAMES[i], transport, parser );
         }
     }
