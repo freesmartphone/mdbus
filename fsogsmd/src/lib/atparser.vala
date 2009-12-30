@@ -26,9 +26,6 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
     string[] unsolicited;
     bool pendingPDU;
 
-    string bannerline;
-    uint bannerpos;
-
     string[] final_responses = {
         "OK",
         "ERROR",
@@ -85,7 +82,6 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 
     public enum State
     {
-        BANNER,
         INVALID,
         START,
         START_R,
@@ -126,8 +122,6 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 #endif
         switch (curstate)
         {
-            case State.BANNER:
-                return banner( c );
             case State.START:
                 return start( c );
             case State.START_R:
@@ -155,38 +149,42 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
     //
     // Here comes the states
     //
-    public State banner( char c )
+    public State start( char c )
     {
-        assert( banner != null );
-        if ( c == bannerline[bannerpos] )
+        if ( haveCommand() )
         {
-            bannerpos++;
-            return ( bannerpos == bannerline.length ) ? State.START : State.BANNER;
+            switch (c)
+            {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                    return State.V0_RESULT;
+                case '\r':
+                    return State.START_R;
+                case 'A':
+                case 'a':
+                    return State.ECHO_A;
+                default:
+                    return State.INVALID;
+            }
         }
         else
         {
-            bannerpos = 0;
-            return State.BANNER;
+            switch (c)
+            {
+                case '\r':
+                    return State.START_R;
+                case '\n':
+                    warning( "Detected missing \r on start of line for incoming URC; ignoring v250ter violation gracefully" );
+                    return State.INLINE;
+                default:
+                    warning( "Detected missing \r\n on start of line for incoming URC; ignoring v250ter violation gracefully" );
+                    curline += c;
+                    return State.INLINE;
+            }
         }
-    }
-
-    public State start( char c )
-    {
-        switch (c)
-        {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-                return State.V0_RESULT;
-            case '\r':
-                return State.START_R;
-            case 'A':
-            case 'a':
-                return State.ECHO_A;
-        }
-        return State.INVALID;
     }
 
     public State echo_a( char c )
@@ -206,7 +204,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         switch ( c )
         {
             case '\r':
-                return State.START;
+                return State.START_R;
             default:
                 return State.ECHO_INLINE;
         }
@@ -399,14 +397,9 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
     // PUBLIC API
     //=====================================================================//
 
-    public StateBasedAtParser( string? bannerline = null )
+    public StateBasedAtParser()
     {
-        this.bannerline = bannerline;
         state = resetAll();
-        if ( this.bannerline != null )
-        {
-            state = State.BANNER;
-        }
     }
 
     public override int feed( char* data, int len )
