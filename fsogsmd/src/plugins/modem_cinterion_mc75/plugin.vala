@@ -45,7 +45,7 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
 {
     public override string repr()
     {
-        return "<>";
+        return @"<$(channels.size)C>";
     }
 
     public override void configureData()
