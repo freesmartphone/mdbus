@@ -24,9 +24,8 @@ using FsoGsm;
 namespace TiCalypso
 {
     const string MODULE_NAME = "fsogsm.modem_ti_calypso";
-    const string CHANNEL_NAMES[] = { "call", "main", "urc", "data" };
-
-    const string MODEM_BANNER = "AT-Command Interpreter ready\r\n";
+    //const string CHANNEL_NAMES[] = { "call", "main", "urc", "data" };
+    const string CHANNEL_NAMES[] = { "main", "urc" };
 }
 
 /**
@@ -58,6 +57,11 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         assert( modem_data != null );
         modem_data.simHasReadySignal = true;
 
+        // sequence for initializing every channel
+        registerCommandSequence( "CHANNEL", "init", new CommandSequence( {
+            """%CUNS=2"""
+        } ) );
+
         // sequence for initializing the channel urc
         registerCommandSequence( "urc", "init", new CommandSequence( {
             """+CLIP=1""",
@@ -84,7 +88,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         for ( int i = 0; i < CHANNEL_NAMES.length; ++i )
         {
             var transport = new FsoGsm.LibGsm0710muxTransport( i+1 );
-            var parser = new FsoGsm.StateBasedAtParser( MODEM_BANNER );
+            var parser = new FsoGsm.StateBasedAtParser();
             new Channel( CHANNEL_NAMES[i], transport, parser );
         }
     }
