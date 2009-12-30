@@ -20,10 +20,14 @@
 public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 {
     State state = State.INVALID;
+
     char[] curline;
     string[] solicited;
     string[] unsolicited;
     bool pendingPDU;
+
+    string bannerline;
+    uint bannerpos;
 
     string[] final_responses = {
         "OK",
@@ -81,6 +85,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 
     public enum State
     {
+        BANNER,
         INVALID,
         START,
         START_R,
@@ -121,6 +126,8 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 #endif
         switch (curstate)
         {
+            case State.BANNER:
+                return banner( c );
             case State.START:
                 return start( c );
             case State.START_R:
@@ -148,6 +155,21 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
     //
     // Here comes the states
     //
+    public State banner( char c )
+    {
+        assert( banner != null );
+        if ( c == bannerline[bannerpos] )
+        {
+            bannerpos++;
+            return ( bannerpos == bannerline.length ) ? State.START : State.BANNER;
+        }
+        else
+        {
+            bannerpos = 0;
+            return State.BANNER;
+        }
+    }
+
     public State start( char c )
     {
         switch (c)
@@ -377,9 +399,14 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
     // PUBLIC API
     //=====================================================================//
 
-    public StateBasedAtParser()
+    public StateBasedAtParser( string? bannerline = null )
     {
+        this.bannerline = bannerline;
         state = resetAll();
+        if ( this.bannerline != null )
+        {
+            state = State.BANNER;
+        }
     }
 
     public override int feed( char* data, int len )
