@@ -72,7 +72,7 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
         {
             var bread = transport.writeAndRead( "ATE0Q0V1\r\n", 10, buf, 512 );
             buf[bread] = '\0';
-            assert( logger.debug( "setPower: got %d bytes in buf: '%s'".printf( (int)bread, (string)buf ) ) );
+            assert( logger.debug( "setPower: got %d bytes in buf".printf( (int)bread ) ) );
             if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
             {
                 assert( logger.debug( "setPower: answer OK, ready to send first command" ) );
@@ -80,10 +80,12 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
                 if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
                 {
                     assert( logger.debug( "setPower: answer OK, modem prepared for MUX commands" ) );
+                    transport.close();
                     return true;
                 }
             }
         }
+        transport.close();
         return false;
     }
 
