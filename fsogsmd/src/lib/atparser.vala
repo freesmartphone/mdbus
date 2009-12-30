@@ -177,10 +177,10 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
                 case '\r':
                     return State.START_R;
                 case '\n':
-                    warning( "Detected missing \r on start of line for incoming URC; ignoring v250ter violation gracefully" );
+                    warning( "Detected missing \\r on start of line for incoming URC; ignoring v.250ter violation gracefully" );
                     return State.INLINE;
                 default:
-                    warning( "Detected missing \r\n on start of line for incoming URC; ignoring v250ter violation gracefully" );
+                    warning( "Detected missing \\r\\n on start of line for incoming URC; ignoring v.250ter violation gracefully" );
                     curline += c;
                     return State.INLINE;
             }
@@ -215,7 +215,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         switch ( c )
         {
             case '\r':
-                warning( "Detected V0 mode (nonverbose). Ignoring, but please turn that off!" );
+                warning( "Detected V0 mode (nonverbose); ignoring, but please turn that off!" );
                 curline += 'O';
                 curline += 'K';
                 return endofline();
@@ -241,7 +241,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         switch (c)
         {
             case '\r':
-                warning( "Ignoring multiple \r at start of result. Your modem SUCKS!" );
+                warning( "Detected multiple \\r at start of result; ignoring, but your modem SUCKS!" );
                 return State.START_R;
             case '\n':
                 return State.INLINE;
@@ -269,7 +269,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
         switch (c)
         {
             case '\r':
-                warning( "StateBasedAtParser: Multiple \r found; ignoring." );
+                warning( "StateBasedAtParser: Detected multiple \\r found; ignoring." );
                 return State.INLINE_R;
             case '\n':
                 return endofline();
@@ -279,7 +279,7 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
 
     public State invalid( char c )
     {
-        warning( "Invalid Parser State. Line up to this point is '%s'. Trying to resync...".printf( (string)curline ) );
+        warning( "Invalid Parser State. Trying to resync..." );
         switch (c)
         {
             case '\n':
