@@ -26,6 +26,7 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
     public const string MODULE_NAME = "fsogsm.lowlevel_openmoko";
     private string powerNode;
     private FsoGsm.AbstractModem modem; // for access to modem properties
+    private const uint POWERUP_RETRIES = 5;
 
     construct
     {
@@ -65,7 +66,9 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         var buf = new char[512];
 
-        while ( true )
+        uint i = 0;
+
+        while ( i++ < POWERUP_RETRIES )
         {
             var bread = transport.writeAndRead( "ATE0Q0V1\r\n", 10, buf, 512 );
             buf[bread] = '\0';
