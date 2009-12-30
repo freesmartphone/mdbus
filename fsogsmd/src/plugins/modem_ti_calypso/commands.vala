@@ -30,7 +30,7 @@ public class PercentCSTAT : AbstractAtCommand
 
     public PercentCSTAT()
     {
-        re = new Regex( """%CSTAT: (?P<subsystem>[A-Z]+),(?P<ready>[01])""" );
+        re = new Regex( """%CSTAT: (?P<subsystem>[A-Z]+), (?P<ready>[01])""" );
     }
 
     public override void parse( string response ) throws AtCommandError
