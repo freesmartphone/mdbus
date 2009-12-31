@@ -62,12 +62,13 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         remove = new HashTable<string, List<NetlinkDelegateHolder>>( str_hash, str_equal );
 
         socket = new Netlink.Socket();
+        socket.disable_seq_check();
+        socket.modify_cb( Netlink.CallbackType.VALID, Netlink.CallbackKind.CUSTOM, handleNetlinkMessage );
+
         socket.connect( Linux.Netlink.NETLINK_ROUTE );
+
         var res = socket.add_memberships( Linux.Netlink.RTNLGRP_LINK, Linux.Netlink.RTNLGRP_IPV4_IFADDR, Linux.Netlink.RTNLGRP_IPV4_ROUTE );
         assert( res != -1 );
-
-        callback = new Netlink.Callback();
-        callback.set_all( Netlink.CallbackKind.DEFAULT, handleNetlinkMessage );
 
         fd = socket.get_fd();
         assert( fd != -1 );
@@ -95,7 +96,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         if ( ( condition & IOCondition.IN ) == IOCondition.IN )
         {
             assert( fd != -1 );
-            socket.recvmsgs( callback );
+            socket.recvmsgs_default();
             return true;
         }
 
@@ -103,9 +104,18 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         return true;
     }
 
+    protected void handleMessagePart( Netlink.Object obj )
+    {
+        debug( "handle message part %p", (void*)obj );
+
+    }
+
     protected int handleNetlinkMessage( Netlink.Message msg )
     {
         debug( "received netlink message %p", (void*)msg );
+
+        msg.dump( Posix.stderr );
+
         return Netlink.CallbackAction.OK;
     }
 

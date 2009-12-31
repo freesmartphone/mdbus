@@ -65,6 +65,19 @@ namespace Netlink {
     }
 
     [Compact]
+    [CCode (cprefix = "nla_", cname = "struct nlattr", free_function = "", cheader_filename = "netlink/netlink.h")]
+    public class Attribute {
+    }
+
+    [Compact]
+    [CCode (cname = "struct nla_policy", free_function = "")]
+    public class AttributePolicy {
+        public uint16    type;
+        public uint16    minlen;
+        public uint16    maxlen;
+    }
+
+    [Compact]
     [CCode (cprefix = "rtnl_addr_", cname = "struct rtnl_addr", free_function = "", cheader_filename = "netlink/route/netlink.h")]
     public class RouteAddress : Address {
         [CCode (cname = "rtnl_addr_alloc")]
@@ -141,8 +154,37 @@ namespace Netlink {
     }
 
     [Compact]
-    [CCode (cname = "struct nl_msg", free_function = "nl_msg_free", cheader_filename = "netlink/netlink.h")]
+    [CCode (cprefix = "nl_msg_", cname = "struct nl_msg", free_function = "nl_msg_free", cheader_filename = "netlink/netlink.h")]
     public class Message {
+
+        public void             dump (Posix.FILE file);
+        public int              parse (CallbackFunc func);
+    }
+
+    [Compact]
+    [CCode (cprefix = "nlmsg_", cname = "struct nlmsghdr", free_function = "", cheader_filename = "netlink/netlink.h")]
+    public class MessageHeader {
+        // size calculations
+        public static int       msg_size (int payload);
+        public static int       total_size (int payload);
+        public static int       padlen (int payload);
+
+        // payload access
+        public void*              data ();
+        public int                len ();
+        public void*              tail ();
+
+        // attribute access
+        public Attribute          attrdata (int hdrlen);
+        public int                attrlen (int hdrlen);
+
+        // message parsing
+        public int                valid_hdr (int hdrlen);
+        public int                ok (int remaining);
+        public MessageHeader      next (out int remaining);
+        public int                parse (int hdrlen, out Attribute[] attributes, int maxtype, AttributePolicy policy);
+        public Attribute          find_attr (int hdrlen, int attrtype);
+        public int                validate (int hdrlen, int maxtype, AttributePolicy policy);
     }
 
     [Compact]
@@ -202,7 +244,6 @@ namespace Netlink {
 
         [CCode (cname = "nl_wait_for_ack")]
         public int              wait_for_ack ();
- 
     }
 
     [Compact]

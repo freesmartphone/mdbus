@@ -1,6 +1,6 @@
 /**
  * linux.vapi
- * 
+ *
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -1660,7 +1660,7 @@ namespace Linux {
     [CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "linux/netlink.h")]
     namespace Netlink {
 
-        //[CCode (cheader_filename = "linux/netlink.h")]
+        [CCode (cheader_filename = "linux/netlink.h")]
         public const int NETLINK_ROUTE;
         [CCode (cheader_filename = "linux/netlink.h")]
         public const int NETLINK_UNUSED;
@@ -1699,6 +1699,7 @@ namespace Linux {
         [CCode (cheader_filename = "linux/netlink.h")]
         public const int NETLINK_ECRYPTFS;
 
+        // netlink socket, can be used instead of sockaddr
         [CCode (cname = "struct sockaddr_nl", cheader_filename = "linux/netlink.h", destroy_function = "")]
         public struct SockAddrNl {
             public int nl_family;
@@ -1789,7 +1790,7 @@ namespace Linux {
 
         /*
         [CCode (cheader_filename = "sys/socket.h", sentinel = "")]
-        public int bind (int sockfd, SockAddrNl addr, ulong length );
+        public int bind (int sockfd, SockAddrNl addr, ulong length);
         */
     }
 
