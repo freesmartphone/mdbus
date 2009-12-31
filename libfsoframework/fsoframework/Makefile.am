@@ -13,7 +13,7 @@ AM_CPPFLAGS = \
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../vapi \
+	--vapidir $(top_srcdir)/vapi \
 	--pkg posix \
 	--pkg linux \
 	--pkg glib-2.0 \

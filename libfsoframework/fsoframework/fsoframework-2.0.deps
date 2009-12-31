@@ -5,3 +5,4 @@ gmodule-2.0
 dbus-glib-1
 alsa
 fsobasics-2.0
+libnl-2.0

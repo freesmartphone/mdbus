@@ -38,6 +38,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
 {
     public static BaseNetlinkNotifier instance;
 
+    public Netlink.Callback callback;
     public Netlink.Socket socket;
 
     private int fd = -1;
@@ -64,6 +65,10 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         socket.connect( Linux.Netlink.NETLINK_ROUTE );
         var res = socket.add_memberships( Linux.Netlink.RTNLGRP_LINK, Linux.Netlink.RTNLGRP_IPV4_IFADDR, Linux.Netlink.RTNLGRP_IPV4_ROUTE );
         assert( res != -1 );
+
+        callback = new Netlink.Callback();
+        callback.set_all( Netlink.CallbackKind.DEFAULT, handleNetlinkMessage );
+
         fd = socket.get_fd();
         assert( fd != -1 );
         channel = new IOChannel.unix_new( fd );
@@ -90,14 +95,18 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         if ( ( condition & IOCondition.IN ) == IOCondition.IN )
         {
             assert( fd != -1 );
-
-            assert( buffer != null );
-
+            socket.recvmsgs( callback );
             return true;
         }
 
         critical( "Unsupported IOCondition %u", (int)condition );
         return true;
+    }
+
+    protected int handleNetlinkMessage( Netlink.Message msg )
+    {
+        debug( "received netlink message %p", (void*)msg );
+        return Netlink.CallbackAction.OK;
     }
 
     protected void handleMessage( string[] parts )

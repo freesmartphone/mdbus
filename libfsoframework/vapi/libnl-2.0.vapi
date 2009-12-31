@@ -1,6 +1,7 @@
-/* libnl-2.0.vapi
+/**
+ * libnl-2.0.vapi
  *
- * Copyright (C) 2009 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,10 +23,13 @@
 namespace Netlink {
 
     [CCode (instance_pos = -1)]
-    public delegate void Callback (Object obj);
+    public delegate void CallbackFunc (Object obj);
+
+    [CCode (cname = "nl_recmsg_msg_cb_t", cheader_filename = "netlink/netlink.h", instance_pos = -1)]
+    public delegate int MessageCallbackFunc (Message msg);
 
     [Compact]
-    [CCode (cprefix = "nl_addr_", cname = "struct nl_addr", free_function = "", cheader_filename = "netlink/addr.h")]
+    [CCode (cprefix = "nl_addr_", cname = "struct nl_addr", free_function = "", cheader_filename = "netlink/netlink.h")]
     public class Address : Object {
         [CCode (cname = "nl_addr_alloc")]
         public Address();
@@ -61,7 +65,7 @@ namespace Netlink {
     }
 
     [Compact]
-    [CCode (cprefix = "rtnl_addr_", cname = "struct rtnl_addr", free_function = "", cheader_filename = "netlink/route/addr.h")]
+    [CCode (cprefix = "rtnl_addr_", cname = "struct rtnl_addr", free_function = "", cheader_filename = "netlink/route/netlink.h")]
     public class RouteAddress : Address {
         [CCode (cname = "rtnl_addr_alloc")]
         public RouteAddress();
@@ -76,28 +80,68 @@ namespace Netlink {
     }
 
     [Compact]
-    [CCode (cprefix = "nl_cache_", cname = "struct nl_cache", free_function = "nl_cache_free", cheader_filename = "netlink/cache.h")]
+    [CCode (cprefix = "nl_cache_", cname = "struct nl_cache", free_function = "nl_cache_free", cheader_filename = "netlink/netlink.h")]
     public class Cache {
         public static int alloc_name (string name, out Cache c);
 
-        public void @foreach (Callback cb);
-        public void foreach_filter (Object obj, Callback cb);
+        public void @foreach (CallbackFunc cb);
+        public void foreach_filter (Object obj, CallbackFunc cb);
     }
 
     [Compact]
-    [CCode (cprefix = "nl_link_cache_", cname = "struct nl_cache", free_function = "nl_cache_free", cheader_filename = "netlink/cache.h")]
+    [CCode (cprefix = "nl_cb_", cname = "struct nl_cb", free_function = "", cheader_filename = "netlink/netlink.h")]
+    public class Callback {
+        [CCode (cname = "nl_cb_alloc")]
+        public Callback (CallbackKind kind = CallbackKind.DEFAULT);
+        [CCode (cname = "nl_cb_set")]
+        public int @set (CallbackType type, CallbackKind kind, MessageCallbackFunc func);
+        [CCode (cname = "nl_cb_set_all")]
+        public int set_all (CallbackKind kind, MessageCallbackFunc func);
+    }
+
+    [CCode (cname = "enum nl_cb_action", cprefix = "NL_", cheader_filename = "netlink/netlink.h")]
+    public enum CallbackAction {
+        OK,         //   Proceed with whatever comes next.
+        SKIP,       //   Skip this message.
+        STOP,       //   Stop parsing altogether and discard remaining messages.
+    }
+
+    [CCode (cname = "enum nl_cb_kind", cprefix = "NL_CB_", cheader_filename = "netlink/netlink.h")]
+    public enum CallbackKind {
+        DEFAULT,    // 	 Default handlers (quiet).
+        VERBOSE,    // 	 Verbose default handlers (error messages printed).
+        DEBUG,      // 	 Debug handlers for debugging.
+        CUSTOM,     // 	 Customized handler specified by the user.
+    }
+
+    [CCode (cname = "enum nl_cb_type", cprefix = "NL_CB_", cheader_filename = "netlink/netlink.h")]
+    public enum CallbackType {
+        VALID,      // 	 Message is valid.
+        FINISH,     // 	 Last message in a series of multi part messages received.
+        OVERRUN,    // 	 Report received that data was lost.
+        SKIPPED,    // 	 Message wants to be skipped.
+        ACK,        // 	 Message is an acknowledge.
+        MSG_IN,     // 	 Called for every message received.
+        MSG_OUT,    // 	 Called for every message sent out except for nl_sendto().
+        INVALID,    // 	 Message is malformed and invalid.
+        SEQ_CHECK,  // 	 Called instead of internal sequence number checking.
+        SEND_ACK,   // 	 Sending of an acknowledge message has been requested.
+    }
+
+    [Compact]
+    [CCode (cprefix = "nl_link_cache_", cname = "struct nl_cache", free_function = "nl_cache_free", cheader_filename = "netlink/netlink.h")]
     public class LinkCache : Cache {
         [CCode (cname = "rtnl_link_name2i")]
         public int name2i (string name);
     }
 
     [Compact]
-    [CCode (cprefix = "nl_addr_cache", cname = "struct nl_cache", free_function = "nl_cache_free", cheader_filename = "netlink/cache.h")]
+    [CCode (cprefix = "nl_addr_cache", cname = "struct nl_cache", free_function = "nl_cache_free", cheader_filename = "netlink/netlink.h")]
     public class AddrCache : Cache {
     }
 
     [Compact]
-    [CCode (cname = "struct nl_msg", free_function = "nl_msg_free", cheader_filename = "netlink/msg.h")]
+    [CCode (cname = "struct nl_msg", free_function = "nl_msg_free", cheader_filename = "netlink/netlink.h")]
     public class Message {
     }
 
@@ -112,11 +156,13 @@ namespace Netlink {
         [CCode (cname = "rtnl_addr_alloc_cache")]
         public int              addr_alloc_cache (out AddrCache c);
 
+        // connection management
+        [CCode (cname = "nl_close")]
+        public int              close ();
         [CCode (cname = "nl_connect")]
         public int              connect (int family);
-        [CCode (cname = "nl_join_groups")]
-        public void             join_groups (int groups);
 
+        // group management
         public int              add_memberships (int group, ...);
         public int              add_membership (int group);
         public int              drop_memberships (int group, ...);
@@ -124,14 +170,12 @@ namespace Netlink {
         public uint32           get_peer_port ();
         public void             set_peer_port (uint32 port);
 
-        /*
-        public struct nl_cb *   get_cb();
-        public void             set_cb(struct nl_cb *);
-        public int              modify_cb(, enum nl_cb_type,
-                                                    enum nl_cb_kind,
-                                                    nl_recvmsg_msg_cb_t, void *);
-        */
+        // callback management
+        public Callback         get_cb ();
+        public void             set_cb (Callback cb);
+        public int              modify_cb (CallbackType type, CallbackKind kind, MessageCallbackFunc callback);
 
+        // configuration
         public int              set_buffer_size (int rxbuf, int txbuf);
         public int              set_passcred (bool on);
         public int              recv_pktinfo (bool on);
@@ -145,6 +189,20 @@ namespace Netlink {
         public int              set_nonblocking ();
         public void             enable_msg_peek ();
         public void             disable_msg_peek ();
+
+        // receiving messages
+        [CCode (cname = "nl_recv")]
+        public int              recv (out Linux.Netlink.SockAddrNl addr, out char[] buf, out Linux.Socket.ucred cred);
+
+        [CCode (cname = "nl_recvmsgs")]
+        public int              recvmsgs (Callback cb);
+
+        [CCode (cname = "nl_recvmsgs_default")]
+        public int              recvmsgs_default ();
+
+        [CCode (cname = "nl_wait_for_ack")]
+        public int              wait_for_ack ();
+ 
     }
 
     [Compact]

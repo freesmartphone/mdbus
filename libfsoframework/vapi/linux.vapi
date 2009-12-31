@@ -1,5 +1,7 @@
 /**
- * Copyright (C) 2009 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * linux.vapi
+ * 
+ * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
- */
+ **/
 
 [CCode (cprefix = "", lower_case_cprefix = "")]
 namespace Linux {
@@ -1655,10 +1657,10 @@ namespace Linux {
     /*
      * Netlink subsystem
      */
-    [CCode (cprefix = "", lower_case_cprefix = "")]
+    [CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "linux/netlink.h")]
     namespace Netlink {
 
-        [CCode (cheader_filename = "linux/netlink.h")]
+        //[CCode (cheader_filename = "linux/netlink.h")]
         public const int NETLINK_ROUTE;
         [CCode (cheader_filename = "linux/netlink.h")]
         public const int NETLINK_UNUSED;
@@ -1696,14 +1698,6 @@ namespace Linux {
         public const int NETLINK_SCSITRANSPORT;
         [CCode (cheader_filename = "linux/netlink.h")]
         public const int NETLINK_ECRYPTFS;
-
-        // additions to the socket interface (non-posix)
-        [CCode (cheader_filename = "sys/socket.h")]
-        public const int AF_NETLINK;
-        [CCode (cheader_filename = "sys/socket.h")]
-        public const int SOCK_NONBLOCK;
-        [CCode (cheader_filename = "sys/socket.h")]
-        public const int SOCK_CLOEXEC;
 
         [CCode (cname = "struct sockaddr_nl", cheader_filename = "linux/netlink.h", destroy_function = "")]
         public struct SockAddrNl {
@@ -1821,6 +1815,26 @@ namespace Linux {
         public const int RTC_WKALM_RD;
         [CCode (cheader_filename = "linux/rtc.h,sys/ioctl.h")]
         public const int RTC_WKALM_SET;
+    }
+
+    /*
+     * Socket extensions (non-posix)
+     */
+    [CCode (cprefix = "", lower_case_cprefix = "")]
+    namespace Socket {
+        [CCode (cheader_filename = "sys/socket.h")]
+        public const int AF_NETLINK;
+        [CCode (cheader_filename = "sys/socket.h")]
+        public const int SOCK_NONBLOCK;
+        [CCode (cheader_filename = "sys/socket.h")]
+        public const int SOCK_CLOEXEC;
+
+        [CCode (cname = "struct ucred", cheader_filename = "linux/socket.h", destroy_function = "")]
+        public struct ucred {
+            public uint32 pid;
+            public uint32 uid;
+            public uint32 gid;
+        }
     }
 
     /*
