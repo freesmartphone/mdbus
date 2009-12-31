@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	$(DBUS_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
+	$(LIBNL_CFLAGS) \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -21,6 +22,7 @@ VALAC_ARGS = \
 	--pkg dbus-glib-1 \
 	--pkg alsa \
 	--pkg fsobasics-2.0 \
+	--pkg libnl-2.0 \
 	--pkg config \
 	--header fsoframework.h \
 	--library fsoframework-2.0
@@ -44,6 +46,7 @@ libfsoframework_la_VALASOURCES = \
 	inotifier.vala \
 	interfaces.vala \
 	kobjectnotifier.vala \
+	netlinknotifier.vala \
 	object.vala \
 	overlay.vala \
 	plugin.vala \
@@ -69,6 +72,7 @@ libfsoframework_la_LIBADD = \
 	$(DBUS_LIBS) \
 	$(ALSA_LIBS) \
 	$(FSOBASICS_LIBS) \
+	$(LIBNL_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi

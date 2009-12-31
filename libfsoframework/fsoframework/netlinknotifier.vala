@@ -19,24 +19,26 @@
 
 using GLib;
 
-public delegate void FsoFramework.KObjectNotifierFunc( HashTable<string, string> properties );
+public delegate void FsoFramework.NetlinkNotifierFunc( HashTable<string, string> properties );
 
 [Compact]
-internal class KObjectDelegateHolder
+internal class NetlinkDelegateHolder
 {
-    public FsoFramework.KObjectNotifierFunc func;
-    public KObjectDelegateHolder( FsoFramework.KObjectNotifierFunc func )
+    public FsoFramework.NetlinkNotifierFunc func;
+    public NetlinkDelegateHolder( FsoFramework.NetlinkNotifierFunc func )
     {
         this.func = func;
     }
 }
 
 /**
- * @class FsoFramework.BaseKObjectNotifier
+ * @class FsoFramework.BaseNetlinkNotifier
  **/
-public class FsoFramework.BaseKObjectNotifier : Object
+public class FsoFramework.BaseNetlinkNotifier : Object
 {
-    public static BaseKObjectNotifier instance;
+    public static BaseNetlinkNotifier instance;
+
+    public Netlink.Socket socket;
 
     private int fd = -1;
     private uint watch;
@@ -46,34 +48,29 @@ public class FsoFramework.BaseKObjectNotifier : Object
 
     private const ssize_t BUFFER_LENGTH = 4096;
 
-    private HashTable<string, List<KObjectDelegateHolder>> add;
-    private HashTable<string, List<KObjectDelegateHolder>> change;
-    private HashTable<string, List<KObjectDelegateHolder>> remove;
+    private HashTable<string, List<NetlinkDelegateHolder>> add;
+    private HashTable<string, List<NetlinkDelegateHolder>> change;
+    private HashTable<string, List<NetlinkDelegateHolder>> remove;
 
-    public BaseKObjectNotifier()
+    public BaseNetlinkNotifier()
     {
         buffer = new char[BUFFER_LENGTH];
 
-        add = new HashTable<string, List<KObjectDelegateHolder>>( str_hash, str_equal );
-        change = new HashTable<string, List<KObjectDelegateHolder>>( str_hash, str_equal );
-        remove = new HashTable<string, List<KObjectDelegateHolder>>( str_hash, str_equal );
+        add = new HashTable<string, List<NetlinkDelegateHolder>>( str_hash, str_equal );
+        change = new HashTable<string, List<NetlinkDelegateHolder>>( str_hash, str_equal );
+        remove = new HashTable<string, List<NetlinkDelegateHolder>>( str_hash, str_equal );
 
-        fd = Posix.socket( Linux.Netlink.AF_NETLINK, Posix.SOCK_DGRAM, Linux.Netlink.NETLINK_KOBJECT_UEVENT );
-        assert( fd != -1 );
-
-        Linux.Netlink.SockAddrNl addr = { Linux.Netlink.AF_NETLINK,
-                                          0,
-                                          Posix.getpid(),
-                                          1 };
-
-        var res = Posix.bind( fd, &addr, sizeof( Linux.Netlink.SockAddrNl ) );
+        socket = new Netlink.Socket();
+        socket.connect( Linux.Netlink.NETLINK_ROUTE );
+        var res = socket.add_memberships( Linux.Netlink.RTNLGRP_LINK, Linux.Netlink.RTNLGRP_IPV4_IFADDR, Linux.Netlink.RTNLGRP_IPV4_ROUTE );
         assert( res != -1 );
-
+        fd = socket.get_fd();
+        assert( fd != -1 );
         channel = new IOChannel.unix_new( fd );
         watch = channel.add_watch( IOCondition.IN | IOCondition.HUP, onActionFromSocket );
     }
 
-    ~BaseKObjectNotifier()
+    ~BaseNetlinkNotifier()
     {
         if ( watch != 0 )
             Source.remove( watch );
@@ -86,22 +83,15 @@ public class FsoFramework.BaseKObjectNotifier : Object
     {
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
-            error( "HUP on kobject uevent socket, will no longer get any notifications" );
+            error( "HUP on netlink route socket, will no longer get any notifications" );
             return false;
         }
 
         if ( ( condition & IOCondition.IN ) == IOCondition.IN )
         {
             assert( fd != -1 );
+
             assert( buffer != null );
-            ssize_t bytesread = Posix.read( fd, buffer, BUFFER_LENGTH );
-            for( int i = 0; i < bytesread-1; ++i )
-                if ( buffer[i] == 0x00 )
-                    buffer[i] = 0x09;
-
-            var parts = ( (string)buffer ).split( "\t" );
-
-            handleMessage( parts );
 
             return true;
         }
@@ -131,7 +121,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
         debug( @"Dealing with action $action for subsystem $subsystem" );
 #endif
 
-        HashTable<string, List<KObjectDelegateHolder>> table = null;
+        HashTable<string, List<NetlinkDelegateHolder>> table = null;
 
         switch( action )
         {
@@ -145,11 +135,11 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 table = remove;
                 break;
             default:
-                warning( @"Unsupported kobject message action $action, must be one of { add, change, remove }" );
+                warning( @"Unsupported Netlink message action $action, must be one of { add, change, remove }" );
                 break;
         }
 
-        weak List<weak KObjectDelegateHolder> list = table.lookup( subsystem );
+        weak List<weak NetlinkDelegateHolder> list = table.lookup( subsystem );
         if ( list == null )
             return;
 
@@ -157,9 +147,11 @@ public class FsoFramework.BaseKObjectNotifier : Object
             delegateholder.func( properties );
     }
 
-    protected void _addMatch( string action, string subsystem, KObjectNotifierFunc callback )
+    protected void _addMatch( string action, string subsystem, NetlinkNotifierFunc callback )
     {
-        HashTable<string, List<KObjectDelegateHolder>> table = null;
+        return;
+
+        HashTable<string, List<NetlinkDelegateHolder>> table = null;
 
         switch( action )
         {
@@ -177,11 +169,11 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 break;
         }
 
-        weak List<KObjectDelegateHolder> list = table.lookup( subsystem );
+        weak List<NetlinkDelegateHolder> list = table.lookup( subsystem );
         if ( list == null )
         {
-            List<KObjectDelegateHolder> newlist = new List<KObjectDelegateHolder>();
-            newlist.append( new KObjectDelegateHolder( callback ) );
+            List<NetlinkDelegateHolder> newlist = new List<NetlinkDelegateHolder>();
+            newlist.append( new NetlinkDelegateHolder( callback ) );
 #if DEBUG
             debug( @"# delegates for action $action and subsystem $subsystem now $(newlist.length())" );
 #endif
@@ -189,7 +181,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
         }
         else
         {
-            list.append( new KObjectDelegateHolder( callback ) );
+            list.append( new NetlinkDelegateHolder( callback ) );
 #if DEBUG
             debug( @"# delegates for action $action and subsystem $subsystem now $(list.length())" );
 #endif
@@ -199,12 +191,12 @@ public class FsoFramework.BaseKObjectNotifier : Object
     //
     // public API
     //
-    public static void addMatch( string action, string path, KObjectNotifierFunc callback )
+    public static void addMatch( string action, string path, NetlinkNotifierFunc callback )
     {
-        if ( BaseKObjectNotifier.instance == null )
-            BaseKObjectNotifier.instance = new BaseKObjectNotifier();
+        if ( BaseNetlinkNotifier.instance == null )
+            BaseNetlinkNotifier.instance = new BaseNetlinkNotifier();
 
-        BaseKObjectNotifier.instance._addMatch( action, path, callback );
+        BaseNetlinkNotifier.instance._addMatch( action, path, callback );
     }
 
 }

@@ -154,6 +154,18 @@ testasyncworker_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testasyncworker_VALASOURCES)
 
 #
+# inotifier test
+#
+TEST_PROGS += testinotifier
+testinotifier_VALASOURCES = testinotifier.vala
+testinotifier_SOURCES = testinotifier.c
+$(testinotifier_SOURCES): $(testinotifier_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testinotifier_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testinotifier_VALASOURCES)
+
+#
 # kobjectnotifier test
 #
 TEST_PROGS += testkobjectnotifier
@@ -166,16 +178,16 @@ testkobjectnotifier_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testkobjectnotifier_VALASOURCES)
 
 #
-# inotifier test
+# netlinknotifier test
 #
-TEST_PROGS += testinotifier
-testinotifier_VALASOURCES = testinotifier.vala
-testinotifier_SOURCES = testinotifier.c
-$(testinotifier_SOURCES): $(testinotifier_VALASOURCES)
+TEST_PROGS += testnetlinknotifier
+testnetlinknotifier_VALASOURCES = testnetlinknotifier.vala
+testnetlinknotifier_SOURCES = testnetlinknotifier.c
+$(testnetlinknotifier_SOURCES): $(testnetlinknotifier_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
-testinotifier_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testinotifier_VALASOURCES)
+testnetlinknotifier_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testnetlinknotifier_VALASOURCES)
 
 #
 # soundsystem test
