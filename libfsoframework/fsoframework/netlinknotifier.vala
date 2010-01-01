@@ -112,9 +112,16 @@ public class FsoFramework.BaseNetlinkNotifier : Object
 
     protected int handleNetlinkMessage( Netlink.Message msg )
     {
-        debug( "received netlink message %p", (void*)msg );
+        Netlink.MessageHeader hdr = msg.header();
+        debug( "received netlink message w/ type %d", hdr.nlmsg_type );
 
-        msg.dump( Posix.stderr );
+        //msg.dump( Posix.stderr );
+
+        var res = msg.parse( handleMessagePart );
+        if ( res < 0 )
+        {
+            debug( Netlink.strerror( res ) );
+        }
 
         return Netlink.CallbackAction.OK;
     }

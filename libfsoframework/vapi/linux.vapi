@@ -1708,6 +1708,23 @@ namespace Linux {
             public uint32 nl_groups;
         }
 
+        // netlink message header
+        [CCode (cname = "struct nlmsghdr", cheader_filename = "linux/netlink.h", destroy_function = "")]
+        public struct NlMsgHdr {
+            public uint32 nlmsg_len;
+            public uint16 nlmsg_type;
+            public uint16 nlmsg_flags;
+            public uint32 nlmsg_seq;
+            public uint32 nlmsg_pid;
+        }
+
+        // netlink error message
+        [CCode (cname = "struct nlmsgerr", cheader_filename = "linux/netlink.h", destroy_function = "")]
+        public struct NlMsgErr {
+            public int error;
+            public NlMsgHdr msg;
+        }
+
         // rtnetlink multicast groups ( userland compatibility values )
         [CCode (cheader_filename = "linux/rtnetlink.h")]
         public const int RTMGRP_LINK;

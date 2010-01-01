@@ -22,6 +22,9 @@
 [CCode (lower_case_cprefix = "nl_", cheader_filename = "netlink/netlink.h")]
 namespace Netlink {
 
+    [CCode (cname = "nl_geterror", cheader_filename = "netlink/netlink.h")]
+    public static unowned string strerror( int number );
+
     [CCode (instance_pos = -1)]
     public delegate void CallbackFunc (Object obj);
 
@@ -156,35 +159,43 @@ namespace Netlink {
     [Compact]
     [CCode (cprefix = "nl_msg_", cname = "struct nl_msg", free_function = "nl_msg_free", cheader_filename = "netlink/netlink.h")]
     public class Message {
-
         public void             dump (Posix.FILE file);
         public int              parse (CallbackFunc func);
+        [CCode (cname = "nlmsg_hdr")]
+        public MessageHeader    header ();
     }
 
     [Compact]
     [CCode (cprefix = "nlmsg_", cname = "struct nlmsghdr", free_function = "", cheader_filename = "netlink/netlink.h")]
     public class MessageHeader {
+        // field access
+        public uint32 nlmsg_len;
+        public uint16 nlmsg_type;
+        public uint16 nlmsg_flags;
+        public uint32 nlmsg_seq;
+        public uint32 nlmsg_pid;
+
         // size calculations
         public static int       msg_size (int payload);
         public static int       total_size (int payload);
         public static int       padlen (int payload);
 
         // payload access
-        public void*              data ();
-        public int                len ();
-        public void*              tail ();
+        public void*            data ();
+        public int              len ();
+        public void*            tail ();
 
         // attribute access
-        public Attribute          attrdata (int hdrlen);
-        public int                attrlen (int hdrlen);
+        public Attribute        attrdata (int hdrlen);
+        public int              attrlen (int hdrlen);
 
         // message parsing
-        public int                valid_hdr (int hdrlen);
-        public int                ok (int remaining);
-        public MessageHeader      next (out int remaining);
-        public int                parse (int hdrlen, out Attribute[] attributes, int maxtype, AttributePolicy policy);
-        public Attribute          find_attr (int hdrlen, int attrtype);
-        public int                validate (int hdrlen, int maxtype, AttributePolicy policy);
+        public bool             valid_hdr (int hdrlen);
+        public bool             ok (int remaining);
+        public MessageHeader    next (out int remaining);
+        public int              parse (int hdrlen, out Attribute[] attributes, int maxtype, AttributePolicy policy);
+        public Attribute        find_attr (int hdrlen, int attrtype);
+        public int              validate (int hdrlen, int maxtype, AttributePolicy policy);
     }
 
     [Compact]
