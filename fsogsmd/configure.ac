@@ -151,6 +151,7 @@ AC_CONFIG_FILES([
   src/plugins/modem_singleline/Makefile
   src/plugins/modem_ti_calypso/Makefile
   src/plugins/modem_qualcomm_htc/Makefile
+  src/ppp/Makefile
   data/Makefile
   data/org.freesmartphone.ogsmd.service
   tests/Makefile

@@ -9,3 +9,9 @@ SUBDIRS = \
 	plugins \
 	bin \
 	$(NULL)
+
+if WANT_PPP
+SUBDIRS += ppp
+endif
+
+
