@@ -38,7 +38,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
 {
     public static BaseNetlinkNotifier instance;
 
-    public Netlink.Callback callback;
+    public Netlink.LinkCache cache;
     public Netlink.Socket socket;
 
     private int fd = -1;
@@ -66,6 +66,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         socket.modify_cb( Netlink.CallbackType.VALID, Netlink.CallbackKind.CUSTOM, handleNetlinkMessage );
 
         socket.connect( Linux.Netlink.NETLINK_ROUTE );
+        socket.link_alloc_cache( out cache );
 
         var res = socket.add_memberships( Linux.Netlink.RTNLGRP_LINK, Linux.Netlink.RTNLGRP_IPV4_IFADDR, Linux.Netlink.RTNLGRP_IPV4_ROUTE );
         assert( res != -1 );
@@ -107,7 +108,6 @@ public class FsoFramework.BaseNetlinkNotifier : Object
     protected void handleMessagePart( Netlink.Object obj )
     {
         debug( "handle message part %p", (void*)obj );
-
     }
 
     protected int handleNetlinkMessage( Netlink.Message msg )
@@ -115,14 +115,11 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         Netlink.MessageHeader hdr = msg.header();
         debug( "received netlink message w/ type %d", hdr.nlmsg_type );
 
-        //msg.dump( Posix.stderr );
-
         var res = msg.parse( handleMessagePart );
         if ( res < 0 )
         {
             debug( Netlink.strerror( res ) );
         }
-
         return Netlink.CallbackAction.OK;
     }
 

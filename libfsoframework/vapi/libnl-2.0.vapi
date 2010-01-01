@@ -67,17 +67,37 @@ namespace Netlink {
         }
     }
 
-    [Compact]
     [CCode (cprefix = "nla_", cname = "struct nlattr", free_function = "", cheader_filename = "netlink/netlink.h")]
-    public class Attribute {
+    public struct Attribute {
     }
 
     [Compact]
     [CCode (cname = "struct nla_policy", free_function = "")]
     public class AttributePolicy {
+        [CCode (cname = "")]
+        public AttributePolicy( AttributeType type = AttributeType.UNSPEC, uint16 minlen = 0, uint16 maxlen = 65535 )
+        {
+            this.type = type;
+            this.minlen = minlen;
+            this.maxlen = maxlen;
+        }
         public uint16    type;
         public uint16    minlen;
         public uint16    maxlen;
+    }
+
+    [CCode (cprefix = "NLA_", cname = "int", cheader_filename = "netlink/attr.h")]
+    public enum AttributeType {
+        UNSPEC,     /**< Unspecified type, binary data chunk */
+        U8,         /**< 8 bit integer */
+        U16,        /**< 16 bit integer */
+        U32,        /**< 32 bit integer */
+        U64,        /**< 64 bit integer */
+        STRING,     /**< NUL terminated character string */
+        FLAG,       /**< Flag */
+        MSECS,      /**< Micro seconds (64bit) */
+        NESTED,     /**< Nested attributes */
+        TYPE_MAX
     }
 
     [Compact]
@@ -193,9 +213,9 @@ namespace Netlink {
         public bool             valid_hdr (int hdrlen);
         public bool             ok (int remaining);
         public MessageHeader    next (out int remaining);
-        public int              parse (int hdrlen, out Attribute[] attributes, int maxtype, AttributePolicy policy);
-        public Attribute        find_attr (int hdrlen, int attrtype);
-        public int              validate (int hdrlen, int maxtype, AttributePolicy policy);
+        public int              parse (int hdrlen, [CCode (array_length = "false")] out Attribute[] attributes, AttributeType maxtype, AttributePolicy policy);
+        public Attribute        find_attr (int hdrlen, AttributeType type);
+        public int              validate (int hdrlen, AttributeType maxtype, AttributePolicy policy);
     }
 
     [Compact]
