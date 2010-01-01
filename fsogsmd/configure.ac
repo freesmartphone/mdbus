@@ -1,6 +1,7 @@
 AC_INIT([fsogsmd], [0.3.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
+#AC_CONFIG_MACRO_DIR([m4]
 AM_INIT_AUTOMAKE([dist-bzip2])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -14,6 +15,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
+##############################################################################
 # pkg-config requirements
 PKG_PROG_PKG_CONFIG
 
@@ -29,12 +31,14 @@ FSO_FRAMEWORK_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.5.9
 FSO_RESOURCE_REQUIRED=0.1.0
 
+##############################################################################
 # vala
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
 
+##############################################################################
 # glib and friends
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
@@ -43,12 +47,14 @@ PKG_CHECK_MODULES(GLIB,
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
+##############################################################################
 # gee
 PKG_CHECK_MODULES(GEE,
   gee-1.0 >= $GEE_REQUIRED)
 AC_SUBST(GEE_CFLAGS)
 AC_SUBST(GEE_LIBS)
 
+##############################################################################
 # dbus and dbus-glib
 PKG_CHECK_MODULES(DBUS,
   dbus-1 >= $DBUS_REQUIRED
@@ -56,6 +62,7 @@ PKG_CHECK_MODULES(DBUS,
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
 
+##############################################################################
 # dbus conf directory
 DBUS_DIR="`$PKG_CONFIG --variable=sysconfdir dbus-1`"
 if (test -z "{DBUS_DIR}"); then
@@ -65,6 +72,7 @@ else
 fi
 AC_SUBST(DBUS_DIR)
 
+##############################################################################
 # dbus service directory
 DBUS_SERVICE_DIR="`$PKG_CONFIG --variable=session_bus_services_dir dbus-1`"
 if (test -z "{DBUS_SERVICE_DIR}"); then
@@ -72,12 +80,14 @@ if (test -z "{DBUS_SERVICE_DIR}"); then
 fi
 AC_SUBST(DBUS_SERVICE_DIR)
 
+##############################################################################
 # gsm0710mux
 PKG_CHECK_MODULES(GSMMUX,
   gsm0710mux-1.0 >= $GSMMUX_REQUIRED)
 AC_SUBST(GSMMUX_CFLAGS)
 AC_SUBST(GSMMUX_LIBS)
 
+##############################################################################
 # fso-glib and framework
 PKG_CHECK_MODULES(FSO,
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED
@@ -87,6 +97,27 @@ PKG_CHECK_MODULES(FSO,
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 
+##############################################################################
+# optional feature: ppp
+AC_ARG_ENABLE(ppp-support,
+  [  --enable-ppp-support            Enable building ppp support (default=disabled)],
+  ppp="yes", ppp="no")
+AC_ARG_WITH([pppd-plugin-dir], AS_HELP_STRING([--with-pppd-plugin-dir=DIR], [path to the pppd plugins directory]))
+
+if test "x$ppp" = "xyes"; then
+    # pppd
+    AC_CHECK_HEADERS(pppd/pppd.h,,
+      AC_MSG_ERROR(Could not find pppd.h. pppd development headers are required.))
+    if test -n "$with_pppd_plugin_dir" ; then
+      PPPD_PLUGIN_DIR="$with_pppd_plugin_dir"
+    else
+      AC_MSG_ERROR(To build ppp support, you need to supply --with-pppd-plugin-dir=DIR)
+    fi
+    AC_SUBST(PPPD_PLUGIN_DIR)
+fi
+AM_CONDITIONAL( [WANT_PPP], [test x"$ppp" = x"yes"])
+
+##############################################################################
 # datadir
 if test "x$prefix" != "xNONE"; then
   pkgdatadir='${prefix}/share/fsogsmd'
@@ -96,12 +127,14 @@ fi
 eval PACKAGE_DATADIR="${pkgdatadir}"
 AC_DEFINE_UNQUOTED([PACKAGE_DATADIR], ["${PACKAGE_DATADIR}"], [Shared data directory])
 
+##############################################################################
 # check for debugging
 AC_ARG_ENABLE(debug,
   [  --enable-debug            Enable debug build (default=disabled)],
   debug="yes", debug="no")
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
+##############################################################################
 # git version
 GITV=`cat ../.git/refs/heads/master || echo "unknown"`
 AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
@@ -125,6 +158,7 @@ AC_CONFIG_FILES([
 
 AC_OUTPUT
 
+##############################################################################
 # info
 echo
 echo
@@ -134,6 +168,9 @@ echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
 echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
+echo
+echo "  build ppp support.......: $ppp"
+echo "    ppp plugin directory..: $PPPD_PLUGIN_DIR"
 echo
 echo "  shared data directory...: $pkgdatadir"
 echo
