@@ -171,11 +171,13 @@ class DBusService.Device :
         return m.antenna_power;
     }
 
-    public async string get_functionality() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void get_functionality( out string level, out bool autoregister, out string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var m = modem.createMediator<FsoGsm.DeviceGetFunctionality>();
         yield m.run();
-        return m.level;
+        level = m.level;
+        autoregister = m.autoregister;
+        pin = m.pin;
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -218,10 +220,10 @@ class DBusService.Device :
         throw new FreeSmartphone.Error.UNSUPPORTED( "Please use org.freesmartphone.GSM.Device.SetFunctionality instead." );
     }
 
-    public async void set_functionality( string level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_functionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var m = modem.createMediator<FsoGsm.DeviceSetFunctionality>();
-        yield m.run( level );
+        yield m.run( level, autoregister, pin );
     }
 
     public async void set_microphone_muted( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

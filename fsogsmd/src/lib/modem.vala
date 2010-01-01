@@ -86,6 +86,10 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public bool simRegistered;
 
         public HashMap<string,CommandSequence> cmdSequences;
+
+        // runtime data
+        public bool keepRegistration;
+        public string simPin;
     }
 
     public const uint DEFAULT_RETRY = 3;

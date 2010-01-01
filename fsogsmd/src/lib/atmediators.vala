@@ -166,6 +166,8 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
                     theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
                 }
             }
+            // check autoregistration
+            yield checkAutoFunctionality();
         }
     }
     else if ( rcode == Constants.AtResponse.CME_ERROR_010_SIM_NOT_INSERTED ||
@@ -178,6 +180,11 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
     {
         theModem.logger.warning( "Unhandled error while querying SIM PIN status" );
     }
+}
+
+public async void checkAutoFunctionality()
+{
+    // ... NYI ...
 }
 
 public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -320,6 +327,8 @@ public class AtDeviceGetFunctionality : DeviceGetFunctionality
         var response = yield theModem.processCommandAsync( cfun, cfun.query() );
         checkResponseValid( cfun, response );
         level = Constants.instance().deviceFunctionalityStatusToString( cfun.value );
+        autoregister = theModem.data().keepRegistration;
+        pin = theModem.data().simPin;
     }
 }
 
@@ -536,7 +545,7 @@ public class AtDeviceSetCurrentTime : DeviceSetCurrentTime
 
 public class AtDeviceSetFunctionality : DeviceSetFunctionality
 {
-    public override async void run( string level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var value = Constants.instance().deviceFunctionalityStringToStatus( level );
 
@@ -548,6 +557,10 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
         var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( value ) );
         checkResponseOk( cmd, response );
+
+        var data = theModem.data();
+        data.keepRegistration = autoregister;
+        data.simPin = pin;
 
         yield gatherSimStatusAndUpdate();
     }

@@ -92,6 +92,8 @@ public abstract class FsoGsm.DeviceGetFeatures : FsoGsm.AbstractMediator
 public abstract class FsoGsm.DeviceGetFunctionality : FsoGsm.AbstractMediator
 {
     public string level { get; set; }
+    public bool autoregister { get; set; }
+    public string pin { get; set; }
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
@@ -138,7 +140,7 @@ public abstract class FsoGsm.DeviceSetCurrentTime : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.DeviceSetFunctionality : FsoGsm.AbstractMediator
 {
-    public abstract async void run( string level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.DeviceSetMicrophoneMuted : FsoGsm.AbstractMediator
