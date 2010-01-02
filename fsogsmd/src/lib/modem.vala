@@ -64,6 +64,20 @@ public class FsoGsm.PhonebookParams
     }
 }
 
+public class FsoGsm.ContextParams
+{
+    public string apn;
+    public string username;
+    public string password;
+
+    public ContextParams( string apn, string username, string password )
+    {
+        this.apn = apn;
+        this.username = username;
+        this.password = password;
+    }
+}
+
 public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 {
     public class Data : GLib.Object
@@ -81,26 +95,17 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public int speakerVolumeMaximum;
 
         public FreeSmartphone.GSM.SIMAuthStatus simAuthStatus;
-
         public bool simBuffersSms;
-
         public HashMap<string,PhonebookParams> simPhonebooks;
-
         public string charset;
-
-        /*
-        public bool simInserted;
-        public bool simUnlocked;
-        public bool simReady;
-        public bool simRegistered;
-        */
-
         public HashMap<string,CommandSequence> cmdSequences;
 
         // runtime data
         public string functionality;
         public string simPin;
         public bool keepRegistration;
+
+        public ContextParams contextParams;
     }
 
     public const uint DEFAULT_RETRY = 3;
@@ -152,6 +157,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract Object parent { get; set; } // the DBus object
     public abstract CallHandler callhandler { get; set; } // the Call handler
     public abstract SmsHandler smshandler { get; set; } // the Sms handler
+    public abstract WatchDog watchdog { get; set; } // the WatchDog
+    public abstract PdpHandler pdphandler { get; set; } // the Pdp handler
 
     // Command Queue API
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
@@ -183,10 +190,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     protected UnsolicitedResponseHandler urc;
 
-    protected Object parent { get; set; } // the DBus object
-    protected CallHandler callhandler { get; set; } // the Call handler
-    protected SmsHandler smshandler { get; set; } // the SMS handler
-    protected WatchDog watchdog { get; set; } // the WatchDog
+    public Object parent { get; set; } // the DBus object
+    public CallHandler callhandler { get; set; } // the Call handler
+    public SmsHandler smshandler { get; set; } // the SMS handler
+    public WatchDog watchdog { get; set; } // the WatchDog
+    public PdpHandler pdphandler { get; set; } // the Pdp handler
 
     protected FsoGsm.LowLevel lowlevel;
 
@@ -320,6 +328,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         callhandler = createCallHandler();
         smshandler = createSmsHandler();
         watchdog = createWatchDog();
+        pdphandler = createPdpHandler();
     }
 
     private void registerMediators()
@@ -382,6 +391,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected virtual WatchDog createWatchDog()
     {
         return new GenericWatchDog();
+    }
+
+    /**
+     * Override this to return a custom type of Pdp handler to be used for this modem.
+     **/
+    protected virtual PdpHandler createPdpHandler()
+    {
+        return new AtPdpHandler();
     }
 
     /**

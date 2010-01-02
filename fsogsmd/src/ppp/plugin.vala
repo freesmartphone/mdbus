@@ -33,7 +33,7 @@ static void fsogsmd_on_ip_up( int arg )
 
 static void fsogsmd_on_exit( int arg )
 {
-    theLogger.debug( "on_exit" );
+    theLogger.info( "on_exit" );
 }
 
 static int fsogsmd_get_chap_check()

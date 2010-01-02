@@ -1004,6 +1004,51 @@ public class AtCallReleaseAll : CallReleaseAll
     }
 }
 
+public class AtPdpActivateContext : PdpActivateContext
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.pdphandler.activate();
+    }
+}
+
+public class AtPdpDeactivateContext : PdpDeactivateContext
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.pdphandler.deactivate();
+    }
+}
+
+public class AtPdpGetCredentials : PdpGetCredentials
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var data = theModem.data();
+        if ( data.contextParams == null )
+        {
+            apn = "";
+            username = "";
+            password = "";
+        }
+        else
+        {
+            apn = data.contextParams.apn;
+            username = data.contextParams.username;
+            password = data.contextParams.password;
+        }
+    }
+}
+
+public class AtPdpSetCredentials : PdpSetCredentials
+{
+    public override async void run( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var data = theModem.data();
+        data.contextParams = new ContextParams( apn, username, password );
+    }
+}
+
 /**
  * Register all mediators
  **/
@@ -1057,6 +1102,12 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(CallReleaseAll) ]               = typeof( AtCallReleaseAll );
     table[ typeof(CallRelease) ]                  = typeof( AtCallRelease );
     table[ typeof(CallSendDtmf) ]                 = typeof( AtCallSendDtmf );
+
+    table[ typeof(PdpActivateContext) ]           = typeof( AtPdpActivateContext );
+    table[ typeof(PdpDeactivateContext) ]         = typeof( AtPdpDeactivateContext );
+    table[ typeof(PdpSetCredentials) ]            = typeof( AtPdpSetCredentials );
+    table[ typeof(PdpGetCredentials) ]            = typeof( AtPdpGetCredentials );
+
 }
 
 } // namespace FsoGsm

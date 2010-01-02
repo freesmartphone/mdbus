@@ -31,6 +31,7 @@ class DBusService.Device :
     FreeSmartphone.GSM.SMS,
     FreeSmartphone.GSM.Network,
     XFreeSmartphone.GSM.Call,
+    FreeSmartphone.GSM.PDP,
     FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
@@ -586,6 +587,51 @@ class DBusService.Device :
     public async void transfer( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    //
+    // DBUS (org.freesmartphone.GSM.PDP.*)
+    //
+    public async void activate_context() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.PdpActivateContext>();
+        yield m.run();
+    }
+
+    public async void deactivate_context() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.PdpActivateContext>();
+        yield m.run();
+    }
+
+    public async void get_context_status( out string status, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void get_credentials( out string apn, out string username, out string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.PdpGetCredentials>();
+        yield m.run();
+        apn = m.apn;
+        username = m.username;
+        password = m.password;
+    }
+
+    public async GLib.HashTable<string,GLib.Value?> get_network_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void internal_status_update( string status, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void set_credentials( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        var m = modem.createMediator<FsoGsm.PdpSetCredentials>();
+        yield m.run( apn, username, password );
     }
 }
 

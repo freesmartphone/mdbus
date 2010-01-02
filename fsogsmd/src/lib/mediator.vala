@@ -327,3 +327,29 @@ public abstract class FsoGsm.CallSendDtmf : FsoGsm.AbstractMediator
 {
     public abstract async void run( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
+
+//
+// org.freesmartphone.GSM.Pdp.*
+//
+public abstract class FsoGsm.PdpActivateContext : FsoGsm.AbstractMediator
+{
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.PdpDeactivateContext : FsoGsm.AbstractMediator
+{
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.PdpSetCredentials : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.PdpGetCredentials : FsoGsm.AbstractMediator
+{
+    public string apn { get; set; }
+    public string username { get; set; }
+    public string password { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
