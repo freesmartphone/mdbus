@@ -34,7 +34,7 @@ VALAC_ARGS = \
 # plugin
 #
 modlibexecdir = $(PPPD_PLUGIN_DIR)
-noinst_modlibexec_LTLIBRARIES = fsogsmd.la
+modlibexec_LTLIBRARIES = fsogsmd.la
 fsogsmd_la_SOURCES = plugin.c
 fsogsmd_la_VALASOURCES = plugin.vala
 $(fsogsmd_la_SOURCES): $(fsogsmd_la_VALASOURCES)
@@ -46,7 +46,6 @@ fsogsmd_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \
-    *.h \
     *.la \
     *.lo \
     $(NULL)

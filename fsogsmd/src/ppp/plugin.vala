@@ -17,7 +17,18 @@
  *
  **/
 
+static void fsogsmd_ppp_on_exit( int arg )
+{
+    debug( "fsogsmd plugin on_exit" );
+}
+
+static void fsogsmd_snoop_send_packet( char[] packet )
+{
+    debug( "sending packet with length %d", packet.length );
+}
+
 static void plugin_init()
 {
     debug( "fsogsmd plugin init" );
+    PPPD.add_notifier( PPPD.exitnotify, fsogsmd_ppp_on_exit );
 }
