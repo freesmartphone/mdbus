@@ -21,6 +21,14 @@
 [CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "./pppd-local.h")]
 namespace PPPD
 {
+    // Consts
+    public const int NUM_PPP;
+    public const int MAXWORDLEN;
+    public const int MAXARGS;
+    public const int MAXNAMELEN;
+    public const int MAXSECRETLEN;
+    public const int MAX_ENDP_LEN;
+
     // Delegates
     [CCode (instance_pos = 0.9)]
     public delegate void notify_func (int arg);
@@ -46,12 +54,66 @@ namespace PPPD
     [CCode (cname = "struct notifier")]
     public struct notifier {
     }
+
     [CCode (cname = "struct ppp_idle")]
     public struct ppp_idle {
     }
+
+    [CCode (cname = "struct pppd_stats")]
+    public struct pppd_stats {
+        public uint	bytes_in;
+        public uint	bytes_out;
+        public uint	pkts_in;
+        public uint	pkts_out;
+    }
+
     [CCode (cname = "struct wordlist")]
     public struct wordlist {
     }
+
+    // Global Variables
+    extern int          hungup;		    /* Physical layer has disconnected */
+    extern int	        ifunit;		    /* Interface unit number */
+    extern char[]	    ifname;	        /* Interface name */
+    extern char[]       hostname;	    /* Our hostname */
+    extern char[]	    outpacket_buf;  /* Buffer for outgoing packets */
+    extern int	        devfd;		    /* fd of underlying device */
+    extern int	        fd_ppp;		    /* fd for talking PPP */
+    extern int	        phase;		    /* Current state of link - see values below */
+    extern int	        baud_rate;	    /* Current link speed in bits/sec */
+    extern string	    progname;   	/* Name of this program */
+    extern int	        redirect_stderr;/* Connector's stderr should go to file */
+    extern char[]	    peer_authname;  /* Authenticated name of peer */
+    extern int[]	    auth_done;      /* Methods actually used for auth */
+    extern int	        privileged;	    /* We were run by real-uid root */
+    extern int	        need_holdoff;	/* Need holdoff period after link terminates */
+    extern string[]	    script_env;	    /* Environment variables for scripts */
+    extern int	        detached;	    /* Have detached from controlling tty */
+    extern Posix.gid_t[]groups;	        /* groups the user is in */
+    extern int	        ngroups;	    /* How many groups valid in groups */
+    extern pppd_stats   link_stats;     /* byte/packet counts etc. for link */
+    extern int	        link_stats_valid; /* set if link_stats is valid */
+    extern uint32   	link_connect_time;/* time the link was up for */
+    extern int	        using_pty;	    /* using pty as device (notty or pty opt.) */
+    extern int	        log_to_fd;	    /* logging to this fd as well as syslog */
+    extern bool	        log_default;	/* log_to_fd is default (stdout) */
+    extern string	    no_ppp_msg;	    /* message to print if ppp not in kernel */
+    extern int          status;	        /* exit status for pppd */
+    extern bool	        devnam_fixed;	/* can no longer change devnam */
+    extern int	        unsuccess;	    /* # unsuccessful connection attempts */
+    extern int	        do_callback;	/* set if we want to do callback next */
+    extern int	        doing_callback;	/* set if this is a callback */
+    extern int	        error_count;	/* # of times error() has been called */
+    extern char[]	    ppp_devnam;
+    extern char[]       remote_number;  /* Remote telephone number, if avail. */
+    extern int          ppp_session_number; /* Session number (eg PPPoE session) */
+    extern int	        fd_devnull;	    /* fd open to /dev/null */
+
+    extern int	        listen_time;	/* time to listen first (ms) */
+    extern bool	        doing_multilink;
+    extern bool	        multilink_master;
+    extern bool	        bundle_eof;
+    extern bool	        bundle_terminating;
 
     // Notifiers to register with
     extern notifier pidchange;   /* for notifications of pid changing */
