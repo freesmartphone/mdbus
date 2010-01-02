@@ -22,6 +22,7 @@
  **/
 public interface FsoGsm.WatchDog : GLib.Object
 {
+    public abstract void check();
 }
 
 /**
@@ -30,11 +31,6 @@ public interface FsoGsm.WatchDog : GLib.Object
 public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObject
 {
     private bool unlockFailed;
-
-    public GenericWatchDog()
-    {
-        theModem.signalStatusChanged.connect( onModemStatusChange );
-    }
 
     public override string repr()
     {
@@ -94,4 +90,18 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
             logger.error( @"Could not register: $(e.message)" );
         }
     }
+
+    //
+    // public API
+    //
+    public GenericWatchDog()
+    {
+        theModem.signalStatusChanged.connect( onModemStatusChange );
+    }
+
+    public void check()
+    {
+        onModemStatusChange( theModem.status() );
+    }
+
 }

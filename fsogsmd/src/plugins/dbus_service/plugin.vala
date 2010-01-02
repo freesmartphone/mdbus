@@ -222,8 +222,7 @@ class DBusService.Device :
 
     public async void set_functionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGsm.DeviceSetFunctionality>();
-        yield m.run( level, autoregister, pin );
+        yield modem.setFunctionality( level, autoregister, pin );
     }
 
     public async void set_microphone_muted( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

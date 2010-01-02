@@ -136,7 +136,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // DBus Service API
     public abstract bool open();
     public abstract void close();
-    public abstract void injectResponse( string command, string channel ); // DEBUG ONLY
+    public abstract void injectResponse( string command, string channel ) throws FreeSmartphone.Error; // DEBUG ONLY
+    public abstract async void setFunctionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error;
 
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
@@ -431,7 +432,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual void close()
     {
-
         advanceToState( Modem.Status.CLOSING );
 
         // close all channels
@@ -444,16 +444,21 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         lowlevel.poweroff();
     }
 
-    public virtual void injectResponse( string command, string channel )
+    public virtual void injectResponse( string command, string channel ) throws FreeSmartphone.Error
     {
         var chan = this.channels[channel];
         if ( chan == null )
         {
-            //FIXME: dbus error?
-            warning( @"No channel $channel" );
-            return;
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Channel $channel not found" );
         }
         chan.injectResponse( command );
+    }
+
+    public virtual async void setFunctionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error
+    {
+        var m = createMediator<FsoGsm.DeviceSetFunctionality>();
+        yield m.run( level, autoregister, pin );
+        watchdog.check();
     }
 
     public T theDevice<T>()
