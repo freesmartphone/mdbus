@@ -22,7 +22,7 @@
  **/
 public interface FsoGsm.PdpHandler : GLib.Object
 {
-    public abstract async void activate();
+    public abstract async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void deactivate();
 }
 
@@ -36,8 +36,10 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObjec
         return "<>";
     }
 
-    public async void activate()
+    public async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        // var port = theModem.dataPort();
+        // var options = theModem.dataOptions();
     }
 
     public async void deactivate()

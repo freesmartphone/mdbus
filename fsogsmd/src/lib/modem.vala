@@ -160,6 +160,10 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract WatchDog watchdog { get; set; } // the WatchDog
     public abstract PdpHandler pdphandler { get; set; } // the Pdp handler
 
+    // PDP API
+    public abstract string dataPort();
+    public abstract string dataOptions();
+
     // Command Queue API
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
     public abstract async string[] processPduCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
@@ -344,6 +348,16 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         registerGenericAtCommands( commands );
         registerCustomAtCommands( commands );
     }
+
+    private void registerCommandSequence( string channel, string purpose, CommandSequence sequence )
+    {
+        assert( modem_data != null && modem_data.cmdSequences != null );
+        modem_data.cmdSequences[ @"$channel-$purpose" ] = sequence;
+    }
+
+    //
+    // Protected API
+    //
 
     /**
      * Override this to register additional mediators specific to your modem or
@@ -538,6 +552,22 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return (T) cmd;
     }
 
+    /**
+     * Override this, if you create the data port on demand
+     **/
+    public virtual string dataPort()
+    {
+        return config.stringValue( CONFIG_SECTION, "ppp_port", "/dev/null" );
+    }
+
+    /**
+     * Override this, if you create the data port options on demand
+     **/
+    public virtual string dataOptions()
+    {
+        return config.stringValue( CONFIG_SECTION, "ppp_options", "nodefaultroute" );
+    }
+
     public async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY )
     {
         var channel = channelForCommand( command, request );
@@ -624,12 +654,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         var seq = modem_data.cmdSequences[ @"$channel-$purpose" ];
         return ( seq != null ) ? seq : modem_data.cmdSequences["null"];
-    }
-
-    public void registerCommandSequence( string channel, string purpose, CommandSequence sequence )
-    {
-        assert( modem_data != null && modem_data.cmdSequences != null );
-        modem_data.cmdSequences[ @"$channel-$purpose" ] = sequence;
     }
 }
 
