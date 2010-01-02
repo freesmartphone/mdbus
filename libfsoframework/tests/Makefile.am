@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
 	$(DBUS_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
+	$(LIBNL_CFLAGS) \
 	$(NULL)
 
 INCLUDES = \
@@ -21,6 +22,7 @@ progs_ldadd = \
 	$(DBUS_LIBS) \
 	$(ALSA_LIBS) \
 	$(FSOBASICS_LIBS) \
+	$(LIBNL_LIBS) \
 	../fsoframework/libfsoframework.la
 
 VALAC_ARGS = \
