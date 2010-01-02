@@ -106,12 +106,12 @@ AC_ARG_WITH([pppd-plugin-dir], AS_HELP_STRING([--with-pppd-plugin-dir=DIR], [pat
 
 if test "x$ppp" = "xyes"; then
     # pppd
-    AC_CHECK_HEADERS(pppd/pppd.h,,
-      AC_MSG_ERROR(Could not find pppd.h. pppd development headers are required.))
+    AC_CHECK_HEADERS([pppd/pppd.h],,
+      [AC_MSG_ERROR([Could not find pppd.h. pppd development headers are required.])])
     if test -n "$with_pppd_plugin_dir" ; then
       PPPD_PLUGIN_DIR="$with_pppd_plugin_dir"
     else
-      AC_MSG_ERROR(To build ppp support, you need to supply --with-pppd-plugin-dir=DIR)
+      AC_MSG_ERROR([To build ppp support, you need to supply --with-pppd-plugin-dir=DIR])
     fi
     AC_SUBST(PPPD_PLUGIN_DIR)
 fi

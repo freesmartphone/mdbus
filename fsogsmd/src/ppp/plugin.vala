@@ -17,18 +17,64 @@
  *
  **/
 
-static void fsogsmd_ppp_on_exit( int arg )
+using FsoFramework;
+
+static void fsogsmd_on_phase_change( int arg )
 {
-    debug( "fsogsmd plugin on_exit" );
+    theLogger.info( @"on_phase_change: $arg" );
+    //FIXME: report phase to fsogsmd
 }
 
-static void fsogsmd_snoop_send_packet( char[] packet )
+static void fsogsmd_on_ip_up( int arg )
 {
-    debug( "sending packet with length %d", packet.length );
+    theLogger.info( "on_ip_up" );
+    //FIXME: report IP parameters to fsogsmd
+}
+
+static void fsogsmd_on_exit( int arg )
+{
+    theLogger.debug( "on_exit" );
+}
+
+static int fsogsmd_get_chap_check()
+{
+    theLogger.debug( "get_chap_check" );
+	return 1; // we support CHAP
+}
+
+static int fsogsmd_get_pap_check()
+{
+    theLogger.info( "get_pap_check" );
+	return 1; // we support PAP
+}
+
+static int fsogsmd_get_credentials( string username, string password )
+{
+    theLogger.info( "get_credentials" );
+    if ( username != null && password == null )
+    {
+		// pppd is checking pap support; return 1 for supported
+		return 1;
+	}
+
+    //FIXME: Get credentials from fsogsmd
+
+    username = "";
+    password = "";
+
+	return 1;
 }
 
 static void plugin_init()
 {
-    debug( "fsogsmd plugin init" );
-    PPPD.add_notifier( PPPD.exitnotify, fsogsmd_ppp_on_exit );
+    theLogger.info( "fsogsmd plugin init" );
+    PPPD.add_notifier( PPPD.phasechange, fsogsmd_on_phase_change );
+    PPPD.add_notifier( PPPD.exitnotify, fsogsmd_on_exit );
+    PPPD.add_notifier( PPPD.ip_up_notifier, fsogsmd_on_ip_up );
+
+    PPPD.chap_passwd_hook = fsogsmd_get_credentials;
+	PPPD.chap_check_hook = fsogsmd_get_chap_check;
+	PPPD.pap_passwd_hook = fsogsmd_get_credentials;
+	PPPD.pap_check_hook = fsogsmd_get_pap_check;
+
 }
