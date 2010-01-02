@@ -27,11 +27,19 @@ namespace FsoGsm
 
 public class FsoGsm.CommandSequence
 {
-    protected string[] commands;
+    private string[] commands;
 
     public CommandSequence( string[] commands )
     {
         this.commands = commands;
+    }
+
+    public void append( string[] commands )
+    {
+        foreach ( var cmd in commands )
+        {
+            this.commands += cmd;
+        }
     }
 
     public async void performOnChannel( Channel channel )
@@ -80,16 +88,19 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
         public string charset;
 
+        /*
         public bool simInserted;
         public bool simUnlocked;
         public bool simReady;
         public bool simRegistered;
+        */
 
         public HashMap<string,CommandSequence> cmdSequences;
 
         // runtime data
-        public bool keepRegistration;
+        public string functionality;
         public string simPin;
+        public bool keepRegistration;
     }
 
     public const uint DEFAULT_RETRY = 3;
@@ -162,8 +173,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     public string modem_port;
     public int modem_speed;
 
-    protected string[] modem_init;
-
     protected FsoGsm.Modem.Status modem_status;
     protected FsoGsm.Modem.Data modem_data;
 
@@ -176,6 +185,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected Object parent { get; set; } // the DBus object
     protected CallHandler callhandler { get; set; } // the Call handler
     protected SmsHandler smshandler { get; set; } // the SMS handler
+    protected WatchDog watchdog { get; set; } // the WatchDog
 
     protected FsoGsm.LowLevel lowlevel;
 
@@ -203,12 +213,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         }
 
         initLowlevel();
-
         initData();
         advanceToState( Modem.Status.CLOSED );
-
-        modem_init = config.stringListValue( CONFIG_SECTION, "modem_init", { "E0Q0V1", "+CMEE=1", "+CRC=1" } );
-
         registerHandlers();
         registerMediators();
         registerAtCommands();
@@ -280,12 +286,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         modem_data.cmdSequences = new HashMap<string,CommandSequence>();
 
+        modem_data.simPin = config.stringValue( CONFIG_SECTION, "auto_unlock", "" );
+        modem_data.keepRegistration = config.boolValue( CONFIG_SECTION, "auto_register", false );
+
         // add some basic sequences
         var seq = modem_data.cmdSequences;
 
         seq["null"] = new CommandSequence( {} );
 
-        registerCommandSequence( "MODEM", "init", new CommandSequence( {
+        var initsequence = new CommandSequence( {
             "E0Q0V1",       /* echo off, Q0, verbose on */
             "+CMEE=1",      /* report mobile equipment errors = numerical format */
             "+CRC=1",       /* extended cellular result codes = enable */
@@ -296,7 +305,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             "+COLP=0",      /* connected line id present = disable */
             "+CCWA=0",      /* call waiting = disable */
             "+CSMS=1"       /* gsm phase 2+ commands = enable */
-        } ) );
+        } );
+        initsequence.append( config.stringListValue( CONFIG_SECTION, "modem_init", { } ) );
+
+        registerCommandSequence( "MODEM", "init", initsequence );
 
         configureData();
     }
@@ -306,6 +318,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         urc = createUnsolicitedHandler();
         callhandler = createCallHandler();
         smshandler = createSmsHandler();
+        watchdog = createWatchDog();
     }
 
     private void registerMediators()
@@ -347,7 +360,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     }
 
     /**
-     * Override this to return a custom type of call handler to be used for this modem.
+     * Override this to return a custom type of Call handler to be used for this modem.
      **/
     protected virtual CallHandler createCallHandler()
     {
@@ -360,6 +373,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected virtual SmsHandler createSmsHandler()
     {
         return new AtSmsHandler();
+    }
+
+    /**
+     * Override this to return a custom type of Watch Dog to be used for this modem.
+     **/
+    protected virtual WatchDog createWatchDog()
+    {
+        return new GenericWatchDog();
     }
 
     /**

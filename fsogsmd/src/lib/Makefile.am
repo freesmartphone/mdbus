@@ -63,6 +63,7 @@ libfsogsm_la_VALASOURCES = \
 	sms.vala \
 	structs.vala \
 	transport.vala \
+	watchdog.vala \
 	$(NULL)
 
 libfsogsm_la_SOURCES = \

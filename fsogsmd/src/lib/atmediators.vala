@@ -166,8 +166,6 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
                     theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
                 }
             }
-            // check autoregistration
-            yield checkAutoFunctionality();
         }
     }
     else if ( rcode == Constants.AtResponse.CME_ERROR_010_SIM_NOT_INSERTED ||
@@ -180,11 +178,6 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
     {
         theModem.logger.warning( "Unhandled error while querying SIM PIN status" );
     }
-}
-
-public async void checkAutoFunctionality()
-{
-    // ... NYI ...
 }
 
 public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
