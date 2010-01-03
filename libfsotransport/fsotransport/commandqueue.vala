@@ -68,12 +68,11 @@ public class CommandBundle
 
 public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Object
 {
-    public Transport transport;
-
     protected Gee.LinkedList<CommandBundle> q;
     protected CommandBundle current;
     protected uint timeout;
 
+    protected Transport transport;
     protected Parser parser;
     protected char* buffer;
     protected FsoFramework.CommandQueue.UnsolicitedHandler urchandler;

@@ -132,10 +132,6 @@ public abstract class FsoFramework.Transport : Object
      **/
     public abstract string getName();
     /**
-     * Return the transport filedescriptor.
-     **/
-    public abstract int getFd();
-    /**
      * Set delegates for being called when there is something to read or there has been an exception.
      **/
     public abstract void setDelegates( TransportFunc? readfunc, TransportFunc? hupfunc );
