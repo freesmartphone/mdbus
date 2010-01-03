@@ -313,6 +313,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return name;
     }
 
+    public override int getFd()
+    {
+        return fd;
+    }
+
     public override bool open()
     {
         assert( fd != -1 ); // fail, if trying to open the 2nd time
