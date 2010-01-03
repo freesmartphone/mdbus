@@ -28,21 +28,62 @@ public interface FsoGsm.PdpHandler : GLib.Object
 
 /**
  * @class AtPdpHandler
+ *
+ * This PdpHandler uses AT commands and ppp to implement the Pdp handler interface
  **/
 public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObject
 {
+    private FsoFramework.GProcessGuard ppp;
+
     public override string repr()
     {
         return "<>";
     }
 
+    private void onPppStopped()
+    {
+        //FIXME: check for expected or unexpected stop
+        logger.debug( "ppp has been stopped" );
+    }
+
+    //
+    // public API
+    //
+
     public async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        // var port = theModem.dataPort();
-        // var options = theModem.dataOptions();
+        if ( ppp != null && ppp.isRunning() )
+        {
+            return;
+        }
+
+        // build commandline
+        var data = theModem.data();
+
+        var cmdline = new string[] { data.pppCommand, theModem.pppPort() };
+        foreach ( var option in data.pppOptions )
+        {
+            cmdline += option;
+        }
+
+        // prepare modem
+
+        // launch ppp
+        ppp = new FsoFramework.GProcessGuard();
+        ppp.stopped.connect( onPppStopped );
+        ppp.launch( cmdline );
     }
 
     public async void deactivate()
     {
+        if ( ppp == null )
+        {
+            return;
+        }
+        if ( !ppp.isRunning() )
+        {
+            return;
+        }
+        ppp = null; // this will stop the process
     }
 }

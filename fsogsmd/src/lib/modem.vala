@@ -100,11 +100,14 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public string charset;
         public HashMap<string,CommandSequence> cmdSequences;
 
-        // runtime data
         public string functionality;
         public string simPin;
         public bool keepRegistration;
 
+        // PDP
+        public string pppCommand;
+        public string pppPort;
+        public string[] pppOptions;
         public ContextParams contextParams;
     }
 
@@ -161,8 +164,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract PdpHandler pdphandler { get; set; } // the Pdp handler
 
     // PDP API
-    public abstract string dataPort();
-    public abstract string dataOptions();
+    public abstract string pppPort();
 
     // Command Queue API
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
@@ -302,7 +304,33 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.simPin = config.stringValue( CONFIG_SECTION, "auto_unlock", "" );
         modem_data.keepRegistration = config.boolValue( CONFIG_SECTION, "auto_register", false );
 
-        // add some basic sequences
+        modem_data.pppCommand = config.stringValue( CONFIG_SECTION, "ppp_command", "pppd" );
+        modem_data.pppPort = config.stringValue( CONFIG_SECTION, "ppp_port", "/dev/null" );
+        modem_data.pppOptions = config.stringListValue( CONFIG_SECTION, "ppp_options", {
+            "115200",
+            "nodetach",
+            "crtscts",
+            "defaultroute",
+            "debug",
+            "hide-password",
+            "holdoff", "3",
+            "ipcp-accept-local",
+            "ktune",
+            // "lcp-echo-failure", "10",
+            // "lcp-echo-interval", "20",
+            "ipcp-max-configure", "4",
+            "lock",
+            "noauth",
+            // "demand",
+            "noipdefault",
+            "novj",
+            "novjccomp",
+            // "persist",
+            "proxyarp",
+            "replacedefaultroute",
+            "usepeerdns" } );
+
+        // add some basic init/exit/suspend/resume sequences
         var seq = modem_data.cmdSequences;
 
         seq["null"] = new CommandSequence( {} );
@@ -555,17 +583,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     /**
      * Override this, if you create the data port on demand
      **/
-    public virtual string dataPort()
+    public virtual string pppPort()
     {
-        return config.stringValue( CONFIG_SECTION, "ppp_port", "/dev/null" );
-    }
-
-    /**
-     * Override this, if you create the data port options on demand
-     **/
-    public virtual string dataOptions()
-    {
-        return config.stringValue( CONFIG_SECTION, "ppp_options", "nodefaultroute" );
+        return modem_data.pppPort;
     }
 
     public async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY )
