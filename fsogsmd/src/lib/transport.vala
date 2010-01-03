@@ -92,7 +92,9 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         assert( this.length > 0 );
         assert( this.length < length );
         GLib.Memory.copy( data, this.buffer, this.length );
+#if DEBUG
         message( @"READ %d from MUX: %s", length, ((string)data).escape( "" ) );
+#endif
         var l = this.length;
         this.length = 0;
         return l;
@@ -102,7 +104,9 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     {
         assert( this.length == 0 ); // NOT REENTRANT!
         assert( length < MUX_TRANSPORT_MAX_BUFFER );
+#if DEBUG
         message( @"WRITE %d to MUX: %s", length, ((string)data).escape( "" ) );
+#endif
         this.length = length;
         GLib.Memory.copy( this.buffer, data, length );
         tdelegate.readfunc( tdelegate );
@@ -139,7 +143,9 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     public int delegateWrite( void* data, int length, FsoFramework.Transport t )
     {
         assert( this.length == 0 );
+#if DEBUG
         message( "FROM MODEM WRITE %d bytes", length );
+#endif
         assert( length < MUX_TRANSPORT_MAX_BUFFER );
         GLib.Memory.copy( this.buffer, data, length ); // prepare data
         this.length = length;
@@ -151,7 +157,9 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     public int delegateRead( void* data, int length, FsoFramework.Transport t )
     {
         assert( this.length > 0 );
+#if DEBUG
         message( "FROM MODEM READ %d bytes", length );
+#endif
         assert( length > this.length );
         GLib.Memory.copy( data, this.buffer, this.length );
         var l = this.length;

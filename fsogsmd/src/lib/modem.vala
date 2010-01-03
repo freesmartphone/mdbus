@@ -164,7 +164,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract PdpHandler pdphandler { get; set; } // the Pdp handler
 
     // PDP API
-    public abstract string pppPort();
+    public abstract string allocateDataPort();
+    public abstract void releaseDataPort();
 
     // Command Queue API
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
@@ -320,7 +321,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             // "lcp-echo-interval", "20",
             "ipcp-max-configure", "4",
             "lock",
-            "noauth",
+            // "noauth",
             // "demand",
             "noipdefault",
             "novj",
@@ -581,11 +582,19 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     }
 
     /**
-     * Override this, if you create the data port on demand
+     * Override this, if the data port is not static or if you need special initialization
+     * before the data context is being opened.
      **/
-    public virtual string pppPort()
+    public virtual string allocateDataPort()
     {
         return modem_data.pppPort;
+    }
+
+    /**
+     * Override this, if you need to clean up after the data context is being closed.
+     **/
+    public virtual void releaseDataPort()
+    {
     }
 
     public async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY )
