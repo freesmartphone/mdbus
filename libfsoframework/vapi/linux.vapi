@@ -249,6 +249,20 @@ namespace Linux {
     [CCode (cheader_filename = "utmp.h")]
     public int login_tty (int fd);
 
+    // emulate gettid(2) for which no glib wrapper exists via syscall
+    public Posix.pid_t gettid() {
+        return (Posix.pid_t) syscall( SysCall.gettid );
+    }
+
+    // syscall(2)
+    [CCode (cprefix = "SYS_", cname = "int")]
+    public enum SysCall {
+            gettid
+    }
+
+    [CCode (cname = "syscall", cheader_filename = "unistd.h,sys/syscall.h")]
+    public int syscall (int number, ...);
+
     // mremap(2)
     [CCode (cprefix = "MREMAP_", cheader_filename = "sys/mman.h")]
     public enum MremapFlags {
@@ -257,8 +271,7 @@ namespace Linux {
     }
 
     [CCode (cheader_filename = "sys/mman.h")]
-    public void *mremap(void *old_address, size_t old_size, size_t new_size,
-                        MremapFlags flags);
+    public void *mremap(void *old_address, size_t old_size, size_t new_size, MremapFlags flags);
 
     /*
      * Network
