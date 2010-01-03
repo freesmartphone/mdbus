@@ -65,8 +65,9 @@ public class FsoFramework.NullTransport : FsoFramework.BaseTransport
         return rlength;
     }
 
-    public override void freeze()
+    public override int freeze()
     {
+        return -1;
     }
 
     public override void thaw()

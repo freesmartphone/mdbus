@@ -29,7 +29,7 @@ public class FsoFramework.DelegateTransport : FsoFramework.BaseTransport
     TransportFunc              hupfuncd;
     TransportBoolFunc          openfuncd;
     TransportFunc              closefuncd;
-    TransportFunc              freezefuncd;
+    TransportIntFunc           freezefuncd;
     TransportFunc              thawfuncd;
 
     public DelegateTransport( TransportDataFunc writefunc,
@@ -37,7 +37,7 @@ public class FsoFramework.DelegateTransport : FsoFramework.BaseTransport
                               TransportFunc hupfunc,
                               TransportBoolFunc openfunc,
                               TransportFunc closefunc,
-                              TransportFunc freezefunc,
+                              TransportIntFunc freezefunc,
                               TransportFunc thawfunc )
     {
         base( "TransportDelegate" );
@@ -71,9 +71,9 @@ public class FsoFramework.DelegateTransport : FsoFramework.BaseTransport
         return this.readfuncd( data, length, this );
     }
 
-    public override void freeze()
+    public override int freeze()
     {
-        this.freezefuncd( this );
+        return this.freezefuncd( this );
     }
 
     public override void thaw()

@@ -162,10 +162,12 @@ public abstract class FsoFramework.Transport : Object
     public abstract int write( void* data, int length );
     /**
      * Pause reading and writing from/to the transport.
+     * @returns the file descriptor that can now be used from another process.
      **/
-    public abstract void freeze();
+    public abstract int freeze();
     /**
      * Resume reading and writing from/to the transport.
+     * @note This invalidates the file descriptor retuned by freeze().
      **/
     public abstract void thaw();
     /**
@@ -186,3 +188,4 @@ public abstract class FsoFramework.Transport : Object
 public delegate void FsoFramework.TransportFunc( Transport transport );
 public delegate int FsoFramework.TransportDataFunc( void* data, int length, Transport transport );
 public delegate bool FsoFramework.TransportBoolFunc( Transport transport );
+public delegate int FsoFramework.TransportIntFunc( Transport transport );

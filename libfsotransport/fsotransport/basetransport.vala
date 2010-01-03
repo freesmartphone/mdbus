@@ -432,7 +432,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return (int)bread;
     }
 
-    public override void freeze()
+    public override int freeze()
     {
         if ( buffer.len > 0 )
         {
@@ -449,6 +449,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             writewatch = 0;
         }
         assert( logger.debug( "Frozen" ) );
+        return fd;
     }
 
     public override void thaw()
