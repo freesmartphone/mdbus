@@ -34,76 +34,6 @@ public interface FsoFramework.IProcessGuard : GLib.Object
 }
 
 /**
- * @class FsoFramework.AutoPipe
- **/
-public class FsoFramework.AutoPipe : GLib.Object
-{
-    private const uint BUFSIZE = 512;
-    private char[] buffer;
-
-    private GLib.IOChannel source;
-    private GLib.IOChannel destout;
-
-    private uint sourceWatch;
-    private uint destoutWatch;
-
-    private int sfd;
-    private int dinfd;
-    private int doutfd;
-
-    private bool onAction( GLib.IOChannel source, GLib.IOCondition condition )
-    {
-        if ( ( condition & GLib.IOCondition.HUP ) == GLib.IOCondition.HUP )
-        {
-            error( @"AutoPipe: HUP from source fd $(source.unix_get_fd()). Stopping." );
-            return false;
-        }
-
-        if ( ( condition & GLib.IOCondition.IN ) == GLib.IOCondition.IN )
-        {
-            var readfd = source.unix_get_fd();
-            var writefd = readfd == sfd ? dinfd : sfd;
-
-            var bread = Posix.read( readfd, buffer, BUFSIZE );
-            assert( bread > 0 );
-            var bwritten = Posix.write( writefd, buffer, bread );
-            assert( bwritten == bread );
-        }
-        else
-        {
-            error( "AutoPipe: Unknown IOCondition. Stopping." );
-            return false;
-        }
-        return true;
-    }
-
-    //
-    // public API
-    //
-
-    public AutoPipe( int s, int din, int dout )
-    {
-        sfd = s;
-        dinfd = din;
-        doutfd = dout;
-
-        source = new GLib.IOChannel.unix_new( s );
-        destout = new GLib.IOChannel.unix_new( dout );
-
-        sourceWatch = source.add_watch( GLib.IOCondition.IN | GLib.IOCondition.HUP, onAction );
-        destoutWatch = destout.add_watch( GLib.IOCondition.IN | GLib.IOCondition.HUP, onAction );
-
-        buffer = new char[BUFSIZE];
-    }
-
-    ~Pipe()
-    {
-        Source.remove( sourceWatch );
-        Source.remove( destoutWatch );
-    }
-}
-
-/**
  * @class FsoFramework.GProcessGuard
  **/
 public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Object
@@ -112,8 +42,6 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
     private uint watch;
     private string[] command;
     private bool relaunch;
-
-    private FsoFramework.AutoPipe pipe;
 
     ~GProcessGuard()
     {
@@ -158,7 +86,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         return true;
     }
 
-    public bool launchWithPipe( string[] command, int sfd )
+    public bool launchWithPipes( string[] command, out int fdin, out int fdout )
     {
         this.command = command; // save for possible relaunching
 
@@ -169,8 +97,6 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         }
 
         var res = 0;
-        var fdin = 0;
-        var fdout = 0;
         try
         {
             GLib.Process.spawn_async_with_pipes(
@@ -186,11 +112,9 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         }
         catch ( SpawnError e )
         {
-            warning( @"Can't spawn $(command[0]): $(strerror(errno))" );
+            warning( @"Can't spawn w/ pipes $(command[0]): $(strerror(errno))" );
             return false;
         }
-
-        pipe = new FsoFramework.AutoPipe( sfd, fdin, fdout );
 
         watch = GLib.ChildWatch.add( pid, onChildWatchEvent );
         this.running(); // SIGNAL
