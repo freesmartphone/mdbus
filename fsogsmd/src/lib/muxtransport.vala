@@ -114,8 +114,9 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         return length;
     }
 
-    public override void freeze()
+    public override int freeze()
     {
+        return -1; // we're not really freezing here
     }
 
     public override void thaw()
@@ -172,9 +173,10 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         message( "FROM MODEM HUP" );
     }
 
-    public void delegateFreeze( FsoFramework.Transport t )
+    public int delegateFreeze( FsoFramework.Transport t )
     {
         message( "FROM MODEM FREEZE REQ" );
+        return -1;
     }
 
     public void delegateThaw( FsoFramework.Transport t )

@@ -24,8 +24,7 @@ using FsoGsm;
 namespace TiCalypso
 {
     const string MODULE_NAME = "fsogsm.modem_ti_calypso";
-    //const string CHANNEL_NAMES[] = { "call", "main", "urc", "data" };
-    const string CHANNEL_NAMES[] = { "main", "urc" };
+    const string CHANNEL_NAMES[] = { "call", "main", "urc", "data" };
 }
 
 /**
@@ -109,13 +108,17 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
+        if ( query == "D*99#" )
+        {
+            return channels["data"];
+        }
         return channels[ "main" ];
     }
 
-    public void responseHandler( FsoGsm.AtCommand command, string[] response )
+    public override string allocateDataPort()
     {
-        debug( "handler called with '%s'", response[0] );
-        assert_not_reached();
+        var datachannel = channels["data"];
+        return datachannel.transport.freeze().to_string();
     }
 }
 

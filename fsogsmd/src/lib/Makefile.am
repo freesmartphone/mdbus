@@ -60,10 +60,11 @@ libfsogsm_la_VALASOURCES = \
 	lowlevel.vala \
 	mediator.vala \
 	modem.vala \
+	muxppp.vala \
+	muxtransport.vala \
 	pdp.vala \
 	sms.vala \
 	structs.vala \
-	transport.vala \
 	watchdog.vala \
 	$(NULL)
 
