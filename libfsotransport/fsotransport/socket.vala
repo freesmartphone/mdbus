@@ -71,7 +71,7 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
         }
 
         var resolver = Resolver.get_default();
-        /*unowned*/ List<InetAddress> addresses = resolver.lookup_by_name( name, null );
+        List<InetAddress> addresses = resolver.lookup_by_name( name, null );
         var address = addresses.nth_data(0);
         logger.info( @"Resolved $name to $address" );
 

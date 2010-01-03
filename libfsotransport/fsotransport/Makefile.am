@@ -37,6 +37,7 @@ libfsotransport_la_VALASOURCES = \
 	delegate.vala \
 	null.vala \
 	parser.vala \
+	pipe.vala \
 	pty.vala \
 	serial.vala \
 	socket.vala \
