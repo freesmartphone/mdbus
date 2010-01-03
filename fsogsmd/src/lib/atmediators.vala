@@ -1046,6 +1046,10 @@ public class AtPdpSetCredentials : PdpSetCredentials
     {
         var data = theModem.data();
         data.contextParams = new ContextParams( apn, username, password );
+
+        var cmd = theModem.createAtCommand<PlusCGDCONT>( "+CGDCONT" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( apn ) );
+        checkResponseOk( cmd, response );
     }
 }
 

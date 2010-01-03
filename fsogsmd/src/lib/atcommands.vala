@@ -167,6 +167,19 @@ public class PlusCGCLASS : SimpleAtCommand<string>
     }
 }
 
+public class PlusCGDCONT : AbstractAtCommand
+{
+    public PlusCGDCONT()
+    {
+        prefix = { "+CGDCONT: " };
+    }
+
+    public string issue( string apn )
+    {
+        return @"+CGDCONT=1,\"IP\",\"$apn\"";
+    }
+}
+
 public class PlusCGMI : SimpleAtCommand<string>
 {
     public PlusCGMI()
@@ -980,6 +993,9 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CMMS" ]             = new FsoGsm.PlusCMMS();
     table[ "+CMTI" ]             = new FsoGsm.PlusCMTI();
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
+
+    // pdp
+    table[ "+CGDCONT" ]          = new FsoGsm.PlusCGDCONT();
 
     // misc
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();

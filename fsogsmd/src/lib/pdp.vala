@@ -67,6 +67,9 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObjec
         }
 
         // prepare modem
+        var cmd = theModem.createAtCommand<V250D>( "D" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( "*99#" ) );
+        checkResponseOk( cmd, response );
 
         // launch ppp
         ppp = new FsoFramework.GProcessGuard();
