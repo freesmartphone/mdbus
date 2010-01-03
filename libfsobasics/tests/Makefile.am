@@ -20,7 +20,6 @@ VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsobasics \
 	--vapidir $(top_srcdir)/vapi \
-	--pkg morelinux \
 	--pkg posix \
 	--pkg linux \
 	--pkg glib-2.0 \

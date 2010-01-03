@@ -10,7 +10,6 @@ VALAC_ARGS = \
 	--thread \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
-	--pkg morelinux \
 	--pkg posix \
 	--pkg linux \
 	--pkg glib-2.0 \
