@@ -59,20 +59,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObjec
 
         // build ppp command line
         var data = theModem.data();
-        var cmdline = new string[] { data.pppCommand };
-
-        // check whether we should use a pipe or not
-        var port = theModem.allocateDataPort();
-        var intport = port.to_int();
-        if ( intport > 0 )
-        {
-            logger.info( @"Using pppd in PIPE mode via fd $(intport)" );
-        }
-        else
-        {
-            cmdline += port;
-        }
-
+        var cmdline = new string[] { data.pppCommand, theModem.allocateDataPort() };
         // add modem specific options to command line
         foreach ( var option in data.pppOptions )
         {
@@ -90,13 +77,9 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObjec
         ppp = new FsoFramework.GProcessGuard();
         ppp.stopped.connect( onPppStopped );
 
-        if ( intport > 0 )
+        if ( !ppp.launch( cmdline ) )
         {
-            ppp.launch( cmdline );
-        }
-        else
-        {
-            ppp.launchWithPipe( cmdline, intport );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Could not launch ppp binary" );
         }
     }
 

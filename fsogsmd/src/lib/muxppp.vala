@@ -57,23 +57,12 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
         var data = theModem.data();
         var cmdline = new string[] { data.pppCommand };
 
-        // check whether we should use a pipe or not
-        var port = theModem.allocateDataPort();
-        var intport = port.to_int();
-        if ( intport > 0 )
-        {
-            logger.info( @"Using pppd in PIPE mode via fd $(intport)" );
-        }
-        else
-        {
-            cmdline += port;
-        }
-
         // add modem specific options to command line
         foreach ( var option in data.pppOptions )
         {
             cmdline += option;
         }
+        var muxtransport = theModem.channel( "data" ).transport;
 
         /*
         // prepare modem
@@ -84,16 +73,16 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
 
         // launch ppp
         ppp = new FsoFramework.GProcessGuard();
-        ppp.stopped.connect( onPppStopped );
 
-        if ( intport > 0 )
+        var inputfd = 0;
+        var outputfd = 0;
+
+        ppp.stopped.connect( onPppStopped );
+        if ( !ppp.launchWithPipes( cmdline, out inputfd, out outputfd ) )
         {
-            ppp.launch( cmdline );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Could not launch ppp" );
         }
-        else
-        {
-            ppp.launchWithPipe( cmdline, intport );
-        }
+        //FIXME: Set mux transport into ppp mode and start piping data to/from ppp/muxtransport
     }
 
     public async void deactivate()
