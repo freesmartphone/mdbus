@@ -387,7 +387,7 @@ namespace FsoFramework { namespace Async {
                 // On exceptional condition, the delegate is being called with (null, 0) to do
                 // whatever necessary to bring us back on track.
                 actionfunc( null, 0 );
-                return true;
+                return false;
             }
 
             if ( ( condition & IOCondition.IN ) == IOCondition.IN )
