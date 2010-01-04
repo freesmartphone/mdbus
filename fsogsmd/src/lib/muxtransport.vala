@@ -183,4 +183,38 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     {
         message( "FROM MODEM THAW REQ" );
     }
+
+    //
+    // PPP forwarding
+    //
+
+    private int pppInFd;
+    private FsoFramework.Async.ReactorChannel pppOut;
+
+    public void startForwardingToPPP( int infd, int outfd )
+    {
+        if ( pppOut != null )
+        {
+            return;
+        }
+        pppInFd = infd;
+        pppOut = new FsoFramework.Async.ReactorChannel( infd, onDataFromPPP );
+    }
+
+    public void stopForwardingToPPP()
+    {
+        if ( pppOut == null )
+        {
+            return;
+        }
+        pppOut = null;
+    }
+
+    public void onDataFromPPP( void* data, ssize_t length )
+    {
+        message( "ON DATA FROM PPP" );
+        var bwritten = write( data, (int)length );
+        assert( bwritten == length );
+    }
+    
 }
