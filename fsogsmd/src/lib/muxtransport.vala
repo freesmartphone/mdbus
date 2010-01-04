@@ -81,7 +81,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         }
         catch ( Gsm0710mux.MuxerError e )
         {
-            logger.error( @"Can't open allocate channel from MUX: $(e.message)" );
+            logger.error( @"Can't open allocate channel #$(channelinfo.number) from MUX: $(e.message)" );
             return false;
         }
         return true;
@@ -93,7 +93,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         assert( this.length < length );
         GLib.Memory.copy( data, this.buffer, this.length );
 #if DEBUG
-        message( @"READ %d from MUX: %s", length, ((string)data).escape( "" ) );
+        message( @"READ %d from MUX #$(channelinfo.number): %s", length, ((string)data).escape( "" ) );
 #endif
         var l = this.length;
         this.length = 0;
@@ -105,7 +105,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         assert( this.length == 0 ); // NOT REENTRANT!
         assert( length < MUX_TRANSPORT_MAX_BUFFER );
 #if DEBUG
-        message( @"WRITE %d to MUX: %s", length, ((string)data).escape( "" ) );
+        message( @"WRITE %d to MUX #$(channelinfo.number): %s", length, ((string)data).escape( "" ) );
 #endif
         this.length = length;
         GLib.Memory.copy( this.buffer, data, length );
@@ -143,23 +143,35 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public int delegateWrite( void* data, int length, FsoFramework.Transport t )
     {
-        assert( this.length == 0 );
+        if ( pppOut == null )
+        {
+            assert( this.length == 0 );
 #if DEBUG
-        message( "FROM MODEM WRITE %d bytes", length );
+            message( @"FROM MODEM #$(channelinfo.number) WRITE $length" );
 #endif
-        assert( length < MUX_TRANSPORT_MAX_BUFFER );
-        GLib.Memory.copy( this.buffer, data, length ); // prepare data
-        this.length = length;
-        this.readfunc( this ); // signalize data being available
-        assert( this.length == 0 ); // all has been consumed
-        return length;
+            assert( length < MUX_TRANSPORT_MAX_BUFFER );
+            GLib.Memory.copy( this.buffer, data, length ); // prepare data
+            this.length = length;
+            this.readfunc( this ); // signalize data being available
+            assert( this.length == 0 ); // all has been consumed
+            return length;
+        }
+        else
+        {
+#if DEBUG
+            message( @"FROM MODEM #$(channelinfo.number) FOR PPP WRITE $length" );
+#endif
+            var bwritten = Posix.write( pppInFd, data, length );
+            assert( bwritten == length );
+            return length;
+        }
     }
 
     public int delegateRead( void* data, int length, FsoFramework.Transport t )
     {
         assert( this.length > 0 );
 #if DEBUG
-        message( "FROM MODEM READ %d bytes", length );
+        message( @"FROM MODEM #$(channelinfo.number) READ $length" );
 #endif
         assert( length > this.length );
         GLib.Memory.copy( data, this.buffer, this.length );
@@ -193,16 +205,18 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public void startForwardingToPPP( int infd, int outfd )
     {
+        message( @"START FORWARDING TO PPP VIA $infd <--> $outfd" );
         if ( pppOut != null )
         {
             return;
         }
         pppInFd = infd;
-        pppOut = new FsoFramework.Async.ReactorChannel( infd, onDataFromPPP );
+        pppOut = new FsoFramework.Async.ReactorChannel( outfd, onDataFromPPP );
     }
 
     public void stopForwardingToPPP()
     {
+        message( @"STOP FORWARDING TO PPP" );
         if ( pppOut == null )
         {
             return;
@@ -212,9 +226,13 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public void onDataFromPPP( void* data, ssize_t length )
     {
+        if ( data == null && length == 0 )
+        {
+            message( "EOF FROM PPP" );
+            return;
+        }
         message( "ON DATA FROM PPP" );
         var bwritten = write( data, (int)length );
         assert( bwritten == length );
     }
-    
 }

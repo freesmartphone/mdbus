@@ -36,16 +36,13 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
     {
         //FIXME: check for expected or unexpected stop
         logger.debug( "ppp has been stopped" );
+        var transport = theModem.channel( "data" ).transport as LibGsm0710muxTransport;
+        transport.stopForwardingToPPP();
     }
 
     //
     // public API
     //
-    public MuxPppPdpHandler( LibGsm0710muxTransport transport )
-    {
-        this.transport = transport;
-    }
-
     public async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( ppp != null && ppp.isRunning() )
@@ -56,20 +53,20 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
         // build ppp command line
         var data = theModem.data();
         var cmdline = new string[] { data.pppCommand };
+        cmdline += "notty";
+        cmdline += "logfile";
+        cmdline += "/tmp/ppp.log";
 
         // add modem specific options to command line
         foreach ( var option in data.pppOptions )
         {
             cmdline += option;
         }
-        var muxtransport = theModem.channel( "data" ).transport;
 
-        /*
         // prepare modem
         var cmd = theModem.createAtCommand<V250D>( "D" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( "*99#" ) );
-        checkResponseOk( cmd, response );
-        */
+        checkResponseOk( cmd, response );  // CONNECT ???
 
         // launch ppp
         ppp = new FsoFramework.GProcessGuard();
@@ -82,7 +79,9 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
         {
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Could not launch ppp" );
         }
-        //FIXME: Set mux transport into ppp mode and start piping data to/from ppp/muxtransport
+
+        var transport = theModem.channel( "data" ).transport as LibGsm0710muxTransport;
+        transport.startForwardingToPPP( inputfd, outputfd );
     }
 
     public async void deactivate()
