@@ -360,11 +360,11 @@ namespace FsoFramework { namespace Async {
         private char[] buffer;
         private size_t bufferlength;
 
-        public ReactorChannel( int fd, GLib.IOCondition condition, size_t bufferlength, owned ActionFunc actionfunc )
+        public ReactorChannel( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
         {
             assert( fd > -1 );
             channel = new GLib.IOChannel.unix_new( fd );
-            watch = channel.add_watch( condition, onActionFromChannel );
+            watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.HUP, onActionFromChannel );
             this.fd = fd;
             this.actionfunc = actionfunc;
             buffer = new char[ bufferlength ];
