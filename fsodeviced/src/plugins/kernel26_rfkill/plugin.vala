@@ -31,7 +31,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
 {
     const string[] opValue = { "Add", "Del", "Change", "ChangeAll", "unknown:4", "unknown:5", "unknown:6" };
     const string[] typeValue = { "All", "WiFi", "Bluetooth", "UWB", "WiMax", "WWan", "unknown:6", "unknown:7" };
-    
+
     protected static uint counter;
 
     private uint id;
@@ -63,7 +63,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         }
         this.softoff = softoff;
         this.hardoff = hardoff;
-        
+
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
@@ -177,7 +177,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
             idx   = this.id,
             op    = Linux.RfKillOp.CHANGE,
             soft  = (uint8)(!on) };
-        
+
         var bwritten = Posix.write( fd, &event, sizeof( Linux.RfKillEvent ) );
         if ( bwritten == -1 )
         {
@@ -219,7 +219,7 @@ public static string fso_factory_function( FsoFramework.Subsystem system ) throw
 {
     subsystem = system;
     // grab devfs paths
-    var config = FsoFramework.theMasterKeyFile();
+    var config = FsoFramework.theConfig;
     devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
 
     fd = Posix.open( Path.build_filename( devfs_root, "rfkill" ), Posix.O_RDWR );
