@@ -23,17 +23,8 @@ namespace FsoDevice {
 
 public abstract class BaseAccelerometer : FsoFramework.AbstractObject
 {
-    public delegate void AccelerationFunc( int[] axis );
-
-    public AccelerationFunc accelerationFunc;
-
     public BaseAccelerometer()
     {
-    }
-
-    public void setDelegate( AccelerationFunc f )
-    {
-        accelerationFunc = f;
     }
 
     public void setThreshold( int mg )
@@ -47,6 +38,8 @@ public abstract class BaseAccelerometer : FsoFramework.AbstractObject
     public abstract void start();
 
     public abstract void stop();
+
+    public abstract signal void acceleration( int x, int y, int z );
 
     public override string repr()
     {
