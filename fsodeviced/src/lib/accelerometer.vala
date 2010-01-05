@@ -46,5 +46,29 @@ public abstract class BaseAccelerometer : FsoFramework.AbstractObject
         return "<>";
     }
 }
+private static Gee.HashMap<string,BaseAccelerometer> _accels;
+public BaseAccelerometer getAccelerometer( string type )
+{
+    if( _accels == null )
+         _accels = new Gee.HashMap<string,BaseAccelerometer>();
+
+    var accel = _accels.get( type );
+    if( _accels == null )
+    {
+        switch( type )
+        {
+            case "lis302":
+                var t = Type.from_name( "HardwareAccelerometerLis302" );
+                accel = Object.new( t ) as BaseAccelerometer;
+                _accels.set( "lis302", accel );
+                break;
+            default:
+                debug( @"Can not lookup accelerometer for $type" );
+                break;
+        }
+    }
+    return accel;
+
+}
 
 }
