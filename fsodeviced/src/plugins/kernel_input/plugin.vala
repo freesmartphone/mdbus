@@ -490,7 +490,7 @@ internal string[] ignoreByPhys;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     // grab path from config
-    var config = FsoFramework.theMasterKeyFile();
+    var config = FsoFramework.theConfig;
     dev_root = config.stringValue( "cornucopia", "dev_root", "/dev" );
     dev_input = "%s/input".printf( dev_root );
 

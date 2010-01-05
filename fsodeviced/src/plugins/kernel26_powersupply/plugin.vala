@@ -476,7 +476,7 @@ internal Kernel26.AggregatePowerSupply aggregate;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     // grab sysfs paths
-    var config = FsoFramework.theMasterKeyFile();
+    var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     sys_class_powersupplies = "%s/class/power_supply".printf( sysfs_root );
 

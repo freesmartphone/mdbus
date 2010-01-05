@@ -190,7 +190,7 @@ List<Kernel26.Led> instances;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     // grab sysfs paths
-    var config = FsoFramework.theMasterKeyFile();
+    var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     sys_class_leds = "%s/class/leds".printf( sysfs_root );
     sys_class_net = "%s/class/net".printf( sysfs_root );

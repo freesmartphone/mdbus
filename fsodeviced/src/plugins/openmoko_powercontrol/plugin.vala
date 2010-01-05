@@ -137,7 +137,7 @@ internal static string sysfs_root;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     // grab sysfs paths
-    var config = FsoFramework.theMasterKeyFile();
+    var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     var devices = Path.build_filename( sysfs_root, "bus", "platform", "devices" );
     var drivers = Path.build_filename( sysfs_root, "bus", "platform", "drivers" );

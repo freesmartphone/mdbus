@@ -231,7 +231,7 @@ List<Kernel26.Rtc> instances;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     // grab sysfs paths
-    var config = FsoFramework.theMasterKeyFile();
+    var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     sys_class_rtcs = "%s/class/rtc".printf( sysfs_root );
 

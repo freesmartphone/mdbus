@@ -171,7 +171,7 @@ List<Kernel26.Display> instances;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     // grab sysfs and dev paths
-    var config = FsoFramework.theMasterKeyFile();
+    var config = FsoFramework.theConfig;
     var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     sys_class_backlight = "%s/class/backlight".printf( sysfs_root );
     var dev_root = config.stringValue( "cornucopia", "dev_root", "/dev" );
