@@ -178,7 +178,7 @@ Sharing.ConnectionSharing instance;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     // grab sysfs and dev paths
-    var config = FsoFramework.theMasterKeyFile();
+    var config = FsoFramework.SmartKeyFile.defaultKeyFile();
     var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     sys_class_net = "%s/class/net".printf( sysfs_root );
     // create instance
