@@ -1,7 +1,7 @@
 /* 
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
- * Last Modified: 21-11-2009 23:35:41
+ * Last Modified: 05-01-2010 02:48:58
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -98,7 +98,7 @@ namespace FsoMusic
             try
             {
                 position = kf.get_integer( name, Config.LAST_PLAYED );
-                load_from_file( Path.build_filename( Config.get_playlist_dir(), name ) );
+                load_from_uri( Path.build_filename( Config.get_playlist_dir(), name ) );
                 _current = files.nth( position );
             }
             catch (GLib.Error e)
@@ -118,7 +118,7 @@ namespace FsoMusic
             {
                 var playlist_path = kf.get_string( name, Config.PLAYLIST_PATH );
                 logger.debug( @"Load from path: $playlist_path" );
-                load_from_file( playlist_path, (a,b) => { logger.info( @"finished loading files for $(this._name)" );} );
+                load_from_uri( playlist_path, (a,b) => { logger.info( @"finished loading files for $(this._name)" );} );
             }
             catch (GLib.Error e)
             {
@@ -262,14 +262,11 @@ namespace FsoMusic
             var f = this.files.nth_data( position );
             return f;
         }
-        public async void load_from_file( string file ) throws MusicPlayerPlaylistError, DBus.Error
+        public async void load_from_uri( string uri ) throws MusicPlayerPlaylistError, DBus.Error
         {
-            if( ! FileUtils.test( file, FileTest.IS_REGULAR ))
-                 throw new MusicPlayerPlaylistError.FILE_NOT_FOUND( "Can't open file: %s".printf(file));
-            this.files = new List<string>();
             try
             {
-                var f = File.new_for_path( file );
+                var f = File.new_for_uri( uri );
                 var in_stream = yield f.read_async( Priority.DEFAULT, null );
                 var data_stream = new DataInputStream( in_stream ); 
                 while( true )
@@ -285,6 +282,7 @@ namespace FsoMusic
             catch (GLib.Error e)
             {
                 logger.error( @"LoadFromFile: $(e.message)" );
+                throw new MusicPlayerPlaylistError.FILE_NOT_FOUND( "Can't open file: %s".printf(uri));
             }
 
             this.files.reverse();
