@@ -34,7 +34,7 @@ void test_async_reactorchannel()
     var chan = new Async.ReactorChannel( fd, ( data, length ) => {
         debug( @"got $length bytes of data" );
         loop.quit();
-    }, sizeof( 16 ) );
+    }, 16 );
 
     loop.run();
 }
