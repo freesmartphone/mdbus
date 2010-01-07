@@ -20,6 +20,7 @@
 public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
 {
     State state = State.INVALID;
+
     char[] curline;
     string[] solicited;
     string[] unsolicited;
@@ -141,6 +142,8 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 return inline( c );
             case State.INLINE_R:
                 return inline_r( c );
+            case State.INVALID:
+                return invalid( c ); 
             default:
                 assert_not_reached();
         }
@@ -152,27 +155,40 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
     //
     public State start( char c )
     {
-        switch (c)
+        if ( haveCommand() )
         {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-                return State.V0_RESULT;
-            case '\r':
-                return State.START_R;
-            case 'A':
-            case 'a':
-                return State.ECHO_A;
-            case '[':
-                return State.START_HTC_BOGUS_BRACKET_LINE;
-            case '+':
-                warning( "AT violation. Unsolicited without \\r\\n header (ignoring). Your modem sucks." );
-                curline = { '+' };
-                return State.INLINE;
+            switch (c)
+            {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                    return State.V0_RESULT;
+                case '\r':
+                    return State.START_R;
+                case 'A':
+                case 'a':
+                    return State.ECHO_A;
+                default:
+                    return State.INVALID;
+            }
         }
-        return State.INVALID;
+        else
+        {
+            switch (c)
+            {
+                case '\r':
+                    return State.START_R;
+                case '\n':
+                    warning( "Detected missing \\r on start of line for incoming URC; ignoring v.250ter violation gracefully" );
+                    return State.INLINE;
+                default:
+                    warning( "Detected missing \\r\\n on start of line for incoming URC; ignoring v.250ter violation gracefully" );
+                    curline += c;
+                    return State.INLINE;
+            }
+        }
     }
 
     public State start_htc_bogus_bracket_line( char c )
@@ -213,7 +229,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         switch ( c )
         {
             case '\r':
-                warning( "Detected V0 mode (nonverbose). Ignoring, but please turn that off!" );
+                warning( "Detected V0 mode (nonverbose); ignoring, but please turn that off!" );
                 curline += 'O';
                 curline += 'K';
                 return endofline();
@@ -238,6 +254,9 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
     {
         switch (c)
         {
+            case '\r':
+                warning( "Detected multiple \\r at start of result; ignoring, but your modem SUCKS!" );
+                return State.START_R;
             case '\n':
                 return State.INLINE;
         }
@@ -276,6 +295,19 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 return State.INLINE_R;
             case '\n':
                 return endofline();
+        }
+        return State.INVALID;
+    }
+    
+    public State invalid( char c )
+    {
+        warning( "Invalid Parser State. Trying to resync..." );
+        switch (c)
+        {
+            case '\n':
+                return State.START;
+            default:
+                return State.INVALID;
         }
         return State.INVALID;
     }
