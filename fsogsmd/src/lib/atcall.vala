@@ -129,7 +129,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     construct
     {
         calls = new FsoGsm.Call[Constants.CALL_INDEX_MAX+1] {};
-        for ( int i = 1; i != Constants.CALL_INDEX_MAX; ++i )
+        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
         {
             calls[i] = new Call.newFromId( i );
         }
@@ -138,7 +138,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     private int numberOfBusyCalls()
     {
         var num = 0;
-        for ( int i = 1; i != Constants.CALL_INDEX_MAX; ++i )
+        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
         {
             if ( calls[i].detail.status != "release" && calls[i].detail.status != "incoming" )
             {
@@ -151,7 +151,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     private int numberOfCallsWithStatus( string status )
     {
         var num = 0;
-        for ( int i = 1; i != Constants.CALL_INDEX_MAX; ++i )
+        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
         {
             if ( calls[i].detail.status == status )
             {
@@ -163,7 +163,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     private int lowestOfCallsWithStatus( string status )
     {
-        for ( int i = 1; i != Constants.CALL_INDEX_MAX; ++i )
+        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
         {
             if ( calls[i].detail.status == status )
             {
@@ -226,7 +226,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         }
 
         // ...and synthesize updates for (now) released calls
-        for ( int i = 0; i != Constants.CALL_INDEX_MAX; ++i )
+        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
         {
             if ( ! visited[i] && calls[i].detail.status != "release" )
             {

@@ -25,6 +25,7 @@ public class FsoGsm.Constants
     public const string PHONE_DIGITS = """0123456789ABCD*#+pw""";
     public const string PHONE_DIGITS_RE = """[0-9A-D\*#\+pw]""";
 
+    public const int CALL_INDEX_MIN = 1;
     public const uint CALL_INDEX_MAX = 7;
 
     /**
