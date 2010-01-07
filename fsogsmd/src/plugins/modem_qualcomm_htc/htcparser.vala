@@ -85,8 +85,6 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         INVALID,
         START,
         START_R,
-        // This state accounts for special HTC intermediate responses such as '[WCDMA] Current RRC Status = 0'
-        START_HTC_BOGUS_BRACKET_LINE,
         V0_RESULT,
         ECHO_A,
         ECHO_INLINE,
@@ -130,8 +128,6 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 return start_r( c );
             case State.V0_RESULT:
                 return v0_result( c );
-            case State.START_HTC_BOGUS_BRACKET_LINE:
-                return start_htc_bogus_bracket_line( c );
             case State.ECHO_A:
                 return echo_a( c );
             case State.ECHO_INLINE:
@@ -189,16 +185,6 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                     return State.INLINE;
             }
         }
-    }
-
-    public State start_htc_bogus_bracket_line( char c )
-    {
-        switch (c)
-        {
-            case '\r':
-                return State.START_R;
-        }
-        return State.START_HTC_BOGUS_BRACKET_LINE;
     }
 
     public State echo_a( char c )
