@@ -30,11 +30,11 @@ void test_async_reactorchannel()
 {
     loop = new MainLoop();
 
-    var fd = Posix.open( "/dev/input/event4", Posix.O_RDONLY );
+    var fd = Posix.open( "/dev/zero", Posix.O_RDONLY );
     var chan = new Async.ReactorChannel( fd, ( data, length ) => {
         debug( @"got $length bytes of data" );
         loop.quit();
-    }, sizeof( Linux.Input.Event ) );
+    }, sizeof( 16 ) );
 
     loop.run();
 }
