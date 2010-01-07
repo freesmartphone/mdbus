@@ -129,6 +129,7 @@ AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
 AC_CONFIG_FILES([
   Makefile
   data/Makefile
+  data/org.freesmartphone.odeviced.service
   src/Makefile
   src/lib/Makefile
   src/bin/Makefile
