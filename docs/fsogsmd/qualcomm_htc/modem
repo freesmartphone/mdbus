@@ -1,0 +1,22 @@
+== Qualcomm HTC modem specific notes ==
+
+=== Behaviour ===
+
+* Modem starts out with V0, ATZ resets to V0, be careful with your parser.
+
+* Modem responds with +CME ERROR 10 (SIM not inserted), if you query for PIN before +CFUN=1
+
+* Range for +CLVL is 0-5
+
+=== GSM standards violations ===
+
+* Even after setting V1, +CME ERRORS are not correctly terminated with \r\n, but only \r
+
+* \r\n missing before SMS continuation character is sent
+
+* International SMS do not accept numbers of the form +4969... you need to substitute the '+' w/ 00
+
+=== Proprietary commands and URCs ===
+
+* +PB_READY: indicating the SIM phonebook is ready
+

@@ -1,0 +1,43 @@
+at+cfun=0
+
+OK
+at+cfun=1
+
+OK
+
++CMSM: 0
+
++CMPN: 1,2
+
++EMSR: 0
+at+cpin=1,"7728"
+
+OK
+
++CMSM: 3
+
++EHOZ: 0,""
+
++ESATP: 81
+
++EMSR: 0
+
++ESMT: 1
+
++EFLEX: 99,FE
+
++EFLEX: 100,FF
+
++EFLEX: 101,FF
+
++EFLEX: 102,FF
+
++EFLEX: 103,FB
+
++EFLEX: 104,F7
+
++EFLEX: 105,FF
+
++ESCR
+
+

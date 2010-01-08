@@ -1,0 +1,86 @@
+AT%CSQ             enable signal strength URC (%CSQ: <SNR>)
+AT%ALS             alternate line select
+AT%ATR
+AT%BAND            manual GSM band select
+AT%CACM
+AT%CAOC
+AT%CCBS
+AT%STDR
+AT%CGAATT
+AT%CGMM
+AT%CGREG
+AT%CNAP
+AT%CPI
+AT%COLR
+AT%CPRIM
+AT%CTV
+AT%CUNS
+AT%NRG
+AT%SATC            configuration for SAT; %SATC=<n>,<sat profile>
+AT%SATE            send SAT envelope command; %SATE=<satCmd>, response will be %SATE: <satRsp>
+AT%SATR            send SAT command response; $SATR=<satRsp>
+AT%SATT            terminate SAT command or session; %SATT=<cs>
+                   (0=user stopped redialing, 1 end of redialing, 2 user ends session)
+AT%SNCNT
+AT%VER
+AT%CGCLASS
+AT%CGPCO
+AT%CGPPP
+AT%EM
+AT%EMET
+AT%EMETS
+AT%CBHZ
+AT%CPHS
+AT%CPNUMS
+AT%CPALS
+AT%CPVWI
+AT%CPOPN
+AT%CPCFU
+AT%CPINF
+AT%CPMB
+AT%CPRI
+AT%DATA
+AT%DINF
+AT%CLCC
+AT%DBGINFO
+AT%VTS
+AT%CHPL
+AT%CREG
+AT%CTZV
+AT%CNIV
+AT%PVRF
+AT%CWUP
+AT%DAR
+AT%CSCN
+AT%RDL
+AT%RDLB
+AT%CSTAT
+AT%CPRSM
+AT%CHLD
+AT%SIMIND
+AT%SECP
+AT%SECS
+AT%CSSN
+AT%CSSD
+AT%COPS
+AT%CPMBW
+AT%CUST
+AT%SATCC
+AT%COPN
+AT%CGEREP
+AT%CUSCFG
+AT%CUSDR
+AT%CPBS
+AT%PBCF
+AT%SIMEF
+AT%EFRSLT
+AT%CMGMDU
+AT%CMGL
+AT%CMGR
+AT@ST
+AT@AUL
+AT@POFF
+AT@RST
+AT@SC
+AT@BAND
+

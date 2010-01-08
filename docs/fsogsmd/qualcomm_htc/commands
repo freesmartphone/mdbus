@@ -1,0 +1,116 @@
+Qualcomm MSM proprietary commands:
+=================================
+
++CGDSCONT          extension to +cgdcont
++CGTFT
++CGEQREQ           extension to +cgqreq
++CGEQMIN           extension to +cgqmin
++CGSMS
++CSAS
++CRES
++CSMP
++FDD
++FAR
++FCL
++FIT
++ES
++ESA
++CVHU
++HSDPA
++SIMVOLT
++TTYMODE
++EONS
++pref_UARFCN
++HTCmaskW1
++VKK_SIM_EXPIRED
++ISIMS
++ISIMA
++ISIMR
++QEXTONE
++HTCAGPS
++CUS_SBM
++CUS_EM
++MEMFULL
++CPIN              send PIN1/PUK1
++CPINC             get pin counter
++CPIN2             send PIN2/PUK2
++CMEC
++CKPD
++CGCMOD
++CGAATT
++BANDSET           manually select GSM band
++COPSLAC
++ALS               alternate line select
++ODEN
++HTCPDPIDLE
++CHZ
++CPPP
++CALLREJECT        send 'busy' signal without dropping other calls
++RXD
++EQ
++MAXPWR
++L1OPT
++ENCSQ
++HTCCNIV           enable extended operator name report URC
++QBANDCAP
++PHSM
++HTCNV
++HTCENS
++CPLS
++HTCCTZR           extension to +CTZR
++CDIP
++SIMTYPE
++CPBC
++CSDN
++GIMG
++GEVL
++RADIOVER
++CCSQ
++DMODE
+$QCCNMI
+$QCCLR
+$QCDMG
+$QCDMR
+$QCDNSP
+$QCDNSS
+$QCTER
+$QCSLOT
+$QCPINSTAT
+$QCPDPP
+$QCPDPLT
+$QCPWRDN
+$QCSIMSTAT
+$QCDGEN
+$BREW
+$FTM
+$GSM
+$GPRS
+$AMR
+$3G_RESEL_PARA
+$2G_RESEL_PARA
+$3G_RESEL_STATUS
+$2G_RESEL_STATUS
+$WCDMA
+$L3_RRC_SIGNAL
+$PRACH_RACH_INFO
+$3G_DCH_STATUS_A
+$3G_DCH_STATUS_M
+$3G_DCH_STATUS_D
+$3G_NEIGHBOR_ST
+$3G_NEIGHBOR_ST_2
+$3G_BLER_STATUS
+$3G_DL_TF_STATUS
+$3G_DL_TF_STATUS_2
+$3G_DL_TF_STATUS_3
+$3G_UL_TF_STATUS
+$3G_DL_RLC_AM_ST
+$3G_UL_RLC_AM_ST
+$HSDPA_CQI_STATUS
+$3G_AGC_STATUS
+$3G_RESEL_EVENT
+$3G_DL_TF_COMB_ST
+$3G_DL_TF_COMB_ST_2
+$3G_DL_TF_COMB_ST_3
+$HSUPA_STATUS
+$VTS
+$QCSYSMODE

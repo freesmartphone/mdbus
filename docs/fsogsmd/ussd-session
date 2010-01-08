@@ -1,0 +1,92 @@
+root@om-gta02 ~ $ /etc/init.d/frameworkd stop
+Stopping freesmartphone.org framework daemon: stopped process in pidfile '/var/run/frameworkd.pid' (pid 1412)
+(done)
+root@om-gta02 ~ $ mickeyterm -c
+Using **pending_return in dbus_connection_send_with_reply_setup() without pending_setup is deprecated and strongly discouraged
+Using **pending_return in dbus_connection_send_with_reply_setup() without pending_setup is deprecated and strongly discouraged
+Using **pending_return in dbus_connection_send_with_reply_setup() without pending_setup is deprecated and strongly discouraged
+Using **pending_return in dbus_connection_send_with_reply_setup() without pending_setup is deprecated and strongly discouraged
+Using **pending_return in dbus_connection_send_with_reply_setup() without pending_setup is deprecated and strongly discouraged
+<----------- Mickey's Term V2.9.4 @ /dev/pts/1 ----------->
+AT-Command Interpreter ready
+
+OK
+
+OK
+
+OK
+
+OK
+a
+OK
+atd*100#
+OK
++CUSD: 1,"o2 LOOP Men~
+1 Guthabenkonto
+2 Guthaben-Verf~gbarkeit
+3 Aufladung Guthaben/Pack-to-Go
+4 Pack Manager
+5 Bonuskonto
+6 Bonus-Verf~gbarkeit
+7 Tarifinfo
+8 Hilfe",15
+atd1
+OK
++CUSD: 0,"Ihr o2 LOOP Guthaben betr{gt: 8.64 EUR. Kostenlos bei o2 Prepaid! Individuelle Tarifberatung und pers|nlicher Service - 017955282",15
+
+OK
+(at__man beachte die ausbleibende OK meldung nach dem ersten menue, und die "1" im CSUD-reply)
+ERROR
+(at_numn mit timeout)
+EXT: I
+
+ERROR
+atd*100#
+OK
++CUSD: 1,"o2 LOOP Men~
+1 Guthabenkonto
+2 Guthaben-Verf~gbarkeit
+3 Aufladung Guthaben/Pack-to-Go
+4 Pack Manager
+5 Bonuskonto
+6 Bonus-Verf~gbarkeit
+7 Tarifinfo
+8 Hilfe",15
+
++CME ERROR: 100
+at__ok, das waren so 30 .. 45sec, dann ckommt CME ERROR
+ERROR
+atd*102#
+OK
++CUSD: 0,"Ihr o2 LOOP Guthaben ist bis zum 15.12.09 verf~gbar. ",15
+
+OK
+atd*104#
+OK
++CUSD: 1,"Packmanager
+
+1 Packstatus
+2 Pack buchen
+3 Pack abbestellen
+",15
+atd1
+OK
++CUSD: 1,"Statusanzeige f~r welches Pack?
+
+1 Internet Pack L
+0 Abbruch
+",15
+atd1
+OK
++CUSD: 1,"Ihr Pack Internet Pack L ist aktiv und l{uft am 15.07.2009 aus.
+Das Pack kostet monatlich 25,00 Euro.
+
+1 Detailinfo
+",15
+atd1
+OK
++CUSD: 0,"Sie haben noch 5091,13 MB Internet zur Verf~gung.
+
+ Kostenlos bei o2 Prepaid! Individuelle Tarifberatung und pers|nlicher Service - 017955282",15
+ 
+OK

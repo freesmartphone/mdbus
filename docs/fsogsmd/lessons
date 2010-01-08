@@ -1,0 +1,51 @@
+========================================================
+= Lessons learned from the implementation of ogsmd 1.x =
+========================================================
+
+=== Things to keep ===
+
+* General architecture of
+
+ - modem class, creating a bunch of
+ - channels, optionally delegating to
+ - unsolicited handlers.
+ - mediators encapsulating the dbus command specifics.
+
+* Separation of responsibilities.
+
+=== Things to change for fsogsmd ===
+
+* Delegate channel i/o to a dedicated transport delegate in order to
+  simplify talking to a simulator or a multiplexer library. [DONE]
+
+* On systems with optional multiplexing, do not use PTYs, but rather
+  directly talk (using the multiplexer as a library). [DONE]
+
+* Per-command timeouts do not make sense; rather maintain a reasonable
+  channel timeout (say 90 seconds or so) that gets reset on every incoming
+  data. When we are actually waiting for an answer and it triggers,
+  try to escalate resetting the parser and/or (transparently) relaunching
+  the last command. [done in frameworkd] [DONE]
+  
+* Per-command retries _might_ make sense.
+
+* Dragging an error callback around for every command does not make
+  sense, if the error refers to channel errors (such as a timeout),
+  as opposed to an actual command response error (which makes sense). [DONE]
+  
+* If there's no reliable way to detect unsolicited responses (such as
+  a physical or a virtual RING line) _and_ the modem does not
+  guarantee delaying them between a request and a response, then
+  the low level parser needs to be fed a list of valid prefixes for
+  every command. [done in frameworkd] [DONE]
+  
+* It _might_ make sense to define every AT command as a struct, including:
+  * a list of valid prefixes,
+  * a regular expression that groups values into elements,
+  * a mapping of values to types.
+  This could reduce quite some boilerplate code. [DONE]
+
+* Try to treat channels equally. Send commands in a round-robin fashion
+  (except those for which there is per-channel state) to improve latency
+  and throughput.
+

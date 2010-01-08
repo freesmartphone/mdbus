@@ -1,0 +1,65 @@
+== TI Calypso specific notes ==
+
+=== MUX Level ===
+
+* Before entering the multiplex mode, you have to set echo off (ATE0), otherwise you
+  won't get any 07.10 packets in return
+  
+* No response to test commands
+
+=== AT Level ===
+
+* On channel init, we better send \x1a first -- just in case something crashed while we
+  were inside a multiline request command
+  
+* +CCLK? violates 07.07, it doesn't use %02d, but %d for the individual components.
+  Moreover, +CCLK needs the UTC offset, but doesn't honor it.
+
+* +CFUN=1 resets previous +CPIN="abcd" (even with 2nd parameter?)
+
+* +CFUN=1 resets +CLVL, so it needs to be sent afterwards
+
+* +CFUN=1 always "succeeds" even if it answers with ERROR (SIM PIN Required)
+
+* I always receive CME ERROR 32 on +COPS=? until +CREG=1
+
+* +CREG=%d influences both the unsolicited response as well as the solicited response code
+
+* Phonebook indices start with 1 (not 0)
+
+* If SIM PIN not given, SIM file reading commands (phonebook, messagebook, crm) deliver the slightly misleading
+  * CMS ERROR 310 (=SIM NOT INSERTED), or (yes, that can happen as well, if the PHB is not ready yet)
+  * OK (=empty response) :( Readyness of the PHB is available if CFUN=1 and SMS auth given
+
+* If SMS phone number available in messagebook, address name will be automatically inserted
+
+* +CIEV supports 'signal' and 'smsfull' and has to be explicitly enabled with:
+  +CMER=2,0,0,1,0 and +CIND=5,1
+
+* +CBM Cell broadcasts only appear on the virtual channel that issued +CNMI the last time.
+
+* %CBHZ=1 needs to be issued, otherwise the Calypso will swallow everything but the first Cell Broadcast message.
+  * WARNING: %CBHZ=1 seems to have a very negative effect on power consumption and (believe it or not) voice quality :/
+
+* Cancelling certain commands (ATH for a start) will render a virtual channel unusable. Calypso moves into
+  a CMS ERROR 512 state in that case. You will have to restart the modem once this happens.
+  * Sending +COLP=1 seems to have a negative effect on this issue. DO NOT USE +COLP=1.
+
+* Shutting down an ongoing GPRS connection can take ages. Need to better interface with pppd here.
+  * We should issue ATH here (first check whether there is no call ongoing though).
+
+* +CLIR is virtual channel-specific (yes, hard to believe), so you need to issue it on the same channel
+  where you issue ATD.
+
+* Deep Sleep Mode is broken. If you suffer from permament recamping (+CREG: 0, then +CREG: 1,...), then you
+  need to issue the (completely undocumented) command AT%SLEEP=2 (disable deep sleep). AT%SLEEP=4 enables deep sleep.
+
+* Sometimes on outgoing calls %CPI with message type of 9 (setup MO call) wont get sent. For outgoing call progress
+  detection one should rather rely on %CPI with message type 3 (call proceed)
+
+* Calypso only checks for flow-control before sending an entire message.
+
+=== Proprietary commands ===
+
+* Too many to list here, please see http://wiki.openmoko.org
+
