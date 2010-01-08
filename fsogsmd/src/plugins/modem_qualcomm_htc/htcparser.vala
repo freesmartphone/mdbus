@@ -89,6 +89,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         ECHO_A,
         ECHO_INLINE,
         CONTINUATION,
+        CONTINUATION_SPACE,
         INLINE,
         INLINE_R,
     }
@@ -134,6 +135,8 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 return echo_inline( c );
             case State.CONTINUATION:
                 return continuation( c );
+            case State.CONTINUATION_SPACE:
+                return continuation_space( c );
             case State.INLINE:
                 return inline( c );
             case State.INLINE_R:
@@ -166,6 +169,9 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 case 'A':
                 case 'a':
                     return State.ECHO_A;
+                case '>':
+                    warning( "Detected missing \\r\\n before continuation character; ignoring, but your modem SUCKS!" );
+                    return State.CONTINUATION;
                 default:
                     return State.INVALID;
             }
@@ -229,6 +235,17 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         switch (c)
         {
             case ' ':
+                return State.CONTINUATION_SPACE;
+            default:
+                return State.INVALID;
+        }
+    }
+
+    public State continuation_space( char c )
+    {
+        switch (c)
+        {
+            case '\r':
                 curline = { '>', ' ' };
                 return endoflineSurelySolicited();
             default:
