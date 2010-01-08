@@ -560,7 +560,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public T createMediator<T>() throws FreeSmartphone.Error
     {
-        Type typ = mediators[typeof(T)];
+        var typ = mediators[typeof(T)];
         assert( typ != typeof(T) ); // we do NOT want the interface, else things will go havoc
         if ( typ == Type.INVALID )
         {
@@ -627,7 +627,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public Type mediatorFactory( Type mediator ) throws FreeSmartphone.Error
     {
-        Type typ = mediators[mediator];
+        var typ = mediators[mediator];
         if ( typ == Type.INVALID )
         {
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( mediator.name() ) );

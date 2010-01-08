@@ -29,8 +29,8 @@ namespace Conversions {
                              char terminator,
                              [CCode (array_length = false)] char[] outbuffer );
 
-    void encode_hex_own_buf( char[] inbuffer,
-                             /* long length, */
+    void encode_hex_own_buf( [CCode (array_length = false)] char[] inbuffer,
+                             long length,
                              char terminator,
                              [CCode (array_length = false)] char[] outbuffer );
 }
@@ -508,7 +508,6 @@ namespace Sms
         public string toHexPdu( out int tpdulen )
         {
             int binlen;
-            // FIXME: Check why it breaks if you create a larger buffer here
             char[] binpdu = new char[176];
 
             var res = Sms.encode( this, out binlen, out tpdulen, binpdu );
@@ -517,9 +516,9 @@ namespace Sms
                 GLib.warning( @"Sms.Message::toHexPdu: could not encode message" );
                 tpdulen = -1;
                 return "";
-            }         
+            }
             char[] hexpdu = new char[1024];
-            Conversions.encode_hex_own_buf( binpdu, 0, hexpdu );
+            Conversions.encode_hex_own_buf( binpdu, binlen, 0, hexpdu );
             return "%s".printf( (string) hexpdu );
         }
 
