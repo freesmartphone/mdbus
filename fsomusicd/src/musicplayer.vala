@@ -1,7 +1,7 @@
 /* 
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
- * Last Modified: 21-11-2009 21:46:14
+ * Last Modified: 09-01-2010 18:54:15
  *
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
@@ -33,7 +33,7 @@ namespace FsoMusic
         private int _wait_counter = 0;
         //Workaround to detect dec/inc. Is it possible to do this another way?
         private bool waiting = false;
-        private int wait_counter{ default=0; get{return _wait_counter;}
+        private int wait_counter{ get{return _wait_counter;}
             set{
                 if( value < 0 )
                     logger.error( @"someone tried to set wait_counter to: $value < 0 waiting $waiting" );
