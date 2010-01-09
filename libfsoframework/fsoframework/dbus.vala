@@ -76,7 +76,17 @@ namespace DBus
     }
 }
 
+// misc helper classes and functions
 
+namespace FsoFramework {
+
+public bool isValidDBusName( string busname )
+{
+    //FIXME: this should be more...
+    return ( "." in busname );
+}
+
+} /* namespace FsoFramework */
 
 public delegate void FsoFramework.DBusServiceEventFunc( string busname );
 
