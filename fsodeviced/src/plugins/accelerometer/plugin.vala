@@ -102,11 +102,29 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
         if ( accelerometer == null )
         {
             var devicetype = config.stringValue( Hardware.HW_ACCEL_PLUGIN_NAME, "device_type", "(not set)" );
+            var typename = "";
 
-            accelerometer = FsoDevice.getAccelerometer( devicetype );
+            switch ( devicetype )
+            {
+                case "lis302":
+                    typename = "HardwareAccelerometerLis302";
+                    break;
+                default:
+                    logger.error( "Unknown accelerometer device type '%s'".printf( devicetype ) );
+                    return; // don't call me again
+            }
+
+            var classtype = Type.from_name( typename );
+            if ( classtype == Type.INVALID  )
+            {
+                logger.warning( "Can't find plugin for accelerometer device type '%s'".printf( devicetype ) );
+                return; // don't call me again
+            }
+
+            accelerometer = Object.new( classtype ) as FsoDevice.BaseAccelerometer;
             logger.info( "Ready. Using accelerometer plugin '%s'".printf( devicetype ) );
 
-            accelerometer.acceleration.connect( this.onAcceleration );
+            accelerometer.setDelegate( this.onAcceleration );
 
             movementIdleThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_idle_threshold", Hardware.MOVEMENT_IDLE_THRESHOLD );
             movementBusyThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_busy_threshold", Hardware.MOVEMENT_BUSY_THRESHOLD );
@@ -130,10 +148,13 @@ class Accelerometer : FreeSmartphone.Device.Orientation, FsoFramework.AbstractOb
             stopAccelerometer();
     }
 
-    public void onAcceleration( int x, int y, int z )
+    public void onAcceleration( int[] axis )
     {
-        logger.debug( "onAcceleration: acceleration values: %d, %d, %d".printf( x, y, z ) );
+        logger.debug( "onAcceleration: acceleration values: %d, %d, %d".printf( axis[0], axis[1], axis[2] ) );
 
+        int x = axis[0];
+        int y = axis[1];
+        int z = axis[2];
 
         /*
 
