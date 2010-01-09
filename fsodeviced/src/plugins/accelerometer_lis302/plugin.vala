@@ -83,7 +83,8 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         axis[1] = 0;
         axis[2] = 0;
 
-        acceleration( 0, 0, 0 );
+        if (accelerationFunc != null)
+            accelerationFunc( axis );
         return false;
     }
 
@@ -115,7 +116,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 
     private bool onTimeout()
     {
-        acceleration( axis[0], axis[1], axis[2] );
+        accelerationFunc( axis );
         timeout = 0;
         return false; // don't call me again
     }
