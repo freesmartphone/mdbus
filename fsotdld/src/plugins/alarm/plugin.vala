@@ -251,6 +251,6 @@ public static string fso_factory_function( FsoFramework.DBusSubsystem subsystem 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsotdl.alarm fso_register_function()" );
+    FsoFramework.theLogger.FsoFramework.theLogger.debug( "fsotdl.alarm fso_register_function()" );
 }
 

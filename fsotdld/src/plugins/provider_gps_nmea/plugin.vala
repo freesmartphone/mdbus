@@ -157,14 +157,14 @@ class Nmea.Protocol : Object
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "fsoltdl.provider_gps_nmea fso_factory_function" );
+    FsoFramework.theLogger.debug( "fsoltdl.provider_gps_nmea fso_factory_function" );
     return Nmea.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "fsotdl.source_gps fso_register_function" );
+    FsoFramework.theLogger.debug( "fsotdl.source_gps fso_register_function" );
     // do not remove this function
 }
 

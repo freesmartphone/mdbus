@@ -237,7 +237,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "fsodevice.player_gstreamer fso_register_function()" );
+    FsoFramework.theLogger.debug( "fsodevice.player_gstreamer fso_register_function()" );
 }
 
 /**

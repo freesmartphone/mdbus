@@ -719,7 +719,7 @@ internal async void async_helper()
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "fsogsmd.dbus_service fso_register_function" );
+    FsoFramework.theLogger.debug( "fsogsmd.dbus_service fso_register_function" );
 }
 
 /**

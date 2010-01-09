@@ -135,14 +135,14 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "fsogsm.ti_calypso fso_factory_function" );
+    FsoFramework.theLogger.debug( "fsogsm.ti_calypso fso_factory_function" );
     return TiCalypso.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "fsogsm.ti_calypso fso_register_function" );
+    FsoFramework.theLogger.debug( "fsogsm.ti_calypso fso_register_function" );
     // do not remove this function
 }
 

@@ -154,14 +154,14 @@ class Source.Gps : FsoTime.AbstractSource
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "fsotdl.source_gps fso_factory_function" );
+    FsoFramework.theLogger.debug( "fsotdl.source_gps fso_factory_function" );
     return Source.Gps.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "fsotdl.source_gps fso_register_function" );
+    FsoFramework.theLogger.debug( "fsotdl.source_gps fso_register_function" );
     // do not remove this function
 }
 

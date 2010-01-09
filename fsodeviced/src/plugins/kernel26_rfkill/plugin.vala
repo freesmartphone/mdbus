@@ -237,7 +237,7 @@ public static string fso_factory_function( FsoFramework.Subsystem system ) throw
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "fsodevice.kernel26_rfkill fso_register_function()" );
+    FsoFramework.theLogger.debug( "fsodevice.kernel26_rfkill fso_register_function()" );
 }
 
 /**
