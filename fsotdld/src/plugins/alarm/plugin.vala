@@ -20,18 +20,38 @@
  *
  */
 
-using GLib;
 using Gee;
 using DBus;
-using FreeSmartphone;
 
 internal const int COMPENSATE_SECONDS = 5;
+
+public class WakeupAlarm
+{
+    public string busname;
+    public int timestamp;
+    public DBus.ObjectPath path;
+
+    public WakeupAlarm( string busname, int timestamp )
+    {
+        this.busname = busname;
+        this.timestamp = timestamp;
+    }
+
+    public static int compare( void* a, void* b )
+    {
+        var wa = a as WakeupAlarm;
+        var wb = b as WakeupAlarm;
+        if ( wa.timestamp < wb.timestamp ) return -1;
+        if ( wa.timestamp > wb.timestamp ) return 1;
+        return 0;
+    }
+}
 
 public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractObject
 {
     private FsoFramework.DBusSubsystem subsystem;
     private dynamic DBus.Object rtc;
-    private HashMap<string,int> alarms;
+    private TreeSet<WakeupAlarm> alarms;
     private uint timer;
 
     public AlarmController( FsoFramework.DBusSubsystem subsystem )
@@ -50,7 +70,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
                                "org.freesmartphone.Device.RealtimeClock" );
         logger.info( "created" );
 
-        alarms = new HashMap<string,int>( str_hash, str_equal );
+        alarms = new TreeSet<WakeupAlarm>( WakeupAlarm.compare );
     }
 
     public override string repr()
@@ -63,23 +83,23 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         logger.debug( "Rescheduling wakeup alarms" );
 
         var now = TimeVal();
-        var missed = new ArrayList<string>();
+        var missed = new ArrayList<WakeupAlarm>();
 
         // compute all that have hit since last schedule
-        foreach ( var busname in alarms.keys )
+        foreach ( var alarm in alarms )
         {
-            if ( alarms[busname] < (int)now.tv_sec + COMPENSATE_SECONDS )
+            if ( alarm.timestamp < (int)now.tv_sec + COMPENSATE_SECONDS )
             {
-                missed.add( busname );
+                missed.add( alarm );
             }
         }
 
         // ping and remove them
-        foreach ( var busname in missed )
+        foreach ( var alarm in missed )
         {
-            logger.info( "Notifying %s about its alarm on %d".printf( busname, alarms[busname] ) );
-            alarmNotificationViaDbus( busname );
-            alarms.remove( busname );
+            logger.info( @"Notifying $(alarm.busname) about an alarm on $(alarm.timestamp)" );
+            alarmNotificationViaDbus( alarm.busname );
+            alarms.remove( alarm );
         }
 
         if ( alarms.size == 0 )
@@ -94,19 +114,10 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         }
 
         // program the newest one into mainloop & RTC
-        int next = 1952801220;
-        var name = "";
-        foreach ( var busname in alarms.keys )
-        {
-            if ( alarms[busname] < next )
-            {
-                next = alarms[busname];
-                name = busname;
-            }
-        }
+        var next = alarms.first();
         now.get_current_time();
-        int seconds = next - (int)now.tv_sec;
-        logger.info( "Programming mainloop & rtc alarm for %s at %d (%d seconds from now)".printf( name, next, seconds ) );
+        int seconds = next.timestamp - (int)now.tv_sec;
+        logger.info( @"Programming mainloop & rtc alarm for $(next.busname) at $(next.timestamp) in $seconds seconds from now" );
 
         // program mainloop timer
         if ( timer != 0 )
@@ -115,7 +126,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         }
         timer = Timeout.add_seconds( seconds, schedule );
 
-        setRtcWakeupTime( next );
+        setRtcWakeupTime( next.timestamp );
 
         return false; // mainloop: don't call me again
     }
@@ -128,7 +139,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         }
         catch ( DBus.Error e )
         {
-            logger.error( "Can't program RTC wakeup time: %s".printf( e.message ) );
+            logger.error( @"Can't program RTC wakeup time: $(e.message)" );
         }
     }
 
@@ -146,35 +157,85 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
     {
         if ( e != null )
         {
-            logger.error( "%s. Can't notify client".printf( e.message ) );
+            logger.error( @"Can't notify client: $(e.message)" );
         }
         else
         {
-            logger.info( "Alarm Notification OK" );
+            logger.info( "Alarm Notification sent and received" );
         }
+    }
+
+    private void clearAlarms( string busname )
+    {
+        var toremove = new ArrayList<WakeupAlarm>();
+        foreach ( var alarm in alarms )
+        {
+            if ( alarm.busname == busname )
+            {
+                toremove.add( alarm );
+            }
+        }
+        foreach ( var element in toremove )
+        {
+            alarms.remove( element );
+        }
+        Idle.add( schedule );
+    }
+
+    private void removeAlarm( string busname, int timestamp )
+    {
+        var toremove = new ArrayList<WakeupAlarm>();
+        foreach ( var alarm in alarms )
+        {
+            if ( alarm.busname == busname && alarm.timestamp == timestamp )
+            {
+                toremove.add( alarm );
+            }
+        }
+        foreach ( var alarm in toremove )
+        {
+            alarms.remove( alarm );
+        }
+        Idle.add( schedule );
     }
 
     //
     // FreeSmartphone.Time.Alarm (DBUS API)
     //
-    public async void clear_alarm( string busname ) throws DBus.Error
+    public async FreeSmartphone.Time.WakeupAlarm[] list_alarms() throws DBus.Error
     {
-        if ( busname in alarms )
+        var list = new FreeSmartphone.Time.WakeupAlarm[] {};
+        foreach ( var alarm in alarms )
         {
-            alarms.remove( busname );
-            schedule();
+            var element = FreeSmartphone.Time.WakeupAlarm() { busname = alarm.busname, timestamp = alarm.timestamp };
+            list += element;
         }
+        return list;
     }
 
-    public async void set_alarm( string busname, int timestamp ) throws FreeSmartphone.Error, DBus.Error
+    public async void clear_alarms( string busname ) throws DBus.Error
     {
+        clearAlarms( busname );
+    }
+
+    public async void add_alarm( string busname, int timestamp ) throws FreeSmartphone.Error, DBus.Error
+    {
+        if ( ! ( FsoFramework.isValidDBusName( busname ) ) )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid DBus name." );
+        }
         var now = TimeVal();
         if ( (int)now.tv_sec >= timestamp )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Timestamp not in the future." );
         }
-        alarms[busname] = timestamp;
+        alarms.add( new WakeupAlarm( busname, timestamp ) );
         Idle.add( schedule );
+    }
+
+    public async void remove_alarm( string busname, int timestamp ) throws DBus.Error
+    {
+        removeAlarm( busname, timestamp );
     }
 }
 
@@ -190,6 +251,6 @@ public static string fso_factory_function( FsoFramework.DBusSubsystem subsystem 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "fsotdl.alarm fso_register_function()" );
+    FsoFramework.theLogger.debug( "fsotdl.alarm fso_register_function()" );
 }
 
