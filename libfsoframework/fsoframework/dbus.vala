@@ -82,8 +82,20 @@ namespace FsoFramework {
 
 public bool isValidDBusName( string busname )
 {
-    //FIXME: this should be more...
-    return ( "." in busname );
+    var parts = busname.split( "." );
+    if ( parts.length < 2 )
+    {
+        return false;
+    }
+    if ( busname.has_prefix( "." ) )
+    {
+        return false;
+    }
+    if ( busname.has_suffix( "." ) )
+    {
+        return false;
+    }
+    return true;
 }
 
 } /* namespace FsoFramework */
