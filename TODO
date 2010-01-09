@@ -18,3 +18,10 @@ libfsobasics:
 ==transport/glib==
 Find out how to make sure that we always read what's available from
 a transport before attempting to write.
+
+==fsotdld==
+===alarm===
+* Should we support a customizable object path for alarm notifications?
+* Should registered alarms be persistent in case the daemon dies or the system gets rebooted?
+
+
