@@ -51,6 +51,24 @@ internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) thr
     }
 }
 
+internal void checkResponseExpected( FsoGsm.AtCommand command,
+                                     string[] response,
+                                     Constants.AtResponse[] expected
+                                   ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+{
+    var code = command.validateOk( response );
+
+    for ( int i = 0; i < expected.length; ++i )
+    {
+        if ( code == expected[i] )
+        {
+            return;
+        }
+    }
+
+    throwAppropriateError( code, response[response.length-1] );
+}
+
 //FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkResponseConnect( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
@@ -563,8 +581,9 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
 
         var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( value ) );
-        checkResponseOk( cmd, response );
-
+        checkResponseExpected( cmd,
+                         response,
+                         { Constants.AtResponse.OK, Constants.AtResponse.CME_ERROR_011_SIM_PIN_REQUIRED } );
         var data = theModem.data();
         data.keepRegistration = autoregister;
         data.simPin = pin;
