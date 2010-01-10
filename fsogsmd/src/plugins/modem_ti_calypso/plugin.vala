@@ -113,7 +113,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        if ( query == "D*99#" )
+        if ( query == "D*99#;" )
         {
             return channels["data"];
         }
