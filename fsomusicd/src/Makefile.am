@@ -1,3 +1,5 @@
+include $(top_srcdir)/Makefile.decl
+
 NULL = 
 
 AUTOMAKE_OPTIONS = subdir-objects
@@ -28,11 +30,11 @@ fsomusicd_VALASOURCES = \
 
 fsomusicd_SOURCES = \
 	$(fsomusicd_VALASOURCES:.vala=.c) \
-	$(fsomusicd_VALASOURCES:.vala=.h) \
 	$(NULL)
 
 .vala.stamp: $(fsomusicd_VALASOURCES)
-	$(VALAC) -C --pkg  dbus-glib-1 \
+	$(VALAC) -C \
+	    --pkg  dbus-glib-1 \
 	    --pkg gstreamer-0.10 \
 	    --pkg posix \
 	    --pkg fsobasics-2.0 \
@@ -42,11 +44,12 @@ fsomusicd_SOURCES = \
 	    --vapidir=. \
 	    --save-temps  $^
 	touch $@
+
 fsomusicd_LDADD = \
 		    $(DEPS_LIBS) \
 		    $(NULL)
 
-EXTRA_DIST = \
+EXTRA_DIST += \
 	$(fsomusicd_VALASOURCES) \
 	src/.vala.stamp \
 	$(NULL)
