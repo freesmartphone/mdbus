@@ -171,7 +171,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     {
         assert( this.length > 0 );
 #if DEBUG
-        message( @"FROM MODEM #$(channelinfo.number) READ $length" );
+        message( @"FROM MODEM #$(channelinfo.number) READ $(this.length)" );
 #endif
         assert( length > this.length );
         GLib.Memory.copy( data, this.buffer, this.length );

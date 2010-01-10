@@ -80,6 +80,28 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """%CSTAT=1""",
             """@ST="-26""""
         } ) );
+
+        modem_data.pppOptions = config.stringListValue( CONFIG_SECTION, "ppp_options", {
+            "115200",
+            "nodetach",
+            "nodefaultroute",
+            "noreplacedefaultroute",
+            "debug",
+            "hide-password",
+            "holdoff", "3",
+            "ipcp-accept-local",
+            "ktune",
+            // "lcp-echo-failure", "10",
+            // "lcp-echo-interval", "20",
+            "ipcp-max-configure", "4",
+            // "noauth",
+            "noipdefault",
+            "novj",
+            "novjccomp",
+            // "persist",
+            "proxyarp",
+            "silent",
+            "usepeerdns" } );
     }
 
     protected override void createChannels()

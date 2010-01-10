@@ -310,6 +310,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.pppOptions = config.stringListValue( CONFIG_SECTION, "ppp_options", {
             "115200",
             "nodetach",
+            "modem",
             "crtscts",
             "nodefaultroute",
             "noreplacedefaultroute",
@@ -321,14 +322,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             // "lcp-echo-failure", "10",
             // "lcp-echo-interval", "20",
             "ipcp-max-configure", "4",
-            "lock",
             // "noauth",
-            // "demand",
             "noipdefault",
             "novj",
             "novjccomp",
-            // "persist",
             "proxyarp",
+            "silent",
             "usepeerdns" } );
 
         // add some basic init/exit/suspend/resume sequences
