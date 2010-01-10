@@ -144,8 +144,8 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
     public override string allocateDataPort()
     {
-        var datachannel = channels["data"];
-        return datachannel.transport.freeze().to_string();
+        // we're using MUXppp instead
+        assert_not_reached();
     }
 }
 

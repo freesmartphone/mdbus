@@ -85,8 +85,31 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
 
         } ) );
 
-        // modem specific init sequences
+        // modem-specific init sequences
         var seq = modem_data.cmdSequences;
+
+        // modem-specific ppp options
+        modem_data.pppOptions = config.stringListValue( CONFIG_SECTION, "ppp_options", {
+            "115200",
+            "nodetach",
+            "nodefaultroute",
+            "noreplacedefaultroute",
+            "debug",
+            "hide-password",
+            "holdoff", "3",
+            "ipcp-accept-local",
+            "ktune",
+            // "lcp-echo-failure", "10",
+            // "lcp-echo-interval", "20",
+            "ipcp-max-configure", "4",
+            // "noauth",
+            "noipdefault",
+            "novj",
+            "novjccomp",
+            // "persist",
+            "proxyarp",
+            "silent",
+            "usepeerdns" } );
     }
 
     protected override void createChannels()
@@ -99,6 +122,11 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         }
     }
 
+    public override PdpHandler createPdpHandler()
+    {
+        return new MuxPppPdpHandler();
+    }
+
     protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
     {
         return new CinterionMc75.UnsolicitedResponseHandler();
@@ -106,7 +134,17 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
+        if ( query == "D*99#;" )
+        {
+            return channels["data"];
+        }
         return channels[ "main" ];
+    }
+
+    public override string allocateDataPort()
+    {
+        // we're using MUXppp instead
+        assert_not_reached();
     }
 }
 
