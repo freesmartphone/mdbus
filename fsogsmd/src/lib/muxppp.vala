@@ -87,8 +87,7 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
 
         // wait shortly to check to catch the case when ppp exists immediately
         // due to invalid options or permissions or what not
-        //yield FsoFramework.asyncWaitSeconds( WAIT_FOR_PPP_COMING_UP );
-        Thread.usleep( 1000 * 1000 * WAIT_FOR_PPP_COMING_UP );
+        yield FsoFramework.asyncWaitSeconds( WAIT_FOR_PPP_COMING_UP );
 
         if ( ppp == null )
         {
@@ -96,22 +95,14 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "PPP helper quit immediately" );
         }
 
-        /*
-
-        // prepare forwarding to ppp
-        var transport = theModem.channel( "data" ).transport as LibGsm0710muxTransport;
-        transport.startForwardingToPPP( inputfd, outputfd );
-
         // enter data state
         var cmd = theModem.createAtCommand<V250D>( "D" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( "*99***1#" ) );
-
-        debug( "!!!" );
         checkResponseConnect( cmd, response );
 
-        debug( "!!!" );
-        *
-        */
+        // start forwarding to ppp
+        var transport = theModem.channel( "data" ).transport as LibGsm0710muxTransport;
+        transport.startForwardingToPPP( inputfd, outputfd );
     }
 
     public async void deactivate()
