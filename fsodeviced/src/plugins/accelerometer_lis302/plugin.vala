@@ -83,8 +83,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         axis[1] = 0;
         axis[2] = 0;
 
-        if (accelerationFunc != null)
-            accelerationFunc( axis );
+        this.accelerate( axis[0], axis[1], axis[2] ); // GOBJECT SIGNAL
         return false;
     }
 
@@ -93,7 +92,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         fd = Posix.open( inputnode, Posix.O_RDONLY );
         if ( fd == -1 )
         {
-            logger.warning( "Can't open %s (%s). Lis302 Accelerometer not available.".printf( inputnode, Posix.strerror( Posix.errno ) ) );
+            logger.warning( @"Can't open $inputnode: $(strerror(errno)) Lis302 Accelerometer not available." );
             return;
         }
         channel = new IOChannel.unix_new( fd );
@@ -116,7 +115,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 
     private bool onTimeout()
     {
-        accelerationFunc( axis );
+        this.accelerate( axis[0], axis[1], axis[2] ); // GOBJECT SIGNAL
         timeout = 0;
         return false; // don't call me again
     }
@@ -125,7 +124,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
     {
         if ( ev.code > 2 )
         {
-            logger.warning( "invalid data from input device. axis > 2" );
+            logger.warning( "Invalid data from input device. axis > 2" );
             return;
         }
 
@@ -153,12 +152,12 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
             logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
             _handleInputEvent( ref ev );
         }
-//#if DEBUG
+#if DEBUG
         else
         {
             logger.debug( "(ignoring non-ABS) input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
         }
-//#endif
+#endif
 
         return true;
     }
@@ -174,7 +173,6 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "accelerometer_lis302 fso_factory_function" );
     return "fsodevice.accelerometer_lis302";
 }
 
