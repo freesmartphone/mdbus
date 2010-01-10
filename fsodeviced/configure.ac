@@ -136,7 +136,7 @@ AC_CONFIG_FILES([
   src/plugins/Makefile
   src/plugins/accelerometer/Makefile
   src/plugins/accelerometer_lis302/Makefile
-  src/plugins/alsa_audio/Makefile
+  src/plugins/audio/Makefile
   src/plugins/kernel26_display/Makefile
   src/plugins/kernel26_leds/Makefile
   src/plugins/kernel26_powersupply/Makefile
@@ -149,6 +149,7 @@ AC_CONFIG_FILES([
   src/plugins/player_alsa/Makefile
   src/plugins/player_canberra/Makefile
   src/plugins/player_gstreamer/Makefile
+  src/plugins/router_alsa/Makefile
   src/plugins/thinkpad_powercontrol/Makefile
   tests/Makefile
 ])

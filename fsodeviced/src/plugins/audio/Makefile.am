@@ -30,15 +30,15 @@ VALAC_ARGS = \
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = alsa_audio.la
-alsa_audio_la_SOURCES = plugin.c
-alsa_audio_la_VALASOURCES = plugin.vala
-$(alsa_audio_la_SOURCES): $(alsa_audio_la_VALASOURCES)
+modlibexec_LTLIBRARIES = audio.la
+audio_la_SOURCES = plugin.c
+audio_la_VALASOURCES = plugin.vala
+$(audio_la_SOURCES): $(audio_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-alsa_audio_la_LIBADD = $(progs_ldadd)
-alsa_audio_la_LDFLAGS = -no-undefined -module -avoid-version
-alsa_audio_la_LIBTOOLFLAGS = --tag=disable-static
+audio_la_LIBADD = $(progs_ldadd)
+audio_la_LDFLAGS = -no-undefined -module -avoid-version
+audio_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \
