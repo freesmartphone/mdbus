@@ -167,7 +167,9 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
                 case 'a':
                     return State.ECHO_A;
                 default:
-                    return State.INVALID;
+                    warning( "Detected missing \\r\\n on start of line for incoming response; ignoring v.250ter violation gracefully" );
+                    curline += c;
+                    return State.INLINE;
             }
         }
         else
