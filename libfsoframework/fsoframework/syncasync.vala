@@ -17,11 +17,20 @@
  *
  */
 
+namespace FsoFramework
+{
+    public async void asyncWaitSeconds( int seconds )
+    {
+        GLib.Timeout.add_seconds( seconds, asyncWaitSeconds.callback );
+        yield;
+    }
+} /* namespace */
+
 public class FsoFramework.SyncWrapper : GLib.Object
 {
     protected GLib.VoidFunc func;
     protected GLib.MainLoop loop;
-    
+
     public SyncWrapper( owned GLib.VoidFunc func )
     {
         this.func = func;
