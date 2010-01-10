@@ -66,7 +66,7 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
         // prepare modem
         var cmd = theModem.createAtCommand<V250D>( "D" );
         var response = yield theModem.processCommandAsync( cmd, cmd.issue( "*99#" ) );
-        checkResponseOk( cmd, response );  // CONNECT ???
+        checkResponseConnect( cmd, response );
 
         // launch ppp
         ppp = new FsoFramework.GProcessGuard();

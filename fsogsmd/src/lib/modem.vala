@@ -311,7 +311,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             "115200",
             "nodetach",
             "crtscts",
-            "defaultroute",
+            "nodefaultroute",
+            "noreplacedefaultroute",
             "debug",
             "hide-password",
             "holdoff", "3",
@@ -328,7 +329,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             "novjccomp",
             // "persist",
             "proxyarp",
-            "replacedefaultroute",
             "usepeerdns" } );
 
         // add some basic init/exit/suspend/resume sequences

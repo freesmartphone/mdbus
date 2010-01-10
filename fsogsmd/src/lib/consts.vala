@@ -186,6 +186,7 @@ public class FsoGsm.Constants
     {
         VALID = 0,
         OK = 1,
+        CONNECT = 2,
         UNEXPECTED_LENGTH = 501,
         UNABLE_TO_PARSE = 502,
         ERROR = 503,

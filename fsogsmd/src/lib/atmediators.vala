@@ -52,6 +52,20 @@ internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) thr
 }
 
 //FIXME: Do we want to allow a list of exceptions that do not raise an error?
+internal void checkResponseConnect( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+{
+    var code = command.validateOk( response );
+    if ( code == Constants.AtResponse.CONNECT )
+    {
+        return;
+    }
+    else
+    {
+        throwAppropriateError( code, response[response.length-1] );
+    }
+}
+
+//FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validateTest( response );

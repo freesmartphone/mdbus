@@ -134,6 +134,11 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoFramework.Comma
             return Constants.AtResponse.OK;
         }
 
+        if ( statusline == "CONNECT" )
+        {
+            return Constants.AtResponse.CONNECT;
+        }
+
         assert( theModem.logger.debug( @"Did not receive OK (instead '$statusline') for $(Type.from_instance(this).name())" ) );
         var errorcode = 0;
 
