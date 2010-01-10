@@ -1,3 +1,5 @@
+include $(top_srcdir)/Makefile.decl
+
 dbusconfdir = @DBUS_DIR@/system.d
 dist_dbusconf_DATA = fsousaged.conf
 
