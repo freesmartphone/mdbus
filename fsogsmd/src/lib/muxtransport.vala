@@ -203,6 +203,11 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     private int pppInFd;
     private FsoFramework.Async.ReactorChannel pppOut;
 
+    public bool isForwardingToPPP()
+    {
+        return ( pppOut != null );
+    }
+
     public void startForwardingToPPP( int infd, int outfd )
     {
         message( @"START FORWARDING TO PPP VIA $infd <--> $outfd" );

@@ -159,6 +159,22 @@ public class PlusCFUN : SimpleAtCommand<int>
     }
 }
 
+public class PlusCGACT : SimpleAtCommand<int>
+{
+    public PlusCGACT()
+    {
+        base( "+CGACT" );
+    }
+}
+
+public class PlusCGATT : SimpleAtCommand<int>
+{
+    public PlusCGATT()
+    {
+        base( "+CGATT" );
+    }
+}
+
 public class PlusCGCLASS : SimpleAtCommand<string>
 {
     public PlusCGCLASS()
@@ -995,6 +1011,8 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
 
     // pdp
+    table[ "+CGACT" ]            = new FsoGsm.PlusCGACT();
+    table[ "+CGATT" ]            = new FsoGsm.PlusCGATT();
     table[ "+CGDCONT" ]          = new FsoGsm.PlusCGDCONT();
 
     // misc

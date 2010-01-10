@@ -24,7 +24,7 @@ using FsoGsm;
 namespace CinterionMc75
 {
     const string MODULE_NAME = "fsogsm.modem_cinterion_mc75";
-    const string CHANNEL_NAMES[] = { "call", "main", "data" };
+    const string CHANNEL_NAMES[] = { "call", "data", "main" };
 }
 
 /**
@@ -95,20 +95,22 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
             "nodefaultroute",
             "noreplacedefaultroute",
             "debug",
-            "hide-password",
-            "holdoff", "3",
+            //"holdoff", "3",
             "ipcp-accept-local",
+            "ipcp-accept-remote",
             "ktune",
-            // "lcp-echo-failure", "10",
-            // "lcp-echo-interval", "20",
-            "ipcp-max-configure", "4",
-            // "noauth",
+            "ipcp-max-failure", "10",
+            "local",
+            "name", "fsogsmd",
+            "noauth",
+            "noccp",
             "noipdefault",
             "novj",
             "novjccomp",
-            // "persist",
             "proxyarp",
             "silent",
+            "user", "eplus",
+            "password", "gprs",
             "usepeerdns" } );
     }
 
@@ -134,7 +136,7 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        if ( query == "D*99#;" )
+        if ( query.has_prefix( "D*99" ) || query.has_prefix( "+CGD" ) )
         {
             return channels["data"];
         }

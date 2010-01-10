@@ -24,6 +24,8 @@
  **/
 public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObject
 {
+    private const int WAIT_FOR_PPP_COMING_UP = 2;
+
     private FsoFramework.GProcessGuard ppp;
     private LibGsm0710muxTransport transport;
 
@@ -37,7 +39,15 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
         //FIXME: check for expected or unexpected stop
         logger.debug( "ppp has been stopped" );
         var transport = theModem.channel( "data" ).transport as LibGsm0710muxTransport;
-        transport.stopForwardingToPPP();
+
+        if ( transport.isForwardingToPPP() )
+        {
+            // FIXME: check whether transport is still in data mode...,
+            // and if so, try to return gracefully to command mode
+            transport.stopForwardingToPPP();
+        }
+
+        ppp = null;
     }
 
     //
@@ -63,11 +73,6 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
             cmdline += option;
         }
 
-        // prepare modem
-        var cmd = theModem.createAtCommand<V250D>( "D" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( "*99#" ) );
-        checkResponseConnect( cmd, response );
-
         // launch ppp
         ppp = new FsoFramework.GProcessGuard();
 
@@ -77,11 +82,36 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
         ppp.stopped.connect( onPppStopped );
         if ( !ppp.launchWithPipes( cmdline, out inputfd, out outputfd ) )
         {
-            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Could not launch ppp" );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Could not launch PPP helper" );
         }
 
+        // wait shortly to check to catch the case when ppp exists immediately
+        // due to invalid options or permissions or what not
+        //yield FsoFramework.asyncWaitSeconds( WAIT_FOR_PPP_COMING_UP );
+        Thread.usleep( 1000 * 1000 * WAIT_FOR_PPP_COMING_UP );
+
+        if ( ppp == null )
+        {
+            logger.warning( "PPP quit immediately; check options and permissions." );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "PPP helper quit immediately" );
+        }
+
+        /*
+
+        // prepare forwarding to ppp
         var transport = theModem.channel( "data" ).transport as LibGsm0710muxTransport;
         transport.startForwardingToPPP( inputfd, outputfd );
+
+        // enter data state
+        var cmd = theModem.createAtCommand<V250D>( "D" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( "*99***1#" ) );
+
+        debug( "!!!" );
+        checkResponseConnect( cmd, response );
+
+        debug( "!!!" );
+        *
+        */
     }
 
     public async void deactivate()

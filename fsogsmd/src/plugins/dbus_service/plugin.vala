@@ -600,7 +600,7 @@ class DBusService.Device :
 
     public async void deactivate_context() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var m = modem.createMediator<FsoGsm.PdpActivateContext>();
+        var m = modem.createMediator<FsoGsm.PdpDeactivateContext>();
         yield m.run();
     }
 
