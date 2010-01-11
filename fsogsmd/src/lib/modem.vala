@@ -113,6 +113,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
     public const uint DEFAULT_RETRY = 3;
 
+    public const uint SIM_READY_TIMEOUT = 5;
+
     //TODO: Think about exposing a global modem state through DBus -- possibly
     //      reusing this as internal status as well -- rather than double bookkeeping
     public enum Status
@@ -666,14 +668,26 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         }
 
         // if there is no SIM readyness signal, assume it's ready NOW
-        if ( ( next == Modem.Status.ALIVE_SIM_UNLOCKED ) && ( !modem_data.simHasReadySignal ) )
+        if ( next == Modem.Status.ALIVE_SIM_UNLOCKED )
         {
-            modem_status = Modem.Status.ALIVE_SIM_READY;
+            // if there is a SIM READY signal, launch a fallback timer, since these kinds of signals
+            // are time criticle, i.e. there's a certain timeframe after
+            // resetting the modem / unlocking the SIM when this signal is to arrive,
+            // however, depending on how you are using this software, it may not have been
+            // started yet, so we miss that signal.
+            if ( modem_data.simHasReadySignal )
+            {
+                GLib.Timeout.add_seconds( SIM_READY_TIMEOUT, () => {
+                    advanceToState( Modem.Status.ALIVE_SIM_READY );
+                    return false;
+                } );
+            }
+            else
+            {
+                next = Modem.Status.ALIVE_SIM_READY;
+            }
         }
-        else
-        {
-            modem_status = next;
-        }
+        modem_status = next;
         signalStatusChanged( modem_status );
         logger.info( "Modem Status changed to %s".printf( FsoFramework.StringHandling.enumToString( typeof(Modem.Status), modem_status ) ) );
     }

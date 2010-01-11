@@ -103,16 +103,6 @@ public class FsoGsm.BaseUnsolicitedResponseHandler : FsoGsm.UnsolicitedResponseH
 
 public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedResponseHandler
 {
-    private async void triggerUpdateNetworkStatus()
-    {
-        // gather info
-        var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
-        yield m.run();
-        // send dbus signal
-        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-        obj.status( m.status );
-    }
-
     //
     // public API
     //

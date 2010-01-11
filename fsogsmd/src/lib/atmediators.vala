@@ -235,6 +235,28 @@ public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeS
     }
 }
 
+public async void triggerUpdateNetworkStatus()
+{
+    assert( theModem.logger.debug( "triggerUpdateNetworkStatus()" ) );
+    // gather info
+    var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
+    yield m.run();
+
+    // advance modem status, if necessary
+    var status = m.status.lookup( "registration" ).get_string();
+
+    GLib.debug( @"!!!!!!!!! trigger update: $status" );
+
+    if ( status == "home" || status == "roaming" )
+    {
+        theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
+    }
+
+    // send dbus signal
+    var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+    obj.status( m.status );
+}
+
 /**
  * Debug Mediators
  **/

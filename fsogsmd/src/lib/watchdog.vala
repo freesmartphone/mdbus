@@ -89,6 +89,7 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
         {
             logger.error( @"Could not register: $(e.message)" );
         }
+        triggerUpdateNetworkStatus();
     }
 
     //
