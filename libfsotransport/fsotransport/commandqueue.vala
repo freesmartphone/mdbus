@@ -87,9 +87,18 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
         var postfix = current.command.get_postfix();
         var seconds = current.command.get_timeout();
 
-        transport.write( prefix, (int)prefix.length );
-        transport.write( request, (int)request.size() );
-        transport.write( postfix, (int)postfix.length );
+        if ( prefix.length > 0 )
+        {
+            transport.write( prefix, (int)prefix.length );
+        }
+        if ( request.size() > 0 )
+        {
+            transport.write( request, (int)request.size() );
+        }
+        if ( postfix.length > 0 )
+        {
+            transport.write( postfix, (int)postfix.length );
+        }
         if ( seconds > 0 )
         {
             timeout = Timeout.add_seconds( seconds, _onTimeout );
