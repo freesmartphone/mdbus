@@ -73,6 +73,10 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
             cmdline += option;
         }
 
+        // add our plugin
+        cmdline += "plugin";
+        cmdline += "%s/ppp2fsogsmd.so".printf( Config.PACKAGE_LIBDIR );
+
         // launch ppp
         ppp = new FsoFramework.GProcessGuard();
 
