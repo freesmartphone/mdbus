@@ -1,4 +1,4 @@
-AC_INIT([fsogsmd], [0.3.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
+AC_INIT([fsogsmd], [0.5.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 #AC_CONFIG_MACRO_DIR([m4]
@@ -19,7 +19,7 @@ AC_SUBST(LDFLAGS)
 # pkg-config requirements
 PKG_PROG_PKG_CONFIG
 
-VALA_REQUIRED=0.7.8
+VALA_REQUIRED=0.7.9
 GLIB_REQUIRED=2.18.0
 GEE_REQUIRED=0.5.0
 XML_REQUIRED=2.7.3
@@ -100,20 +100,13 @@ AC_SUBST(FSO_LIBS)
 ##############################################################################
 # optional feature: ppp
 AC_ARG_ENABLE(ppp-support,
-  [  --enable-ppp-support            Enable building ppp support (default=disabled)],
-  ppp="yes", ppp="no")
-AC_ARG_WITH([pppd-plugin-dir], AS_HELP_STRING([--with-pppd-plugin-dir=DIR], [path to the pppd plugins directory]))
+  [  --disable-ppp-support            Disable building ppp plugin (default=enabled)],
+  ppp="no", ppp="yes")
 
 if test "x$ppp" = "xyes"; then
     # pppd
     AC_CHECK_HEADERS([pppd/pppd.h],,
-      [AC_MSG_ERROR([Could not find pppd.h. pppd development headers are required.])])
-    if test -n "$with_pppd_plugin_dir" ; then
-      PPPD_PLUGIN_DIR="$with_pppd_plugin_dir"
-    else
-      AC_MSG_ERROR([To build ppp support, you need to supply --with-pppd-plugin-dir=DIR])
-    fi
-    AC_SUBST(PPPD_PLUGIN_DIR)
+      [AC_MSG_ERROR([Could not find pppd.h. pppd development headers are required to build the ppp plugin.])])
 fi
 AM_CONDITIONAL( [WANT_PPP], [test x"$ppp" = x"yes"])
 
@@ -126,6 +119,16 @@ else
 fi
 eval PACKAGE_DATADIR="${pkgdatadir}"
 AC_DEFINE_UNQUOTED([PACKAGE_DATADIR], ["${PACKAGE_DATADIR}"], [Shared data directory])
+
+##############################################################################
+# gather libdir
+if test "x$prefix" != "xNONE"; then
+  pkglibdir='${prefix}/lib/cornucopia/fsogsmd'
+else
+  pkglibdir='/usr/local/lib/cornucopia/fsogsmd'
+fi
+eval PACKAGE_LIBDIR="${pkglibdir}"
+AC_DEFINE_UNQUOTED([PACKAGE_LIBDIR], ["${PACKAGE_LIBDIR}"], [Module directory])
 
 ##############################################################################
 # check for debugging
@@ -170,10 +173,11 @@ echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
 echo
-echo "  build ppp support.......: $ppp"
-echo "    ppp plugin directory..: $PPPD_PLUGIN_DIR"
+echo "  build ppp plugin........: $ppp"
 echo
 echo "  shared data directory...: $pkgdatadir"
+echo
+echo "  plugin directory........: $pkglibdir"
 echo
 echo "  debug build.............: $debug"
 echo

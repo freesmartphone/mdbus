@@ -34,16 +34,16 @@ VALAC_ARGS = \
 #
 # plugin
 #
-modlibexecdir = $(PPPD_PLUGIN_DIR)
-modlibexec_LTLIBRARIES = fsogsmd.la
-fsogsmd_la_SOURCES = plugin.c
-fsogsmd_la_VALASOURCES = plugin.vala
-$(fsogsmd_la_SOURCES): $(fsogsmd_la_VALASOURCES)
+modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
+modlibexec_LTLIBRARIES = ppp2fsogsmd.la
+ppp2fsogsmd_la_SOURCES = plugin.c
+ppp2fsogsmd_la_VALASOURCES = plugin.vala
+$(ppp2fsogsmd_la_SOURCES): $(ppp2fsogsmd_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-fsogsmd_la_LIBADD = $(progs_ldadd)
-fsogsmd_la_LDFLAGS = -no-undefined -module -avoid-version
-fsogsmd_la_LIBTOOLFLAGS = --tag=disable-static
+ppp2fsogsmd_la_LIBADD = $(progs_ldadd)
+ppp2fsogsmd_la_LDFLAGS = -no-undefined -module -avoid-version
+ppp2fsogsmd_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \
