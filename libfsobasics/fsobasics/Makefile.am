@@ -2,8 +2,9 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
+	$(LIBNL_CFLAGS) \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -12,6 +13,7 @@ VALAC_ARGS = \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg posix \
 	--pkg linux \
+	--pkg libnl-2.0 \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--header fsobasics.h \
@@ -19,7 +21,7 @@ VALAC_ARGS = \
 
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS = -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 BUILT_SOURCES = fsobasics.vala.stamp
@@ -29,9 +31,16 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsobasics_la_VALASOURCES = \
+	asyncworker.vala \
+	inotifier.vala \
+	kobjectnotifier.vala \
 	libinitexit.vala \
 	logger.vala \
+	netlinknotifier.vala \
+	overlay.vala \
+	process.vala \
 	smartkeyfile.vala \
+	syncasync.vala \
 	threading.vala \
 	types.vala \
 	utilities.vala \
@@ -52,8 +61,7 @@ fsobasics-2.0.vapi fsobasics.vala.stamp: $(libfsobasics_la_VALASOURCES)
 
 libfsobasics_la_LIBADD = \
 	$(GLIB_LIBS) \
-	$(DBUS_LIBS) \
-	$(ALSA_LIBS) \
+	$(LIBNL_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi

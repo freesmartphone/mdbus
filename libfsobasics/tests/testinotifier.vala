@@ -15,23 +15,43 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
- **/
+ */
 
 using GLib;
 using FsoFramework;
 
-public void callback( HashTable<string, string> properties )
+MainLoop loop;
+
+public const string TEST_FILENAME = "./this-testfile-no-content";
+
+public void myCallback( Linux.InotifyMaskFlags flags, uint32 cookie, string? name )
 {
-    debug( "got callback" );
+    debug( "got callback %d, %d, %s", (int)flags, (int)cookie, name );
+    loop.quit();
 }
 
 //===========================================================================
-void test_netlinknotifier_add_match()
+void test_inotifier_add()
 //===========================================================================
 {
-    BaseNetlinkNotifier.addMatch( "addaddr", "foo", callback );
+    FileUtils.unlink( TEST_FILENAME );
+    FsoFramework.FileHandling.write( "Hello World", TEST_FILENAME, true );
+    INotifier.add( TEST_FILENAME, Linux.InotifyMaskFlags.MODIFY, myCallback );
+    Timeout.add_seconds( 1, () => {
+        FsoFramework.FileHandling.write( "Dutty Content", TEST_FILENAME );
+        return false;
+    } );
+    loop = new MainLoop();
+    loop.run();
+}
 
-    ( new MainLoop() ).run();
+//===========================================================================
+void test_inotifier_remove()
+//===========================================================================
+{
+    INotifier.remove( 123456 ); // not existing
+    var handle = INotifier.add( TEST_FILENAME, Linux.InotifyMaskFlags.CREATE, myCallback );
+    INotifier.remove( handle );
 }
 
 //===========================================================================
@@ -40,7 +60,8 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/NetlinkNotifier/AddMatch", test_netlinknotifier_add_match );
+    Test.add_func( "/INotifier/Add", test_inotifier_add );
+    Test.add_func( "/INotifier/Remove", test_inotifier_remove );
 
     Test.run();
 }

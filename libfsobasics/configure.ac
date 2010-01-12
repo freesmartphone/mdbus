@@ -1,4 +1,4 @@
-AC_INIT([libfsobasics], [0.9.1], [smartphones-userland@linuxtogo.org], [libfsobasics])
+AC_INIT([libfsobasics], [0.9.9], [smartphones-userland@linuxtogo.org], [libfsobasics])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -14,11 +14,11 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-# pkg-config requirements
+# pkg-config
 PKG_PROG_PKG_CONFIG
-
-VALA_REQUIRED=0.7.9.2
+VALA_REQUIRED=0.7.9.7
 GLIB_REQUIRED=2.18.0
+LIBNL_REQUIRED=2.0
 
 # vala
 AC_PATH_PROG(VALAC, valac, valac)
@@ -34,6 +34,12 @@ PKG_CHECK_MODULES(GLIB,
   gthread-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
+
+# libnl-2.0
+PKG_CHECK_MODULES(LIBNL,
+  libnl-2.0 >= $LIBNL_REQUIRED)
+AC_SUBST(LIBNL_CFLAGS)
+AC_SUBST(LIBNL_LIBS)
 
 # check for debugging
 AC_ARG_ENABLE(debug,

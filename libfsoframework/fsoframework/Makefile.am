@@ -2,13 +2,12 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
-	$(LIBNL_CFLAGS) \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -22,14 +21,13 @@ VALAC_ARGS = \
 	--pkg dbus-glib-1 \
 	--pkg alsa \
 	--pkg fsobasics-2.0 \
-	--pkg libnl-2.0 \
 	--pkg config \
 	--header fsoframework.h \
 	--library fsoframework-2.0
 
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS = -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 BUILT_SOURCES = fsoframework.vala.stamp
@@ -40,19 +38,12 @@ lib_LTLIBRARIES = \
 
 libfsoframework_la_VALASOURCES = \
 	alsa.vala \
-	asyncworker.vala \
 	common.vala \
 	dbus.vala \
-	inotifier.vala \
 	interfaces.vala \
-	kobjectnotifier.vala \
-	netlinknotifier.vala \
 	object.vala \
-	overlay.vala \
 	plugin.vala \
-	process.vala \
 	subsystem.vala \
-	syncasync.vala \
 	$(NULL)
 
 libfsoframework_la_SOURCES = \
@@ -72,7 +63,6 @@ libfsoframework_la_LIBADD = \
 	$(DBUS_LIBS) \
 	$(ALSA_LIBS) \
 	$(FSOBASICS_LIBS) \
-	$(LIBNL_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi

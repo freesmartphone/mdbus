@@ -1,9 +1,22 @@
-====================================
-freesmartphone.org basics library
-====================================
+libfsobasics is a generic glib-2.0-based utility library.
 
-This library contains classes useful for
-logging and using configuration keyfiles.
+It has been written Vala which compiles to C and has very
+few dependencies.
 
+It contains classes for
+ * logging
+ * configuration
+ * process watching
+ * sync / async operations
+ * inotify watching
+ * netlink watching
+ * kobject watching
+ 
+While being used primarily for the freesmartphone.org project,
+it is versatile enough to be of use for many 3rd party projects.
 
+If you feel there is something missing or want to report a bug,
+please mail to smartphones-userland@linuxtogo.org or create a
+ticket at http://trac.freesmartphone.org
 
+:M:

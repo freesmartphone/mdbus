@@ -15,35 +15,23 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
- */
+ **/
 
 using GLib;
 using FsoFramework;
 
-MainLoop loop;
-
-public void myCallback( Linux.InotifyMaskFlags flags, uint32 cookie, string? name )
-{
-    debug( "got callback %d, %d, %s", (int)flags, (int)cookie, name );
-    loop.quit();
-}
-
 //===========================================================================
-void test_inotifier_add()
+void test_netlinknotifier_add_match()
 //===========================================================================
 {
-    INotifier.add( "/tmp/foo", Linux.InotifyMaskFlags.MODIFY, myCallback );
-    loop = new MainLoop();
+    var loop = new MainLoop();
+    BaseNetlinkNotifier.addMatch( "addaddr", "foo", ( properties ) => { loop.quit(); } );
+    Timeout.add_seconds( 1, () => {
+        // ...
+        loop.quit();
+        return false;
+    } );
     loop.run();
-}
-
-//===========================================================================
-void test_inotifier_remove()
-//===========================================================================
-{
-    INotifier.remove( 123456 ); // not existing
-    var handle = INotifier.add( "/tmp/foo", Linux.InotifyMaskFlags.CREATE, myCallback );
-    INotifier.remove( handle );
 }
 
 //===========================================================================
@@ -52,8 +40,7 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/INotifier/Add", test_inotifier_add );
-    Test.add_func( "/INotifier/Remove", test_inotifier_remove );
+    Test.add_func( "/NetlinkNotifier/AddMatch", test_netlinknotifier_add_match );
 
     Test.run();
 }

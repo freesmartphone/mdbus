@@ -1,4 +1,4 @@
-AC_INIT([libfsoframework], [0.2.5], [smartphones-userland@linuxtogo.org], [libfsoframework])
+AC_INIT([libfsoframework], [0.8.0], [smartphones-userland@linuxtogo.org], [libfsoframework])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -16,14 +16,12 @@ AC_SUBST(LDFLAGS)
 
 # pkg-config requirements
 PKG_PROG_PKG_CONFIG
-
-VALA_REQUIRED=0.7.9
+VALA_REQUIRED=0.7.9.7
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
 GLIB_REQUIRED=2.18.0
 ALSA_REQUIRED=0.20
-FSOBASICS_REQUIRED=0.9.1
-LIBNL_REQUIRED=2.0
+FSOBASICS_REQUIRED=0.9.9
 
 # vala
 AC_PATH_PROG(VALAC, valac, valac)
@@ -57,12 +55,6 @@ PKG_CHECK_MODULES(FSOBASICS,
   fsobasics-2.0 >= $FSOBASICS_REQUIRED)
 AC_SUBST(FSOBASICS_CFLAGS)
 AC_SUBST(FSOBASICS_LIBS)
-
-# libnl-2.0
-PKG_CHECK_MODULES(LIBNL,
-  libnl-2.0 >= $LIBNL_REQUIRED)
-AC_SUBST(LIBNL_CFLAGS)
-AC_SUBST(LIBNL_LIBS)
 
 # gather libdir
 if test "x$prefix" != "xNONE"; then

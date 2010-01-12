@@ -20,18 +20,17 @@
 using GLib;
 using FsoFramework;
 
-public void callback( HashTable<string, string> properties )
-{
-    debug( "got callback for subsystem '%s' with device path '%s'", properties.lookup( "SUBSYSTEM" ), properties.lookup( "DEVPATH" ) );
-}
-
 //===========================================================================
 void test_kobjectnotifier_add_match()
 //===========================================================================
 {
-    BaseKObjectNotifier.addMatch( "remove", "power_supply", callback );
-
-    ( new MainLoop( null, false ) ).run();
+    var loop = new MainLoop();
+    BaseKObjectNotifier.addMatch( "add", "net", ( properties ) => { loop.quit(); } );
+    Timeout.add_seconds( 1, () => {
+        FsoFramework.FileHandling.write( " ", "/sys/class/net/lo/uevent" );
+        return false;
+    } );
+    loop.run();
 }
 
 //===========================================================================
