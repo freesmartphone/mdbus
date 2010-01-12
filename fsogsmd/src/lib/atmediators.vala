@@ -237,7 +237,6 @@ public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeS
 
 public async void triggerUpdateNetworkStatus()
 {
-    assert( theModem.logger.debug( "triggerUpdateNetworkStatus()" ) );
     // gather info
     var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
     yield m.run();
@@ -245,7 +244,7 @@ public async void triggerUpdateNetworkStatus()
     // advance modem status, if necessary
     var status = m.status.lookup( "registration" ).get_string();
 
-    GLib.debug( @"!!!!!!!!! trigger update: $status" );
+    assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
 
     if ( status == "home" || status == "roaming" )
     {
@@ -1063,6 +1062,11 @@ public class AtPdpActivateContext : PdpActivateContext
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var data = theModem.data();
+        if ( data.contextParams == null )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "No credentials set. Call org.freesmartphone.GSM.PDP.SetCredentials first." );
+        }
         yield theModem.pdphandler.activate();
     }
 }

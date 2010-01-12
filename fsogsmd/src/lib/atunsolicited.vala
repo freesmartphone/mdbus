@@ -59,6 +59,7 @@ public class FsoGsm.BaseUnsolicitedResponseHandler : FsoGsm.UnsolicitedResponseH
 
     protected void registerUrc( string prefix, UnsolicitedResponseHandlerFunc func )
     {
+        assert( logger.debug( @"registering URC '$prefix'" ) );
         urcs[prefix] = new UnsolicitedResponseHandlerFuncWrapper() { func=func };
     }
 

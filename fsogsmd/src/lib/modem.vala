@@ -661,8 +661,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     public void advanceToState( Modem.Status next )
     {
-        // do nothing, if we're already in the requested state
-        if ( next == modem_status )
+        // do nothing, if we're already in the requested state or beyond
+        if ( next <= modem_status )
         {
             return;
         }
