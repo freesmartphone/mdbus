@@ -123,9 +123,9 @@ AC_DEFINE_UNQUOTED([PACKAGE_DATADIR], ["${PACKAGE_DATADIR}"], [Shared data direc
 ##############################################################################
 # gather libdir
 if test "x$prefix" != "xNONE"; then
-  pkglibdir='${prefix}/lib/cornucopia/fsogsmd'
+  pkglibdir='${prefix}/lib/cornucopia/modules/fsogsm'
 else
-  pkglibdir='/usr/local/lib/cornucopia/fsogsmd'
+  pkglibdir='/usr/local/lib/cornucopia/modules/fsogsm'
 fi
 eval PACKAGE_LIBDIR="${pkglibdir}"
 AC_DEFINE_UNQUOTED([PACKAGE_LIBDIR], ["${PACKAGE_LIBDIR}"], [Module directory])
