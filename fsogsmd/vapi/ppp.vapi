@@ -127,8 +127,16 @@ namespace PPPD
     extern notifier fork_notifier;  /* we are a new child process */
 
     // Procedures exported from main.c
-    void add_notifier           (notifier n, notify_func func);
-    void remove_notifier        (notifier n, notify_func func);
+    public void add_notifier           (notifier n, notify_func func);
+    public void remove_notifier        (notifier n, notify_func func);
+
+    // Procedures exported from utils.c
+    public void dbglog (string format, ...);      /* log a debug message */
+    public void info   (string format, ...);   /* log an informational message */
+    public void notice (string format, ...); /* log a notice-level message */
+    public void warn   (string format, ...);   /* log a warning message */
+    public void error  (string format, ...);  /* log an error message */
+    public void fatal  (string format, ...);  /* log an error message and die(1) */
 
     // Hooks to enable plugins to change various things
     extern new_phase_hook_func         new_phase_hook;

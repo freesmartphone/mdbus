@@ -24,6 +24,8 @@
  **/
 public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObject
 {
+    public const string PPP_LOG_FILE = "/var/log/ppp.log";
+
     private const int WAIT_FOR_PPP_COMING_UP = 2;
 
     private FsoFramework.GProcessGuard ppp;
@@ -65,7 +67,20 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
         var cmdline = new string[] { data.pppCommand };
         cmdline += "notty";
         cmdline += "logfile";
-        cmdline += "/tmp/ppp.log";
+        cmdline += config.stringValue( "fsogsm", "ppp_log_destination", PPP_LOG_FILE );
+
+        assert( data.contextParams != null );
+
+        if ( data.contextParams.username != "" )
+        {
+            cmdline += "user";
+            cmdline += data.contextParams.username;
+        }
+        if ( data.contextParams.password != "" )
+        {
+            cmdline += "password";
+            cmdline += data.contextParams.password;
+        }
 
         // add modem specific options to command line
         foreach ( var option in data.pppOptions )

@@ -109,8 +109,6 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
             "novjccomp",
             "proxyarp",
             "silent",
-            "user", "eplus",
-            "password", "gprs",
             "usepeerdns" } );
     }
 
