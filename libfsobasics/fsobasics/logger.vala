@@ -169,7 +169,7 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
         var prefix = "";
         var postfix = "\033[m";
 
-        switch ( level[0] )
+        switch ( level[1] )
         {
             case 'D':
                 prefix = "\033[1;30m"; /* bold gray */
@@ -198,7 +198,7 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     {
         var t = TimeVal();
         var repr = ( reprdelegate != null ? reprdelegate() : "" );
-        var str = "%s %s [%s] %s: %s\n".printf( t.to_iso8601(), domain, level, repr, message );
+        var str = "%s %s %s %s: %s\n".printf( t.to_iso8601(), level, domain, repr, message );
         return colored ? colorwrap( str, level ) : str;
     }
 
@@ -245,34 +245,34 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
     public bool debug( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_DEBUG )
-            write( format( message, "DEBUG" ) );
+            write( format( message, "[DEBUG]" ) );
         return true;
     }
 
     public bool info( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_INFO )
-            write( format( message, "INFO" ) );
+            write( format( message, "[INFO] " ) );
         return true;
     }
 
     public bool warning( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_WARNING )
-            write( format( message, "WARNING" ) );
+            write( format( message, "[WARN] " ) );
         return true;
     }
 
     public bool error( string message )
     {
         if ( level >= (uint)LogLevelFlags.LEVEL_ERROR )
-            write( format( message, "ERROR" ) );
+            write( format( message, "[ERROR]" ) );
         return true;
     }
 
     public bool critical( string message )
     {
-        write( format( message, "CRITICAL" ) );
+        write( format( message, "[CRITICAL]" ) );
         stderr.printf( "Aborting due to critical error:\n'%s'\n".printf( message ) );
         Posix.exit( Posix.EXIT_FAILURE );
         return true;
@@ -409,7 +409,7 @@ public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
     protected override string format( string message, string level )
     {
         var repr = ( reprdelegate != null ? reprdelegate() : "" );
-        var str = "%s [%s] %s: %s\n".printf( domain, level, repr, message );
+        var str = "%s %s %s: %s\n".printf( level, domain, repr, message );
         return str;
     }
 
