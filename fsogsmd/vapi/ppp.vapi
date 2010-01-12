@@ -29,6 +29,24 @@ namespace PPPD
     public const int MAXSECRETLEN;
     public const int MAX_ENDP_LEN;
 
+    // Enums
+    [CCode (cname = "int", cprefix = "PHASE_")]
+    public enum Phase {
+         DEAD,
+         INITIALIZE,
+         SERIALCONN,
+         DORMANT,
+         ESTABLISH,
+         AUTHENTICATE,
+         CALLBACK,
+         NETWORK,
+         RUNNING,
+         TERMINATE,
+         DISCONNECT,
+         HOLDOFF,
+         MASTER
+    }
+
     // Delegates
     [CCode (instance_pos = 0.9)]
     public delegate void notify_func (int arg);
