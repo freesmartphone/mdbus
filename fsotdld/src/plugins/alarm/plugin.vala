@@ -207,7 +207,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         var list = new FreeSmartphone.Time.WakeupAlarm[] {};
         foreach ( var alarm in alarms )
         {
-            var element = FreeSmartphone.Time.WakeupAlarm() { busname = alarm.busname, timestamp = alarm.timestamp };
+            var element = FreeSmartphone.Time.WakeupAlarm( alarm.busname, alarm.timestamp );
             list += element;
         }
         return list;

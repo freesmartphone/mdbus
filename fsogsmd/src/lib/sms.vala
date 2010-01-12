@@ -200,12 +200,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
 
     public FreeSmartphone.GSM.SIMMessage message( string key, int index = 0 )
     {
-        var result = FreeSmartphone.GSM.SIMMessage() {
-            index = index,
-            status = "unknown",
-            number = "unknown",
-            contents = "unknown",
-            properties = new GLib.HashTable<string,Value?>( str_hash, str_equal ) };
+        var result = FreeSmartphone.GSM.SIMMessage( index, "unknown", "unknown", "unknown", new GLib.HashTable<string,Value?>( str_hash, str_equal ) );
 
         if ( ! ( key in keys() ) )
         {

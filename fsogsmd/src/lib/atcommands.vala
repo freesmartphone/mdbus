@@ -599,12 +599,12 @@ public class PlusCOPS : AbstractAtCommand
         var providers = new FreeSmartphone.GSM.NetworkProvider[] {};
         do
         {
-            var p = FreeSmartphone.GSM.NetworkProvider() {
-                status = Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
-                longname = to_string( "longname" ),
-                shortname = to_string( "shortname" ),
-                mccmnc = to_string( "mccmnc" ),
-                act = Constants.instance().networkProviderActToString( to_int( "act" ) ) };
+            var p = FreeSmartphone.GSM.NetworkProvider(
+                Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
+                to_string( "longname" ),
+                to_string( "shortname" ),
+                to_string( "mccmnc" ),
+                Constants.instance().networkProviderActToString( to_int( "act" ) ) );
             providers += p;
         }
         while ( mi.next() );
@@ -654,11 +654,7 @@ public class PlusCPBR : AbstractAtCommand
         foreach ( var line in response )
         {
             base.parse( line );
-            var entry = FreeSmartphone.GSM.SIMEntry() {
-                index = to_int( "id" ),
-                number = to_string( "number" ),
-                name = decodeString( to_string( "name" ) )
-            };
+            var entry = FreeSmartphone.GSM.SIMEntry( to_int( "id" ), to_string( "number" ), decodeString( to_string( "name" ) ) );
             phonebook += entry;
         }
         this.phonebook = phonebook;
