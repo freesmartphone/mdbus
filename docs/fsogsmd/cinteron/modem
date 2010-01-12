@@ -1,4 +1,11 @@
 * Supports multiple multiplexing modes. Mode 4 extends 07.10 frames.
+
 * Default is lowest mode; to activate mode 4, send
   muxer.TestCommand( "\x04TEMUXVERSION4" )
   and wait for the reply.
+
+* Echo setting is per channel!
+
+* CGDCONT is per channel!
+
+
