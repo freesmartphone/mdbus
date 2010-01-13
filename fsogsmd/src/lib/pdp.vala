@@ -20,10 +20,12 @@
 /**
  * @interface PdpHandler
  **/
-public interface FsoGsm.PdpHandler : GLib.Object
+public abstract class FsoGsm.PdpHandler : FsoFramework.AbstractObject
 {
-    public abstract async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-    public abstract async void deactivate();
+    public async abstract void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public async abstract void deactivate();
+
+    public async abstract void statusUpdate( string status, GLib.HashTable<string,Value?> properties );
 }
 
 /**
@@ -31,7 +33,7 @@ public interface FsoGsm.PdpHandler : GLib.Object
  *
  * This PdpHandler uses AT commands and ppp to implement the Pdp handler interface
  **/
-public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObject
+public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
 {
     private FsoFramework.GProcessGuard ppp;
 
@@ -50,7 +52,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObjec
     // public API
     //
 
-    public async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async override void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( ppp != null && ppp.isRunning() )
         {
@@ -83,7 +85,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObjec
         }
     }
 
-    public async void deactivate()
+    public async override void deactivate()
     {
         if ( ppp == null )
         {
@@ -94,5 +96,10 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObjec
             return;
         }
         ppp = null; // this will stop the process
+    }
+
+    public async override void statusUpdate( string status, GLib.HashTable<string,Value?> properties )
+    {
+        //FIXME: communicate with fsonetworkd to offer new route to internet
     }
 }

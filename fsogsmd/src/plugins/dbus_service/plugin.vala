@@ -625,7 +625,7 @@ class DBusService.Device :
 
     public async void internal_status_update( string status, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        yield modem.pdphandler.statusUpdate( status, properties );
     }
 
     public async void set_credentials( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

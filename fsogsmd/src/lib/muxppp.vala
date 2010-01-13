@@ -22,7 +22,7 @@
  *
  * This PppHandler uses ppp over a multiplexed line to implement the Pdp handler interface
  **/
-public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractObject
+public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler
 {
     public const string PPP_LOG_FILE = "/var/log/ppp.log";
 
@@ -55,7 +55,7 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
     //
     // public API
     //
-    public async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async override void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( ppp != null && ppp.isRunning() )
         {
@@ -124,7 +124,7 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
         transport.startForwardingToPPP( inputfd, outputfd );
     }
 
-    public async void deactivate()
+    public async override void deactivate()
     {
         if ( ppp == null )
         {
@@ -135,5 +135,11 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler, FsoFramework.AbstractO
             return;
         }
         ppp = null; // this will stop the process
+    }
+
+    public async override void statusUpdate( string status, GLib.HashTable<string,Value?> properties )
+    {
+        assert( logger.debug( @"Status update from PPP helper $status" ) );
+        //FIXME: communicate with fsonetworkd to offer new route to internet
     }
 }
