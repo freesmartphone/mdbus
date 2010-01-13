@@ -17,18 +17,84 @@
  *
  **/
 
+using GLib;
 using FsoFramework;
+
+DBus.Connection dbus_conn;
+FreeSmartphone.GSM.PDP fsogsmd_pdp;
+
+static async void fsogsmd_report_status( HashTable<string,Value?> properties )
+{
+    try
+    {
+        yield fsogsmd_pdp.internal_status_update( PPPD.phase.to_string(), properties );
+    }
+    catch ( FreeSmartphone.Error e1 )
+    {
+        PPPD.error( @"Can't report status to fsogsmd: $(e1.message)" );
+    }
+    catch ( DBus.Error e2 )
+    {
+        PPPD.error( @"Can't report status to fsogsmd: $(e2.message)" );
+    }
+}
 
 static void fsogsmd_on_phase_change( int arg )
 {
     PPPD.info( @"on_phase_change: $arg" );
-    //FIXME: report phase to fsogsmd
+    fsogsmd_report_status( new HashTable<string,Value?>( str_hash, str_equal ) );
 }
 
 static void fsogsmd_on_ip_up( int arg )
 {
     PPPD.info( "on_ip_up" );
-    //FIXME: report IP parameters to fsogsmd
+    var ouraddr = PPPD.IPCP.gotoptions[0].ouraddr;
+    if ( ouraddr != 0 )
+    {
+        PPPD.info( "on_ip_up: ouraddr is empty; can't proceed" );
+        assert_not_reached();
+    }
+    
+    string iface = (string) PPPD.ifname;
+
+    var properties = new HashTable<string,Value?>( str_hash, str_equal );
+    properties.insert( "iface", iface );
+    properties.insert( "addr", ouraddr );
+    
+    var fantasyaddr = Posix.htonl( 0x0a404040 + PPPD.ifunit );
+    var hisaddr = PPPD.IPCP.gotoptions[0].hisaddr;
+    var dns1 = PPPD.IPCP.gotoptions[0].dnsaddr[0];
+    var dns2 = PPPD.IPCP.gotoptions[0].dnsaddr[1];
+    /* Prefer the peer options remote address first, _unless_ pppd made the
+     * address up, at which point prefer the local options remote address,
+     * and if that's not right, use the made-up address as a last resort.
+     */
+    var peer_hisaddr = PPPD.IPCP.hisoptions[0].hisaddr;
+    if ( peer_hisaddr != 0 && ( peer_hisaddr != fantasyaddr ) )
+    {
+        properties.insert( "gateway", peer_hisaddr );
+    }
+    else if ( hisaddr != 0 )
+    {
+        properties.insert( "gateway", hisaddr );
+    }
+    else if ( peer_hisaddr == fantasyaddr )
+    {
+        properties.insert( "gateway", fantasyaddr );
+    }
+    else
+    {
+        assert_not_reached();
+    }
+    if ( dns1 != 0 )
+    {
+        properties.insert( "dns1", dns1 );
+    }
+    if ( dns2 != 0 )
+    {
+        properties.insert( "dns2", dns2 );
+    }
+    fsogsmd_report_status( properties );
 }
 
 static void fsogsmd_on_exit( int arg )
@@ -77,4 +143,9 @@ static void plugin_init()
     PPPD.pap_passwd_hook = fsogsmd_get_credentials;
     PPPD.pap_check_hook = fsogsmd_get_pap_check;
 
+    dbus_conn = DBus.Bus.get( DBus.BusType.SYSTEM );
+    fsogsmd_pdp = dbus_conn.get_object(
+        FsoFramework.GSM.ServiceDBusName,
+        FsoFramework.GSM.DeviceServicePath,
+        FsoFramework.GSM.ServiceFacePrefix + ".PDP" ) as FreeSmartphone.GSM.PDP;
 }

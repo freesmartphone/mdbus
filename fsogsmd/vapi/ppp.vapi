@@ -173,4 +173,37 @@ namespace PPPD
     extern multilink_join_hook_func    multilink_join_hook;
     extern snoop_recv_hook_func        snoop_recv_hook;
     extern snoop_send_hook_func        snoop_send_hook;
+
+    [CCode (cprefix = "ipcp_", cheader_filename = "pppd/fsm.h,pppd/ipcp.h")]
+    namespace IPCP {
+        [CCode (cname = "struct ipcp_options", destroy_function = "", copy_function = "")]
+        public struct Options {
+            public bool neg_addr;              /* Negotiate IP Address? */
+            public bool old_addrs;             /* Use old (IP-Addresses) option? */
+            public bool req_addr;              /* Ask peer to send IP address? */
+            public bool default_route;         /* Assign default route through interface? */
+            public bool replace_default_route; /* Replace default route through interface? */
+            public bool proxy_arp;             /* Make proxy ARP entry for peer? */
+            public bool neg_vj;                /* Van Jacobson Compression? */
+            public bool old_vj;                /* use old (short) form of VJ option? */
+            public bool accept_local;          /* accept peer's value for ouraddr */
+            public bool accept_remote;         /* accept peer's value for hisaddr */
+            public bool req_dns1;              /* Ask peer to send primary DNS address? */
+            public bool req_dns2;              /* Ask peer to send secondary DNS address? */
+            public int  vj_protocol;           /* protocol value to use in VJ option */
+            public int  maxslotindex;          /* values for RFC1332 VJ compression neg. */
+            public bool cflag;
+            public uint32 ouraddr;             /* Our address in NETWORK BYTE ORDER */
+            public uint32 hisaddr;             /* His address in NETWORK BYTE ORDER */
+            public uint32[] dnsaddr;          /* Primary and secondary MS DNS entries */
+            public uint32[] winsaddr;         /* Primary and secondary MS WINS entries */
+        }
+
+        [CCode (cname = "ipcp_wantoptions")]
+        extern Options[] wantoptions;
+        extern Options[] gotoptions;
+        extern Options[] allowoptions;
+        extern Options[] hisoptions;
+    }
+
 }
