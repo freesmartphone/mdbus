@@ -137,9 +137,34 @@ public class FsoGsm.MuxPppPdpHandler : FsoGsm.PdpHandler
         ppp = null; // this will stop the process
     }
 
+    public string uintToIpAddress( uint32 address )
+    {
+        return "%u.%u.%u.%u".printf( address & 0xff,
+                                     ( address >> 8 ) & 0xff,
+                                     ( address >> 16 ) & 0xff,
+                                     ( address >> 24 ) & 0xff );
+    }
+
     public async override void statusUpdate( string status, GLib.HashTable<string,Value?> properties )
     {
-        assert( logger.debug( @"Status update from PPP helper $status" ) );
+        assert( logger.debug( @"Status update from PPP helper: $status" ) );
+        Value? viface = properties.lookup( "iface" );
+        Value? vlocal = properties.lookup( "local" );
+        Value? vgateway = properties.lookup( "gateway" );
+
+        if ( viface != null )
+        {
+            assert( logger.debug( @"IPCP: Interface name is $(viface.get_string())" ) );
+        }
+        if ( vlocal != null )
+        {
+            assert( logger.debug( @"IPCP: Interface addr is $(uintToIpAddress(vlocal.get_uint()))" ) );
+        }
+        if ( vgateway != null )
+        {
+            assert( logger.debug( @"IPCP: Gateway   addr is $(uintToIpAddress(vgateway.get_uint()))" ) );
+        }
+
         //FIXME: communicate with fsonetworkd to offer new route to internet
     }
 }

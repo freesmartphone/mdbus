@@ -49,18 +49,18 @@ static void fsogsmd_on_ip_up( int arg )
 {
     PPPD.info( "on_ip_up" );
     var ouraddr = PPPD.IPCP.gotoptions[0].ouraddr;
-    if ( ouraddr != 0 )
+    if ( ouraddr == 0 )
     {
         PPPD.info( "on_ip_up: ouraddr is empty; can't proceed" );
         assert_not_reached();
     }
-    
+
     string iface = (string) PPPD.ifname;
 
     var properties = new HashTable<string,Value?>( str_hash, str_equal );
     properties.insert( "iface", iface );
-    properties.insert( "addr", ouraddr );
-    
+    properties.insert( "local", ouraddr );
+
     var fantasyaddr = Posix.htonl( 0x0a404040 + PPPD.ifunit );
     var hisaddr = PPPD.IPCP.gotoptions[0].hisaddr;
     var dns1 = PPPD.IPCP.gotoptions[0].dnsaddr[0];
@@ -70,6 +70,9 @@ static void fsogsmd_on_ip_up( int arg )
      * and if that's not right, use the made-up address as a last resort.
      */
     var peer_hisaddr = PPPD.IPCP.hisoptions[0].hisaddr;
+
+    PPPD.info( "on_ip_up: our remote address is %u, his remote address is %u", hisaddr, peer_hisaddr );
+
     if ( peer_hisaddr != 0 && ( peer_hisaddr != fantasyaddr ) )
     {
         properties.insert( "gateway", peer_hisaddr );
