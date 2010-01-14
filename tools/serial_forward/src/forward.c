@@ -2,9 +2,9 @@
  * Forward a serial over TCP/IP
  *
  * Copyright (C) 2008 Openmoko Inc.
- * 
- * Author: Holger Hans Peter Freyther <zecke@openmoko.org>
  *
+ * Author: Holger Hans Peter Freyther <zecke@openmoko.org>
+ * Minor enhancements by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  */
 
 #include <sys/types.h>
@@ -26,8 +26,6 @@
 
 int lflag = ICANON;
 
-static const int DEFAULT_PORT = 5621;
-
 /*
  * Read from modem_fd   => write to remote_fd
  * Read from remote_fd  => write to modem_fd
@@ -35,7 +33,7 @@ static const int DEFAULT_PORT = 5621;
 
 static void set_termios(int modem_fd)
 {
-    struct termios t; 
+    struct termios t;
     bzero(&t, sizeof(t));
 
     t.c_cflag = CRTSCTS | CS8 | CLOCAL | CREAD;
@@ -46,7 +44,7 @@ static void set_termios(int modem_fd)
 
     t.c_oflag = 0;
     t.c_lflag = lflag;
-    t.c_cc[VINTR]    = 0;     /* Ctrl-c */ 
+    t.c_cc[VINTR]    = 0;     /* Ctrl-c */
     t.c_cc[VQUIT]    = 0;     /* Ctrl-\ */
     t.c_cc[VERASE]   = 0;     /* del */
     t.c_cc[VKILL]    = 0;     /* @ */
@@ -54,7 +52,7 @@ static void set_termios(int modem_fd)
     t.c_cc[VTIME]    = 0;     /* inter-character timer unused */
     t.c_cc[VMIN]     = 1;     /* blocking read until 1 character arrives */
     t.c_cc[VSWTC]    = 0;     /* '\0' */
-    t.c_cc[VSTART]   = 0;     /* Ctrl-q */ 
+    t.c_cc[VSTART]   = 0;     /* Ctrl-q */
     t.c_cc[VSTOP]    = 0;     /* Ctrl-s */
     t.c_cc[VSUSP]    = 0;     /* Ctrl-z */
     t.c_cc[VEOL]     = 0;     /* '\0' */
@@ -74,12 +72,12 @@ static void set_termios(int modem_fd)
 
 int main(int argc, char** argv)
 {
-    if (argc < 2)
+    if (argc < 3)
     {
-    	printf("Usage: ./forward <devicenode> [raw]\n");
+    	printf("Usage: ./forward <devicenode> <port> [raw]\n");
     	return EXIT_FAILURE;
     }
-    if (argc >= 3)
+    if (argc >= 4)
     {
     	lflag = 0;
     }
@@ -102,7 +100,7 @@ int main(int argc, char** argv)
 
     struct sockaddr_in addr = { 0, };
     addr.sin_family = PF_INET;
-    addr.sin_port = htons(DEFAULT_PORT);
+    addr.sin_port = htons( atoi(argv[2]) );
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(socket_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {

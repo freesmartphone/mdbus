@@ -2,9 +2,9 @@
  * Consume forwarded serial and provide a local pty
  *
  * Copyright (C) 2008 Openmoko Inc.
- * 
- * Author: Holger Hans Peter Freyther <zecke@openmoko.org>
  *
+ * Author: Holger Hans Peter Freyther <zecke@openmoko.org>
+ * Minor enhancements by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  */
 
 #include <sys/socket.h>
@@ -21,12 +21,6 @@
 
 #include "forward.h"
 
-
-
-static const int DEFAULT_PORT = 5621;
-static const char DEFAULT_IP[] = "192.168.0.202";
-
-
 /*
  * Setup networking
  * Setup pty
@@ -35,13 +29,19 @@ static const char DEFAULT_IP[] = "192.168.0.202";
  */
 int main(int argc, char** argv)
 {
+    if (argc < 2)
+    {
+    	printf("Usage: ./pty_forward <host> <port>\n");
+    	return EXIT_FAILURE;
+    }
+
     int socket_fd = socket(PF_INET, SOCK_STREAM, 0);
     if (socket_fd < 0) {
         perror("Failed to create network socket");
         return EXIT_FAILURE;
     }
 
-    struct hostent* host = gethostbyname(DEFAULT_IP);
+    struct hostent* host = gethostbyname(argv[1]);
     if (!host) {
         printf("Failed to get the hostent\n");
         return EXIT_FAILURE;
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 
     struct sockaddr_in addr = { 0, };
     addr.sin_family = PF_INET;
-    addr.sin_port = htons(DEFAULT_PORT);
+    addr.sin_port = htons(atoi(argv[2]));
     addr.sin_addr = *(struct in_addr*)host->h_addr;
 
     int result = connect(socket_fd, (struct sockaddr*)&addr, sizeof(addr));
