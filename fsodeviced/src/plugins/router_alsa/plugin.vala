@@ -128,7 +128,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
     {
         if ( currentscenario != scenario )
         {
-            assert ( device != null );
+            assert( device != null );
             device.setAllMixerControls( allscenarios[scenario].controls );
 
             currentscenario = scenario;

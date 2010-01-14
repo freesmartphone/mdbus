@@ -10,6 +10,7 @@ SUBDIRS = \
 	\
 	audio \
 	router_alsa \
+	router_qdsp5 \
 	player_alsa \
 	\
 	kernel26_display \
