@@ -114,6 +114,9 @@ class AudioManager : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
             case "alsa":
                 typename = "RouterLibAlsa";
                 break;
+            case "qdsp5":
+                typename = "RouterQdsp5";
+                break;
             default:
                 typename = "NullRouter";
                 break;
