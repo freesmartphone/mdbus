@@ -117,6 +117,9 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
     //TODO: Think about exposing a global modem state through DBus -- possibly
     //      reusing this as internal status as well -- rather than double bookkeeping
+
+    //TODO: SIM and NETWORK readyness are somewhat orthogonal; think about
+    //      separating them
     public enum Status
     {
         /** Initial state, Transport is closed **/
@@ -318,18 +321,18 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             "noreplacedefaultroute",
             "debug",
             "hide-password",
-            "holdoff", "3",
-            "ipcp-accept-local",
+            //"ipcp-accept-local",
             "ktune",
             // "lcp-echo-failure", "10",
             // "lcp-echo-interval", "20",
-            "ipcp-max-configure", "4",
+            //"ipcp-max-configure", "4",
             // "noauth",
+            "noccp",
             "noipdefault",
             "novj",
             "novjccomp",
             "proxyarp",
-            "silent",
+            //"silent",     /* Wait for the modem to send the first LCP packet */
             "usepeerdns" } );
 
         // add some basic init/exit/suspend/resume sequences

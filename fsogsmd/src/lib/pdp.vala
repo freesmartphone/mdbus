@@ -35,7 +35,10 @@ public abstract class FsoGsm.PdpHandler : FsoFramework.AbstractObject
  **/
 public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
 {
-    private FsoFramework.GProcessGuard ppp;
+    public const string PPP_LOG_FILE = "/var/log/ppp.log";
+    protected const int WAIT_FOR_PPP_COMING_UP = 2;
+
+    protected FsoFramework.GProcessGuard ppp;
 
     public override string repr()
     {
@@ -44,8 +47,45 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
 
     private void onPppStopped()
     {
-        //FIXME: check for expected or unexpected stop
         logger.debug( "ppp has been stopped" );
+        shutdownTransport();
+        ppp = null;
+    }
+
+    //
+    // protected API for subclasses
+    //
+    protected virtual string[] buildCommandLine()
+    {
+        var data = theModem.data();
+        var cmdline = new string[] { data.pppCommand, theModem.allocateDataPort() };
+        foreach ( var option in data.pppOptions )
+        {
+            cmdline += option;
+        }
+        return cmdline;
+    }
+
+    protected virtual bool launchPppDaemon( string[] cmdline )
+    {
+        ppp = new FsoFramework.GProcessGuard();
+        return ppp.launch( cmdline );
+    }
+
+    protected async virtual void setupTransport()
+    {
+    }
+
+    protected async virtual void enterDataState()
+    {
+        // enter data state
+        var cmd = theModem.createAtCommand<V250D>( "D" );
+        var response = yield theModem.processCommandAsync( cmd, cmd.issue( "*99***1#", false ) );
+        checkResponseConnect( cmd, response );
+    }
+
+    protected virtual void shutdownTransport()
+    {
     }
 
     //
@@ -59,30 +99,59 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
             return;
         }
 
-        // build ppp command line
+        var cmdline = buildCommandLine();
+
+        // where to log to
+        cmdline += "logfile";
+        cmdline += config.stringValue( "fsogsm", "ppp_log_destination", PPP_LOG_FILE );
+
         var data = theModem.data();
-        var cmdline = new string[] { data.pppCommand, theModem.allocateDataPort() };
-        // add modem specific options to command line
-        foreach ( var option in data.pppOptions )
+
+        if ( data.contextParams == null )
         {
-            cmdline += option;
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "context parameters not set" );
         }
 
-        /*
-        // prepare modem
-        var cmd = theModem.createAtCommand<V250D>( "D" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( "*99#" ) );
-        checkResponseOk( cmd, response );
-        */
-
-        // launch ppp
-        ppp = new FsoFramework.GProcessGuard();
-        ppp.stopped.connect( onPppStopped );
-
-        if ( !ppp.launch( cmdline ) )
+        if ( data.contextParams.username != "" )
         {
-            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Could not launch ppp binary" );
+            cmdline += "user";
+            cmdline += data.contextParams.username;
         }
+        if ( data.contextParams.password != "" )
+        {
+            cmdline += "password";
+            cmdline += data.contextParams.password;
+        }
+
+        // add our plugin
+        cmdline += "plugin";
+        cmdline += "%s/ppp2fsogsmd.so".printf( Config.PACKAGE_LIBDIR );
+
+        assert( logger.debug( @"Launching ppp helper with commandline $(FsoFramework.StringHandling.stringListToString(cmdline))" ) );
+
+        if ( !launchPppDaemon( cmdline ) )
+        {
+            ppp = null;
+            logger.warning( "Could not launch PPP helper" );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Could not launch PPP helper" );
+        }
+        else
+        {
+            ppp.stopped.connect( onPppStopped );
+        }
+
+        // wait shortly to check to catch the case when ppp exists immediately
+        // due to invalid options or permissions or what not
+        yield FsoFramework.asyncWaitSeconds( WAIT_FOR_PPP_COMING_UP );
+
+        if ( ppp == null )
+        {
+            logger.warning( "PPP quit immediately; check options and permissions." );
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "PPP helper quit immediately" );
+        }
+
+        yield enterDataState();
+        yield setupTransport();
     }
 
     public async override void deactivate()
@@ -98,8 +167,34 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         ppp = null; // this will stop the process
     }
 
+    public string uintToIp4Address( uint32 address )
+    {
+        return "%u.%u.%u.%u".printf( address & 0xff,
+                                     ( address >> 8 ) & 0xff,
+                                     ( address >> 16 ) & 0xff,
+                                     ( address >> 24 ) & 0xff );
+    }
+
     public async override void statusUpdate( string status, GLib.HashTable<string,Value?> properties )
     {
+        assert( logger.debug( @"Status update from PPP helper: $status" ) );
+        Value? viface = properties.lookup( "iface" );
+        Value? vlocal = properties.lookup( "local" );
+        Value? vgateway = properties.lookup( "gateway" );
+
+        if ( viface != null )
+        {
+            assert( logger.debug( @"IPCP: Interface name is $(viface.get_string())" ) );
+        }
+        if ( vlocal != null )
+        {
+            assert( logger.debug( @"IPCP: Interface addr is $(uintToIp4Address(vlocal.get_uint()))" ) );
+        }
+        if ( vgateway != null )
+        {
+            assert( logger.debug( @"IPCP: Gateway   addr is $(uintToIp4Address(vgateway.get_uint()))" ) );
+        }
+
         //FIXME: communicate with fsonetworkd to offer new route to internet
     }
 }
