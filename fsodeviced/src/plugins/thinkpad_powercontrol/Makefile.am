@@ -26,6 +26,10 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsodevice-2.0
 
+if WANT_FSORESOURCE
+VALAC_ARGS += -DWANT_FSO_RESOURCE
+endif
+
 #
 # plugin
 #

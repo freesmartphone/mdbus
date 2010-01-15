@@ -81,6 +81,14 @@ AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 
 ##############################################################################
+# optional feature: fsoresource integration
+AC_ARG_ENABLE(resource_integration,
+  [  --disable-resource-integration      Disable FSO resource integration (default=enabled)],
+  fsoresource="no", fsoresource="yes")
+
+AM_CONDITIONAL( [WANT_FSORESOURCE], [test x"$fsoresource" = x"yes"])
+
+##############################################################################
 # optional feature: kernel26_rfkill
 AC_ARG_ENABLE(kernel26_rfkill,
   [  --enable-kernel26-rfkill            Enable building the rfkill power control plugin (default=disabled)],
@@ -112,7 +120,7 @@ AM_CONDITIONAL( [WANT_CANBERRA], [test x"$canberra" = x"yes"])
 ##############################################################################
 # optional feature: player_gstreamer
 AC_ARG_ENABLE(player_gstreamer,
-  [  --enable-player-gstreamer            Enable building the gstreamer audio player plugin (default=disabled)],
+  [  --enable-player-gstreamer           Enable building the gstreamer audio player plugin (default=disabled)],
   gstreamer="yes", gstreamer="no")
 
 if test x$gstreamer = "xyes"; then
@@ -167,6 +175,8 @@ echo "$PACKAGE_NAME $PACKAGE_VERSION"
 echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
+echo
+echo "  FSO resource integration.............: $fsoresource"
 echo
 echo "  kernel26_rfkill......................: $rfkill"
 echo "  player_canberra......................: $canberra"

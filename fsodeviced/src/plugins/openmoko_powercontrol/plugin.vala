@@ -147,7 +147,9 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     {
         var o = new Openmoko.BluetoothPowerControl( subsystem, bluetooth );
         instances.append( o );
+#if WANT_FSO_RESOURCE
         resources.append( new FsoDevice.BasePowerControlResource( o, "Bluetooth", subsystem ) );
+#endif
     }
 
     var usbhost = Path.build_filename( devices, "neo1973-pm-host.0" );
@@ -155,7 +157,9 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     {
         var o = new Openmoko.UsbHostModeControl( subsystem, usbhost );
         instances.append( o );
+#if WANT_FSO_RESOURCE
         resources.append( new FsoDevice.BasePowerControlResource( o, "UsbHost", subsystem ) );
+#endif
     }
 
 
@@ -164,7 +168,9 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     {
         var o = new Openmoko.WiFiPowerControl( subsystem, wifi );
         instances.append( o );
+#if WANT_FSO_RESOURCE
         resources.append( new FsoDevice.BasePowerControlResource( o, "WiFi", subsystem ) );
+#endif
     }
 
     //TODO: add other devices

@@ -69,11 +69,12 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
                                          "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
                                          this );
 
+#if WANT_FSO_RESOURCE
         Idle.add( () => {
             this.resource = new FsoDevice.BasePowerControlResource( this, this.type, subsystem );
             return false;
         } );
-
+#endif
         logger.info( "created." );
     }
 
