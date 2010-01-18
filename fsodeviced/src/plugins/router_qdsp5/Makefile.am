@@ -45,7 +45,7 @@ router_qdsp5_la_LDFLAGS = -no-undefined -module -avoid-version
 router_qdsp5_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
-    $(router_qdsp5_la_SOURCES) \
+    plugin.c \
     *.la \
     *.lo \
     $(NULL)
