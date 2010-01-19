@@ -97,7 +97,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Interface $iface not present" );
         }
 
-        var ip = FsoNetwork.ipv4AddressForInterface( iface );
+        var ip = FsoFramework.Net.ipv4AddressForInterface( iface );
         if ( ip == "unknown" )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Interface $iface not configured" );
@@ -138,7 +138,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Interface $iface not present" );
         }
 
-        var ip = FsoNetwork.ipv4AddressForInterface( iface );
+        var ip = FsoFramework.Net.ipv4AddressForInterface( iface );
         if ( ip == "unknown" )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Interface $iface not configured" );
