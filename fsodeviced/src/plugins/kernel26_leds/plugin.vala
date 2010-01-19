@@ -26,12 +26,13 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
-    string sysfsnode;
-    string brightness;
-    string trigger;
-    string triggers;
+    private int max_brightness;
+    private string sysfsnode;
+    private string brightness;
+    private string trigger;
+    private string triggers;
 
-    uint blinktimeoutwatch;
+    private uint blinktimeoutwatch;
 
     static uint counter;
 
@@ -39,6 +40,12 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
     {
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
+        this.max_brightness = FsoFramework.FileHandling.read( this.sysfsnode + "/max_brightness" ).to_int();
+        if ( max_brightness == 0 )
+        {
+            max_brightness = 255;
+        }
+
         this.brightness = sysfsnode + "/brightness";
         this.trigger = sysfsnode + "/trigger";
 
@@ -60,12 +67,12 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
         // FIXME: remove in release code, can be done lazily
         initTriggers();
 
-        logger.info( "created new Led object." );
+        logger.info( "Created" );
     }
 
     public override string repr()
     {
-        return "<FsoFramework.Device.Led @ %s>".printf( sysfsnode );
+        return @"<$sysfsnode>";
     }
 
     public void initTriggers()
@@ -95,6 +102,27 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
         return false;
     }
 
+    private int _valueToPercent( int value )
+    {
+        double max = max_brightness;
+        double v = value;
+        return (int)(100.0 / max * v);
+    }
+
+    private int _percentToValue( int percent )
+    {
+        double p = percent;
+        double max = max_brightness;
+        double value;
+        if ( percent >= 100 )
+            value = max_brightness;
+        else if ( percent <= 0 )
+            value = 0;
+        else
+            value = p / 100.0 * max;
+        return (int)value;
+    }
+
     //
     // FreeSmartphone.Device.LED (DBUS API)
     //
@@ -105,15 +133,12 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
 
     public async void set_brightness( int brightness ) throws DBus.Error
     {
-        if ( brightness > 255 )
-            brightness = 255;
-        if ( brightness < 0 )
-            brightness = 0;
+        var percent = _percentToValue( brightness );
 
         cleanTimeout();
 
         FsoFramework.FileHandling.write( "none", this.trigger );
-        FsoFramework.FileHandling.write( brightness.to_string(), this.brightness );
+        FsoFramework.FileHandling.write( percent.to_string(), this.brightness );
     }
 
     public async void set_blinking( int delay_on, int delay_off ) throws FreeSmartphone.Error, DBus.Error
