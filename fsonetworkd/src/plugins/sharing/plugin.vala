@@ -170,6 +170,21 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
             logger.warning( e.message );
         }
     }
+
+    public async void set_connection_preferences( string[] types) throws FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void start_connection( string type) throws FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void stop_connection() throws FreeSmartphone.Error, DBus.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
 }
 
 static string sys_class_net;
