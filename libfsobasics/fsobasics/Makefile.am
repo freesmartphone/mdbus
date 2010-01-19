@@ -37,6 +37,7 @@ libfsobasics_la_VALASOURCES = \
 	libinitexit.vala \
 	logger.vala \
 	netlinknotifier.vala \
+	netlinkutils.vala \
 	overlay.vala \
 	process.vala \
 	smartkeyfile.vala \

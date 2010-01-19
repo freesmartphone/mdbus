@@ -17,7 +17,7 @@
  *
  **/
 
-namespace FsoNetwork {
+namespace FsoFramework { namespace Net {
 
 public string ipv4AddressForInterface( string iface )
 {
@@ -62,4 +62,5 @@ public string ipv4AddressForInterface( string iface )
     return ipv4;
 }
 
-} /* namespace FsoNetwork */
+} /* namespace Net */
+} /* namespace FsoFramework */

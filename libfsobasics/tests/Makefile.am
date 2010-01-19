@@ -145,6 +145,18 @@ testprocess_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testprocess_VALASOURCES)
 
 #
+# netlink test
+#
+TEST_PROGS += testnetlink
+testnetlink_VALASOURCES = testnetlink.vala
+testnetlink_SOURCES = testnetlink.c
+$(testnetlink_SOURCES): $(testnetlink_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testnetlink_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testnetlink_VALASOURCES)
+
+#
 # overlay test
 #
 TEST_PROGS += testoverlay
