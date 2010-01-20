@@ -33,6 +33,45 @@ internal const string FSO_IDLENOTIFIER_IFACE = "org.freesmartphone.Device.IdleNo
 
 namespace Usage {
 
+public class Command
+{
+}
+
+public class RequestResource : Command
+{
+    public async void run( string resource, string user ) throws FreeSmartphone.Error, DBus.Error
+    {
+    }
+}
+
+public class ReleaseResource : Command
+{
+    public async void run( string resource, string user ) throws FreeSmartphone.Error, DBus.Error
+    {
+    }
+}
+
+public class SetResourcePolicy : Command
+{
+    public async void run( string resource, string policy ) throws FreeSmartphone.Error, DBus.Error
+    {
+    }
+}
+
+public class GetResourcePolicy : Command
+{
+    public async void run( string resource ) throws FreeSmartphone.Error, DBus.Error
+    {
+    }
+}
+
+public class Suspend : Command
+{
+    public async void run() throws FreeSmartphone.Error, DBus.Error
+    {
+    }
+}
+
 /**
  * Controller class implementing org.freesmartphone.Usage API
  *
