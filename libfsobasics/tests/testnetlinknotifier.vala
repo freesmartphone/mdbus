@@ -29,13 +29,10 @@ void test_netlinknotifier_add_match()
         loop.quit();
     } );
 
-    /*
     Timeout.add_seconds( 1, () => {
-        // ...
-        loop.quit();
+        Posix.system( "sudo route add -host 1.2.3.4 lo; sleep 1; sudo route del -host 1.2.3.4 lo" );
         return false;
     } );
-    */
     loop.run();
 }
 
