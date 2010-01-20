@@ -25,6 +25,7 @@ void test_netlink_getaddress()
 //===========================================================================
 {
     assert( Net.ipv4AddressForInterface( "lo" ) == "127.0.0.1" );
+    assert( Net.ipv4AddressForInterface( "abc7" ) == "unknown" );
 }
 
 

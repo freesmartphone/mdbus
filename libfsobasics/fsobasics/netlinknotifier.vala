@@ -49,17 +49,13 @@ public class FsoFramework.BaseNetlinkNotifier : Object
 
     private const ssize_t BUFFER_LENGTH = 4096;
 
-    private HashTable<string, List<NetlinkDelegateHolder>> add;
-    private HashTable<string, List<NetlinkDelegateHolder>> change;
-    private HashTable<string, List<NetlinkDelegateHolder>> remove;
+    private HashTable<uint16, List<NetlinkDelegateHolder>> map;
 
     public BaseNetlinkNotifier()
     {
         buffer = new char[BUFFER_LENGTH];
 
-        add = new HashTable<string, List<NetlinkDelegateHolder>>( str_hash, str_equal );
-        change = new HashTable<string, List<NetlinkDelegateHolder>>( str_hash, str_equal );
-        remove = new HashTable<string, List<NetlinkDelegateHolder>>( str_hash, str_equal );
+        map = new HashTable<uint16, List<NetlinkDelegateHolder>>( direct_hash, direct_equal );
 
         socket = new Netlink.Socket();
         socket.disable_seq_check();
@@ -67,6 +63,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
 
         socket.connect( Linux.Netlink.NETLINK_ROUTE );
         socket.link_alloc_cache( out cache );
+        cache.mngt_provide();
 
         var res = socket.add_memberships( Linux.Netlink.RTNLGRP_LINK, Linux.Netlink.RTNLGRP_IPV4_IFADDR, Linux.Netlink.RTNLGRP_IPV4_ROUTE );
         assert( res != -1 );
@@ -105,27 +102,30 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         return true;
     }
 
-    protected void handleMessagePart( Netlink.Object obj )
-    {
-        debug( "handle message part %p", (void*)obj );
-    }
-
     protected int handleNetlinkMessage( Netlink.Message msg )
     {
         Netlink.MessageHeader hdr = msg.header();
         debug( "received netlink message w/ type %d", hdr.nlmsg_type );
 
-        var res = msg.parse( handleMessagePart );
+        var res = msg.parse( ( obj ) => {
+            handleMessage( hdr.nlmsg_type );
+            var params = Netlink.DumpParams() { dp_type = Netlink.DumpType.STATS,
+                                                dp_fd = Posix.stdout,
+                                                dp_dump_msgtype = true };
+            obj.dump( params );
+        } );
+        
         if ( res < 0 )
         {
             debug( Netlink.strerror( res ) );
         }
-        return Netlink.CallbackAction.OK;
+        return Netlink.CallbackAction.STOP;
     }
 
-    protected void handleMessage( string[] parts )
+    protected void handleMessage( uint16 type )
     {
         var properties = new HashTable<string, string>( str_hash, str_equal );
+        /*
         foreach ( var part in parts )
         {
             message( "%s", part );
@@ -135,64 +135,21 @@ public class FsoFramework.BaseNetlinkNotifier : Object
                 properties.insert( elements[0], elements[1] );
             }
         }
+        */
 
-        var action = properties.lookup( "ACTION" );
-        assert( action != null );
-        var subsystem = properties.lookup( "SUBSYSTEM" );
-        assert( subsystem != null );
-#if DEBUG
-        debug( @"Dealing with action $action for subsystem $subsystem" );
-#endif
-
-        HashTable<string, List<NetlinkDelegateHolder>> table = null;
-
-        switch( action )
+        weak List<weak NetlinkDelegateHolder> list = map.lookup( type );
+        if ( list != null )
         {
-            case "add":
-                table = add;
-                break;
-            case "change":
-                table = change;
-                break;
-            case "remove":
-                table = remove;
-                break;
-            default:
-                warning( @"Unsupported Netlink message action $action, must be one of { add, change, remove }" );
-                break;
+            foreach( var delegateholder in list )
+            {
+                delegateholder.func( properties );
+            }
         }
-
-        weak List<weak NetlinkDelegateHolder> list = table.lookup( subsystem );
-        if ( list == null )
-            return;
-
-        foreach( var delegateholder in list )
-            delegateholder.func( properties );
     }
 
-    protected void _addMatch( string action, string subsystem, NetlinkNotifierFunc callback )
+    protected void _addMatch( uint16 type, NetlinkNotifierFunc callback )
     {
-        return;
-
-        HashTable<string, List<NetlinkDelegateHolder>> table = null;
-
-        switch( action )
-        {
-            case "add":
-                table = add;
-                break;
-            case "change":
-                table = change;
-                break;
-            case "remove":
-                table = remove;
-                break;
-            default:
-                critical( @"Unsupported action $action in _addMatch, must be one of { add, change, remove }" );
-                break;
-        }
-
-        weak List<NetlinkDelegateHolder> list = table.lookup( subsystem );
+        weak List<NetlinkDelegateHolder> list = map.lookup( type );
         if ( list == null )
         {
             List<NetlinkDelegateHolder> newlist = new List<NetlinkDelegateHolder>();
@@ -200,7 +157,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
 #if DEBUG
             debug( @"# delegates for action $action and subsystem $subsystem now $(newlist.length())" );
 #endif
-            table.insert( subsystem, (owned) newlist );
+            map.insert( type, (owned) newlist );
         }
         else
         {
@@ -214,12 +171,12 @@ public class FsoFramework.BaseNetlinkNotifier : Object
     //
     // public API
     //
-    public static void addMatch( string action, string path, NetlinkNotifierFunc callback )
+    public static void addMatch( uint16 action, NetlinkNotifierFunc callback )
     {
         if ( BaseNetlinkNotifier.instance == null )
             BaseNetlinkNotifier.instance = new BaseNetlinkNotifier();
 
-        BaseNetlinkNotifier.instance._addMatch( action, path, callback );
+        BaseNetlinkNotifier.instance._addMatch( (uint16)action, callback );
     }
 
 }

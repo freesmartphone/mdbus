@@ -122,6 +122,9 @@ namespace Netlink {
 
         public void @foreach (CallbackFunc cb);
         public void foreach_filter (Object obj, CallbackFunc cb);
+
+        public void  mngt_provide();
+        public void  mngt_unprovide();
     }
 
     [Compact]
@@ -278,8 +281,29 @@ namespace Netlink {
     }
 
     [Compact]
-    [CCode (cname = "struct nl_object", free_function = "nl_object_free", cheader_filename = "netlink/object.h")]
+    [CCode (cprefix = "nl_object_", cname = "struct nl_object", free_function = "nl_object_free", cheader_filename = "netlink/object.h")]
     public class Object {
+
+        public unowned string attrs2str	(uint32 attrs, char[] buf);
+        public unowned string attr_list (char[] buf);
+        public void dump (DumpParams params);
+
     }
 
+    [CCode (cprefix = "NL_DUMP_", cname = "int", cheader_filename = "netlink/types.h")]
+    public enum DumpType {
+        LINE,           /**< Dump object briefly on one line */
+        DETAILS,        /**< Dump all attributes but no statistics */
+        STATS,          /**< Dump all attributes including statistics */
+        ENV,            /**< Dump all attribtues as env variables */
+    }
+
+    [CCode (cname = "struct nl_dump_params", free_function = "", cheader_filename = "netlink/types.h")]
+    public struct DumpParams {
+        public DumpType dp_type;
+        public int dp_prefix;
+        public bool dp_print_index;
+        public bool dp_dump_msgtype;
+        public unowned Posix.FILE dp_fd;
+    }    
 }

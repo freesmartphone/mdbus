@@ -30,9 +30,9 @@ public string ipv4AddressForInterface( string iface )
     socket.addr_alloc_cache( out addr_cache );
 
     var ifindex = link_cache.name2i( iface );
-
+#if DEBUG
     message( "index = %u", ifindex );
-
+#endif
     var routeaddr = new Netlink.RouteAddress();
     //routeaddr.set_family( Posix.AF_INET );
     routeaddr.set_ifindex( ifindex );
@@ -40,12 +40,14 @@ public string ipv4AddressForInterface( string iface )
     var ipv4 = "unknown";
 
     addr_cache.foreach_filter( routeaddr, (element) => {
+#if DEBUG
         message( "called w/ object %p", element );
+#endif
         unowned Netlink.Address addr = ( (Netlink.RouteAddress)element ).get_local();
-    #if DEBUG
+#if DEBUG
         message( "addr: family: %d length: %d prefixlen: %d", addr.get_family(), addr.get_len(), addr.get_prefixlen() );
         message( "addr: %s", addr.to_string() );
-    #endif
+#endif
 
         if ( addr.get_len() == 4 )
         {

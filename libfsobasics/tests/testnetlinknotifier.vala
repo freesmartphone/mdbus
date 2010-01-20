@@ -25,12 +25,17 @@ void test_netlinknotifier_add_match()
 //===========================================================================
 {
     var loop = new MainLoop();
-    BaseNetlinkNotifier.addMatch( "addaddr", "foo", ( properties ) => { loop.quit(); } );
+    BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.NEWROUTE, ( properties ) => {
+        loop.quit();
+    } );
+
+    /*
     Timeout.add_seconds( 1, () => {
         // ...
         loop.quit();
         return false;
     } );
+    */
     loop.run();
 }
 
