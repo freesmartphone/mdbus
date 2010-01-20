@@ -323,22 +323,45 @@ class Commands : Object
         }
     }
 
-    private void _parseArguments( string[] args )
+    private bool _parseArguments( string[] args )
     {
+        return false;
     }
 
-    private void _callMethod( string busname, string path, string iface, string method, string[] args)
+    private bool _callMethod( string busname, string path, string iface, string method, string[] args)
     {
+        if ( args.length > 0 )
+        {
+            error( "Calling methods with input parameters is not yet implemented" );
+            return false;
+        }
+
         dynamic DBus.Object o = bus.get_object( busname, path, iface );
-        Error e;
-        error( "calling methods not yet implemented" );
+        GLib.Error e;
+        string strres;
+        var ok = o.call( method, out e, Type.INVALID, typeof(int), out strres, Type.INVALID ); // no parameters
+
+        if ( !ok )
+        {
+            if ( e != null )
+            {
+                stderr.printf( @"Error: $(e.message)\n" );
+            }
+            else
+            {
+                stderr.printf( "Unspecified error during call\n" );
+            }
+        }
+
+        return ok;
+
         /*
         var result = o.call( method, out e );
         message( "calling %s on interface %s on object %s served by %s", method, iface, path, busname );
         */
     }
 
-    public void callMethod( string busname, string path, string method, string[] args )
+    public bool callMethod( string busname, string path, string method, string[] args )
     {
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
 
@@ -348,7 +371,7 @@ class Commands : Object
             if ( idata.entitys.length() == 0 )
             {
                 stderr.printf( "Error: No introspection data at object %s\n", path );
-                return;
+                return false;
             }
 
             foreach ( var entity in idata.entitys )
@@ -363,12 +386,13 @@ class Commands : Object
                     if ( args.length != entity.inArgs.length() )
                     {
                         stderr.printf( "Error: Need %u params, supplied %u\n", entity.inArgs.length(), args.length );
-                        return;
+                        return false;
                     }
 
+                    // TODO: parse arguments and construct va_args call
+
                     // method ok to call
-                    _callMethod( busname, path, iface, baseMethod, {} );
-                    return;
+                    return _callMethod( busname, path, iface, baseMethod, {} );
                 }
             }
 
@@ -377,8 +401,9 @@ class Commands : Object
         catch ( DBus.Error e )
         {
             stderr.printf( "Error: %s\n", e.message );
-            return;
+            return false;
         }
+        return false;
     }
 
     public void listenForSignals()
@@ -447,8 +472,11 @@ int main( string[] args )
             assert( args.length > 3 );
             string[] restargs = {};
             for ( int i = 4; i < args.length; ++i )
+            {
                 restargs += args[i];
-            commands.callMethod( args[1], args[2], args[3], restargs );
+            }
+            var ok = commands.callMethod( args[1], args[2], args[3], restargs );
+            return ok ? 0 : -1;
             break;
     }
 
