@@ -29,4 +29,10 @@ a transport before attempting to write.
 ===alarm===
 * Should we support a customizable object path for alarm notifications?
 * Should registered alarms be persistent in case the daemon dies or the system gets rebooted?
+===source_ntp===
+* Listen for default route changes; then trigger sync
+* Sync regularly (configurable frequency)
+
+==fsousaged==
+*Queue all commands
 
