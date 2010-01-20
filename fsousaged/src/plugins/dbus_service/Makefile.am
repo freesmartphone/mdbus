@@ -2,15 +2,10 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-if PERSISTENCE
-	VALAC_EXTRA_ARGS = -DPERSISTENCE --pkg persistence-1.0
-endif
-
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(DBUS_CFLAGS) \
 	$(GEE_CFLAGS) \
-	$(PERSISTENCE_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(NULL)
 
@@ -20,7 +15,6 @@ progs_ldadd = \
 	$(top_srcdir)/src/lib/libfsousage.la \
 	$(DBUS_LIBS) \
 	$(GEE_LIBS) \
-	$(PERSISTENCE_LIBS) \
 	$(FSO_LIBS) \
 	$(NULL)
 

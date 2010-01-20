@@ -34,21 +34,6 @@ internal const string FSO_IDLENOTIFIER_IFACE = "org.freesmartphone.Device.IdleNo
 namespace Usage {
 
 /**
- * Serialized state class
- *
- * All properties here will be saved on forced shutdown
- **/
-public class PersistentData : Object
-{
-    public HashMap<string,Resource> resources { get; set; }
-
-    construct
-    {
-        resources = new HashMap<string,Resource>( str_hash, str_equal, str_equal );
-    }
-}
-
-/**
  * Controller class implementing org.freesmartphone.Usage API
  *
  * Note: Unfortunately we can't just use libfso-glib (FreeSmartphone.Usage interface)
@@ -65,7 +50,6 @@ public class Controller : FsoFramework.AbstractObject
     private bool disable_on_startup;
     private bool disable_on_shutdown;
 
-    private PersistentData data;
     private HashMap<string,Resource> resources;
 
     dynamic DBus.Object dbus;
@@ -103,35 +87,8 @@ public class Controller : FsoFramework.AbstractObject
 
     public override string repr()
     {
-        return @"<$(resources.size) resources>";
+        return @"<$(resources.size) R>";
     }
-
-#if PERSISTENCE
-    private void syncResourcesAndUsers()
-    {
-        // for ever resource, we check whether it's still present, and if so,
-        // whether any of the consumers might have disappeared meanwhile
-        var resourcesToRemove = new Gee.HashSet<Resource>();
-
-        foreach ( var r in resources.values )
-        {
-            if ( !r.isPresent() )
-            {
-                resourcesToRemove.add( r );
-            }
-        }
-        foreach ( var r in resourcesToRemove )
-        {
-            resources.remove( r.name );
-            this.resource_available( r.name, false ); // DBUS SIGNAL
-        }
-
-        foreach ( var r in resources.values )
-        {
-            r.syncUsers();
-        }
-    }
-#endif
 
     private void initLowlevel()
     {
@@ -170,21 +127,7 @@ public class Controller : FsoFramework.AbstractObject
 
     public void initResources()
     {
-#if PERSISTENCE
-        // check whether we have crash data
-        if ( loadPersistentData() )
-        {
-            resources = data.resources;
-            syncResourcesAndUsers();
-        }
-        else
-#endif
-        {
-            data = new PersistentData();
-            //data.resources = new HashMap<string,Resource>( str_hash, str_equal );
-            resources = data.resources;
-        }
-        assert( resources != null );
+        resources = new HashMap<string,Resource>( str_hash, str_equal );
     }
 
     private void onResourceAppearing( Resource r )
@@ -230,23 +173,6 @@ public class Controller : FsoFramework.AbstractObject
     {
         assert( logger.debug( "Resource %s served by %s @ %s has just been unregistered".printf( r.name, r.busname, r.objectpath ) ) );
         this.resource_available( r.name, false ); // DBUS SIGNAL
-
-#if WHY_TRYING_TO_DISABLE_A_VANISHED_RESOURCE
-        try
-        {
-            r.disable();
-        }
-        catch ( FreeSmartphone.ResourceError e )
-        {
-            logger.warning( "Error while trying to (initially) disable resource %s: %s".printf( r.name, e.message ) );
-        }
-        catch ( DBus.Error e )
-        {
-            logger.warning( "Error while trying to (finally) disable resource %s: %s".printf( r.name, e.message ) );
-        }
-#endif
-
-        //resources.remove( r.name );
     }
 
     private void onNameOwnerChanged( dynamic DBus.Object obj, string name, string oldowner, string newowner )
@@ -417,33 +343,6 @@ public class Controller : FsoFramework.AbstractObject
         assert( logger.debug( "... done resuming." ) );
     }
 
-#if PERSISTENCE
-    // not public, since we don't want to expose it via dbus
-    internal void savePersistentData()
-    {
-        logger.info( "Saving resource status to file..." );
-        var file = File.new_for_path( "/tmp/serialize.output" );
-        var stream = file.replace( null, false, FileCreateFlags.NONE, null );
-        Persistence.JsonTypeSerializer.instance().ignoreUnknown = true;
-        var serializer = new Persistence.JsonSerializer( stream );
-        serializer.serialize_object( data );
-    }
-
-    internal bool loadPersistentData()
-    {
-        var file = File.new_for_path( "/tmp/serialize.output" );
-        if ( !file.query_exists( null ) )
-        {
-            return false;
-        }
-        var stream = file.read( null );
-        Persistence.JsonTypeSerializer.instance().ignoreUnknown = true;
-        var deserializer = new Persistence.JsonDeserializer<PersistentData>( stream );
-        data = deserializer.deserialize_object() as PersistentData;
-        return true;
-    }
-#endif
-
     //
     // DBUS API (for providers)
     //
@@ -597,9 +496,6 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 
 public static void fso_shutdown_function()
 {
-#if PERSISTENCE
-    instance.savePersistentData();
-#endif
     instance.shutdownPlugin();
 }
 
