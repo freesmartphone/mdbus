@@ -67,8 +67,21 @@ namespace Netlink {
         }
     }
 
+    [Compact]
     [CCode (cprefix = "nla_", cname = "struct nlattr", free_function = "", cheader_filename = "netlink/netlink.h")]
-    public struct Attribute {
+    public class Attribute {
+        public static int       attr_size (int payload);
+        public static int       total_size (int payload);
+        public static int       padlen (int payload);
+
+        public int              type();
+        public void*            data();
+        public int              len();
+        public int              ok (int remaining);
+        public Attribute        next (out int remaining);
+        public static int       parse (Attribute[] attributes, Attribute head, int len, AttributePolicy? policy = null);
+        public int              validate (int len, int maxtype, AttributePolicy? policy = null);
+        public Attribute        find (int len, int attrtype);
     }
 
     [Compact]
@@ -216,8 +229,8 @@ namespace Netlink {
         public bool             valid_hdr (int hdrlen);
         public bool             ok (int remaining);
         public MessageHeader    next (out int remaining);
-        public int              parse (int hdrlen, [CCode (array_length = "false")] out Attribute[] attributes, AttributeType maxtype, AttributePolicy policy);
-        public Attribute        find_attr (int hdrlen, AttributeType type);
+        public int              parse (int hdrlen, [CCode (array_length = "false")] out Attribute[] attributes, AttributeType maxtype, AttributePolicy? policy = null);
+        public Attribute?       find_attr (int hdrlen, AttributeType type);
         public int              validate (int hdrlen, AttributeType maxtype, AttributePolicy policy);
     }
 
@@ -305,5 +318,7 @@ namespace Netlink {
         public bool dp_print_index;
         public bool dp_dump_msgtype;
         public unowned Posix.FILE dp_fd;
+        public unowned string dp_buf;
+        public size_t dp_buflen;
     }    
 }

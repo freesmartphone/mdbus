@@ -108,34 +108,33 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         debug( "received netlink message w/ type %d", hdr.nlmsg_type );
 
         var res = msg.parse( ( obj ) => {
-            handleMessage( hdr.nlmsg_type );
-            var params = Netlink.DumpParams() { dp_type = Netlink.DumpType.STATS,
-                                                dp_fd = Posix.stdout,
-                                                dp_dump_msgtype = true };
+
+            var params = Netlink.DumpParams() { dp_type = Netlink.DumpType.ENV,
+                                                dp_dump_msgtype = true,
+                                                dp_prefix = 0,
+                                                dp_buf = (string)buffer,
+                                                dp_buflen = buffer.length };
             obj.dump( params );
+            handleMessage( hdr.nlmsg_type, ((string)buffer).split( "\n" ) );
         } );
-        
-        if ( res < 0 )
-        {
-            debug( Netlink.strerror( res ) );
-        }
         return Netlink.CallbackAction.STOP;
     }
 
-    protected void handleMessage( uint16 type )
+    protected void handleMessage( uint16 type, string[] parts )
     {
         var properties = new HashTable<string, string>( str_hash, str_equal );
-        /*
+
         foreach ( var part in parts )
         {
-            message( "%s", part );
             var elements = part.split( "=" );
             if ( elements.length == 2 )
             {
-                properties.insert( elements[0], elements[1] );
+#if DEBUG
+                debug( @"netlink message part: $part" );
+#endif
+                properties.insert( elements[0].strip(), elements[1].strip() );
             }
         }
-        */
 
         weak List<weak NetlinkDelegateHolder> list = map.lookup( type );
         if ( list != null )
