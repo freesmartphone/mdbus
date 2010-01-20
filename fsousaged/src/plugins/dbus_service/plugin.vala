@@ -306,13 +306,13 @@ public class Controller : FsoFramework.AbstractObject
         {
             if ( ( r.status != ResourceStatus.SUSPENDED ) && ( r.status != ResourceStatus.DISABLED ) )
             {
-                logger.warning( "Resource $(r.name) is not suspended nor disabled" );
+                logger.warning( @"Resource $(r.name) is not suspended nor disabled" );
                 resourcesAlive++;
             }
         }
         if ( resourcesAlive > 0 )
         {
-            logger.error( "%d resources still alive :( Aborting Suspend!" );
+            logger.error( @"$resourcesAlive resources still alive :( Aborting Suspend!" );
             return false;
         }
 
@@ -327,7 +327,7 @@ public class Controller : FsoFramework.AbstractObject
         logger.info( "<<<<<<< KERNEL RESUME" );
 
         FsoUsage.ResumeReason reason = lowlevel.resume();
-        logger.info( "Resume reason seems to be %s".printf( FsoFramework.StringHandling.enumToString( typeof( FsoUsage.ResumeReason ), reason) ) );
+        logger.info( @"Resume reason seems to be $reason" );
         resumeAllResources();
         this.system_action( FreeSmartphone.UsageSystemAction.RESUME ); // DBUS SIGNAL
 
@@ -338,7 +338,7 @@ public class Controller : FsoFramework.AbstractObject
         }
         catch ( DBus.Error e )
         {
-            logger.error( "DBus Error while talking to IdleNotifier: %s".printf( e.message ) );
+            logger.error( @"DBus Error while talking to IdleNotifier: $(e.message)" );
         }
         return false; // MainLoop: Don't call again
     }
@@ -347,9 +347,9 @@ public class Controller : FsoFramework.AbstractObject
     {
         Resource r = resources[name];
         if ( r == null )
-            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( "Resource %s had never been registered".printf( name ) );
+            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( @"Resource $name had never been registered" );
 
-        assert( logger.debug( "current users for %s = %s".printf( r.name, FsoFramework.StringHandling.stringListToString( r.allUsers() ) ) ) );
+        assert( logger.debug( "Current users for %s = %s".printf( r.name, FsoFramework.StringHandling.stringListToString( r.allUsers() ) ) ) );
 
         return r;
     }
@@ -365,11 +365,11 @@ public class Controller : FsoFramework.AbstractObject
             }
             catch ( FreeSmartphone.ResourceError e1 )
             {
-                logger.warning( "Error while trying to suspend resource %s: %s".printf( r.name, e1.message ) );
+                logger.warning( @"Error while trying to disable resource $(r.name): $(e1.message)" );
             }
             catch ( DBus.Error e2 )
             {
-                logger.warning( "Error while trying to disable resource %s: %s".printf( r.name, e2.message ) );
+                logger.warning( @"Error while trying to disable resource $(r.name): $(e2.message)" );
             }
         }
         assert( logger.debug( "... done" ) );
@@ -386,11 +386,11 @@ public class Controller : FsoFramework.AbstractObject
             }
             catch ( FreeSmartphone.ResourceError e1 )
             {
-                logger.warning( "Error while trying to suspend resource %s: %s".printf( r.name, e1.message ) );
+                logger.warning( @"Error while trying to suspend resource $(r.name): $(e1.message)" );
             }
             catch ( DBus.Error e2 )
             {
-                logger.warning( "Error while trying to suspend resource %s: %s".printf( r.name, e2.message ) );
+                logger.warning( @"Error while trying to suspend resource $(r.name): $(e2.message)" );
             }
         }
         assert( logger.debug( "... done disabling." ) );
@@ -407,11 +407,11 @@ public class Controller : FsoFramework.AbstractObject
             }
             catch ( FreeSmartphone.ResourceError e1 )
             {
-                logger.warning( "Error while trying to suspend resource %s: %s".printf( r.name, e1.message ) );
+                logger.warning( @"Error while trying to resume resource $(r.name): $(e1.message)" );
             }
             catch ( DBus.Error e2 )
             {
-                logger.warning( "Error while trying to resume resource %s: %s".printf( r.name, e2.message ) );
+                logger.warning( @"Error while trying to resume resource $(r.name): $(e2.message)" );
             }
         }
         assert( logger.debug( "... done resuming." ) );
@@ -449,9 +449,11 @@ public class Controller : FsoFramework.AbstractObject
     //
     public void register_resource( DBus.BusName sender, string name, DBus.ObjectPath path ) throws FreeSmartphone.UsageError, DBus.Error
     {
+#if DEBUG
         message( "register_resource called with parameters: %s %s %s", sender, name, path );
+#endif
         if ( name in resources.keys )
-            throw new FreeSmartphone.UsageError.RESOURCE_EXISTS( "Resource %s already registered".printf( name ) );
+            throw new FreeSmartphone.UsageError.RESOURCE_EXISTS( @"Resource $name already registered" );
 
         var r = new Resource( name, sender, path );
         resources[name] = r;
@@ -464,7 +466,7 @@ public class Controller : FsoFramework.AbstractObject
         var r = getResource( name );
 
         if ( r.busname != sender )
-            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( "Resource %s not yours".printf( name ) );
+            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( @"Resource $name not yours" );
 
         onResourceVanishing( r );
 
