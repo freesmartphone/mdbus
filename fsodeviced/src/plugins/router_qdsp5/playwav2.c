@@ -127,7 +127,7 @@ struct msm_snd_endpoint
 #endif
 /* ----------  -------- */
 
-static int
+int
 msm72xx_enable_audpp (uint16_t enable_mask)
 {
   int fd;
@@ -161,7 +161,7 @@ msm72xx_enable_audpp (uint16_t enable_mask)
   return 0;
 }
 
-static int
+int
 do_route_audio_rpc (uint32_t device, int ear_mute, int mic_mute)
 {
   if (device == -1UL)
@@ -203,7 +203,7 @@ do_route_audio_rpc (uint32_t device, int ear_mute, int mic_mute)
   return 0;
 }
 
-static int
+int
 set_volume_rpc (uint32_t device, uint32_t method, uint32_t volume)
 {
   int fd;
