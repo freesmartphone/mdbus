@@ -127,6 +127,10 @@ internal class Suspend : Command
 {
     public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
+        instance.system_action( FreeSmartphone.UsageSystemAction.SUSPEND ); // DBUS SIGNAL
+        yield instance.suspendAllResources();
+        // we need to suspend async, otherwise the dbus call would timeout
+        Idle.add( instance.onIdleForSuspend );
     }
 }
 
@@ -320,7 +324,7 @@ public class Controller : FsoFramework.AbstractObject
         return true;
     }
 
-    private bool onIdleForSuspend()
+    internal bool onIdleForSuspend()
     {
         logger.info( ">>>>>>> KERNEL SUSPEND" );
 
@@ -398,7 +402,7 @@ public class Controller : FsoFramework.AbstractObject
         assert( logger.debug( "... done" ) );
     }
 
-    private async void suspendAllResources()
+    internal async void suspendAllResources()
     {
         assert( logger.debug( "Suspending all resources..." ) );
         foreach ( var r in resources.values )
@@ -419,7 +423,7 @@ public class Controller : FsoFramework.AbstractObject
         assert( logger.debug( "... done disabling." ) );
     }
 
-    private async void resumeAllResources()
+    internal async void resumeAllResources()
     {
         assert( logger.debug( "Resuming all resources..." ) );
         foreach ( var r in resources.values )
@@ -567,10 +571,8 @@ public class Controller : FsoFramework.AbstractObject
 
     public async void suspend() throws DBus.Error
     {
-        this.system_action( FreeSmartphone.UsageSystemAction.SUSPEND ); // DBUS SIGNAL
-        yield suspendAllResources();
-        // we need to suspend async, otherwise the dbus call would timeout
-        Idle.add( onIdleForSuspend );
+        var cmd = new Suspend();
+        yield cmd.run();
     }
 
     // DBUS SIGNALS
