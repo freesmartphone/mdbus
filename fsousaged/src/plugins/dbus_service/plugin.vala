@@ -1,8 +1,7 @@
 /**
  * Resource Controller DBus Service
  *
- * Written by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
- * All Rights Reserved
+ * (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -33,41 +32,100 @@ internal const string FSO_IDLENOTIFIER_IFACE = "org.freesmartphone.Device.IdleNo
 
 namespace Usage {
 
-public class Command
+/**
+ * @class Command
+ *
+ * Performs the serialization of commands
+ **/
+internal class Command
 {
+    private static Gee.LinkedList<unowned Command> q;
+    private static int watch;
+    private static int depth;
+
+    private GLib.SourceFunc callback;
+
+    static construct
+    {
+        q = new Gee.LinkedList<unowned Command>();
+    }
+
+    public Command()
+    {
+        debug( "Created command %p", this );
+    }
+
+    public void dequeue()
+    {
+        assert( q.poll_head() == this );
+
+        if ( !q.is_empty )
+        {
+            q.peek_head().callback();
+        }
+    }
+    
+    public async void enqueue()
+    {
+        var wasempty = q.is_empty;
+        
+        this.callback = enqueue.callback;
+        q.offer_tail( this );
+
+        if ( wasempty )
+        {
+            return;
+        }
+        else
+        {
+            yield;
+        }
+    }
+
+    ~Command()
+    {
+        debug( "Destroying %p", this );
+        dequeue();
+    }
 }
 
-public class RequestResource : Command
+internal class RequestResource : Command
 {
-    public async void run( string resource, string user ) throws FreeSmartphone.Error, DBus.Error
+    public async void run( string resource, DBus.BusName user ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    {
+        yield enqueue();
+        var r = instance.getResource( resource );
+        yield r.addUser( user );
+    }
+}
+
+internal class ReleaseResource : Command
+{
+    public async void run( string resource, DBus.BusName user ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    {
+        yield enqueue();
+        var r = instance.getResource( resource );
+        yield r.delUser( user );
+    }
+}
+
+internal class SetResourcePolicy : Command
+{
+    public async void run( string resource, string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
     }
 }
 
-public class ReleaseResource : Command
+internal class GetResourcePolicy : Command
 {
-    public async void run( string resource, string user ) throws FreeSmartphone.Error, DBus.Error
+    public async void run( string resource ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
     }
 }
 
-public class SetResourcePolicy : Command
+internal class Suspend : Command
 {
-    public async void run( string resource, string policy ) throws FreeSmartphone.Error, DBus.Error
-    {
-    }
-}
-
-public class GetResourcePolicy : Command
-{
-    public async void run( string resource ) throws FreeSmartphone.Error, DBus.Error
-    {
-    }
-}
-
-public class Suspend : Command
-{
-    public async void run() throws FreeSmartphone.Error, DBus.Error
+    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
     }
 }
@@ -308,7 +366,7 @@ public class Controller : FsoFramework.AbstractObject
         return false; // MainLoop: Don't call again
     }
 
-    private Resource getResource( string name ) throws FreeSmartphone.UsageError
+    internal Resource getResource( string name ) throws FreeSmartphone.UsageError
     {
         Resource r = resources[name];
         if ( r == null )
@@ -423,7 +481,6 @@ public class Controller : FsoFramework.AbstractObject
     //
     // DBUS API (for consumers)
     //
-    //public FreeSmartphone.UsageResourcePolicy get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     public async string get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         switch ( getResource( name ).policy )
@@ -484,14 +541,14 @@ public class Controller : FsoFramework.AbstractObject
 
     public async void request_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        var resource = getResource( name );
-        yield resource.addUser( sender );
+        var cmd = new RequestResource();
+        yield cmd.run( name, sender );
     }
 
     public async void release_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        var resource = getResource( name );
-        yield resource.delUser( sender );
+        var cmd = new ReleaseResource();
+        yield cmd.run( name, sender );
     }
 
     public async void shutdown() throws DBus.Error

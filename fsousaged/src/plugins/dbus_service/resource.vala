@@ -1,8 +1,7 @@
 /**
  * Resource Abstraction
  *
- * Written by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
- * All Rights Reserved
+ * (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
