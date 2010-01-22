@@ -30,8 +30,8 @@ class LedClass : FreeSmartphone.Device.Vibrator, FsoFramework.AbstractObject
     private string sysfsnode;
     private string brightness;
 
-    private uint seconds;
     private uint fulltimeoutwatch;
+    private uint smalltimeoutwatch;
     private uint don;
     private uint doff;
     private bool on;
@@ -73,27 +73,6 @@ class LedClass : FreeSmartphone.Device.Vibrator, FsoFramework.AbstractObject
         return @"<$sysfsnode>";
     }
 
-    private void cleanTimeout()
-    {
-        if ( fulltimeoutwatch > 0 )
-        {
-            Source.remove( fulltimeoutwatch );
-            fulltimeoutwatch = 0;
-        }
-    }
-
-    private void setTimeout( int seconds )
-    {
-        cleanTimeout();
-        fulltimeoutwatch = Timeout.add_seconds( seconds, onTimeout );
-    }
-
-    private bool onTimeout()
-    {
-        set_brightness( 0 );
-        return false;
-    }
-
     private int _valueToPercent( int value )
     {
         double max = max_brightness;
@@ -117,30 +96,41 @@ class LedClass : FreeSmartphone.Device.Vibrator, FsoFramework.AbstractObject
 
     private void set_brightness( int brightness )
     {
+        message( "set brightness to %d", brightness );
         var percent = _percentToValue( brightness );
         FsoFramework.FileHandling.write( percent.to_string(), this.brightness );
+        on = ( percent > 0 );
     }
 
     private bool onToggleTimeout()
     {
-        if ( fulltimeoutwatch == 0 )
-        {
-            set_brightness( 0 );
-            return false;
-        }
         if ( !on )
         {
             set_brightness( 100 );
-            Timeout.add( don, onToggleTimeout );
+            smalltimeoutwatch = Timeout.add( don, onToggleTimeout );
         }
         else
         {
             set_brightness( 0 );
-            Timeout.add( doff, onToggleTimeout );
+            smalltimeoutwatch = Timeout.add( doff, onToggleTimeout );
         }
         return false;
     }
 
+    private void cleanTimeouts()
+    {
+        if ( smalltimeoutwatch > 0 )
+        {
+            Source.remove( smalltimeoutwatch );
+            smalltimeoutwatch = 0;
+        }
+        if ( fulltimeoutwatch > 0 )
+        {
+            Source.remove( fulltimeoutwatch );
+            fulltimeoutwatch = 0;
+        }
+    }
+    
     //
     // FreeSmartphone.Device.Vibrator (DBUS API)
     //
@@ -151,22 +141,37 @@ class LedClass : FreeSmartphone.Device.Vibrator, FsoFramework.AbstractObject
 
     public async void vibrate_pattern( int seconds, int delay_on, int delay_off ) throws FreeSmartphone.Error, DBus.Error
     {
+        if ( fulltimeoutwatch > 0 )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Already vibrating... please try again" );
         if ( seconds < 1 )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Vibration timeout needs to be at least 1 second" );
+        if ( delay_on < 50 )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Delay on duration needs to be at least 50 milliseconds" );
+        if ( delay_off < 50 )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Delay off duration needs to be at least 50 milliseconds" );
 
         this.don = delay_on;
         this.doff = delay_off;
-        this.seconds = seconds;
 
-        setTimeout( seconds );
+        fulltimeoutwatch = Timeout.add_seconds( seconds, () => {
+            cleanTimeouts();
+            set_brightness( 0 );
+            return false;
+        } );
         onToggleTimeout();
     }
 
     public async void vibrate( int milliseconds ) throws FreeSmartphone.Error, DBus.Error
     {
-        cleanTimeout();
+        if ( fulltimeoutwatch > 0 )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Already vibrating... please try again" );
+        if ( milliseconds < 50 )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Vibration timeout needs to be at least 50 milliseconds" );
+
+        cleanTimeouts();
         set_brightness( 100 );
-        Timeout.add( milliseconds, () => {
+        fulltimeoutwatch = Timeout.add( milliseconds, () => {
+            cleanTimeouts();
             set_brightness( 0 );
             return false;
         } );
@@ -197,10 +202,14 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     // scan sysfs path for leds
     var dir = Dir.open( sys_class_leds );
     var entry = dir.read_name();
-    while ( entry != null && "vib" in entry )
+    while ( entry != null )
     {
-        var filename = Path.build_filename( sys_class_leds, entry );
-        instances.append( new Vibrator.LedClass( subsystem, filename ) );
+        if ( "thinklight" in entry )
+        {
+            message( "yo" );
+            var filename = Path.build_filename( sys_class_leds, entry );
+            instances.append( new Vibrator.LedClass( subsystem, filename ) );
+        }
         entry = dir.read_name();
     }
     return "fsodevice.vibrator_ledclasss";
