@@ -57,14 +57,10 @@ class LedClass : FreeSmartphone.Device.Vibrator, FsoFramework.AbstractObject
         }
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        /*
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.LedServicePath, counter++ ),
-                                         this );
-        */
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%s".printf( FsoFramework.Device.VibratorServicePath, Path.get_basename( sysfsnode ) ), this );
-
+        subsystem.registerServiceObjectWithPrefix(
+            FsoFramework.Device.ServiceDBusName,
+            FsoFramework.Device.VibratorServicePath,
+            this );
         logger.info( "Created" );
     }
 
@@ -204,9 +200,10 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var entry = dir.read_name();
     while ( entry != null )
     {
+#if FOO
         if ( "thinklight" in entry )
+#endif
         {
-            message( "yo" );
             var filename = Path.build_filename( sys_class_leds, entry );
             instances.append( new Vibrator.LedClass( subsystem, filename ) );
         }
