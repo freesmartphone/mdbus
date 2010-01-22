@@ -25,6 +25,8 @@ SUBDIRS = \
 	openmoko_powercontrol \
 	thinkpad_powercontrol \
 	\
+	vibrator_ledclass \
+	\
 	$(NULL)
 
 if WANT_CANBERRA
