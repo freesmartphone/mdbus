@@ -73,6 +73,9 @@ namespace FsoFramework
 
         public const string RtcServiceFace = ServiceFacePrefix + ".RTC";
         public const string RtcServicePath = ServicePathPrefix + "/RTC";
+
+        public const string VibratorServiceFace = ServiceFacePrefix + ".Vibrator";
+        public const string VibratorServicePath = ServicePathPrefix + "/Vibrator";
     }
 
     namespace GPS
