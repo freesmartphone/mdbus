@@ -172,6 +172,12 @@ class LedClass : FreeSmartphone.Device.Vibrator, FsoFramework.AbstractObject
             return false;
         } );
     }
+
+    public async void stop() throws FreeSmartphone.Error, DBus.Error
+    {
+        cleanTimeouts();
+        set_brightness( 0 );
+    }
 }
 
 } /* namespace */
