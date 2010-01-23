@@ -161,6 +161,7 @@ AC_CONFIG_FILES([
   src/plugins/router_qdsp5/Makefile
   src/plugins/thinkpad_powercontrol/Makefile
   src/plugins/vibrator_ledclass/Makefile
+  src/plugins/vibrator_timedoutputclass/Makefile
   tests/Makefile
 ])
 

@@ -26,6 +26,7 @@ SUBDIRS = \
 	thinkpad_powercontrol \
 	\
 	vibrator_ledclass \
+	vibrator_timedoutputclass \
 	\
 	$(NULL)
 
