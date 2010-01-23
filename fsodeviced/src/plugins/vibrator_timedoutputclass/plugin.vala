@@ -177,7 +177,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     // grab sysfs paths
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
-    sys_class_timedoutputs = "%s/class/timedoutput".printf( sysfs_root );
+    sys_class_timedoutputs = "%s/class/timed_output".printf( sysfs_root );
     sys_class_net = "%s/class/net".printf( sysfs_root );
 
     // scan sysfs path for timedoutputs
