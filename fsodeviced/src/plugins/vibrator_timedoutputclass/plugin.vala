@@ -71,14 +71,18 @@ class TimedOutputClass : FreeSmartphone.Device.Vibrator, FsoFramework.AbstractOb
         {
             duration_ms = 0;
         }
+#if DEBUG
         debug( "set_enable: %d", duration_ms );
+#endif
         FsoFramework.FileHandling.write( duration_ms.to_string(), this.enable );
         on = ( duration_ms > 0 );
     }
 
     private bool onToggleTimeout()
     {
-        message( "on = %d, pulses = %d", (int)on, (int)pulses );
+#if DEBUG
+        debug( "on = %d, pulses = %d", (int)on, (int)pulses );
+#endif
         if ( !on )
         {
             set_enable( (int)don );

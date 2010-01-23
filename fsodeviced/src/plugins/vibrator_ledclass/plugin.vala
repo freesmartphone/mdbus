@@ -92,7 +92,9 @@ class LedClass : FreeSmartphone.Device.Vibrator, FsoFramework.AbstractObject
 
     private void set_brightness( int brightness )
     {
+#if DEBUG
         message( "set brightness to %d", brightness );
+#endif
         var percent = _percentToValue( brightness );
         FsoFramework.FileHandling.write( percent.to_string(), this.brightness );
         on = ( percent > 0 );
