@@ -24,6 +24,8 @@ namespace Kernel26
 
 class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
 {
+    public static string MODULE_NAME = "fsodevice.kernel26_leds";
+
     FsoFramework.Subsystem subsystem;
 
     private int max_brightness;
@@ -220,16 +222,21 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     sys_class_leds = "%s/class/leds".printf( sysfs_root );
     sys_class_net = "%s/class/net".printf( sysfs_root );
 
+    var to_skip = config.stringValue( Kernel26.Led.MODULE_NAME, "ignore_by_name", "" );
+
     // scan sysfs path for leds
     var dir = Dir.open( sys_class_leds );
     var entry = dir.read_name();
     while ( entry != null )
     {
-        var filename = Path.build_filename( sys_class_leds, entry );
-        instances.append( new Kernel26.Led( subsystem, filename ) );
+        if ( to_skip != "" && ! ( to_skip in entry ) )
+        {
+            var filename = Path.build_filename( sys_class_leds, entry );
+            instances.append( new Kernel26.Led( subsystem, filename ) );
+        }
         entry = dir.read_name();
     }
-    return "fsodevice.kernel26_leds";
+    return Kernel26.Led.MODULE_NAME;
 }
 
 [ModuleInit]
