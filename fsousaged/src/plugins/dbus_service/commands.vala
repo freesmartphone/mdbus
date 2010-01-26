@@ -23,17 +23,18 @@ using GLib;
 using Gee;
 
 namespace Usage {
+
 /**
- * @class Command
+ * @class ResourceCommand
  *
- * Performs the serialization of commands
+ * Performs the serialization of resource commands
  **/
-public class Command
+public class ResourceCommand
 {
     private GLib.SourceFunc callback;
     protected unowned Resource r;
 
-    public Command( Resource r )
+    public ResourceCommand( Resource r )
     {
         assert( r != null );
         this.r = r;
@@ -69,14 +70,71 @@ public class Command
         }
     }
 
-    ~Command()
+    ~ResourceCommand()
     {
         debug( "Destroying %p", this );
         dequeue();
     }
 }
 
-public class RequestResource : Command
+/**
+ * @class SystemCommand
+ *
+ * Performs the serialization of system commands
+ **/
+public class SystemCommand
+{
+    private GLib.SourceFunc callback;
+    private static LinkedList<unowned SystemCommand> q;
+
+    static construct
+    {
+        q = new LinkedList<unowned SystemCommand>();
+    }
+
+    public SystemCommand()
+    {
+        debug( "Created command %p", this );
+    }
+
+    public void dequeue()
+    {
+        assert( q.poll_head() == this );
+
+        if ( !q.is_empty )
+        {
+            q.peek_head().callback();
+        }
+    }
+
+    public async void enqueue()
+    {
+        var wasempty = q.is_empty;
+
+        this.callback = enqueue.callback;
+        q.offer_tail( this );
+
+        if ( wasempty )
+        {
+            return;
+        }
+        else
+        {
+            yield;
+        }
+    }
+
+    ~SystemCommand()
+    {
+        debug( "Destroying %p", this );
+        dequeue();
+    }
+}
+
+/**
+ * @class RequestResource
+ **/
+public class RequestResource : ResourceCommand
 {
     public RequestResource( Resource r )
     {
@@ -90,7 +148,10 @@ public class RequestResource : Command
     }
 }
 
-public class ReleaseResource : Command
+/**
+ * @class ReleaseResource
+ **/
+public class ReleaseResource : ResourceCommand
 {
     public ReleaseResource( Resource r )
     {
@@ -104,7 +165,10 @@ public class ReleaseResource : Command
     }
 }
 
-public class SetResourcePolicy : Command
+/**
+ * @class SetResourcePolicy
+ **/
+public class SetResourcePolicy : ResourceCommand
 {
     public SetResourcePolicy( Resource r )
     {
@@ -116,7 +180,10 @@ public class SetResourcePolicy : Command
     }
 }
 
-public class GetResourcePolicy : Command
+/**
+ * @class GetRequestPolicy
+ **/
+public class GetResourcePolicy : ResourceCommand
 {
     public GetResourcePolicy( Resource r )
     {
@@ -128,10 +195,14 @@ public class GetResourcePolicy : Command
     }
 }
 
-public class Suspend : Command
+/**
+ * @class Suspend
+ **/
+public class Suspend : SystemCommand
 {
     public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
+        yield enqueue();
         instance.system_action( FreeSmartphone.UsageSystemAction.SUSPEND ); // DBUS SIGNAL
         yield instance.suspendAllResources();
         // we need to suspend async, otherwise the dbus call would timeout

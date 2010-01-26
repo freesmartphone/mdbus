@@ -53,17 +53,13 @@ public class Resource : Object
     private FreeSmartphone.Resource proxy;
 
     // every resource has a command queue
-    public LinkedList<unowned Command> q;
-
-    // called before deserializing, init all non-value types here
-    construct
-    {
-        this.users = new ArrayList<string>();
-        this.q = new LinkedList<unowned Command>();
-    }
+    public LinkedList<unowned ResourceCommand> q;
 
     public Resource( string name, DBus.BusName busname, DBus.ObjectPath objectpath )
     {
+        this.users = new ArrayList<string>();
+        this.q = new LinkedList<unowned ResourceCommand>();
+
         this.name = name;
         this.busname = busname;
         this.objectpath = objectpath;
@@ -88,7 +84,7 @@ public class Resource : Object
         // TODO: Investigate whether this is a vala bug or not
         if ( users == null )
         {
-            FsoFramework.theLogger.warning( "Resource $name already destroyed." );
+            FsoFramework.theLogger.warning( @"Resource $name already destroyed." );
             return;
         }
         var info = new HashTable<string,Value?>( str_hash, str_equal );
@@ -159,7 +155,7 @@ public class Resource : Object
         }
         else
         {
-            instance.logger.error( "Unknown usage resouce policy. Ignoring" );
+            FsoFramework.theLogger.error( "Unknown usage resouce policy. Ignoring" );
         }
 #endif
     }
@@ -167,10 +163,10 @@ public class Resource : Object
     public async void addUser( string user ) throws FreeSmartphone.UsageError
     {
         if ( user in users )
-            throw new FreeSmartphone.UsageError.USER_EXISTS( "Resource %s already requested by user %s".printf( name, user ) );
+            throw new FreeSmartphone.UsageError.USER_EXISTS( @"Resource $name already requested by user $user" );
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.DISABLED )
-            throw new FreeSmartphone.UsageError.POLICY_DISABLED( "Resource %s cannot be requested by %s per policy".printf( name, user ) );
+            throw new FreeSmartphone.UsageError.POLICY_DISABLED( @"Resource $name cannot be requested by $user per policy" );
 
         users.insert( 0, user );
 
@@ -187,7 +183,7 @@ public class Resource : Object
     public async void delUser( string user ) throws FreeSmartphone.UsageError
     {
         if ( !(user in users) )
-            throw new FreeSmartphone.UsageError.USER_UNKNOWN( "Resource %s never been requested by user %s".printf( name, user ) );
+            throw new FreeSmartphone.UsageError.USER_UNKNOWN( @"Resource $name never been requested by user $user" );
 
         users.remove( user );
 
@@ -216,7 +212,7 @@ public class Resource : Object
         }
         foreach ( var userbusname in usersToRemove )
         {
-            instance.logger.warning( "Resource %s user %s has vanished.".printf( name, userbusname ) );
+            instance.logger.warning( @"Resource $name user $userbusname has vanished." );
             delUser( userbusname );
         }
     }
@@ -239,7 +235,7 @@ public class Resource : Object
         }
         catch ( DBus.Error e )
         {
-            instance.logger.warning( "Resource %s incommunicado: %s".printf( name, e.message ) );
+            instance.logger.warning( @"Resource $name incommunicado: $(e.message)" );
             return false;
         }
     }
@@ -254,7 +250,7 @@ public class Resource : Object
         }
         catch ( DBus.Error e )
         {
-            instance.logger.error( "Resource %s can't be enabled: %s. Trying to disable instead".printf( name, e.message ) );
+            instance.logger.error( @"Resource $name can't be enabled: $(e.message). Trying to disable instead" );
             yield proxy.disable();
             throw e;
         }
@@ -270,7 +266,7 @@ public class Resource : Object
         }
         catch ( DBus.Error e )
         {
-            instance.logger.error( "Resource %s can't be disabled: %s. Setting status to UNKNOWN".printf( name, e.message ) );
+            instance.logger.error( @"Resource $name can't be disabled: $(e.message). Setting status to UNKNOWN" );
             status = ResourceStatus.UNKNOWN;
             throw e;
         }
@@ -288,14 +284,14 @@ public class Resource : Object
             }
             catch ( DBus.Error e )
             {
-                instance.logger.error( "Resource %s can't be suspended: %s. Trying to disable instead".printf( name, e.message ) );
+                instance.logger.error( @"Resource $name can't be suspended: $(e.message). Trying to disable instead" );
                 yield proxy.disable();
                 throw e;
             }
         }
         else
         {
-            instance.logger.debug( "Resource %s not enabled: not suspending".printf( name ) );
+            assert( instance.logger.debug( @"Resource $name not enabled: not suspending" ) );
         }
     }
 
@@ -311,14 +307,14 @@ public class Resource : Object
             }
             catch ( DBus.Error e )
             {
-                instance.logger.error( "Resource %s can't be resumed: %s. Trying to disable instead".printf( name, e.message ) );
+                instance.logger.error( @"Resource $name can't be resumed: $(e.message). Trying to disable instead" );
                 yield proxy.disable();
                 throw e;
             }
         }
         else
         {
-            instance.logger.debug( "Resource %s not suspended: not resuming".printf( name ) );
+            assert( instance.logger.debug( @"Resource $name not suspended: not resuming" ) );
         }
     }
 }
