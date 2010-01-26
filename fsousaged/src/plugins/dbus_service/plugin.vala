@@ -54,10 +54,12 @@ public class Controller : FsoFramework.AbstractObject
     dynamic DBus.Object dbus;
     dynamic DBus.Object idlenotifier;
 
-    private string action_in_progress;
+    private FreeSmartphone.UsageSystemAction system_status;
 
     public Controller( FsoFramework.Subsystem subsystem )
     {
+        this.system_status = (FreeSmartphone.UsageSystemAction) 12345; // UNKNOWN
+
         this.subsystem = subsystem;
 
         this.subsystem.registerServiceName( FsoFramework.Usage.ServiceDBusName );
@@ -84,6 +86,12 @@ public class Controller : FsoFramework.AbstractObject
         // init resources and low level helpers
         initResources();
         initLowlevel();
+
+        // initial status
+        Idle.add( () => {
+            updateSystemStatus( FreeSmartphone.UsageSystemAction.ALIVE );
+            return false;
+        } );
     }
 
     public override string repr()
@@ -246,7 +254,8 @@ public class Controller : FsoFramework.AbstractObject
         FsoUsage.ResumeReason reason = lowlevel.resume();
         logger.info( @"Resume reason seems to be $reason" );
         resumeAllResources();
-        this.system_action( FreeSmartphone.UsageSystemAction.RESUME ); // DBUS SIGNAL
+
+        instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.RESUME );
 
         var idlestate = lowlevel.isUserInitiated( reason ) ? "busy" : "idle";
         try
@@ -257,20 +266,24 @@ public class Controller : FsoFramework.AbstractObject
         {
             logger.error( @"DBus Error while talking to IdleNotifier: $(e.message)" );
         }
+
+        instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.ALIVE );
+
         return false; // MainLoop: Don't call again
     }
 
     internal Resource getResource( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error
     {
-        if ( action_in_progress != null )
+        if ( system_status != FreeSmartphone.UsageSystemAction.ALIVE )
         {
-            //FIXME: Wrong error, need to change main dbus interface to let all methods throw a FreeSmartphone.Error
-            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( @"System action $action_in_progress in progress; please try later." );
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"System action $system_status in progress; please try again later." );
         }
 
         Resource r = resources[name];
         if ( r == null )
+        {
             throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( @"Resource $name had never been registered" );
+        }
 
         assert( logger.debug( "Current users for %s = %s".printf( r.name, FsoFramework.StringHandling.stringListToString( r.allUsers() ) ) ) );
 
@@ -377,6 +390,16 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
+    public void updateSystemStatus( FreeSmartphone.UsageSystemAction action )
+    {
+        if ( action == system_status )
+        {
+            return;
+        }
+
+        system_status = action;
+        this.system_action( action );
+    }
 
     //
     // DBUS API (for consumers)
@@ -453,44 +476,20 @@ public class Controller : FsoFramework.AbstractObject
 
     public async void shutdown() throws DBus.Error
     {
-        action_in_progress = "shutdown";
-        try
-        {
-            var cmd = new Shutdown();
-            yield cmd.run();
-        }
-        finally
-        {
-            action_in_progress = null;
-        }
+        var cmd = new Shutdown();
+        yield cmd.run();
     }
 
     public async void reboot() throws DBus.Error
     {
-        action_in_progress = "reboot";
-        try
-        {
-            var cmd = new Reboot();
-            yield cmd.run();
-        }
-        finally
-        {
-            action_in_progress = null;
-        }
+        var cmd = new Reboot();
+        yield cmd.run();
     }
 
     public async void suspend() throws DBus.Error
     {
-        action_in_progress = "suspend";
-        try
-        {
-            var cmd = new Suspend();
-            yield cmd.run();
-        }
-        finally
-        {
-            action_in_progress = null;
-        }
+        var cmd = new Suspend();
+        yield cmd.run();
     }
 
     // DBUS SIGNALS
@@ -498,11 +497,10 @@ public class Controller : FsoFramework.AbstractObject
     public signal void resource_changed( string name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
     public signal void system_action( FreeSmartphone.UsageSystemAction action );
 }
+
 } /* end namespace */
 
-namespace Usage {
-    public Usage.Controller instance;
-}
+namespace Usage { public Usage.Controller instance; }
 internal DBus.Connection dbusconn;
 
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error

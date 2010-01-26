@@ -203,7 +203,7 @@ public class Suspend : SystemCommand
     public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         yield enqueue();
-        instance.system_action( FreeSmartphone.UsageSystemAction.SUSPEND ); // DBUS SIGNAL
+        instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.SUSPEND );
         yield instance.suspendAllResources();
         // we need to suspend async, otherwise the dbus call would timeout
         Idle.add( instance.onIdleForSuspend );
@@ -218,7 +218,7 @@ public class Shutdown : SystemCommand
     public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         yield enqueue();
-        instance.system_action( FreeSmartphone.UsageSystemAction.SHUTDOWN ); // DBUS SIGNAL
+        instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.SHUTDOWN );
         yield instance.disableAllResources();
         Idle.add( () => {
             Posix.system( "shutdown -h now" );
@@ -234,7 +234,7 @@ public class Reboot : SystemCommand
     public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         yield enqueue();
-        instance.system_action( FreeSmartphone.UsageSystemAction.REBOOT ); // DBUS SIGNAL
+        instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.REBOOT );
         yield instance.disableAllResources();
         Idle.add( () => {
             Posix.system( "reboot now" );
