@@ -34,8 +34,8 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsousage
 modlibexec_LTLIBRARIES = dbus_service.la
-dbus_service_la_SOURCES = resource.c plugin.c
-dbus_service_la_VALASOURCES = resource.vala plugin.vala
+dbus_service_la_SOURCES = resource.c commands.c plugin.c
+dbus_service_la_VALASOURCES = resource.vala commands.vala plugin.vala
 $(dbus_service_la_SOURCES): $(dbus_service_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $(VALAC_EXTRA_ARGS) $^
 	touch $@

@@ -33,108 +33,6 @@ internal const string FSO_IDLENOTIFIER_IFACE = "org.freesmartphone.Device.IdleNo
 namespace Usage {
 
 /**
- * @class Command
- *
- * Performs the serialization of commands
- **/
-internal class Command
-{
-    private static Gee.LinkedList<unowned Command> q;
-    private static int watch;
-    private static int depth;
-
-    private GLib.SourceFunc callback;
-
-    static construct
-    {
-        q = new Gee.LinkedList<unowned Command>();
-    }
-
-    public Command()
-    {
-        debug( "Created command %p", this );
-    }
-
-    public void dequeue()
-    {
-        assert( q.poll_head() == this );
-
-        if ( !q.is_empty )
-        {
-            q.peek_head().callback();
-        }
-    }
-    
-    public async void enqueue()
-    {
-        var wasempty = q.is_empty;
-        
-        this.callback = enqueue.callback;
-        q.offer_tail( this );
-
-        if ( wasempty )
-        {
-            return;
-        }
-        else
-        {
-            yield;
-        }
-    }
-
-    ~Command()
-    {
-        debug( "Destroying %p", this );
-        dequeue();
-    }
-}
-
-internal class RequestResource : Command
-{
-    public async void run( string resource, DBus.BusName user ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
-    {
-        yield enqueue();
-        var r = instance.getResource( resource );
-        yield r.addUser( user );
-    }
-}
-
-internal class ReleaseResource : Command
-{
-    public async void run( string resource, DBus.BusName user ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
-    {
-        yield enqueue();
-        var r = instance.getResource( resource );
-        yield r.delUser( user );
-    }
-}
-
-internal class SetResourcePolicy : Command
-{
-    public async void run( string resource, string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
-    {
-    }
-}
-
-internal class GetResourcePolicy : Command
-{
-    public async void run( string resource ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
-    {
-    }
-}
-
-internal class Suspend : Command
-{
-    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
-    {
-        instance.system_action( FreeSmartphone.UsageSystemAction.SUSPEND ); // DBUS SIGNAL
-        yield instance.suspendAllResources();
-        // we need to suspend async, otherwise the dbus call would timeout
-        Idle.add( instance.onIdleForSuspend );
-    }
-}
-
-/**
  * Controller class implementing org.freesmartphone.Usage API
  *
  * Note: Unfortunately we can't just use libfso-glib (FreeSmartphone.Usage interface)
@@ -545,14 +443,14 @@ public class Controller : FsoFramework.AbstractObject
 
     public async void request_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        var cmd = new RequestResource();
-        yield cmd.run( name, sender );
+        var cmd = new RequestResource( getResource( name ) );
+        yield cmd.run( sender );
     }
 
     public async void release_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
     {
-        var cmd = new ReleaseResource();
-        yield cmd.run( name, sender );
+        var cmd = new ReleaseResource( getResource( name ) );
+        yield cmd.run( sender );
     }
 
     public async void shutdown() throws DBus.Error
@@ -571,8 +469,10 @@ public class Controller : FsoFramework.AbstractObject
 
     public async void suspend() throws DBus.Error
     {
+        /*
         var cmd = new Suspend();
         yield cmd.run();
+        */
     }
 
     // DBUS SIGNALS
@@ -580,25 +480,26 @@ public class Controller : FsoFramework.AbstractObject
     public signal void resource_changed( string name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
     public signal void system_action( FreeSmartphone.UsageSystemAction action );
 }
-
 } /* end namespace */
 
-Usage.Controller instance;
-DBus.Connection dbusconn;
+namespace Usage {
+    public Usage.Controller instance;
+}
+internal DBus.Connection dbusconn;
 
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    instance = new Usage.Controller( subsystem );
+    Usage.instance = new Usage.Controller( subsystem );
     return "fsousage.dbus_service";
 }
 
 public static void fso_shutdown_function()
 {
-    instance.shutdownPlugin();
+    Usage.instance.shutdownPlugin();
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "usage dbus_service fso_register_function()" );
+    FsoFramework.theLogger.debug( "usage dbus_service fso_register_function()" );
 }

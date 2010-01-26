@@ -1,5 +1,5 @@
 /**
- * Resource Abstraction
+ * FSO Resource Abstraction
  *
  * (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
@@ -52,10 +52,14 @@ public class Resource : Object
 
     private FreeSmartphone.Resource proxy;
 
+    // every resource has a command queue
+    public LinkedList<unowned Command> q;
+
     // called before deserializing, init all non-value types here
     construct
     {
         this.users = new ArrayList<string>();
+        this.q = new LinkedList<unowned Command>();
     }
 
     public Resource( string name, DBus.BusName busname, DBus.ObjectPath objectpath )
@@ -67,15 +71,13 @@ public class Resource : Object
         this.policy = FreeSmartphone.UsageResourcePolicy.AUTO;
 
         proxy = dbusconn.get_object( busname, objectpath, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
-        // workaround until vala 0.7.4
-        //proxy.ref();
 
-        message( "Resource %s served by %s @ %s created", name, busname, objectpath );
+        FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) created" );
     }
 
     ~Resource()
     {
-        message( "Resource %s served by %s @ %s destroyed", name, busname, objectpath );
+        FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) destroyed" );
     }
 
     private void updateStatus()
@@ -86,7 +88,7 @@ public class Resource : Object
         // TODO: Investigate whether this is a vala bug or not
         if ( users == null )
         {
-            instance.logger.warning( "Resource already destroyed." );
+            FsoFramework.theLogger.warning( "Resource $name already destroyed." );
             return;
         }
         var info = new HashTable<string,Value?>( str_hash, str_equal );
