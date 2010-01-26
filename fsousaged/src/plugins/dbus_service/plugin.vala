@@ -54,6 +54,8 @@ public class Controller : FsoFramework.AbstractObject
     dynamic DBus.Object dbus;
     dynamic DBus.Object idlenotifier;
 
+    private string action_in_progress;
+
     public Controller( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
@@ -210,18 +212,6 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
-    private bool onIdleForShutdown()
-    {
-        Posix.system( "shutdown -now " );
-        return true;
-    }
-
-    private bool onIdleForReboot()
-    {
-        Posix.system( "reboot" );
-        return true;
-    }
-
     internal bool onIdleForSuspend()
     {
         logger.info( ">>>>>>> KERNEL SUSPEND" );
@@ -268,8 +258,14 @@ public class Controller : FsoFramework.AbstractObject
         return false; // MainLoop: Don't call again
     }
 
-    internal Resource getResource( string name ) throws FreeSmartphone.UsageError
+    internal Resource getResource( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error
     {
+        if ( action_in_progress != null )
+        {
+            //FIXME: Wrong error, need to change main dbus interface to let all methods throw a FreeSmartphone.Error
+            throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( @"System action $action_in_progress in progress; please try later." );
+        }
+
         Resource r = resources[name];
         if ( r == null )
             throw new FreeSmartphone.UsageError.RESOURCE_UNKNOWN( @"Resource $name had never been registered" );
@@ -279,7 +275,7 @@ public class Controller : FsoFramework.AbstractObject
         return r;
     }
 
-    private async void disableAllResources()
+    public async void disableAllResources()
     {
         assert( logger.debug( "Disabling all resources..." ) );
         foreach ( var r in resources.values )
@@ -300,7 +296,7 @@ public class Controller : FsoFramework.AbstractObject
         assert( logger.debug( "... done" ) );
     }
 
-    internal async void suspendAllResources()
+    public async void suspendAllResources()
     {
         assert( logger.debug( "Suspending all resources..." ) );
         foreach ( var r in resources.values )
@@ -455,24 +451,44 @@ public class Controller : FsoFramework.AbstractObject
 
     public async void shutdown() throws DBus.Error
     {
-        this.system_action( FreeSmartphone.UsageSystemAction.SHUTDOWN ); // DBUS SIGNAL
-        yield disableAllResources();
-        Idle.add( onIdleForShutdown );
+        action_in_progress = "shutdown";
+        try
+        {
+            var cmd = new Shutdown();
+            yield cmd.run();
+        }
+        finally
+        {
+            action_in_progress = null;
+        }
     }
 
     public async void reboot() throws DBus.Error
     {
-        this.system_action( FreeSmartphone.UsageSystemAction.REBOOT ); // DBUS SIGNAL
-        yield disableAllResources();
-        Idle.add( onIdleForReboot );
+        action_in_progress = "reboot";
+        try
+        {
+            var cmd = new Reboot();
+            yield cmd.run();
+        }
+        finally
+        {
+            action_in_progress = null;
+        }
     }
 
     public async void suspend() throws DBus.Error
     {
-        /*
-        var cmd = new Suspend();
-        yield cmd.run();
-        */
+        action_in_progress = "suspend";
+        try
+        {
+            var cmd = new Suspend();
+            yield cmd.run();
+        }
+        finally
+        {
+            action_in_progress = null;
+        }
     }
 
     // DBUS SIGNALS

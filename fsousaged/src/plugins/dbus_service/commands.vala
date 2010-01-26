@@ -210,4 +210,36 @@ public class Suspend : SystemCommand
     }
 }
 
+/**
+ * @class Shutdown
+ **/
+public class Shutdown : SystemCommand
+{
+    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    {
+        yield enqueue();
+        instance.system_action( FreeSmartphone.UsageSystemAction.SHUTDOWN ); // DBUS SIGNAL
+        yield instance.disableAllResources();
+        Idle.add( () => {
+            Posix.system( "shutdown -h now" );
+        } );
+    }
+}
+
+/**
+ * @class Reboot
+ **/
+public class Reboot : SystemCommand
+{
+    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    {
+        yield enqueue();
+        instance.system_action( FreeSmartphone.UsageSystemAction.REBOOT ); // DBUS SIGNAL
+        yield instance.disableAllResources();
+        Idle.add( () => {
+            Posix.system( "reboot now" );
+        } );
+    }
+}
+
 } /* namespace Usage */
