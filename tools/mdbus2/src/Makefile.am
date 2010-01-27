@@ -3,11 +3,11 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 VALAC_ARGS = \
-	-C --vapidir $(top_srcdir)/vapi \
-        --pkg posix \
-        --pkg dbus-glib-1 \
-        --save-temps \
-        --basedir $(top_srcdir)
+	--basedir $(top_srcdir) \
+	--vapidir ../vapi \
+	--pkg posix \
+	--pkg dbus-glib-1 \
+	--save-temps
 
 INCLUDES = \
 	$(DBUS_CFLAGS) \
@@ -28,7 +28,7 @@ mdbus2_SOURCES = \
 	$(NULL)
 
 $(BUILT_SOURCES): $(mdbus2_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
+	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
 
 mdbus2_LDADD = \

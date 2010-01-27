@@ -75,7 +75,7 @@ namespace DBus {
 		[CCode (sentinel = "DBUS_TYPE_INVALID")]
 		public bool append_args (RawType first_arg_type, ...);
 		[CCode (cname = "dbus_message_iter_init")]
-		public void iter_init( RawMessageIter iter );
+		public bool iter_init( RawMessageIter iter );
 	}
 
 	[CCode (cprefix = "DBUS_TYPE_")]
