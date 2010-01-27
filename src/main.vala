@@ -35,8 +35,29 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
     var signature = iter.get_signature();
     debug( @"signature for this iter = $signature" );
 
+    /*
+     * Array
+     */
+    if ( signature[0] == 'a' )
+    {
+        DBus.RawMessageIter subiter = DBus.RawMessageIter();
+        iter.recurse( subiter );
+        var result = "[ ";
+        while ( subiter.has_next() )
+        {
+            result += formatResult( subiter, 1 );
+            result += ", ";
+            subiter.next();
+        }
+        result += "]";
+        return result;
+    }
+
     switch ( signature )
     {
+        /*
+         * Simple Types
+         */
         case "b":
             bool b = false;
             iter.get_basic( &b );
@@ -50,7 +71,7 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
             iter.get_basic( &i );
             return i.to_string();
         default:
-            return "unknown";
+            return @"($signature ???)";
     }
     return "unknown";
 }
