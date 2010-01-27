@@ -41,6 +41,14 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
             bool b = false;
             iter.get_basic( &b );
             return b.to_string();
+        case "s":
+            unowned string s = null;
+            iter.get_basic( &s );
+            return @"\"$s\"";
+        case "i":
+            int i = 0;
+            iter.get_basic( &i );
+            return i.to_string();
         default:
             return "unknown";
     }
@@ -419,8 +427,14 @@ class Commands : Object
                     else
                     {
                         DBus.RawMessageIter iter = DBus.RawMessageIter();
-                        reply.iter_init( iter );
-                        stderr.printf( @"Method call OK. Result:\n$(formatResult(iter))\n" );
+                        if ( reply.iter_init( iter ) )
+                        {
+                            stderr.printf( @"Method call OK. Result:\n$(formatResult(iter))\n" );
+                        }
+                        else
+                        {
+                            stderr.printf( @"Method call OK. Result:\n()\n" );
+                        }
                     }
 
                     // method ok to call
