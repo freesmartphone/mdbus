@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 VALAC_ARGS = \
-	-C --vapidir vapi \
+	-C --vapidir $(top_srcdir)/vapi \
         --pkg posix \
         --pkg dbus-glib-1 \
         --save-temps \

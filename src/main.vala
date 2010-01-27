@@ -30,6 +30,23 @@ const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectabl
 //=========================================================================//
 MainLoop mainloop;
 
+public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
+{
+    var signature = iter.get_signature();
+    debug( @"signature for this iter = $signature" );
+
+    switch ( signature )
+    {
+        case "b":
+            bool b = false;
+            iter.get_basic( &b );
+            return b.to_string();
+        default:
+            return "unknown";
+    }
+    return "unknown";
+}
+
 //===========================================================================
 public class Argument : Object
 {
@@ -38,6 +55,29 @@ public class Argument : Object
         this.name = name;
         this.typ = typ;
     }
+
+    public bool appendToCall( string arg, DBus.RawMessage message )
+    {
+        debug( @"trying to parse argument $name of type $typ delivered as $arg" );
+
+        switch ( typ )
+        {
+            case "s":
+                assert( message.append_args( DBus.RawType.STRING, ref arg ) );
+                break;
+
+            case "i":
+                var value = arg.to_int();
+                assert( message.append_args( DBus.RawType.INT32, ref value ) );
+                break;
+
+            default:
+                stderr.printf( "Unsupported type $typ\n" );
+                return false;
+        }
+        return true;
+    }
+    
     public string name;
     public string typ;
 }
@@ -314,51 +354,15 @@ class Commands : Object
                 return;
             }
             foreach ( var entity in idata.entitys )
+            {
                 stdout.printf( "%s\n", entity.to_string() );
+            }
         }
         catch ( DBus.Error e )
         {
             stderr.printf( "Error: %s\n", e.message );
             return;
         }
-    }
-
-    private bool _parseArguments( string[] args )
-    {
-        return false;
-    }
-
-    private bool _callMethod( string busname, string path, string iface, string method, string[] args)
-    {
-        if ( args.length > 0 )
-        {
-            error( "Calling methods with input parameters is not yet implemented" );
-            return false;
-        }
-
-        dynamic DBus.Object o = bus.get_object( busname, path, iface );
-        GLib.Error e;
-        string strres;
-        var ok = o.call( method, out e, Type.INVALID, typeof(int), out strres, Type.INVALID ); // no parameters
-
-        if ( !ok )
-        {
-            if ( e != null )
-            {
-                stderr.printf( @"Error: $(e.message)\n" );
-            }
-            else
-            {
-                stderr.printf( "Unspecified error during call\n" );
-            }
-        }
-
-        return ok;
-
-        /*
-        var result = o.call( method, out e );
-        message( "calling %s on interface %s on object %s served by %s", method, iface, path, busname );
-        */
     }
 
     public bool callMethod( string busname, string path, string method, string[] args )
@@ -389,14 +393,42 @@ class Commands : Object
                         return false;
                     }
 
-                    // TODO: parse arguments and construct va_args call
+                    // construct DBus Message arg by arg
+                    var call = new DBus.RawMessage.call( busname, path, iface, baseMethod );
+                    int i = 0;
+                    foreach ( var inarg in entity.inArgs )
+                    {
+                        if ( inarg.appendToCall( args[i++], call ) )
+                        {
+                            debug( @"Argument $i parsed ok" );
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+
+                    DBus.RawError error = DBus.RawError();
+                    DBus.RawConnection* connection = bus.get_connection();
+                    DBus.RawMessage reply = connection->send_with_reply_and_block( call, 100000, ref error );
+
+                    if ( error.is_set() )
+                    {
+                        stderr.printf( @"Method call OK. Result:\nDBus Error $(error.name): $(error.message)\n" );
+                    }
+                    else
+                    {
+                        DBus.RawMessageIter iter = DBus.RawMessageIter();
+                        reply.iter_init( iter );
+                        stderr.printf( @"Method call OK. Result:\n$(formatResult(iter))\n" );
+                    }
 
                     // method ok to call
-                    return _callMethod( busname, path, iface, baseMethod, {} );
+                    return true;
                 }
             }
 
-            stderr.printf( "Error: No method %s found at %s\n", method, path );
+            stderr.printf( @"Error: No method $method found at $path\n" );
         }
         catch ( DBus.Error e )
         {
