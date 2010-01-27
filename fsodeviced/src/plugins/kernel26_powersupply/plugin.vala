@@ -138,15 +138,24 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObje
 
     public async HashTable<string,Value?> get_info() throws DBus.Error
     {
-        //FIXME: add more infos
         var res = new HashTable<string,Value?>( str_hash, str_equal );
+        res.insert( "name", name );
 
-        var value = Value( typeof(string) );
-        value.take_string( typ );
-        res.insert( "type", value );
-
-        value.take_string( name );
-        res.insert( "name", value );
+        var dir = Dir.open( sysfsnode );
+        var entry = dir.read_name();
+        while ( entry != null )
+        {
+            if ( entry != "uevent" )
+            {
+                var filename = Path.build_filename( sysfsnode, entry );
+                var contents = FsoFramework.FileHandling.read( filename );
+                if ( contents != "" )
+                {
+                    res.insert( entry, contents );
+                }
+            }
+            entry = dir.read_name();
+        }
         return res;
     }
 
@@ -189,14 +198,16 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
         FsoFramework.BaseKObjectNotifier.addMatch( "change", "power_supply", onPowerSupplyChangeNotification );
 
         if ( instances.length() > 0 )
+        {
             Idle.add( onIdle );
+        }
 
-        logger.info( "created new AggregatePowerSupply object." );
+        logger.info( "Created" );
     }
 
     public override string repr()
     {
-        return "<FsoFramework.Device.AggregatePowerSupply @ %s>".printf( sysfsnode );
+        return @"<$sysfsnode>";
     }
 
     public bool onIdle()
