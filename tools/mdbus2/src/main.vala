@@ -36,7 +36,25 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
     debug( @"signature for this iter = $signature" );
 
     /*
-     * Array
+     * Dictionary container
+     */
+    if ( signature[0] == 'a' && signature[1] == '{' )
+    {
+        DBus.RawMessageIter subiter = DBus.RawMessageIter();
+        iter.recurse( subiter );
+        var result = "{ ";
+        while ( subiter.has_next() )
+        {
+            result += formatResult( subiter, depth+1 );
+            result += ", ";
+            subiter.next();
+        }
+        result += "}";
+        return result;
+    }
+
+    /*
+     * Array container
      */
     if ( signature[0] == 'a' )
     {
@@ -45,35 +63,65 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
         var result = "[ ";
         while ( subiter.has_next() )
         {
-            result += formatResult( subiter, 1 );
+            result += formatResult( subiter, depth+1 );
             result += ", ";
             subiter.next();
         }
         result += "]";
         return result;
     }
+    /*
+     * Dictionary Entry
+     */
+    if ( signature[0] == '{' && signature[signature.length-1] == '}' )
+    {
+        DBus.RawMessageIter subiter = DBus.RawMessageIter();
+        iter.recurse( subiter );
+        var result = " ";
+        result += formatResult( subiter, depth+1 );
+        result += " : ";
+        subiter.next();
+        result += formatResult( subiter, depth+1 );
+        return result;
+    }
 
+    /*
+     * Variant
+     */
+    if ( signature == "v" )
+    {
+        DBus.RawMessageIter subiter = DBus.RawMessageIter();
+        iter.recurse( subiter );
+        var result = " ";
+        result += formatResult( subiter, depth+1 );
+        return result;
+    }
+
+    /*
+     * Simple Type
+     */
+    return formatSimpleType( signature, iter );
+}
+
+static string formatSimpleType( string signature, DBus.RawMessageIter iter )
+{
     switch ( signature )
     {
-        /*
-         * Simple Types
-         */
         case "b":
             bool b = false;
             iter.get_basic( &b );
             return b.to_string();
-        case "s":
-            unowned string s = null;
-            iter.get_basic( &s );
-            return @"\"$s\"";
         case "i":
             int i = 0;
             iter.get_basic( &i );
             return i.to_string();
+        case "s":
+            unowned string s = null;
+            iter.get_basic( &s );
+            return @"\"$s\"";
         default:
             return @"($signature ???)";
     }
-    return "unknown";
 }
 
 //===========================================================================
