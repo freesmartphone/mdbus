@@ -33,8 +33,6 @@ namespace DBus {
 	[CCode (lower_case_cprefix = "dbus_bus_")]
 	namespace RawBus {
 		public static RawConnection get (BusType type, ref RawError error);
-		public static void add_match (string rule, ref RawError error);
-		public static void remove_match (string rule, ref RawError error);
 	}
 
 	[CCode (ref_function = "dbus_connection_ref", unref_function = "dbus_connection_unref", cname = "DBusConnection", cprefix = "dbus_connection_")]
@@ -51,6 +49,11 @@ namespace DBus {
 
 		public bool add_filter (RawHandleMessageFunction function, RawFreeFunction? free_data_function = null);
 		public void remove_filter (RawHandleMessageFunction function);
+
+		[CCode (cname = "dbus_bus_add_match")]
+		public void add_match (string rule, ref RawError error);
+		[CCode (cname = "dbus_bus_remove_match")]
+		public void remove_match (string rule, ref RawError error);
 	}
 
 	[CCode (cname = "DBusError", cprefix = "dbus_error_", destroy_function = "dbus_error_free")]

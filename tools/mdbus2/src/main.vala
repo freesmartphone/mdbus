@@ -567,11 +567,43 @@ class Commands : Object
         return DBus.RawHandlerResult.HANDLED;
     }
 
+    private string formatRule( string busname, string objectpath, string iface )
+    {
+        var rule = "type='signal'";
+
+        if ( busname != "*" )
+        {
+            rule += @",sender='$busname'";
+        }
+
+        if ( objectpath != "*" )
+        {
+            rule += @",path='$objectpath'";
+        }
+
+        if ( iface != "*" )
+        {
+            rule += @",interface='$iface'";
+        }
+
+        /*
+
+        if (data->member)
+                offset += snprintf(rule + offset, size - offset,
+                                ",member='%s'", data->member);
+        if (data->argument)
+                snprintf(rule + offset, size - offset,
+                                ",arg0='%s'", data->argument);
+        */
+        return rule;
+    }
+
     public void listenForSignals( string busname = "*", string objectpath = "*", string iface = "*" )
     {
         DBus.RawConnection* connection = bus.get_connection();
         connection->add_filter( signalHandler );
-        connection->add_match( 
+        DBus.RawError error = DBus.RawError();
+        connection->add_match( formatRule( busname, objectpath, iface ), ref error );
         ( new MainLoop() ).run();
     }
 }
