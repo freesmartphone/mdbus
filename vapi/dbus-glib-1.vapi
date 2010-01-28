@@ -66,6 +66,11 @@ namespace DBus {
 		public int get_element_type ();
 		public void recurse (RawMessageIter sub);
 		public void get_basic (void* value);
+
+		[CCode (cname = "dbus_message_type_from_string")]
+		public static int type_from_string (string type);
+		[CCode (cname = "dbus_message_type_to_string")]
+		public static string type_to_string (int type);
 	}
 
 	[CCode (ref_function = "dbus_message_ref", unref_function = "dbus_message_unref", cname = "DBusMessage", cprefix = "dbus_message_")]
