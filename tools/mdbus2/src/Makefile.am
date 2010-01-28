@@ -9,6 +9,10 @@ VALAC_ARGS = \
 	--pkg dbus-glib-1 \
 	--save-temps
 
+if WANT_DEBUG
+VALAC_ARGS += -D DEBUG
+endif
+
 INCLUDES = \
 	$(DBUS_CFLAGS) \
 	$(GLIB_CFLAGS) \

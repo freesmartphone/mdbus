@@ -33,8 +33,9 @@ MainLoop mainloop;
 public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
 {
     var signature = iter.get_signature();
+#if DEBUG
     debug( @"signature for this iter = $signature" );
-
+#endif
     /*
      * Dictionary container
      */
@@ -135,8 +136,9 @@ public class Argument : Object
 
     public bool appendToCall( string arg, DBus.RawMessage message )
     {
+#if DEBUG
         debug( @"trying to parse argument $name of type $typ delivered as $arg" );
-
+#endif
         switch ( typ )
         {
             case "s":
@@ -477,7 +479,9 @@ class Commands : Object
                     {
                         if ( inarg.appendToCall( args[i++], call ) )
                         {
-                            debug( @"Argument $i parsed ok" );
+#if DEBUG
+                            debug( @"Argument $i parsed from commandline ok" );
+#endif
                         }
                         else
                         {
@@ -491,18 +495,28 @@ class Commands : Object
 
                     if ( error.is_set() )
                     {
+#if DEBUG
                         stderr.printf( @"Method call OK. Result:\nDBus Error $(error.name): $(error.message)\n" );
+#else
+                        stderr.printf( @"$(error.name): $(error.message)\n" );
+#endif
                     }
                     else
                     {
                         DBus.RawMessageIter iter = DBus.RawMessageIter();
                         if ( reply.iter_init( iter ) )
                         {
+#if DEBUG
                             stderr.printf( @"Method call OK. Result:\n$(formatResult(iter))\n" );
+#else
+                            stderr.printf( @"$(formatResult(iter))\n" );
+#endif
                         }
                         else
                         {
+#if DEBUG
                             stderr.printf( @"Method call OK. Result:\n()\n" );
+#endif
                         }
                     }
 
