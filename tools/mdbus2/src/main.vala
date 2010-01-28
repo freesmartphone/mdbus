@@ -30,6 +30,33 @@ const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectabl
 //=========================================================================//
 MainLoop mainloop;
 
+public string formatMessage( DBus.RawMessage msg )
+{
+#if DEBUG
+    debug( @"message has signature: $(msg.get_signature())" );
+#endif
+    
+    DBus.RawMessageIter iter = DBus.RawMessageIter();
+    if ( msg.iter_init( iter ) )
+    {
+        var signature = iter.get_signature();
+
+        var result = "( ";
+        result += formatResult( iter );
+
+        while ( iter.has_next() )
+        {
+            iter.next();
+            result += @", $(formatResult(iter))";
+        }
+        return result + " )";
+    }
+    else
+    {
+        return "()";
+    }
+}
+
 public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
 {
     var signature = iter.get_signature();
@@ -503,24 +530,12 @@ class Commands : Object
                     }
                     else
                     {
-                        DBus.RawMessageIter iter = DBus.RawMessageIter();
-                        if ( reply.iter_init( iter ) )
-                        {
 #if DEBUG
-                            stderr.printf( @"Method call OK. Result:\n$(formatResult(iter))\n" );
+                        stderr.printf( @"Method call OK. Result:\n$(formatMessage(reply))\n" );
 #else
-                            stderr.printf( @"$(formatResult(iter))\n" );
+                        stderr.printf( @"$(formatMessage(reply))\n" );
 #endif
-                        }
-                        else
-                        {
-#if DEBUG
-                            stderr.printf( @"Method call OK. Result:\n()\n" );
-#endif
-                        }
                     }
-
-                    // method ok to call
                     return true;
                 }
             }
@@ -535,11 +550,30 @@ class Commands : Object
         return false;
     }
 
-    public void listenForSignals()
+    public DBus.RawHandlerResult signalHandler( DBus.RawConnection conn, DBus.RawMessage message )
     {
-        error( "listening for signals not yet implemented" );
+        debug( "got message w/ type %d", message.get_type() );
+        if ( message.get_type() != DBus.RawMessageType.SIGNAL )
+        {
+            return DBus.RawHandlerResult.NOT_YET_HANDLED;
+        }
+
+        var line = "[SIGNAL] %s.%s %s".printf(
+          message.get_interface(),
+          message.get_member(),
+          formatMessage( message ) );
+        stdout.printf( @"$line\n" );
+
+        return DBus.RawHandlerResult.HANDLED;
     }
 
+    public void listenForSignals( string busname = "*", string objectpath = "*", string iface = "*" )
+    {
+        DBus.RawConnection* connection = bus.get_connection();
+        connection->add_filter( signalHandler );
+        connection->add_match( 
+        ( new MainLoop() ).run();
+    }
 }
 
 //=========================================================================//
@@ -590,15 +624,28 @@ int main( string[] args )
             break;
 
         case 2:
-            commands.listObjects( args[1] );
+            if ( !listenerMode )
+                commands.listObjects( args[1] );
+            else
+                commands.listenForSignals( args[1] );
             break;
 
         case 3:
-            commands.listInterfaces( args[1], args[2] );
+            if ( !listenerMode )
+                commands.listInterfaces( args[1], args[2] );
+            else
+                commands.listenForSignals( args[1], args[2] );
             break;
 
         default:
             assert( args.length > 3 );
+
+            if ( listenerMode )
+            {
+                commands.listenForSignals( args[1], args[2], args[3] );
+                return 0;
+            }
+                
             string[] restargs = {};
             for ( int i = 4; i < args.length; ++i )
             {

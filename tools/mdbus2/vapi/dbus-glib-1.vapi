@@ -1,6 +1,6 @@
 /* dbus-glib-1.vala
  *
- * Copyright (C) 2007-2009  Jürg Billeter
+ * Copyright (C) 2007-2010  Jürg Billeter
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,6 +18,7 @@
  *
  * Author:
  * 	Jürg Billeter <j@bitron.ch>
+ *  Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  */
 
 [CCode (cheader_filename = "dbus/dbus-glib-lowlevel.h,dbus/dbus-glib.h")]
@@ -29,9 +30,11 @@ namespace DBus {
 		STARTER
 	}
 
+	[CCode (lower_case_cprefix = "dbus_bus_")]
 	namespace RawBus {
-		[CCode (cname = "dbus_bus_get")]
 		public static RawConnection get (BusType type, ref RawError error);
+		public static void add_match (string rule, ref RawError error);
+		public static void remove_match (string rule, ref RawError error);
 	}
 
 	[CCode (ref_function = "dbus_connection_ref", unref_function = "dbus_connection_unref", cname = "DBusConnection", cprefix = "dbus_connection_")]
@@ -45,6 +48,9 @@ namespace DBus {
 
 		public bool send (RawMessage message, uint32 client_serial);
 		public RawMessage send_with_reply_and_block (RawMessage message, int timeout_milliseconds, ref RawError error);
+
+		public bool add_filter (RawHandleMessageFunction function, RawFreeFunction? free_data_function = null);
+		public void remove_filter (RawHandleMessageFunction function);
 	}
 
 	[CCode (cname = "DBusError", cprefix = "dbus_error_", destroy_function = "dbus_error_free")]
@@ -55,6 +61,18 @@ namespace DBus {
 		public RawError ();
 		public bool has_name (string name);
 		public bool is_set ();
+	}
+
+	[CCode (cname = "DBusFreeFunction", has_target = "false")]
+	public delegate void* RawFreeFunction (void* memory);
+	[CCode (cname = "DBusHandleMessageFunction", instance_pos = -1)]
+	public delegate RawHandlerResult RawHandleMessageFunction(RawConnection connection, RawMessage message);
+
+	[CCode (cname = "DBusHandlerResult", cprefix = "DBUS_HANDLER_RESULT_")]
+	public enum RawHandlerResult {
+		HANDLED,
+		NOT_YET_HANDLED,
+		NEED_MEMORY
 	}
 
 	[CCode (cname = "DBusMessageIter", cprefix = "dbus_message_iter_")]
@@ -81,6 +99,48 @@ namespace DBus {
 		public bool append_args (RawType first_arg_type, ...);
 		[CCode (cname = "dbus_message_iter_init")]
 		public bool iter_init( RawMessageIter iter );
+
+		public RawMessageType get_type ();
+		public bool   set_path (string object_path);
+		public unowned string get_path ();
+		public bool   has_path (string object_path);  
+		public bool   set_interface (string iface);
+		public unowned string get_interface ();
+		public bool   has_interface (string iface);
+		public bool   set_member (string member);
+		public unowned string get_member ();
+		public bool   has_member (string member);
+		public bool   set_error_name (string name);
+		public unowned string get_error_name ();
+		public bool   set_destination (string destination);
+		public unowned string get_destination ();
+		public bool   set_sender (string sender);
+		public unowned string get_sender ();
+		public unowned string get_signature ();
+		public void   set_no_reply (bool no_reply);
+		public bool   get_no_reply ();
+		public bool   is_method_call (string iface, string method);
+		public bool   is_signal (string iface, string signal_name);
+		public bool   is_error (string error_name);
+		public bool   has_destination (string bus_name);
+		public bool   has_sender (string unique_bus_name);
+		public bool   has_signature (string signature);
+		public uint32 get_serial ();
+		public void   set_serial (uint32 serial);
+		public bool   set_reply_serial (uint32 reply_serial);
+		public uint32 get_reply_serial ();
+		public void   set_auto_start (bool auto_start);
+		public bool   get_auto_start ();
+		public bool   get_path_decomposed (out char[] path );
+	}
+
+	[CCode (cprefix = "DBUS_MESSAGE_TYPE_")]
+	public enum RawMessageType {
+		INVALID,
+		METHOD_CALL,
+		METHOD_RETURN,
+		ERROR,
+		SIGNAL
 	}
 
 	[CCode (cprefix = "DBUS_TYPE_")]
@@ -101,7 +161,7 @@ namespace DBus {
 		ARRAY,
 		VARIANT,
 		STRUCT,
-		DICT_ENTRY
+		DICT_ENTRY,
 	}
 
 	[DBus (name = "org.freedesktop.DBus.Error")]
