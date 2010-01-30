@@ -9,11 +9,10 @@ dist_conf_DATA = \
 	fsodeviced.conf \
 	$(NULL)
 
-# boards compatible with htc_qualcomm_msm
+# boards compatible with openmoko_gta
 COMPAT = \
-	trout \
-	raphael \
-	diamond \
+	GTA01 \
+	GTA02 \
 	$(NULL)
 	
 install-data-local: install-dist_confDATA

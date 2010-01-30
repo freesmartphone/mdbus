@@ -138,6 +138,7 @@ AC_CONFIG_FILES([
   Makefile
   conf/Makefile
   conf/htc_qualcomm_msm/Makefile
+  conf/openmoko_gta/Makefile
   data/Makefile
   data/org.freesmartphone.odeviced.service
   src/Makefile
