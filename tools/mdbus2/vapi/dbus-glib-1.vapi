@@ -66,7 +66,7 @@ namespace DBus {
 		public bool is_set ();
 	}
 
-	[CCode (cname = "DBusFreeFunction", has_target = "false")]
+	[CCode (cname = "DBusFreeFunction", has_target = false)]
 	public delegate void* RawFreeFunction (void* memory);
 	[CCode (cname = "DBusHandleMessageFunction", instance_pos = -1)]
 	public delegate RawHandlerResult RawHandleMessageFunction(RawConnection connection, RawMessage message);
