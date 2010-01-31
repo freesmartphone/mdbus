@@ -35,7 +35,7 @@ public string formatMessage( DBus.RawMessage msg )
 #if DEBUG
     debug( @"message has signature: $(msg.get_signature())" );
 #endif
-    
+
     DBus.RawMessageIter iter = DBus.RawMessageIter();
     if ( msg.iter_init( iter ) )
     {
@@ -183,7 +183,7 @@ public class Argument : Object
         }
         return true;
     }
-    
+
     public string name;
     public string typ;
 }
@@ -552,7 +552,9 @@ class Commands : Object
 
     public DBus.RawHandlerResult signalHandler( DBus.RawConnection conn, DBus.RawMessage message )
     {
+#if DEBUG
         debug( "got message w/ type %d", message.get_type() );
+#endif
         if ( message.get_type() != DBus.RawMessageType.SIGNAL )
         {
             return DBus.RawHandlerResult.NOT_YET_HANDLED;
@@ -677,7 +679,7 @@ int main( string[] args )
                 commands.listenForSignals( args[1], args[2], args[3] );
                 return 0;
             }
-                
+
             string[] restargs = {};
             for ( int i = 4; i < args.length; ++i )
             {
