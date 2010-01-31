@@ -79,6 +79,11 @@ AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
 
 AC_CONFIG_FILES([
   Makefile
+  conf/Makefile
+  conf/default/Makefile
+  conf/openmoko_gta/Makefile
+  data/org.freesmartphone.ousaged.service
+  data/Makefile
   src/Makefile
   src/lib/Makefile
   src/bin/Makefile
@@ -86,8 +91,6 @@ AC_CONFIG_FILES([
   src/plugins/dbus_service/Makefile
   src/plugins/lowlevel_kernel26/Makefile
   src/plugins/lowlevel_openmoko/Makefile
-  data/org.freesmartphone.ousaged.service
-  data/Makefile
   tests/Makefile
 ])
 
