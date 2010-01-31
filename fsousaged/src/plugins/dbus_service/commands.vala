@@ -222,6 +222,7 @@ public class Shutdown : SystemCommand
         yield instance.disableAllResources();
         Idle.add( () => {
             Posix.system( "shutdown -h now" );
+            return false;
         } );
     }
 }
@@ -238,6 +239,7 @@ public class Reboot : SystemCommand
         yield instance.disableAllResources();
         Idle.add( () => {
             Posix.system( "reboot now" );
+            return false;
         } );
     }
 }
