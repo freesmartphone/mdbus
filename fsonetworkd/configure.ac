@@ -75,6 +75,8 @@ AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
 
 AC_CONFIG_FILES([
   Makefile
+  conf/Makefile
+  conf/default/Makefile
   data/Makefile
   data/org.freesmartphone.onetworkd.service
   src/Makefile
