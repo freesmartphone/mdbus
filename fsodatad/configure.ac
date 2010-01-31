@@ -105,6 +105,8 @@ AC_DEFINE_UNQUOTED([PACKAGE_DATADIR], ["${PACKAGE_DATADIR}"], [Shared data direc
 
 AC_CONFIG_FILES([
   Makefile
+  conf/Makefile
+  conf/default/Makefile
   data/Makefile
   data/org.freesmartphone.odatad.service
   src/Makefile
