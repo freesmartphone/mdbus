@@ -40,6 +40,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
 
     private string sysfsnode;
     private static uint counter;
+    private static uint typelength;
 
     // internal, so it can be accessable from aggregate input device
     internal string name;
@@ -52,6 +53,12 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
     static construct
     {
         buffer = new char[BUFFER_SIZE];
+        typelength = Linux.Input.KEY_MAX / 8 + 1;
+    }
+
+    construct
+    {
+        keystate = new uint8[typelength];
     }
 
     public InputDevice( FsoFramework.Subsystem subsystem, string sysfsnode )
@@ -66,15 +73,13 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
             subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                              "%s/%u".printf( FsoFramework.Device.InputServicePath, counter++ ),
                                                      this );
-            logger.info( "Created new InputDevice object: '%s' @ '%s' w/ '%s'".printf( product, phys, caps ) );
+            logger.info( @"Created new InputDevice object: $product @ $phys w/ $caps" );
         }
-        else
-            logger.info( "Skipping as per configuration: '%s' @ '%s' w/ '%s'".printf( product, phys, caps ) );
     }
 
     public override string repr()
     {
-        return "<%s>".printf( sysfsnode );
+        return @"<$sysfsnode>";
     }
 
     private string _cleanBuffer( int length )
@@ -94,7 +99,10 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
 
         fd = Posix.open( sysfsnode, Posix.O_RDONLY );
         if ( fd == -1 )
-            logger.warning( "Can't open %s (%s). Full input device control not available.".printf( sysfsnode, Posix.strerror( Posix.errno ) ) );
+        {
+            logger.warning( @"Can't open $sysfsnode $(strerror(errno)). Input device will not available." );
+            ignore = true;
+        }
         else
         {
             var length = Posix.ioctl( fd, Linux.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
@@ -124,7 +132,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
             ushort b = 0;
             if ( Posix.ioctl( fd, Linux.Input.EVIOCGBIT( 0, Linux.Input.EV_MAX ), &b ) < 0 )
             {
-                logger.error( "Can't inquire input device capabilities: %s".printf( strerror( errno ) ) );
+                logger.error( @"Can't inquire input device capabilities: $(strerror(errno))" );
             }
             else
             {
@@ -156,11 +164,9 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
             }
             caps = caps.strip();
 
-            uint typelength = Linux.Input.KEY_MAX / 8 + 1;
-            keystate = new uint8[typelength];
             if ( Posix.ioctl( fd, Linux.Input.EVIOCGKEY( typelength ), keystate ) < 0 )
             {
-                logger.error( "Can't inquire input device key status: %s".printf( strerror( errno ) ) );
+                logger.error( @"Can't inquire input device key status: $(strerror(errno))" );
             }
         }
         if ( ignore && fd != -1 )
@@ -213,12 +219,16 @@ public class EventStatus
         this.reportheld = reportheld;
         pressed = false;
         timeout = 0;
-        //message( "event status for %s (held %d) created", name, (int)reportheld );
+#if DEBUG
+        message( "event status for %s (held %d) created", name, (int)reportheld );
+#endif
     }
 
     ~EventStatus()
     {
-        //message( "event status for %s (held %d) destroyed", name, (int)reportheld );
+#if DEBUG
+        message( "event status for %s (held %d) destroyed", name, (int)reportheld );
+#endif
     }
 
     public bool pressed;
@@ -271,7 +281,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                                          FsoFramework.Device.InputServicePath,
                                          this );
-        logger.info( "Created new AggregateInputDevice object." );
+        logger.info( "Created" );
 
         Idle.add( onIdle );
     }
@@ -310,7 +320,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                 {
                     if ( _testbit( i, input.keystate ) )
                     {
-                        logger.info( "Sending coldplug input notification for bit %s:%d".printf( input.name, i ) );
+                        logger.info( @"Sending coldplug input notification for bit $(input.name):$i" );
                         // need to do it both for switches and keys, since we differenciate between those two
                         var ev1 = Linux.Input.Event() { time = Posix.timeval() { tv_sec=0, tv_usec=0 }, type=(uint16)Linux.Input.EV_KEY, code=(uint16)i, value=KEY_PRESS };
                         _handleInputEvent( ref ev1 );
@@ -333,7 +343,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
             var values = value.split( "," );
             if ( values.length != 4 )
             {
-                logger.warning( "config option %s has not 4 elements. Ignoring.".printf( entry ) );
+                logger.warning( @"Config option $entry has not 4 elements. Ignoring." );
                 continue;
             }
             var name = values[0];
@@ -350,7 +360,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                     switches[code] = new EventStatus( name, reportheld );
                     break;
                 default:
-                    logger.warning( "config option %s has unknown type element. Ignoring".printf( entry ) );
+                    logger.warning( "Config option $entry has unknown type element $type. Ignoring" );
                     continue;
             }
         }
@@ -385,8 +395,9 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                 es.timestamp.tv_sec = ev.time.tv_sec;
                 es.timestamp.tv_usec = ev.time.tv_usec;
                 es.pressed = true;
-
-                //logger.debug( "%s pressed".printf( es.name ) );
+#if DEBUG
+                logger.debug( "%s pressed".printf( es.name ) );
+#endif
 
                 if ( es.reportheld )
                 {
@@ -396,10 +407,12 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                 break;
 
             case ( KEY_RELEASE ):
-                //logger.debug( "%s released".printf( es.name ) );
+#if DEBUG
+                logger.debug( "%s released".printf( es.name ) );
+#endif
                 if ( !es.pressed )
                 {
-                    logger.warning( "received release event before pressed event!?" );
+                    logger.warning( "Received release event before pressed event!?" );
                     this.event( es.name, FreeSmartphone.Device.InputState.RELEASED, 0 ); // DBUS SIGNAL
                 }
                 else
@@ -414,18 +427,22 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                 break;
 
             case ( KEY_REPEAT ):
-                //logger.debug( "%s autorepeat (ignoring)".printf( es.name ) );
+#if DEBUG
+                logger.debug( "%s autorepeat (ignoring)".printf( es.name ) );
+#endif
                 break;
 
             default:
+#if DEBUG
                 logger.debug( "%s unknown action %d; please report.".printf( es.name, ev.value ) );
+#endif
                 break;
         }
     }
 
     public override string repr()
     {
-        return "<%s>".printf( sysfsnode );
+        return @"<$sysfsnode>";
     }
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
@@ -434,17 +451,18 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux.Input.Event) );
         if ( bytesread == 0 )
         {
-            logger.warning( "could not read from input device fd %d.".printf( source.unix_get_fd() ) );
+            logger.warning( @"Could not read from input device fd $(source.unix_get_fd())" );
             return false;
         }
 
         if ( ev.type != Linux.Input.EV_SYN )
         {
-            logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
+            //FIXME: read from config whether we want debug events
+            logger.debug( @"Input event $(ev.type), $(ev.code), $(ev.value)" );
             _handleInputEvent( ref ev );
         }
 
-        return true;
+        return true; // mainloop: call us again next time
     }
 
     //

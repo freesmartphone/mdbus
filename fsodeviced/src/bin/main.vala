@@ -55,7 +55,7 @@ public static int main( string[] args )
         */
 
         mainloop.run();
-        logger.info( "mainloop => fsodevicde" );
+        logger.info( "mainloop => fsodeviced" );
     }
     logger.info( "fsodeviced shutdown." );
     return 0;
