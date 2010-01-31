@@ -4,7 +4,7 @@ NULL=
 
 THISDIR=`basename $$PWD`
 
-confdir = @DBUS_DIR@/../freesmartphone/conf/$(THISDIR)
+confdir = @sysconfdir@/freesmartphone/conf/$(THISDIR)
 dist_conf_DATA = \
 	fsodeviced.conf \
 	$(NULL)
