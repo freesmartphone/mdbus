@@ -2,9 +2,9 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-THISDIR=`basename $$PWD`
+THISDIR = `basename $$PWD`
 
-confdir = $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/$(THISDIR)
+confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
 dist_conf_DATA = \
 	fsodeviced.conf \
 	$(NULL)
@@ -17,7 +17,7 @@ COMPAT = \
 	$(NULL)
 
 install-data-local:
-	$(mkinstalldirs) $(confdir)
-	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(confdir)/../$$compat; done
+	$(mkinstalldirs) $(DESTDIR)/etc/freesmartphone/conf/
+	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(DESTDIR)/etc/freesmartphone/conf/$$compat; done
 
 MAINTAINERCLEANFILES = Makefile.in
