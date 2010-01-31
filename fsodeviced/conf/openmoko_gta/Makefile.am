@@ -14,8 +14,9 @@ COMPAT = \
 	GTA01 \
 	GTA02 \
 	$(NULL)
-	
-install-data-local: install-dist_confDATA
+
+install-data-local:
+	$(mkinstalldirs) $(confdir)
 	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(confdir)/../$$compat; done
 
 MAINTAINERCLEANFILES = Makefile.in
