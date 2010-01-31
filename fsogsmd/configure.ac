@@ -144,6 +144,11 @@ AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
 
 AC_CONFIG_FILES([
   Makefile
+  conf/Makefile
+  conf/openmoko_gta/Makefile
+  conf/htc_qualcomm_msm/Makefile
+  data/Makefile
+  data/org.freesmartphone.ogsmd.service
   src/Makefile
   src/lib/Makefile
   src/bin/Makefile
@@ -155,8 +160,6 @@ AC_CONFIG_FILES([
   src/plugins/modem_ti_calypso/Makefile
   src/plugins/modem_qualcomm_htc/Makefile
   src/ppp/Makefile
-  data/Makefile
-  data/org.freesmartphone.ogsmd.service
   tests/Makefile
 ])
 
