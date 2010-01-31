@@ -30,6 +30,18 @@ public class FsoFramework.SmartKeyFile : Object
     private bool loaded = false;
     private string filename;
 
+    private static string[] location_prefix;
+
+    static construct
+    {
+        location_prefix += "./.";
+        location_prefix += @"$(Environment.get_home_dir())/.";
+        location_prefix += "/etc/";
+        location_prefix += "/etc/freesmartphone/";
+        location_prefix += @"/etc/freesmartphone/conf/$(FsoFramework.Utility.hardware())/";
+        location_prefix += @"/etc/freesmartphone/conf/default/";
+    }
+
     public SmartKeyFile()
     {
         kf = new KeyFile();
@@ -65,18 +77,15 @@ public class FsoFramework.SmartKeyFile : Object
         }
 
         smk = new SmartKeyFile();
-        string[] locations = { @"./$filename.conf",
-                               @"$(Environment.get_home_dir())/.$filename.conf",
-                               @"/etc/freesmartphone/$filename.conf",
-                               @"/etc/$filename.conf" };
 
-        foreach ( var location in locations )
+        foreach ( var prefix in location_prefix )
         {
+            var location = @"$prefix$filename.conf";
             if ( !FsoFramework.FileHandling.isPresent( location ) )
             {
                 continue;
             }
-            if (  smk.loadFromFile( location ) )
+            if ( smk.loadFromFile( location ) )
             {
 #if DEBUG
                 GLib.debug( @"Loaded $filename from $location to smk %p".printf( smk ) );
