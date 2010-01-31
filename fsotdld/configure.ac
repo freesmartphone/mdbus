@@ -82,6 +82,8 @@ PKG_CHECK_MODULES(FSO_GLIB,
 
 AC_CONFIG_FILES([
   Makefile
+  conf/Makefile
+  conf/default/Makefile
   data/Makefile
   data/org.freesmartphone.otdld.service
   src/Makefile
