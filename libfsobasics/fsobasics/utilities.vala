@@ -19,14 +19,16 @@
 
 internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
 internal const string PROC_SELF_EXE     = "/proc/self/exe";
+internal const string PROC_CPUINFO      = "/proc/cpuinfo";
+
 internal const uint READ_BUF_SIZE = 1024 * 1024;
 internal const int BACKTRACE_SIZE = 50;
+
+internal static string _hardware = null;
 internal static string _prefix = null;
 internal static string _program = null;
 
 namespace FsoFramework { namespace FileHandling {
-
-//Logger logger = createLogger( "utilities" );
 
 public bool removeTree( string path )
 {
@@ -307,6 +309,30 @@ namespace FsoFramework { namespace Utility {
             }
         }
         return null;
+    }
+
+    public string hardware()
+    {
+        if ( _hardware != null )
+        {
+            return _hardware;
+        }
+        _hardware = "default";
+
+        var proc_cpuinfo = FsoFramework.FileHandling.read( PROC_CPUINFO );
+        if ( proc_cpuinfo != "" )
+        {
+            foreach ( var line in proc_cpuinfo.split( "\n" ) )
+            {
+                if ( line.has_prefix( "Hardware" ) )
+                {
+                    var parts = line.split( ": " );
+                    _hardware = ( parts.length == 2 ) ? parts[1].strip() : "unknown";
+                    break;
+                }
+            }
+        }
+        return _hardware;
     }
 } }
 
