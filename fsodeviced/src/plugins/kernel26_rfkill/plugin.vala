@@ -99,11 +99,11 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         watch = channel.add_watch( IOCondition.IN | IOCondition.HUP, onActionFromRfKill );
     }
 
-    protected static bool onActionFromRfKill( IOChannel source, IOCondition condition )
+    internal static bool onActionFromRfKill( IOChannel source, IOCondition condition )
     {
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
-            error( "HUP on rfkill, will no longer get any notifications" );
+            warning( "HUP on rfkill, will no longer get any notifications" );
             return false;
         }
 
@@ -117,23 +117,27 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
                 warning( "can't read full rfkill event, got only %d bytes", (int)bytesread );
                 return true;
             }
-            message( "read %d bytes", (int)bytesread );
+#if DEBUG
+            debug( "onActionFromRfKill: read %d bytes", (int)bytesread );
+#endif
             handleEvent( event );
             return true;
         }
 
-        critical( "Unsupported IOCondition %u", (int)condition );
+        error( "Unsupported IOCondition %u", (int)condition );
         return true;
     }
 
     protected static void handleEvent( Linux.RfKillEvent event )
     {
-        message( "got rfkill event: ID %u, %s, %s, SOFTBLOCK %s, HARDBLOCK %s",
+#if DEBUG
+        debug( "got rfkill event: ID %u, %s, %s, SOFTBLOCK %s, HARDBLOCK %s",
             event.idx,
             typeValue[event.type],
             opValue[event.op],
             event.soft == 1 ? "true" : "false",
             event.hard == 1 ? "true" : "false" );
+#endif
 
         switch ( event.op )
         {
@@ -153,7 +157,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
                 instance.powerChangedTo( event.soft == 1, event.hard == 1 );
                 break;
             default:
-                critical( "unknown rfkill op %u; ignoring", event.op );
+                error( "unknown rfkill op %u; ignoring", event.op );
                 break;
         }
     }
@@ -226,12 +230,14 @@ public static string fso_factory_function( FsoFramework.Subsystem system ) throw
     fd = Posix.open( Path.build_filename( devfs_root, "rfkill" ), Posix.O_RDWR );
     if ( fd == -1 )
     {
-        error( @"Can't open $devfs_root/rfkill: $(strerror(errno)); rfkill plugin will not be operating" );
-        return "";
+        FsoFramework.theLogger.error( @"Can't open $devfs_root/rfkill: $(strerror(errno)); rfkill plugin will not be operating" );
     }
-    instances = new HashTable<int,Kernel26.RfKillPowerControl>( direct_hash, direct_equal );
-    channel = new IOChannel.unix_new( fd );
-    watch = channel.add_watch( IOCondition.IN | IOCondition.HUP, Kernel26.RfKillPowerControl.onActionFromRfKill );
+    else
+    {
+        instances = new HashTable<int,Kernel26.RfKillPowerControl>( direct_hash, direct_equal );
+        channel = new IOChannel.unix_new( fd );
+        watch = channel.add_watch( IOCondition.IN | IOCondition.HUP, Kernel26.RfKillPowerControl.onActionFromRfKill );
+    }
     return "fsodevice.kernel26_rfkill";
 }
 
