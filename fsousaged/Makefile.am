@@ -3,9 +3,9 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 SUBDIRS = \
-	src \
 	conf \
 	data \
+	src \
 	tests \
 	$(NULL)
 

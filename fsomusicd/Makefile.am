@@ -3,9 +3,9 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 SUBDIRS = \
-	  data \
-	  src \
-	  $(NULL)
+	data \
+	src \
+	$(NULL)
 
 MAINTAINERCLEANFILES = aclocal.m4 compile config.guess config.sub \
                        configure depcomp install-sh ltmain.sh     \
