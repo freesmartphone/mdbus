@@ -216,6 +216,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         assert( FsoGsm.theModem == null );
         FsoGsm.theModem = this;
 
+        // channel map
+        channels = new HashMap<string,FsoGsm.Channel>();
+
         // combined modem access string takes preference over individual config strings
         var modem_config = config.stringValue( CONFIG_SECTION, "modem_access", "" );
         var params = modem_config.split( ":" );
@@ -239,7 +242,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         registerHandlers();
         registerMediators();
         registerAtCommands();
-        channels = new HashMap<string,FsoGsm.Channel>();
         createChannels();
 
         logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
