@@ -161,7 +161,42 @@ namespace Linux {
     public void backtrace_symbols_fd (void* buffer, int size, int fd);
 
     [CCode (cheader_filename = "arpa/inet.h")]
-    public int inet_aton(string cp, out Posix.InAddr addr);
+    public int inet_aton (string cp, out Posix.InAddr addr);
+
+    [CCode (cheader_filename = "sys/mount.h")]
+    public enum MountFlags {
+        MS_BIND,
+        MS_DIRSYNC,
+        MS_MANDLOCK,
+        MS_MOVE,
+        MS_NOATIME,
+        MS_NODEV,
+        MS_NODIRATIME,
+        MS_NOEXEC,
+        MS_NOSUID,
+        MS_RDONLY,
+        MS_RELATIME,
+        MS_REMOUNT,
+        MS_SILENT,
+        MS_SYNCHRONOUS,
+        S_WRITE,
+        S_APPEND,
+        S_IMMUTABLE,
+    }
+
+    [CCode (cheader_filename = "sys/mount.h")]
+    public enum UnmountFlags {
+        MNT_FORCE,                /* Force unmounting.  */
+        MNT_DETACH,               /* Just detach from the tree.  */
+        MNT_EXPIRE                /* Mark for expiry.  */
+    }
+
+    [CCode (cheader_filename = "sys/mount.h")]
+    public int mount (string target, string filesystemtype, MountFlags flags, void* data = null);
+    [CCode (cheader_filename = "sys/mount.h")]
+    public int umount (string target);
+    [CCode (cheader_filename = "sys/mount.h")]
+    public int umount2 (string target, UnmountFlags flags);
 
     [CCode (cname = "struct winsize", cheader_filename = "termios.h", destroy_function = "")]
     public struct winsize {
