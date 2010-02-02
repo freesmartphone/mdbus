@@ -6,6 +6,7 @@ VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ../vapi \
 	--pkg posix \
+	--pkg linux \
 	--pkg dbus-glib-1 \
 	--save-temps
 
@@ -21,27 +22,27 @@ INCLUDES = \
 
 BUILT_SOURCES = .vala.stamp
 
-bin_PROGRAMS = fso-boot
+sbin_PROGRAMS = fso-boot
 
-fso-boot_VALASOURCES = \
+fso_boot_VALASOURCES = \
 	main.vala \
 	$(NULL)
 
-fso-boot_SOURCES = \
-	$(fso-boot_VALASOURCES:.vala=.c) \
+fso_boot_SOURCES = \
+	$(fso_boot_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-$(BUILT_SOURCES): $(fso-boot_VALASOURCES)
+$(BUILT_SOURCES): $(fso_boot_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
 
-fso-boot_LDADD = \
+fso_boot_LDADD = \
 	$(DBUS_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 
 EXTRA_DIST += \
-	$(fso-boot_VALASOURCES) \
+	$(fso_boot_VALASOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
 
