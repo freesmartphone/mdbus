@@ -314,6 +314,7 @@ namespace Linux {
     [CCode (cprefix = "", lower_case_cprefix = "")]
     namespace Network {
 
+        // interface consts, structs, and methods
         [CCode (cheader_filename = "net/if.h")]
         public const int IF_NAMESIZ;
 
@@ -384,6 +385,39 @@ namespace Linux {
             public int ifc_len;
             public string ifc_buf;
             public IfReq ifc_req;
+        }
+
+        // route consts, structs, and methods
+        [CCode (cname = "struct rtentry", cheader_filename = "net/route.h", destroy_function = "")]
+        public struct RtEntry {
+            public Posix.SockAddr rt_dst;
+            public Posix.SockAddr rt_gateway;
+            public Posix.SockAddr rt_genmask;
+            public RtFlag rt_flags;
+            public short rt_metric;
+            public string rt_dev;
+            public ulong rt_mtu;
+            public ulong rt_window;
+            public ushort rt_irtt;
+        }
+
+        [CCode (cname = "ushort", cprefix = "RTF_", cheader_filename = "net/route.h")]
+        public enum RtFlag {
+            UP,
+            GATEWAY,
+            HOST,
+            REINSTATE,
+            DYNAMIC,
+            MODIFIED,
+            MTU,
+            WINDOW,
+            IRTT,
+            REJECT,
+            STATIC,
+            XRESOLVE,
+            NOFORWARD,
+            THROW,
+            NOPMTUDISC
         }
 
         /* ioctls */

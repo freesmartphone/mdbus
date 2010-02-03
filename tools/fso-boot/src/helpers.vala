@@ -20,6 +20,13 @@
 
 using GLib;
 
+public enum RouteType
+{
+    DEFAULT,
+    NET,
+    HOST
+}
+
 /**
  * @class Hair
  **/
@@ -95,6 +102,11 @@ internal class Hair
         CHECK( () => { return res > -1; }, @"Can't set interface flags for $iface" );
 
         return true;
+    }
+
+    public bool setRouteOnInterface( RouteType type, string address, string iface, string gateway = "" )
+    {
+        return false;
     }
 
     public bool launchProcess( string cmdline )
