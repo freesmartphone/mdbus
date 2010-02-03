@@ -73,6 +73,7 @@ internal class Muenchhausen
         var socketfd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
         CHECK( () => { return socketfd > -1; }, "Can't create socket" );
 
+        // set ip address
         Posix.InAddr inaddr = { 0 };
         var res = Linux.inet_aton( address, out inaddr );
         CHECK( () => { return res > -1; }, @"Can't convert address $address" );
@@ -88,6 +89,16 @@ internal class Muenchhausen
         res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFADDR, &ifreq );
         CHECK( () => { return res > -1; }, @"Can't set address" );
 
+        // set ip netmask
+        res = Linux.inet_aton( netmask, out inaddr );
+        CHECK( () => { return res > -1; }, @"Can't convert address $netmask" );
+        addr.sin_addr.s_addr = inaddr.s_addr;
+
+        Memory.copy( &ifreq.ifr_netmask, &addr, sizeof( Posix.SockAddrIn ) );
+        res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFNETMASK, &ifreq );
+        CHECK( () => { return res > -1; }, @"Can't set netmask" );
+
+        // bring it up
         res = Posix.ioctl( socketfd, Linux.Network.SIOCGIFFLAGS, &ifreq );
         CHECK( () => { return res > -1; }, @"Can't get interface flags for $iface" );
         ifreq.ifr_flags |= Linux.Network.IfFlag.UP;
