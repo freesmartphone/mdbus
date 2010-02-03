@@ -68,6 +68,35 @@ internal class Muenchhausen
         return mountFilesystem( source, target, type, flags );
     }
 
+    private bool configureInterfaceWithAddress( string iface, string address, string netmask )
+    {
+        var socketfd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
+        CHECK( () => { return socketfd > -1; }, "Can't create socket" );
+
+        Posix.InAddr inaddr = { 0 };
+        var res = Linux.inet_aton( address, out inaddr );
+        CHECK( () => { return res > -1; }, @"Can't convert address $address" );
+
+        Posix.SockAddrIn addr = { 0 };
+        addr.sin_family = Posix.AF_INET;
+        addr.sin_addr.s_addr = inaddr.s_addr;
+
+        var ifreq = Linux.Network.IfReq();
+        Memory.copy( ifreq.ifr_name, iface, iface.length );
+        Memory.copy( &ifreq.ifr_addr, &addr, sizeof( Posix.SockAddrIn ) );
+
+        res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFADDR, &ifreq );
+        CHECK( () => { return res > -1; }, @"Can't set address" );
+
+        res = Posix.ioctl( socketfd, Linux.Network.SIOCGIFFLAGS, &ifreq );
+        CHECK( () => { return res > -1; }, @"Can't get interface flags for $iface" );
+        ifreq.ifr_flags |= Linux.Network.IfFlag.UP;
+        res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFFLAGS, &ifreq );
+        CHECK( () => { return res > -1; }, @"Can't set interface flags for $iface" );
+
+        return true;
+    }
+
     private void bringupFilesystems()
     {
         mountFilesystemAt( (Posix.mode_t) 0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT );
@@ -77,13 +106,7 @@ internal class Muenchhausen
 
     private void bringupNetworking()
     {
-        var socketfd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
-        CHECK( () => { return socketfd > -1; }, "Can't create socket" );
-
-        var ifreq = Linux.Network.IfReq();
-        Memory.copy( ifreq.ifr_name, "lo\0", 3 );
-        //Linux.ioctl( Linux.SIOCSIFFLAGS
-
+        configureInterfaceWithAddress( "lo", "127.0.0.1", "255.255.255.0" );
 
         //Posix.system( "ifconfig lo up" );
         //Posix.system( "ifconfig usb0 192.168.0.200/24 up" );
