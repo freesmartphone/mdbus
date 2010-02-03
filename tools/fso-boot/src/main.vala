@@ -72,7 +72,6 @@ internal class Muenchhausen
         assert( DEBUG( "procfs mounted successfully" ) );
 
         // 3.) Mount everything in /etc/fstab
-
     }
 
     private void bringupNetworking()

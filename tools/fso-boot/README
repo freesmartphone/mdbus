@@ -1,4 +1,29 @@
+===========================================================================
 fso-boot: a legacy-free minimal system initializer for modern Linux-kernels
 ===========================================================================
 
+fso-boot is an attempt to a) minimize userland boot time and b) get rid
+of the full-fledged init system, which we usually don't need for smartphones.
+
+Things like sysvinit, udev, hal, and friends are having a negative impact
+and are overkill for modern dbus-based service architectures. If i boot a
+Linux-based smartphone, I don't want any
+* runlevels
+* initscripts
+* gettys
+* udev and friends.
+
+fso-boot can be used as init process replacement. On startup, it does:
+
+1.) mounts the most important filesystems, such as /proc, /dev/pts, etc.
+2.) brings up local networking
+3.) launches the dbus system daemon
+4.) (optionally) starts an X session
+
+This reduces the enormous complexity, but of course comes with a price
+of limited flexiblity. Where exactly we will draw the line has not been
+decided yet, this is merely a proof of concept to see how fast we can
+actually get.
+
+:M:
 
