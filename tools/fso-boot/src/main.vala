@@ -25,8 +25,11 @@ const string DBUS_OBJ_PATH  = "/";
 const string DBUS_INTERFACE = "org.freedesktop.DBus";
 const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectable";
 
-const string ROOTFS_PROC_NAME = "/proc";
-const Posix.mode_t ROOTFS_PROC_MODE = (Posix.mode_t) 0555;
+const string PROCFS_NAME = "/proc";
+const Posix.mode_t PROCFS_MODE = (Posix.mode_t) 0555;
+
+const string SYSFS_NAME = "/sys";
+const Posix.mode_t SYSFS_MODE = (Posix.mode_t) 0755;
 
 /**
  * @class Muenchhausen
@@ -46,40 +49,50 @@ internal class Muenchhausen
         return ( Posix.mkdir( filename, mode ) != -1 );
     }
 
-    private bool mountFilesystem( string source, string target, string type, Linux.MountFlags flags = 0 )
+    private bool mountFilesystem( string source, string target, string type, Linux.MountFlags flags )
     {
         return ( Linux.mount( source, target, type, flags ) != -1 );
     }
 
-    private void bringupFilesystems()
+    private bool mountFilesystemAt( Posix.mode_t mode, string source, string target, string type, Linux.MountFlags flags )
     {
-        // 1.) We need the mountpoint /proc to be present, otherwise the rest won't work
-        if ( !isPresent( "/proc" ) )
+        if ( !isPresent( target ) )
         {
-            assert( DEBUG( "/proc is not present, trying to create..." ) );
-            if ( !createDirectory( ROOTFS_PROC_NAME, ROOTFS_PROC_MODE ) )
+            assert( DEBUG( @"$target is not present, trying to create..." ) );
+            if ( !createDirectory( target, mode ) )
             {
-                ERROR( @"/proc is not present and can't be created: $(strerror(errno))" );
+                ERROR( @"Can't create $target: $(strerror(errno))" );
+                return false;
             }
         }
-        assert( DEBUG( "/proc is present, trying to mount procfs..." ) );
+        return mountFilesystem( source, target, type, flags );
+    }
 
-        // 2.) Mount procfs
-        if ( !mountFilesystem( "proc", "/proc", "proc" ) )
-        {
-            ERROR( @"Can't mount procfs: $(strerror(errno))" );
-        }
-        assert( DEBUG( "procfs mounted successfully" ) );
-
-        // 3.) Mount everything in /etc/fstab
+    private void bringupFilesystems()
+    {
+        mountFilesystemAt( (Posix.mode_t) 0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT );
+        mountFilesystemAt( (Posix.mode_t) 0755, "sys", "/sys", "sysfs", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID );
+        mountFilesystemAt( (Posix.mode_t) 0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID );
     }
 
     private void bringupNetworking()
     {
+        var socketfd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
+        CHECK( () => { return socketfd > -1; }, "Can't create socket" );
+
+        //Posix.system( "ifconfig lo up" );
+        //Posix.system( "ifconfig usb0 192.168.0.200/24 up" );
+        //Posix.system( "route add default usb0" );
     }
 
     private void bringupDBus()
     {
+        //Posix.system( "dbus-daemon --system" );
+    }
+
+    private void bringupGetty()
+    {
+        Posix.system( "/sbin/getty 38400 tty0 &" );
     }
 
     public void run()
@@ -87,7 +100,27 @@ internal class Muenchhausen
         bringupFilesystems();
         bringupNetworking();
         bringupDBus();
+        bringupGetty();
     }
+}
+
+internal delegate bool Predicate();
+
+internal bool CHECK( Predicate p, string message, bool abort = false )
+{
+    if ( p() )
+    {
+        return true;
+    }
+
+    INFO( @"$message: $(strerror(errno))" );
+
+    if ( abort )
+    {
+        Posix.exit( -1 );
+    }
+
+    return false;
 }
 
 /**

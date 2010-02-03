@@ -163,7 +163,7 @@ namespace Linux {
     [CCode (cheader_filename = "arpa/inet.h")]
     public int inet_aton (string cp, out Posix.InAddr addr);
 
-    [CCode (cname = "long", cheader_filename = "sys/mount.h")]
+    [CCode (cname = "long", cprefix = "", cheader_filename = "sys/mount.h,linux/fs.h")]
     public enum MountFlags {
         MS_BIND,
         MS_DIRSYNC,
@@ -184,7 +184,7 @@ namespace Linux {
         S_IMMUTABLE,
     }
 
-    [CCode (cname = "int", cheader_filename = "sys/mount.h")]
+    [CCode (cname = "int", cprefix = "", cheader_filename = "sys/mount.h")]
     public enum UnmountFlags {
         MNT_FORCE,                /* Force unmounting.  */
         MNT_DETACH,               /* Just detach from the tree.  */
@@ -292,7 +292,7 @@ namespace Linux {
     // syscall(2)
     [CCode (cprefix = "SYS_", cname = "int")]
     public enum SysCall {
-            gettid
+        gettid
     }
 
     [CCode (cname = "syscall", cheader_filename = "unistd.h,sys/syscall.h")]
