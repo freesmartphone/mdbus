@@ -1,3 +1,4 @@
-mdbus 2.0
-=========
- * Vala port of mdbus in Python
+fso-boot: a legacy-free minimal system initializer for modern Linux-kernels
+===========================================================================
+
+
