@@ -25,162 +25,53 @@ const string DBUS_OBJ_PATH  = "/";
 const string DBUS_INTERFACE = "org.freedesktop.DBus";
 const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectable";
 
-const string PROCFS_NAME = "/proc";
-const Posix.mode_t PROCFS_MODE = (Posix.mode_t) 0555;
-
-const string SYSFS_NAME = "/sys";
-const Posix.mode_t SYSFS_MODE = (Posix.mode_t) 0755;
-
 /**
  * @class Muenchhausen
  **/
 internal class Muenchhausen
 {
-    Posix.Stat structstat;
-    bool writable;              // whether the root file system is currently writable
+    Hair h;
 
-    private bool isPresent( string filename )
+    public Muenchhausen()
     {
-        return ( Posix.stat( filename, out structstat ) != -1 );
-    }
-
-    private bool createDirectory( string filename, Posix.mode_t mode )
-    {
-        return ( Posix.mkdir( filename, mode ) != -1 );
-    }
-
-    private bool mountFilesystem( string source, string target, string type, Linux.MountFlags flags )
-    {
-        return ( Linux.mount( source, target, type, flags ) != -1 );
-    }
-
-    private bool mountFilesystemAt( Posix.mode_t mode, string source, string target, string type, Linux.MountFlags flags )
-    {
-        if ( !isPresent( target ) )
-        {
-            assert( DEBUG( @"$target is not present, trying to create..." ) );
-            if ( !createDirectory( target, mode ) )
-            {
-                ERROR( @"Can't create $target: $(strerror(errno))" );
-                return false;
-            }
-        }
-        return mountFilesystem( source, target, type, flags );
-    }
-
-    private bool configureInterfaceWithAddress( string iface, string address, string netmask )
-    {
-        var socketfd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
-        CHECK( () => { return socketfd > -1; }, "Can't create socket" );
-
-        // set ip address
-        Posix.InAddr inaddr = { 0 };
-        var res = Linux.inet_aton( address, out inaddr );
-        CHECK( () => { return res > -1; }, @"Can't convert address $address" );
-
-        Posix.SockAddrIn addr = { 0 };
-        addr.sin_family = Posix.AF_INET;
-        addr.sin_addr.s_addr = inaddr.s_addr;
-
-        var ifreq = Linux.Network.IfReq();
-        Memory.copy( ifreq.ifr_name, iface, iface.length );
-        Memory.copy( &ifreq.ifr_addr, &addr, sizeof( Posix.SockAddrIn ) );
-
-        res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFADDR, &ifreq );
-        CHECK( () => { return res > -1; }, @"Can't set address" );
-
-        // set ip netmask
-        res = Linux.inet_aton( netmask, out inaddr );
-        CHECK( () => { return res > -1; }, @"Can't convert address $netmask" );
-        addr.sin_addr.s_addr = inaddr.s_addr;
-
-        Memory.copy( &ifreq.ifr_netmask, &addr, sizeof( Posix.SockAddrIn ) );
-        res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFNETMASK, &ifreq );
-        CHECK( () => { return res > -1; }, @"Can't set netmask" );
-
-        // bring it up
-        res = Posix.ioctl( socketfd, Linux.Network.SIOCGIFFLAGS, &ifreq );
-        CHECK( () => { return res > -1; }, @"Can't get interface flags for $iface" );
-        ifreq.ifr_flags |= Linux.Network.IfFlag.UP;
-        res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFFLAGS, &ifreq );
-        CHECK( () => { return res > -1; }, @"Can't set interface flags for $iface" );
-
-        return true;
+        h = new Hair();
     }
 
     private void bringupFilesystems()
     {
-        mountFilesystemAt( (Posix.mode_t) 0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT );
-        mountFilesystemAt( (Posix.mode_t) 0755, "sys", "/sys", "sysfs", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID );
-        mountFilesystemAt( (Posix.mode_t) 0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID );
+        h.mountFilesystemAt( (Posix.mode_t) 0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT );
+        h.mountFilesystemAt( (Posix.mode_t) 0755, "sys", "/sys", "sysfs", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID );
+        h.mountFilesystemAt( (Posix.mode_t) 0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID );
+    }
+
+    private void populateVolatile()
+    {
     }
 
     private void bringupNetworking()
     {
-        configureInterfaceWithAddress( "lo", "127.0.0.1", "255.255.255.0" );
-
-        //Posix.system( "ifconfig lo up" );
-        //Posix.system( "ifconfig usb0 192.168.0.200/24 up" );
-        //Posix.system( "route add default usb0" );
+        h.configureInterfaceWithAddress( "lo", "127.0.0.1", "255.255.255.0" );
+        h.configureInterfaceWithAddress( "usb0", "192.168.0.202", "255.255.255.0" );
     }
 
     private void bringupDBus()
     {
-        //Posix.system( "dbus-daemon --system" );
+        h.launchProcess( "dbus-daemon --system" );
     }
 
     private void bringupGetty()
     {
-        Posix.system( "/sbin/getty 38400 tty0 &" );
+        h.launchProcessInBackground( "/sbin/getty 38400 tty0" );
     }
 
     public void run()
     {
         bringupFilesystems();
+        populateVolatile();
         bringupNetworking();
         bringupDBus();
         bringupGetty();
     }
-}
-
-internal delegate bool Predicate();
-
-internal bool CHECK( Predicate p, string message, bool abort = false )
-{
-    if ( p() )
-    {
-        return true;
-    }
-
-    INFO( @"$message: $(strerror(errno))" );
-
-    if ( abort )
-    {
-        Posix.exit( -1 );
-    }
-
-    return false;
-}
-
-/**
- * log
- **/
-internal bool DEBUG( string message )
-{
-    stdout.printf( @"$(TimeVal().to_iso8601()) FSO-BOOT: [DEBUG] $message\n" );
-    return true;
-}
-
-internal bool INFO( string message )
-{
-    stdout.printf( @"$(TimeVal().to_iso8601()) FSO-BOOT: [INFO]  $message\n" );
-    return true;
-}
-
-internal void ERROR( string message )
-{
-    stdout.printf( @"$(TimeVal().to_iso8601()) FSO-BOOT: [ERROR] $message\n" );
-    Posix.exit( -1 );
 }
 
 /**

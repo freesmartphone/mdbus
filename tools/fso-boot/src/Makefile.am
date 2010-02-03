@@ -25,6 +25,7 @@ BUILT_SOURCES = .vala.stamp
 sbin_PROGRAMS = fso-boot
 
 fso_boot_VALASOURCES = \
+	helpers.vala \
 	main.vala \
 	$(NULL)
 
