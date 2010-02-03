@@ -306,17 +306,84 @@ namespace Linux {
     }
 
     [CCode (cheader_filename = "sys/mman.h")]
-    public void *mremap(void *old_address, size_t old_size, size_t new_size, MremapFlags flags);
+    public void *mremap (void *old_address, size_t old_size, size_t new_size, MremapFlags flags);
 
     /*
      * Network
      */
     [CCode (cprefix = "", lower_case_cprefix = "")]
     namespace Network {
+
+        [CCode (cheader_filename = "net/if.h")]
+        public const int IF_NAMESIZ;
+
+        [CCode (cheader_filename = "net/if.h")]
+        public uint if_nametoindex (string ifname);
+        [CCode (cheader_filename = "net/if.h")]
+        public unowned string if_indextoname (uint ifindex, string ifname);
+        [CCode (cheader_filename = "net/if.h")]
+        public IfNameindex if_nameindex ();
+
+        [CCode (cname = "int", cprefix = "IFF_", cheader_filename = "net/if.h")]
+        public enum IfFlag {
+            UP,
+            BROADCAST,
+            DEBUG,
+            LOOPBACK,
+            POINTOPOINT,
+            NOTRAILERS,
+            RUNNING,
+            NOARP,
+            PROMISC,
+            ALLMULTI,
+            MASTER,
+            SLAVE,
+            PORTSEL,
+            AUTOMEDIA,
+            DYNAMIC
+        }
+
+        [CCode (cname = "struct if_nameindex", cheader_filename = "net/if.h", destroy_function = "if_freenameindex")]
+        public struct IfNameindex {
+            public uint if_index;
+            public string if_name;
+        }
+
+        [CCode (cname = "struct ifmap", cheader_filename = "net/if.h", destroy_function = "")]
+        public struct IfMap {
+            public ulong mem_start;
+            public ulong mem_end;
+            public short base_addr;
+            public uchar irq;
+            public uchar dma;
+            public uchar port;
+        }
+
         [CCode (cname = "struct ifreq", cheader_filename = "net/if.h", destroy_function = "")]
         public struct IfReq {
             public char[] ifr_name;
             public Posix.SockAddr ifr_addr;
+            public Posix.SockAddr ifr_dstaddr;
+            public Posix.SockAddr ifr_broadaddr;
+            public Posix.SockAddr ifr_netmask;
+            public Posix.SockAddr ifr_hwaddr;
+            public short ifr_flags;
+            public int ifr_metric;
+            public int ifr_mtu;
+            public IfMap ifr_map;
+            public char[] ifr_slave;
+            public string ifr_data;
+            public int ifr_ifindex;
+            public int ifr_bandwidth;
+            public int ifr_qlen;
+            public char[] ifr_newname;
+        }
+
+        [CCode (cname = "struct ifconf", cheader_filename = "net/if.h", destroy_function = "")]
+        public struct IfConf {
+            public int ifc_len;
+            public string ifc_buf;
+            public IfReq ifc_req;
         }
 
         /* ioctls */

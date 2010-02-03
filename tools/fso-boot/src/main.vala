@@ -80,6 +80,11 @@ internal class Muenchhausen
         var socketfd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
         CHECK( () => { return socketfd > -1; }, "Can't create socket" );
 
+        var ifreq = Linux.Network.IfReq();
+        Memory.copy( ifreq.ifr_name, "lo\0", 3 );
+        //Linux.ioctl( Linux.SIOCSIFFLAGS
+
+
         //Posix.system( "ifconfig lo up" );
         //Posix.system( "ifconfig usb0 192.168.0.200/24 up" );
         //Posix.system( "route add default usb0" );
