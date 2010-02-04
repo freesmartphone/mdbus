@@ -11,7 +11,6 @@ VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ../vapi/ \
 	--pkg posix \
-	--pkg posixextra \
 	--pkg linux \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
