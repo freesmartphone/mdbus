@@ -154,7 +154,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
-    public abstract void advanceToState( Modem.Status status );
+    public abstract void advanceToState( Modem.Status status, bool force = false );
     public abstract CommandSequence commandSequence( string channel, string purpose );
     public signal void signalStatusChanged( Modem.Status status );
 
@@ -508,6 +508,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         }
 
         lowlevel.poweroff();
+
+        advanceToState( Modem.Status.CLOSED, true ); // force wraparound
     }
 
     public virtual void injectResponse( string command, string channel ) throws FreeSmartphone.Error
@@ -664,10 +666,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      * is the command queues / channels and there are no friend classes in Vala. However,
      * it should _never_ be called by any other classes.
      **/
-    public void advanceToState( Modem.Status next )
+    public void advanceToState( Modem.Status next, bool force = false )
     {
         // do nothing, if we're already in the requested state or beyond
-        if ( next <= modem_status )
+        if ( !force && ( next <= modem_status ) )
         {
             return;
         }
