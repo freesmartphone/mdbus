@@ -37,14 +37,13 @@ class LibAlsa : FsoDevice.BaseAudioRouter
     private string currentscenario;
     private GLib.Queue<string> scenarios;
 
-    public LibAlsa()
+    construct
     {
         initScenarios();
         if ( currentscenario != "unknown" )
         {
             device.setAllMixerControls( allscenarios[currentscenario].controls );
         }
-        scenarios = new GLib.Queue<string>();
     }
 
     private void addScenario( string scenario, File file )
@@ -77,6 +76,8 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 
     private void initScenarios()
     {
+        scenarios = new GLib.Queue<string>();
+
         allscenarios = new HashMap<string,FsoFramework.BunchOfMixerControls>( str_hash, str_equal );
         currentscenario = "unknown";
 
