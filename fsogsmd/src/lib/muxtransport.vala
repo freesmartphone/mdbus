@@ -125,7 +125,10 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public override void close()
     {
-        manager.releaseChannel( channelinfo.consumer );
+        if ( isOpen() )
+        {
+            manager.releaseChannel( channelinfo.consumer );
+        }
     }
     //
     // delegate transport interface
