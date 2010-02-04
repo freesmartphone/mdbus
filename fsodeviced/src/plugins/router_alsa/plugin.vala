@@ -77,7 +77,6 @@ class LibAlsa : FsoDevice.BaseAudioRouter
     private void initScenarios()
     {
         scenarios = new GLib.Queue<string>();
-
         allscenarios = new HashMap<string,FsoFramework.BunchOfMixerControls>( str_hash, str_equal );
         currentscenario = "unknown";
 
@@ -85,7 +84,15 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         FsoFramework.SmartKeyFile alsaconf = new FsoFramework.SmartKeyFile();
         if ( alsaconf.loadFromFile( FSO_ALSA_CONF_PATH ) )
         {
-            device = FsoFramework.SoundDevice.create( alsaconf.stringValue( "alsa", "cardname", "default" ) );
+            try
+            {
+                device = FsoFramework.SoundDevice.create( alsaconf.stringValue( "alsa", "cardname", "default" ) );
+            }
+            catch ( FsoFramework.SoundError e )
+            {
+                FsoFramework.theLogger.warning( @"Sound card problem: $(e.message)" );
+                return;
+            }
             var defaultscenario = alsaconf.stringValue( "alsa", "default_scenario", "stereoout" );
 
             var sections = alsaconf.sectionsWithPrefix( "scenario." );
@@ -99,7 +106,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
                     var file = File.new_for_path( Path.build_filename( FSO_ALSA_DATA_PATH, scenario ) );
                     if ( !file.query_exists(null) )
                     {
-                        FsoFramework.theLogger.warning( "Scenario file %s doesn't exist. Ignoring.".printf( file.get_path() ) );
+                        FsoFramework.theLogger.warning( @"Scenario file $(file.get_path()) doesn't exist. Ignoring." );
                     }
                     else
                     {
