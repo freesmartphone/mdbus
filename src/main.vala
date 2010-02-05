@@ -71,12 +71,12 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
         var result = "{ ";
-        while ( subiter.has_next() )
+        do
         {
             result += formatResult( subiter, depth+1 );
             result += ", ";
             subiter.next();
-        }
+        } while ( subiter.has_next() );
         result += "}";
         return result;
     }
@@ -86,18 +86,40 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
      */
     if ( signature[0] == 'a' )
     {
+#if DEBUG
+        debug( "array" );
+#endif
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
         var result = "[ ";
-        while ( subiter.has_next() )
+        do
         {
             result += formatResult( subiter, depth+1 );
             result += ", ";
             subiter.next();
-        }
+        } while ( subiter.has_next() );
         result += "]";
         return result;
     }
+    
+    /*
+     * Struct Entry
+     */
+    if ( signature[0] == '(' && signature[signature.length-1] == ')' )
+    {
+        DBus.RawMessageIter subiter = DBus.RawMessageIter();
+        iter.recurse( subiter );
+        var result = ") ";
+        do
+        {
+            result += formatResult( subiter, depth+1 );
+            result += ", ";
+            subiter.next();
+        } while ( subiter.has_next() );
+        result += ")";
+        return result;
+    }
+
     /*
      * Dictionary Entry
      */
@@ -112,7 +134,6 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
         result += formatResult( subiter, depth+1 );
         return result;
     }
-
     /*
      * Variant
      */
@@ -147,7 +168,14 @@ static string formatSimpleType( string signature, DBus.RawMessageIter iter )
             unowned string s = null;
             iter.get_basic( &s );
             return @"\"$s\"";
+        case "o":
+            unowned string s = null;
+            iter.get_basic( &s );
+            return @"op'$s'";
         default:
+#if DEBUG
+            critical( @"signature $signature not yet handled" );
+#endif
             return @"($signature ???)";
     }
 }
