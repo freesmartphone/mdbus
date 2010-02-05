@@ -21,8 +21,10 @@
 #include <unistd.h>
 #include <termios.h>
 #include <strings.h>
+#include <getopt.h>
 
 #include "forward.h"
+#include "hsuart.h"
 
 int lflag = ICANON;
 
@@ -70,8 +72,31 @@ static void set_termios(int modem_fd)
     ioctl(modem_fd, TIOCMBIS, &status);
 }
 
+static void set_hsuart(int modem_fd)
+{
+    int flush = 0;
+    struct hsuart_mode mode;
+
+    /* flush everything */
+    flush = HSUART_RX_QUEUE | HSUART_TX_QUEUE | HSUART_RX_FIFO | HSUART_TX_FIFO;
+    ioctl(modem_fd, HSUART_IOCTL_FLUSH, flush);
+
+    /* get current mode */
+    ioctl(modem_fd, HSUART_IOCTL_GET_UARTMODE, &mode);
+
+    /* speed and flow control */
+    mode.speed = HSUART_SPEED_115K;
+    mode.flags |= HSUART_MODE_PARITY_NONE;
+    mode.flags |= HSUART_MODE_FLOW_CTRL_HW;
+    ioctl(modem_fd, HSUART_IOCTL_SET_UARTMODE, &mode);
+
+    /* we want flow control for the rx line */
+    ioctl(modem_fd, HSUART_IOCTL_RX_FLOW, HSUART_RX_FLOW_ON);
+}
+
 int main(int argc, char** argv)
 {
+#if 0
     if (argc < 3)
     {
     	printf("Usage: ./forward <devicenode> <port> [raw]\n");
@@ -81,15 +106,68 @@ int main(int argc, char** argv)
     {
     	lflag = 0;
     }
+#endif
 
-    int modem_fd = open(argv[1], O_RDWR | O_NOCTTY);
+    opterr = 0;
+    int option_index;
+    int chr;
+    char serial_node[30];
+    int network_port;
+    int check_arg[2];
+    int type = 0; /* 0 = serial, 1 = palmpre hsuart */
+    memset(check_arg, 0, 2);
+
+    struct option opts[] = {
+        { "raw", no_argument, 0, 'r' },
+        { "node", required_argument, 0, 'n' },
+        { "port", required_argument, 0, 'p' },
+        { "type", required_argument, 0, 't' },
+        { "help", no_argument, 0, 'h' },
+    };
+
+    while (1) {
+        option_index = 0;
+        chr = getopt_long(argc, argv, "rn:p:h", opts, &option_index);
+
+        if (chr == -1)
+            break;
+
+        switch(chr) {
+        case 'r':
+            lflag = 0;
+            break;
+        case 'n':
+            check_arg[0] = 1;
+            snprintf(serial_node, 30, "%s", optarg);
+            break;
+        case 'p':
+            check_arg[1] = 1;
+            network_port = atoi(optarg);
+            break;
+        case 't':
+            if (!strncmp((char*)optarg, "hsuart", 6))
+                type = 1;
+        default:
+            break;
+        }
+    }
+
+	if (!check_arg[0] || !check_arg[1]) {
+		printf("please specify both a network port and the serial node to forward!\n");
+		printf("use: serial_forward -n <serial node> -p <network port> [-t, --type=(serial|hsuart)] [-r, --raw]\n");
+		exit(1);
+	}
+
+    int modem_fd = open(serial_node, O_RDWR | O_NOCTTY);
     if (modem_fd < 0) {
         perror("Failed to open device");
         return EXIT_FAILURE;
     }
 
-
-    set_termios(modem_fd);
+    if (type == 0)
+        set_termios(modem_fd);
+    else if (type == 1)
+        set_hsuart(modem_fd);
 
     int socket_fd = socket(PF_INET, SOCK_STREAM, 0);
     if (socket_fd < 0) {
@@ -100,7 +178,7 @@ int main(int argc, char** argv)
 
     struct sockaddr_in addr = { 0, };
     addr.sin_family = PF_INET;
-    addr.sin_port = htons( atoi(argv[2]) );
+    addr.sin_port = htons(network_port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(socket_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
