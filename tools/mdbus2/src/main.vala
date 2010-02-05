@@ -74,7 +74,10 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
         do
         {
             result += formatResult( subiter, depth+1 );
-            result += ", ";
+            if ( subiter.has_next() )
+            {
+                result += ", ";
+            }
             subiter.next();
         } while ( subiter.has_next() );
         result += "}";
@@ -95,10 +98,13 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
         do
         {
             result += formatResult( subiter, depth+1 );
-            result += ", ";
+            if ( subiter.has_next() )
+            {
+                result += ", ";
+            }
             subiter.next();
         } while ( subiter.has_next() );
-        result += "]";
+        result += " ]";
         return result;
     }
     
@@ -113,10 +119,13 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
         do
         {
             result += formatResult( subiter, depth+1 );
-            result += ", ";
+            if ( subiter.has_next() )
+            {
+                result += ", ";
+            }
             subiter.next();
         } while ( subiter.has_next() );
-        result += ")";
+        result += " )";
         return result;
     }
 
