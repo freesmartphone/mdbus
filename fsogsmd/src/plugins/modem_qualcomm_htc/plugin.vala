@@ -66,14 +66,13 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "qualcomm_htc fso_factory_function" );
+    FsoFramework.theLogger.debug( "fsogsm.qualcomm_htc fso_factory_function" );
     return "fsogsmd.modem_qualcomm_htc";
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "qualcomm_htc fso_register_function" );
     // do not remove this function
 }
 

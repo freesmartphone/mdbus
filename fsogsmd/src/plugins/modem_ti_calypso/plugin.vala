@@ -164,7 +164,6 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsogsm.ti_calypso fso_register_function" );
     // do not remove this function
 }
 

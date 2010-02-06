@@ -22,14 +22,17 @@ using GLib;
 using FsoGsm;
 
 /**
- * @class Singleline.Modem
+ * @class QualcommPalm.Modem
  *
- * This modem plugin supports standard AT modems that do not use a multiplexing mode.
+ * This modem plugin supports the Qualcomm MSM 7xxx chipset with HTC firmware.
  *
+ * HTC firmware comes with some bugs in the parser and non-standard AT extensions,
+ * therefore we can't cover these modems with the 'singleline' plugin.
  **/
-class Singleline.Modem : FsoGsm.AbstractModem
+class QualcommPalm.Modem : FsoGsm.AbstractModem
 {
-    private const string CHANNEL_NAME = "main";
+    private const string AT_CHANNEL_NAME = "misc";
+    private const string BIN_CHANNEL_NAME = "call";
 
     public override string repr()
     {
@@ -40,19 +43,13 @@ class Singleline.Modem : FsoGsm.AbstractModem
     {
         var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
         var parser = new FsoGsm.StateBasedAtParser();
-        var chan = new Channel( CHANNEL_NAME, transport, parser );
+        var chan = new Channel( AT_CHANNEL_NAME, transport, parser );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        // nothing to round-robin here as singleline only has one channel
-        return channels[ CHANNEL_NAME ];
-    }
-
-    public void responseHandler( FsoGsm.AtCommand command, string[] response )
-    {
-        debug( "handler called with '%s'", response[0] );
-        assert_not_reached();
+        // nothing to do here as qualcomm_palm only has one AT channel
+        return channels[ AT_CHANNEL_NAME ];
     }
 }
 
@@ -64,8 +61,8 @@ class Singleline.Modem : FsoGsm.AbstractModem
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    FsoFramework.theLogger.debug( "fsogsm.singleline fso_factory_function" );
-    return "fsogsmd.modem_singleline";
+    FsoFramework.theLogger.debug( "qualcomm_palm fso_factory_function" );
+    return "fsogsm.modem_qualcomm_palm";
 }
 
 [ModuleInit]

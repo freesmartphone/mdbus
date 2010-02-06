@@ -104,7 +104,7 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "lowlevel_openmoko fso_factory_function" );
+    FsoFramework.theLogger.debug( "lowlevel_openmoko fso_factory_function" );
     return LowLevel.Openmoko.MODULE_NAME;
 }
 

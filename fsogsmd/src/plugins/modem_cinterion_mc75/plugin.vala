@@ -156,14 +156,13 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "mc75 fso_factory_function" );
+    FsoFramework.theLogger.debug( "mc75 fso_factory_function" );
     return CinterionMc75.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "mc75 fso_register_function" );
     // do not remove this function
 }
 

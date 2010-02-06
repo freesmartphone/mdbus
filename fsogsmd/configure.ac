@@ -159,6 +159,7 @@ AC_CONFIG_FILES([
   src/plugins/modem_singleline/Makefile
   src/plugins/modem_ti_calypso/Makefile
   src/plugins/modem_qualcomm_htc/Makefile
+  src/plugins/modem_qualcomm_palm/Makefile
   src/ppp/Makefile
   tests/Makefile
 ])
