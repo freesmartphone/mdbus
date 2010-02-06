@@ -26,6 +26,7 @@ XML_REQUIRED=2.7.3
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
 GSMMUX_REQUIRED=0.3.4
+MSMCOMM_REQUIRED=0.1
 FSO_GLIB_REQUIRED=0.2.2
 FSO_FRAMEWORK_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.5.9
@@ -81,13 +82,6 @@ fi
 AC_SUBST(DBUS_SERVICE_DIR)
 
 ##############################################################################
-# gsm0710mux
-PKG_CHECK_MODULES(GSMMUX,
-  gsm0710mux-1.0 >= $GSMMUX_REQUIRED)
-AC_SUBST(GSMMUX_CFLAGS)
-AC_SUBST(GSMMUX_LIBS)
-
-##############################################################################
 # fso-glib and framework
 PKG_CHECK_MODULES(FSO,
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED
@@ -109,6 +103,20 @@ if test "x$ppp" = "xyes"; then
       [AC_MSG_ERROR([Could not find pppd.h. pppd development headers are required to build the ppp plugin.])])
 fi
 AM_CONDITIONAL( [WANT_PPP], [test x"$ppp" = x"yes"])
+
+##############################################################################
+# optional feature: libgsm0710mux support
+AC_ARG_ENABLE(libgsm0710mux,
+  [  --enable-libgsm0710mux  Build modem plugins which require libgsm0710mux (default=disabled)],
+  mux="yes", mux="no")
+
+if test x$mux = "xyes"; then
+    PKG_CHECK_MODULES(GSMMUX,gsm0710mux-1.0 >= $GSMMUX_REQUIRED)
+AC_SUBST(GSMMUX_CFLAGS)
+AC_SUBST(GSMMUX_LIBS)
+
+fi
+AM_CONDITIONAL( [WANT_MUX], [test x"$mux" = x"yes"])
 
 ##############################################################################
 # optional feature: palm pre (plus) support
@@ -192,7 +200,9 @@ echo
 echo "Configuration Options:"
 echo
 echo "  ppp2fsogsmd.............: $ppp"
-echo "  modem_qualcomm_palm.. ..: $palm"
+echo "  modem_ti_calypso........: $mux"
+echo "  modem_cinterion_mc75....: $mux"
+echo "  modem_qualcomm_palm.....: $palm"
 echo
 echo "  shared data directory...: $pkgdatadir"
 echo
