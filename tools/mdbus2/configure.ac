@@ -17,10 +17,37 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
+# requirements
 VALA_REQUIRED=0.7.2
 GLIB_REQUIRED=2.18.0
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
+
+# libreadline and/or libhistory
+AC_CHECK_LIB(readline, rl_bind_key,
+             [LIBREADLINE=-lreadline
+              AC_DEFINE(HAVE_LIBREADLINE, 1,
+               [Define to one if you have -lreadline])],
+             [LIBREADLINE=], "$LIBTERMCAP")
+AC_SUBST(LIBREADLINE)
+AC_SUBST(LIBTERMCAP)
+
+AC_CHECK_LIB(history, add_history,
+             [LIBHISTORY=-lhistory
+              AC_DEFINE(HAVE_LIBHISTORY, 1,
+               [Define to one if you have -lhistory])],
+             [LIBHISTORY=])
+
+# If libhistory does not provide add_history check if libreadline has it.
+if test -z "$LIBHISTORY" && test -n "$LIBREADLINE"; then
+  AC_CHECK_LIB(readline, add_history,
+               [LIBHISTORY=-lreadline
+                AC_DEFINE(HAVE_LIBHISTORY, 1,
+                     [Define to one if you have -lhistory])],
+               [LIBHISTORY=])
+fi
+
+AC_SUBST(LIBHISTORY)
 
 # vala
 PKG_CHECK_MODULES(VALA,

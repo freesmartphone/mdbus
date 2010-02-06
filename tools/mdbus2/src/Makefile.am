@@ -6,6 +6,7 @@ VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ../vapi \
 	--pkg posix \
+	--pkg readline \
 	--pkg dbus-glib-1 \
 	--save-temps
 
@@ -36,6 +37,8 @@ $(BUILT_SOURCES): $(mdbus2_VALASOURCES)
 	touch $@
 
 mdbus2_LDADD = \
+	$(LIBREADLINE) \
+	$(LIBHISTORY) \
 	$(DBUS_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
