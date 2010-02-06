@@ -58,6 +58,8 @@ AC_SUBST(DBUS_SERVICE_DIR)
 
 AC_CONFIG_FILES([
 	Makefile
+	conf/Makefile
+	conf/default/Makefile
 	data/Makefile
 	src/Makefile])
 
