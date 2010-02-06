@@ -96,26 +96,12 @@ static void set_hsuart(int modem_fd)
 
 int main(int argc, char** argv)
 {
-#if 0
-    if (argc < 3)
-    {
-    	printf("Usage: ./forward <devicenode> <port> [raw]\n");
-    	return EXIT_FAILURE;
-    }
-    if (argc >= 4)
-    {
-    	lflag = 0;
-    }
-#endif
-
     opterr = 0;
     int option_index;
     int chr;
-    char serial_node[30];
+    char serial_node[30] = "\0";
     int network_port;
-    int check_arg[2];
     int type = 0; /* 0 = serial, 1 = palmpre hsuart */
-    memset(check_arg, 0, 2);
 
     struct option opts[] = {
         { "raw", no_argument, 0, 'r' },
@@ -125,41 +111,54 @@ int main(int argc, char** argv)
         { "help", no_argument, 0, 'h' },
     };
 
-    while (1) {
+    int showhelp = 0;
+
+    while ( 1 ) {
+
         option_index = 0;
-        chr = getopt_long(argc, argv, "rn:p:h", opts, &option_index);
+        chr = getopt_long(argc, argv, "rn:p:t:h", opts, &option_index);
 
         if (chr == -1)
             break;
 
         switch(chr) {
-        case 'r':
-            lflag = 0;
-            break;
-        case 'n':
-            check_arg[0] = 1;
-            snprintf(serial_node, 30, "%s", optarg);
-            break;
-        case 'p':
-            check_arg[1] = 1;
-            network_port = atoi(optarg);
-            break;
-        case 't':
-            if (!strncmp((char*)optarg, "hsuart", 6))
-                type = 1;
-        default:
-            break;
-        }
+            case 'h':
+                showhelp = 1;
+                break;
+            case 'r':
+                lflag = 0;
+                break;
+            case 'n':
+                snprintf(serial_node, 30, "%s", optarg);
+                break;
+            case 'p':
+                network_port = atoi(optarg);
+                break;
+            case 't':
+                if (!strncmp((char*)optarg, "hsuart", 6))
+                {
+                    type = 1;
+                }
+            default:
+                break;
+            }
     }
+#if DEBUG
+    printf( "network_port = %d\n", network_port );
+    printf( "serial_node = %s\n", serial_node );
+    printf( "device type = %d\n", type );
+    printf( "raw = %d\n", lflag );
+#endif
 
-	if (!check_arg[0] || !check_arg[1]) {
-		printf("please specify both a network port and the serial node to forward!\n");
-		printf("use: serial_forward -n <serial node> -p <network port> [-t, --type=(serial|hsuart)] [-r, --raw]\n");
+	if ( showhelp || network_port == 0 || serial_node[0] == 0 )
+    {
+		printf("Usage: ./serial_forward -n <serial node> -p <network port> [-t, --type=(serial|hsuart)] [-r, --raw]\n");
 		exit(1);
 	}
 
     int modem_fd = open(serial_node, O_RDWR | O_NOCTTY);
-    if (modem_fd < 0) {
+    if (modem_fd < 0)
+    {
         perror("Failed to open device");
         return EXIT_FAILURE;
     }
