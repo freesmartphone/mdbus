@@ -646,6 +646,16 @@ class Commands : Object
         ( new MainLoop() ).run();
     }
 
+    private void performCommandFromShell( string commandline )
+    {
+        stderr.printf( " *** interactive mode not implemented yet\n" );        
+    }
+
+    private void completion( string[] s, int a, int b )
+    {
+        debug( "completion" );
+    }
+
     public void launchShell()
     {
         Readline.initialize();
@@ -654,6 +664,10 @@ class Commands : Object
 
         Readline.History.read( "%s/.fso-term.history".printf( Environment.get_variable( "HOME" ) ) );
         Readline.History.max_entries = 512;
+
+        Readline.completion_display_matches_hook = completion;
+        Readline.completer_word_break_characters = " ";
+        Readline.parse_and_bind( "tab: complete" );
 
         var done = false;
 
@@ -667,8 +681,10 @@ class Commands : Object
             else
             {
                 Readline.History.add( line );
-                stderr.printf( " *** interactive mode not implemented yet\n" );
-                //transport.write( line + "\r\n", (int)line.length + 2 );
+                if ( line != "" )
+                {
+                    performCommandFromShell( line );
+                }
             }
         }
         stderr.printf( "Good bye!\n" );

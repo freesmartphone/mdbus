@@ -264,7 +264,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
                 typename = "LowLevelOpenmoko";
                 break;
             default:
-                warning( "Invalid lowlevel_type '%s'; vendor specifics will NOT be available!".printf( lowleveltype ) );
+                logger.warning( "Invalid lowlevel_type '%s'; vendor specifics will NOT be available!".printf( lowleveltype ) );
                 lowlevel = new FsoGsm.NullLowLevel();
                 return;
         }

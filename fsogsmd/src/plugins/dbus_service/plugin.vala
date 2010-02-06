@@ -694,23 +694,31 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
  **/
 public static void fso_shutdown_function() throws Error
 {
+#if DEBUG
     debug( "SHUTDOWN ENTER" );
+#endif
     running = true;
     async_helper();
     while ( running )
     {
         GLib.MainContext.default().iteration( true );
     }
+#if DEBUG
     debug( "SHUTDOWN LEAVE" );
+#endif
 }
 
 static bool running;
 internal async void async_helper()
 {
+#if DEBUG
     debug( "ASYNC_HELPER ENTER" );
+#endif
     yield resource.disableResource();
     running = false;
+#if DEBUG
     debug( "ASYNC_HELPER_DONE" );
+#endif
 }
 
 /**
@@ -719,7 +727,7 @@ internal async void async_helper()
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsogsmd.dbus_service fso_register_function" );
+    FsoFramework.theLogger.debug( "fsogsm.dbus_service fso_register_function" );
 }
 
 /**
