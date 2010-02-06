@@ -645,6 +645,35 @@ class Commands : Object
         connection->add_match( formatRule( busname, objectpath, iface ), ref error );
         ( new MainLoop() ).run();
     }
+
+    public void launchShell()
+    {
+        Readline.initialize();
+        Readline.readline_name = "fso-term";
+        Readline.terminal_name = Environment.get_variable( "TERM" );
+
+        Readline.History.read( "%s/.fso-term.history".printf( Environment.get_variable( "HOME" ) ) );
+        Readline.History.max_entries = 512;
+
+        var done = false;
+
+        while ( !done )
+        {
+            var line = Readline.readline( "MDBUS2> " );
+            if ( line == null ) // ctrl-d
+            {
+                done = true;
+            }
+            else
+            {
+                Readline.History.add( line );
+                stderr.printf( " *** interactive mode not implemented yet\n" );
+                //transport.write( line + "\r\n", (int)line.length + 2 );
+            }
+        }
+        stderr.printf( "Good bye!\n" );
+        Readline.History.write( "%s/.mdbus2.history".printf( Environment.get_variable( "HOME" ) ) );
+    }
 }
 
 //=========================================================================//
@@ -652,6 +681,7 @@ bool showAnonymous;
 bool listenerMode;
 bool showPIDs;
 bool useSystemBus;
+bool interactive;
 
 const OptionEntry[] options =
 {
@@ -659,10 +689,7 @@ const OptionEntry[] options =
     { "show-pids", 'p', 0, OptionArg.NONE, ref showPIDs, "Show unix process IDs", null },
     { "listen", 'l', 0, OptionArg.NONE, ref listenerMode, "Listen for signals", null },
     { "system", 's', 0, OptionArg.NONE, ref useSystemBus, "Use System Bus", null },
-        /*
-    { "listen", 0, 0, OptionArg.STRING, ref cc_command, "Use COMMAND as C compiler command", "COMMAND" },
-    { "", 0, 0, OptionArg.STRING_ARRAY, ref sources, null, "FILE..." },
-        */
+    { "interactive", 'i', 0, OptionArg.NONE, ref interactive, "Enter interactive shell", null },
     { null }
 };
 
@@ -688,6 +715,12 @@ int main( string[] args )
     switch ( args.length )
     {
         case 1:
+            if ( interactive )
+            {
+                commands.launchShell();
+                return 0;
+            }
+
             if (!listenerMode)
                 commands.listBusNames();
             else
