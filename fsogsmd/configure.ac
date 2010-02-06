@@ -100,7 +100,7 @@ AC_SUBST(FSO_LIBS)
 ##############################################################################
 # optional feature: ppp
 AC_ARG_ENABLE(ppp-support,
-  [  --disable-ppp-support            Disable building ppp plugin (default=enabled)],
+  [  --disable-ppp-support   Disable building ppp plugin (default=enabled)],
   ppp="no", ppp="yes")
 
 if test "x$ppp" = "xyes"; then
@@ -109,6 +109,20 @@ if test "x$ppp" = "xyes"; then
       [AC_MSG_ERROR([Could not find pppd.h. pppd development headers are required to build the ppp plugin.])])
 fi
 AM_CONDITIONAL( [WANT_PPP], [test x"$ppp" = x"yes"])
+
+##############################################################################
+# optional feature: palm pre (plus) support
+AC_ARG_ENABLE(modem-qualcomm-palm,
+  [  --enable-modem-qualcomm-palm  Enable building the modem_qualcomm_palm plugin (default=disabled)],
+  palm="yes", palm="no")
+
+if test x$palm = "xyes"; then
+    PKG_CHECK_MODULES(PALM,msmcomm-1.0)
+AC_SUBST(PALM_CFLAGS)
+AC_SUBST(PALM_LIBS)
+
+fi
+AM_CONDITIONAL( [WANT_PALM], [test x"$palm" = x"yes"])
 
 ##############################################################################
 # datadir
@@ -177,7 +191,8 @@ echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
 echo
-echo "  build ppp plugin........: $ppp"
+echo "  ppp2fsogsmd.............: $ppp"
+echo "  modem_qualcomm_palm.. ..: $palm"
 echo
 echo "  shared data directory...: $pkgdatadir"
 echo

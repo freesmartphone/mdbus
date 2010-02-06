@@ -13,5 +13,8 @@ SUBDIRS = \
 	modem_singleline \
 	modem_ti_calypso \
 	modem_qualcomm_htc \
-	modem_qualcomm_palm \
 	$(NULL)
+
+if WANT_PALM
+SUBDIRS += modem_qualcomm_palm
+endif

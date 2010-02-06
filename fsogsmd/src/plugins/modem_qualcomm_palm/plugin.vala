@@ -24,10 +24,9 @@ using FsoGsm;
 /**
  * @class QualcommPalm.Modem
  *
- * This modem plugin supports the Qualcomm MSM 7xxx chipset with HTC firmware.
+ * This modem plugin supports the Qualcomm MSM chipset used on Palm Pre (Plus).
  *
- * HTC firmware comes with some bugs in the parser and non-standard AT extensions,
- * therefore we can't cover these modems with the 'singleline' plugin.
+ * The modem uses a binary protocol which has been implemented in libmsmcommd.
  **/
 class QualcommPalm.Modem : FsoGsm.AbstractModem
 {

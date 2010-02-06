@@ -5,6 +5,7 @@ NULL =
 AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
+	$(PALM_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
@@ -14,6 +15,7 @@ AM_CFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
+	$(PALM_LIBS) \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
@@ -30,7 +32,8 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
-	--pkg fsogsm-2.0
+	--pkg fsogsm-2.0 \
+	--pkg msmcomm-1.0
 
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG
