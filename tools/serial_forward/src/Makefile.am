@@ -16,6 +16,9 @@ serial_forward_SOURCES = \
 	forward.c \
 	$(NULL)
 
+serial_forward_LDFLAGS = \
+	-all-static
+
 pty_forward_SOURCES = \
 	pty_forward.c \
 	$(NULL)
