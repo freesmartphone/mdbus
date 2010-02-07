@@ -695,7 +695,15 @@ class Commands : Object
 
     private void performCommandFromShell( string commandline )
     {
-        stderr.printf( " *** interactive mode not implemented yet\n" );        
+        var args = commandline.split( " " );
+        if ( args.length < 3 )
+        {
+            stderr.printf( "[ERR] Need to give at least busname, path, and method\n" );
+        }
+        else
+        {
+            commands.callMethod( args[0], args[1], args[2], args[3:args.length-1] );
+        }
     }
 
     private static unowned string? wordBreakCharacters()
