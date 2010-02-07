@@ -557,6 +557,18 @@ class Commands : Object
 
     public bool callMethod( string busname, string path, string method, string[] args )
     {
+        if ( !isValidDBusName( busname ) )
+        {
+            stderr.printf( @"[ERR]: Invalid bus name $busname\n" );
+            return false;
+        }
+
+        if ( path[0] != '/' )
+        {
+            stderr.printf( @"[ERR]: Invalid object path $path\n" );
+            return false;
+        }
+        
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
 
         try
@@ -691,6 +703,24 @@ class Commands : Object
         DBus.RawError error = DBus.RawError();
         connection->add_match( formatRule( busname, objectpath, iface ), ref error );
         ( new MainLoop() ).run();
+    }
+
+    private bool isValidDBusName( string busname )
+    {
+        var parts = busname.split( "." );
+        if ( parts.length < 2 )
+        {
+            return false;
+        }
+        if ( busname.has_prefix( "." ) )
+        {
+            return false;
+        }
+        if ( busname.has_suffix( "." ) )
+        {
+            return false;
+        }
+        return true;
     }
 
     private void performCommandFromShell( string commandline )
