@@ -1,3 +1,9 @@
-fso-apm 2.0
-=========
- * Vala port of fso-apm in Python
+serial-forward / pty-forward
+============================
+serial-forward allows you to forward a serial device node
+(such as a modem) over a TCP network connection.
+
+On the other end, you can use pty_forward to forward the
+network device to a pseudo tty.
+
+
