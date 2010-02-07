@@ -422,7 +422,7 @@ class Commands : Object
         }
         catch ( DBus.Error e )
         {
-            critical( "dbus error: %s", e.message );
+            critical( "Dbus error: %s", e.message );
         }
     }
 
@@ -497,7 +497,7 @@ class Commands : Object
         }
         catch ( DBus.Error e )
         {
-            stderr.printf( "Error: %s\n", e.message );
+            stderr.printf( "[ERR]: %s\n", e.message );
             return;
         }
     }
@@ -522,7 +522,7 @@ class Commands : Object
             var idata = new Introspection( o.Introspect() );
             if ( idata.entitys.length() == 0 )
             {
-                stderr.printf( "Error: No introspection data at object '%s'\n", path );
+                stderr.printf( "[ERR]: No introspection data at object '%s'\n", path );
                 return result;
             }
             foreach ( var entity in idata.entitys )
@@ -542,7 +542,7 @@ class Commands : Object
         }
         catch ( DBus.Error e )
         {
-            stderr.printf( "Error: %s\n", e.message );
+            stderr.printf( "[ERR]: %s\n", e.message );
         }
         return result;
     }
@@ -564,7 +564,7 @@ class Commands : Object
             var idata = new Introspection( o.Introspect() );
             if ( idata.entitys.length() == 0 )
             {
-                stderr.printf( "Error: No introspection data at object %s\n", path );
+                stderr.printf( "[ERR]: No introspection data at object %s\n", path );
                 return false;
             }
 
@@ -579,7 +579,7 @@ class Commands : Object
                     // check number of input params
                     if ( args.length != entity.inArgs.length() )
                     {
-                        stderr.printf( "Error: Need %u params, supplied %u\n", entity.inArgs.length(), args.length );
+                        stderr.printf( "[ERR]: Need %u params, supplied %u\n", entity.inArgs.length(), args.length );
                         return false;
                     }
 
@@ -624,11 +624,11 @@ class Commands : Object
                 }
             }
 
-            stderr.printf( @"Error: No method $method found at $path\n" );
+            stderr.printf( @"[ERR]: No method $method found at $path\n" );
         }
         catch ( DBus.Error e )
         {
-            stderr.printf( "Error: %s\n", e.message );
+            stderr.printf( "[ERR]: %s\n", e.message );
             return false;
         }
         return false;
@@ -695,14 +695,14 @@ class Commands : Object
 
     private void performCommandFromShell( string commandline )
     {
-        var args = commandline.split( " " );
+        var args = commandline.strip().split( " " );
         if ( args.length < 3 )
         {
             stderr.printf( "[ERR] Need to give at least busname, path, and method\n" );
         }
         else
         {
-            commands.callMethod( args[0], args[1], args[2], args[3:args.length-1] );
+            commands.callMethod( args[0], args[1], args[2], args[3:args.length] );
         }
     }
 
