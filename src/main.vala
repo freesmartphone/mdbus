@@ -214,8 +214,13 @@ public class Argument : Object
                 assert( message.append_args( DBus.RawType.INT32, ref value ) );
                 break;
 
+            case "b":
+                var value = ( arg == "true" || arg == "True" || arg == "1" );
+                assert( message.append_args( DBus.RawType.BOOLEAN, ref value ) );
+                break;
+
             default:
-                stderr.printf( "Unsupported type $typ\n" );
+                stderr.printf( @"Unsupported type $typ\n" );
                 return false;
         }
         return true;
@@ -665,8 +670,8 @@ class Commands : Object
         Readline.History.read( "%s/.fso-term.history".printf( Environment.get_variable( "HOME" ) ) );
         Readline.History.max_entries = 512;
 
-        Readline.completion_display_matches_hook = completion;
-        Readline.completer_word_break_characters = " ";
+        //Readline.completion_display_matches_hook = completion;
+        //Readline.completer_word_break_characters = " ";
         Readline.parse_and_bind( "tab: complete" );
 
         var done = false;
