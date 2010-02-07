@@ -533,7 +533,10 @@ class Commands : Object
                 }
                 else
                 {
-                    result.append( entity.name );
+                    if ( entity.name.has_prefix( prefix ) )
+                    {
+                        result.append( entity.name );
+                    }
                 }
             }
         }
@@ -702,33 +705,40 @@ class Commands : Object
 
     private static string? completion( string prefix, int state )
     {
-#if DEBUG
-        message( "Readline.line_buffer = '%s'", Readline.line_buffer );
-#endif
-        var parts = Readline.line_buffer.split( " " );
-#if DEBUG
-        message( "'%s' length = %d", prefix, parts.length );
-#endif
-        if ( prefix.has_suffix( " " ) )
+        if ( state == 0 )
         {
-            parts.length++;
-        }
+#if DEBUG
+            message( "Readline.line_buffer = '%s'", Readline.line_buffer );
+#endif
+            var parts = Readline.line_buffer.split( " " );
+#if DEBUG
+            message( "'%s' length = %d", prefix, parts.length );
+#endif
+            if ( prefix.has_suffix( " " ) )
+            {
+                parts.length++;
+            }
 
-        switch ( parts.length )
-        {
-            case 0:
-            case 1: /* bus name */
-                completions = commands._listBusNames( prefix );
-                break;
-            case 2: /* object path */
-                completions = new List<string>();
-                commands._listObjects( parts[0], "/", ref completions, prefix );
-                break;
-            case 3: /* interfaces */
-                completions = commands._listInterfaces( parts[0], parts[1], prefix );
-                break;
-            default:
-                return null;
+            switch ( parts.length )
+            {
+                case 0:
+                case 1: /* bus name */
+                    completions = commands._listBusNames( prefix );
+                    break;
+                case 2: /* object path */
+                    completions = new List<string>();
+                    commands._listObjects( parts[0], "/", ref completions, prefix );
+                    break;
+                case 3: /* interfaces */
+                    completions = commands._listInterfaces( parts[0], parts[1], prefix );
+                    break;
+                default:
+                    return null;
+            }
+            foreach ( var c in completions )
+            {
+//               message( "got completion '%s'", c );
+            }
         }
         return completions.nth_data( state );
     }
