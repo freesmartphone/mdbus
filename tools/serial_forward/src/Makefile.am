@@ -10,10 +10,13 @@ INCLUDES = \
 
 bin_PROGRAMS = \
 	serial_forward \
-	pty_forward
+	pty_forward \
+	$(NULL)
 
 serial_forward_SOURCES = \
 	forward.c \
+	forward.h \
+	hsuart.h \
 	$(NULL)
 
 serial_forward_LDFLAGS = \
