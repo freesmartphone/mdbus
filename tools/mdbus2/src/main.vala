@@ -29,6 +29,8 @@ const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectabl
 
 //=========================================================================//
 MainLoop mainloop;
+Commands commands;
+List<string> completions;
 
 public string formatMessage( DBus.RawMessage msg )
 {
@@ -102,7 +104,7 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
             {
                 result += ", ";
             }
-            subiter.next();
+                subiter.next();
         } while ( subiter.has_next() );
         result += " ]";
         return result;
@@ -437,7 +439,7 @@ class Commands : Object
         }
     }
 
-    public void listBusNames()
+    public List<string> _listBusNames( string prefix = "" )
     {
         string[] names = busobj.ListNames();
         List<string> sortednames = new List<string>();
@@ -446,30 +448,41 @@ class Commands : Object
         {
             foreach ( var name in names )
             {
-                sortednames.insert_sorted( showPIDs ? appendPidToBusName( name ) : name, strcmp );
+                if ( name.has_prefix( prefix ) )
+                {
+                    sortednames.insert_sorted( showPIDs ? appendPidToBusName( name ) : name, strcmp );
+                }
             }
         }
         else
         {
             foreach ( var name in names )
             {
-                if ( !name.has_prefix( ":" ) )
+                if ( !name.has_prefix( ":" ) && name.has_prefix( prefix ) )
                 {
                     sortednames.insert_sorted( showPIDs ? appendPidToBusName( name ) : name, strcmp );
                 }
             }
         }
+        return sortednames;
+    }
 
-        foreach ( var name in sortednames )
+    public void listBusNames()
+    {
+        foreach ( var name in _listBusNames() )
         {
             stdout.printf( "%s\n", name );
         }
     }
 
-    public void listObjects( string busname, string path = "/" )
+    public void _listObjects( string busname, string path, ref List<string> result, string prefix = "" )
     {
+        //message( "_listObjects '%s' '%s' '%s'", busname, path, prefix );
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
-        stdout.printf( "%s\n", path );
+        if ( path.has_prefix( prefix ) )
+        {
+            result.append( path );
+        }
 
         try
         {
@@ -479,7 +492,7 @@ class Commands : Object
                 //message ( "node = '%s'", node );
                 var nextnode = ( path == "/" ) ? "/%s".printf( node ) : "%s/%s".printf( path, node );
                 //message( "nextnode = '%s'", nextnode );
-                listObjects( busname, nextnode );
+                _listObjects( busname, nextnode, ref result, prefix );
             }
         }
         catch ( DBus.Error e )
@@ -489,8 +502,19 @@ class Commands : Object
         }
     }
 
-    public void listInterfaces( string busname, string path )
+    public void listObjects( string busname, string path = "/" )
     {
+        var names = new List<string>();
+        _listObjects( busname, path, ref names );
+        foreach ( var name in names )
+        {
+            stdout.printf( "%s\n", name );
+        }
+    }
+
+    public List<string> _listInterfaces( string busname, string path, string prefix = null )
+    {
+        var result = new List<string>();
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
 
         try
@@ -499,17 +523,32 @@ class Commands : Object
             if ( idata.entitys.length() == 0 )
             {
                 stderr.printf( "Error: No introspection data at object '%s'\n", path );
-                return;
+                return result;
             }
             foreach ( var entity in idata.entitys )
             {
-                stdout.printf( "%s\n", entity.to_string() );
+                if ( prefix == null )
+                {
+                    result.append( entity.to_string() );
+                }
+                else
+                {
+                    result.append( entity.name );
+                }
             }
         }
         catch ( DBus.Error e )
         {
             stderr.printf( "Error: %s\n", e.message );
-            return;
+        }
+        return result;
+    }
+
+    public void listInterfaces( string busname, string path )
+    {
+        foreach ( var name in _listInterfaces( busname, path ) )
+        {
+            stdout.printf( "%s\n", name );
         }
     }
 
@@ -656,9 +695,42 @@ class Commands : Object
         stderr.printf( " *** interactive mode not implemented yet\n" );        
     }
 
-    private void completion( string[] s, int a, int b )
+    private static unowned string? wordBreakCharacters()
     {
-        debug( "completion" );
+        return " ";
+    }
+
+    private static string? completion( string prefix, int state )
+    {
+#if DEBUG
+        message( "Readline.line_buffer = '%s'", Readline.line_buffer );
+#endif
+        var parts = Readline.line_buffer.split( " " );
+#if DEBUG
+        message( "'%s' length = %d", prefix, parts.length );
+#endif
+        if ( prefix.has_suffix( " " ) )
+        {
+            parts.length++;
+        }
+
+        switch ( parts.length )
+        {
+            case 0:
+            case 1: /* bus name */
+                completions = commands._listBusNames( prefix );
+                break;
+            case 2: /* object path */
+                completions = new List<string>();
+                commands._listObjects( parts[0], "/", ref completions, prefix );
+                break;
+            case 3: /* interfaces */
+                completions = commands._listInterfaces( parts[0], parts[1], prefix );
+                break;
+            default:
+                return null;
+        }
+        return completions.nth_data( state );
     }
 
     public void launchShell()
@@ -670,9 +742,15 @@ class Commands : Object
         Readline.History.read( "%s/.fso-term.history".printf( Environment.get_variable( "HOME" ) ) );
         Readline.History.max_entries = 512;
 
-        //Readline.completion_display_matches_hook = completion;
-        //Readline.completer_word_break_characters = " ";
+        Readline.completion_entry_function = completion;
+        //Readline.completion_word_break_hook = wordBreakCharacters;
+        // leads to a SIGSEGV (double memory free)
         Readline.parse_and_bind( "tab: complete" );
+
+        Readline.completer_word_break_characters = " ";
+        Readline.basic_quote_characters = " ";
+        Readline.completer_word_break_characters = " ";
+        Readline.filename_quote_characters = " ";
 
         var done = false;
 
@@ -731,7 +809,7 @@ int main( string[] args )
         return 1;
     }
 
-    var commands = new Commands( useSystemBus ? DBus.BusType.SYSTEM : DBus.BusType.SESSION );
+    commands = new Commands( useSystemBus ? DBus.BusType.SYSTEM : DBus.BusType.SESSION );
 
     switch ( args.length )
     {
