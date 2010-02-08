@@ -1,3 +1,7 @@
 mdbus 2.0
 =========
- * Vala port of mdbus in Python
+ * Vala port of mdbus in Python w/ interactive commandline
+ 
+Todo:
+ * argument validation, since dbus is finnicky and fragile
+ 
