@@ -109,7 +109,7 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
         result += " ]";
         return result;
     }
-    
+
     /*
      * Struct Entry
      */
@@ -568,7 +568,7 @@ class Commands : Object
             stderr.printf( @"[ERR]: Invalid object path $path\n" );
             return false;
         }
-        
+
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
 
         try
@@ -726,13 +726,20 @@ class Commands : Object
     private void performCommandFromShell( string commandline )
     {
         var args = commandline.strip().split( " " );
-        if ( args.length < 3 )
+        switch ( args.length )
         {
-            stderr.printf( "[ERR] Need to give at least busname, path, and method\n" );
-        }
-        else
-        {
-            commands.callMethod( args[0], args[1], args[2], args[3:args.length] );
+            case 0:
+                listBusNames();
+                break;
+            case 1:
+                listObjects( args[0] );
+                break;
+            case 2:
+                listInterfaces( args[0], args[1] );
+                break;
+            default:
+                commands.callMethod( args[0], args[1], args[2], args[3:args.length] );
+                break;
         }
     }
 
@@ -812,7 +819,7 @@ class Commands : Object
             else
             {
                 Readline.History.add( line );
-                if ( line != "" )
+                //if ( line != "" )
                 {
                     performCommandFromShell( line );
                 }
