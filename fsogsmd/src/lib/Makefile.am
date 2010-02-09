@@ -28,7 +28,6 @@ VALAC_ARGS = \
 	--pkg fsogsm3rdparty \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
-	--pkg gsm0710mux-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
@@ -60,13 +59,19 @@ libfsogsm_la_VALASOURCES = \
 	lowlevel.vala \
 	mediator.vala \
 	modem.vala \
-	muxppp.vala \
-	muxtransport.vala \
 	pdp.vala \
 	sms.vala \
 	structs.vala \
 	watchdog.vala \
 	$(NULL)
+
+if WANT_MUX
+VALAC_ARGS += --pkg gsm0710mux-1.0 
+libfsogsm_la_VALASOURCES += \
+	muxtransport.vala \
+	muxppp.vala \
+	$(NULL)
+endif
 
 libfsogsm_la_SOURCES = \
 	$(BUILT_SOURCES) \
