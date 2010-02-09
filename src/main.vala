@@ -856,7 +856,27 @@ int main( string[] args )
 {
     try
     {
-        var opt_context = new OptionContext( "- Mickey's DBus Utility V2" );
+        var opt_context = new OptionContext( "[ busname [ objectpath [ method [ params... ] ] ] ]" );
+        opt_context.set_summary( "Mickey's DBus Introspection and Interaction Utility V2" );
+        opt_context.set_description( """This utility helps you to explore and interact with DBus
+services on your system bus and session bus. Called without
+any parameters, it will show the available services on the
+selected bus. Given a service name, it will show the avail-
+able objects exported by the service. Given a service name
+and an object path, it will show the exposed methods, sig-
+nals, and properties of that object.
+
+mdbus2 -i drops you into a shell mode, where you can inter-
+actively explore services and call methods using readline
+command line completion and history.
+
+mdbus2 -l drops you into the listener mode, where everything
+that happens on the bus is monitored.
+
+NOTE: Mickey's DBus Utility requires well-behaved services,
+i.e. those which implement the DBus introspection protocol.
+
+mdbus2: DBus has never been that much fun!""" );
         opt_context.set_help_enabled( true );
         opt_context.add_main_entries( options, null );
         opt_context.parse( ref args );
