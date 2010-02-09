@@ -454,7 +454,7 @@ class Commands : Object
             {
                 if ( name.has_prefix( prefix ) )
                 {
-                    sortednames.insert_sorted( showPIDs ? appendPidToBusName( name ) : name, strcmp );
+                    sortednames.insert_sorted( !interactive && showPIDs ? appendPidToBusName( name ) : name, strcmp );
                 }
             }
         }
@@ -464,7 +464,7 @@ class Commands : Object
             {
                 if ( !name.has_prefix( ":" ) && name.has_prefix( prefix ) )
                 {
-                    sortednames.insert_sorted( showPIDs ? appendPidToBusName( name ) : name, strcmp );
+                    sortednames.insert_sorted( !interactive && showPIDs ? appendPidToBusName( name ) : name, strcmp );
                 }
             }
         }
