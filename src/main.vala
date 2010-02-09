@@ -428,15 +428,19 @@ class Commands : Object
 
     private string appendPidToBusName( string name )
     {
+        uint pid = 0;
+
         try
         {
-            return "%s (%s)".printf( name, busobj.GetConnectionUnixProcessID( "%s".printf( name ) ) );
+            pid = busobj.GetConnectionUnixProcessID( name );
         }
         catch ( DBus.Error e )
         {
+#if DEBUG
             debug( "%s", e.message );
-            return "%s (unknown)".printf( name );
+#endif
         }
+        return "%s (%s)".printf( name, pid > 0 ? pid.to_string() : "unknown" );
     }
 
     public List<string> _listBusNames( string prefix = "" )
@@ -512,7 +516,7 @@ class Commands : Object
         }
     }
 
-    public List<string> _listInterfaces( string busname, string path, string prefix = null )
+    public List<string> _listInterfaces( string busname, string path, string? prefix = null )
     {
         var result = new List<string>();
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
