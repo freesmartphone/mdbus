@@ -191,6 +191,10 @@ static string formatSimpleType( string signature, DBus.RawMessageIter iter )
             int64 i = 0;
             iter.get_basic( &i );
             return i.to_string();
+        case "u":
+            uint32 i = 0;
+            iter.get_basic( &i );
+            return i.to_string();
         case "t":
             uint64 i = 0;
             iter.get_basic( &i );
