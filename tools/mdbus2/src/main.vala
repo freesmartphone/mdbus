@@ -117,7 +117,7 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
     {
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
-        var result = ") ";
+        var result = "( ";
         do
         {
             result += formatResult( subiter, depth+1 );
