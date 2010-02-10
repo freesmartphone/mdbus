@@ -82,7 +82,7 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
             }
             subiter.next();
         } while ( subiter.has_next() );
-        result += "}";
+        result += " }";
         return result;
     }
 
@@ -104,7 +104,7 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
             {
                 result += ", ";
             }
-                subiter.next();
+            subiter.next();
         } while ( subiter.has_next() );
         result += " ]";
         return result;
@@ -138,9 +138,9 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
     {
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
-        var result = " ";
+        var result = "";
         result += formatResult( subiter, depth+1 );
-        result += " : ";
+        result += ":";
         subiter.next();
         result += formatResult( subiter, depth+1 );
         return result;
@@ -688,10 +688,12 @@ class Commands : Object
             return DBus.RawHandlerResult.NOT_YET_HANDLED;
         }
 
-        var line = "[SIGNAL] %s.%s %s".printf(
+        var line = "[SIGNAL] %s.%s  %s  %s\n%s".printf(
           message.get_interface(),
           message.get_member(),
-          formatMessage( message ) );
+          message.get_path(),
+          message.get_sender(),
+          formatMessage( message ) );  
         stdout.printf( @"$line\n" );
 
         return DBus.RawHandlerResult.HANDLED;
