@@ -167,12 +167,36 @@ static string formatSimpleType( string signature, DBus.RawMessageIter iter )
 {
     switch ( signature )
     {
+        case "y":
+            uint8 i = 0;
+            iter.get_basic( &i );
+            return i.to_string();
         case "b":
             bool b = false;
             iter.get_basic( &b );
             return b.to_string();
+        case "n":
+            int16 i = 0;
+            iter.get_basic( &i );
+            return i.to_string();
         case "i":
             int i = 0;
+            iter.get_basic( &i );
+            return i.to_string();
+        case "q":
+            uint16 i = 0;
+            iter.get_basic( &i );
+            return i.to_string();
+        case "x":
+            int64 i = 0;
+            iter.get_basic( &i );
+            return i.to_string();
+        case "t":
+            uint64 i = 0;
+            iter.get_basic( &i );
+            return i.to_string();
+        case "d":
+            double i = 0;
             iter.get_basic( &i );
             return i.to_string();
         case "s":
