@@ -433,7 +433,10 @@ public class Introspection : Object
                 handleAttributes( attribute_names, attribute_values );
                 break;
             default:
-                assert_not_reached();
+#if DEBUG
+                stderr.printf( @"[WARN]: Unknown introspection type $element_name; ignoring\n" );
+#endif
+                break;
         }
     }
 }
@@ -455,6 +458,33 @@ class Commands : Object
         {
             critical( "Dbus error: %s", e.message );
         }
+    }
+
+    public bool isValidBusName( string busname )
+    {
+        var allnames = _listBusNames();
+        foreach ( var name in allnames )
+        {
+            if ( busname == name )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool isValidObjectPath( string busname, string path )
+    {
+        var allpaths = new List<string>();
+        _listObjects( busname, "/", ref allpaths );
+        foreach ( var p in allpaths )
+        {
+            if ( path == p )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private string appendPidToBusName( string name )
@@ -506,14 +536,14 @@ class Commands : Object
     {
         foreach ( var name in _listBusNames() )
         {
-            stdout.printf( "%s\n", name );
+            stdout.printf( @"$name\n", name );
         }
     }
 
     public void _listObjects( string busname, string path, ref List<string> result, string prefix = "" )
     {
-        //message( "_listObjects '%s' '%s' '%s'", busname, path, prefix );
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
+
         if ( path.has_prefix( prefix ) )
         {
             result.append( path );
@@ -532,13 +562,19 @@ class Commands : Object
         }
         catch ( DBus.Error e )
         {
-            stderr.printf( "[ERR]: %s\n", e.message );
+            stderr.printf( @"[ERR]: $(e.message)\n" );
             return;
         }
     }
 
     public void listObjects( string busname, string path = "/" )
     {
+        if ( !isValidBusName( busname ) )
+        {
+            stdout.printf( @"[ERR]: Unknown busname $busname\n" );
+            return;
+        }
+
         var names = new List<string>();
         _listObjects( busname, path, ref names );
         foreach ( var name in names )
@@ -584,6 +620,18 @@ class Commands : Object
 
     public void listInterfaces( string busname, string path )
     {
+        if ( !isValidBusName( busname ) )
+        {
+            stdout.printf( @"[ERR]: Unknown busname $busname\n" );
+            return;
+        }
+
+        if ( !isValidObjectPath( busname, path ) )
+        {
+            stderr.printf( @"[ERR]: Unknown object path $path for $busname\n" );
+            return;
+        }
+
         foreach ( var name in _listInterfaces( busname, path ) )
         {
             stdout.printf( "%s\n", name );
@@ -592,15 +640,15 @@ class Commands : Object
 
     public bool callMethod( string busname, string path, string method, string[] args )
     {
-        if ( !isValidDBusName( busname ) )
+        if ( !isValidBusName( busname ) )
         {
-            stderr.printf( @"[ERR]: Invalid bus name $busname\n" );
+            stdout.printf( @"[ERR]: Unknown busname $busname\n" );
             return false;
         }
 
-        if ( path[0] != '/' )
+        if ( !isValidObjectPath( busname, path ) )
         {
-            stderr.printf( @"[ERR]: Invalid object path $path\n" );
+            stderr.printf( @"[ERR]: Unknown object path $path for $busname\n" );
             return false;
         }
 
@@ -671,7 +719,7 @@ class Commands : Object
                 }
             }
 
-            stderr.printf( @"[ERR]: No method $method found at $path\n" );
+            stderr.printf( @"[ERR]: No method $method found at $path for $busname\n" );
         }
         catch ( DBus.Error e )
         {
@@ -696,7 +744,7 @@ class Commands : Object
           message.get_member(),
           message.get_path(),
           message.get_sender(),
-          formatMessage( message ) );  
+          formatMessage( message ) );
         stdout.printf( @"$line\n" );
 
         return DBus.RawHandlerResult.HANDLED;
