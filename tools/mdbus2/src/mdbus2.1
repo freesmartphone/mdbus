@@ -1,0 +1,72 @@
+.\"
+.\" mdbus2 manual page.
+.\" Copyright (C) 2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+.\"
+.TH mdbus2 1
+.SH NAME
+mdbus2 \- Mickey's DBus introspection and interaction utility
+.SH SYNOPSIS
+.PP
+.B mdbus2
+[OPTIONS...] [ busname [ objectpath [ method [ params... ] ] ] ]
+
+.SH DESCRIPTION
+
+The \fImdbus2\fP command is used to explore and interact with DBus
+services on your system bus and session bus. Called without
+any parameters, it will show the available services on the
+selected bus. Given a service name, it will show the available
+objects exported by the service. Given a service name and an
+object path, it will show the exposed methods, signals, and
+properties of that object.
+
+.PP
+There are two well-known message buses: the systemwide message bus
+(installed on many systems as the "messagebus" service) and the
+per-user-login-session message bus (started each time a user logs in).
+The \-\-system option directs \fImdbus2\fP to operate on the system bus
+rather than the session bus.
+
+.PP
+\fImdbus2\fP has three modes: The introspection mode,
+the listening mode (\-l), and the interactive mode (\-i).
+The interactive mode features readline command completion
+and history.
+
+.PP
+
+The message bus configuration may keep \fImdbus2\fP from seeing
+all messages, especially if you run it as a non-root user.
+
+.SH OPTIONS
+.TP
+.I "--show-anonymous"
+Include unique DBus names (:1.xyz) in the output.
+.TP
+.I "--show-pids"
+Include PIDs in the output. (Only valid in introspection mode)
+.TP
+.I "--listen"
+Start in listening mode.
+.TP
+.I "--system"
+Use the system bus rather than the session bus.
+.TP
+.I "--interactive"
+Start in interactive mode.
+
+.SH EXAMPLE
+Here is an example of using mdbus2 to listen to all signals
+on the session bus.
+.nf
+
+  mdbus2 -s -l
+
+.fi
+
+.SH AUTHOR
+mdbus2 was written by Michael 'Mickey' Lauer.
+
+.SH BUGS
+Please send bug reports to the freesmartphone.org issue tracker,
+see http://trac.freesmartphone.org
