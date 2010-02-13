@@ -1,24 +1,12 @@
-libfsobasics:
- * add SmartKeyFile.pathValue( section, key, constraints, defaultpath ) querying for a path from the configuration,
- checking several whether the constraints are met; if not, return the default.
-
-
-
-
-
-
-
-* Add unit tests for transport classes, including MockTransport
-
-* Write netlink dispatcher for fsoframework
-
-* Write libgpsprotocols as C library
-
-
-==transport/glib==
-Find out how to make sure that we always read what's available from
-a transport before attempting to write.
-
+==libfsobasics==
+* add SmartKeyFile.pathValue( section, key, constraints, defaultpath ) querying for a path from the configuration, 
+  checking several whether the constraints are met; if not, return the default.
+* make read/write a bit more flexible
+** read/write: sometimes it should not complain, if there is no file
+** read: sometimes it should just return a default string, if there is no file
+==libfsotransport==
+* More unit tests, add a MockTransport
+* Find out how to make sure that we always read what's available from a transport before attempting to write.
 
 ==fsogsmd==
 ===modem_ti_calypso===
@@ -34,5 +22,5 @@ a transport before attempting to write.
 * Sync regularly (configurable frequency)
 
 ==fsousaged==
-*Queue all commands
-
+* Suspend/Resume resources in parallel (pending async dbus)
+* Intermediate Resume Tasks
