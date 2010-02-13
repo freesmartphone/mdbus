@@ -43,9 +43,12 @@ mdbus2_LDADD = \
 	$(GLIB_LIBS) \
 	$(NULL)
 
+man_MANS = mdbus2.1
+
 EXTRA_DIST += \
 	$(mdbus2_VALASOURCES) \
 	$(BUILT_SOURCES) \
+	$(man_MANS) \
 	$(NULL)
 
 CLEANFILES = \
