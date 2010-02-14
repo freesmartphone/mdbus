@@ -238,20 +238,44 @@ public class Argument : Object
 #endif
         switch ( typ )
         {
+            case "y":
+                uint8 value = (uint8)arg.to_int();
+                assert( message.append_args( DBus.RawType.BYTE, ref value ) );
+                break;
+            case "b":
+                bool value = ( arg == "true" || arg == "True" || arg == "1" );
+                assert( message.append_args( DBus.RawType.BOOLEAN, ref value ) );
+                break;
+            case "n":
+                int16 value = (int16)arg.to_int();
+                assert( message.append_args( DBus.RawType.INT16, ref value ) );
+                break;
+            case "i":
+                int value = arg.to_int();
+                assert( message.append_args( DBus.RawType.INT32, ref value ) );
+                break;
+            case "q":
+                uint16 value = (uint16)arg.to_int();
+                assert( message.append_args( DBus.RawType.UINT16, ref value ) );
+                break;
+            case "u":
+                uint32 value = (uint32)arg.to_long();
+                assert( message.append_args( DBus.RawType.UINT32, ref value ) );
+                break;
+            case "t":
+                uint64 value = (uint64)arg.to_long();
+                assert( message.append_args( DBus.RawType.UINT64, ref value ) );
+                break;
+            case "d":
+                double value = arg.to_double();
+                assert( message.append_args( DBus.RawType.DOUBLE, ref value ) );
+                break;
             case "s":
                 assert( message.append_args( DBus.RawType.STRING, ref arg ) );
                 break;
-
-            case "i":
-                var value = arg.to_int();
-                assert( message.append_args( DBus.RawType.INT32, ref value ) );
+            case "o":
+                assert( message.append_args( DBus.RawType.OBJECT_PATH, ref arg ) );
                 break;
-
-            case "b":
-                var value = ( arg == "true" || arg == "True" || arg == "1" );
-                assert( message.append_args( DBus.RawType.BOOLEAN, ref value ) );
-                break;
-
             default:
                 stderr.printf( @"Unsupported type $typ\n" );
                 return false;
