@@ -94,7 +94,7 @@ AC_SUBST(FSO_LIBS)
 ##############################################################################
 # optional feature: ppp
 AC_ARG_ENABLE(ppp-support,
-  [  --disable-ppp-support   Disable building ppp plugin (default=enabled)],
+  [  --disable-ppp-support   Disable building ppp support (default=enabled)],
   ppp="no", ppp="yes")
 
 if test "x$ppp" = "xyes"; then
@@ -182,6 +182,9 @@ AC_CONFIG_FILES([
   src/plugins/modem_ti_calypso/Makefile
   src/plugins/modem_qualcomm_htc/Makefile
   src/plugins/modem_qualcomm_palm/Makefile
+  src/plugins/pdp_ppp/Makefile
+  src/plugins/pdp_ppp_mux/Makefile
+  src/plugins/pdp_qmi/Makefile
   src/ppp/Makefile
   tests/Makefile
 ])
@@ -199,7 +202,8 @@ echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
 echo
-echo "  ppp2fsogsmd.............: $ppp"
+echo "  ppp support.............: $ppp"
+echo "  pdp_mux.................: $mux"
 echo "  modem_ti_calypso........: $mux"
 echo "  modem_cinterion_mc75....: $mux"
 echo "  modem_qualcomm_palm.....: $palm"
