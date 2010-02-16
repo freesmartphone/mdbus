@@ -70,18 +70,22 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
      */
     if ( signature[0] == 'a' && signature[1] == '{' )
     {
+#if DEBUG
+        debug( "dict" );
+#endif
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
         var result = "{ ";
-        do
+        var next = true;
+        while ( next )
         {
             result += formatResult( subiter, depth+1 );
             if ( subiter.has_next() )
             {
                 result += ", ";
             }
-            subiter.next();
-        } while ( subiter.has_next() );
+            next = subiter.next();
+        }
         result += " }";
         return result;
     }
