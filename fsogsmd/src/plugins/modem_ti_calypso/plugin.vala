@@ -114,11 +114,6 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         }
     }
 
-    public override PdpHandler createPdpHandler()
-    {
-        return new MuxPppPdpHandler();
-    }
-
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
     {
     }

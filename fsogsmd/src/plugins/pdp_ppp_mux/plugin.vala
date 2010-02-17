@@ -19,15 +19,62 @@
 
 using GLib;
 
-using FsoGsm;
-
-class Pdp.PppMux : /* FsoGsm.PdpHandler, */ FsoFramework.AbstractObject
+/**
+ * @class Pdp.PppMux
+ *
+ * This PdpHandler uses ppp over a multiplexed line to implement the Pdp handler interface
+ **/
+public class Pdp.PppMux : FsoGsm.AtPdpHandler
 {
     public const string MODULE_NAME = "fsogsm.pdp_ppp_mux";
+
+    private FsoGsm.LibGsm0710muxTransport transport;
+
+    int inputfd;
+    int outputfd;
 
     public override string repr()
     {
         return "<>";
+    }
+
+    protected override string[] buildCommandLine()
+    {
+        var data = FsoGsm.theModem.data();
+        var cmdline = new string[] { data.pppCommand };
+        // MUX is not a tty
+        cmdline += "notty";
+        // modem-specific options
+        foreach ( var option in data.pppOptions )
+        {
+            cmdline += option;
+        }
+        return cmdline;
+    }
+
+    protected async override void setupTransport()
+    {
+        // start forwarding to ppp
+        var transport = FsoGsm.theModem.channel( "data" ).transport as FsoGsm.LibGsm0710muxTransport;
+        transport.startForwardingToPPP( inputfd, outputfd );
+    }
+
+    protected override void shutdownTransport()
+    {
+        var transport = FsoGsm.theModem.channel( "data" ).transport as FsoGsm.LibGsm0710muxTransport;
+
+        if ( transport.isForwardingToPPP() )
+        {
+            // FIXME: check whether transport is still in data mode...,
+            // and if so, try to return gracefully to command mode
+            transport.stopForwardingToPPP();
+        }
+    }
+
+    protected override bool launchPppDaemon( string[] cmdline )
+    {
+        ppp = new FsoFramework.GProcessGuard();
+        return ppp.launchWithPipes( cmdline, out inputfd, out outputfd );
     }
 }
 

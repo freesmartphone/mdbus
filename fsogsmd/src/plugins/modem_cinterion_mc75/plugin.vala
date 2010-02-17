@@ -122,11 +122,6 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         }
     }
 
-    public override PdpHandler createPdpHandler()
-    {
-        return new MuxPppPdpHandler();
-    }
-
     protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
     {
         return new CinterionMc75.UnsolicitedResponseHandler();

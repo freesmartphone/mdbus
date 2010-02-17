@@ -69,7 +69,6 @@ if WANT_MUX
 VALAC_ARGS += --pkg gsm0710mux-1.0 
 libfsogsm_la_VALASOURCES += \
 	muxtransport.vala \
-	muxppp.vala \
 	$(NULL)
 endif
 
