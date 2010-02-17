@@ -378,7 +378,6 @@ namespace FsoFramework { namespace Async {
     public class ReactorChannel
     {
         public delegate void ActionFunc( void* data, ssize_t length );
-
         private int fd;
         private uint watch;
         private GLib.IOChannel channel;
@@ -394,6 +393,11 @@ namespace FsoFramework { namespace Async {
             this.fd = fd;
             this.actionfunc = actionfunc;
             buffer = new char[ bufferlength ];
+        }
+
+        public int fileno()
+        {
+            return fd;
         }
 
         //
