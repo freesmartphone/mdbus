@@ -9,10 +9,9 @@ dist_conf_DATA = \
 	fsodeviced.conf \
 	$(NULL)
 
-# boards compatible with htc_qualcomm_msm
+# boards compatible with htc_qualcomm_dream
 COMPAT = \
-	raphael \
-	diamond \
+	trout \
 	$(NULL)
 
 install-data-local:
