@@ -237,6 +237,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         }
 
         initLowlevel();
+        initPdpHandler();
         initData();
         advanceToState( Modem.Status.CLOSED );
         registerHandlers();
@@ -281,6 +282,44 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
             lowlevel = Object.new( lowlevelclass ) as FsoGsm.LowLevel;
             logger.info( "Ready. Using lowlevel plugin '%s' to handle vendor specifics".printf( lowleveltype ) );
+        }
+    }
+
+    private void initPdpHandler()
+    {
+        // check preferred pdp handler plugin and instanciate
+        var pdphandlertype = config.stringValue( CONFIG_SECTION, "pdp_type", "none" );
+        string typename = "none";
+
+        switch ( pdphandlertype )
+        {
+            case "ppp":
+                typename = "PdpPpp";
+                break;
+            case "mux":
+                typename = "PdpPppMux";
+                break;
+            case "qmi":
+                typename = "PdpQmi";
+                break;
+            default:
+                logger.warning( "Invalid pdp_type '%s'; data connectivity will NOT be available!".printf( pdphandlertype ) );
+                //pdphandler = new FsoGsm.Nullpdphandler();
+                return;
+        }
+
+        if ( pdphandlertype != "none" )
+        {
+            var pdphandlerclass = Type.from_name( typename );
+            if ( pdphandlerclass == Type.INVALID  )
+            {
+                logger.warning( "Can't find plugin for pdp_type = '%s'; data connectivity will NOT be available!".printf( pdphandlertype ) );
+                //pdphandler = new FsoGsm.Nullpdphandler();
+                return;
+            }
+
+            pdphandler = Object.new( pdphandlerclass ) as FsoGsm.PdpHandler;
+            logger.info( "Ready. Using pdp plugin '%s' to handle data connectivity".printf( pdphandlertype ) );
         }
     }
 
@@ -367,7 +406,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         callhandler = createCallHandler();
         smshandler = createSmsHandler();
         watchdog = createWatchDog();
-        pdphandler = createPdpHandler();
     }
 
     private void registerMediators()
@@ -440,14 +478,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected virtual WatchDog createWatchDog()
     {
         return new GenericWatchDog();
-    }
-
-    /**
-     * Override this to return a custom type of Pdp handler to be used for this modem.
-     **/
-    protected virtual PdpHandler createPdpHandler()
-    {
-        return new AtPdpHandler();
     }
 
     /**
