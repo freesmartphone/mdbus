@@ -21,11 +21,13 @@ using GLib;
 
 using FsoGsm;
 
-class Pdp.Qmi : /* FsoGsm.PdpHandler, */ FsoFramework.AbstractObject
+class Pdp.Qmi : FsoGsm.PdpHandler
 {
     public const string MODULE_NAME = "fsogsm.pdp_qmi";
     public const string RMNET_IFACE = "rmnet0";
     public const string QMI_DEVNODE = "qmi0";
+
+    private FsoFramework.Async.ReactorChannel qmi;
 
     public override string repr()
     {
@@ -34,7 +36,36 @@ class Pdp.Qmi : /* FsoGsm.PdpHandler, */ FsoFramework.AbstractObject
 
     construct
     {
-        // FIXME check whether both the interface and the qmi device node are present
+        string node = Path.build_filename( devfs_root, QMI_DEVNODE );
+        int fd = Posix.open( node, Posix.O_RDWR );
+        if ( fd < 0 )
+        {
+            logger.error( @"Can't open $node: $(strerror(errno))" );
+        }
+        else
+        {
+            qmi = new FsoFramework.Async.ReactorChannel( fd, onInputFromQmi );
+        }
+    }
+
+    private void onInputFromQmi( void* data, ssize_t length )
+    {
+        assert( logger.debug( @"QMI says: $(((string)data).escape( "" ))" ) );
+    }
+
+    public async override void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        assert_not_reached();
+    }
+    
+    public async override void deactivate()
+    {
+        assert_not_reached();
+    }
+
+    public async override void statusUpdate( string status, GLib.HashTable<string,Value?> properties )
+    {
+        assert_not_reached();
     }
 }
 
