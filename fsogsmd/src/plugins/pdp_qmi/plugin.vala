@@ -48,19 +48,57 @@ class Pdp.Qmi : FsoGsm.PdpHandler
         }
     }
 
-    private void onInputFromQmi( void* data, ssize_t length )
+    private void onInputFromQmi( char* data, ssize_t length )
     {
         assert( logger.debug( @"QMI says: $(((string)data).escape( "" ))" ) );
+        data[length] = '\0';
+        string message = (string)data;
+
+        var properties = new Gee.HashMap<string,string>();
+
+        foreach ( var line in message.split( "\n" ) )
+        {
+            var components = line.split( "=" );
+            if ( components.length != 2 )
+            {
+                logger.warning( @"Unknown message format in line $line" );
+                return;
+            }
+            else
+            {
+                properties[components[0]] = components[1];
+            }
+        }
+        Idle.add( () => { onUpdateFromQmi( properties ); return false; } );
+    }
+
+    private void onUpdateFromQmi( Gee.HashMap<string,string> properties )
+    {
+        message( @"onUpdateFromQmi with $(properties.size) properties" );
     }
 
     public async override void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        assert_not_reached();
+        var data = theModem.data();
+
+        if ( data.contextParams == null )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Context parameters not set" );
+        }
+
+        if ( data.contextParams.apn == null )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
+        }
+
+        var cmdline = @"up:$(data.contextParams.apn) $(data.contextParams.username) $(data.contextParams.password)";
+
+        Posix.write( qmi.fileno(), cmdline, cmdline.length );
     }
-    
+
     public async override void deactivate()
     {
-        assert_not_reached();
+        Posix.write( qmi.fileno(), "down", 5 );
     }
 
     public async override void statusUpdate( string status, GLib.HashTable<string,Value?> properties )
