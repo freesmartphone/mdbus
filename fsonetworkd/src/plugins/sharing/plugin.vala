@@ -171,19 +171,19 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         }
     }
 
-    public async void set_connection_preferences( string[] types) throws FreeSmartphone.Error, DBus.Error
+    public async void offer_default_route( string technology,
+                                           string iface,
+                                           string ipv4address,
+                                           string ipv4mask,
+                                           string ipv4gateway,
+                                           string dns1,
+                                           string dns2 ) throws FreeSmartphone.Error, DBus.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-
-    public async void start_connection( string type) throws FreeSmartphone.Error, DBus.Error
-    {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-
-    public async void stop_connection() throws FreeSmartphone.Error, DBus.Error
-    {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        logger.info( @"Setting new default as offered by $technology: $iface=$ipv4address/$ipv4mask via $ipv4gateway" );
+        // Quick and dirty, this is really just for testing and demonstration purposes
+        Posix.system( @"ifconfig $iface $ipv4address netmask $ipv4mask up" );
+        Posix.system( @"route add default gw $ipv4gateway $iface" );
+        FsoFramework.FileHandling.write( "nameserver $dns1\nnameserver $dns2\n", ETC_RESOLV_CONF );
     }
 }
 
