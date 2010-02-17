@@ -168,6 +168,7 @@ AC_CONFIG_FILES([
   Makefile
   conf/Makefile
   conf/openmoko_gta/Makefile
+  conf/htc_qualcomm_dream/Makefile
   conf/htc_qualcomm_msm/Makefile
   data/Makefile
   data/org.freesmartphone.ogsmd.service

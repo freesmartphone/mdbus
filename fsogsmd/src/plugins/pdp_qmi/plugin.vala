@@ -24,12 +24,22 @@ using FsoGsm;
 class Pdp.Qmi : /* FsoGsm.PdpHandler, */ FsoFramework.AbstractObject
 {
     public const string MODULE_NAME = "fsogsm.pdp_qmi";
+    public const string RMNET_IFACE = "rmnet0";
+    public const string QMI_DEVNODE = "qmi0";
 
     public override string repr()
     {
         return "<>";
     }
+
+    construct
+    {
+        // FIXME check whether both the interface and the qmi device node are present
+    }
 }
+
+static string sysfs_root;
+static string devfs_root;
 
 /**
  * This function gets called on plugin initialization time.
@@ -40,6 +50,11 @@ class Pdp.Qmi : /* FsoGsm.PdpHandler, */ FsoFramework.AbstractObject
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     FsoFramework.theLogger.debug( "pdp_qmi fso_factory_function" );
+    // grab sysfs paths
+    var config = FsoFramework.theConfig;
+    sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+    devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
+
     return Pdp.Qmi.MODULE_NAME;
 }
 
