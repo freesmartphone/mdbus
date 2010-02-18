@@ -18,6 +18,9 @@ progs_ldadd = \
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
+	--vapidir $(top_srcdir)/vapi \
+	--thread \
+	--pkg thread \
 	--pkg glib-2.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsogsm-2.0

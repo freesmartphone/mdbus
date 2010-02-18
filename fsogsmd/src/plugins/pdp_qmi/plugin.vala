@@ -27,7 +27,9 @@ class Pdp.Qmi : FsoGsm.PdpHandler
     public const string RMNET_IFACE = "rmnet0";
     public const string QMI_DEVNODE = "qmi0";
 
-    private FsoFramework.Async.ReactorChannel qmi;
+    static char[] buffer = new char[512];
+
+    public int fd;
 
     public override string repr()
     {
@@ -37,14 +39,27 @@ class Pdp.Qmi : FsoGsm.PdpHandler
     construct
     {
         string node = Path.build_filename( devfs_root, QMI_DEVNODE );
-        int fd = Posix.open( node, Posix.O_RDWR | Posix.O_NONBLOCK );
+        fd = Posix.open( node, Posix.O_RDWR | Posix.O_NONBLOCK );
         if ( fd < 0 )
         {
             logger.error( @"Can't open $node: $(strerror(errno))" );
         }
-        else
+        //else
         {
-            qmi = new FsoFramework.Async.ReactorChannel( fd, onInputFromQmi );
+            GLib.g_thread_init();
+            FsoFramework.Threading.callDelegateOnNewThread( qmiListenerThread, null );
+        }
+    }
+
+    private void qmiListenerThread( void* data )
+    {
+
+        while ( true )
+        {
+            assert( logger.debug( "qmi listener thread waiting for data from QMI..." ) );
+            var bread = Posix.read( fd, buffer, buffer.length );
+            assert( logger.debug( @"got $bread bytes" ) );
+            Idle.add( () => { onInputFromQmi( buffer, bread ); return false; } );
         }
     }
 
@@ -93,12 +108,12 @@ class Pdp.Qmi : FsoGsm.PdpHandler
 
         var cmdline = @"up:$(data.contextParams.apn) $(data.contextParams.username) $(data.contextParams.password)";
 
-        Posix.write( qmi.fileno(), cmdline, cmdline.length );
+        Posix.write( fd, cmdline, cmdline.length );
     }
 
     public async override void deactivate()
     {
-        Posix.write( qmi.fileno(), "down", 5 );
+        Posix.write( fd, "down", 5 );
     }
 
     public async override void statusUpdate( string status, GLib.HashTable<string,Value?> properties )
