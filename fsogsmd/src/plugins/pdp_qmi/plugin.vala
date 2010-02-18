@@ -37,7 +37,7 @@ class Pdp.Qmi : FsoGsm.PdpHandler
     construct
     {
         string node = Path.build_filename( devfs_root, QMI_DEVNODE );
-        int fd = Posix.open( node, Posix.O_RDWR );
+        int fd = Posix.open( node, Posix.O_RDWR | Posix.O_NONBLOCK );
         if ( fd < 0 )
         {
             logger.error( @"Can't open $node: $(strerror(errno))" );
