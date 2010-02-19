@@ -26,6 +26,23 @@ public abstract class FsoGsm.PdpHandler : FsoFramework.AbstractObject
     public async abstract void deactivate();
 
     public async abstract void statusUpdate( string status, GLib.HashTable<string,Value?> properties );
+
+    public async void connectedWithNewDefaultRoute( string iface, string ipv4addr, string ipv4mask, string ipv4gateway, string dns1, string dns2 )
+    {
+        var conn = DBus.Bus.get( DBus.BusType.SYSTEM );
+        FreeSmartphone.Network network = conn.get_object( FsoFramework.Network.ServiceDBusName,
+                                                          FsoFramework.Network.ServicePathPrefix,
+                                                          FsoFramework.Network.ServiceFacePrefix ) as FreeSmartphone.Network;
+
+        try
+        {
+            yield network.offer_default_route( "cellular", iface, ipv4addr, ipv4mask, ipv4gateway, dns1, dns2 );
+        }
+        catch ( DBus.Error e )
+        {
+            logger.error( @"Can't call offer_default_route on onetworkd: $(e.message)" );
+        }
+    }
 }
 
 /**

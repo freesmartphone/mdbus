@@ -66,7 +66,9 @@ class Pdp.Qmi : FsoGsm.PdpHandler
     private void onInputFromQmi( char* data, ssize_t length )
     {
         assert( logger.debug( @"QMI says: $(((string)data).escape( "" ))" ) );
-        data[length] = '\0';
+        // QMI messages always have the form FOO=BAR\nFOO2=BAR2\n..., we're not
+        // interested in the last \n, so we nullterminate it there.
+        data[length-1] = '\0';
         string message = (string)data;
 
         var properties = new Gee.HashMap<string,string>();
@@ -77,19 +79,30 @@ class Pdp.Qmi : FsoGsm.PdpHandler
             if ( components.length != 2 )
             {
                 logger.warning( @"Unknown message format in line $line" );
-                return;
             }
             else
             {
                 properties[components[0]] = components[1];
             }
         }
-        Idle.add( () => { onUpdateFromQmi( properties ); return false; } );
+        onUpdateFromQmi( properties );
     }
 
     private void onUpdateFromQmi( Gee.HashMap<string,string> properties )
     {
-        message( @"onUpdateFromQmi with $(properties.size) properties" );
+        var state = properties["STATE"] ?? "unknown";
+        message( @"onUpdateFromQmi with $(properties.size) properties [state=$state]" );
+
+        if ( state == "up" )
+        {
+            var addr = properties["ADDR"] ?? "unknown";
+            var mask = properties["MASK"] ?? "unknown";
+            var gw = properties["GATEWAY"] ?? "unknown";
+            var dns1 = properties["DNS1"] ?? "unknown";
+            var dns2 = properties["DNS2"] ?? "unknown";
+
+            this.connectedWithNewDefaultRoute( RMNET_IFACE, addr, mask, gw, dns1, dns2 );
+        }
     }
 
     public async override void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
