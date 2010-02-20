@@ -38,6 +38,12 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
         return "<>";
     }
 
+    public override void configureData()
+    {
+        assert( modem_data != null );
+        modem_data.simHasReadySignal = true;
+    }
+
     protected override void createChannels()
     {
         var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
@@ -51,10 +57,9 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
         return channels[ CHANNEL_NAME ];
     }
 
-    public void responseHandler( FsoGsm.AtCommand command, string[] response )
+    protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
     {
-        debug( "handler called with '%s'", response[0] );
-        assert_not_reached();
+        return new QualcommHtc.UnsolicitedResponseHandler();
     }
 }
 
