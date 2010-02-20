@@ -9,9 +9,8 @@
 * Find out how to make sure that we always read what's available from a transport before attempting to write.
 
 ==fsogsmd==
-===modem_ti_calypso===
 * do not open all channels concurrently; instead, open the first channel and wait until
-  all the modem setup has been carried out. Only after that, open channels 2-4.
+  all the modem setup has been carried out. Only after that, open the remaining channels
 
 ==fsotdld==
 ===alarm===
