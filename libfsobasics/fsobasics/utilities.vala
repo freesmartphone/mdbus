@@ -274,8 +274,8 @@ namespace FsoFramework { namespace Utility {
 
             foreach ( var component in pte.split( "/" ) )
             {
-            //debug( "dealing with component '%s', prefix = '%s'", component, _prefix );
-                if ( component == "bin" )
+                //debug( "dealing with component '%s', prefix = '%s'", component, _prefix );
+                if ( component.has_suffix( "bin" ) )
                     break;
                 _prefix += "%s%c".printf( component, Path.DIR_SEPARATOR );
             }
