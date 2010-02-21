@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -56,7 +56,7 @@ public class FsoFramework.INotifier : Object
         fd = Linux.inotify_init();
         if ( fd == -1 )
         {
-            error( @"Can not init the inotify subsystem: $(strerror(errno)); some features will not work" );
+            FsoFramework.theLogger.error( @"Can not init the inotify subsystem: $(strerror(errno)); some features will not work" );
             return;
         }
         channel = new IOChannel.unix_new( fd );
@@ -79,7 +79,7 @@ public class FsoFramework.INotifier : Object
     {
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
-            error( "HUP on inotify, will no longer get any notifications" );
+            FsoFramework.theLogger.error( "HUP on inotify, will no longer get any notifications" );
             return false;
         }
 
@@ -118,7 +118,7 @@ public class FsoFramework.INotifier : Object
 #endif
         if ( wd == -1 )
         {
-            error( @"inotify_add_watch: $(strerror(errno))" );
+            FsoFramework.theLogger.error( @"inotify_add_watch: $(strerror(errno))" );
             return 0;
         }
         else

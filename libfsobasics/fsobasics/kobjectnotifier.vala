@@ -86,7 +86,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
     {
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
-            error( "HUP on kobject uevent socket, will no longer get any notifications" );
+            FsoFramework.theLogger.error( "HUP on kobject uevent socket, will no longer get any notifications" );
             return false;
         }
 
@@ -145,7 +145,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 table = remove;
                 break;
             default:
-                warning( @"Unsupported kobject message action $action, must be one of { add, change, remove }" );
+                FsoFramework.theLogger.warning( @"Unsupported kobject message action $action, must be one of { add, change, remove }" );
                 break;
         }
 

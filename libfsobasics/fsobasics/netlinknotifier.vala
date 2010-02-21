@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -87,7 +87,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
     {
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
-            error( "HUP on netlink route socket, will no longer get any notifications" );
+            FsoFramework.theLogger.error( "HUP on netlink route socket, will no longer get any notifications" );
             return false;
         }
 
@@ -105,7 +105,9 @@ public class FsoFramework.BaseNetlinkNotifier : Object
     protected int handleNetlinkMessage( Netlink.Message msg )
     {
         Netlink.MessageHeader hdr = msg.header();
+#if DEBUG
         debug( "received netlink message w/ type %d", hdr.nlmsg_type );
+#endif
 
         var res = msg.parse( ( obj ) => {
 
