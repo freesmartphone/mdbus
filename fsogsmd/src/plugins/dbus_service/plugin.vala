@@ -92,12 +92,18 @@ class DBusService.Device :
         return "<>";
     }
 
-    public async void enable()
+    public async bool enable()
     {
         if ( !modem.open() )
+        {
             logger.error( "Can't open modem" );
+            return false;
+        }
         else
+        {
             logger.info( "Modem opened successfully" );
+            return true;
+        }
     }
 
     public async void disable()
@@ -645,10 +651,14 @@ public class DBusService.Resource : FsoFramework.AbstractDBusResource
         base( "GSM", subsystem );
     }
 
-    public override async void enableResource()
+    public override async void enableResource() throws FreeSmartphone.ResourceError
     {
         logger.debug( "Enabling GSM resource..." );
-        yield device.enable();
+        var ok = yield device.enable();
+        if ( !ok )
+        {
+            throw new FreeSmartphone.ResourceError.UNABLE_TO_ENABLE( "Can't open the modem." );
+        }
     }
 
     public override async void disableResource()
