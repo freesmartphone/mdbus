@@ -92,7 +92,7 @@ class DBusService.Device :
         return "<>";
     }
 
-    public void enable()
+    public async void enable()
     {
         if ( !modem.open() )
             logger.error( "Can't open modem" );
@@ -100,18 +100,18 @@ class DBusService.Device :
             logger.info( "Modem opened successfully" );
     }
 
-    public void disable()
+    public async void disable()
     {
         modem.close();
         logger.info( "Modem closed successfully" );
     }
 
-    public void suspend()
+    public async void suspend()
     {
         logger.critical( "Not yet implemented" );
     }
 
-    public void resume()
+    public async void resume()
     {
         logger.critical( "Not yet implemented" );
     }
@@ -648,25 +648,25 @@ public class DBusService.Resource : FsoFramework.AbstractDBusResource
     public override async void enableResource()
     {
         logger.debug( "Enabling GSM resource..." );
-        device.enable();
+        yield device.enable();
     }
 
     public override async void disableResource()
     {
         logger.debug( "Disabling GSM resource..." );
-        device.disable();
+        yield device.disable();
     }
 
     public override async void suspendResource()
     {
         logger.debug( "Suspending GSM resource..." );
-        device.suspend();
+        yield device.suspend();
     }
 
     public override async void resumeResource()
     {
         logger.debug( "Resuming GSM resource..." );
-        device.resume();
+        yield device.resume();
     }
 }
 
