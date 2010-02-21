@@ -46,7 +46,7 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
 
     public override string repr()
     {
-        return "<%s>".printf( name );
+        return @"<$name>";
     }
 
     public bool registerWithUsage()
@@ -72,17 +72,20 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
     {
         if ( e != null )
         {
-            logger.error( "%s. Can't register resource with fsousaged, enabling unconditionally".printf( e.message ) );
+            logger.error( @"$(e.message): Can't register resource with fsousaged, enabling unconditionally..." );
             enableResource();
             return;
         }
         else
         {
-            logger.info( "registered with org.freesmartphone.ousaged" );
+            logger.info( "Ok. Registered with org.freesmartphone.ousaged" );
         }
     }
 
-    public abstract async void enableResource();
+    /**
+     * Override this to enable your resource. Only complete once the resource has been fully initialized.
+     **/
+    public abstract async void enableResource() throws FreeSmartphone.ResourceError;
 
     public abstract async void disableResource();
 
@@ -95,21 +98,25 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
     //
     public async void disable() throws FreeSmartphone.ResourceError, DBus.Error
     {
+        assert( logger.debug( @"Disabling resource $classname..." ) );
         yield disableResource();
     }
 
-    public async void enable() throws DBus.Error
+    public async void enable() throws FreeSmartphone.ResourceError, DBus.Error
     {
+        assert( logger.debug( @"Enabling resource $classname..." ) );
         yield enableResource();
     }
 
     public async void resume() throws FreeSmartphone.ResourceError, DBus.Error
     {
+        assert( logger.debug( @"Resuming resource $classname..." ) );
         yield resumeResource();
     }
 
     public async void suspend() throws FreeSmartphone.ResourceError, DBus.Error
     {
+        assert( logger.debug( @"Suspending resource $classname..." ) );
         yield suspendResource();
     }
 }
