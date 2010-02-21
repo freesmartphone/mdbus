@@ -334,6 +334,12 @@ namespace FsoFramework { namespace Utility {
         }
         return _hardware;
     }
+
+    public string machineConfigurationDir()
+    {
+        //FIXME: Don't hardcode
+        return @"/etc/freesmartphone/conf/$(hardware())";
+    }
 } }
 
 namespace FsoFramework { namespace Async {
