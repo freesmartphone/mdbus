@@ -94,7 +94,8 @@ class DBusService.Device :
 
     public async bool enable()
     {
-        if ( !modem.open() )
+        var ok = yield modem.open();
+        if ( !ok )
         {
             logger.error( "Can't open modem" );
             return false;

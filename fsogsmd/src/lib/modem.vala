@@ -147,7 +147,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     }
 
     // DBus Service API
-    public abstract bool open();
+    public abstract async bool open();
     public abstract void close();
     public abstract void injectResponse( string command, string channel ) throws FreeSmartphone.Error; // DEBUG ONLY
     public abstract async void setFunctionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error;
@@ -503,26 +503,46 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     // PUBLIC API
     //=====================================================================//
 
-    public virtual bool open()
+    public async virtual bool open()
     {
+        assert( logger.debug( "Powering up the device..." ) );
+
+
         if ( !lowlevel.poweron() )
         {
             return false;
         }
 
-        var channels = this.channels.values;
-        //FIXME: If we can't open all channels, we should close all others
-        logger.info( "will open %u channel(s)...".printf( channels.size ) );
-        foreach( var channel in channels )
+        assert( logger.debug( "Will open $(channels.size) channels..." ) );
+
+        if ( ! ( "main" in channels.keys ) )
         {
-            if ( !channel.open() )
+            logger.error( "Can't open main channel; not found in channel list" );
+            return false;
+        }
+
+        var ok = channels["main"].open();
+        if ( !ok )
+        {
+            logger.error( "Can't open main channel; open returned false" );
+            return false;
+        }
+
+        foreach( var key in this.channels.keys )
+        {
+            if ( key != "main" )
             {
-                return false;
+                var open = channels[key].open();
+                if ( !open )
+                {
+                    logger.error( "Can't open $key channel; open returned false" );
+                    lowlevel.poweroff();
+                    return false;
+                }
             }
         }
 
         advanceToState( Modem.Status.INITIALIZING );
-
         return true;
     }
 
