@@ -137,6 +137,7 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
             catch ( FsoFramework.PluginError e )
             {
                 logger.warning( @"Could not load plugin: $(e.message)" );
+                //FIXME: Why do we not remove it here?
             }
         }
         return counter;

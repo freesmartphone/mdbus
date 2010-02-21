@@ -148,6 +148,10 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
 
     public void shutdown()
     {
+        if ( module == null )
+        {
+            return;
+        }
 #if DEBUG
         message( @"$filename shutdown" );
 #endif
