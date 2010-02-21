@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -86,23 +86,29 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
         // try to load it
         module = Module.open( filename, ModuleFlags.BIND_LAZY | ModuleFlags.BIND_LOCAL );
         if ( module == null )
-            throw new FsoFramework.PluginError.UNABLE_TO_LOAD( "could not load %s: %s".printf( filename, Module.error() ) );
+        {
+            throw new FsoFramework.PluginError.UNABLE_TO_LOAD( @"Could not load $filename: $(Module.error())" );
+        }
 
         // try to resolve register method
         void* regfunc;
         var ok = module.symbol( FSO_REGISTER_FUNCTION, out regfunc );
 
         if ( !ok )
-            throw new FsoFramework.PluginError.REGISTER_NOT_FOUND( "could not find symbol: %s".printf( Module.error() ) );
+        {
+            throw new FsoFramework.PluginError.REGISTER_NOT_FOUND( @"Could not find symbol $FSO_REGISTER_FUNCTION: $(Module.error())" );
+        }
 
         FsoFramework.RegisterFunc fso_register_function = (FsoFramework.RegisterFunc) regfunc;
         fso_register_function( this );
 
         // try to resolve factory method
         void* loadfunc;
-        ok = module.symbol( "fso_factory_function", out loadfunc );
+        ok = module.symbol( FSO_FACTORY_FUNCTION, out loadfunc );
         if ( !ok )
-            throw new FsoFramework.PluginError.FACTORY_NOT_FOUND( "could not find symbol: %s".printf( Module.error() ) );
+        {
+            throw new FsoFramework.PluginError.FACTORY_NOT_FOUND( @"Could not find symbol $FSO_FACTORY_FUNCTION: $(Module.error())" );
+        }
 
         FactoryFunc fso_factory_func = (FactoryFunc) loadfunc;
 
@@ -116,7 +122,7 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
         catch ( Error e )
         {
             module = null;
-            throw new FsoFramework.PluginError.UNABLE_TO_INITIALIZE( "factory function error: %s".printf( e.message ) );
+            throw new FsoFramework.PluginError.UNABLE_TO_INITIALIZE( @"Factory function returned error: $(e.message)" );
         }
     }
 
