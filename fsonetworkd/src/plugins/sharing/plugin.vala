@@ -183,7 +183,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         // Quick and dirty, this is really just for testing and demonstration purposes
         Posix.system( @"ifconfig $iface $ipv4address netmask $ipv4mask up" );
         Posix.system( @"route add default gw $ipv4gateway $iface" );
-        FsoFramework.FileHandling.write( "nameserver $dns1\nnameserver $dns2\n", ETC_RESOLV_CONF );
+        FsoFramework.FileHandling.write( @"nameserver $dns1\nnameserver $dns2\n", ETC_RESOLV_CONF );
     }
 }
 
