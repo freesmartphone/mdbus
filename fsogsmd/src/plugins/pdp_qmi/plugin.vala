@@ -65,43 +65,29 @@ class Pdp.Qmi : FsoGsm.PdpHandler
 
     private void onInputFromQmi( char* data, ssize_t length )
     {
-        assert( logger.debug( @"QMI says: $(((string)data).escape( "" ))" ) );
         // QMI messages always have the form FOO=BAR\nFOO2=BAR2\n..., we're not
         // interested in the last \n, so we nullterminate it there.
         data[length-1] = '\0';
         string message = (string)data;
+        assert( logger.debug( @"QMI says: $(message.escape( """""" ))" ) );
 
-        var properties = new Gee.HashMap<string,string>();
-
-        foreach ( var line in message.split( "\n" ) )
-        {
-            var components = line.split( "=" );
-            if ( components.length != 2 )
-            {
-                logger.warning( @"Unknown message format in line $line" );
-            }
-            else
-            {
-                properties[components[0]] = components[1];
-            }
-        }
-        onUpdateFromQmi( properties );
+        onUpdateFromQmi( FsoFramework.StringHandling.splitKeyValuePairs( message ) );
     }
 
-    private void onUpdateFromQmi( Gee.HashMap<string,string> properties )
+    private void onUpdateFromQmi( GLib.HashTable<string,string> properties )
     {
-        var state = properties["STATE"] ?? "unknown";
-        message( @"onUpdateFromQmi with $(properties.size) properties [state=$state]" );
+        var state = properties.lookup( "STATE" ) ?? "unknown";
+        message( @"onUpdateFromQmi with $(properties.size()) properties [state=$state]" );
 
         if ( state == "up" )
         {
-            var addr = properties["ADDR"] ?? "unknown";
-            var mask = properties["MASK"] ?? "unknown";
-            var gw = properties["GATEWAY"] ?? "unknown";
-            var dns1 = properties["DNS1"] ?? "unknown";
-            var dns2 = properties["DNS2"] ?? "unknown";
+            var addr = properties.lookup( "ADDR" ) ?? "unknown";
+            var mask = properties.lookup( "MASK" ) ?? "unknown";
+            var gway = properties.lookup( "GATEWAY" ) ?? "unknown";
+            var dns1 = properties.lookup( "DNS1" ) ?? "unknown";
+            var dns2 = properties.lookup( "DNS2" ) ?? "unknown";
 
-            this.connectedWithNewDefaultRoute( RMNET_IFACE, addr, mask, gw, dns1, dns2 );
+            this.connectedWithNewDefaultRoute( RMNET_IFACE, addr, mask, gway, dns1, dns2 );
         }
     }
 
