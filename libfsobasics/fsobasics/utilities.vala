@@ -28,6 +28,8 @@ internal static string _hardware = null;
 internal static string _prefix = null;
 internal static string _program = null;
 
+internal static GLib.Regex _keyValueRe = null;
+
 namespace FsoFramework { namespace FileHandling {
 
 public bool removeTree( string path )
@@ -238,6 +240,24 @@ public string enumToString( Type enum_type, int value )
     EnumClass ec = (EnumClass) enum_type.class_ref();
     unowned EnumValue ev = ec.get_value( value );
     return ev == null ? "Unknown Enum value for %s: %i".printf( enum_type.name(), value ) : ev.value_name;
+}
+
+public GLib.HashTable<string,string> splitKeyValuePairs( string str )
+{
+    var result = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
+    if ( _keyValueRe == null )
+    {
+        _keyValueRe = new GLib.Regex( "(?P<key>[A-Za-z0-9]+)=(?P<value>[A-Za-z0-9.]+)" );
+    }
+    GLib.MatchInfo mi;
+    var next = _keyValueRe.match( str, GLib.RegexMatchFlags.NEWLINE_CR, out mi );
+    while ( next )
+    {
+        //debug( "got match '%s' = '%s'", mi.fetch_named( "key" ), mi.fetch_named( "value" ) );
+        result.insert( mi.fetch_named( "key" ), mi.fetch_named( "value" ) );
+        next = mi.next();
+    }
+    return result;
 }
 
 } }

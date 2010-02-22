@@ -76,6 +76,26 @@ void test_utilities_stringhandling_enum()
 }
 
 //===========================================================================
+void test_utilities_stringhandling_key_value_split()
+//===========================================================================
+{
+    var result = StringHandling.splitKeyValuePairs( "" );
+    assert( result.size() == 0 );
+
+    result = StringHandling.splitKeyValuePairs( "YoKurt Nix Nix" );
+    assert( result.size() == 0 );
+
+    result = StringHandling.splitKeyValuePairs( "FOO=BAR" );
+    assert( result.size() == 1 );
+    assert( result.lookup( "FOO" ) == "BAR" );
+
+    result = StringHandling.splitKeyValuePairs( "prefix\nFOO=BAR\nBOO=FAZ\npostfix" );
+    assert( result.size() == 2 );
+    assert( result.lookup( "FOO" ) == "BAR" );
+    assert( result.lookup( "BOO" ) == "FAZ" );
+}
+
+//===========================================================================
 void test_utilities_utility_program_name()
 //===========================================================================
 {
@@ -125,6 +145,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/FileHandling/RemoveTree", test_utilities_filehandling_remove_tree );
     Test.add_func( "/Utilities/StringHandling/List", test_utilities_stringhandling_list );
     Test.add_func( "/Utilities/StringHandling/Enum", test_utilities_stringhandling_enum );
+    Test.add_func( "/Utilities/StringHandling/Split", test_utilities_stringhandling_key_value_split );
     Test.add_func( "/Utilities/Utility/programName", test_utilities_utility_program_name );
     Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );
     Test.add_func( "/Utilities/Utility/firstAvailableProgram", test_utilities_utility_first_available_program );

@@ -83,7 +83,7 @@ void test_file_logger_new()
     var line2 = stream.read_line( null, null );
     assert ( "INFO" in line2 && "bar" in line2 );
     var line3 = stream.read_line( null, null );
-    assert ( "WARNING" in line3 && "ham" in line3 );
+    assert ( "WARN" in line3 && "ham" in line3 );
     var line4 = stream.read_line( null, null );
     assert ( "ERROR" in line4 && "eggs" in line4 );
 }
