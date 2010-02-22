@@ -42,6 +42,19 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
     {
         assert( modem_data != null );
         modem_data.simHasReadySignal = true;
+
+        // sequence for initializing the channel urc
+        registerCommandSequence( "main", "init", new CommandSequence( {
+            """+CLIP=1""",
+            """+COLP=0""",
+            """+CCWA=1""",
+            """+CSSN=1,1""",
+            """+CTZU=1""",
+            """+CTZR=1""",
+            """+CREG=2""",
+            """+CGEREP=2,1""",
+            """+CGREG=2"""
+        } ) );
     }
 
     protected override void createChannels()
