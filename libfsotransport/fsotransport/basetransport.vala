@@ -376,8 +376,13 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         assert( fd != -1 );
         assert( data != null );
         ssize_t bytesread = Posix.read( fd, data, len );
-        assert( logger.debug( "read %u bytes".printf( (uint)bytesread ) ) );
-        //TODO: what to do if we got 0 bytes?
+        assert( logger.debug( @"read $bytesread bytes" ) );
+        if ( bytesread == 0 )
+        {
+            logger.error( @"Read 0 bytes => HUP. Closing fd $fd and calling HUPfunc" );
+            Posix.close( fd );
+            Idle.add( () => { return actionCallback( channel, IOCondition.HUP ); } );
+        }
         return (int)bytesread;
     }
 
@@ -394,7 +399,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             assert( data != null );
             if ( fd == -1 )
             {
-                logger.warning( "Writing although transport still closed; buffering." );
+                logger.warning( "Writing although transport still closed; buffering $len bytes." );
             }
             var restart = ( fd != -1 && buffer.len == 0 );
             //TODO: avoid copying the buffer
