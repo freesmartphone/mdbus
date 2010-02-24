@@ -513,7 +513,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             return false;
         }
 
-        assert( logger.debug( "Will open $(channels.size) channels..." ) );
+        assert( logger.debug( @"Will open $(channels.size) channels..." ) );
 
         if ( ! ( "main" in channels.keys ) )
         {
@@ -535,7 +535,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
                 var open = channels[key].open();
                 if ( !open )
                 {
-                    logger.error( "Can't open $key channel; open returned false" );
+                    logger.error( @"Can't open $key channel; open returned false" );
                     lowlevel.poweroff();
                     return false;
                 }

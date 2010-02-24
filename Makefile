@@ -26,3 +26,5 @@ test:
 maintainer-clean:
 	for i in $(SUBDIRS); do $(MAKE) maintainer-clean -C $$i; done
     
+rebuild:
+	for i in $(SUBDIRS); do pushd $$i && ./autogen.sh && make clean && make && make install && popd; done
