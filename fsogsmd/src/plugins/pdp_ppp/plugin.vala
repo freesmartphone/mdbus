@@ -21,7 +21,7 @@ using GLib;
 
 using FsoGsm;
 
-class Pdp.Ppp : /* FsoGsm.PdpHandler, */ FsoFramework.AbstractObject
+class Pdp.Ppp : FsoGsm.AtPdpHandler
 {
     public const string MODULE_NAME = "fsogsm.pdp_ppp";
 
