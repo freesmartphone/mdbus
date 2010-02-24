@@ -462,7 +462,7 @@ public class Controller : FsoFramework.AbstractObject
         return res;
     }
 
-    public async void request_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public async void request_resource( DBus.BusName sender, string name ) throws FreeSmartphone.ResourceError, FreeSmartphone.UsageError, DBus.Error
     {
         var cmd = new RequestResource( getResource( name ) );
         yield cmd.run( sender );

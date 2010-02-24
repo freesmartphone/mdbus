@@ -68,12 +68,12 @@ public class Resource : Object
 
         proxy = dbusconn.get_object( busname, objectpath, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
 
-        FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) created" );
+        assert( FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) created" ) );
     }
 
     ~Resource()
     {
-        FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) destroyed" );
+        assert( FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) destroyed" ) );
     }
 
     private void updateStatus()
@@ -160,7 +160,7 @@ public class Resource : Object
 #endif
     }
 
-    public async void addUser( string user ) throws FreeSmartphone.UsageError
+    public async void addUser( string user ) throws FreeSmartphone.ResourceError, FreeSmartphone.UsageError
     {
         if ( user in users )
             throw new FreeSmartphone.UsageError.USER_EXISTS( @"Resource $name already requested by user $user" );
@@ -168,16 +168,12 @@ public class Resource : Object
         if ( policy == FreeSmartphone.UsageResourcePolicy.DISABLED )
             throw new FreeSmartphone.UsageError.POLICY_DISABLED( @"Resource $name cannot be requested by $user per policy" );
 
-        users.insert( 0, user );
-
-        if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 1 )
+        if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 0 )
         {
             yield enable();
         }
-        else
-        {
-            updateStatus();
-        }
+        users.insert( 0, user );
+        updateStatus();
     }
 
     public async void delUser( string user ) throws FreeSmartphone.UsageError
@@ -248,7 +244,7 @@ public class Resource : Object
             status = ResourceStatus.ENABLED;
             updateStatus();
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             instance.logger.error( @"Resource $name can't be enabled: $(e.message). Trying to disable instead" );
             yield proxy.disable();

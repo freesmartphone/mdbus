@@ -38,7 +38,9 @@ public class ResourceCommand
     {
         assert( r != null );
         this.r = r;
+#if DEBUG
         debug( "Created command %p", this );
+#endif
     }
 
     public void dequeue()
@@ -72,7 +74,9 @@ public class ResourceCommand
 
     ~ResourceCommand()
     {
+#if DEBUG
         debug( "Destroying %p", this );
+#endif
         dequeue();
     }
 }
@@ -94,7 +98,9 @@ public class SystemCommand
 
     public SystemCommand()
     {
+#if DEBUG
         debug( "Created command %p", this );
+#endif
     }
 
     public void dequeue()
@@ -126,7 +132,9 @@ public class SystemCommand
 
     ~SystemCommand()
     {
+#if DEBUG
         debug( "Destroying %p", this );
+#endif
         dequeue();
     }
 }
@@ -141,7 +149,7 @@ public class RequestResource : ResourceCommand
         base( r );
     }
 
-    public async void run( DBus.BusName user ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void run( DBus.BusName user ) throws FreeSmartphone.ResourceError, FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
     {
         yield enqueue();
         yield r.addUser( user );
