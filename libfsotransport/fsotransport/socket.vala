@@ -80,6 +80,8 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
         if ( res == -1 )
         {
             logger.error( "Could not convert address: %s".printf( Posix.strerror( Posix.errno ) ) );
+            Posix.close( fd );
+            fd = -1;
             return false;
         }
 
@@ -92,6 +94,8 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
         if ( res == -1 )
         {
             logger.error( "Could not bind to socket: %s".printf( Posix.strerror( Posix.errno ) ) );
+            Posix.close( fd );
+            fd = -1;
             return false;
         }
 
