@@ -132,6 +132,10 @@ if test x$gstreamer = "xyes"; then
 fi
 AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
 
+# git version
+GITV=`cat ../.git/refs/heads/master || echo "unknown"`
+AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
+
 ##############################################################################
 # output
 AC_CONFIG_FILES([
@@ -179,7 +183,7 @@ echo
 echo
 echo
 echo "------------------------------------------------------------------------"
-echo "$PACKAGE_NAME $PACKAGE_VERSION"
+echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
 echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"

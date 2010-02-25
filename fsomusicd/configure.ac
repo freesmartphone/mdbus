@@ -9,7 +9,6 @@ AM_PROG_CC_C_O
 #AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 
@@ -55,6 +54,9 @@ if (test -z "{DBUS_SERVICE_DIR}"); then
 fi
 AC_SUBST(DBUS_SERVICE_DIR)
 
+# git version
+GITV=`cat ../.git/refs/heads/master || echo "unknown"`
+AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
 
 AC_CONFIG_FILES([
 	Makefile
@@ -64,3 +66,18 @@ AC_CONFIG_FILES([
 	src/Makefile])
 
 AC_OUTPUT
+# info
+echo
+echo
+echo
+echo "------------------------------------------------------------------------"
+echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
+echo "------------------------------------------------------------------------"
+echo
+echo "Configuration Options:"
+echo
+echo "  prefix..................: $prefix"
+echo
+echo "------------------------------------------------------------------------"
+echo
+echo "Now type 'make' to compile and 'make install' to install this package."

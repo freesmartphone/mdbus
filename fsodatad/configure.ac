@@ -84,12 +84,16 @@ AC_SUBST(FSO_LIBS)
 PKG_CHECK_MODULES(FSO_GLIB,
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED)
 
+# git version
+GITV=`cat ../.git/refs/heads/master || echo "unknown"`
+AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
+
 # mobile broadband provider info database
 PKG_CHECK_MODULES(MBPI,
   mobile-broadband-provider-info >= $MBPI_REQUIRED)
 MBPI_DATABASE="`$PKG_CONFIG --variable=database mobile-broadband-provider-info`"
 if (test -z "{MPBI_DATABASE}"); then
-  AC_ERROR([Can't find mobile broadband provider info database file])
+  AC_ERROR([Can not find mobile broadband provider info database file])
 fi
 AC_SUBST(MBPI_DATABASE)
 AC_DEFINE_UNQUOTED([MBPI_DATABASE_PATH], ["${MBPI_DATABASE}"], [Path to xml service provider file])
@@ -118,3 +122,20 @@ AC_CONFIG_FILES([
 ])
 
 AC_OUTPUT
+#
+# Info
+#
+echo
+echo
+echo
+echo "------------------------------------------------------------------------"
+echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
+echo "------------------------------------------------------------------------"
+echo
+echo "Configuration Options:"
+echo
+echo "  prefix..................: $prefix"
+echo
+echo "------------------------------------------------------------------------"
+echo
+echo "Now type 'make' to compile and 'make install' to install this package."
