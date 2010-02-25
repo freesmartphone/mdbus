@@ -8,7 +8,6 @@ AM_CFLAGS = \
 	$(NULL)
 
 VALAC_ARGS = \
-	--thread \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg posix \

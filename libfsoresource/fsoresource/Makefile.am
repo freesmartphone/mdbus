@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg fsobasics-2.0 \
