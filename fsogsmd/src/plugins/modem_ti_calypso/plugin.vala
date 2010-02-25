@@ -55,6 +55,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
     {
         assert( modem_data != null );
         modem_data.simHasReadySignal = true;
+        modem_data.simReadyTimeout = 60; /* seconds */
 
         // sequence for initializing every channel
         registerCommandSequence( "CHANNEL", "init", new CommandSequence( {

@@ -90,6 +90,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public AtNewMessageIndication cnmiSmsDirectNoCb;
 
         public bool simHasReadySignal;
+        public uint simReadyTimeout;
 
         public int speakerVolumeMinimum;
         public int speakerVolumeMaximum;
@@ -112,8 +113,6 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     }
 
     public const uint DEFAULT_RETRY = 3;
-
-    public const uint SIM_READY_TIMEOUT = 5;
 
     //TODO: Think about exposing a global modem state through DBus -- possibly
     //      reusing this as internal status as well -- rather than double bookkeeping
@@ -331,6 +330,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         modem_data.charset = "unknown";
         modem_data.simHasReadySignal = false;
+        modem_data.simReadyTimeout = 30; /* seconds */
 
         modem_data.speakerVolumeMinimum = -1;
         modem_data.speakerVolumeMaximum = -1;
@@ -734,7 +734,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             // started yet, so we miss that signal.
             if ( modem_data.simHasReadySignal )
             {
-                GLib.Timeout.add_seconds( SIM_READY_TIMEOUT, () => {
+                GLib.Timeout.add_seconds( modem_data.simReadyTimeout, () => {
                     advanceToState( Modem.Status.ALIVE_SIM_READY );
                     return false;
                 } );
