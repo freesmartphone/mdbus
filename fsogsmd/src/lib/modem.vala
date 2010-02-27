@@ -147,7 +147,9 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
     // DBus Service API
     public abstract async bool open();
-    public abstract void close();
+    public abstract async void close();
+    public abstract async bool suspend();
+    public abstract async bool resume();
     public abstract void injectResponse( string command, string channel ) throws FreeSmartphone.Error; // DEBUG ONLY
     public abstract async void setFunctionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error;
 
@@ -208,6 +210,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     public PdpHandler pdphandler { get; set; } // the Pdp handler
 
     protected FsoGsm.LowLevel lowlevel;
+
+    protected FsoGsm.Modem.Status modem_status_before_suspend;
 
     construct
     {
@@ -503,7 +507,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     // PUBLIC API
     //=====================================================================//
 
-    public async virtual bool open()
+    public virtual async bool open()
     {
         assert( logger.debug( "Powering up the device..." ) );
 
@@ -546,7 +550,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return true;
     }
 
-    public virtual void close()
+    public virtual async void close()
     {
         advanceToState( Modem.Status.CLOSING );
 
@@ -560,6 +564,39 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         lowlevel.poweroff();
 
         advanceToState( Modem.Status.CLOSED, true ); // force wraparound
+    }
+
+    public virtual async bool suspend()
+    {
+        modem_status_before_suspend = modem_status;
+
+        advanceToState( Modem.Status.SUSPENDING );
+
+        // suspend all channels
+        var channels = this.channels.values;
+        foreach( var channel in channels )
+        {
+            channel.suspend();
+        }
+
+        advanceToState( Modem.Status.SUSPENDED );
+
+        return true;
+    }
+
+    public virtual async bool resume()
+    {
+        advanceToState( Modem.Status.SUSPENDING );
+
+        // suspend all channels
+        var channels = this.channels.values;
+        foreach( var channel in channels )
+        {
+            channel.suspend();
+        }
+
+        advanceToState( modem_status_before_suspend, true ); // force
+        return true;
     }
 
     public virtual void injectResponse( string command, string channel ) throws FreeSmartphone.Error

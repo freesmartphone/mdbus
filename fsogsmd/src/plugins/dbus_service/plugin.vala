@@ -127,18 +127,34 @@ class DBusService.Device :
 
     public async void disable()
     {
-        modem.close();
+        yield modem.close();
         logger.info( "Modem closed successfully" );
     }
 
     public async void suspend()
     {
-        logger.critical( "Not yet implemented" );
+        var ok = yield modem.suspend();
+        if ( ok )
+        {
+            logger.info( "Modem suspended successfully" );
+        }
+        else
+        {
+            logger.warning( "Modem not suspended; prepare yourself for spurious wakeups" );
+        }
     }
 
     public async void resume()
     {
-        logger.critical( "Not yet implemented" );
+        var ok = yield modem.resume();
+        if ( ok )
+        {
+            logger.info( "Modem resumed successfully" );
+        }
+        else
+        {
+            logger.warning( "Modem did not resume correctly" );
+        }
     }
 
     //

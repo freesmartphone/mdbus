@@ -112,5 +112,19 @@ public class FsoGsm.Channel : FsoFramework.BaseCommandQueue
     {
         onReadFromTransport( response );
     }
+
+    public async bool suspend()
+    {
+        var seq = theModem.commandSequence( name, "suspend" );
+        yield seq.performOnChannel( this );
+        return true;
+    }
+
+    public async bool resume()
+    {
+        var seq = theModem.commandSequence( name, "resume" );
+        yield seq.performOnChannel( this );
+        return true;
+    }
 }
 

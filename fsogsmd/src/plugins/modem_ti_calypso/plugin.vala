@@ -64,22 +64,53 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
         // sequence for initializing the channel urc
         registerCommandSequence( "urc", "init", new CommandSequence( {
-            """+CLIP=1""",
-            """+COLP=0""",
             """+CCWA=1""",
+            """+CGEREP=2,1""",
+            """+CGREG=2""",
+            """+CLIP=1""",
+            """+CREG=2""",
+            """+COLP=0""",
             """+CSSN=1,1""",
             """+CTZU=1""",
             """+CTZR=1""",
+
+            """%CPI=3""",
+            """%CPRI=1""",
+            """%CNIV=1""",
+            """%CSCN=1,2,1,2""",
+            """%CSTAT=1""",
+            """%CSQ=1""",
+            """@ST="-26""""
+        } ) );
+
+        // sequence for suspending the channel urc
+        registerCommandSequence( "urc", "suspend", new CommandSequence( {
+            """+CREG=0""",
+            """+CGEREP=0,0""",
+            """+CGREG=0""",
+            """+CTZU=0""",
+            """+CTZR=0""",
+
+            """%CBHZ=0""",
+            """%CPI=0""",
+            """%CPRI=0""",
+            """%CSQ=0""",
+            """%CNIV=0"""
+        } ) );
+
+        // sequence for resuming the channel urc
+        registerCommandSequence( "urc", "resume", new CommandSequence( {
             """+CREG=2""",
             """+CGEREP=2,1""",
             """+CGREG=2""",
+            """+CTZU=1""",
+            """+CTZR=1""",
 
+            /* """%CBHZ=0""", */
             """%CPI=3""",
-            """%CSCN=1,2,1,2""",
-            """%CPRI=1""",
+            """%CPRI=0""",
             """%CNIV=1""",
-            """%CSTAT=1""",
-            """@ST="-26""""
+            """%CSQ=1"""
         } ) );
 
         modem_data.pppOptions = config.stringListValue( CONFIG_SECTION, "ppp_options", {
