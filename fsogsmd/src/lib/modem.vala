@@ -25,6 +25,14 @@ namespace FsoGsm
     public const string CONFIG_SECTION = "fsogsm";
 }
 
+public class FsoGsm.ModemCommand : GLib.Object
+{
+}
+
+public class FsoGsm.ModemResponse : GLib.Object
+{
+}
+
 public class FsoGsm.CommandSequence
 {
     private string[] commands;
@@ -173,9 +181,13 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract string allocateDataPort();
     public abstract void releaseDataPort();
 
-    // Command Queue API
+    // DEPRECATED Command Queue API (AT SPECIFIC)
     public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
     public abstract async string[] processPduCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
+
+    // NEW Command Queue API (Generic)
+    //public abstract async ModemCommand processModemCommandAsync( ModemCommand command );
+
     public abstract FsoGsm.Channel? channel( string category );
 
     // Misc. Accessors
@@ -189,10 +201,17 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
  **/
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
 {
+    //FIXME: Encapsulate as transport spec
     public string modem_type;
     public string modem_transport;
     public string modem_port;
     public int modem_speed;
+
+    //FIXME: Encapsulate as transport spec
+    public string data_type;
+    public string data_transport;
+    public string data_port;
+    public int data_speed;
 
     protected FsoGsm.Modem.Status modem_status;
     protected FsoGsm.Modem.Data modem_data;
@@ -222,21 +241,40 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         // channel map
         channels = new HashMap<string,FsoGsm.Channel>();
 
-        // combined modem access string takes preference over individual config strings
+        // gather modem access parameters
         var modem_config = config.stringValue( CONFIG_SECTION, "modem_access", "" );
-        var params = modem_config.split( ":" );
-        if ( params.length == 3 )
+        if ( modem_config != "" )
         {
-            var values = modem_config.split( ":" );
-            modem_transport = values[0];
-            modem_port = values[1];
-            modem_speed = values[2].to_int();
+            var params = modem_config.split( ":" );
+            if ( params.length == 3 )
+            {
+                var values = modem_config.split( ":" );
+                modem_transport = values[0];
+                modem_port = values[1];
+                modem_speed = values[2].to_int();
+            }
+            else
+            {
+                logger.warning( @"modem_access string invalid; expected 3 parameters, got $(params.length)" );
+            }
         }
-        else
+
+        // gather modem data access parameters
+        var data_config = config.stringValue( CONFIG_SECTION, "data_access", "" );
+        if ( data_config != "" )
         {
-            modem_transport = config.stringValue( CONFIG_SECTION, "modem_transport", "serial" );
-            modem_port = config.stringValue( CONFIG_SECTION, "modem_port", "/dev/null" );
-            modem_speed = config.intValue( CONFIG_SECTION, "modem_speed", 115200 );
+            var params = data_config.split( ":" );
+            if ( params.length == 3 )
+            {
+                var values = data_config.split( ":" );
+                data_transport = values[0];
+                data_port = values[1];
+                data_speed = values[2].to_int();
+            }
+            else
+            {
+                logger.warning( @"data_access string invalid; expected 3 parameters, got $(params.length)" );
+            }
         }
 
         initLowlevel();
@@ -709,6 +747,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         var response = yield channel.enqueueAsyncYielding( command, pdurequest[1], retry );
         return response;
     }
+
+    /*
+    public async ModemResponse processModemCommandAsync( ModemCommand command )
+    {
+        var channel = channelForModemCommand( command );
+        var response = yield channel.enqueueAsyncYielding( command );
+        return response;
+    }
+    */
 
     public void processUnsolicitedResponse( string prefix, string righthandside, string? pdu = null )
     {

@@ -19,10 +19,30 @@
 
 using GLib;
 
-public interface FsoGsm.Channel : FsoFramework.CommandQueue
+public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
 {
-    // FIXME: Does not belong here; rather into AtChannel
-    public abstract void injectResponse( string response );
-    public abstract async bool suspend();
-    public abstract async bool resume();
+    public string name;
+
+    public MsmChannel( string name, FsoFramework.Transport transport )
+    {
+        base( transport );
+        this.name = name;
+        FsoGsm.theModem.registerChannel( name, this );
+    }
+
+    public void injectResponse( string response )
+    {
+        assert_not_reached();
+    }
+
+    public async bool suspend()
+    {
+        return true;
+    }
+
+    public async bool resume()
+    {
+        return true;
+    }
 }
+

@@ -118,13 +118,20 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-//~         var value = Constants.instance().deviceFunctionalityStringToStatus( level );
-//~ 
-//~         if ( value == -1 )
-//~         {
-//~             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
-//~         }
-//~ 
+        var value = Constants.instance().deviceFunctionalityStringToStatus( level );
+
+        if ( value == -1 )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
+        }
+
+        var cmd = new Msmcomm.Command.ChangeOperationMode();
+        cmd.setOperationMode( Msmcomm.OperationMode.RESET );
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
+        var response = yield channel.processMsmCommand( (Msmcomm.Message)cmd );
+        
+
 //~         var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
 //~         var response = yield theModem.processCommandAsync( cmd, cmd.issue( value ) );
 //~         checkResponseExpected( cmd,

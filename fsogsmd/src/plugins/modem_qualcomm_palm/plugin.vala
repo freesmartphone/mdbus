@@ -26,12 +26,12 @@ using FsoGsm;
  *
  * This modem plugin supports the Qualcomm MSM chipset used on Palm Pre (Plus).
  *
- * The modem uses a binary protocol which has been implemented in libmsmcommd.
+ * The modem uses a binary protocol which has been implemented in libmsmcomm.
  **/
 class QualcommPalm.Modem : FsoGsm.AbstractModem
 {
-    private const string AT_CHANNEL_NAME = "misc";
-    private const string BIN_CHANNEL_NAME = "call";
+    private const string AT_CHANNEL_NAME = "data";
+    private const string MSM_CHANNEL_NAME = "main";
 
     public override string repr()
     {
@@ -40,9 +40,14 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+        // create AT channel for data use
+        var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );        
         var parser = new FsoGsm.StateBasedAtParser();
-        var chan = new AtChannel( AT_CHANNEL_NAME, transport, parser );
+        new FsoGsm.AtChannel( AT_CHANNEL_NAME, datatransport, parser );
+
+        // create MAIN channel
+        var maintransport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+        new MsmChannel( MSM_CHANNEL_NAME, maintransport );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
@@ -50,14 +55,11 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         // nothing to do here as qualcomm_palm only has one AT channel
         return channels[ AT_CHANNEL_NAME ];
     }
-
     
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
     {
         registerMsmMediators( mediators );
     }
-    
-
 }
 
 /**
