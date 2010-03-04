@@ -286,12 +286,18 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         registerAtCommands();
         createChannels();
 
-        logger.debug( "FsoGsm.AbstractModem created: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
+        var configuration = @"configured for $modem_transport:$modem_port@$modem_speed";
+        if ( data_config != "" )
+        {
+            configuration += @" / $data_transport:$data_port@$data_speed";
+        }
+
+        assert( logger.debug( @"Created; configured for $configuration" ) );
     }
 
     ~AbstractModem()
     {
-        logger.debug( "FsoGsm.AbstractModem destroyed: %s:%s@%d".printf( modem_transport, modem_port, modem_speed ) );
+        logger.debug( "Destroyed" );
     }
 
     private void initLowlevel()
@@ -394,7 +400,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.keepRegistration = config.boolValue( CONFIG_SECTION, "auto_register", false );
 
         modem_data.pppCommand = config.stringValue( CONFIG_SECTION, "ppp_command", "pppd" );
-        modem_data.pppPort = config.stringValue( CONFIG_SECTION, "ppp_port", "/dev/null" );
+        modem_data.pppPort = data_port ?? config.stringValue( CONFIG_SECTION, "ppp_port", "/dev/null" );
         modem_data.pppOptions = config.stringListValue( CONFIG_SECTION, "ppp_options", {
             "115200",
             "nodetach",
@@ -720,7 +726,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     public virtual string allocateDataPort()
     {
-        return modem_data.pppPort;
+        return data_port;
     }
 
     /**
