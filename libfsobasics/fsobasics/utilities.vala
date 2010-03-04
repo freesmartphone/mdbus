@@ -347,7 +347,7 @@ namespace FsoFramework { namespace Utility {
                 if ( line.has_prefix( "Hardware" ) )
                 {
                     var parts = line.split( ": " );
-                    _hardware = ( parts.length == 2 ) ? parts[1].strip() : "unknown";
+                    _hardware = ( parts.length == 2 ) ? parts[1].strip().replace( " ", "" ) : "unknown";
                     break;
                 }
             }
