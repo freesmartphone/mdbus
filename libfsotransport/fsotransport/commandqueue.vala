@@ -36,6 +36,14 @@ public abstract interface FsoFramework.CommandQueue : GLib.Object
 
     public const uint DEFAULT_RETRY = 3;
     /**
+     * Open
+     **/
+    public abstract bool open();
+    /**
+     * Close
+     **/
+    public abstract void close();
+    /**
      * Register @a UnsolicitedHandler delegate that will be called for incoming URCs
      **/
     public abstract void registerUnsolicitedHandler( UnsolicitedHandler urchandler );
