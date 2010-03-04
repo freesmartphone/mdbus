@@ -18,7 +18,7 @@
  */
 
 using GLib;
-
+using Gee;
 using FsoGsm;
 
 /**
@@ -50,6 +50,14 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         // nothing to do here as qualcomm_palm only has one AT channel
         return channels[ AT_CHANNEL_NAME ];
     }
+
+    
+    protected override void registerCustomMediators( HashMap<Type,Type> mediators )
+    {
+        registerMsmMediators( mediators );
+    }
+    
+
 }
 
 /**
