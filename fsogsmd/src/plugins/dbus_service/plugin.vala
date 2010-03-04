@@ -69,14 +69,14 @@ class DBusService.Device :
                 typename = "CinterionMc75Modem";
                 break;
             default:
-                logger.critical( "Invalid modem_type '%s'; corresponding modem plugin loaded?".printf( modemtype ) );
+                logger.error( @"Invalid modem_type $modemtype; corresponding modem plugin loaded?" );
                 return;
         }
 
         modemclass = Type.from_name( typename );
         if ( modemclass == Type.INVALID  )
         {
-            logger.warning( "Can't find modem for modem_type = '%s'".printf( modemtype ) );
+            logger.error( @"Can't find modem for modem_type $modemtype" );
             return;
         }
 
@@ -87,7 +87,7 @@ class DBusService.Device :
 
         modem.parent = this;
 
-        logger.info( "Ready. Configured for modem '%s'".printf( modemtype ) );
+        logger.info( @"Ready. Configured for modem $modemtype" );
     }
 
     public override string repr()
@@ -198,18 +198,26 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.Debug.*)
     //
-    public async string debug_at_command( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string debug_command( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        var m = modem.createMediator<FsoGsm.DebugAtCommand>();
+        var m = modem.createMediator<FsoGsm.DebugCommand>();
         yield m.run( command, channel );
         return m.response;
     }
-    public async void debug_inject_at_response( string response, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+
+    public async void debug_inject_response( string response, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        var m = modem.createMediator<FsoGsm.DebugInjectAtResponse>();
+        var m = modem.createMediator<FsoGsm.DebugInjectResponse>();
         yield m.run( response, channel );
+    }
+
+    public async void debug_ping() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        var m = modem.createMediator<FsoGsm.DebugPing>();
+        yield m.run();
     }
 
     //

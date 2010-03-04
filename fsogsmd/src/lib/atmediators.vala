@@ -259,7 +259,7 @@ public async void triggerUpdateNetworkStatus()
 /**
  * Debug Mediators
  **/
-public class AtDebugAtCommand : DebugAtCommand
+public class AtDebugCommand : DebugCommand
 {
     public override async void run( string command, string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
@@ -282,7 +282,7 @@ public class AtDebugAtCommand : DebugAtCommand
     }
 }
 
-public class AtDebugInjectAtResponse : DebugInjectAtResponse
+public class AtDebugInjectResponse : DebugInjectResponse
 {
     public override async void run( string command, string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
@@ -292,6 +292,23 @@ public class AtDebugInjectAtResponse : DebugInjectAtResponse
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Channel $category not known" );
         }
         theModem.injectResponse( command, category );
+    }
+}
+
+public class AtDebugPing : DebugPing
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+
+        var channel = theModem.channel( "main" );
+        if ( channel == null )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Main channel not found" );
+        }
+
+        var response = yield channel.enqueueAsyncYielding( cmd, "", 0 );
+        checkResponseOk( cmd, response );
     }
 }
 
@@ -1117,8 +1134,9 @@ public class AtPdpSetCredentials : PdpSetCredentials
  **/
 public void registerGenericAtMediators( HashMap<Type,Type> table )
 {
-    table[ typeof(DebugAtCommand) ]               = typeof( AtDebugAtCommand );
-    table[ typeof(DebugInjectAtResponse) ]        = typeof( AtDebugInjectAtResponse );
+    table[ typeof(DebugCommand) ]                 = typeof( AtDebugCommand );
+    table[ typeof(DebugInjectResponse) ]          = typeof( AtDebugInjectResponse );
+    table[ typeof(DebugPing) ]                    = typeof( AtDebugPing );
 
     table[ typeof(DeviceGetAlarmTime) ]           = typeof( AtDeviceGetAlarmTime );
     table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );

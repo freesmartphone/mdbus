@@ -51,15 +51,20 @@ public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
 //
 // org.freesmartphone.GSM.Debug.*
 //
-public abstract class FsoGsm.DebugAtCommand : FsoGsm.AbstractMediator
+public abstract class FsoGsm.DebugCommand : FsoGsm.AbstractMediator
 {
     public string response { get; set; }
     public abstract async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
-public abstract class FsoGsm.DebugInjectAtResponse : FsoGsm.AbstractMediator
+public abstract class FsoGsm.DebugInjectResponse : FsoGsm.AbstractMediator
 {
     public abstract async void run( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.DebugPing : FsoGsm.AbstractMediator
+{
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 //
