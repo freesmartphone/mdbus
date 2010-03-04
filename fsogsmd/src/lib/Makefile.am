@@ -48,6 +48,7 @@ lib_LTLIBRARIES = \
 
 libfsogsm_la_VALASOURCES = \
 	atcall.vala \
+	atchannel.vala \
 	atcommand.vala \
 	atcommands.vala \
 	atmediators.vala \

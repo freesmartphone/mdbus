@@ -118,7 +118,7 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         {
             var transport = new FsoGsm.LibGsm0710muxTransport( i+1 );
             var parser = new FsoGsm.StateBasedAtParser();
-            new Channel( CHANNEL_NAMES[i], transport, parser );
+            new AtChannel( CHANNEL_NAMES[i], transport, parser );
         }
     }
 
