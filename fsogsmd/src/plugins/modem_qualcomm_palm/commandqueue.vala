@@ -21,7 +21,7 @@ public class MsmCommandBundle
 {
     public Msmcomm.Message command;
     public uint retry;
-    public Msmcomm.Message response;
+    public unowned Msmcomm.Message response;
     public SourceFunc callback;
 }
 
@@ -91,9 +91,10 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
         assert( bwritten == len );
     }
 
-    public void onMsmcommGotEvent( int event, Msmcomm.Message? message )
+    public void onMsmcommGotEvent( int event, Msmcomm.Message message )
     {
         var et = Msmcomm.eventTypeToString( event );
+        var size = message.size;
         var m = "ref %02x".printf( message.getRefId() );
         debug( @"[MESSAGE] $et $m " );
         var details = "";
@@ -101,20 +102,21 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
         switch ( event )
         {
             case Msmcomm.ResponseType.GET_IMEI:
-                unowned Msmcomm.Response.GetImei msg = (Msmcomm.Response.GetImei) message;
+                debug("yo");
+                unowned Msmcomm.Reply.GetImei msg = (Msmcomm.Reply.GetImei) message;
                 details = @"IMEI = $(msg.getImei())";
                 break;
             case Msmcomm.ResponseType.GET_FIRMWARE_INFO:
-                // We want something like: var msg = message.safeCast<Msmcomm.Response.GetImei>( message );
-                unowned Msmcomm.Response.GetFirmwareInfo msg = (Msmcomm.Response.GetFirmwareInfo) message;
+                // We want something like: var msg = message.safeCast<Msmcomm.Reply.GetImei>( message );
+                unowned Msmcomm.Reply.GetFirmwareInfo msg = (Msmcomm.Reply.GetFirmwareInfo) message;
                 details = @"FIRMWARE = $(msg.getInfo())";
                 break;
             case Msmcomm.ResponseType.CM_CALL:
-                unowned Msmcomm.Response.Call msg = (Msmcomm.Response.Call) message;
+                unowned Msmcomm.Reply.Call msg = (Msmcomm.Reply.Call) message;
                 details = @"refId = $(msg.getRefId()) cmd = $(msg.getCmd()) err = $(msg.getErrorCode())";
                 break;
             case Msmcomm.ResponseType.CHARGER_STATUS:
-                unowned Msmcomm.Response.ChargerStatus msg = (Msmcomm.Response.ChargerStatus) message;
+                unowned Msmcomm.Reply.ChargerStatus msg = (Msmcomm.Reply.ChargerStatus) message;
                 string mode = "<unknown>", voltage = "<unknown>";
             
                 if (msg.getMode() == Msmcomm.ChargingMode.USB)
@@ -140,7 +142,19 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
                 break;
         }
 
-        debug( @"$details\n" );
+        debug( @"$details" );
+
+        if ( et.has_prefix( "RESPONSE" ) )
+        {
+            assert( current != null );
+            onSolicitedResponse( current, message );
+            current = null;
+            Idle.add( checkRestartingQ );
+        }
+        else
+        {
+            debug( @"FIXME: CREATE URC HANDLER FOR MSM COMMAND $et" );
+        }
     }
 
     //
@@ -164,6 +178,17 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
     {
         current = q.poll_head();
         // send command via msm transport
+    }
+
+    protected void onSolicitedResponse( MsmCommandBundle bundle, Msmcomm.Message response )
+    {
+        //transport.logger.info( "SRC: \"%s\" -> %s".printf( bundle.request, FsoFramework.StringHandling.stringListToString( response ) ) );
+
+        if ( bundle.callback != null )
+        {
+            bundle.response = response;
+            bundle.callback();
+        }
     }
 
     //
@@ -191,9 +216,16 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
         return {};
     }
 
-    public async Msmcomm.Message processMsmCommand( Msmcomm.Message* command )
+    public async unowned Msmcomm.Message processMsmCommand( Msmcomm.Message* command )
     {
-        assert_not_reached();
+        MsmCommandBundle bundle = new MsmCommandBundle() {
+            command=(owned)command,
+            callback=processMsmCommand.callback,
+            retry=3 };
+        q.offer_tail( bundle );
+        Idle.add( checkRestartingQ );
+        yield;
+        return bundle.response;
     }
 
     public bool open()

@@ -21,6 +21,19 @@ using Gee;
 
 namespace FsoGsm {
 
+/**
+ * Debug mediators
+ **/
+
+public class MsmDebugPing : DebugPing
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = new Msmcomm.Command.TestAlive();
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        yield channel.processMsmCommand( cmd );
+    }
+}
 
 public class MsmDeviceGetFunctionality : DeviceGetFunctionality
 {
@@ -129,7 +142,7 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
         cmd.setOperationMode( Msmcomm.OperationMode.RESET );
         var channel = theModem.channel( "main" ) as MsmChannel;
 
-        var response = yield channel.processMsmCommand( (Msmcomm.Message)cmd );
+        unowned Msmcomm.Message response = yield channel.processMsmCommand( cmd );
         
 
 //~         var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
@@ -233,6 +246,12 @@ public class MsmNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var cmd = new Msmcomm.Command.ChangeOperationMode();
+        cmd.setOperationMode( Msmcomm.OperationMode.ONLINE );
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
+        unowned Msmcomm.Message response = yield channel.processMsmCommand( (owned) cmd );
+
 //~         var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
 //~         var response = yield theModem.processCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
 //~         checkResponseOk( cmd, response );
@@ -313,6 +332,8 @@ public class MsmCallReleaseAll : CallReleaseAll
  **/
 public void registerMsmMediators( HashMap<Type,Type> table )
 {
+    table[ typeof(DebugPing) ]                    = typeof( MsmDebugPing );
+    
     table[ typeof(DeviceGetInformation) ]         = typeof( MsmDeviceGetInformation );
     table[ typeof(DeviceGetFunctionality) ]       = typeof( MsmDeviceGetFunctionality );
     table[ typeof(DeviceGetPowerStatus) ]         = typeof( MsmDeviceGetPowerStatus );
