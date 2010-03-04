@@ -40,11 +40,12 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
+#if 0
         // create AT channel for data use
         var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );        
         var parser = new FsoGsm.StateBasedAtParser();
         new FsoGsm.AtChannel( AT_CHANNEL_NAME, datatransport, parser );
-
+#endif
         // create MAIN channel
         var maintransport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
         new MsmChannel( MSM_CHANNEL_NAME, maintransport );

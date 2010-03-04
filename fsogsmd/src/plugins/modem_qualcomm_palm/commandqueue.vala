@@ -34,13 +34,11 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
     protected MsmCommandBundle current;
     protected uint timeout;
 
-    protected char* buffer;
+    protected Msmcomm.Context context;
 
     protected void _writeRequestToTransport( string request )
     {
         assert( current != null );
-
-        // ... write
 
         /*
         if ( seconds > 0 )
@@ -57,7 +55,7 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
             Source.remove( timeout );
         }
 
-        // tell msmcomm we have something to read
+        context.readFromModem();
 
         /*
         var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
@@ -80,6 +78,69 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
     protected bool _haveCommand()
     {
         return ( current != null );
+    }
+
+    public void onMsmcommShouldRead( void* data, int len )
+    {
+        var bread = transport.read( data, len );
+    }
+
+    public void onMsmcommShouldWrite( void* data, int len )
+    {
+        var bwritten = transport.write( data, len );
+        assert( bwritten == len );
+    }
+
+    public void onMsmcommGotEvent( int event, Msmcomm.Message? message )
+    {
+        var et = Msmcomm.eventTypeToString( event );
+        var m = "ref %02x".printf( message.getRefId() );
+        debug( @"[MESSAGE] $et $m " );
+        var details = "";
+
+        switch ( event )
+        {
+            case Msmcomm.ResponseType.GET_IMEI:
+                unowned Msmcomm.Response.GetImei msg = (Msmcomm.Response.GetImei) message;
+                details = @"IMEI = $(msg.getImei())";
+                break;
+            case Msmcomm.ResponseType.GET_FIRMWARE_INFO:
+                // We want something like: var msg = message.safeCast<Msmcomm.Response.GetImei>( message );
+                unowned Msmcomm.Response.GetFirmwareInfo msg = (Msmcomm.Response.GetFirmwareInfo) message;
+                details = @"FIRMWARE = $(msg.getInfo())";
+                break;
+            case Msmcomm.ResponseType.CM_CALL:
+                unowned Msmcomm.Response.Call msg = (Msmcomm.Response.Call) message;
+                details = @"refId = $(msg.getRefId()) cmd = $(msg.getCmd()) err = $(msg.getErrorCode())";
+                break;
+            case Msmcomm.ResponseType.CHARGER_STATUS:
+                unowned Msmcomm.Response.ChargerStatus msg = (Msmcomm.Response.ChargerStatus) message;
+                string mode = "<unknown>", voltage = "<unknown>";
+            
+                if (msg.getMode() == Msmcomm.ChargingMode.USB)
+                    mode = "USB";
+                else if (msg.getMode() == Msmcomm.ChargingMode.INDUCTIVE)
+                    mode = "INDUCTIVE";
+
+                switch (msg.getVoltage()) {
+                case Msmcomm.UsbVoltageMode.MODE_250mA:
+                    voltage = "250mA";
+                    break;
+                case Msmcomm.UsbVoltageMode.MODE_500mA:
+                    voltage = "500mA";
+                    break;
+                case Msmcomm.UsbVoltageMode.MODE_1A:
+                    voltage = "1A";
+                    break;
+                }
+
+                details = @"mode = $(mode) voltage = $(voltage)";
+                break;
+            default:
+                break;
+        }
+
+        debug( @"$details\n" );
     }
 
     //
@@ -111,6 +172,7 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
 
     public MsmCommandQueue( FsoFramework.Transport transport )
     {
+        context = new Msmcomm.Context();
         q = new Gee.LinkedList<MsmCommandBundle>();
         this.transport = transport;
         transport.setDelegates( _onReadFromTransport, _onHupFromTransport );
@@ -139,10 +201,21 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
         // open transport
         assert( !transport.isOpen() );
         if ( !transport.open() )
+        {
             return false;
+        }
         else
+        {
+            context.registerEventHandler( onMsmcommGotEvent );
+            context.registerReadHandler( onMsmcommShouldRead );
+            context.registerWriteHandler( onMsmcommShouldWrite );
+
+            var cmd = new Msmcomm.Command.ChangeOperationMode();
+            cmd.setOperationMode( Msmcomm.OperationMode.RESET );
+            context.sendMessage( cmd );
+
             return true;
-        //TODO: more initialization necessary?
+        }
     }
 
     public void freeze( bool drain = false )
