@@ -45,8 +45,8 @@ endif
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_qualcomm_palm.la
-modem_qualcomm_palm_la_SOURCES = plugin.c
-modem_qualcomm_palm_la_VALASOURCES = plugin.vala
+modem_qualcomm_palm_la_SOURCES = mediators.c plugin.c
+modem_qualcomm_palm_la_VALASOURCES = mediators.vala plugin.vala
 $(modem_qualcomm_palm_la_SOURCES): $(modem_qualcomm_palm_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
