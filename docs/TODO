@@ -7,10 +7,12 @@
 ==libfsotransport==
 * More unit tests, add a MockTransport
 * Find out how to make sure that we always read what's available from a transport before attempting to write.
+* Rewrite command queue abstraction for more flexibility; there's too much ATisms in there; merge with MsmCommandQueue
 
 ==fsogsmd==
 * do not open all channels concurrently; instead, open the first channel and wait until
   all the modem setup has been carried out. Only after that, open the remaining channels
+
 
 ==fsotdld==
 ===alarm===
