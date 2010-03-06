@@ -25,41 +25,6 @@ namespace FsoGsm
     public const string CONFIG_SECTION = "fsogsm";
 }
 
-public class FsoGsm.ModemCommand : GLib.Object
-{
-}
-
-public class FsoGsm.ModemResponse : GLib.Object
-{
-}
-
-public class FsoGsm.CommandSequence
-{
-    private string[] commands;
-
-    public CommandSequence( string[] commands )
-    {
-        this.commands = commands;
-    }
-
-    public void append( string[] commands )
-    {
-        foreach ( var cmd in commands )
-        {
-            this.commands += cmd;
-        }
-    }
-
-    public async void performOnChannel( Channel channel )
-    {
-        foreach( var element in commands )
-        {
-            var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
-            var response = yield channel.enqueueAsyncYielding( cmd, element );
-        }
-    }
-}
-
 public class FsoGsm.PhonebookParams
 {
     public int min;
@@ -107,7 +72,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public bool simBuffersSms;
         public HashMap<string,PhonebookParams> simPhonebooks;
         public string charset;
-        public HashMap<string,CommandSequence> cmdSequences;
+        public HashMap<string,AtCommandSequence> cmdSequences;
 
         public string functionality;
         public string simPin;
@@ -120,7 +85,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public ContextParams contextParams;
     }
 
-    public const uint DEFAULT_RETRY = 3;
+    public const int DEFAULT_RETRIES = 3;
 
     //TODO: Think about exposing a global modem state through DBus -- possibly
     //      reusing this as internal status as well -- rather than double bookkeeping
@@ -164,7 +129,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
     public abstract void advanceToState( Modem.Status status, bool force = false );
-    public abstract CommandSequence commandSequence( string channel, string purpose );
+    public abstract AtCommandSequence atCommandSequence( string channel, string purpose );
     public signal void signalStatusChanged( Modem.Status status );
 
     // Mediator API
@@ -181,19 +146,16 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract string allocateDataPort();
     public abstract void releaseDataPort();
 
-    // DEPRECATED Command Queue API (AT SPECIFIC)
-    public abstract async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
-    public abstract async string[] processPduCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY );
-
-    // NEW Command Queue API (Generic)
-    //public abstract async ModemCommand processModemCommandAsync( ModemCommand command );
+    // Command Queue API
+    public abstract async string[] processAtCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES );
+    public abstract async string[] processAtPduCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES );
 
     public abstract FsoGsm.Channel? channel( string category );
 
     // Misc. Accessors
     public abstract Modem.Status status();
     public abstract FsoGsm.Modem.Data data();
-    public abstract void registerCommandSequence( string channel, string purpose, CommandSequence sequence );
+    public abstract void registerAtCommandSequence( string channel, string purpose, AtCommandSequence sequence );
 }
 
 /**
@@ -394,7 +356,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         modem_data.simPhonebooks = new HashMap<string,PhonebookParams>();
 
-        modem_data.cmdSequences = new HashMap<string,CommandSequence>();
+        modem_data.cmdSequences = new HashMap<string,AtCommandSequence>();
 
         modem_data.simPin = config.stringValue( CONFIG_SECTION, "auto_unlock", "" );
         modem_data.keepRegistration = config.boolValue( CONFIG_SECTION, "auto_register", false );
@@ -427,9 +389,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         // add some basic init/exit/suspend/resume sequences
         var seq = modem_data.cmdSequences;
 
-        seq["null"] = new CommandSequence( {} );
+        seq["null"] = new AtCommandSequence( {} );
 
-        var initsequence = new CommandSequence( {
+        var initsequence = new AtCommandSequence( {
             "E0Q0V1",       /* echo off, Q0, verbose on */
             "+CMEE=1",      /* report mobile equipment errors = numerical format */
             "+CRC=1",       /* extended cellular result codes = enable */
@@ -443,7 +405,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         } );
         initsequence.append( config.stringListValue( CONFIG_SECTION, "modem_init", { } ) );
 
-        registerCommandSequence( "MODEM", "init", initsequence );
+        registerAtCommandSequence( "MODEM", "init", initsequence );
 
         configureData();
     }
@@ -470,7 +432,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         registerCustomAtCommands( commands );
     }
 
-    private void registerCommandSequence( string channel, string purpose, CommandSequence sequence )
+    private void registerAtCommandSequence( string channel, string purpose, AtCommandSequence sequence )
     {
         assert( modem_data != null && modem_data.cmdSequences != null );
         modem_data.cmdSequences[ @"$channel-$purpose" ] = sequence;
@@ -736,32 +698,27 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
     }
 
-    public async string[] processCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY )
+    public async string[] processAtCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES )
     {
-        var channel = channelForCommand( command, request );
-        var response = yield channel.enqueueAsyncYielding( command, request, retry );
+        AtChannel channel = channelForCommand( command, request ) as AtChannel;
+        // FIXME: assert channel is really an At channel
+        var response = yield channel.enqueueAsync( command, request, retries );
         return response;
     }
 
-    public async string[] processPduCommandAsync( AtCommand command, string request, uint retry = DEFAULT_RETRY )
+    public async string[] processAtPduCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES )
     {
-        var channel = channelForCommand( command, request );
+        AtChannel channel = channelForCommand( command, request ) as AtChannel;
+        // FIXME: assert channel is really an At channel
         var pdurequest = request.split( "\n" );
+        // FIXME: don't assert
         assert( pdurequest.length == 2 );
-        var continuation = yield channel.enqueueAsyncYielding( command, pdurequest[0], retry );
+        var continuation = yield channel.enqueueAsync( command, pdurequest[0], retries );
+        // FIXME: don't assert
         assert( continuation.length == 1 && continuation[0] == "> " );
-        var response = yield channel.enqueueAsyncYielding( command, pdurequest[1], retry );
+        var response = yield channel.enqueueAsync( command, pdurequest[1], retries );
         return response;
     }
-
-    /*
-    public async ModemResponse processModemCommandAsync( ModemCommand command )
-    {
-        var channel = channelForModemCommand( command );
-        var response = yield channel.enqueueAsyncYielding( command );
-        return response;
-    }
-    */
 
     public void processUnsolicitedResponse( string prefix, string righthandside, string? pdu = null )
     {
@@ -839,7 +796,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         logger.info( "Modem Status changed to %s".printf( FsoFramework.StringHandling.enumToString( typeof(Modem.Status), modem_status ) ) );
     }
 
-    public CommandSequence commandSequence( string channel, string purpose )
+    public AtCommandSequence atCommandSequence( string channel, string purpose )
     {
         var seq = modem_data.cmdSequences[ @"$channel-$purpose" ];
         return ( seq != null ) ? seq : modem_data.cmdSequences["null"];

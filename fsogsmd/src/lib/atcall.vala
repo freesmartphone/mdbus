@@ -236,7 +236,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
                 detail.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
 
                 var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
-                var result = yield theModem.processCommandAsync( ceer, ceer.execute() );
+                var result = yield theModem.processAtCommandAsync( ceer, ceer.execute() );
                 if ( ceer.validate( result ) == Constants.AtResponse.VALID )
                 {
                     //FIXME: Use after https://bugzilla.gnome.org/show_bug.cgi?id=599568 has been FIXED.
@@ -267,14 +267,14 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         if ( numberOfBusyCalls() == 0 ) // simple case
         {
             var cmd = theModem.createAtCommand<V250D>( "A" );
-            var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+            var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
             checkResponseOk( cmd, response );
         }
         else
         {
             // call is present and incoming or held
             var cmd2 = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-            var response2 = yield theModem.processCommandAsync( cmd2, cmd2.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
+            var response2 = yield theModem.processAtCommandAsync( cmd2, cmd2.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
             checkResponseOk( cmd2, response2 );
         }
     }
@@ -288,7 +288,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         }
 
         var cmd = theModem.createAtCommand<V250D>( "D" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
         checkResponseOk( cmd, response );
 
         startTimeoutIfNecessary();
@@ -307,7 +307,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating" );
         }
         var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
         checkResponseOk( cmd, response );
     }
 
@@ -322,14 +322,14 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to release found" );
         }
         var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id ) );
         checkResponseOk( cmd, response );
     }
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var cmd = theModem.createAtCommand<V250H>( "H" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
         // no checkResponseOk, this call will always succeed
     }
 }

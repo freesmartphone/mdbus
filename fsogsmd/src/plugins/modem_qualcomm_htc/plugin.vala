@@ -44,7 +44,7 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
         modem_data.simHasReadySignal = true;
 
         // sequence for initializing the channel urc
-        registerCommandSequence( "main", "init", new CommandSequence( {
+        registerAtCommandSequence( "main", "init", new AtCommandSequence( {
             """+CLIP=1""",
             """+COLP=0""",
             """+CCWA=1""",

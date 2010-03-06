@@ -51,6 +51,7 @@ libfsogsm_la_VALASOURCES = \
 	atchannel.vala \
 	atcommand.vala \
 	atcommands.vala \
+	atcommandqueue.vala \
 	atmediators.vala \
 	atparser.vala \
 	atunsolicited.vala \

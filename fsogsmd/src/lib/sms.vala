@@ -381,7 +381,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
     {
         // gather IMSI
         var cimi = theModem.createAtCommand<PlusCIMI>( "+CIMI" );
-        var response = yield theModem.processCommandAsync( cimi, cimi.execute() );
+        var response = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
         if ( cimi.validate( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( "Can't synchronize SMS storage with SIM" );
@@ -393,7 +393,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
 
         // read all messages
         var cmgl = theModem.createAtCommand<PlusCMGL>( "+CMGL" );
-        var cmglresponse = yield theModem.processCommandAsync( cmgl, cmgl.issue( PlusCMGL.Mode.ALL ) );
+        var cmglresponse = yield theModem.processAtCommandAsync( cmgl, cmgl.issue( PlusCMGL.Mode.ALL ) );
         if ( cmgl.validateMulti( cmglresponse ) != Constants.AtResponse.VALID )
         {
             logger.warning( "Can't synchronize SMS storage with SIM" );
@@ -410,7 +410,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
     {
         // read SMS
         var cmd = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( index ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( index ) );
         if ( cmd.validateUrcPdu( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( @"Can't read new SMS from SIM storage at index $index." );

@@ -19,7 +19,7 @@
 
 using GLib;
 
-public class FsoGsm.AtChannel : FsoFramework.BaseCommandQueue, FsoGsm.Channel
+public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 {
     private static int numChannelsInitialized;
 
@@ -57,14 +57,14 @@ public class FsoGsm.AtChannel : FsoFramework.BaseCommandQueue, FsoGsm.Channel
     {
         if ( this.isMainChannel )
         {
-            var seq1 = theModem.commandSequence( "MODEM", "init" );
+            var seq1 = theModem.atCommandSequence( "MODEM", "init" );
             yield seq1.performOnChannel( this );
         }
 
-        var seq2 = theModem.commandSequence( "CHANNEL", "init" );
+        var seq2 = theModem.atCommandSequence( "CHANNEL", "init" );
         yield seq2.performOnChannel( this );
 
-        var seq3 = theModem.commandSequence( name, "init" );
+        var seq3 = theModem.atCommandSequence( name, "init" );
         yield seq3.performOnChannel( this );
 
         var charset = yield configureCharset( { "UTF8", "UCS2", "IRA" } );
@@ -88,7 +88,7 @@ public class FsoGsm.AtChannel : FsoFramework.BaseCommandQueue, FsoGsm.Channel
 
     private async void simIsReady()
     {
-        var seq = theModem.commandSequence( name, "unlocked" );
+        var seq = theModem.atCommandSequence( name, "unlocked" );
         yield seq.performOnChannel( this );
     }
 
@@ -99,7 +99,7 @@ public class FsoGsm.AtChannel : FsoFramework.BaseCommandQueue, FsoGsm.Channel
         for ( int i = 0; i < charsets.length; ++i )
         {
             var cmd = theModem.createAtCommand<PlusCSCS>( "+CSCS" );
-            var response = yield enqueueAsyncYielding( cmd, cmd.issue( charsets[i] ) );
+            var response = yield enqueueAsync( cmd, cmd.issue( charsets[i] ) );
             if ( cmd.validateOk( response ) == Constants.AtResponse.OK )
             {
                 return charsets[i];
@@ -110,19 +110,20 @@ public class FsoGsm.AtChannel : FsoFramework.BaseCommandQueue, FsoGsm.Channel
 
     public void injectResponse( string response )
     {
-        onReadFromTransport( response );
+        assert_not_reached();
+        //onReadFromTransport( response );
     }
 
     public async bool suspend()
     {
-        var seq = theModem.commandSequence( name, "suspend" );
+        var seq = theModem.atCommandSequence( name, "suspend" );
         yield seq.performOnChannel( this );
         return true;
     }
 
     public async bool resume()
     {
-        var seq = theModem.commandSequence( name, "resume" );
+        var seq = theModem.atCommandSequence( name, "resume" );
         yield seq.performOnChannel( this );
         return true;
     }

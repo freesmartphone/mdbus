@@ -153,7 +153,7 @@ public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, Fr
     if ( data.speakerVolumeMinimum == -1 )
     {
         var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
-        var response = yield theModem.processCommandAsync( clvl, clvl.test() );
+        var response = yield theModem.processAtCommandAsync( clvl, clvl.test() );
         if ( clvl.validateTest( response ) == Constants.AtResponse.VALID )
         {
             data.speakerVolumeMinimum = clvl.min;
@@ -173,7 +173,7 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
     var data = theModem.data();
 
     var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-    var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+    var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
     var rcode = cmd.validate( response );
     if ( rcode == Constants.AtResponse.VALID )
     {
@@ -218,14 +218,14 @@ public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeS
     if ( data.simPhonebooks.size == 0 )
     {
         var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.test() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
         checkTestResponseValid( cmd, response );
 
         foreach ( var pbname in cmd.phonebooks )
         {
             var cpbr = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
             var pbcode = Constants.instance().simPhonebookStringToName( pbname );
-            var answer = yield theModem.processCommandAsync( cpbr, cpbr.test( pbcode ) );
+            var answer = yield theModem.processAtCommandAsync( cpbr, cpbr.test( pbcode ) );
             if ( cpbr.validateTest( answer ) == Constants.AtResponse.VALID )
             {
                 data.simPhonebooks[pbname] = new PhonebookParams( cpbr.min, cpbr.max );
@@ -265,13 +265,14 @@ public class AtDebugCommand : DebugCommand
     {
         var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
 
-        var channel = theModem.channel( category );
+        AtChannel channel = theModem.channel( category ) as AtChannel;
+        //FIXME: assert channel is really an At channel
         if ( channel == null )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Channel $category not known" );
         }
 
-        var response = yield channel.enqueueAsyncYielding( cmd, command, 0 );
+        var response = yield channel.enqueueAsync( cmd, command, 0 );
         var result = "";
         for ( int i = 0; i < response.length-1; ++i )
         {
@@ -301,13 +302,14 @@ public class AtDebugPing : DebugPing
     {
         var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
 
-        var channel = theModem.channel( "main" );
+        AtChannel channel = theModem.channel( "main" ) as AtChannel;
+        //FIXME: assert channel is really an At channel
         if ( channel == null )
         {
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Main channel not found" );
         }
 
-        var response = yield channel.enqueueAsyncYielding( cmd, "", 0 );
+        var response = yield channel.enqueueAsync( cmd, "", 0 );
         checkResponseOk( cmd, response );
     }
 }
@@ -320,7 +322,7 @@ public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var response = yield theModem.processCommandAsync( cfun, cfun.query() );
+        var response = yield theModem.processAtCommandAsync( cfun, cfun.query() );
         checkResponseValid( cfun, response );
         antenna_power = cfun.value == 1;
     }
@@ -332,7 +334,7 @@ public class AtDeviceGetAlarmTime : DeviceGetAlarmTime
     {
         var data = theModem.data();
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
         // hence we need to catch this error and transform it into something valid
         try
@@ -362,7 +364,7 @@ public class AtDeviceGetCurrentTime : DeviceGetCurrentTime
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
         // hence we need to catch this error and transform it into something valid
         try
@@ -387,7 +389,7 @@ public class AtDeviceGetFunctionality : DeviceGetFunctionality
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var response = yield theModem.processCommandAsync( cfun, cfun.query() );
+        var response = yield theModem.processAtCommandAsync( cfun, cfun.query() );
         checkResponseValid( cfun, response );
         level = Constants.instance().deviceFunctionalityStatusToString( cfun.value );
         autoregister = theModem.data().keepRegistration;
@@ -404,7 +406,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         var value = Value( typeof(string) );
 
         var cgmr = theModem.createAtCommand<PlusCGMR>( "+CGMR" );
-        var response = yield theModem.processCommandAsync( cgmr, cgmr.execute() );
+        var response = yield theModem.processAtCommandAsync( cgmr, cgmr.execute() );
         if ( cgmr.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgmr.value;
@@ -416,7 +418,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         }
 
         var cgmm = theModem.createAtCommand<PlusCGMM>( "+CGMM" );
-        response = yield theModem.processCommandAsync( cgmm, cgmm.execute() );
+        response = yield theModem.processAtCommandAsync( cgmm, cgmm.execute() );
         if ( cgmm.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgmm.value;
@@ -428,7 +430,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         }
 
         var cgmi = theModem.createAtCommand<PlusCGMI>( "+CGMI" );
-        response = yield theModem.processCommandAsync( cgmi, cgmi.execute() );
+        response = yield theModem.processAtCommandAsync( cgmi, cgmi.execute() );
         if ( cgmi.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgmi.value;
@@ -440,7 +442,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         }
 
         var cgsn = theModem.createAtCommand<PlusCGSN>( "+CGSN" );
-        response = yield theModem.processCommandAsync( cgsn, cgsn.execute() );
+        response = yield theModem.processAtCommandAsync( cgsn, cgsn.execute() );
         if ( cgsn.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgsn.value;
@@ -452,7 +454,7 @@ public class AtDeviceGetInformation : DeviceGetInformation
         }
 
         var cmickey = theModem.createAtCommand<PlusCMICKEY>( "+CMICKEY" );
-        response = yield theModem.processCommandAsync( cmickey, cmickey.execute() );
+        response = yield theModem.processAtCommandAsync( cmickey, cmickey.execute() );
         if ( cmickey.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cmickey.value;
@@ -469,7 +471,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         var value = Value( typeof(string) );
 
         var gcap = theModem.createAtCommand<PlusGCAP>( "+GCAP" );
-        var response = yield theModem.processCommandAsync( gcap, gcap.execute() );
+        var response = yield theModem.processAtCommandAsync( gcap, gcap.execute() );
         if ( gcap.validate( response ) == Constants.AtResponse.VALID )
         {
             if ( "GSM" in gcap.value )
@@ -480,7 +482,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         }
 
         var cgclass = theModem.createAtCommand<PlusCGCLASS>( "+CGCLASS" );
-        response = yield theModem.processCommandAsync( cgclass, cgclass.test() );
+        response = yield theModem.processAtCommandAsync( cgclass, cgclass.test() );
         if ( cgclass.validateTest( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgclass.righthandside;
@@ -494,7 +496,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         }
 
         var fclass = theModem.createAtCommand<PlusFCLASS>( "+FCLASS" );
-        response = yield theModem.processCommandAsync( fclass, fclass.test() );
+        response = yield theModem.processAtCommandAsync( fclass, fclass.test() );
         if ( fclass.validateTest( response ) == Constants.AtResponse.VALID )
         {
             value = (string) fclass.righthandside;
@@ -502,7 +504,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         }
 
         var fac = theModem.createAtCommand<PlusCLCK>( "+CLCK" );
-        response = yield theModem.processCommandAsync( fac, fac.test() );
+        response = yield theModem.processAtCommandAsync( fac, fac.test() );
         if ( fac.validateTest( response ) == Constants.AtResponse.VALID )
         {
             value = (string) fac.facilities;
@@ -516,7 +518,7 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         muted = cmd.value == 1;
     }
@@ -527,7 +529,7 @@ public class AtDeviceGetSimBuffersSms : DeviceGetSimBuffersSms
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         buffers = cmd.mt < 2;
     }
@@ -540,7 +542,7 @@ public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
         yield gatherSpeakerVolumeRange();
 
         var cmd = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
 
         var data = theModem.data();
@@ -553,7 +555,7 @@ public class AtDeviceGetPowerStatus : DeviceGetPowerStatus
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCBC>( "+CBC" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
 
         checkResponseValid( cmd, response );
         status = cmd.status;
@@ -569,7 +571,7 @@ public class AtDeviceSetAlarmTime : DeviceSetAlarmTime
         var t = GLib.Time.gm( (time_t) since_epoch );
 
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
-        var response = yield theModem.processCommandAsync( cmd, since_epoch > 0 ? cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) : cmd.clear() );
+        var response = yield theModem.processAtCommandAsync( cmd, since_epoch > 0 ? cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) : cmd.clear() );
 
         // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
         // hence we need to catch this error and transform it into something valid
@@ -591,7 +593,7 @@ public class AtDeviceSetCurrentTime : DeviceSetCurrentTime
         var t = GLib.Time.gm( (time_t) since_epoch );
 
         var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
 
         // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
         // hence we need to catch this error and transform it into something valid
@@ -618,7 +620,7 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
         }
 
         var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( value ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( value ) );
         checkResponseExpected( cmd,
                          response,
                          { Constants.AtResponse.OK, Constants.AtResponse.CME_ERROR_011_SIM_PIN_REQUIRED } );
@@ -635,7 +637,7 @@ public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
     public override async void run( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmut = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
-        var response = yield theModem.processCommandAsync( cmut, cmut.issue( muted ? 1 : 0 ) );
+        var response = yield theModem.processAtCommandAsync( cmut, cmut.issue( muted ? 1 : 0 ) );
 
         checkResponseOk( cmut, response );
     }
@@ -652,7 +654,7 @@ public class AtDeviceSetSimBuffersSms : DeviceSetSimBuffersSms
             var cnmiparams = buffers ? data.cnmiSmsBufferedCb : data.cnmiSmsDirectCb;
 
             var cnmi = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
-            var response = yield theModem.processCommandAsync( cnmi, cnmi.issue( cnmiparams.mode,
+            var response = yield theModem.processAtCommandAsync( cnmi, cnmi.issue( cnmiparams.mode,
                                                                                  cnmiparams.mt,
                                                                                  cnmiparams.bm,
                                                                                  cnmiparams.ds,
@@ -678,7 +680,7 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
         var value = data.speakerVolumeMinimum + volume * ( data.speakerVolumeMaximum - data.speakerVolumeMinimum ) / 100;
 
         var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
-        var response = yield theModem.processCommandAsync( clvl, clvl.issue( value ) );
+        var response = yield theModem.processAtCommandAsync( clvl, clvl.issue( value ) );
         checkResponseOk( clvl, response );
     }
 }
@@ -691,7 +693,7 @@ public class AtSimChangeAuthCode : SimChangeAuthCode
     public override async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCPWD>( "+CPWD" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( "SC", oldpin, newpin ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( "SC", oldpin, newpin ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -701,7 +703,7 @@ public class AtSimGetAuthStatus : SimGetAuthStatus
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         status = cmd.status;
     }
@@ -716,7 +718,7 @@ public class AtSimGetInformation : SimGetInformation
         var value = Value( typeof(string) );
 
         var cimi = theModem.createAtCommand<PlusCGMR>( "+CIMI" );
-        var response = yield theModem.processCommandAsync( cimi, cimi.execute() );
+        var response = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
         if ( cimi.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cimi.value;
@@ -728,7 +730,7 @@ public class AtSimGetInformation : SimGetInformation
         }
 
         var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
-        response = yield theModem.processCommandAsync( crsm, crsm.issue(
+        response = yield theModem.processAtCommandAsync( crsm, crsm.issue(
                 Constants.SimFilesystemCommand.READ_BINARY,
                 Constants.instance().simFilesystemEntryNameToCode( "EFspn" ), 0, 0, 17 ) );
         if ( crsm.validate( response ) == Constants.AtResponse.VALID )
@@ -751,7 +753,7 @@ public class AtSimGetAuthCodeRequired : SimGetAuthCodeRequired
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCLCK>( "+CLCK" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.query( "SC" ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query( "SC" ) );
         checkResponseValid( cmd, response );
         required = cmd.enabled;
     }
@@ -762,7 +764,7 @@ public class AtSimGetServiceCenterNumber : SimGetServiceCenterNumber
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.query() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         number = cmd.number;
     }
@@ -803,7 +805,7 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
         var pp = data.simPhonebooks[category];
 
         var cmd = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( cat, pp.min, pp.max ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( cat, pp.min, pp.max ) );
 
         var valid = cmd.validateMulti( response );
         if ( valid != Constants.AtResponse.VALID && valid != Constants.AtResponse.CME_ERROR_022_NOT_FOUND )
@@ -843,7 +845,7 @@ public class AtSimSetAuthCodeRequired : SimSetAuthCodeRequired
     public override async void run( bool required, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCLCK>( "+CLCK" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( "SC", required, pin ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( "SC", required, pin ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -853,7 +855,7 @@ public class AtSimSendAuthCode : SimSendAuthCode
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( pin ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( pin ) );
         checkResponseOk( cmd, response );
         gatherSimStatusAndUpdate();
     }
@@ -865,7 +867,7 @@ public class AtSimSetServiceCenterNumber : SimSetServiceCenterNumber
     {
         validatePhoneNumber( number );
         var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( number ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( number ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -875,7 +877,7 @@ public class AtSimUnlock : SimUnlock
     public override async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( puk, newpin ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( puk, newpin ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -904,13 +906,13 @@ public class AtSmsSendMessage : SmsSendMessage
 
         // signalize that we're sending a couple of MMS
         var cmms = theModem.createAtCommand<PlusCMMS>( "+CMMS" );
-        yield theModem.processCommandAsync( cmms, cmms.issue( 1 ) );
+        yield theModem.processAtCommandAsync( cmms, cmms.issue( 1 ) );
 
         // send the MMS one after another
         foreach( var hexpdu in hexpdus )
         {
             var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
-            var response = yield theModem.processPduCommandAsync( cmd, cmd.issue( hexpdu ) );
+            var response = yield theModem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
             checkResponseOk( cmd, response );
         }
         transaction_index = refnum;
@@ -926,7 +928,7 @@ public class AtNetworkGetSignalStrength : NetworkGetSignalStrength
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
         checkResponseValid( cmd, response );
         signal = cmd.signal;
     }
@@ -942,7 +944,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
 
         // query field strength
         var csq = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
-        var response = yield theModem.processCommandAsync( csq, csq.execute() );
+        var response = yield theModem.processAtCommandAsync( csq, csq.execute() );
         if ( csq.validate( response ) == Constants.AtResponse.VALID )
         {
             intvalue = csq.signal;
@@ -951,10 +953,10 @@ public class AtNetworkGetStatus : NetworkGetStatus
 
         // query registration status and lac/cid
         var creg = theModem.createAtCommand<PlusCREG>( "+CREG" );
-        var cregResult = yield theModem.processCommandAsync( creg, creg.query() );
+        var cregResult = yield theModem.processAtCommandAsync( creg, creg.query() );
         if ( creg.validate( cregResult ) == Constants.AtResponse.VALID )
         {
-            var cregResult2 = yield theModem.processCommandAsync( creg, creg.queryFull( creg.mode ) );
+            var cregResult2 = yield theModem.processAtCommandAsync( creg, creg.queryFull( creg.mode ) );
             if ( creg.validate( cregResult2 ) == Constants.AtResponse.VALID )
             {
                 strvalue = Constants.instance().networkRegistrationStatusToString( creg.status );
@@ -968,7 +970,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
 
         // query registration mode, operator name, access technology
         var cops = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var copsResult = yield theModem.processCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC ) );
+        var copsResult = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC ) );
         if ( cops.validate( copsResult ) == Constants.AtResponse.VALID )
         {
             strvalue = Constants.instance().networkRegistrationModeToString( cops.mode );
@@ -980,7 +982,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
         }
 
         // query operator code
-        var copsResult2 = yield theModem.processCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
+        var copsResult2 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
         if ( cops.validate( copsResult2 ) == Constants.AtResponse.VALID )
         {
             strvalue = cops.oper;
@@ -994,7 +996,7 @@ public class AtNetworkListProviders : NetworkListProviders
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.test() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
         checkTestResponseValid( cmd, response );
         providers = cmd.providers;
     }
@@ -1005,7 +1007,7 @@ public class AtNetworkRegister : NetworkRegister
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -1043,7 +1045,7 @@ public class AtCallListCalls : CallListCalls
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusCLCC>( "+CLCC" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.execute() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
         checkMultiResponseValid( cmd, response );
         calls = cmd.calls;
     }
@@ -1054,7 +1056,7 @@ public class AtCallSendDtmf : CallSendDtmf
     public override async void run( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<PlusVTS>( "+VTS" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( tones ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( tones ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -1124,7 +1126,7 @@ public class AtPdpSetCredentials : PdpSetCredentials
         data.contextParams = new ContextParams( apn, username, password );
 
         var cmd = theModem.createAtCommand<PlusCGDCONT>( "+CGDCONT" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( apn ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( apn ) );
         checkResponseOk( cmd, response );
     }
 }

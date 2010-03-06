@@ -97,7 +97,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
     {
         // enter data state
         var cmd = theModem.createAtCommand<V250D>( "D" );
-        var response = yield theModem.processCommandAsync( cmd, cmd.issue( "*99***1#", false ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( "*99***1#", false ) );
         checkResponseConnect( cmd, response );
     }
 

@@ -26,19 +26,6 @@ void test_commandqueue_enqueue()
     var t = new FsoFramework.PtyTransport();
     t.open();
     assert( t.isOpen() );
-
-    var p = new FsoFramework.BaseParser();
-
-    var q = new FsoFramework.BaseCommandQueue( t, p );
-
-    /*
-    var cmd = Command() { command = "AT+CGMR\r\n", handler = null };
-
-    q.enqueue( cmd );
-
-    transport.writeCallback( new IOChannel(), IOCondition.OUT ); // usually only called in mainloop
-    */
-
 }
 
 //===========================================================================
