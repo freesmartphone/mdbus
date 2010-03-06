@@ -183,9 +183,11 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
             context.registerReadHandler( onMsmcommShouldRead );
             context.registerWriteHandler( onMsmcommShouldWrite );
 
+            /*
             var cmd = new Msmcomm.Command.ChangeOperationMode();
             cmd.setOperationMode( Msmcomm.OperationMode.RESET );
             context.sendMessage( cmd );
+            */
 
             return true;
         }

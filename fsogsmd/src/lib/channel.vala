@@ -21,7 +21,6 @@ using GLib;
 
 public interface FsoGsm.Channel : FsoFramework.CommandQueue
 {
-    // FIXME: Does not belong here; rather into AtChannel
     public abstract void injectResponse( string response );
     public abstract async bool suspend();
     public abstract async bool resume();
