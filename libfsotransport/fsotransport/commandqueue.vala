@@ -87,6 +87,8 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
     public Transport transport { get; set; }
     private Gee.LinkedList<AbstractCommandHandler> q;
 
+    protected FsoFramework.CommandQueue.UnsolicitedHandler urchandler;
+
     protected AbstractCommandHandler current;
 
     protected abstract void onReadFromTransport( FsoFramework.Transport t );
@@ -127,7 +129,6 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
     //
     // public API
     //
-
     public AbstractCommandQueue( Transport transport )
     {
         q = new Gee.LinkedList<AbstractCommandHandler>();
@@ -137,10 +138,8 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
 
     public void registerUnsolicitedHandler( FsoFramework.CommandQueue.UnsolicitedHandler urchandler )
     {
-        /*
         assert( this.urchandler == null );
         this.urchandler = urchandler;
-        */
     }
 
     public virtual bool open()
