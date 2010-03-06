@@ -123,8 +123,6 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
 
     protected void onParserCompletedUnsolicited( string[] response )
     {
-        assert_not_reached();
-        /*
         transport.logger.info( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
 
         //TODO: should we have a configurable prefix separator or is that over the top?
@@ -151,7 +149,6 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
         {
             transport.logger.critical( @"Can't handle URC w/ $(response.length) lines (max 2) yet!" );
         }
-        */
     }
 
     protected void onSolicitedResponse( AtCommandHandler bundle, string[] response )
