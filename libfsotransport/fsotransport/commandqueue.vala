@@ -138,7 +138,7 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
         */
     }
 
-    public bool open()
+    public virtual bool open()
     {
         // open transport
         assert( !transport.isOpen() );
@@ -149,17 +149,17 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
         //TODO: more initialization necessary?
     }
 
-    public void freeze( bool drain = false )
+    public virtual void freeze( bool drain = false )
     {
         assert_not_reached();
     }
 
-    public void thaw()
+    public virtual void thaw()
     {
         assert_not_reached();
     }
 
-    public void close()
+    public virtual void close()
     {
         transport.close();
     }
