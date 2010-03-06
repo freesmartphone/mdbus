@@ -110,8 +110,7 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
     public void injectResponse( string response )
     {
-        assert_not_reached();
-        //onReadFromTransport( response );
+        parser.feed( response, (int)response.length );
     }
 
     public async bool suspend()

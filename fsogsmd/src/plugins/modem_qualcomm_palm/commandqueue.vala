@@ -17,66 +17,65 @@
  *
  */
 
-public class MsmCommandBundle
+/**
+ * @class MsmCommandHandler
+ **/
+public class MsmCommandHandler : FsoFramework.AbstractCommandHandler
 {
-    public Msmcomm.Message command;
-    public uint retry;
+    public unowned Msmcomm.Message command;
     public unowned Msmcomm.Message response;
-    public SourceFunc callback;
+
+    public MsmCommandHandler( Msmcomm.Message command, int retries )
+    {
+        this.command = command;
+        this.retry = retries;
+    }
+
+    public override void writeToTransport( FsoFramework.Transport transport )
+    {
+        MsmCommandQueue.context.sendMessage( command );
+    }
+
+    public override string to_string()
+    {
+        if ( response != null )
+        {
+            return "\"%s\" -> %s".printf( Msmcomm.eventTypeToString( command.type ), Msmcomm.eventTypeToString( response.type ) );
+        }
+        else
+        {
+            return Msmcomm.eventTypeToString( command.type );
+        }
+    }
 }
 
-public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
+/**
+ * @class MsmCommandQueue
+ **/
+public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 {
-    public FsoFramework.Transport transport { get; set; }
+    public static Msmcomm.Context context;
 
-    protected Gee.LinkedList<MsmCommandBundle> q;
-    protected MsmCommandBundle current;
-    protected uint timeout;
-
-    protected Msmcomm.Context context;
-
-    protected void _writeRequestToTransport( string request )
+    protected override void onReadFromTransport( FsoFramework.Transport t )
     {
-        assert( current != null );
-
-        /*
-        if ( seconds > 0 )
-        {
-            timeout = Timeout.add_seconds( seconds, _onTimeout );
-        }
-        */
-    }
-
-    protected void _onReadFromTransport( FsoFramework.Transport t )
-    {
-        if ( timeout > 0 )
-        {
-            Source.remove( timeout );
-        }
-
         context.readFromModem();
-
-        /*
-        var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
-        buffer[bytesread] = 0;
-        onReadFromTransport( (string)buffer );
-        */
     }
 
-    protected void _onHupFromTransport( FsoFramework.Transport t )
+    protected void onSolicitedResponse( MsmCommandHandler bundle, Msmcomm.Message response )
     {
-        // HUP
+        bundle.response = response;
+        transport.logger.info( @"SRC: $bundle" );
+        assert( bundle.callback != null );
+        bundle.callback();
     }
 
-    protected bool _onTimeout()
+    public async unowned Msmcomm.Message enqueueAsync( owned Msmcomm.Message command, int retries = DEFAULT_RETRY )
     {
-        // TIMEOUT
-        return false;
-    }
-
-    protected bool _haveCommand()
-    {
-        return ( current != null );
+        var handler = new MsmCommandHandler( command, retries );
+        handler.callback = enqueueAsync.callback;
+        enqueueCommand( handler );
+        yield;
+        return handler.response;
     }
 
     public void onMsmcommShouldRead( void* data, int len )
@@ -157,7 +156,7 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
         if ( et.has_prefix( "RESPONSE" ) )
         {
             assert( current != null );
-            onSolicitedResponse( current, message );
+            onSolicitedResponse( (MsmCommandHandler)current, message );
             current = null;
             Idle.add( checkRestartingQ );
         }
@@ -168,85 +167,17 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
     }
 
     //
-    // subclassing API
-    //
-
-    protected bool checkRestartingQ()
-    {
-        if ( current == null && q.size > 0 )
-        {
-            writeNextCommand();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    protected void writeNextCommand()
-    {
-        current = q.poll_head();
-        // send command via msm transport
-    }
-
-    protected void onSolicitedResponse( MsmCommandBundle bundle, Msmcomm.Message response )
-    {
-        //transport.logger.info( "SRC: \"%s\" -> %s".printf( bundle.request, FsoFramework.StringHandling.stringListToString( response ) ) );
-
-        if ( bundle.callback != null )
-        {
-            bundle.response = response;
-            bundle.callback();
-        }
-    }
-
-    //
     // public API
     //
-
     public MsmCommandQueue( FsoFramework.Transport transport )
     {
+        base( transport );
         context = new Msmcomm.Context();
-        q = new Gee.LinkedList<MsmCommandBundle>();
-        this.transport = transport;
-        transport.setDelegates( _onReadFromTransport, _onHupFromTransport );
     }
 
-    ~MsmCommandQueue()
+    public override bool open()
     {
-    }
-
-    public void registerUnsolicitedHandler( FsoFramework.CommandQueue.UnsolicitedHandler urchandler )
-    {
-    }
-
-    public async string[] enqueueAsyncYielding( FsoFramework.CommandQueueCommand command, string request, uint retry = DEFAULT_RETRY )
-    {
-        return {};
-    }
-
-    public async unowned Msmcomm.Message processMsmCommand( Msmcomm.Message* command )
-    {
-        MsmCommandBundle bundle = new MsmCommandBundle() {
-            command=(owned)command,
-            callback=processMsmCommand.callback,
-            retry=3 };
-        q.offer_tail( bundle );
-        Idle.add( checkRestartingQ );
-        yield;
-        return bundle.response;
-    }
-
-    public bool open()
-    {
-        // open transport
-        assert( !transport.isOpen() );
-        if ( !transport.open() )
-        {
-            return false;
-        }
-        else
+        if ( base.open() )
         {
             context.registerEventHandler( onMsmcommGotEvent );
             context.registerReadHandler( onMsmcommShouldRead );
@@ -258,20 +189,39 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
 
             return true;
         }
+
+        return false;
+    }
+}
+
+/**
+ * @class MsmCommandSequence
+ **/
+public class MsmCommandSequence
+{
+    /*
+    private string[] commands;
+
+    public MsmCommandSequence( string[] commands )
+    {
+        this.commands = commands;
     }
 
-    public void freeze( bool drain = false )
+    public void append( string[] commands )
     {
-        assert_not_reached();
+        foreach ( var cmd in commands )
+        {
+            this.commands += cmd;
+        }
     }
 
-    public void thaw()
+    public async void performOnChannel( AtChannel channel )
     {
-        assert_not_reached();
+        foreach( var element in commands )
+        {
+            var cmd = theModem.createMsmCommand<CustomMsmCommand>( "CUSTOM" );
+            var response = yield channel.enqueueAsync( cmd, element );
+        }
     }
-
-    public void close()
-    {
-        transport.close();
-    }
+    */
 }

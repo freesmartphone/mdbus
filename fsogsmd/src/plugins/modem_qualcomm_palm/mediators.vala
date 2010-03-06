@@ -31,7 +31,7 @@ public class MsmDebugPing : DebugPing
     {
         var cmd = new Msmcomm.Command.TestAlive();
         var channel = theModem.channel( "main" ) as MsmChannel;
-        yield channel.processMsmCommand( cmd );
+        yield channel.enqueueAsync( (owned) cmd );
     }
 }
 
@@ -53,9 +53,9 @@ public class MsmDeviceGetInformation : DeviceGetInformation
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
 //~         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-//~ 
+//~
 //~         var value = Value( typeof(string) );
-//~ 
+//~
 //~         var cgmr = theModem.createAtCommand<PlusCGMR>( "+CGMR" );
 //~         var response = yield theModem.processAtCommandAsync( cgmr, cgmr.execute() );
 //~         if ( cgmr.validate( response ) == Constants.AtResponse.VALID )
@@ -67,7 +67,7 @@ public class MsmDeviceGetInformation : DeviceGetInformation
 //~         {
 //~             info.insert( "revision", "unknown" );
 //~         }
-//~ 
+//~
 //~         var cgmm = theModem.createAtCommand<PlusCGMM>( "+CGMM" );
 //~         response = yield theModem.processAtCommandAsync( cgmm, cgmm.execute() );
 //~         if ( cgmm.validate( response ) == Constants.AtResponse.VALID )
@@ -79,7 +79,7 @@ public class MsmDeviceGetInformation : DeviceGetInformation
 //~         {
 //~             info.insert( "model", "unknown" );
 //~         }
-//~ 
+//~
 //~         var cgmi = theModem.createAtCommand<PlusCGMI>( "+CGMI" );
 //~         response = yield theModem.processAtCommandAsync( cgmi, cgmi.execute() );
 //~         if ( cgmi.validate( response ) == Constants.AtResponse.VALID )
@@ -91,7 +91,7 @@ public class MsmDeviceGetInformation : DeviceGetInformation
 //~         {
 //~             info.insert( "manufacturer", "unknown" );
 //~         }
-//~ 
+//~
 //~         var cgsn = theModem.createAtCommand<PlusCGSN>( "+CGSN" );
 //~         response = yield theModem.processAtCommandAsync( cgsn, cgsn.execute() );
 //~         if ( cgsn.validate( response ) == Constants.AtResponse.VALID )
@@ -103,7 +103,7 @@ public class MsmDeviceGetInformation : DeviceGetInformation
 //~         {
 //~             info.insert( "imei", "unknown" );
 //~         }
-//~ 
+//~
 //~         var cmickey = theModem.createAtCommand<PlusCMICKEY>( "+CMICKEY" );
 //~         response = yield theModem.processAtCommandAsync( cmickey, cmickey.execute() );
 //~         if ( cmickey.validate( response ) == Constants.AtResponse.VALID )
@@ -120,7 +120,7 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
     {
 //~         var cmd = theModem.createAtCommand<PlusCBC>( "+CBC" );
 //~         var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
-//~ 
+//~
 //~         checkResponseValid( cmd, response );
 //~         status = cmd.status;
 //~         level = cmd.level;
@@ -142,8 +142,8 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
         cmd.setOperationMode( Msmcomm.OperationMode.RESET );
         var channel = theModem.channel( "main" ) as MsmChannel;
 
-        unowned Msmcomm.Message response = yield channel.processMsmCommand( cmd );
-        
+        unowned Msmcomm.Message response = yield channel.enqueueAsync( (owned)cmd );
+
 
 //~         var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
 //~         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( value ) );
@@ -153,7 +153,7 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
 //~         var data = theModem.data();
 //~         data.keepRegistration = autoregister;
 //~         data.simPin = pin;
-//~ 
+//~
 //~         yield gatherSimStatusAndUpdate();
     }
 }
@@ -177,9 +177,9 @@ public class MsmSimGetInformation : SimGetInformation
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
 //~         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-//~ 
+//~
 //~         var value = Value( typeof(string) );
-//~ 
+//~
 //~         var cimi = theModem.createAtCommand<PlusCGMR>( "+CIMI" );
 //~         var response = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
 //~         if ( cimi.validate( response ) == Constants.AtResponse.VALID )
@@ -191,7 +191,7 @@ public class MsmSimGetInformation : SimGetInformation
 //~         {
 //~             info.insert( "imsi", "unknown" );
 //~         }
-//~ 
+//~
 //~         var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
 //~         response = yield theModem.processAtCommandAsync( crsm, crsm.issue(
 //~                 Constants.SimFilesystemCommand.READ_BINARY,
@@ -206,7 +206,7 @@ public class MsmSimGetInformation : SimGetInformation
 //~         {
 //~             info.insert( "issuer", "unknown" );
 //~         }
-//~ 
+//~
 //~         //FIXME: Add dial_prefix and country
     }
 }
@@ -250,7 +250,7 @@ public class MsmNetworkRegister : NetworkRegister
         cmd.setOperationMode( Msmcomm.OperationMode.ONLINE );
         var channel = theModem.channel( "main" ) as MsmChannel;
 
-        unowned Msmcomm.Message response = yield channel.processMsmCommand( (owned) cmd );
+        unowned Msmcomm.Message response = yield channel.enqueueAsync( (owned) cmd );
 
 //~         var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
 //~         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
@@ -333,7 +333,7 @@ public class MsmCallReleaseAll : CallReleaseAll
 public void registerMsmMediators( HashMap<Type,Type> table )
 {
     table[ typeof(DebugPing) ]                    = typeof( MsmDebugPing );
-    
+
     table[ typeof(DeviceGetInformation) ]         = typeof( MsmDeviceGetInformation );
     table[ typeof(DeviceGetFunctionality) ]       = typeof( MsmDeviceGetFunctionality );
     table[ typeof(DeviceGetPowerStatus) ]         = typeof( MsmDeviceGetPowerStatus );

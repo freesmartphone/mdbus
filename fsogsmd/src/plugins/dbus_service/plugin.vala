@@ -69,14 +69,14 @@ class DBusService.Device :
                 typename = "CinterionMc75Modem";
                 break;
             default:
-                logger.error( @"Invalid modem_type $modemtype; corresponding modem plugin loaded?" );
+                logger.error( @"Unsupported modem_type $modemtype" );
                 return;
         }
 
         modemclass = Type.from_name( typename );
         if ( modemclass == Type.INVALID  )
         {
-            logger.error( @"Can't find modem for modem_type $modemtype" );
+            logger.error( @"Can't find modem for modem_type $modemtype; corresponding modem plugin loaded?" );
             return;
         }
 

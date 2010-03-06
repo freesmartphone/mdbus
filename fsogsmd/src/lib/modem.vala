@@ -217,7 +217,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             }
             else
             {
-                logger.warning( @"modem_access string invalid; expected 3 parameters, got $(params.length)" );
+                logger.warning( @"Configuration string 'modem_access' invalid; expected 3 parameters, got $(params.length)" );
             }
         }
 
@@ -235,7 +235,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             }
             else
             {
-                logger.warning( @"data_access string invalid; expected 3 parameters, got $(params.length)" );
+                logger.warning( @"Configuration string 'data_access' invalid; expected 3 parameters, got $(params.length)" );
             }
         }
 
@@ -755,7 +755,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         assert( channels != null );
         assert( channels[name] == null );
         channels[name] = channel;
-        channel.registerUnsolicitedHandler( this.processUnsolicitedResponse );
+
+        if ( channel is AtChannel )
+        {
+            channel.registerUnsolicitedHandler( this.processUnsolicitedResponse );
+        }
     }
 
     /**
