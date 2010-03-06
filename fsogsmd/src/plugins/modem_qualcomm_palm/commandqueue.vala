@@ -27,8 +27,7 @@ public class MsmCommandBundle
 
 public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
 {
-    // don't access this unless absolutely necessary
-    public FsoFramework.Transport transport;
+    public FsoFramework.Transport transport { get; set; }
 
     protected Gee.LinkedList<MsmCommandBundle> q;
     protected MsmCommandBundle current;
@@ -95,14 +94,13 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
     {
         var et = Msmcomm.eventTypeToString( event );
         var size = message.size;
-        var m = "ref %02x".printf( message.getRefId() );
+        var m = "ref %02x".printf( message.index );
         debug( @"[MESSAGE] $et $m " );
         var details = "";
 
         switch ( event )
         {
             case Msmcomm.ResponseType.GET_IMEI:
-                debug("yo");
                 unowned Msmcomm.Reply.GetImei msg = (Msmcomm.Reply.GetImei) message;
                 details = @"IMEI = $(msg.getImei())";
                 break;
@@ -113,27 +111,39 @@ public class MsmCommandQueue : FsoFramework.CommandQueue, GLib.Object
                 break;
             case Msmcomm.ResponseType.CM_CALL:
                 unowned Msmcomm.Reply.Call msg = (Msmcomm.Reply.Call) message;
-                details = @"refId = $(msg.getRefId()) cmd = $(msg.getCmd()) err = $(msg.getErrorCode())";
+                details = @"refId = $(msg.index) cmd = $(msg.getCmd()) err = $(msg.getErrorCode())";
                 break;
             case Msmcomm.ResponseType.CHARGER_STATUS:
                 unowned Msmcomm.Reply.ChargerStatus msg = (Msmcomm.Reply.ChargerStatus) message;
                 string mode = "<unknown>", voltage = "<unknown>";
-            
-                if (msg.getMode() == Msmcomm.ChargingMode.USB)
-                    mode = "USB";
-                else if (msg.getMode() == Msmcomm.ChargingMode.INDUCTIVE)
-                    mode = "INDUCTIVE";
 
-                switch (msg.getVoltage()) {
-                case Msmcomm.UsbVoltageMode.MODE_250mA:
-                    voltage = "250mA";
-                    break;
-                case Msmcomm.UsbVoltageMode.MODE_500mA:
-                    voltage = "500mA";
-                    break;
-                case Msmcomm.UsbVoltageMode.MODE_1A:
-                    voltage = "1A";
-                    break;
+                switch ( msg.mode )
+                {
+                    case Msmcomm.ChargingMode.USB:
+                        mode = "USB";
+                        break;
+                    case Msmcomm.ChargingMode.INDUCTIVE:
+                        mode = "INDUCTIVE";
+                        break;
+                    default:
+                        mode = "UNKNOWN";
+                        break;
+                }
+
+                switch ( msg.voltage )
+                {
+                    case Msmcomm.UsbVoltageMode.MODE_250mA:
+                        voltage = "250mA";
+                        break;
+                    case Msmcomm.UsbVoltageMode.MODE_500mA:
+                        voltage = "500mA";
+                        break;
+                    case Msmcomm.UsbVoltageMode.MODE_1A:
+                        voltage = "1A";
+                        break;
+                    default:
+                        voltage = "UNKNOWN";
+                        break;
                 }
 
                 details = @"mode = $(mode) voltage = $(voltage)";
