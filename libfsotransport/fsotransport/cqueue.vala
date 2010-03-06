@@ -17,9 +17,9 @@
  *
  */
 
-const int  COMMAND_QUEUE_BUFFER_SIZE = 4096;
+const int CQUEUE_BUFFER_SIZE = 4096;
 
-public abstract interface FsoFramework.CommandQueueCommand : GLib.Object
+public abstract interface FsoFramework.CQueueCommand : GLib.Object
 {
     public abstract uint get_retry();
     public abstract uint get_timeout();
@@ -28,10 +28,8 @@ public abstract interface FsoFramework.CommandQueueCommand : GLib.Object
     public abstract bool is_valid_prefix( string line );
 }
 
-public abstract interface FsoFramework.CommandQueue : GLib.Object
+public abstract interface FsoFramework.CQueue : GLib.Object
 {
-    public delegate void ResponseHandler( CommandQueueCommand command, string[] response );
-    public delegate string RequestHandler( CommandQueueCommand command );
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
     public const uint DEFAULT_RETRY = 3;
@@ -54,7 +52,7 @@ public abstract interface FsoFramework.CommandQueue : GLib.Object
      * Enqueue new @a AtCommand command, sending the request as @a string request.
      * Coroutine will yield the response.
      **/
-    public abstract async string[] enqueueAsyncYielding( CommandQueueCommand command, string request, uint retry = DEFAULT_RETRY );
+    public abstract async string[] enqueueAsyncYielding( CQueueCommand command, string request, uint retry = DEFAULT_RETRY );
     /**
      * Halt the Queue operation. Stop accepting any more commands. If drain is true, send
      * all commands that are in the Queue at this point.
@@ -66,28 +64,26 @@ public abstract interface FsoFramework.CommandQueue : GLib.Object
     public abstract void thaw();
 }
 
-public class CommandBundle
+public class CBundle
 {
-    public FsoFramework.CommandQueueCommand command;
+    public FsoFramework.CQueueCommand command;
     public string request;
     public uint retry;
-    public FsoFramework.CommandQueue.RequestHandler getRequest;
-    public FsoFramework.CommandQueue.ResponseHandler handler;
     public string[] response;
     public SourceFunc callback;
 }
 
-public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Object
+public class FsoFramework.BaseCQueue : FsoFramework.CQueue, GLib.Object
 {
     public Transport transport { get; set; }
 
-    protected Gee.LinkedList<CommandBundle> q;
-    protected CommandBundle current;
+    protected Gee.LinkedList<CBundle> q;
+    protected CBundle current;
     protected uint timeout;
 
     protected Parser parser;
     protected char* buffer;
-    protected FsoFramework.CommandQueue.UnsolicitedHandler urchandler;
+    protected FsoFramework.CQueue.UnsolicitedHandler urchandler;
 
     protected void _writeRequestToTransport( string request )
     {
@@ -250,7 +246,7 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
         //FIXME: Try to open again or leave that to the higher layers?
     }
 
-    protected void onSolicitedResponse( CommandBundle bundle, string[] response )
+    protected void onSolicitedResponse( CBundle bundle, string[] response )
     {
         transport.logger.info( "SRC: \"%s\" -> %s".printf( bundle.request, FsoFramework.StringHandling.stringListToString( response ) ) );
 
@@ -261,7 +257,7 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
         }
     }
 
-    protected void onResponseTimeout( CommandBundle bundle )
+    protected void onResponseTimeout( CBundle bundle )
     {
         onSolicitedResponse( bundle, new string[] { "+EXT: ERROR 261271" } );
     }
@@ -270,9 +266,9 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
     // public API
     //
 
-    public BaseCommandQueue( Transport transport, Parser parser )
+    public BaseCQueue( Transport transport, Parser parser )
     {
-        q = new Gee.LinkedList<CommandBundle>();
+        q = new Gee.LinkedList<CBundle>();
         this.transport = transport;
         this.parser = parser;
         transport.setDelegates( _onReadFromTransport, _onHupFromTransport );
@@ -286,21 +282,20 @@ public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Obj
         free( buffer );
     }
 
-    public void registerUnsolicitedHandler( FsoFramework.CommandQueue.UnsolicitedHandler urchandler )
+    public void registerUnsolicitedHandler( FsoFramework.CQueue.UnsolicitedHandler urchandler )
     {
         assert( this.urchandler == null );
         this.urchandler = urchandler;
     }
 
-    public async string[] enqueueAsyncYielding( CommandQueueCommand command, string request, uint retry = DEFAULT_RETRY )
+    public async string[] enqueueAsyncYielding( CQueueCommand command, string request, uint retry = DEFAULT_RETRY )
     {
 #if DEBUG
         debug( "enqueuing %s from AT command %s (sizeof q = %u)".printf( request, Type.from_instance( command ).name(), q.size ) );
 #endif
-        CommandBundle bundle = new CommandBundle() {
+        CBundle bundle = new CBundle() {
             command=command,
             request=request,
-            getRequest=null,
             callback=enqueueAsyncYielding.callback,
             retry=retry };
         q.offer_tail( bundle );
