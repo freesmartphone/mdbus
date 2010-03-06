@@ -33,7 +33,6 @@ lib_LTLIBRARIES = \
 libfsotransport_la_VALASOURCES = \
 	basetransport.vala \
 	commandqueue.vala \
-	cqueue.vala \
 	delegate.vala \
 	null.vala \
 	parser.vala \

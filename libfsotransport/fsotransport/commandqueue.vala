@@ -35,9 +35,6 @@ public abstract interface FsoFramework.CommandQueue : GLib.Object
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
     public const uint DEFAULT_RETRY = 3;
-
-    public abstract Transport transport { get; set; }
-
     /**
      * Open
      **/
@@ -79,7 +76,8 @@ public class CommandBundle
 
 public class FsoFramework.BaseCommandQueue : FsoFramework.CommandQueue, GLib.Object
 {
-    public Transport transport { get; set; }
+    // don't access this unless absolutely necessary
+    public Transport transport;
 
     protected Gee.LinkedList<CommandBundle> q;
     protected CommandBundle current;
