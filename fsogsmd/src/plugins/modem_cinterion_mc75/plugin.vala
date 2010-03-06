@@ -55,7 +55,7 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         // mc75 has a SIM READY signal, can be enabled via ^SSET=1
         modem_data.simHasReadySignal = true;
 
-        registerCommandSequence( "main", "init", new CommandSequence( {
+        registerAtCommandSequence( "main", "init", new AtCommandSequence( {
             """+CREG=2""",              /* +CREG URC = enable */
             """^SM20=0,0""",            /* M20 compatibility behavior = disable */
             """^SSET=1""",              /* ^SSIM_READY URC = enable */

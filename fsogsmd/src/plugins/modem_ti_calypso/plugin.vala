@@ -58,12 +58,12 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         modem_data.simReadyTimeout = 60; /* seconds */
 
         // sequence for initializing every channel
-        registerCommandSequence( "CHANNEL", "init", new CommandSequence( {
+        registerAtCommandSequence( "CHANNEL", "init", new AtCommandSequence( {
             """%CUNS=2"""
         } ) );
 
         // sequence for initializing the channel urc
-        registerCommandSequence( "urc", "init", new CommandSequence( {
+        registerAtCommandSequence( "urc", "init", new AtCommandSequence( {
             """+CCWA=1""",
             """+CGEREP=2,1""",
             """+CGREG=2""",
@@ -84,7 +84,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         } ) );
 
         // sequence for suspending the channel urc
-        registerCommandSequence( "urc", "suspend", new CommandSequence( {
+        registerAtCommandSequence( "urc", "suspend", new AtCommandSequence( {
             """+CREG=0""",
             """+CGEREP=0,0""",
             """+CGREG=0""",
@@ -99,7 +99,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         } ) );
 
         // sequence for resuming the channel urc
-        registerCommandSequence( "urc", "resume", new CommandSequence( {
+        registerAtCommandSequence( "urc", "resume", new AtCommandSequence( {
             """+CREG=2""",
             """+CGEREP=2,1""",
             """+CGREG=2""",
