@@ -158,6 +158,7 @@ AC_CONFIG_FILES([
   src/plugins/kernel26_display/Makefile
   src/plugins/kernel26_leds/Makefile
   src/plugins/kernel26_powersupply/Makefile
+  src/plugins/palmpre_powersupply/Makefile
   src/plugins/kernel26_rfkill/Makefile
   src/plugins/kernel26_rtc/Makefile
   src/plugins/kernel_idle/Makefile
@@ -169,6 +170,7 @@ AC_CONFIG_FILES([
   src/plugins/player_gstreamer/Makefile
   src/plugins/router_alsa/Makefile
   src/plugins/router_qdsp5/Makefile
+  src/plugins/router_palmpre/Makefile
   src/plugins/thinkpad_powercontrol/Makefile
   src/plugins/vibrator_ledclass/Makefile
   src/plugins/vibrator_timedoutputclass/Makefile
