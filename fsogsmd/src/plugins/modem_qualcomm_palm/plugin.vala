@@ -40,12 +40,11 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-#if 0
         // create AT channel for data use
-        var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );        
+        var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );
         var parser = new FsoGsm.StateBasedAtParser();
         new FsoGsm.AtChannel( AT_CHANNEL_NAME, datatransport, parser );
-#endif
+
         // create MAIN channel
         var maintransport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
         new MsmChannel( MSM_CHANNEL_NAME, maintransport );
@@ -56,7 +55,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         // nothing to do here as qualcomm_palm only has one AT channel
         return channels[ AT_CHANNEL_NAME ];
     }
-    
+
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
     {
         registerMsmMediators( mediators );
