@@ -118,7 +118,13 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 
     public override async bool open()
     {
-        if ( yield base.open() )
+        // FIXME: yield base.open() does not work in Vala atm.
+
+        // open transport
+        assert( !transport.isOpen() );
+        var opened = yield transport.openAsync();
+
+        if ( opened /* yield base.open() */ )
         {
             context.registerEventHandler( onMsmcommGotEvent );
             context.registerReadHandler( onMsmcommShouldRead );
