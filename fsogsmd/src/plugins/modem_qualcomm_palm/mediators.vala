@@ -52,65 +52,19 @@ public class MsmDeviceGetInformation : DeviceGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-//~         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-//~
-//~         var value = Value( typeof(string) );
-//~
-//~         var cgmr = theModem.createAtCommand<PlusCGMR>( "+CGMR" );
-//~         var response = yield theModem.processAtCommandAsync( cgmr, cgmr.execute() );
-//~         if ( cgmr.validate( response ) == Constants.AtResponse.VALID )
-//~         {
-//~             value = (string) cgmr.value;
-//~             info.insert( "revision", value );
-//~         }
-//~         else
-//~         {
-//~             info.insert( "revision", "unknown" );
-//~         }
-//~
-//~         var cgmm = theModem.createAtCommand<PlusCGMM>( "+CGMM" );
-//~         response = yield theModem.processAtCommandAsync( cgmm, cgmm.execute() );
-//~         if ( cgmm.validate( response ) == Constants.AtResponse.VALID )
-//~         {
-//~             value = (string) cgmm.value;
-//~             info.insert( "model", value );
-//~         }
-//~         else
-//~         {
-//~             info.insert( "model", "unknown" );
-//~         }
-//~
-//~         var cgmi = theModem.createAtCommand<PlusCGMI>( "+CGMI" );
-//~         response = yield theModem.processAtCommandAsync( cgmi, cgmi.execute() );
-//~         if ( cgmi.validate( response ) == Constants.AtResponse.VALID )
-//~         {
-//~             value = (string) cgmi.value;
-//~             info.insert( "manufacturer", value );
-//~         }
-//~         else
-//~         {
-//~             info.insert( "manufacturer", "unknown" );
-//~         }
-//~
-//~         var cgsn = theModem.createAtCommand<PlusCGSN>( "+CGSN" );
-//~         response = yield theModem.processAtCommandAsync( cgsn, cgsn.execute() );
-//~         if ( cgsn.validate( response ) == Constants.AtResponse.VALID )
-//~         {
-//~             value = (string) cgsn.value;
-//~             info.insert( "imei", value );
-//~         }
-//~         else
-//~         {
-//~             info.insert( "imei", "unknown" );
-//~         }
-//~
-//~         var cmickey = theModem.createAtCommand<PlusCMICKEY>( "+CMICKEY" );
-//~         response = yield theModem.processAtCommandAsync( cmickey, cmickey.execute() );
-//~         if ( cmickey.validate( response ) == Constants.AtResponse.VALID )
-//~         {
-//~             value = (string) cmickey.value;
-//~             info.insert( "mickey", value );
-//~         }
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+
+        info.insert( "model", "Palm Pre (Plus)" );
+        info.insert( "manufacturer", "Palm, Inc." );
+
+        var cmd = new Msmcomm.Command.GetFirmwareInfo();
+        unowned Msmcomm.Reply.GetFirmwareInfo response = (Msmcomm.Reply.GetFirmwareInfo) ( yield channel.enqueueAsync( (owned) cmd ) );
+        info.insert( "revision", response.getInfo() );
+
+        var cmd2 = new Msmcomm.Command.GetImei();
+        unowned Msmcomm.Reply.GetImei response2 = (Msmcomm.Reply.GetImei) ( yield channel.enqueueAsync( (owned) cmd2 ) );
+        info.insert( "imei", response2.getImei() );
     }
 }
 
