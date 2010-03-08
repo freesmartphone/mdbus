@@ -18,18 +18,6 @@
  */
 
 /**
- * @class FsoFramework.CommandQueueCommand
- **/
-public abstract interface FsoFramework.CommandQueueCommand : GLib.Object
-{
-    public abstract uint get_retry();
-    public abstract uint get_timeout();
-    public abstract string get_prefix();
-    public abstract string get_postfix();
-    public abstract bool is_valid_prefix( string line );
-}
-
-/**
  * @interface FsoFramework.CommandQueue
  **/
 public abstract interface FsoFramework.CommandQueue : GLib.Object
@@ -46,11 +34,11 @@ public abstract interface FsoFramework.CommandQueue : GLib.Object
     /**
      * Open the command queue
      **/
-    public abstract bool open();
+    public abstract async bool open();
     /**
      * Close the command queue
      **/
-    public abstract void close();
+    public abstract async void close();
     /**
      * Register @a UnsolicitedHandler delegate that will be called for incoming URCs
      **/
@@ -59,11 +47,11 @@ public abstract interface FsoFramework.CommandQueue : GLib.Object
      * Halt the Queue operation. Stop accepting any more commands. If drain is true, send
      * all commands that are in the Queue at this point.
      **/
-    public abstract void freeze( bool drain = false );
+    public abstract async void freeze( bool drain = false );
     /**
      * Resume the Queue operation.
      **/
-    public abstract void thaw();
+    public abstract async void thaw();
 }
 
 /**
@@ -142,28 +130,27 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
         this.urchandler = urchandler;
     }
 
-    public virtual bool open()
+    public virtual async bool open()
     {
         // open transport
         assert( !transport.isOpen() );
-        if ( !transport.open() )
-            return false;
-        else
-            return true;
-        //TODO: more initialization necessary?
+
+        var opened = yield transport.openAsync();
+
+        return opened;
     }
 
-    public virtual void freeze( bool drain = false )
+    public virtual async void freeze( bool drain = false )
     {
         assert_not_reached();
     }
 
-    public virtual void thaw()
+    public virtual async void thaw()
     {
         assert_not_reached();
     }
 
-    public virtual void close()
+    public virtual async void close()
     {
         transport.close();
     }
