@@ -49,7 +49,7 @@ private class KernelScriptInterface
 class PalmPre : FsoDevice.BaseAudioRouter
 {
     private const string MODULE_NAME = "fsodevice.router_palmpre";
-    private List<string> allscenarios;
+    private GLib.List<string> allscenarios;
     private string currentscenario;
     private GLib.Queue<string> scenarios;
 
@@ -69,14 +69,14 @@ class PalmPre : FsoDevice.BaseAudioRouter
             var defaultscenario = audioconf.stringValue("audio", "default_scenario", "phone_front_speaker");
             var data_path = audioconf.stringValue("audio", "data_path", "/etc/freesmartphone/palmpre/scenarii");
 
-            var sections = audioconf.sectionsWithPrefix=("scenario.");
+            var sections = audioconf.sectionsWithPrefix("scenario.");
             foreach (var section in sections)
             {
-                var scenario = sections.split(".")[1];
+                var scenario = section.split(".")[1];
                 if (scenario != "")
                 {
-                    KernelScriptInterface.loadFromFile
-                        ("%s/%s.txt".printf(data_path, scenario);
+                    KernelScriptInterface.loadAndStoreScriptFromFile
+                        ("%s/%s.txt".printf(data_path, scenario));
                     allscenarios.append(scenario);
                 }
             }
@@ -85,14 +85,18 @@ class PalmPre : FsoDevice.BaseAudioRouter
 
     public override bool isScenarioAvailable( string scenario )
     {
-        return (scenario in allscenarios.keys);
+        foreach (string s in allscenarios) {
+			if (s == scenario)
+				return true;
+		}
+		return false;
     }
 
     public override string[] availableScenarios()
     {
         string[] list = {};
-        foreach (var key in allscenarios.keys)
-            list += key;
+        foreach (var scenario in allscenarios)
+            list += scenario;
         return list;
     }
 

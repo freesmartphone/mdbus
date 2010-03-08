@@ -29,13 +29,15 @@ class TokenLib
         var tokens_file = "/etc/tokens";
 
         if (!FsoFramework.FileHandling.isPresent(tokens_file)) {
-            logger.error("!!! File with necessary tokens is not found !!!");
+            FsoFramework.theLogger.error("!!! File with necessary tokens is not found !!!");
             return "";
         }
 
         FsoFramework.SmartKeyFile tf = 
-            new FsoFramework.SmartKeyFile(tokens_file);
-        return tf.stringValue("tokens", key, def);
+            new FsoFramework.SmartKeyFile();
+        if (tf.loadFromFile(tokens_file))
+			tf.stringValue("tokens", key, def);
+        return "";
     }
 }
 
@@ -59,7 +61,7 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
         var slave_count =
             FsoFramework.FileHandling.read("%s/w1_master_slave_count".printf(master_node));
         if (slave_count == "0") {
-            present == false;
+            present = false;
             logger.error("there is no battery available ... skipping");
             return;
         }
@@ -103,7 +105,7 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
 
     public override string repr()
     {
-        return "<FsoFramework.Device.PowerSupply @ %s>".printf( sysfsnode );
+        return "<FsoFramework.Device.PowerSupply @ >";
     }
 
     public bool isBattery()
@@ -113,7 +115,7 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
 
     public bool isPresent()
     {
-        return 0;
+        return true;
     }
 
     public int getCapacity()
@@ -171,6 +173,7 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
 } /* namespace */
 
 internal static string sysfs_root;
+internal static PalmPre.BatteryPowerSupply palmpre_battery;
 
 /**
  * This function gets called on plugin initialization time.
@@ -184,7 +187,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
 
-    instances.append( new PalmPre.BatteryPowerSupply( subsystem, filename ) );
+    palmpre_battery = new PalmPre.BatteryPowerSupply( subsystem );
 
     return "fsodevice.palmpre_powersupply";
 }
