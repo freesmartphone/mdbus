@@ -18,15 +18,27 @@
  */
 
 /**
+ * @class FsoFramework.AtCommandQueueCommand
+ **/
+public abstract interface FsoGsm.AtCommandQueueCommand : GLib.Object
+{
+    public abstract uint get_retry();
+    public abstract uint get_timeout();
+    public abstract string get_prefix();
+    public abstract string get_postfix();
+    public abstract bool is_valid_prefix( string line );
+}
+
+/**
  * @class FsoGsm.AtCommandHandler
  **/
 public class FsoGsm.AtCommandHandler : FsoFramework.AbstractCommandHandler
 {
-    public FsoFramework.CommandQueueCommand command;
+    public FsoGsm.AtCommandQueueCommand command;
     private string request;
     public string[] response;
 
-    public AtCommandHandler( FsoFramework.CommandQueueCommand command, string request, int retries )
+    public AtCommandHandler( FsoGsm.AtCommandQueueCommand command, string request, int retries )
     {
         this.command = command;
         this.request = request;
@@ -164,7 +176,7 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
         onSolicitedResponse( bundle, new string[] { "+EXT: ERROR 261271" } );
     }
 
-    public async string[] enqueueAsync( FsoFramework.CommandQueueCommand command, string request, int retries = DEFAULT_RETRY )
+    public async string[] enqueueAsync( FsoGsm.AtCommandQueueCommand command, string request, int retries = DEFAULT_RETRY )
     {
 #if DEBUG
         debug( "enqueuing %s from AT command %s (sizeof q = %u)".printf( request, Type.from_instance( command ).name(), q.size ) );

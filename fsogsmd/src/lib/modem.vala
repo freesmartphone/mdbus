@@ -531,7 +531,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             return false;
         }
 
-        var ok = channels["main"].open();
+        var mainchannel = channels["main"];
+
+        var ok = yield mainchannel.open();
         if ( !ok )
         {
             logger.error( "Can't open main channel; open returned false" );
@@ -542,7 +544,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         {
             if ( key != "main" )
             {
-                var open = channels[key].open();
+                var channel = channels[key];
+                var open = yield channel.open();
                 if ( !open )
                 {
                     logger.error( @"Can't open $key channel; open returned false" );

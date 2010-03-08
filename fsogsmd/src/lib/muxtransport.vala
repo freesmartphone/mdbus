@@ -75,9 +75,14 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public override bool open()
     {
+        assert_not_reached(); // this transport can only be opened async
+    }
+
+    public override async openAsync()
+    {
         try
         {
-            manager.allocChannel( ref channelinfo );
+            yield manager.allocChannel( ref channelinfo );
         }
         catch ( Gsm0710mux.MuxerError e )
         {

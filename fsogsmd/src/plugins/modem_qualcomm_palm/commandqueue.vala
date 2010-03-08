@@ -116,9 +116,9 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         context = new Msmcomm.Context();
     }
 
-    public override bool open()
+    public override async bool open()
     {
-        if ( base.open() )
+        if ( yield base.open() )
         {
             context.registerEventHandler( onMsmcommGotEvent );
             context.registerReadHandler( onMsmcommShouldRead );
