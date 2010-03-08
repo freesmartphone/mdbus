@@ -120,8 +120,12 @@ public abstract class FsoFramework.Transport : Object
      */
     public abstract bool isOpen();
     /**
-     * Open the transport. @returns true, if successful; else false.
+     * Open the transport asynchronously. @returns true, if successful; else false.
      */
+    public abstract async bool openAsync();
+    /**
+     * Close the transport. Closing an already closed transport is allowed.
+     **/
     public abstract bool open();
     /**
      * Close the transport. Closing an already closed transport is allowed.

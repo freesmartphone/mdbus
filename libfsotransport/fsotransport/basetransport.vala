@@ -313,6 +313,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return name;
     }
 
+    public override async bool openAsync()
+    {
+        return open();
+    }
+
     public override bool open()
     {
         assert( fd != -1 ); // fail, if trying to open the 2nd time
