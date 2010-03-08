@@ -34,7 +34,7 @@ public enum FsoFramework.TransportState
     DEAD,
 }
 
-public struct FsoFramework.TransportSpec
+public class FsoFramework.TransportSpec
 {
     public TransportSpec( string type, string name = "", uint speed = 0, bool raw = true, bool hard = true )
     {
