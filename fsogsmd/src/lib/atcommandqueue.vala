@@ -137,15 +137,13 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
     {
         transport.logger.info( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
 
-        //TODO: should we have a configurable prefix separator or is that over the top?
-
         if ( ! ( ":" in response[0] ) ) // test for free-form URC
         {
             urchandler( response[0], "", null );
             return;
         }
 
-        // URC has the form PREFIX:SUFFIX
+        // AT URCs have the form PREFIX:SUFFIX
         var strings = response[0].split( ":" );
         assert( strings.length == 2 ); // multiple ':' in URC not yet supported
 

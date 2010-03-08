@@ -60,17 +60,27 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
                                                       delegateFreeze,
                                                       delegateThaw );
 
-        channelinfo.tspec = FsoFramework.TransportSpec( "foo", "bar" );
-        channelinfo.tspec.transport = tdelegate;
-        channelinfo.number = channel;
-        channelinfo.consumer = @"fsogsmd:$channel";
+        var tspec = new FsoFramework.TransportSpec( "foo", "bar" );
+        tspec.transport = tdelegate;
+
+        channelinfo = new Gsm0710mux.ChannelInfo() {
+            tspec = tspec,
+            number = channel,
+            consumer = @"fsogsmd:$channel" };
 
         assert( logger.debug( @"Created. Using libgsm0710mux version $version; autosession is $hasAutoSession" ) );
     }
 
     public override string repr()
     {
-        return @"<0710:$(channelinfo.number)>";
+        if ( channelinfo == null )
+        {
+            return "<0710:Unassigned>";
+        }
+        else
+        {
+            return @"<0710:$(channelinfo.number)>";
+        }
     }
 
     public override bool open()
@@ -78,11 +88,11 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         assert_not_reached(); // this transport can only be opened async
     }
 
-    public override async openAsync()
+    public override async bool openAsync()
     {
         try
         {
-            yield manager.allocChannel( ref channelinfo );
+            yield manager.allocChannel( channelinfo );
         }
         catch ( Gsm0710mux.MuxerError e )
         {
