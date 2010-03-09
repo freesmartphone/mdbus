@@ -1,0 +1,98 @@
+2009-04-17	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Release as 0.3.3
+
+2009-02-22	Michael Lauer	<mlauer@vanille-media.de>
+
+	* fso-abyss has been split into two subprojects:
+	  - libgsm0710mux: the multiplexing engine
+	  - fso-abyss: the (now legacy) dbus/pty server
+	* fso-abyss will be kept update as a quick means to check
+	  basic functionality, but the plan is to use libgsm0710mux
+	  from ogsmd directly.
+
+2009-02-20	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Added sending v24 data bytes on virtual channel from host -> module.
+	* Changed dbus test command signature to 'ay' (array of bytes),
+	  since test commands can embed null-bytes.
+
+2009-02-20	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Support for wakeup threshold and waitms is now configurable as well.
+	
+	* Released as 0.3.1
+
+2009-02-15	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Added support for a configuration file. The config file comes in handy
+	  when you want the multiplexing session to be enabled when the first
+	  channel gets requested. With the config file you can also specify
+	  automatic closing the session on last channel release as well as
+	  automatic exiting of the main program, when the session gets closed.
+
+	* Released as 0.3.0
+
+2009-02-09	Michael Lauer	<mlauer@vanille-media.de>
+
+	* The GSM 07.10 protocol engine has been split out and will be maintained
+	  as a seperate project. That way we can collaborate on a solid core while
+	  adding different frontends, such as a static one without dbus support, or
+	  using the library directly without the pty indirection.
+
+2009-02-08	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Add support for a wakeup threshold. Some modems (such as the TI Calypso)
+	  do not use standardized PSC commands to handle power saving states. For
+	  such modems, org.freesmartphone.GSM.MUX.SetWakeupThreshold( seconds, waitms )
+	  can be used. Seconds defines the acceptable duration (idleness), before the
+	  modem will be woken up, waitms defines the sleep period (in microseconds)
+	  after sending the wakeup command.
+
+2009-02-06	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Released as 0.2.0
+
+2009-02-04	Michael Lauer	<mlauer@vanille-media.de>
+
+	* org.freesmartphone.GSM.MUX.OpenSession no longer returns a parameter,
+	  if it fails, it will throw an error.
+
+	* org.freesmartphone.GSM.MUX.AllocChannel now returns two parameters, one
+	  for the allocated pty, the other one for the allocated channel (which is
+	  unknown to the client if it calls AllocChannel with '0' as channel, since
+	  this translates to 'the next free one'.)
+
+2009-02-02	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Added preliminary dbus error messages and finished the dbus interface.
+	* Successfully tested with a SIEMENS mc75i (07.10 basic mode)
+	* Released as 0.1.0
+
+2009-02-01	Michael Lauer	<mlauer@vanille-media.de>
+
+	* This project has a name now. It's called 'fso-abyss', which
+	  is a reminiscent of the popular ILM movie 'Abyss' where
+	  the beast was hidden in the deep blue ocean, but later turned
+	  out to be friendly.
+	* Reading and writing data from/to virtual channels works now.
+	* Data gets nicely forwarded to our ptys.
+
+2009-01-31	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Opening and closing virtual channels now works.
+
+2009-01-30	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Initializing, closing, and reopening the MUX session now works.
+
+2009-01-27	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Read/Write cycle from/to protocol engine works fine.
+	* Contributed the first posix bits to Vala upstream.
+
+2009-01-25	Michael Lauer	<mlauer@vanille-media.de>
+
+	* Started the experiment to write a new GSM 07.10 multiplexer in Vala/C.
+	* Committed the nicely encapsulated protocol engine from Qtopia and the
+	  first bits of Vapi (Vala language binding).

@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.freesmartphone.omuxerd
+Exec=@sbindir@/fso-abyss
+User=root

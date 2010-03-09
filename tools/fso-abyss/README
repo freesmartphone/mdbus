@@ -1,0 +1,38 @@
+Todo:
+=====
+ * Add hook for channel ACK
+ * Finish auto-reinit in protocol engine
+ * Finish ping framework
+ * Check PSC commands
+ * Use Serial object in multiplexer as well
+ * Implement Cinterion Basic 07.10 extensions
+ * Improve concurrent throughput fairness and reduce latency
+ * Add org.freesmartphone.GSM.MUX.GetAllocation() -> a(s: origin, i: channel, s: ptypath)
+
+Problems due to Vala:
+=====================
+ * No async dbus on server side
+ * No proper dbus errors
+
+Features of this Multiplexer:
+=============================
+ * Clean Architecture seperating
+   - Protocol engine,
+   - Serial port,
+   - Virtual Channel,
+   - Session handling, and
+   - DBus Server.
+ * Automatic modem power handling is optional and can be
+   configured in /etc/abyss.conf.
+ * Top priority is getting frames from the modem,
+   so it doesn't need to wait for us.
+ * No channel ACK race conditions, a pty will only be allocated
+   once we get the first serial status package from the modem.
+ * No pty overruns possible [as long as we have main memory left],
+   channels will buffer everything in memory and deliver
+   the chunks asynchronous.
+ * Supports requesting individual channels in addition to
+   the 'the next free one'. This is helpful since virtual
+   channels keep state over opening/closing.
+ * Ping framework (on modems that support it) for detecting
+   stuck connections and transparent reinit.

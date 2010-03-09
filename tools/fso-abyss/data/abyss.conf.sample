@@ -1,0 +1,26 @@
+[omuxerd]
+# set to 1, when the first AllocChannel request opens a session
+autoopen = 1
+# set to 1, when the last ReleaseChannel closes the session
+autoclose = 1
+# set to 1, when closing the session should close the program
+autoexit = 1
+
+[session]
+# set 0 for 07.10 basic multiplexing, 1 for advanced
+mode = 0
+# set maximum 07.10 frame size
+framesize = 89
+# configure modem port
+port = /dev/ttyUSB0
+speed = 115200
+
+[device]
+# if the device needs a wakeup before transmitting data,
+# set the number of seconds after which is falls asleep.
+# 0 = disable
+wakeup_threshold = 0
+# set number of milliseconds to wait after wake up
+# before transmitting again
+wakeup_waitms = 0
+
