@@ -264,7 +264,7 @@ public class PlusCIMI : SimpleAtCommand<string>
 
 public class PlusCLCC : AbstractAtCommand
 {
-    public XFreeSmartphone.GSM.CallDetail[] calls;
+    public FreeSmartphone.GSM.CallDetail[] calls;
 
     public PlusCLCC()
     {
@@ -274,15 +274,16 @@ public class PlusCLCC : AbstractAtCommand
 
     public override void parseMulti( string[] response ) throws AtCommandError
     {
-        var c = new XFreeSmartphone.GSM.CallDetail[] {};
+        //FIXME: This should no longer be necessary; Vala now supports appending to public arrays as well
+        var c = new FreeSmartphone.GSM.CallDetail[] {};
         foreach ( var line in response )
         {
             base.parse( line );
-            var entry = XFreeSmartphone.GSM.CallDetail();
-            entry.id = to_int( "id" );
-            entry.status = Constants.instance().callStatusToString( to_int( "stat" ) );
-            //entry.status = Constants.instance().callStatusToEnum( to_int( "stat" ) );
-            entry.properties = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+            var entry = FreeSmartphone.GSM.CallDetail(
+                to_int( "id" ),
+                Constants.instance().callStatusToEnum( to_int( "stat" ) ),
+                new GLib.HashTable<string,Value?>( str_hash, str_equal )
+            );
 
             var strvalue = GLib.Value( typeof(string) );
             strvalue = Constants.instance().callDirectionToString( to_int( "dir" ) );

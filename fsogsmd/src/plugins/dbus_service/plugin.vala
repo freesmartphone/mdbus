@@ -30,7 +30,7 @@ class DBusService.Device :
     FreeSmartphone.GSM.SIM,
     FreeSmartphone.GSM.SMS,
     FreeSmartphone.GSM.Network,
-    XFreeSmartphone.GSM.Call,
+    FreeSmartphone.GSM.Call,
     FreeSmartphone.GSM.PDP,
     FsoFramework.AbstractObject
 {
@@ -675,7 +675,7 @@ class DBusService.Device :
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async XFreeSmartphone.GSM.CallDetail[] list_calls() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.CallDetail[] list_calls() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CallListCalls>();

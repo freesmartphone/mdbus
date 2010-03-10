@@ -26,9 +26,9 @@ internal const int CALL_STATUS_REFRESH_TIMEOUT = 3; // in seconds
  **/
 public class FsoGsm.Call
 {
-    public XFreeSmartphone.GSM.CallDetail detail;
+    public FreeSmartphone.GSM.CallDetail detail;
 
-    public Call.newFromDetail( XFreeSmartphone.GSM.CallDetail detail )
+    public Call.newFromDetail( FreeSmartphone.GSM.CallDetail detail )
     {
         this.detail = detail;
     }
@@ -36,11 +36,11 @@ public class FsoGsm.Call
     public Call.newFromId( int id )
     {
         detail.id = id;
-        detail.status = "release";
+        detail.status = FreeSmartphone.GSM.CallStatus.RELEASE;
         detail.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
     }
 
-    public bool update( XFreeSmartphone.GSM.CallDetail detail )
+    public bool update( FreeSmartphone.GSM.CallDetail detail )
     {
         assert( this.detail.id == detail.id );
         if ( this.detail.status != detail.status )
@@ -69,9 +69,9 @@ public class FsoGsm.Call
         return false; // nothing happened
     }
 
-    public void notify( XFreeSmartphone.GSM.CallDetail detail )
+    public void notify( FreeSmartphone.GSM.CallDetail detail )
     {
-        var obj = theModem.theDevice<XFreeSmartphone.GSM.Call>();
+        var obj = theModem.theDevice<FreeSmartphone.GSM.Call>();
         obj.call_status( detail.id, detail.status, detail.properties );
         this.detail = detail;
     }
@@ -140,7 +140,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         var num = 0;
         for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
         {
-            if ( calls[i].detail.status != "release" && calls[i].detail.status != "incoming" )
+            if ( calls[i].detail.status != FreeSmartphone.GSM.CallStatus.RELEASE && calls[i].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING )
             {
                 num++;
             }
@@ -148,7 +148,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         return num;
     }
 
-    private int numberOfCallsWithStatus( string status )
+    private int numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus status )
     {
         var num = 0;
         for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
@@ -161,7 +161,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         return num;
     }
 
-    private int lowestOfCallsWithStatus( string status )
+    private int lowestOfCallsWithStatus( FreeSmartphone.GSM.CallStatus status )
     {
         for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
         {
@@ -228,12 +228,13 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         // ...and synthesize updates for (now) released calls
         for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
         {
-            if ( ! visited[i] && calls[i].detail.status != "release" )
+            if ( ! visited[i] && calls[i].detail.status != FreeSmartphone.GSM.CallStatus.RELEASE )
             {
-                var detail = XFreeSmartphone.GSM.CallDetail();
-                detail.id = i;
-                detail.status = "release";
-                detail.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+                var detail = FreeSmartphone.GSM.CallDetail(
+                    i,
+                    FreeSmartphone.GSM.CallStatus.RELEASE,
+                    new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal )
+                );
 
                 var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
                 var result = yield theModem.processAtCommandAsync( ceer, ceer.execute() );
@@ -259,7 +260,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
         }
-        if ( calls[id].detail.status != "incoming" && calls[id].detail.status != "held" )
+        if ( calls[id].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING && calls[id].detail.status != FreeSmartphone.GSM.CallStatus.HELD )
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to activate found" );
         }
@@ -281,7 +282,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        var num = lowestOfCallsWithStatus( "release" );
+        var num = lowestOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.RELEASE );
         if ( num == 0 )
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "System busy" );
@@ -298,11 +299,11 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
-        if ( numberOfCallsWithStatus( "active" ) == 0 )
+        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.ACTIVE ) == 0 )
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No active call present" );
         }
-        if ( numberOfCallsWithStatus( "incoming" ) > 0 )
+        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.INCOMING ) > 0 )
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating" );
         }
@@ -317,7 +318,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
         }
-        if ( calls[id].detail.status == "release" )
+        if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.RELEASE )
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to release found" );
         }
