@@ -31,9 +31,10 @@ public class FsoGps.Channel : FsoFramework.AbstractCommandQueue
     public Channel( string name, FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
         base( transport );
+        buffer = new char[COMMAND_QUEUE_BUFFER_SIZE];
         this.name = name;
         this.parser = parser;
-        parser.setDelegates( null, null, null, onParserCompletedUnsolicited );
+        parser.setDelegates( haveCommand, isExpectedPrefix, onParserCompletedSolicited, onParserCompletedUnsolicited );
         theReceiver.registerChannel( name, this );
         theReceiver.signalStatusChanged += onModemStatusChanged;
     }
@@ -50,15 +51,30 @@ public class FsoGps.Channel : FsoFramework.AbstractCommandQueue
 
         buffer[bytesread] = 0;
 #if DEBUG
-        debug( "Read '%s' - feeding to %s".printf( ((string)response).escape( "" ), Type.from_instance( parser ).name() ) );
+        debug( "Read '%s' - feeding to %s".printf( ((string)buffer).escape( "" ), Type.from_instance( parser ).name() ) );
 #endif
         parser.feed( (string)buffer, bytesread );
+    }
+
+    protected bool haveCommand()
+    {
+        return false; // NMEA is not interactive
+    }
+
+    protected bool isExpectedPrefix( string line )
+    {
+        return false;
+    }
+
+    protected void onParserCompletedSolicited( string[] response )
+    {
+        assert_not_reached();
     }
 
     protected void onParserCompletedUnsolicited( string[] response )
     {
         transport.logger.info( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
-        urchandler( response[0], "", null );
+        urchandler( "", response[0], null );
     }
 
     public void onModemStatusChanged( FsoGps.Receiver receiver, int status )

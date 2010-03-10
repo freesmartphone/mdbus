@@ -109,7 +109,7 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
 
         buffer[bytesread] = 0;
 #if DEBUG
-        debug( "Read '%s' - feeding to %s".printf( ((string)response).escape( "" ), Type.from_instance( parser ).name() ) );
+        debug( "Read '%s' - feeding to %s".printf( ((string)buffer).escape( "" ), Type.from_instance( parser ).name() ) );
 #endif
         parser.feed( (string)buffer, bytesread );
     }
