@@ -70,9 +70,10 @@ class DBusService.Device : FsoFramework.AbstractObject
         return "<DBusService>";
     }
 
-    public void enable()
+    public async void enable()
     {
-        if ( !receiver.open() )
+        var ok = yield receiver.open();
+        if ( !ok )
             logger.error( "Can't open receiver" );
         else
             logger.info( "GPS receiver opened successfully" );
@@ -105,7 +106,7 @@ public class DBusService.Resource : FsoFramework.AbstractDBusResource
     public override async void enableResource()
     {
         logger.debug( "Enabling GPS resource..." );
-        device.enable();
+        yield device.enable();
     }
 
     public override async void disableResource()

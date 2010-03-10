@@ -19,17 +19,46 @@
 
 using GLib;
 
-public class FsoGps.Channel : FsoFramework.BaseCommandQueue
+public class FsoGps.Channel : FsoFramework.AbstractCommandQueue
 {
+    public const int COMMAND_QUEUE_BUFFER_SIZE = 4096;
+
+    protected char* buffer;
+    protected FsoFramework.Parser parser;
+
     protected string name;
 
     public Channel( string name, FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
-        base( transport, parser );
+        base( transport );
         this.name = name;
+        this.parser = parser;
+        parser.setDelegates( null, null, null, onParserCompletedUnsolicited );
         theReceiver.registerChannel( name, this );
-
         theReceiver.signalStatusChanged += onModemStatusChanged;
+    }
+
+    protected override void onReadFromTransport( FsoFramework.Transport t )
+    {
+        var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
+
+        if ( bytesread == 0 )
+        {
+            onHupFromTransport();
+            return;
+        }
+
+        buffer[bytesread] = 0;
+#if DEBUG
+        debug( "Read '%s' - feeding to %s".printf( ((string)response).escape( "" ), Type.from_instance( parser ).name() ) );
+#endif
+        parser.feed( (string)buffer, bytesread );
+    }
+
+    protected void onParserCompletedUnsolicited( string[] response )
+    {
+        transport.logger.info( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
+        urchandler( response[0], "", null );
     }
 
     public void onModemStatusChanged( FsoGps.Receiver receiver, int status )

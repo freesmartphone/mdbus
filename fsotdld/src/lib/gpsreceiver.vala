@@ -52,7 +52,7 @@ public abstract interface FsoGps.Receiver : FsoFramework.AbstractObject
 
     // called by the channel upon creation
     public abstract void registerChannel( string name, FsoGps.Channel channel );
-    public abstract bool open();
+    public abstract async bool open();
     public abstract void close();
     //FIXME: Should be FsoGps.Receiver.Status with Vala >= 0.7
     public abstract int status();
@@ -166,7 +166,7 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
     //
     // public API
     //
-    public virtual bool open()
+    public virtual async bool open()
     {
        // power on
         setPower( true );
@@ -177,8 +177,11 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
         logger.info( "will open %u channel(s)...".printf( channels.size ) );
         foreach( var channel in channels )
         {
-            if (!channel.open())
+            var ok = yield channel.open();
+            if (!ok)
+            {
                 return false;
+            }
         }
 
         advanceStatus( Status.CLOSED, Status.INITIALIZING );
