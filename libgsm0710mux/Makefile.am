@@ -3,7 +3,7 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 VALAC_ARGS = \
-	--vapidir $(top_srcdir)/vapi \
+	--vapidir ./vapi \
 	--header gsm0710mux.h \
 	--pkg config \
 	--pkg gsm0710-1.0 \
