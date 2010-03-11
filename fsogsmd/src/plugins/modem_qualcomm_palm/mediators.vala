@@ -60,11 +60,11 @@ public class MsmDeviceGetInformation : DeviceGetInformation
 
         var cmd = new Msmcomm.Command.GetFirmwareInfo();
         unowned Msmcomm.Reply.GetFirmwareInfo response = (Msmcomm.Reply.GetFirmwareInfo) ( yield channel.enqueueAsync( (owned) cmd ) );
-        info.insert( "revision", response.getInfo() );
+        info.insert( "revision", response.info );
 
         var cmd2 = new Msmcomm.Command.GetImei();
         unowned Msmcomm.Reply.GetImei response2 = (Msmcomm.Reply.GetImei) ( yield channel.enqueueAsync( (owned) cmd2 ) );
-        info.insert( "imei", response2.getImei() );
+        info.insert( "imei", response2.imei );
     }
 }
 
