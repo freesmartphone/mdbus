@@ -43,7 +43,14 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 
     public UnsolicitedResponseHandler()
     {
+        registerUrc( "%CPRI", percentCPRI );
         registerUrc( "%CSTAT", percentCSTAT );
+        registerUrc( "%CSQ", percentCSQ );
+    }
+
+    public virtual void percentCPRI( string prefix, string rhs )
+    {
+        // FIXME: do something with it
     }
 
     /**
@@ -82,5 +89,10 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
                     break;
             }
         }
+    }
+
+    public virtual void percentCSQ( string prefix, string rhs )
+    {
+        // FIXME: do something with ii
     }
 }
