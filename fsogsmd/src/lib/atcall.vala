@@ -240,6 +240,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
                 var result = yield theModem.processAtCommandAsync( ceer, ceer.execute() );
                 if ( ceer.validate( result ) == Constants.AtResponse.VALID )
                 {
+                    detail.properties.insert( "cause", Constants.instance().ceerCauseToString( ceer.location, ceer.reason, ceer.ssrelease ) );
                     //FIXME: Use after https://bugzilla.gnome.org/show_bug.cgi?id=599568 has been FIXED.
                     //var cause = Value( typeof(string) );
                     //cause = ceer.value

@@ -37,7 +37,9 @@ internal void throwAppropriateError( Constants.AtResponse code, string detail ) 
     throw error;
 }
 
-//FIXME: Do we want to allow a list of exceptions that do not raise an error?
+/**
+ * Throws an error if response is not OK
+ **/
 internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validateOk( response );
@@ -51,6 +53,11 @@ internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) thr
     }
 }
 
+/**
+ * Throws an error if response is not among the list of expected responses.
+ *
+ * @returns the (expected) AT error code
+ **/
 internal Constants.AtResponse checkResponseExpected( FsoGsm.AtCommand command,
                                      string[] response,
                                      Constants.AtResponse[] expected
@@ -67,11 +74,10 @@ internal Constants.AtResponse checkResponseExpected( FsoGsm.AtCommand command,
     }
 
     throwAppropriateError( code, response[response.length-1] );
-    // this should never be reached
-    assert_not_reached();
+
+    assert_not_reached(); // if this fails here, then our code is broken
 }
 
-//FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkResponseConnect( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validateOk( response );
@@ -85,7 +91,6 @@ internal void checkResponseConnect( FsoGsm.AtCommand command, string[] response 
     }
 }
 
-//FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validateTest( response );
@@ -99,7 +104,6 @@ internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] respons
     }
 }
 
-//FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validate( response );
@@ -113,7 +117,6 @@ internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) 
     }
 }
 
-//FIXME: Do we want to allow a list of exceptions that do not raise an error?
 internal void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
 {
     var code = command.validateMulti( response );

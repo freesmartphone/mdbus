@@ -143,11 +143,29 @@ public class PlusCCLK : AbstractAtCommand
     }
 }
 
-public class PlusCEER : SimpleAtCommand<string>
+public class PlusCEER : AbstractAtCommand
 {
+    public int location;
+    public int reason;
+    public int ssrelease;
+
     public PlusCEER()
     {
-        base( "+CEER", false );
+        re = new Regex( """\+CEER: (?P<location>\d+),(?P<reason>\d+),(?P<ssrelease>\d+)""" );
+        prefix = { "+CEER: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        location = to_int( "location" );
+        reason = to_int( "reason" );
+        ssrelease = to_int( "ssrelease" );
+    }
+
+    public string execute()
+    {
+        return "+CEER";
     }
 }
 

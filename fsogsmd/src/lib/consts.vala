@@ -791,6 +791,127 @@ public class FsoGsm.Constants
                 return "unknown";
         }
     }
+
+    public string ceerCauseToString( int location, int reason, int ssrelease )
+    {
+        var res = "";
+
+        if ( location != 8 )
+        {
+            return @"<$location:$reason:$ssrelease>";
+        }
+
+        switch ( reason )
+        {
+            case 1                :
+                res += "unassigned (unallocated) number";
+                break;
+            case 3                :
+                res += "no route to destination";
+                break;
+            case 6                :
+                res += "channel unacceptable";
+                break;
+            case 8                :
+                res += "operator determined barring";
+                break;
+            case 16               :
+                res += "normal call clearing";
+                break;
+            case 17               :
+                res += "user busy";
+                break;
+            case 18               :
+                res += "no user responding";
+                break;
+            case 19               :
+                res += "user alerting, no answer";
+                break;
+            case 21               :
+                res += "call rejected";
+                break;
+            case 22               :
+                res += "number changed";
+                break;
+            case 25               :
+                res += "pre-emption";
+                break;
+            case 26               :
+                res += "non-selected user clearing";
+                break;
+            case 27               :
+                res += "destination out of order";
+                break;
+            case 28               :
+                res += "invalid number format (incomplete number)";
+                break;
+            case 29               :
+                res += "facility rejected";
+                break;
+            case 30               :
+                res += "response to STATUS ENQUIRY";
+                break;
+            case 31               :
+                res += "normal, unspecified";
+                break;
+            case 34               :
+                res += "no circuit/channel available";
+                break;
+            case 38               :
+                res += "network out of order";
+                break;
+            case 41               :
+                res += "temporary failure";
+                break;
+            case 42               :
+                res += "switching equipment congestion";
+                break;
+            case 43               :
+                res += "access information discarded";
+                break;
+            case 44               :
+                res += "requested circuit/channel not available";
+                break;
+            case 47               :
+                res += "resource unavailable, unspecified";
+                break;
+            case 49               :
+                res += "quality of service unavailable";
+                break;
+            case 50               :
+                res += "requested facility not subscribed";
+                break;
+            case 55               :
+                res += "incoming calls barred within the CUG";
+                break;
+            case 57               :
+                res += "bearer capability not authorized";
+                break;
+            case 58               :
+                res += "bearer capability not presently available";
+                break;
+            case 63               :
+                res += "service or option not available, unspecified";
+                break;
+            case 65               :
+                res += "bearer service not implemented";
+                break;
+            case 68               :
+                res += "ACM equal or greater than ACM max";
+                break;
+            case 69               :
+                res += "requested facility not implemented";
+                break;
+            case 70               :
+                res += "only restricted digital information bearer capability is available";
+                break;
+            case 79               :
+                res += "service or option not implemented, unspecified";
+                break;
+            default:
+                res += "<unknown GSM release cause for L3 Call Control (CC)>";
+                break;
+        }
+        return res;
+    }
 }
-
-
