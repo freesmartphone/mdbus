@@ -51,7 +51,7 @@ internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) thr
     }
 }
 
-internal void checkResponseExpected( FsoGsm.AtCommand command,
+internal Constants.AtResponse checkResponseExpected( FsoGsm.AtCommand command,
                                      string[] response,
                                      Constants.AtResponse[] expected
                                    ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -62,11 +62,13 @@ internal void checkResponseExpected( FsoGsm.AtCommand command,
     {
         if ( code == expected[i] )
         {
-            return;
+            return code;
         }
     }
 
     throwAppropriateError( code, response[response.length-1] );
+    // this should never be reached
+    assert_not_reached();
 }
 
 //FIXME: Do we want to allow a list of exceptions that do not raise an error?
@@ -177,13 +179,15 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
     var rcode = cmd.validate( response );
     if ( rcode == Constants.AtResponse.VALID )
     {
+        theModem.logger.info( @"SIM Auth status $(cmd.status)" );
+        // send the dbus signal
+        var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
+        obj.auth_status( cmd.status );
+
+        // check whether we need to advance the modem state
         if ( cmd.status != data.simAuthStatus )
         {
             data.simAuthStatus = cmd.status;
-            theModem.logger.info( "SIM Auth status changed to '%s'".printf( FsoFramework.StringHandling.enumToString( typeof(FreeSmartphone.GSM.SIMAuthStatus), cmd.status ) ) );
-            // send dbus signal
-            var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
-            obj.auth_status( cmd.status );
 
             // advance global modem state
             var modemStatus = theModem.status();
@@ -628,6 +632,11 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
         data.keepRegistration = autoregister;
         data.simPin = pin;
 
+        if ( pin != "" )
+        {
+            theModem.watchdog.resetUnlockMarker();
+        }
+
         yield gatherSimStatusAndUpdate();
     }
 }
@@ -856,7 +865,14 @@ public class AtSimSendAuthCode : SimSendAuthCode
     {
         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( pin ) );
-        checkResponseOk( cmd, response );
+        var code = checkResponseExpected( cmd, response,
+            { Constants.AtResponse.OK, Constants.AtResponse.CME_ERROR_016_INCORRECT_PASSWORD } );
+
+        if ( code == Constants.AtResponse.CME_ERROR_016_INCORRECT_PASSWORD )
+        {
+            throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"PIN $pin not accepted" );
+        }
+
         gatherSimStatusAndUpdate();
     }
 }

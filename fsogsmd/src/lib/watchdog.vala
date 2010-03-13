@@ -23,6 +23,7 @@
 public interface FsoGsm.WatchDog : GLib.Object
 {
     public abstract void check();
+    public abstract void resetUnlockMarker();
 }
 
 /**
@@ -79,6 +80,8 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
         {
             logger.error( @"Could not unlock SIM PIN: $(e.message)" );
             unlockFailed = true;
+            // resend query to give us a proper PIN
+            yield gatherSimStatusAndUpdate();
         }
     }
 
@@ -109,4 +112,8 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
         onModemStatusChange( theModem.status() );
     }
 
+    public void resetUnlockMarker()
+    {
+        unlockFailed = false;
+    }
 }
