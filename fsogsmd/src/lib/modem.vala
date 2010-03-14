@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -94,6 +94,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     //      separating them
     public enum Status
     {
+        /** For error cases **/
+        UNKNOWN,
         /** Initial state, Transport is closed **/
         CLOSED,
         /** Transport open, initialization commands are being sent **/
@@ -154,6 +156,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
     // Misc. Accessors
     public abstract Modem.Status status();
+    public abstract FreeSmartphone.GSM.DeviceStatus externalStatus();
     public abstract FsoGsm.Modem.Data data();
     public abstract void registerAtCommandSequence( string channel, string purpose, AtCommandSequence sequence );
 }
@@ -799,7 +802,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             }
         }
         modem_status = next;
+
+        // update for internal listeners
         signalStatusChanged( modem_status );
+        // update for external listeners
+        var obj = parent as FreeSmartphone.GSM.Device;
+        obj.device_status( externalStatus() );
+
         logger.info( "Modem Status changed to %s".printf( FsoFramework.StringHandling.enumToString( typeof(Modem.Status), modem_status ) ) );
     }
 
@@ -807,6 +816,37 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         var seq = modem_data.cmdSequences[ @"$channel-$purpose" ];
         return ( seq != null ) ? seq : modem_data.cmdSequences["null"];
+    }
+
+    public FreeSmartphone.GSM.DeviceStatus externalStatus()
+    {
+        switch ( modem_status )
+        {
+            case Status.CLOSED:
+                return FreeSmartphone.GSM.DeviceStatus.CLOSED;
+            case Status.INITIALIZING:
+                return FreeSmartphone.GSM.DeviceStatus.INITIALIZING;
+            case Status.ALIVE_NO_SIM:
+                return FreeSmartphone.GSM.DeviceStatus.ALIVE_NO_SIM;
+            case Status.ALIVE_SIM_LOCKED:
+                return FreeSmartphone.GSM.DeviceStatus.ALIVE_SIM_LOCKED;
+            case Status.ALIVE_SIM_UNLOCKED:
+                return FreeSmartphone.GSM.DeviceStatus.ALIVE_SIM_UNLOCKED;
+            case Status.ALIVE_SIM_READY:
+                return FreeSmartphone.GSM.DeviceStatus.ALIVE_SIM_READY;
+            case Status.ALIVE_REGISTERED:
+                return FreeSmartphone.GSM.DeviceStatus.ALIVE_REGISTERED;
+            case Status.SUSPENDING:
+                return FreeSmartphone.GSM.DeviceStatus.SUSPENDING;
+            case Status.SUSPENDED:
+                return FreeSmartphone.GSM.DeviceStatus.SUSPENDED;
+            case Status.RESUMING:
+                return FreeSmartphone.GSM.DeviceStatus.RESUMING;
+            case Status.CLOSING:
+                return FreeSmartphone.GSM.DeviceStatus.CLOSING;
+            default:
+                return FreeSmartphone.GSM.DeviceStatus.UNKNOWN;
+        }
     }
 }
 

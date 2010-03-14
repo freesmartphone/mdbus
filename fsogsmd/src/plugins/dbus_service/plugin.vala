@@ -265,14 +265,6 @@ class DBusService.Device :
         return m.muted;
     }
 
-    public async bool get_sim_buffers_sms() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        var m = modem.createMediator<FsoGsm.DeviceGetSimBuffersSms>();
-        yield m.run();
-        return m.buffers;
-    }
-
     public async int get_speaker_volume() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
@@ -300,13 +292,6 @@ class DBusService.Device :
         yield m.run( muted );
     }
 
-    public async void set_sim_buffers_sms( bool sim_buffers_sms ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        var m = modem.createMediator<FsoGsm.DeviceSetSimBuffersSms>();
-        yield m.run( sim_buffers_sms );
-    }
-
     public async void set_speaker_volume( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
@@ -321,6 +306,11 @@ class DBusService.Device :
         yield m.run();
         status = m.status;
         level = m.level;
+    }
+
+    public async FreeSmartphone.GSM.DeviceStatus get_device_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        return modem.externalStatus();
     }
 
     //
