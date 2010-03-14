@@ -42,9 +42,9 @@ class Pdp.Qmi : FsoGsm.PdpHandler
         fd = Posix.open( node, Posix.O_RDWR | Posix.O_NONBLOCK );
         if ( fd < 0 )
         {
-            logger.error( @"Can't open $node: $(strerror(errno))" );
+            logger.error( @"Can't open $node: $(strerror(errno)); PDP via QMI will NOT be available" );
         }
-        //else
+        else
         {
             GLib.g_thread_init();
             FsoFramework.Threading.callDelegateOnNewThread( qmiListenerThread, null );
