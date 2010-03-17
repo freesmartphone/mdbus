@@ -806,9 +806,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         // update for internal listeners
         signalStatusChanged( modem_status );
         // update for external listeners
-        var obj = parent as FreeSmartphone.GSM.Device;
-        obj.device_status( externalStatus() );
-
+        if ( parent != null )
+        {
+            var obj = parent as FreeSmartphone.GSM.Device;
+            obj.device_status( externalStatus() );
+        }
         logger.info( "Modem Status changed to %s".printf( FsoFramework.StringHandling.enumToString( typeof(Modem.Status), modem_status ) ) );
     }
 
