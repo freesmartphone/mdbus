@@ -22,7 +22,6 @@ fsogsmd_SOURCES = \
 
 $(BUILT_SOURCES): $(fsogsmd_VALASOURCES)
 	$(VALAC) -C --vapidir vapi \
-				--thread \
 				--pkg posix \
 				--pkg gio-2.0 \
 				--pkg dbus-glib-1 \
