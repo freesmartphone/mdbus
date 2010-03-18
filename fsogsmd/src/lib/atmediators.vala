@@ -244,6 +244,15 @@ public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeS
 
 public async void triggerUpdateNetworkStatus()
 {
+    var mstat = theModem.status();
+
+    // ignore, if we don't have proper status to issue networking commands yet
+    if ( mstat != Modem.Status.ALIVE_SIM_READY && mstat != Modem.Status.ALIVE_REGISTERED )
+    {
+        assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() ignored while modem is in status $mstat" ) );
+        return;
+    }
+
     // gather info
     var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
     yield m.run();
