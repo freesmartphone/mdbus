@@ -680,6 +680,7 @@ public class PlusCPBR : AbstractAtCommand
             message( "number = %p", number );
 
             var entry = FreeSmartphone.GSM.SIMEntry( to_int( "id" ), number, decodeString( to_string( "name" ) ) );
+            entry.number = number;
             message( "number = %p, name = %p", entry.number, entry.name );
             phonebook += entry;
             message( "number = %p, name = %p", entry.number, entry.name );
