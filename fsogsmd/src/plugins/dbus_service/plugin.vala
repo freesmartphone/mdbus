@@ -435,6 +435,14 @@ class DBusService.Device :
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimRetrievePhonebook>();
         yield m.run( category );
+
+        foreach ( var entry in m.phonebook )
+        {
+            debug( @"$(entry.index), $(entry.name), $(entry.number)" );
+            assert( entry.name.length > 0 );
+            assert( entry.number.length > 0 );
+        }
+
         return m.phonebook;
     }
 
