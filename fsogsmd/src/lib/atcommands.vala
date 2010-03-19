@@ -673,6 +673,10 @@ public class PlusCPBR : AbstractAtCommand
         foreach ( var line in response )
         {
             base.parse( line );
+
+            var number = to_string( "number" );
+            message( "number = %p", number );
+
             var entry = FreeSmartphone.GSM.SIMEntry( to_int( "id" ), to_string( "number" ), decodeString( to_string( "name" ) ) );
             message( "number = %p, name = %p", entry.number, entry.name );
             phonebook += entry;
