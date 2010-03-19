@@ -1,5 +1,4 @@
 /*
- *
  *  oFono - Open Source Telephony
  *
  *  Copyright (C) 2008-2009  Intel Corporation. All rights reserved.
@@ -22,14 +21,29 @@
 #include "util.h"
 #include "smsutil.h"
 
-char *ucs2_to_utf8(const char *str)
+char* ucs2_to_utf8(const char* str)
 {
+//    g_debug( "ucs2_to_utf8: '%s'", str );
     long len;
     unsigned char *ucs2;
     char *utf8;
     ucs2 = decode_hex(str, -1, &len, 0);
-    utf8 = g_convert((char *)ucs2, len, "UTF-8//TRANSLIT", "UCS-2BE",
-                      NULL, NULL, NULL);
+//    g_debug( "--- ucs2 now '%s'", ucs2 );
+    utf8 = g_convert((char *)ucs2, len, "UTF-8//TRANSLIT", "UCS-2BE", NULL, NULL, NULL);
+    g_free(ucs2);
+    return utf8;
+}
+
+char *gsm_to_utf8(const char* str)
+{
+//    g_debug( "gsm_to_utf8: '%s'", str );
+    long len;
+    long written;
+    unsigned char *ucs2;
+    char *utf8;
+    ucs2 = decode_hex(str, -1, &len, 0);
+//    g_debug( "--- ucs2 now '%s'", ucs2 );
+    utf8 = convert_gsm_to_utf8((char*)ucs2, len, NULL, NULL, 0);
     g_free(ucs2);
     return utf8;
 }

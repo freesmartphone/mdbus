@@ -18,10 +18,13 @@
  */
 
 [CCode (cheader_filename = "conversions.h,util.h", cprefix = "", lower_case_cprefix = "")]
-namespace Conversions {
-
+namespace Conversions
+{
     string ucs2_to_utf8( string data );
+    string gsm_to_utf8( string data );
+
     string sim_string_to_utf8( string buffer, int length );
+
 
     void decode_hex_own_buf( string inbuffer,
                              long length,

@@ -341,7 +341,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         //modem_data.simidentification = "unknown";
 
-        modem_data.charset = "unknown";
+        modem_data.charset = config.stringValue( CONFIG_SECTION, "modem_charset", "guess" ).up();
         modem_data.simHasReadySignal = false;
         modem_data.simReadyTimeout = 30; /* seconds */
 

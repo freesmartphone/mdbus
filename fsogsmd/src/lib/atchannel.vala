@@ -67,11 +67,12 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         var seq3 = theModem.atCommandSequence( name, "init" );
         yield seq3.performOnChannel( this );
 
-        var charset = yield configureCharset( { "UTF8", "UCS2", "IRA" } );
+        // select charset, try to lock to preferred one (if available)
+        var charset = yield configureCharset( { theModem.data().charset, "UTF8", "UCS2", "HEX", "IRA" } );
 
         if ( charset == "unknown" )
         {
-            theModem.logger.warning( "Modem does not support the charset command or any of UTF8, UCS2, IRA" );
+            theModem.logger.warning( "Modem does not support the charset command or any of UTF8, UCS2, HEX, IRA" );
         }
         else
         {

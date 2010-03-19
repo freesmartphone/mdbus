@@ -85,8 +85,10 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
         switch ( data.charset )
         {
             case "UCS2":
-                //FIXME: should this function be rather secured against (null)?
                 var res = Conversions.ucs2_to_utf8( str );
+                return ( res != null ) ? res : "";
+            case "HEX":
+                var res = Conversions.gsm_to_utf8( str );
                 return ( res != null ) ? res : "";
             default:
                 return str;

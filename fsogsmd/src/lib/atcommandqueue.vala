@@ -177,7 +177,7 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
     public async string[] enqueueAsync( FsoGsm.AtCommandQueueCommand command, string request, int retries = DEFAULT_RETRY )
     {
 #if DEBUG
-        debug( "enqueuing %s from AT command %s (sizeof q = %u)".printf( request, Type.from_instance( command ).name(), q.size ) );
+        debug( "enqueuing %s from AT command %s".printf( request, Type.from_instance( command ).name() ) );
 #endif
         var handler = new AtCommandHandler( command, request, retries );
         handler.callback = enqueueAsync.callback;
