@@ -673,25 +673,10 @@ public class PlusCPBR : AbstractAtCommand
         foreach ( var line in response )
         {
             base.parse( line );
-
-            var number = to_string( "number" );
-            message( "number = %p", number );
-            number = to_string( "number" );
-            message( "number = %p", number );
-
-            var entry = FreeSmartphone.GSM.SIMEntry( to_int( "id" ), number, decodeString( to_string( "name" ) ) );
-            entry.number = number;
-            message( "number = %p, name = %p", entry.number, entry.name );
+            var entry = FreeSmartphone.GSM.SIMEntry( to_int( "id" ), decodeString( to_string( "name" ) ), to_string( "number" ) );
             phonebook += entry;
-            message( "number = %p, name = %p", entry.number, entry.name );
         }
         this.phonebook = phonebook;
-
-        foreach ( var entry in this.phonebook )
-        {
-            assert( entry.number != null );
-            assert( entry.name != null );
-        }
     }
 
     public override void parseTest( string response ) throws AtCommandError
