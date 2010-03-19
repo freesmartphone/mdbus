@@ -142,7 +142,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
             case State.INLINE_R:
                 return inline_r( c );
             case State.INVALID:
-                return invalid( c ); 
+                return invalid( c );
             default:
                 assert_not_reached();
         }
@@ -154,6 +154,15 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
     //
     public State start( char c )
     {
+        switch ( c )
+        {
+            case '\r':
+                return State.START_R;
+            case '\n':
+                warning( "Detected missing \\r on start of line; ignoring v.250ter violation gracefully" );
+                return State.INLINE;
+        }
+
         if ( haveCommand() )
         {
             switch (c)
@@ -173,23 +182,16 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                     warning( "Detected missing \\r\\n before continuation character; ignoring, but your modem SUCKS!" );
                     return State.CONTINUATION;
                 default:
-                    return State.INVALID;
+                    warning( "Detected missing \\r\\n on start of line; ignoring v.250ter violation gracefully" );
+                    curline += c;
+                    return State.INLINE;
             }
         }
         else
         {
-            switch (c)
-            {
-                case '\r':
-                    return State.START_R;
-                case '\n':
-                    warning( "Detected missing \\r on start of line for incoming URC; ignoring v.250ter violation gracefully" );
-                    return State.INLINE;
-                default:
-                    warning( "Detected missing \\r\\n on start of line for incoming URC; ignoring v.250ter violation gracefully" );
-                    curline += c;
-                    return State.INLINE;
-            }
+            warning( "Detected missing \\r\\n on start of line; ignoring v.250ter violation gracefully" );
+            curline += c;
+            return State.INLINE;
         }
     }
 
@@ -301,7 +303,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         }
         return State.INVALID;
     }
-    
+
     public State invalid( char c )
     {
         warning( "Invalid Parser State. Trying to resync..." );
