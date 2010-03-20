@@ -238,6 +238,44 @@ public class PlusCGMR : SimpleAtCommand<string>
     }
 }
 
+public class PlusCGREG : AbstractAtCommand
+{
+    public int mode;
+    public int status;
+    public string lac;
+    public string cid;
+
+    public PlusCGREG()
+    {
+        re = new Regex( """\+CGREG: (?P<mode>\d),(?P<status>\d)(?:,"?(?P<lac>[0-9A-F]*)"?,"?(?P<cid>[0-9A-F]*)"?)?""" );
+        prefix = { "+CGREG: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        mode = to_int( "mode" );
+        status = to_int( "status" );
+        lac = to_string( "lac" );
+        cid = to_string( "cid" );
+    }
+
+    public string query()
+    {
+        return "+CGREG?";
+    }
+
+    public string issue( int mode )
+    {
+        return @"+CGREG=$mode";
+    }
+
+    public string queryFull( int restoreMode )
+    {
+        return @"+CGREG=2;+CGREG?;+CGREG=$restoreMode";
+    }
+}
+
 public class PlusCGSN : SimpleAtCommand<string>
 {
     public PlusCGSN()
@@ -810,7 +848,7 @@ public class PlusCREG : AbstractAtCommand
 
     public string issue( int mode )
     {
-        return "+CREG=%d";
+        return @"+CREG=$mode";
     }
 
     public string queryFull( int restoreMode )
@@ -1000,8 +1038,9 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CCLK" ]             = new FsoGsm.PlusCCLK();
 
     // network
-    table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
+    table[ "+CGREG" ]            = new FsoGsm.PlusCGREG();
     table[ "+CREG" ]             = new FsoGsm.PlusCREG();
+    table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
     table[ "+CSQ" ]              = new FsoGsm.PlusCSQ();
 
     // call control
