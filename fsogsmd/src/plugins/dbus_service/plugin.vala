@@ -40,16 +40,20 @@ class DBusService.Device :
 
     public Device( FsoFramework.Subsystem subsystem )
     {
-        var modemtype = config.stringValue( "fsogsm", "modem_type", "DummyModem" );
-        if ( modemtype == "DummyModem" )
-        {
-            logger.critical( "modem_type not specified and DummyModem not implemented yet" );
-            return;
-        }
+        var modemtype = config.stringValue( "fsogsm", "modem_type", "none" );
         string typename;
 
         switch ( modemtype )
         {
+            case "cinterion_mc75":
+                typename = "CinterionMc75Modem";
+                break;
+            case "dummy":
+                typename = "DummyModem";
+                break;
+            case "freescale_neptune":
+                typename = "FreescaleNeptuneModem";
+                break;
             case "singleline":
                 typename = "SinglelineModem";
                 break;
@@ -61,12 +65,6 @@ class DBusService.Device :
                 break;
             case "qualcomm_palm":
                 typename = "QualcommPalmModem";
-                break;
-            case "freescale_neptune":
-                typename = "FreescaleNeptuneModem";
-                break;
-            case "cinterion_mc75":
-                typename = "CinterionMc75Modem";
                 break;
             default:
                 logger.error( @"Unsupported modem_type $modemtype" );

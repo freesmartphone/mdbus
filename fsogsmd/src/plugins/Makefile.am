@@ -9,6 +9,7 @@ SUBDIRS = \
 	\
 	lowlevel_openmoko \
 	\
+	modem_dummy \
 	modem_singleline \
 	modem_qualcomm_htc \
 	\
