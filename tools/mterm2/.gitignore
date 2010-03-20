@@ -26,5 +26,5 @@ missing
 *.la
 stamp-h1
 
-fso-term
+mterm2
 src/.*
