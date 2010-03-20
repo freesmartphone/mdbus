@@ -946,7 +946,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
             status.insert( "strength", intvalue );
         }
 
-        // query registration status and lac/cid
+        // query telephony registration status and lac/cid
         var creg = theModem.createAtCommand<PlusCREG>( "+CREG" );
         var cregResult = yield theModem.processAtCommandAsync( creg, creg.query() );
         if ( creg.validate( cregResult ) == Constants.AtResponse.VALID )
@@ -975,6 +975,10 @@ public class AtNetworkGetStatus : NetworkGetStatus
             strvalue = cops.act;
             status.insert( "act", strvalue );
         }
+        else if ( cops.validate( copsResult ) == Constants.AtResponse.CME_ERROR_030_NO_NETWORK_SERVICE )
+        {
+            status.insert( "registration", "unregistered" );
+        }
 
         // query operator code
         var copsResult2 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
@@ -982,6 +986,23 @@ public class AtNetworkGetStatus : NetworkGetStatus
         {
             strvalue = cops.oper;
             status.insert( "code", strvalue );
+        }
+
+        // query data registration status and lac/cid
+        var cgreg = theModem.createAtCommand<PlusCGREG>( "+CGREG" );
+        var cgregResult = yield theModem.processAtCommandAsync( cgreg, cgreg.query() );
+        if ( cgreg.validate( cgregResult ) == Constants.AtResponse.VALID )
+        {
+            var cgregResult2 = yield theModem.processAtCommandAsync( cgreg, cgreg.queryFull( cgreg.mode ) );
+            if ( cgreg.validate( cgregResult2 ) == Constants.AtResponse.VALID )
+            {
+                strvalue = Constants.instance().networkRegistrationStatusToString( cgreg.status );
+                status.insert( "data.registration", strvalue );
+                strvalue = cgreg.lac;
+                status.insert( "data.lac", strvalue );
+                strvalue = cgreg.cid;
+                status.insert( "data.cid", strvalue );
+            }
         }
     }
 }
