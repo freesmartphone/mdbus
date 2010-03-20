@@ -164,6 +164,11 @@ public class DummyAtDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        if ( modem_pin != pin )
+        {
+            var simiface = theModem.theDevice<FreeSmartphone.GSM.SIM>();
+            simiface.auth_status( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+        }
     }
 }
 

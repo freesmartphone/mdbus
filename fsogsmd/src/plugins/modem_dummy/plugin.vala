@@ -44,7 +44,7 @@ class Dummy.Modem : FsoGsm.AbstractModem
     public async override bool open()
     {
         FsoGsm.modem_pin = "1234";
-        advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+        advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_LOCKED );
         return true;
     }
 
