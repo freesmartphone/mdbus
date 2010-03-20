@@ -1,14 +1,14 @@
+==================================
 Qualcomm MSM proprietary commands:
-=================================
+==================================
 
 +CGDSCONT          extension to +cgdcont
 +CGTFT
 +CGEQREQ           extension to +cgqreq
 +CGEQMIN           extension to +cgqmin
-+CGSMS
-+CSAS
-+CRES
-+CSMP
++CSAS              STK?
++CRES              STK?
++CSMP              set power status?
 +FDD
 +FAR
 +FCL
@@ -16,34 +16,32 @@ Qualcomm MSM proprietary commands:
 +ES
 +ESA
 +CVHU
-+HSDPA
-+SIMVOLT
++HSDPA             get/set whether HSDPA mode is allowed
++SIMVOLT           get sim voltage
 +TTYMODE
-+EONS
++EONS              extended operator selection?
 +pref_UARFCN
 +HTCmaskW1
 +VKK_SIM_EXPIRED
-+ISIMS
-+ISIMA
-+ISIMR
++ISIMS             STK?
++ISIMA             STK?
++ISIMR             STK?
 +QEXTONE
-+HTCAGPS
++HTCAGPS           get/set AGPS mode
 +CUS_SBM
 +CUS_EM
-+MEMFULL
++MEMFULL           SMS memory full indicator?
 +CPIN              send PIN1/PUK1
 +CPINC             get pin counter
 +CPIN2             send PIN2/PUK2
-+CMEC
-+CKPD
 +CGCMOD
-+CGAATT
++CGAATT            extended context attachement?
 +BANDSET           manually select GSM band
-+COPSLAC
++COPSLAC           enable extended format for +COPS? adding the location area code
 +ALS               alternate line select
 +ODEN
 +HTCPDPIDLE
-+CHZ
++CHZ               homezone indicator?
 +CPPP
 +CALLREJECT        send 'busy' signal without dropping other calls
 +RXD
@@ -59,15 +57,18 @@ Qualcomm MSM proprietary commands:
 +CPLS
 +HTCCTZR           extension to +CTZR
 +CDIP
-+SIMTYPE
++SIMTYPE           get SIM type
 +CPBC
 +CSDN
 +GIMG
 +GEVL
-+RADIOVER
-+CCSQ
++RADIOVER          show baseband firmware
++CCSQ              enhanced version of +CSQ; showing neighbour cell strengths?
 +DMODE
-$QCCNMI
+
+ENGINEERING MODE COMMANDS
+
+$QCCNMI            +CNMI extension, set SMS & CB reception parameters
 $QCCLR
 $QCDMG
 $QCDMR
@@ -75,22 +76,22 @@ $QCDNSP
 $QCDNSS
 $QCTER
 $QCSLOT
-$QCPINSTAT
+$QCPINSTAT         +CPIN extension, show PIN authentication status for different facilities
 $QCPDPP
 $QCPDPLT
-$QCPWRDN
-$QCSIMSTAT
+$QCPWRDN           power down
+$QCSIMSTAT         show SIM status, get/set SIM status URC mode
 $QCDGEN
 $BREW
 $FTM
-$GSM
-$GPRS
-$AMR
-$3G_RESEL_PARA
-$2G_RESEL_PARA
-$3G_RESEL_STATUS
-$2G_RESEL_STATUS
-$WCDMA
+$GSM               engineering mode: show GSM parameters
+$GPRS              engineering mode: show GPRS parameters
+$AMR               engineering mode: show AMR parameters
+$WCDMA             engineering mode: show WCDMA parameters
+$3G_RESEL_PARA     engineering mode: show 3G cell reselection parameters
+$2G_RESEL_PARA     engineering mode: show 2G cell reselection parameters
+$3G_RESEL_STATUS   engineering mode: show 3G cell reselection status
+$2G_RESEL_STATUS   engineering mode: show 2G cell reselection status
 $L3_RRC_SIGNAL
 $PRACH_RACH_INFO
 $3G_DCH_STATUS_A
