@@ -221,14 +221,6 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.Device.*)
     //
-    public async bool get_antenna_power() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        var m = modem.createMediator<FsoGsm.DeviceGetAntennaPower>();
-        yield m.run();
-        return m.antenna_power;
-    }
-
     public async void get_functionality( out string level, out bool autoregister, out string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
@@ -269,12 +261,6 @@ class DBusService.Device :
         var m = modem.createMediator<FsoGsm.DeviceGetSpeakerVolume>();
         yield m.run();
         return m.volume;
-    }
-
-    public async void set_antenna_power( bool antenna_power ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Please use org.freesmartphone.GSM.Device.SetFunctionality instead." );
     }
 
     public async void set_functionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -392,12 +378,6 @@ class DBusService.Device :
         var m = modem.createMediator<FsoGsm.SimGetInformation>();
         yield m.run();
         return m.info;
-    }
-
-    public async bool get_sim_ready() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
     public async string[] list_phonebooks() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

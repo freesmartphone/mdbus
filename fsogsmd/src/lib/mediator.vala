@@ -57,12 +57,6 @@ public abstract class FsoGsm.DeviceGetAlarmTime : FsoGsm.AbstractMediator
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
-public abstract class FsoGsm.DeviceGetAntennaPower : FsoGsm.AbstractMediator
-{
-    public bool antenna_power { get; set; }
-    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-}
-
 public abstract class FsoGsm.DeviceGetCurrentTime : FsoGsm.AbstractMediator
 {
     public int since_epoch { get; set; }
@@ -132,11 +126,6 @@ public abstract class FsoGsm.DeviceSetFunctionality : FsoGsm.AbstractMediator
 public abstract class FsoGsm.DeviceSetMicrophoneMuted : FsoGsm.AbstractMediator
 {
     public abstract async void run( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-}
-
-public abstract class FsoGsm.DeviceSetSimBuffersSms : FsoGsm.AbstractMediator
-{
-    public abstract async void run( bool buffers ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.DeviceSetSpeakerVolume : FsoGsm.AbstractMediator

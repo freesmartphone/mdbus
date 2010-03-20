@@ -333,17 +333,6 @@ public class AtDebugPing : DebugPing
 /**
  * Device Mediators
  **/
-public class AtDeviceGetAntennaPower : DeviceGetAntennaPower
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var response = yield theModem.processAtCommandAsync( cfun, cfun.query() );
-        checkResponseValid( cfun, response );
-        antenna_power = cfun.value == 1;
-    }
-}
-
 public class AtDeviceGetAlarmTime : DeviceGetAlarmTime
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -661,28 +650,6 @@ public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
         var response = yield theModem.processAtCommandAsync( cmut, cmut.issue( muted ? 1 : 0 ) );
 
         checkResponseOk( cmut, response );
-    }
-}
-
-public class AtDeviceSetSimBuffersSms : DeviceSetSimBuffersSms
-{
-    public override async void run( bool buffers ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        //if ( buffers != theModem.data().simBuffersSms )
-        {
-            var data = theModem.data();
-            data.simBuffersSms = buffers;
-            var cnmiparams = buffers ? data.cnmiSmsBufferedCb : data.cnmiSmsDirectCb;
-
-            var cnmi = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
-            var response = yield theModem.processAtCommandAsync( cnmi, cnmi.issue( cnmiparams.mode,
-                                                                                 cnmiparams.mt,
-                                                                                 cnmiparams.bm,
-                                                                                 cnmiparams.ds,
-                                                                                 cnmiparams.bfr) );
-
-            checkResponseOk( cnmi, response );
-        }
     }
 }
 
@@ -1169,7 +1136,6 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DebugPing) ]                    = typeof( AtDebugPing );
 
     table[ typeof(DeviceGetAlarmTime) ]           = typeof( AtDeviceGetAlarmTime );
-    table[ typeof(DeviceGetAntennaPower) ]        = typeof( AtDeviceGetAntennaPower );
     table[ typeof(DeviceGetCurrentTime) ]         = typeof( AtDeviceGetCurrentTime );
     table[ typeof(DeviceGetInformation) ]         = typeof( AtDeviceGetInformation );
     table[ typeof(DeviceGetFeatures) ]            = typeof( AtDeviceGetFeatures );
@@ -1182,7 +1148,6 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetCurrentTime) ]         = typeof( AtDeviceSetCurrentTime );
     table[ typeof(DeviceSetFunctionality) ]       = typeof( AtDeviceSetFunctionality );
     table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( AtDeviceSetMicrophoneMuted );
-    table[ typeof(DeviceSetSimBuffersSms) ]       = typeof( AtDeviceSetSimBuffersSms );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(SimChangeAuthCode) ]            = typeof( AtSimChangeAuthCode );

@@ -121,14 +121,6 @@ public class DummyAtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
     }
 }
 
-public class DummyAtDeviceGetSimBuffersSms : DeviceGetSimBuffersSms
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        buffers = false;
-    }
-}
-
 public class DummyAtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -164,6 +156,9 @@ public class DummyAtDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        Timeout.add_seconds( 3, run.callback );
+        yield;
+        
         if ( modem_pin != pin )
         {
             var simiface = theModem.theDevice<FreeSmartphone.GSM.SIM>();
@@ -177,13 +172,6 @@ public class DummyAtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
     public override async void run( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         modem_microphoneMuted = muted;
-    }
-}
-
-public class DummyAtDeviceSetSimBuffersSms : DeviceSetSimBuffersSms
-{
-    public override async void run( bool buffers ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
     }
 }
 
@@ -365,6 +353,7 @@ public class DummyAtNetworkRegister : NetworkRegister
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         Timeout.add_seconds( 5, run.callback );
+        yield;
     }
 }
 
@@ -485,13 +474,11 @@ public void registerDummyMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetFunctionality) ]       = typeof( DummyAtDeviceGetFunctionality );
     table[ typeof(DeviceGetMicrophoneMuted) ]     = typeof( DummyAtDeviceGetMicrophoneMuted );
     table[ typeof(DeviceGetPowerStatus) ]         = typeof( DummyAtDeviceGetPowerStatus );
-    table[ typeof(DeviceGetSimBuffersSms) ]       = typeof( DummyAtDeviceGetSimBuffersSms );
     table[ typeof(DeviceGetSpeakerVolume) ]       = typeof( DummyAtDeviceGetSpeakerVolume );
     table[ typeof(DeviceSetAlarmTime) ]           = typeof( DummyAtDeviceSetAlarmTime );
     table[ typeof(DeviceSetCurrentTime) ]         = typeof( DummyAtDeviceSetCurrentTime );
     table[ typeof(DeviceSetFunctionality) ]       = typeof( DummyAtDeviceSetFunctionality );
     table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( DummyAtDeviceSetMicrophoneMuted );
-    table[ typeof(DeviceSetSimBuffersSms) ]       = typeof( DummyAtDeviceSetSimBuffersSms );
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( DummyAtDeviceSetSpeakerVolume );
 
     table[ typeof(SimChangeAuthCode) ]            = typeof( DummyAtSimChangeAuthCode );
