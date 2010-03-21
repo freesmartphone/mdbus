@@ -159,7 +159,9 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
             case '\r':
                 return State.START_R;
             case '\n':
+#if DEBUG
                 warning( "Detected missing \\r on start of line; ignoring v.250ter violation gracefully" );
+#endif
                 return State.INLINE;
         }
 
@@ -179,17 +181,23 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 case 'a':
                     return State.ECHO_A;
                 case '>':
+#if DEBUG
                     warning( "Detected missing \\r\\n before continuation character; ignoring, but your modem SUCKS!" );
+#endif
                     return State.CONTINUATION;
                 default:
+#if DEBUG
                     warning( "Detected missing \\r\\n on start of line; ignoring v.250ter violation gracefully" );
+#endif
                     curline += c;
                     return State.INLINE;
             }
         }
         else
         {
+#if DEBUG
             warning( "Detected missing \\r\\n on start of line; ignoring v.250ter violation gracefully" );
+#endif
             curline += c;
             return State.INLINE;
         }
@@ -201,7 +209,9 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         {
             case 'T':
             case 't':
+#if DEBUG
                 warning( "Detected E1 mode (echo); ignoring, but please turn that off!" );
+#endif
                 return State.ECHO_INLINE;
         }
         return State.INVALID;
@@ -223,7 +233,9 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         switch ( c )
         {
             case '\r':
+#if DEBUG
                 warning( "Detected V0 mode (nonverbose); ignoring, but please turn that off!" );
+#endif
                 curline += 'O';
                 curline += 'K';
                 return endofline();
@@ -260,7 +272,9 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         switch (c)
         {
             case '\r':
+#if DEBUG
                 warning( "Detected multiple \\r at start of result; ignoring, but your modem SUCKS!" );
+#endif
                 return State.START_R;
             case '\n':
                 return State.INLINE;
@@ -296,7 +310,9 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         switch (c)
         {
             case '\r':
+#if DEBUG
                 warning( "StateBasedAtParser: Multiple \r found; ignoring." );
+#endif
                 return State.INLINE_R;
             case '\n':
                 return endofline();
@@ -306,7 +322,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
 
     public State invalid( char c )
     {
-        warning( "Invalid Parser State. Trying to resync..." );
+        warning( "Invalid Parser State! Trying to resync..." );
         switch (c)
         {
             case '\n':
