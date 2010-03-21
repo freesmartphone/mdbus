@@ -84,6 +84,11 @@ public bool isPresent( string filename )
     return ( Posix.stat( filename, out structstat ) != -1 );
 }
 
+public string readIfPresent( string filename )
+{
+    return isPresent( filename ) ? read( filename ) : "";
+}
+
 public string read( string filename )
 {
     char[] buf = new char[READ_BUF_SIZE];
@@ -91,14 +96,14 @@ public string read( string filename )
     var fd = Posix.open( filename, Posix.O_RDONLY );
     if ( fd == -1 )
     {
-        warning( "%s", "can't open for reading to %s: %s".printf( filename, Posix.strerror( Posix.errno ) ) );
+        warning( @"Can't read-open $filename: $(Posix.strerror(Posix.errno))" );
     }
     else
     {
         ssize_t count = Posix.read( fd, buf, READ_BUF_SIZE );
         if ( count < 1 )
         {
-            warning( "couldn't read any bytes" );
+            warning( @"Couldn't read anything from $filename: $(Posix.strerror(Posix.errno))" );
             Posix.close( fd );
         }
         else
