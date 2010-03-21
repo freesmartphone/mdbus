@@ -1,4 +1,4 @@
-/* 
+/*
  * File Name: playlist.vala
  * Creation Date: 23-08-2009
  * Last Modified: 05-01-2010 02:48:58
@@ -93,7 +93,6 @@ namespace FsoMusic
             this.key_file = kf;
             this._name = name;
             musicplayer = mp;
-            logger = FsoFramework.createLogger( FsoFramework.Utility.programName() + ".playlist" , @"$classname.$name" );
             logger.info( @"New Playlist named '$name'" );
             try
             {
@@ -134,7 +133,7 @@ namespace FsoMusic
             position = 0;
             current = files;
         }
-        construct 
+        construct
         {
             files = new List<string>();
             this.position = 0;
@@ -196,12 +195,12 @@ namespace FsoMusic
             {
                 var curdir = File.new_for_path( dir );
                 var iter = yield curdir.enumerate_children_async (FILE_ATTRIBUTE_STANDARD_NAME, 0, Priority.DEFAULT, null);
-                while (true) 
+                while (true)
                 {
                     var files = yield iter.next_files_async (10, Priority.DEFAULT, null);
-                    if (files == null) 
+                    if (files == null)
                             break;
-                    foreach (var file in files) 
+                    foreach (var file in files)
                     {
                         var full_path = Path.build_filename( dir, file.get_name() );
                         if( FileUtils.test( full_path, FileTest.IS_DIR ) )
@@ -268,7 +267,7 @@ namespace FsoMusic
             {
                 var f = File.new_for_uri( uri );
                 var in_stream = yield f.read_async( Priority.DEFAULT, null );
-                var data_stream = new DataInputStream( in_stream ); 
+                var data_stream = new DataInputStream( in_stream );
                 while( true )
                 {
                     size_t len;
@@ -419,6 +418,6 @@ namespace FsoMusic
                  throw new MusicPlayerPlaylistError.EMPTY( "Playlist is empty" );
             return current.data;
         }
-        
+
     }
 }

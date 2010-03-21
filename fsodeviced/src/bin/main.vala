@@ -19,29 +19,25 @@
 
 GLib.MainLoop mainloop;
 
-FsoFramework.Logger logger;
 FsoFramework.Subsystem subsystem;
 
 public static void sighandler( int signum )
 {
     Posix.signal( signum, null ); // restore original sighandler
-    logger.info( "received signal -%d, exiting.".printf( signum ) );
+    FsoFramework.theLogger.info( "received signal -%d, exiting.".printf( signum ) );
     mainloop.quit();
 }
 
 public static int main( string[] args )
 {
-    var bin = FsoFramework.Utility.programName();
-    logger = FsoFramework.createLogger( bin, bin );
-    logger.info( "%s starting up...".printf( bin ) );
     subsystem = new FsoFramework.DBusSubsystem( "fsodevice" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
-    logger.info( "loaded %u plugins".printf( count ) );
+    FsoFramework.theLogger.info( "loaded %u plugins".printf( count ) );
     if ( count > 0 )
     {
         mainloop = new GLib.MainLoop( null, false );
-        logger.info( "fsodeviced => mainloop" );
+        FsoFramework.theLogger.info( "fsodeviced => mainloop" );
         Posix.signal( Posix.SIGINT, sighandler );
         Posix.signal( Posix.SIGTERM, sighandler );
         // enable for release version?
@@ -51,12 +47,12 @@ public static int main( string[] args )
         /*
         var ok = FsoFramework.UserGroupHandling.switchToUserAndGroup( "nobody", "nogroup" );
         if ( !ok )
-            logger.warning( "Unable to drop privileges." );
+            FsoFramework.theLogger.warning( "Unable to drop privileges." );
         */
 
         mainloop.run();
-        logger.info( "mainloop => fsodeviced" );
+        FsoFramework.theLogger.info( "mainloop => fsodeviced" );
     }
-    logger.info( "fsodeviced shutdown." );
+    FsoFramework.theLogger.info( "fsodeviced shutdown." );
     return 0;
 }

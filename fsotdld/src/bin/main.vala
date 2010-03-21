@@ -21,32 +21,31 @@
 
 GLib.MainLoop mainloop;
 
-FsoFramework.Logger logger;
-
 public static void sighandler( int signum )
 {
     Posix.signal( signum, null ); // restore original sighandler
-    logger.info( "Received signal -%d, exiting.".printf( signum ) );
+    FsoFramework.theLogger.info( "Received signal -%d, exiting.".printf( signum ) );
     mainloop.quit();
 }
 
 public static int main( string[] args )
 {
-    logger = FsoFramework.createLogger( "fsotdl", "fsotdl" );
-    logger.info( "fsotdl starting up..." );
     var subsystem = new FsoFramework.DBusSubsystem( "fsotdl" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
-    logger.info( "loaded %u plugins".printf( count ) );
-    mainloop = new GLib.MainLoop( null, false );
-    logger.info( "fsotdl => mainloop" );
-    Posix.signal( Posix.SIGINT, sighandler );
-    Posix.signal( Posix.SIGTERM, sighandler );
-    // enable for release version?
-    //Posix.signal( Posix.SIGBUS, sighandler );
-    //Posix.signal( Posix.SIGSEGV, sighandler );
-    mainloop.run();
-    logger.info( "mainloop => fsotdld" );
-    logger.info( "fsotdl shutdown." );
+    FsoFramework.theLogger.info( "loaded %u plugins".printf( count ) );
+    if ( count > 0 )
+    {
+        mainloop = new GLib.MainLoop( null, false );
+        FsoFramework.theLogger.info( "fsotdl => mainloop" );
+        Posix.signal( Posix.SIGINT, sighandler );
+        Posix.signal( Posix.SIGTERM, sighandler );
+        // enable for release version?
+        //Posix.signal( Posix.SIGBUS, sighandler );
+        //Posix.signal( Posix.SIGSEGV, sighandler );
+        mainloop.run();
+        FsoFramework.theLogger.info( "mainloop => fsotdld" );
+    }
+    FsoFramework.theLogger.info( "fsotdl shutdown." );
     return 0;
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * File Name: main.vala
  * Creation Date: 23-08-2009
  * Last Modified: 19-11-2009 23:41:19
@@ -25,7 +25,6 @@ using DBus;
 using Posix;
 
 GLib.MainLoop mainloop;
-FsoFramework.Logger logger;
 FsoFramework.Subsystem subsystem;
 
 namespace FsoMusic
@@ -36,15 +35,12 @@ namespace FsoMusic
         try
         {
             Gst.init( ref args );
-            var bin = FsoFramework.Utility.programName();
-            logger = FsoFramework.createLogger( bin, bin );
-            logger.info( "%s starting up...".printf( bin ) );
             subsystem = new FsoFramework.DBusSubsystem( "fsomusic" );
             subsystem.registerPlugins();
             if( subsystem.registerServiceName( FsoFramework.MusicPlayer.ServiceDBusName ) )
             {
                 uint count = subsystem.loadPlugins();
-                logger.info("loaded %u plugins".printf( count ) );
+                FsoFramework.theLogger.info("loaded %u plugins".printf( count ) );
                 mainloop = new MainLoop( null, false );
                 KeyFile kf = new KeyFile();
                 MusicPlayer mp = null;
@@ -63,11 +59,11 @@ namespace FsoMusic
                 }
                 subsystem.registerServiceObject( FsoFramework.MusicPlayer.ServiceDBusName,
                                                 FsoFramework.MusicPlayer.ServicePathPrefix, mp );
-                logger.info( "fsomusicd => mainloop" );
+                FsoFramework.theLogger.info( "fsomusicd => mainloop" );
                 signal( SIGINT, sig_handle );
                 signal( SIGTERM, sig_handle );
                 mainloop.run();
-                logger.info( "mainloop => fsomusicd" );
+                FsoFramework.theLogger.info( "mainloop => fsomusicd" );
                 //XXX: Workaround for circular reference
                 while( mp.ref_count > 1 )
                 {
@@ -100,7 +96,7 @@ namespace FsoMusic
     }
     public static void sig_handle( int signal )
     {
-        logger.debug("Received signal: %i".printf( signal ) );
+        FsoFramework.theLogger.debug("Received signal: %i".printf( signal ) );
         mainloop.quit();
     }
 }

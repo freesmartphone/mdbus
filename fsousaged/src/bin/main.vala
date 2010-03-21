@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
 
 GLib.MainLoop mainloop;
 
-FsoFramework.Logger logger;
 FsoFramework.Subsystem subsystem;
 
 public static void sighandler( int signum )
@@ -29,27 +28,24 @@ public static void sighandler( int signum )
     var backtrace = FsoFramework.Utility.createBacktrace();
     foreach ( var line in backtrace )
     {
-        logger.error( line );
+        FsoFramework.theLogger.error( line );
     }
 #endif
-    logger.info( "received signal -%d, shutting down...".printf( signum ) );
+    FsoFramework.theLogger.info( "received signal -%d, shutting down...".printf( signum ) );
     subsystem.shutdown();
     mainloop.quit();
 }
 
 public static int main( string[] args )
 {
-    var bin = FsoFramework.Utility.programName();
-    logger = FsoFramework.createLogger( bin, bin );
-    logger.info( @"$bin $(Config.PACKAGE_VERSION)-$(Config.PACKAGE_GITV) starting up..." );
     subsystem = new FsoFramework.DBusSubsystem( "fsousage" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
-    logger.info( "loaded %u plugins".printf( count ) );
+    FsoFramework.theLogger.info( "loaded %u plugins".printf( count ) );
     if ( count > 0 )
     {
         mainloop = new GLib.MainLoop( null, false );
-        logger.info( "%s => mainloop".printf( bin ) );
+        FsoFramework.theLogger.info( "fsousaged => mainloop" );
         Posix.signal( Posix.SIGINT, sighandler );
         Posix.signal( Posix.SIGTERM, sighandler );
         Posix.signal( Posix.SIGBUS, sighandler );
@@ -58,12 +54,12 @@ public static int main( string[] args )
         /*
         var ok = FsoFramework.UserGroupHandling.switchToUserAndGroup( "nobody", "nogroup" );
         if ( !ok )
-            logger.warning( "Unable to drop privileges." );
+            FsoFramework.theLogger.warning( "Unable to drop privileges." );
         */
 
         mainloop.run();
-        logger.info( "mainloop => %s".printf( bin ) );
+        FsoFramework.theLogger.info( "mainloop => fsousaged" );
     }
-    logger.info( "%s exit".printf( bin ) );
+    FsoFramework.theLogger.info( "fsousaged exit" );
     return 0;
 }
