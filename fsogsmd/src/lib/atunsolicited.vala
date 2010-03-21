@@ -113,6 +113,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CIEV", plusCIEV );
         registerUrc( "+CMTI", plusCMTI );
         registerUrc( "+CREG", plusCREG );
+        registerUrc( "+CGREG", plusCGREG );
         registerUrc( "+CRING", plusCRING );
     }
 
@@ -137,6 +138,11 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     }
 
     public virtual void plusCREG( string prefix, string rhs )
+    {
+        triggerUpdateNetworkStatus();
+    }
+
+    public virtual void plusCGREG( string prefix, string rhs )
     {
         triggerUpdateNetworkStatus();
     }
