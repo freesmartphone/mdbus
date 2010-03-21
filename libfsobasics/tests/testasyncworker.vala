@@ -32,7 +32,7 @@ public void queueHandler( int value )
 void test_asyncworker_create()
 //===========================================================================
 {
-    var q = new AsyncWorkerQueue<int>() as AbstractWorkerQueue;
+    var q = new AsyncWorkerQueue<int>();
     assert( q != null );
 }
 
@@ -40,7 +40,7 @@ void test_asyncworker_create()
 void test_asyncworker_enqueue()
 //===========================================================================
 {
-    var q = new AsyncWorkerQueue<int>() as AbstractWorkerQueue;
+    var q = new AsyncWorkerQueue<int>();
     for( int i = 0; i < 100; ++i )
         q.enqueue( i );
 }
