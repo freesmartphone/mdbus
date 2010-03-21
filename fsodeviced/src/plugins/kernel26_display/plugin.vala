@@ -24,7 +24,9 @@ using GLib;
 namespace Kernel26
 {
 
-class Display : FreeSmartphone.Device.Display, FsoFramework.AbstractObject
+class Display : FreeSmartphone.Device.Display,
+                FreeSmartphone.Info,
+                FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
     static uint counter;
@@ -97,6 +99,34 @@ class Display : FreeSmartphone.Device.Display, FsoFramework.AbstractObject
     }
 
     //
+    // FreeSmartphone.Info (DBUS API)
+    //
+    public async HashTable<string, Value?> get_info()
+    {
+        string _leaf;
+        var val = Value( typeof(string) );
+        HashTable<string, Value?> info_table = new HashTable<string, Value?>( str_hash, str_equal );
+        /* Just read all the files in the sysfs path and return it as a{ss} */
+        try
+        {
+            Dir dir = Dir.open( this.sysfsnode, 0 );
+            while ((_leaf = dir.read_name()) != null)
+            {
+                if( FileUtils.test (this.sysfsnode + "/" + _leaf, FileTest.IS_REGULAR) && _leaf != "uevent" )
+                {
+                    val.take_string(FsoFramework.FileHandling.read(this.sysfsnode + "/" + _leaf).strip());
+                    info_table.insert (_leaf, val);
+                }
+            }
+        }
+        catch ( GLib.Error error )
+        {
+            logger.warning( error.message );
+        }
+        return info_table;
+    }
+
+    //
     // FreeSmartphone.Device.Display (DBUS API)
     //
     public async string get_name()
@@ -134,31 +164,6 @@ class Display : FreeSmartphone.Device.Display, FsoFramework.AbstractObject
     {
         var value = power ? "0" : "1";
         FsoFramework.FileHandling.write( value, this.sysfsnode + "/bl_power" );
-    }
-
-    public async HashTable<string, Value?> get_info()
-    {
-        string _leaf;
-        var val = Value( typeof(string) );
-        HashTable<string, Value?> info_table = new HashTable<string, Value?>( str_hash, str_equal );
-        /* Just read all the files in the sysfs path and return it as a{ss} */
-        try
-        {
-            Dir dir = Dir.open( this.sysfsnode, 0 );
-            while ((_leaf = dir.read_name()) != null)
-            {
-                if( FileUtils.test (this.sysfsnode + "/" + _leaf, FileTest.IS_REGULAR) && _leaf != "uevent" )
-                {
-                    val.take_string(FsoFramework.FileHandling.read(this.sysfsnode + "/" + _leaf).strip());
-                    info_table.insert (_leaf, val);
-                }
-            }
-        }
-        catch ( GLib.Error error )
-        {
-            logger.warning( error.message );
-        }
-        return info_table;
     }
 }
 

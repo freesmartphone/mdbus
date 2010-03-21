@@ -25,7 +25,9 @@ namespace Hardware
 /**
  * Audio Manager
  **/
-class AudioManager : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
+class AudioManager : FreeSmartphone.Device.Audio,
+                     FreeSmartphone.Info,
+                     FsoFramework.AbstractObject
 {
     private const string MODULE_NAME = "fsodevice.audio";
 
@@ -145,19 +147,13 @@ class AudioManager : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
     }
 
     //
-    // FreeSmartphone.Device.Sound (DBUS API)
+    // FreeSmartphone.Info (DBUS API)
     //
-
-    //
-    // Scenario
-    public async string[] get_available_scenarios() throws DBus.Error
-    {
-        return router.availableScenarios();
-    }
-
     public async HashTable<string,Value?> get_info() throws DBus.Error
     {
         var dict = new HashTable<string,Value?>( str_hash, str_equal );
+
+        //FIXME: implement
 
         /*
         var value = Value( typeof(string[] ) );
@@ -173,6 +169,17 @@ class AudioManager : FreeSmartphone.Device.Audio, FsoFramework.AbstractObject
         dict.insert( "scenarios", value );
         */
         return dict;
+    }
+
+    //
+    // FreeSmartphone.Device.Sound (DBUS API)
+    //
+
+    //
+    // Scenario
+    public async string[] get_available_scenarios() throws DBus.Error
+    {
+        return router.availableScenarios();
     }
 
     public async string get_scenario() throws DBus.Error
