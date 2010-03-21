@@ -86,14 +86,14 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
      **/
     public abstract void handleIncomingCall( string ctype );
 
-    public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async int  initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async int  initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     /*
-    public abstract async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     */
 }
 
@@ -109,10 +109,10 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
 
     protected abstract void startTimeoutIfNecessary();
 
-    public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async int  initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
-    public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error;
+    public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async int  initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 

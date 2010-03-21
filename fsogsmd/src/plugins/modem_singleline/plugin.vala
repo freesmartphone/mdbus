@@ -48,12 +48,6 @@ class Singleline.Modem : FsoGsm.AbstractModem
         // nothing to round-robin here as singleline only has one channel
         return channels[ CHANNEL_NAME ];
     }
-
-    public void responseHandler( FsoGsm.AtCommand command, string[] response )
-    {
-        debug( "handler called with '%s'", response[0] );
-        assert_not_reached();
-    }
 }
 
 /**

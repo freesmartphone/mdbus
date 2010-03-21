@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -19,13 +19,12 @@
 
 GLib.MainLoop mainloop;
 
-FsoFramework.Logger logger;
 FsoFramework.Subsystem subsystem;
 
 public static void sighandler( int signum )
 {
     Posix.signal( signum, null ); // restore original sighandler
-    logger.info( "received signal -%d, exiting.".printf( signum ) );
+    FsoFramework.theLogger.info( "received signal -%d, exiting.".printf( signum ) );
     Idle.add( () => {
         subsystem.shutdown();
         mainloop.quit();
@@ -36,16 +35,14 @@ public static void sighandler( int signum )
 public static int main( string[] args )
 {
     var bin = FsoFramework.Utility.programName();
-    logger = FsoFramework.createLogger( bin, bin );
-    logger.info( "%s starting up...".printf( bin ) );
     subsystem = new FsoFramework.DBusSubsystem( "fsogsm" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
-    logger.info( "loaded %u plugins".printf( count ) );
+    FsoFramework.theLogger.info( "loaded %u plugins".printf( count ) );
     if ( count > 0 )
     {
         mainloop = new GLib.MainLoop( null, false );
-        logger.info( "%s => mainloop".printf( bin ) );
+        FsoFramework.theLogger.info( "%s => mainloop".printf( bin ) );
         Posix.signal( Posix.SIGINT, sighandler );
         Posix.signal( Posix.SIGTERM, sighandler );
         Posix.signal( Posix.SIGBUS, sighandler );
@@ -58,8 +55,8 @@ public static int main( string[] args )
         */
 
         mainloop.run();
-        logger.info( "mainloop => %s".printf( bin ) );
+        FsoFramework.theLogger.info( "mainloop => %s".printf( bin ) );
     }
-    logger.info( "%s exit".printf( bin ) );
+    FsoFramework.theLogger.info( "%s exit".printf( bin ) );
     return 0;
 }

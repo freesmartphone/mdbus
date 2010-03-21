@@ -98,7 +98,6 @@ public class FsoGsm.BaseUnsolicitedResponseHandler : FsoGsm.UnsolicitedResponseH
                 return false;
             }
         }
-        return false; // not handled
     }
 }
 

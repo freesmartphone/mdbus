@@ -31,7 +31,7 @@ namespace FsoGsm {
 /**
  * Parsing and response checking helpers
  **/
-internal void throwAppropriateError( Constants.AtResponse code, string detail ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+internal void throwAppropriateError( Constants.AtResponse code, string detail ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var error = Constants.instance().atResponseCodeToError( code, detail );
     throw error;
@@ -40,7 +40,7 @@ internal void throwAppropriateError( Constants.AtResponse code, string detail ) 
 /**
  * Throws an error if response is not OK
  **/
-internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validateOk( response );
     if ( code == Constants.AtResponse.OK )
@@ -61,7 +61,7 @@ internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) thr
 internal Constants.AtResponse checkResponseExpected( FsoGsm.AtCommand command,
                                      string[] response,
                                      Constants.AtResponse[] expected
-                                   ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+                                   ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validateOk( response );
 
@@ -78,7 +78,7 @@ internal Constants.AtResponse checkResponseExpected( FsoGsm.AtCommand command,
     assert_not_reached(); // if this fails here, then our code is broken
 }
 
-internal void checkResponseConnect( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+internal void checkResponseConnect( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validateOk( response );
     if ( code == Constants.AtResponse.CONNECT )
@@ -91,7 +91,7 @@ internal void checkResponseConnect( FsoGsm.AtCommand command, string[] response 
     }
 }
 
-internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validateTest( response );
     if ( code == Constants.AtResponse.VALID )
@@ -104,7 +104,7 @@ internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] respons
     }
 }
 
-internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validate( response );
     if ( code == Constants.AtResponse.VALID )
@@ -117,7 +117,7 @@ internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) 
     }
 }
 
-internal void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+internal void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validateMulti( response );
     if ( code == Constants.AtResponse.VALID )
@@ -152,7 +152,7 @@ internal void validatePhoneNumber( string number ) throws FreeSmartphone.Error
 /**
  * Modem facilities helpers
  **/
-public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var data = theModem.data();
     if ( data.speakerVolumeMinimum == -1 )
@@ -173,7 +173,7 @@ public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, Fr
     }
 }
 
-public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var data = theModem.data();
 
@@ -219,7 +219,7 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
     }
 }
 
-public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var data = theModem.data();
     if ( data.simPhonebooks.size == 0 )
@@ -255,7 +255,15 @@ public async void triggerUpdateNetworkStatus()
 
     // gather info
     var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
-    yield m.run();
+    try
+    {
+        yield m.run();
+    }
+    catch ( GLib.Error e )
+    {
+        theModem.logger.warning( @"Can't query networking status: $(e.message)" );
+        return;
+    }
 
     // advance modem status, if necessary
     var status = m.status.lookup( "registration" ).get_string();
@@ -572,7 +580,6 @@ public class AtDeviceSetAlarmTime : DeviceSetAlarmTime
 {
     public override async void run( int since_epoch ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var data = theModem.data();
         var t = GLib.Time.gm( (time_t) since_epoch );
 
         var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );

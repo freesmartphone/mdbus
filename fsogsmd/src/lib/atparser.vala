@@ -143,7 +143,6 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
             default:
                 assert_not_reached();
         }
-        return State.INVALID;
     }
 
     //
@@ -263,7 +262,6 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
                 curline += c;
                 return State.INLINE;
         }
-        return State.INVALID;
     }
 
     public State inline_r( char c )
@@ -289,7 +287,6 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
             default:
                 return State.INVALID;
         }
-        return State.INVALID;
     }
 
     //
@@ -336,8 +333,8 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
             return resetLine();
         }
 
-        var prefixExpected = expectedPrefix( (string)curline );
 #if DEBUG
+        var prefixExpected = expectedPrefix( (string)curline );
         debug( "prefix expected = %s", prefixExpected.to_string() );
 #endif
         if ( !expectedPrefix( (string)curline ) )

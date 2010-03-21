@@ -51,21 +51,37 @@ namespace PPPD
     [CCode (instance_pos = 0.9)]
     public delegate void notify_func (int arg);
 
+    [CCode (has_target = false)]
     public static delegate int  new_phase_hook_func        (int phase);
+    [CCode (has_target = false)]
     public static delegate int  idle_time_hook_func        (ppp_idle idle);
+    [CCode (has_target = false)]
     public static delegate int  holdoff_hook_func          ();
+    [CCode (has_target = false)]
     public static delegate int  pap_check_hook_func        ();
+    [CCode (has_target = false)]
     public static delegate int  pap_auth_hook_func         (string user, string passwd, out string msgp, out wordlist paddrs, out wordlist popts);
+    [CCode (has_target = false)]
     public static delegate void pap_logout_hook_func       ();
+    [CCode (has_target = false)]
     public static delegate int  pap_passwd_hook_func       (string user, string passwd);
+    [CCode (has_target = false)]
     public static delegate int  allowed_address_hook_func  (uint32 addr);
+    [CCode (has_target = false)]
     public static delegate void ip_up_hook_func            ();
+    [CCode (has_target = false)]
     public static delegate void ip_down_hook_func          ();
+    [CCode (has_target = false)]
     public static delegate void ip_choose_hook_func        (out uint32 addr);
+    [CCode (has_target = false)]
     public static delegate int  chap_check_hook_func       ();
+    [CCode (has_target = false)]
     public static delegate int  chap_passwd_hook_func      (string user, string passwd);
+    [CCode (has_target = false)]
     public static delegate void multilink_join_hook_func   ();
+    [CCode (has_target = false)]
     public static delegate void snoop_recv_hook_func       (char[] packet);
+    [CCode (has_target = false)]
     public static delegate void snoop_send_hook_func       (char[] packet);
 
     // Structs

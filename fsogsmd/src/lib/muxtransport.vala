@@ -32,7 +32,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     private Gsm0710mux.ChannelInfo channelinfo;
     private FsoFramework.DelegateTransport tdelegate;
 
-    private char[] buffer;
+    private char[] muxbuffer;
     private int length;
 
     static construct
@@ -44,7 +44,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     {
         base( "LibGsm0710muxTransport" );
 
-        buffer = new char[1024];
+        muxbuffer = new char[1024];
         length = 0;
 
         var version = manager.getVersion();
@@ -96,7 +96,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         }
         catch ( Gsm0710mux.MuxerError e )
         {
-            logger.error( @"Can't open allocate channel #$(channelinfo.number) from MUX: $(e.message)" );
+            logger.error( @"Can't allocate channel #$(channelinfo.number) from MUX: $(e.message)" );
             return false;
         }
         return true;
@@ -106,7 +106,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     {
         assert( this.length > 0 );
         assert( this.length < length );
-        GLib.Memory.copy( data, this.buffer, this.length );
+        GLib.Memory.copy( data, this.muxbuffer, this.length );
 #if DEBUG
         message( @"READ %d from MUX #$(channelinfo.number): %s", length, ((string)data).escape( "" ) );
 #endif
@@ -123,7 +123,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         message( @"WRITE %d to MUX #$(channelinfo.number): %s", length, ((string)data).escape( "" ) );
 #endif
         this.length = length;
-        GLib.Memory.copy( this.buffer, data, length );
+        GLib.Memory.copy( this.muxbuffer, data, length );
         tdelegate.readfunc( tdelegate );
         assert( this.length == 0 ); // everything has been consumed
         return length;
@@ -142,7 +142,14 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     {
         if ( isOpen() )
         {
-            manager.releaseChannel( channelinfo.consumer );
+            try
+            {
+                manager.releaseChannel( channelinfo.consumer );
+            }
+            catch ( Gsm0710mux.MuxerError e )
+            {
+                logger.warning( @"Can't release channel #$(channelinfo.number) from MUX: $(e.message)" );
+            }
         }
     }
     //
@@ -168,7 +175,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
             message( @"FROM MODEM #$(channelinfo.number) WRITE $length" );
 #endif
             assert( length < MUX_TRANSPORT_MAX_BUFFER );
-            GLib.Memory.copy( this.buffer, data, length ); // prepare data
+            GLib.Memory.copy( this.muxbuffer, data, length ); // prepare data
             this.length = length;
             this.readfunc( this ); // signalize data being available
             assert( this.length == 0 ); // all has been consumed
@@ -192,7 +199,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         message( @"FROM MODEM #$(channelinfo.number) READ $(this.length)" );
 #endif
         assert( length > this.length );
-        GLib.Memory.copy( data, this.buffer, this.length );
+        GLib.Memory.copy( data, this.muxbuffer, this.length );
         var l = this.length;
         this.length = 0;
         return l;

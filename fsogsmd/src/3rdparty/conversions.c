@@ -21,6 +21,8 @@
 #include "util.h"
 #include "smsutil.h"
 
+#include <string.h>
+
 char* ucs2_to_utf8(const char* str)
 {
 //    g_debug( "ucs2_to_utf8: '%s'", str );

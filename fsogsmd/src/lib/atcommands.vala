@@ -44,7 +44,14 @@ public class PlusCALA : AbstractAtCommand
 
         var str = """\+CALA: "?(?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:[\+-](?P<tzoffset>\d\d))?"?,0,0,""";
         str += "\"(?P<mccmnc>[^\"]*)\"";
-        re = new Regex( str );
+        try
+        {
+            re = new Regex( str );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CALA: " };
     }
 
@@ -84,7 +91,14 @@ public class PlusCBC : AbstractAtCommand
 
     public PlusCBC()
     {
-        re = new Regex( """\+CBC: (?P<status>\d),(?P<level>\d+)""" );
+        try
+        {
+            re = new Regex( """\+CBC: (?P<status>\d),(?P<level>\d+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CBC: " };
     }
 
@@ -113,8 +127,15 @@ public class PlusCCLK : AbstractAtCommand
 
     public PlusCCLK()
     {
-        // some modems strip the leading zero for one-digit chars
-        re = new Regex( """\+CCLK: "?(?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:[\+-](?P<tzoffset>\d\d))?"?""" );
+        try
+        {
+            // some modems strip the leading zero for one-digit chars
+            re = new Regex( """\+CCLK: "?(?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?:[\+-](?P<tzoffset>\d\d))?"?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CCLK: " };
     }
 
@@ -151,7 +172,14 @@ public class PlusCEER : AbstractAtCommand
 
     public PlusCEER()
     {
-        re = new Regex( """\+CEER: (?P<location>\d+),(?P<reason>\d+),(?P<ssrelease>\d+)""" );
+        try
+        {
+            re = new Regex( """\+CEER: (?P<location>\d+),(?P<reason>\d+),(?P<ssrelease>\d+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CEER: " };
     }
 
@@ -247,7 +275,14 @@ public class PlusCGREG : AbstractAtCommand
 
     public PlusCGREG()
     {
-        re = new Regex( """\+CGREG: (?P<mode>\d),(?P<status>\d)(?:,"?(?P<lac>[0-9A-F]*)"?,"?(?P<cid>[0-9A-F]*)"?)?""" );
+        try
+        {
+            re = new Regex( """\+CGREG: (?P<mode>\d),(?P<status>\d)(?:,"?(?P<lac>[0-9A-F]*)"?,"?(?P<cid>[0-9A-F]*)"?)?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CGREG: " };
     }
 
@@ -324,7 +359,14 @@ public class PlusCLCC : AbstractAtCommand
 
     public PlusCLCC()
     {
-        re = new Regex( """\+CLCC: (?P<id>\d),(?P<dir>\d),(?P<stat>\d),(?P<mode>\d),(?P<mpty>\d)(?:,"(?P<number>[\+0-9*#w]+)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?)?""");
+        try
+        {
+            re = new Regex( """\+CLCC: (?P<id>\d),(?P<dir>\d),(?P<stat>\d),(?P<mode>\d),(?P<mpty>\d)(?:,"(?P<number>[\+0-9*#w]+)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?)?""");
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CLCC: " };
     }
 
@@ -378,8 +420,15 @@ public class PlusCLCK : AbstractAtCommand
 
     public PlusCLCK()
     {
-        re = new Regex( """\+CLCK: (?P<enabled>[01])(?:,(?P<class>\d+))?""" );
-        tere = new Regex( """\+CLCK: \((?P<facilities>[^\)]*)\)""" );
+        try
+        {
+            re = new Regex( """\+CLCK: (?P<enabled>[01])(?:,(?P<class>\d+))?""" );
+            tere = new Regex( """\+CLCK: \((?P<facilities>[^\)]*)\)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CLCK: " };
     }
 
@@ -436,7 +485,14 @@ public class PlusCMGL : AbstractAtCommand
 
     public PlusCMGL()
     {
-        re = new Regex( """\+CMGL: (?P<id>\d+),(?P<stat>\d),(?:"(?P<alpha>[0-9ABCDEF]*)")?,(?P<tpdulen>\d+)""");
+        try
+        {
+            re = new Regex( """\+CMGL: (?P<id>\d+),(?P<stat>\d),(?:"(?P<alpha>[0-9ABCDEF]*)")?,(?P<tpdulen>\d+)""");
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CMGL: " };
     }
 
@@ -478,7 +534,14 @@ public class PlusCMGR : AbstractAtCommand
 
     public PlusCMGR()
     {
-        re = new Regex( """\+CMGR: (?P<stat>\d),(?:"(?P<alpha>[0-9ABCDEF]*)")?,(?P<tpdulen>\d+)""");
+        try
+        {
+            re = new Regex( """\+CMGR: (?P<stat>\d),(?:"(?P<alpha>[0-9ABCDEF]*)")?,(?P<tpdulen>\d+)""");
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CMGR: " };
         length = 2;
     }
@@ -500,7 +563,14 @@ public class PlusCMGS : AbstractAtCommand
 {
     public PlusCMGS()
     {
-        re = new Regex( """\+CMGS: (?P<id>\d)(?:,"(?P<name>[0-9ABCDEF]*)")?""" );
+        try
+        {
+            re = new Regex( """\+CMGS: (?P<id>\d)(?:,"(?P<name>[0-9ABCDEF]*)")?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CMGS: " };
     }
 
@@ -517,7 +587,14 @@ public class PlusCMGW : AbstractAtCommand
 {
     public PlusCMGW()
     {
-        re = new Regex( """\+CMGW: (?P<id>\d+)""" );
+        try
+        {
+            re = new Regex( """\+CMGW: (?P<id>\d+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CMGW: " };
     }
 
@@ -547,7 +624,15 @@ public class PlusCMTI : AbstractAtCommand
 
     public PlusCMTI()
     {
-        re = new Regex( """\+CMTI: "(?P<storage>[^"]*)",(?P<id>\d+)""" );
+        try
+        {
+            re = new Regex( """\+CMTI: "(?P<storage>[^"]*)",(?P<id>\d+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+
     }
 
     public override void parse( string response ) throws AtCommandError
@@ -585,7 +670,14 @@ public class PlusCNMI : AbstractAtCommand
 
     public PlusCNMI()
     {
-        re = new Regex( """\+CNMI: (?P<mode>\d),(?P<mt>\d),(?P<bm>\d),(?P<ds>\d),(?P<bfr>\d)""" );
+        try
+        {
+            re = new Regex( """\+CNMI: (?P<mode>\d),(?P<mt>\d),(?P<bm>\d),(?P<ds>\d),(?P<bfr>\d)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CNMI: " };
     }
 
@@ -636,8 +728,15 @@ public class PlusCOPS : AbstractAtCommand
 
     public PlusCOPS()
     {
-        re = new Regex( """\+COPS:\ (?P<mode>\d)(,(?P<format>\d)?(,"(?P<oper>[^"]*)")?)?(?:,(?P<act>\d))?""" );
-        tere = new Regex( """\((?P<status>\d),(?:"(?P<longname>[^"]*)")?,(?:"(?P<shortname>[^"]*)")?,"(?P<mccmnc>[^"]*)"(?:,(?P<act>\d))?\)""" );
+        try
+        {
+            re = new Regex( """\+COPS:\ (?P<mode>\d)(,(?P<format>\d)?(,"(?P<oper>[^"]*)")?)?(?:,(?P<act>\d))?""" );
+            tere = new Regex( """\((?P<status>\d),(?:"(?P<longname>[^"]*)")?,(?:"(?P<shortname>[^"]*)")?,"(?P<mccmnc>[^"]*)"(?:,(?P<act>\d))?\)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+COPS: " };
     }
 
@@ -654,17 +753,25 @@ public class PlusCOPS : AbstractAtCommand
     {
         base.parseTest( response );
         var providers = new FreeSmartphone.GSM.NetworkProvider[] {};
-        do
+        try
         {
-            var p = FreeSmartphone.GSM.NetworkProvider(
-                Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
-                to_string( "longname" ),
-                to_string( "shortname" ),
-                to_string( "mccmnc" ),
-                Constants.instance().networkProviderActToString( to_int( "act" ) ) );
-            providers += p;
+            do
+            {
+                var p = FreeSmartphone.GSM.NetworkProvider(
+                    Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
+                    to_string( "longname" ),
+                    to_string( "shortname" ),
+                    to_string( "mccmnc" ),
+                    Constants.instance().networkProviderActToString( to_int( "act" ) ) );
+                providers += p;
+            }
+            while ( mi.next() );
         }
-        while ( mi.next() );
+        catch ( GLib.RegexError e )
+        {
+            FsoFramework.theLogger.error( @"Regex error: $(e.message)" );
+            throw new AtCommandError.UNABLE_TO_PARSE( e.message );
+        }
         this.providers = providers;
     }
 
@@ -700,8 +807,15 @@ public class PlusCPBR : AbstractAtCommand
 
     public PlusCPBR()
     {
-        re = new Regex( """\+CPBR: (?P<id>\d+),"(?P<number>[\+0-9*#w]*)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?""" );
-        tere = new Regex( """\+CPBR: \((?P<min>\d+)-(?P<max>\d+)\),\d+,\d+""" );
+        try
+        {
+            re = new Regex( """\+CPBR: (?P<id>\d+),"(?P<number>[\+0-9*#w]*)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?""" );
+            tere = new Regex( """\+CPBR: \((?P<min>\d+)-(?P<max>\d+)\),\d+,\d+""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CPBR: " };
     }
 
@@ -743,7 +857,14 @@ public class PlusCPBS : AbstractAtCommand
 
     public PlusCPBS()
     {
-        tere = new Regex( """\"(?P<book>[A-Z][A-Z])\"""" );
+        try
+        {
+            tere = new Regex( """\"(?P<book>[A-Z][A-Z])\"""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CPBS: " };
     }
 
@@ -751,11 +872,19 @@ public class PlusCPBS : AbstractAtCommand
     {
         base.parseTest( response );
         var books = new string[] {};
-        do
+        try
         {
-            books += Constants.instance().simPhonebookNameToString( to_string( "book" ) );
+            do
+            {
+                books += Constants.instance().simPhonebookNameToString( to_string( "book" ) );
+            }
+            while ( mi.next() );
         }
-        while ( mi.next() );
+        catch ( GLib.RegexError e )
+        {
+            FsoFramework.theLogger.error( @"Regex error: $(e.message)" );
+            throw new AtCommandError.UNABLE_TO_PARSE( e.message );
+        }
         phonebooks = books;
     }
 
@@ -771,7 +900,14 @@ public class PlusCPIN : AbstractAtCommand
 
     public PlusCPIN()
     {
-        re = new Regex( """\+CPIN:\ "?(?P<status>[^"]*)"?""" );
+        try
+        {
+            re = new Regex( """\+CPIN:\ "?(?P<status>[^"]*)"?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CPIN: " };
     }
 
@@ -799,7 +935,14 @@ public class PlusCPWD : AbstractAtCommand
 {
     public PlusCPWD()
     {
-        re = new Regex( """\+CPWD:\ "?(?P<pin>[^"]*)"?""" );
+        try
+        {
+            re = new Regex( """\+CPWD:\ "?(?P<pin>[^"]*)"?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CPWD: " };
     }
 
@@ -828,7 +971,14 @@ public class PlusCREG : AbstractAtCommand
 
     public PlusCREG()
     {
-        re = new Regex( """\+CREG: (?P<mode>\d),(?P<status>\d)(?:,"?(?P<lac>[0-9A-F]*)"?,"?(?P<cid>[0-9A-F]*)"?)?""" );
+        try
+        {
+            re = new Regex( """\+CREG: (?P<mode>\d),(?P<status>\d)(?:,"?(?P<lac>[0-9A-F]*)"?,"?(?P<cid>[0-9A-F]*)"?)?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CREG: " };
     }
 
@@ -863,7 +1013,14 @@ public class PlusCRSM : AbstractAtCommand
 
     public PlusCRSM()
     {
-        re = new Regex( """\+CRSM: 144,0,"?(?P<payload>[0-9A-Z]+)"?""" );
+        try
+        {
+            re = new Regex( """\+CRSM: 144,0,"?(?P<payload>[0-9A-Z]+)"?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CRSM: " };
     }
 
@@ -885,7 +1042,14 @@ public class PlusCSCA : AbstractAtCommand
 
     public PlusCSCA()
     {
-        re = new Regex( """\+CSCA: "(?P<number>%s*)",(?P<ntype>\d+)""".printf( Constants.PHONE_DIGITS_RE ) );
+        try
+        {
+            re = new Regex( """\+CSCA: "(?P<number>%s*)",(?P<ntype>\d+)""".printf( Constants.PHONE_DIGITS_RE ) );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CSCA: " };
     }
 
@@ -920,7 +1084,14 @@ public class PlusCSQ : AbstractAtCommand
 
     public PlusCSQ()
     {
-        re = new Regex( """\+CSQ: (?P<signal>\d+),(?P<ber>\d+)""" );
+        try
+        {
+            re = new Regex( """\+CSQ: (?P<signal>\d+),(?P<ber>\d+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
         prefix = { "+CSQ: " };
     }
 

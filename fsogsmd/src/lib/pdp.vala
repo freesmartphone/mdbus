@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -29,16 +29,17 @@ public abstract class FsoGsm.PdpHandler : FsoFramework.AbstractObject
 
     public async void connectedWithNewDefaultRoute( string iface, string ipv4addr, string ipv4mask, string ipv4gateway, string dns1, string dns2 )
     {
-        var conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-        FreeSmartphone.Network network = conn.get_object( FsoFramework.Network.ServiceDBusName,
-                                                          FsoFramework.Network.ServicePathPrefix,
-                                                          FsoFramework.Network.ServiceFacePrefix ) as FreeSmartphone.Network;
-
         try
         {
+            var conn = DBus.Bus.get( DBus.BusType.SYSTEM );
+            FreeSmartphone.Network network = conn.get_object(
+                FsoFramework.Network.ServiceDBusName,
+                FsoFramework.Network.ServicePathPrefix,
+                FsoFramework.Network.ServiceFacePrefix ) as FreeSmartphone.Network;
+
             yield network.offer_default_route( "cellular", iface, ipv4addr, ipv4mask, ipv4gateway, dns1, dns2 );
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             logger.error( @"Can't call offer_default_route on onetworkd: $(e.message)" );
         }
@@ -93,7 +94,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
     {
     }
 
-    protected async virtual void enterDataState()
+    protected async virtual void enterDataState() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         // enter data state
         var cmd = theModem.createAtCommand<V250D>( "D" );

@@ -21,8 +21,6 @@ using GLib;
 
 public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 {
-    private static int numChannelsInitialized;
-
     protected string name;
 
     private bool isMainChannel;

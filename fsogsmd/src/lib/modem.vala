@@ -126,7 +126,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract async bool suspend();
     public abstract async bool resume();
     public abstract void injectResponse( string command, string channel ) throws FreeSmartphone.Error; // DEBUG ONLY
-    public abstract async void setFunctionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error;
+    public abstract async void setFunctionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
@@ -135,8 +135,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public signal void signalStatusChanged( Modem.Status status );
 
     // Mediator API
-    public abstract T createMediator<T>() throws FreeSmartphone.Error;
-    public abstract T createAtCommand<T>( string command ) throws FreeSmartphone.Error;
+    public abstract T createMediator<T>();
+    public abstract T createAtCommand<T>( string command );
     public abstract T theDevice<T>();
     public abstract Object parent { get; set; } // the DBus object
     public abstract CallHandler callhandler { get; set; } // the Call handler
@@ -621,7 +621,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         chan.injectResponse( command );
     }
 
-    public virtual async void setFunctionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error
+    public virtual async void setFunctionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var m = createMediator<FsoGsm.DeviceSetFunctionality>();
         yield m.run( level, autoregister, pin );
@@ -665,25 +665,27 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return null;
     }
 
-    public T createMediator<T>() throws FreeSmartphone.Error
+    public T createMediator<T>()
     {
         var typ = mediators[typeof(T)];
         assert( typ != typeof(T) ); // we do NOT want the interface, else things will go havoc
         if ( typ == Type.INVALID )
         {
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( typeof(T).name() ) );
+            logger.critical( "Requested mediator '$(typeof(T).name())' unknown" );
+            assert_not_reached();
         }
         T obj = Object.new( typ );
         assert( obj != null );
         return obj;
     }
 
-    public T createAtCommand<T>( string command ) throws FreeSmartphone.Error
+    public T createAtCommand<T>( string command )
     {
         AtCommand? cmd = commands[command];
         if (cmd == null )
         {
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested AT command '%s' unknown".printf( command ) );
+            logger.critical( @"Requested AT command '$command' unknown" );
+            assert_not_reached();
         }
         return (T) cmd;
     }

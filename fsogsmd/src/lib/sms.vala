@@ -190,10 +190,18 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     public Gee.ArrayList<string> keys()
     {
         var result = new Gee.ArrayList<string>();
-        var dir = GLib.Dir.open( storagedir );
-        for ( var smshash = dir.read_name(); smshash != null; smshash = dir.read_name() )
+        GLib.Dir dir;
+        try
         {
-            result.add( smshash );
+            dir = GLib.Dir.open( storagedir );
+            for ( var smshash = dir.read_name(); smshash != null; smshash = dir.read_name() )
+            {
+                result.add( smshash );
+            }
+        }
+        catch ( GLib.Error e )
+        {
+            logger.error( @"Can't access SMS storage dir: $(e.message)" );
         }
         return result;
     }
@@ -211,7 +219,15 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
         {
             // single SMS
             string contents;
-            GLib.FileUtils.get_contents( GLib.Path.build_filename( storagedir, key, "001" ), out contents );
+            try
+            {
+                GLib.FileUtils.get_contents( GLib.Path.build_filename( storagedir, key, "001" ), out contents );
+            }
+            catch ( GLib.Error e )
+            {
+                logger.error( @"Can't access SMS storage dir: $(e.message)" );
+                return result;
+            }
             unowned Sms.Message message = (Sms.Message) contents;
 
             result.status = "single";
@@ -246,7 +262,15 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
                 else
                 {
                     string contents;
-                    GLib.FileUtils.get_contents( filename, out contents );
+                    try
+                    {
+                        GLib.FileUtils.get_contents( filename, out contents );
+                    }
+                    catch ( GLib.Error e )
+                    {
+                        logger.error( @"Can't access SMS storage dir: $(e.message)" );
+                        return result;
+                    }
                     Memory.copy( smses[i-1], contents, Sms.Message.size() );
 
                     if ( !info )

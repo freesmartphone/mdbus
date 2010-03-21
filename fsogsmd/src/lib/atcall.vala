@@ -98,63 +98,70 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     protected async void syncCallStatus()
     {
-        assert( logger.debug( "synchronizing call status" ) );
-        var m = theModem.createMediator<FsoGsm.CallListCalls>();
-        yield m.run();
-
-        // workaround for https://bugzilla.gnome.org/show_bug.cgi?id=585847
-        var length = 0;
-        foreach ( var c in m.calls )
+        try
         {
-            length++;
-        }
-        // </workaround>
+            assert( logger.debug( "Synchronizing call status" ) );
+            var m = theModem.createMediator<FsoGsm.CallListCalls>();
+            yield m.run();
 
-        assert( logger.debug( @"$(length) calls known in the system" ) );
-
-        // stop timer if there are no more calls
-        if ( length == 0 )
-        {
-            assert( logger.debug( "call status idle -> stopping updater" ) );
-            Source.remove( timeout );
-            timeout = 0;
-        }
-
-        // visit all busy (incoming,outgoing,held,active) calls to send updates...
-        var visited = new bool[Constants.CALL_INDEX_MAX+1];
-        foreach ( var call in m.calls )
-        {
-            calls[call.id].update( call );
-            visited[call.id] = true;
-        }
-
-        // ...and synthesize updates for (now) released calls
-        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
-        {
-            if ( ! visited[i] && calls[i].detail.status != FreeSmartphone.GSM.CallStatus.RELEASE )
+            // workaround for https://bugzilla.gnome.org/show_bug.cgi?id=585847
+            var length = 0;
+            foreach ( var c in m.calls )
             {
-                var detail = FreeSmartphone.GSM.CallDetail(
-                    i,
-                    FreeSmartphone.GSM.CallStatus.RELEASE,
-                    new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal )
-                );
-
-                var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
-                var result = yield theModem.processAtCommandAsync( ceer, ceer.execute() );
-                if ( ceer.validate( result ) == Constants.AtResponse.VALID )
-                {
-                    detail.properties.insert( "cause", Constants.instance().ceerCauseToString( ceer.location, ceer.reason, ceer.ssrelease ) );
-                }
-
-                calls[i].update( detail );
+                length++;
             }
+            // </workaround>
+
+            assert( logger.debug( @"$(length) calls known in the system" ) );
+
+            // stop timer if there are no more calls
+            if ( length == 0 )
+            {
+                assert( logger.debug( "call status idle -> stopping updater" ) );
+                Source.remove( timeout );
+                timeout = 0;
+            }
+
+            // visit all busy (incoming,outgoing,held,active) calls to send updates...
+            var visited = new bool[Constants.CALL_INDEX_MAX+1];
+            foreach ( var call in m.calls )
+            {
+                calls[call.id].update( call );
+                visited[call.id] = true;
+            }
+
+            // ...and synthesize updates for (now) released calls
+            for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
+            {
+                if ( ! visited[i] && calls[i].detail.status != FreeSmartphone.GSM.CallStatus.RELEASE )
+                {
+                    var detail = FreeSmartphone.GSM.CallDetail(
+                        i,
+                        FreeSmartphone.GSM.CallStatus.RELEASE,
+                        new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal )
+                    );
+
+                    var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
+                    var result = yield theModem.processAtCommandAsync( ceer, ceer.execute() );
+                    if ( ceer.validate( result ) == Constants.AtResponse.VALID )
+                    {
+                        detail.properties.insert( "cause", Constants.instance().ceerCauseToString( ceer.location, ceer.reason, ceer.ssrelease ) );
+                    }
+
+                    calls[i].update( detail );
+                }
+            }
+        }
+        catch ( GLib.Error e )
+        {
+            logger.error( @"Can't synchronize call status: $(e.message)" );
         }
     }
 
     //
     // DBus methods, delegated from the Call mediators
     //
-    public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( id < 1 || id > Constants.CALL_INDEX_MAX )
         {
@@ -180,7 +187,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         }
     }
 
-    public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var num = lowestOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.RELEASE );
         if ( num == 0 )
@@ -197,7 +204,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         return num;
     }
 
-    public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.ACTIVE ) == 0 )
         {
@@ -212,7 +219,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         checkResponseOk( cmd, response );
     }
 
-    public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( id < 1 || id > Constants.CALL_INDEX_MAX )
         {
@@ -227,10 +234,10 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         checkResponseOk( cmd, response );
     }
 
-    public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = theModem.createAtCommand<V250H>( "H" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
+        yield theModem.processAtCommandAsync( cmd, cmd.execute() );
         // no checkResponseOk, this call will always succeed
     }
 }

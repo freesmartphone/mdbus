@@ -76,12 +76,19 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
             var m = theModem.createMediator<FsoGsm.SimSendAuthCode>();
             yield m.run( theModem.data().simPin );
         }
-        catch ( FreeSmartphone.GSM.Error e )
+        catch ( GLib.Error e1 )
         {
-            logger.error( @"Could not unlock SIM PIN: $(e.message)" );
+            logger.error( @"Could not unlock SIM PIN: $(e1.message)" );
             unlockFailed = true;
             // resend query to give us a proper PIN
-            yield gatherSimStatusAndUpdate();
+            try
+            {
+                yield gatherSimStatusAndUpdate();
+            }
+            catch ( GLib.Error e2 )
+            {
+                logger.error( @"Can't gather SIM status: $(e2.message)" );
+            }
         }
     }
 
@@ -92,7 +99,7 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
             var m = theModem.createMediator<FsoGsm.NetworkRegister>();
             yield m.run();
         }
-        catch ( FreeSmartphone.GSM.Error e )
+        catch ( GLib.Error e )
         {
             logger.error( @"Could not register: $(e.message)" );
         }

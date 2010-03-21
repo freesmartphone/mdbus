@@ -408,8 +408,15 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
         {
             prefix = { name + ": " };
         }
-        re = new Regex( regex );
-        tere = new Regex( testx );
+        try
+        {
+            re = new Regex( regex );
+            tere = new Regex( testx );
+        }
+        catch ( GLib.Error e )
+        {
+            assert_not_reached(); // fail here, if regex is invalid
+        }
     }
 
     public override void parse( string response ) throws AtCommandError
