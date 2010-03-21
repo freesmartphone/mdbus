@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -19,9 +19,12 @@
 
 using GLib;
 
-//===========================================================================
+/**
+ * @class FsoFramework.SocketTransport
+ *
+ * FSO transport abstraction using a TCP or UDP socket
+ **/
 public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
-//===========================================================================
 {
     private int domain;
     private int stype;
@@ -66,12 +69,21 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
         fd = Posix.socket( domain, stype, 0 );
         if ( fd == -1 )
         {
-            logger.error( "Could not create socket: %s".printf( Posix.strerror( Posix.errno ) ) );
+            logger.error( @"Could not create socket: $(Posix.strerror(Posix.errno))" );
             return false;
         }
 
         var resolver = Resolver.get_default();
-        List<InetAddress> addresses = resolver.lookup_by_name( name, null );
+        List<InetAddress> addresses;
+        try
+        {
+            addresses = resolver.lookup_by_name( name, null );
+        }
+        catch ( GLib.Error e )
+        {
+            logger.error( @"Could not resolve $name: $(Posix.strerror(Posix.errno))" );
+            return false;
+        }
         var address = addresses.nth_data(0);
         logger.info( @"Resolved $name to $address" );
 
@@ -79,7 +91,7 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
         var res = Linux.inet_aton( address.to_string(), out inaddr );
         if ( res == -1 )
         {
-            logger.error( "Could not convert address: %s".printf( Posix.strerror( Posix.errno ) ) );
+            logger.error( @"Could not convert address: $(Posix.strerror(Posix.errno))" );
             Posix.close( fd );
             fd = -1;
             return false;
@@ -93,7 +105,7 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
         res = Posix.connect( fd, &addr, sizeof( Posix.SockAddrIn ) );
         if ( res == -1 )
         {
-            logger.error( "Could not bind to socket: %s".printf( Posix.strerror( Posix.errno ) ) );
+            logger.error( @"Could not bind to socket: $(Posix.strerror(Posix.errno))" );
             Posix.close( fd );
             fd = -1;
             return false;

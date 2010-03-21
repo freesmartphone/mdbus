@@ -396,7 +396,9 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         if ( !buffered )
         {
             return _write( data, len );
-            Posix.tcdrain( fd );
+            //FIXME: When should we call drain? Perhaps checking an additional argument? Or an explicit call?
+            //FYI: This is the cause for not properly returning out of MUX mode w/ Cinterion MC75 modem
+            //Posix.tcdrain( fd );
         }
         else
         {
@@ -428,6 +430,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     {
         assert( fd != -1 );
         ssize_t byteswritten = Posix.write( fd, wdata, wlength );
+        assert( byteswritten == wlength ); // FIXME: support partial writes
         Posix.tcdrain( fd );
 
         var readfds = Posix.fd_set();
