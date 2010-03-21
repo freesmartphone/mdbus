@@ -250,8 +250,20 @@ public class DummyAtSimRetrievePhonebook : SimRetrievePhonebook
         }
 
         var pb = new FreeSmartphone.GSM.SIMEntry[] {};
-        pb += FreeSmartphone.GSM.SIMEntry( 1, "Mickey", "+4912345678" );
-        pb += FreeSmartphone.GSM.SIMEntry( 2, "Sabine", "+4976543210" );
+        
+        pb += FreeSmartphone.GSM.SIMEntry( 1, "Dr. Mickey Lauer", "+4912345678" );
+        pb += FreeSmartphone.GSM.SIMEntry( 2, "Dr. Sabine Lauer", "+4976543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 3, "Daniel Willmann", "+4976543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 4, "Jan Lübbe", "+4976543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 5, "Stefan Schmidt", "+497655543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 6, "Frederik Sdun", "+497651243210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 7, "Simon Busch", "+497116543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 8, "Mr. Moku", "+492376543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 9, "Hans Wurst", "+493376543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 10, "Prof. Med. Wurst", "+493376543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 11, "Wer 'auch' immer", "+4971236543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 12, "Sir Lancelot", "+1555543210" );
+        pb += FreeSmartphone.GSM.SIMEntry( 13, "Merlin", "+410001w552w455543210" );
 
         this.phonebook = pb;
     }
@@ -261,6 +273,16 @@ public class DummyAtSimRetrieveMessagebook : SimRetrieveMessagebook
 {
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var mb = new FreeSmartphone.GSM.SIMMessage[] {};
+
+        var props = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+
+        mb += FreeSmartphone.GSM.SIMMessage( 1, "READ", "+123456789", "Yo, what's up in da house tonight?", props );
+        mb += FreeSmartphone.GSM.SIMMessage( 2, "READ", "+555456789", "It's going to be cold, don't forget your coat, sun!", props );
+        mb += FreeSmartphone.GSM.SIMMessage( 3, "READ", "+123456789", "And I thought you loved me :(", props );
+        mb += FreeSmartphone.GSM.SIMMessage( 4, "READ", "+555456789", "Don't forget to bring Dad's medicine", props );
+
+        this.messagebook = mb;
     }
 }
 
