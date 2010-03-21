@@ -183,8 +183,10 @@ internal class Channel
 
     public void deliverData( void* data, int len )
     {
-        transport.write( data, len );
-        MainContext.default().iteration( false ); // give other channels a chance (round-robin)
+        Idle.add( () => {
+            transport.write( data, len );
+            return false;
+        } );
     }
 
     //

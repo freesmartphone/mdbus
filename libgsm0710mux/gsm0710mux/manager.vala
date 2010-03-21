@@ -76,35 +76,28 @@ public class Manager : Object
         logger.setReprDelegate( repr );
         assert( logger.debug( "Constructed" ) );
 
-        try
-        {
-            autoopen = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "muxer_autoopen", autoopen );
-            autoclose = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "muxer_autoclose", autoclose );
-            autoexit = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "muxer_autoexit", autoexit );
+        autoopen = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "muxer_autoopen", autoopen );
+        autoclose = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "muxer_autoclose", autoclose );
+        autoexit = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "muxer_autoexit", autoexit );
 
-            session_type = config.stringValue( LIBGSM0710MUX_CONFIG_SECTION, "device_type", session_type );
-            session_path = config.stringValue( LIBGSM0710MUX_CONFIG_SECTION, "device_port", session_path );
-            session_speed = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_speed", (int)session_speed );
+        session_type = config.stringValue( LIBGSM0710MUX_CONFIG_SECTION, "device_type", session_type );
+        session_path = config.stringValue( LIBGSM0710MUX_CONFIG_SECTION, "device_port", session_path );
+        session_speed = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_speed", (int)session_speed );
 
-            session_mode = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "device_mux_mode", session_mode );
-            session_framesize = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_mux_framesize", (int)session_framesize );
-            channel_ack_timeout = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_ack_timeout", (int)channel_ack_timeout );
+        session_mode = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "device_mux_mode", session_mode );
+        session_framesize = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_mux_framesize", (int)session_framesize );
+        channel_ack_timeout = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_ack_timeout", (int)channel_ack_timeout );
 
-            wakeup_threshold = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_wakeup_threshold", (int)wakeup_threshold );
-            wakeup_waitms = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_wakeup_waitms", (int)wakeup_waitms );
+        wakeup_threshold = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_wakeup_threshold", (int)wakeup_threshold );
+        wakeup_waitms = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_wakeup_waitms", (int)wakeup_waitms );
 
-            leave_mux_alone = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "session_debug_leave_mux_alone", false );
-            leave_fc_alone = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "session_debug_leave_fc_alone", false );
-        }
-        catch ( GLib.Error e )
-        {
-            warning( "Manager: config error: %s", e.message );
-        }
+        leave_mux_alone = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "session_debug_leave_mux_alone", false );
+        leave_fc_alone = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "session_debug_leave_fc_alone", false );
     }
 
     public string repr()
     {
-        return "<Manager>";
+        return "<>";
     }
 
     ~Manager()

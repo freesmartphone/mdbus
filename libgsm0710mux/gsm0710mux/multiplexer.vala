@@ -267,7 +267,7 @@ internal class Multiplexer
             assert( logger.debug( @"0710 channel $(info.number) opened and connected to $path" ) );
             return info.number;
         }
-    
+
         assert( logger.debug( @"0710 timeout while waiting for channel $(info.number) status signal" ) );
         vc[info.number] = null;
         throw new MuxerError.NO_CHANNEL( "Modem does not provide this channel." );
@@ -353,6 +353,7 @@ internal class Multiplexer
         return transport.isOpen();
     }
 
+#if WHO_IS_USING_THAT
     public int channelByName( string name )
     {
         for ( int i = 1; i < MAX_CHANNELS; ++i )
@@ -362,6 +363,7 @@ internal class Multiplexer
         }
         return 0;
     }
+#endif
 
     public string serialStatusToString( int status ) // module -> application
     {
@@ -541,6 +543,7 @@ internal class Multiplexer
         clearPingResponseTimeout();
     }
 
+#if WHO_IS_USING_THAT
     public bool protocol_ping_response_timeout()
     {
         logger.warning( "\n*\n*\n* PING TIMEOUT !!!\n*\n*\n*" );
@@ -557,4 +560,5 @@ internal class Multiplexer
         pingwatch = Timeout.add_seconds( GSM_PING_RESPONSE_TIMEOUT, protocol_ping_response_timeout );
         return true;
     }
+#endif
 }
