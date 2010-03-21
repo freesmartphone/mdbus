@@ -400,7 +400,7 @@ namespace Sms
     {
         public string to_string()
         {
-            var list = new GLib.SList<weak Sms.Message>();
+            var list = new GLib.SList<unowned Sms.Message>();
             list.append( this );
             return Sms.decode_text( list );
         }
@@ -535,7 +535,7 @@ namespace Sms
         public static long size();
 
         [CCode (array_length_type = "guint8", array_length_pos = 2.5)]
-        public weak uint8[] extract_common( out bool udhi, out uint8 dcs, out uint8 max );
+        public unowned uint8[] extract_common( out bool udhi, out uint8 dcs, out uint8 max );
 
         public bool extract_app_port( out int dst, out int src, out bool is_8bit );
         public bool extract_concatenation( out uint16 ref_num, out uint8 max_msgs, out uint8 seq_num );
@@ -573,7 +573,7 @@ namespace Sms
     public string decode_text( GLib.SList<Sms.Message> sms_list );
 
     [CCode (cname = "sms_text_prepare")]
-    public GLib.SList<weak Sms.Message> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
+    public GLib.SList<unowned Sms.Message> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
 
     /*
 
