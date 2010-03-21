@@ -34,7 +34,7 @@ public class FsoFramework.SmartKeyFile : Object
 
     static construct
     {
-        location_prefix += "./.";
+        location_prefix += "./";
         location_prefix += @"$(Environment.get_home_dir())/.";
         location_prefix += "/etc/";
         location_prefix += "/etc/freesmartphone/";
