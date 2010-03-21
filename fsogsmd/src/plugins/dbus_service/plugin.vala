@@ -24,6 +24,7 @@ namespace DBusService {
 }
 
 class DBusService.Device :
+    FreeSmartphone.Info,
     FreeSmartphone.Device.RealtimeClock,
     FreeSmartphone.GSM.Debug,
     FreeSmartphone.GSM.Device,
@@ -159,9 +160,26 @@ class DBusService.Device :
     }
 
     //
+    // DBUS (org.freesmartphone.Info)
+    //
+    public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        var m = modem.createMediator<FsoGsm.DeviceGetInformation>();
+        try
+        {
+            yield m.run();
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
+        return m.info;
+    }
+
+    //
     // DBUS (org.freesmartphone.Device.RealtimeClock)
     //
-
     public async int get_current_time() throws FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
@@ -229,14 +247,6 @@ class DBusService.Device :
         level = m.level;
         autoregister = m.autoregister;
         pin = m.pin;
-    }
-
-    public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        var m = modem.createMediator<FsoGsm.DeviceGetInformation>();
-        yield m.run();
-        return m.info;
     }
 
     public async GLib.HashTable<string,GLib.Value?> get_features() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
