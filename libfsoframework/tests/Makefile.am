@@ -34,16 +34,16 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0
 
 #
-# common test
+# dbus test
 #
-TEST_PROGS += testcommon
-testcommon_VALASOURCES = testcommon.vala
-testcommon_SOURCES = testcommon.c
-$(testcommon_SOURCES): $(testcommon_VALASOURCES)
+TEST_PROGS += testdbus
+testdbus_VALASOURCES = testdbus.vala
+testdbus_SOURCES = testdbus.c
+$(testdbus_SOURCES): $(testdbus_VALASOURCES)
 	$(VALAC) $(VALAC_ARGS) $^
 	touch $@
-testcommon_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testcommon_VALASOURCES)
+testdbus_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testdbus_VALASOURCES)
 
 #
 # plugin for the plugin test

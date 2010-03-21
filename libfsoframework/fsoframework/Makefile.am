@@ -38,7 +38,6 @@ lib_LTLIBRARIES = \
 
 libfsoframework_la_VALASOURCES = \
 	alsa.vala \
-	common.vala \
 	dbus.vala \
 	interfaces.vala \
 	object.vala \

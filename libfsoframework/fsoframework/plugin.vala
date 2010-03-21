@@ -37,9 +37,12 @@ public errordomain FsoFramework.PluginError
 /**
  * Delegates
  */
-public static delegate void FsoFramework.RegisterFunc( TypeModule bar );
-public static delegate string FsoFramework.FactoryFunc( FsoFramework.Subsystem subsystem ) throws Error;
-public static delegate void FsoFramework.ShutdownFunc();
+[CCode (has_target = false)]
+public delegate void FsoFramework.RegisterFunc( TypeModule bar );
+[CCode (has_target = false)]
+public delegate string FsoFramework.FactoryFunc( FsoFramework.Subsystem subsystem ) throws Error;
+[CCode (has_target = false)]
+public delegate void FsoFramework.ShutdownFunc();
 
 /**
  * PluginInfo
