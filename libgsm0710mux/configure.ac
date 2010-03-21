@@ -44,7 +44,7 @@ AC_ARG_ENABLE(debug,
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
 # git version
-GITV=`cat .git/refs/heads/master || echo "unknown"`
+GITV=`cat ../.git/refs/heads/master || echo "unknown"`
 AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
 
 # output
