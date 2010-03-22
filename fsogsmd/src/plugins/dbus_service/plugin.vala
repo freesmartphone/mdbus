@@ -84,8 +84,8 @@ class DBusService.Device :
         subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
 
         modem = (FsoGsm.Modem) Object.new( modemclass );
-
         modem.parent = this;
+        modem.hangup.connect( onModemHangup );
 
         logger.info( @"Ready. Configured for modem $modemtype" );
     }
@@ -110,6 +110,24 @@ class DBusService.Device :
             case FsoGsm.Modem.Status.CLOSING:
             case FsoGsm.Modem.Status.CLOSED:
             throw new FreeSmartphone.Error.UNAVAILABLE( @"This function is not available while modem is in state $(modem.status())" );
+        }
+    }
+
+    private void onModemHangup()
+    {
+        logger.warning( "Modem no longer responding; trying to reopen in 5 seconds" );
+        Timeout.add_seconds( 5, () => {
+            onModemHangupAsync();
+            return false;
+        } );
+    }
+
+    private async void onModemHangupAsync()
+    {
+        var ok = yield enable();
+        if ( !ok )
+        {
+            onModemHangup();
         }
     }
 

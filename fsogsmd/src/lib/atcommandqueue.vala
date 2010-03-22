@@ -75,8 +75,6 @@ public class FsoGsm.AtCommandHandler : FsoFramework.AbstractCommandHandler
             return request;
         }
     }
-
-
 }
 
 /**
@@ -103,7 +101,6 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
 
         if ( bytesread == 0 )
         {
-            onHupFromTransport();
             return;
         }
 

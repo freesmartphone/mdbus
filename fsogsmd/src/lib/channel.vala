@@ -24,4 +24,6 @@ public interface FsoGsm.Channel : FsoFramework.CommandQueue
     public abstract void injectResponse( string response );
     public abstract async bool suspend();
     public abstract async bool resume();
+
+    public signal void hangup();
 }

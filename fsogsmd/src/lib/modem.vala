@@ -127,6 +127,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract async bool resume();
     public abstract void injectResponse( string command, string channel ) throws FreeSmartphone.Error; // DEBUG ONLY
     public abstract async void setFunctionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public signal void hangup();
 
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
@@ -441,10 +442,16 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.cmdSequences[ @"$channel-$purpose" ] = sequence;
     }
 
-    //
-    // Protected API
-    //
+    private void onChannelHangup()
+    {
+        logger.error( "Detected channel hangup; closing modem" );
+        close();
+        this.hangup();
+    }
 
+    //
+    // protected API
+    //
     /**
      * Override this to register additional mediators specific to your modem or
      * override generic mediators with modem-specific versions.
@@ -512,10 +519,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     protected abstract FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string request );
 
-    //=====================================================================//
-    // PUBLIC API
-    //=====================================================================//
-
+    //
+    // public API
+    //
     public virtual async bool open()
     {
         assert( logger.debug( "Powering up the device..." ) );
@@ -763,6 +769,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         assert( channels != null );
         assert( channels[name] == null );
         channels[name] = channel;
+        channel.hangup.connect( onChannelHangup );
 
         if ( channel is AtChannel )
         {
