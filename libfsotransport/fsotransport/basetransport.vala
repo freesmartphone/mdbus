@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -406,7 +406,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             assert( data != null );
             if ( fd == -1 )
             {
-                logger.warning( "Writing although transport still closed; buffering $len bytes." );
+                logger.warning( @"Writing although transport still closed; buffering $len bytes." );
             }
             var restart = ( fd != -1 && buffer.len == 0 );
             //TODO: avoid copying the buffer
@@ -447,9 +447,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public override int freeze()
     {
+        drain();
+
         if ( buffer.len > 0 )
         {
-            logger.warning( "Freeze called while buffer not yet empty" );
+            logger.warning( @"freeze() called while buffer still contains $(buffer.len) bytes" );
         }
         if ( readwatch != 0 )
         {
