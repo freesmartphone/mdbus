@@ -42,10 +42,6 @@ namespace TiCalypso
  **/
 class TiCalypso.Modem : FsoGsm.AbstractModem
 {
-    private string powerNode;
-    private string serialPort;
-    private string speed;
-
     public override string repr()
     {
         return @"<$(channels.size)C>";
