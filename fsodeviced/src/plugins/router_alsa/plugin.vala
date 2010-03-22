@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -133,7 +133,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         }
         else
         {
-            FsoFramework.theLogger.warning( @"Could not load $dataPath. No scenarios available." );
+            FsoFramework.theLogger.warning( @"Could not load $configurationPath. No scenarios available." );
         }
     }
 
