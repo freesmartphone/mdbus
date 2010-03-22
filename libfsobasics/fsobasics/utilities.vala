@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -15,7 +15,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
- **/
+ */
 
 internal const string PROC_SELF_CMDLINE = "/proc/self/cmdline";
 internal const string PROC_SELF_EXE     = "/proc/self/exe";
@@ -96,14 +96,14 @@ public string read( string filename )
     var fd = Posix.open( filename, Posix.O_RDONLY );
     if ( fd == -1 )
     {
-        warning( @"Can't read-open $filename: $(Posix.strerror(Posix.errno))" );
+        FsoFramework.theLogger.warning( @"Can't read-open $filename: $(Posix.strerror(Posix.errno))" );
     }
     else
     {
         ssize_t count = Posix.read( fd, buf, READ_BUF_SIZE );
         if ( count < 1 )
         {
-            warning( @"Couldn't read anything from $filename: $(Posix.strerror(Posix.errno))" );
+            FsoFramework.theLogger.warning( @"Couldn't read anything from $filename: $(Posix.strerror(Posix.errno))" );
             Posix.close( fd );
         }
         else
@@ -127,7 +127,7 @@ public void write( string contents, string filename, bool create = false )
     var fd = Posix.open( filename, flags, mode );
     if ( fd == -1 )
     {
-        warning( "%s", "can't open for writing to %s: %s".printf( filename, Posix.strerror( Posix.errno ) ) );
+        FsoFramework.theLogger.warning( @"Can't write-open $filename: $(Posix.strerror(Posix.errno))" );
     }
     else
     {
@@ -135,7 +135,7 @@ public void write( string contents, string filename, bool create = false )
         ssize_t written = Posix.write( fd, contents, length );
         if ( written != length )
         {
-            warning( "couldn't write all bytes to %s (%u of %ld)".printf( filename, (uint)written, length ) );
+            FsoFramework.theLogger.warning( @"Couldn't write all bytes to $filename ($written of $length)" );
         }
         Posix.close( fd );
     }
@@ -153,14 +153,14 @@ public void writeBuffer( void* buffer, ulong length, string filename, bool creat
     var fd = Posix.open( filename, flags, mode );
     if ( fd == -1 )
     {
-        warning( "Can't open for writing to %s: %s".printf( filename, Posix.strerror( Posix.errno ) ) );
+        FsoFramework.theLogger.warning( @"Can't write-open $filename: $(Posix.strerror(Posix.errno))" );
     }
     else
     {
         ssize_t written = Posix.write( fd, buffer, length );
         if ( written != length )
         {
-            warning( "Couldn't write all bytes to %s (%u of %lu)".printf( filename, (uint)written, length ) );
+            FsoFramework.theLogger.warning( @"Couldn't write all bytes to $filename ($written of $length)" );
         }
         Posix.close( fd );
     }
@@ -205,13 +205,13 @@ public bool switchToUserAndGroup( string user, string group )
     var ok = Posix.setgid( gid );
     if ( ok != 0 )
     {
-        warning( "%s", "can't set group id: %s".printf( Posix.strerror( Posix.errno ) ) );
+        FsoFramework.theLogger.warning( @"Can't set group id: $(Posix.strerror(Posix.errno))" );
         return false;
     }
     ok = Posix.setuid( uid );
     if ( ok != 0 )
     {
-        warning( "%s", "can't set user id: %s".printf( Posix.strerror( Posix.errno ) ) );
+        FsoFramework.theLogger.warning( @"Can't set user id: $(Posix.strerror(Posix.errno))" );
         return false;
     }
     return true;
@@ -460,7 +460,7 @@ namespace FsoFramework { namespace Async {
                 return true;
             }
 
-            error( "Unsupported IOCondition %u", (int)condition );
+            FsoFramework.theLogger.error( "Unsupported IOCondition %u".printf( (int)condition ) );
             return true;
         }
     }
