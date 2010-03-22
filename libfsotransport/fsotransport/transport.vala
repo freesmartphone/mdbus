@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -49,7 +49,7 @@ public class FsoFramework.TransportSpec
     {
         if ( transport != null )
         {
-            warning( "Transport already created" );
+            transport.logger.warning( "Create called on already existing transport. Ignoring" );
             return;
         }
 
@@ -70,7 +70,7 @@ public class FsoFramework.TransportSpec
                 transport = new FsoFramework.NullTransport();
                 break;
             default:
-                warning( @"Invalid transport type $type. Using NullTransport" );
+                FsoFramework.theLogger.warning( @"Invalid transport type $type. Using NullTransport" );
                 transport = new FsoFramework.NullTransport();
                 break;
         }
