@@ -33,9 +33,10 @@ class DBusService.Device :
     FreeSmartphone.GSM.Network,
     FreeSmartphone.GSM.Call,
     FreeSmartphone.GSM.PDP,
+    FreeSmartphone.GSM.HZ,
     FsoFramework.AbstractObject
 {
-    FsoFramework.Subsystem subsystem;
+    //FsoFramework.Subsystem subsystem;
     private static FsoGsm.Modem modem;
     public static Type modemclass;
 
@@ -184,7 +185,14 @@ class DBusService.Device :
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetCurrentTime>();
-        yield m.run();
+        try
+        {
+            yield m.run();
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
         return m.since_epoch;
     }
 
@@ -192,14 +200,28 @@ class DBusService.Device :
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceSetCurrentTime>();
-        yield m.run( seconds_since_epoch );
+        try
+        {
+            yield m.run( seconds_since_epoch );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
     }
 
     public async int get_wakeup_time() throws FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetAlarmTime>();
-        yield m.run();
+        try
+        {
+            yield m.run();
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
         return m.since_epoch;
     }
 
@@ -207,7 +229,14 @@ class DBusService.Device :
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceSetAlarmTime>();
-        yield m.run( seconds_since_epoch );
+        try
+        {
+            yield m.run( seconds_since_epoch );
+        }
+        catch ( FreeSmartphone.GSM.Error e )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( e.message );
+        }
         this.wakeup_time_changed( seconds_since_epoch ); // DBUS SIGNAL
     }
 
@@ -345,7 +374,7 @@ class DBusService.Device :
         return m.status;
     }
 
-    public async FreeSmartphone.GSM.SIMHomezone[] get_home_zones() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.SIMHomeZone[] get_home_zone_parameters() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
@@ -738,6 +767,21 @@ class DBusService.Device :
         checkAvailability();
         var m = modem.createMediator<FsoGsm.PdpSetCredentials>();
         yield m.run( apn, username, password );
+    }
+
+    //
+    // DBUS (org.freesmartphone.GSM.HZ.*)
+    //
+    public async string get_home_zone_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async string[] get_known_home_zones() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
