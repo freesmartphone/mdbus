@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -157,7 +157,9 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     //
     public bool delegateOpen( FsoFramework.Transport t )
     {
+#if DEBUG
         message( "FROM MODEM OPEN ACK" );
+#endif
         return true;
     }
 

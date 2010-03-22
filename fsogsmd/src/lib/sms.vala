@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -38,7 +38,13 @@ public class WrapSms
         this.message = (owned) message;
         if ( this.message.type == Sms.Type.DELIVER )
         {
+#if DEBUG
             debug( "WRAPSMS: Created for message hash %s", this.message.hash() );
+#endif
+        }
+        else
+        {
+            FsoFramework.theLogger.warning( "SMS type %d not yet supported".printf( this.message.type ) );
         }
     }
 
@@ -46,7 +52,9 @@ public class WrapSms
     {
         if ( message.type == Sms.Type.DELIVER )
         {
+#if DEBUG
             debug( "WRAPSMS: Destructed for message hash %s", this.message.hash() );
+#endif
         }
     }
 }
