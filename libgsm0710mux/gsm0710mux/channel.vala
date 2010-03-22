@@ -183,10 +183,11 @@ internal class Channel
 
     public void deliverData( void* data, int len )
     {
-        Idle.add( () => {
-            transport.write( data, len );
-            return false;
-        } );
+        transport.write( data, len );
+        //FIXME: how to ensure round-robin?
+        //PARTIAL ANSWER: NOT by calling main-iteration nor Idle.add
+        // This buffer is shared across all channels and data will
+        // be corrupted on reentrancy!!!
     }
 
     //
