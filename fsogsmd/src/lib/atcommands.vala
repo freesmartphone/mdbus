@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -876,7 +876,7 @@ public class PlusCPBS : AbstractAtCommand
         {
             do
             {
-                books += Constants.instance().simPhonebookNameToString( to_string( "book" ) );
+                books += /* Constants.instance().simPhonebookNameToString( */ to_string( "book" ) /* ) */;
             }
             while ( mi.next() );
         }

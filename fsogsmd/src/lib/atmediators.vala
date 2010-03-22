@@ -793,6 +793,10 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+#if NEW_PHONEBOOK
+        var cat = Constants.instance().simPhonebookStringToName( category );
+        phonebook = theModem.pbhandler.storage.phonebook( cat );
+#else
         yield gatherPhonebookParams();
         var data = theModem.data();
 
@@ -814,6 +818,7 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
             throwAppropriateError( valid, response[response.length-1] );
         }
         phonebook = cmd.phonebook;
+#endif
     }
 }
 

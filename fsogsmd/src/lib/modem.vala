@@ -25,6 +25,11 @@ namespace FsoGsm
     public const string CONFIG_SECTION = "fsogsm";
 }
 
+/**
+ * @class PhonebookParams
+ *
+ * Helper class for a set of phonebook parameters
+ **/
 public class FsoGsm.PhonebookParams
 {
     public int min;
@@ -142,6 +147,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract Object parent { get; set; } // the DBus object
     public abstract CallHandler callhandler { get; set; } // the Call handler
     public abstract SmsHandler smshandler { get; set; } // the Sms handler
+    public abstract PhonebookHandler pbhandler { get; set; } // the Phonebook handler
     public abstract WatchDog watchdog { get; set; } // the WatchDog
     public abstract PdpHandler pdphandler { get; set; } // the Pdp handler
 
@@ -191,6 +197,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     public Object parent { get; set; } // the DBus object
     public CallHandler callhandler { get; set; } // the Call handler
     public SmsHandler smshandler { get; set; } // the SMS handler
+    public PhonebookHandler pbhandler { get; set; } // the Phonebook handler
     public WatchDog watchdog { get; set; } // the WatchDog
     public PdpHandler pdphandler { get; set; } // the Pdp handler
 
@@ -419,6 +426,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         urc = createUnsolicitedHandler();
         callhandler = createCallHandler();
         smshandler = createSmsHandler();
+        pbhandler = createPhonebookHandler();
         watchdog = createWatchDog();
     }
 
@@ -490,6 +498,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected virtual SmsHandler createSmsHandler()
     {
         return new AtSmsHandler();
+    }
+
+    /**
+     * Override this to return a custom type of PB handler to be used for this modem.
+     **/
+    protected virtual PhonebookHandler createPhonebookHandler()
+    {
+        return new AtPhonebookHandler();
     }
 
     /**

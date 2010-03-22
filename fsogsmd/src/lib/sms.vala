@@ -340,16 +340,10 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
 
     public AtSmsHandler()
     {
-        //FIXME: Use random init or read from file, so that it is increasing even during relaunches
+        //FIXME: Use random init or read from file, so that this is increasing even during relaunches
         increasingReferenceNumber = 0;
-        if ( theModem != null )
-        {
-            theModem.signalStatusChanged += onModemStatusChanged;
-        }
-        else
-        {
-            logger.error( "Handler created before modem was created" );
-        }
+        assert( theModem != null ); // can't create SMS handler before modem
+        theModem.signalStatusChanged += onModemStatusChanged;
     }
 
     private override string repr()
