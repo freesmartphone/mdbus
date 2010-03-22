@@ -63,6 +63,7 @@ public class Manager : Object
     public uint channel_ack_timeout = 10;
     private uint wakeup_threshold = 0;
     private uint wakeup_waitms = 0;
+    private uint send_pause_threshold = 0;
 
     public static bool leave_mux_alone = false;
     public static bool leave_fc_alone  = false;
@@ -90,6 +91,7 @@ public class Manager : Object
 
         wakeup_threshold = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_wakeup_threshold", (int)wakeup_threshold );
         wakeup_waitms = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_wakeup_waitms", (int)wakeup_waitms );
+        send_pause_threshold = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_sendpause_threshold", (int)send_pause_threshold );
 
         leave_mux_alone = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "session_debug_leave_mux_alone", false );
         leave_fc_alone = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "session_debug_leave_fc_alone", false );
@@ -154,6 +156,18 @@ public class Manager : Object
                 muxer = null;
                 throw new MuxerError.SESSION_OPEN_ERROR( "Can't initialize the session" );
             }
+            else
+            {
+                // configure
+                if ( wakeup_threshold > 0 && wakeup_waitms > 0 )
+                {
+                    setWakeupThreshold( wakeup_threshold, wakeup_waitms );
+                }
+                if ( send_pause_threshold > 0 )
+                {
+                    setSendPauseThreshold( send_pause_threshold );
+                }
+            }
         }
     }
 
@@ -181,11 +195,6 @@ public class Manager : Object
         {
             logger.debug( "auto configuring..." );
             openSession( session_mode, (int)session_framesize, session_type, session_path, (int)session_speed );
-
-            if ( wakeup_threshold > 0 && wakeup_waitms > 0 )
-            {
-                setWakeupThreshold( wakeup_threshold, wakeup_waitms );
-            }
         }
 
         if ( channel.number < 0 )
@@ -228,6 +237,19 @@ public class Manager : Object
         else
         {
             muxer.setWakeupThreshold( seconds, waitms );
+        }
+    }
+
+    public void setSendPauseThreshold( uint ms ) throws MuxerError
+    {
+        logger.debug( "SetSendPauseThreshold to sleep until %u msec. have been passed until last command has been sent.".printf( ms ) );
+        if ( muxer == null )
+        {
+            throw new MuxerError.NO_SESSION( "Session has to be initialized first." );
+        }
+        else
+        {
+            muxer.setSendPauseThreshold( ms );
         }
     }
 

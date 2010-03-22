@@ -110,6 +110,9 @@ internal class Multiplexer
     uint idle_wakeup_threshold;
     uint idle_wakeup_waitms;
 
+    Timer send_pause_timer;
+    uint send_pause_threshold;
+
     Channel[] vc = new Channel[MAX_CHANNELS];
 
     FsoFramework.Transport transport;
@@ -151,6 +154,7 @@ internal class Multiplexer
     {
         if ( transport != null )
         {
+            transport.freeze();
             transport.close();
         }
         assert( logger.debug( "Destructed" ) );
@@ -209,7 +213,7 @@ internal class Multiplexer
 
     public void closeSession()
     {
-        logger.debug( "closeSession()" );
+        assert( logger.debug( "closeSession()" ) );
         for ( int i = 1; i < MAX_CHANNELS; ++i )
         {
             if ( vc != null && vc[i] != null )
@@ -329,6 +333,19 @@ internal class Multiplexer
         idle_wakeup_waitms = waitms;
     }
 
+    public void setSendPauseThreshold( uint ms )
+    {
+        if ( ms == 0 )
+        {
+            send_pause_timer = null;
+        }
+        else
+        {
+            send_pause_timer = new Timer();
+        }
+        send_pause_threshold = ms;
+    }
+
     public void testCommand( uint8[] data )
     {
         debug( "muxer: testCommand" );
@@ -401,6 +418,20 @@ internal class Multiplexer
             Source.remove( pingwatch );
     }
 
+    private void sleepIfNecessary()
+    {
+        if ( send_pause_timer == null )
+        {
+            return;
+        }
+        var timediff = send_pause_threshold - send_pause_timer.elapsed();
+        if ( timediff > 0 )
+        {
+            assert( logger.debug( "Attempting to send too fast, sleeping %.2f seconds".printf( timediff ) ) );
+            Thread.usleep( (ulong)(timediff * 1000) );
+        }
+    }
+
     public void wakeupIfNecessary()
     {
         if ( idle_wakeup_timer != null )
@@ -432,6 +463,7 @@ internal class Multiplexer
     //
     public void submit_data( int channel, void* data, int len )
     {
+        sleepIfNecessary();
         wakeupIfNecessary();
         ctx.writeDataForChannel( channel, data, len );
     }
@@ -462,13 +494,17 @@ internal class Multiplexer
             idle_wakeup_timer.reset();
         }
         hexdump( true, data, len, logger );
+        if ( send_pause_timer != null )
+        {
+            send_pause_timer.reset();
+        }
         var numsent = transport.write( data, len );
         return ( numsent > 0 );
     }
 
     public bool at_command( string command )
     {
-        logger.debug( "0710 -> should send at_command '%s'".printf( command ) );
+        assert( logger.debug( "0710 -> should send at_command '%s'".printf( command ) ) );
 
         var response = new char[1024];
         var numread = transport.writeAndRead( command, (int)command.length, response, response.length );
@@ -481,7 +517,7 @@ internal class Multiplexer
         logger.debug( "0710 -> deliver %d bytes for channel %d".printf( len, channel ) );
         if ( vc[channel] == null )
         {
-            logger.debug( "Should deliver bytes for unknown channel: ignoring" );
+            assert( logger.debug( "Should deliver bytes for unknown channel: ignoring" ) );
         }
         else
         {
@@ -493,10 +529,10 @@ internal class Multiplexer
     public void deliver_status( int channel, int serial_status )
     {
         string status = serialStatusToString( serial_status );
-        logger.debug( "0710 -> deliver status %d = '%s' for channel %d".printf( serial_status, status, channel ) );
+        assert( logger.debug( "0710 -> deliver status %d = '%s' for channel %d".printf( serial_status, status, channel ) ) );
         if ( vc[channel] == null )
         {
-            logger.debug( ":::should deliver status for unknown channel: ignoring" );
+            assert( logger.debug( ":::should deliver status for unknown channel: ignoring" ) );
         }
         else
         {
@@ -511,12 +547,12 @@ internal class Multiplexer
 
     public void debug_message( string msg )
     {
-        logger.debug( "0710 -> say '%s".printf( msg ) );
+        assert( logger.debug( "0710 -> say '%s".printf( msg ) ) );
     }
 
     public void open_channel( int channel )
     {
-        logger.debug( "0710 -> open channel %d".printf( channel ) );
+        assert( logger.debug( "0710 -> open channel %d".printf( channel ) ) );
         logger.error( "Unhandled modem side open channel command" );
     }
 
@@ -530,7 +566,7 @@ internal class Multiplexer
 
     public void terminate()
     {
-        logger.debug( "0710 -> terminate" );
+        assert( logger.debug( "0710 -> terminate" ) );
         // FIXME send close session signal, remove muxer object
     }
 
@@ -538,8 +574,10 @@ internal class Multiplexer
     {
         var b = new StringBuilder();
         foreach( var c in data )
+        {
             b.append_printf( "%c", c );
-        logger.debug( "0710 -> response to test (%d bytes): %s".printf( data.length, b.str ) );
+        }
+        assert( logger.debug( "0710 -> response to test (%d bytes): %s".printf( data.length, b.str ) ) );
         clearPingResponseTimeout();
     }
 
