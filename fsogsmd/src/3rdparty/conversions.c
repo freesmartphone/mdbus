@@ -52,26 +52,25 @@ char *gsm_to_utf8(const char* str)
 
 void sms_copy( void* self, void* dup )
 {
-	g_warning( "sms %p being copied", self );
-	memcpy( dup, self, sizeof( struct sms ) );
+//    g_warning( "sms %p being copied", self );
+    memcpy( dup, self, sizeof( struct sms ) );
 }
 
 struct sms* sms_new()
 {
-	struct sms* sms;
-	sms = g_malloc0( sizeof( struct sms ) );
-	g_debug( "sms %p has been created", sms );
-	return sms;
+    struct sms* sms;
+    sms = g_malloc0( sizeof( struct sms ) );
+//    g_debug( "sms %p has been created", sms );
+    return sms;
 }
 
 void sms_free( struct sms* self )
 {
-	g_debug( "sms %p is being destroyed", self );
-	g_free( self );
+//    g_debug( "sms %p is being destroyed", self );
+    g_free( self );
 }
 
 long sms_size()
 {
-	return sizeof( struct sms );
+    return sizeof( struct sms );
 }
-

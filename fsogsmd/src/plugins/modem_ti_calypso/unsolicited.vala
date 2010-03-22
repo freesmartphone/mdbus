@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 
             if ( fullReady )
             {
-                theModem.logger.info( "ti calypso sim ready" );
+                theModem.logger.info( "TI Calypso SIM now ready" );
                 theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
             }
         }
@@ -43,9 +43,15 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 
     public UnsolicitedResponseHandler()
     {
+        registerUrc( "AT-Command Interpreter ready", channelReady );
         registerUrc( "%CPRI", percentCPRI );
         registerUrc( "%CSTAT", percentCSTAT );
         registerUrc( "%CSQ", percentCSQ );
+    }
+
+    public virtual void channelReady( string prefix, string rhs )
+    {
+        assert( theModem.logger.debug( "Congratulations Madam, it's a channel!" ) );
     }
 
     public virtual void percentCPRI( string prefix, string rhs )

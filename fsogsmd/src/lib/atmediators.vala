@@ -632,10 +632,16 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
         }
 
         var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( value ) );
-        checkResponseExpected( cmd,
-                         response,
-                         { Constants.AtResponse.OK, Constants.AtResponse.CME_ERROR_011_SIM_PIN_REQUIRED } );
+        var queryanswer = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, queryanswer );
+        var curlevel = Constants.instance().deviceFunctionalityStatusToString( cmd.value );
+        if ( curlevel != level )
+        {
+            var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( value ) );
+            checkResponseExpected( cmd,
+                response,
+                { Constants.AtResponse.OK, Constants.AtResponse.CME_ERROR_011_SIM_PIN_REQUIRED } );
+        }
         var data = theModem.data();
         data.keepRegistration = autoregister;
         data.simPin = pin;
