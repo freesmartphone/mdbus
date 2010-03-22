@@ -51,12 +51,18 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         writewatch = channel.add_watch_full( writepriority, IOCondition.OUT, writeCallback );
     }
 
-    private bool actionCallback( IOChannel source, IOCondition condition )
+    private bool actionCallback( IOChannel? source, IOCondition condition )
     {
-        assert( logger.debug( "ActionCallback called with condition = %d".printf( condition ) ) );
+        if ( !isOpen() )
+        {
+            logger.warning( "Ignoring actionCallback while transport is closed" );
+            return false;
+        }
 
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
         {
+            logger.error( "HUP => closing channel" );
+            close();
             if ( hupfunc != null )
                 hupfunc( this );
             return false;
@@ -69,7 +75,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             return true;
         }
 
-        logger.warning( "ActionCallback called with unknown condition %d".printf( condition ) );
+        logger.critical( @"ActionCallback called with unknown condition %d".printf( condition ) );
 
         return false;
     }
@@ -384,9 +390,8 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         assert( logger.debug( @"read $bytesread bytes" ) );
         if ( bytesread == 0 )
         {
-            logger.error( @"Read 0 bytes => HUP. Closing fd $fd and calling HUPfunc" );
-            Posix.close( fd );
-            Idle.add( () => { return actionCallback( channel, IOCondition.HUP ); } );
+            logger.error( @"Read 0 bytes => synthesizing actionCallback w/ HUP." );
+            actionCallback( channel, IOCondition.HUP );
         }
         return (int)bytesread;
     }

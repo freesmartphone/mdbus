@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -72,13 +72,25 @@ public abstract class FsoFramework.AbstractCommandHandler
  **/
 public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQueue, GLib.Object
 {
+    /**
+     * @property transport - The underlying transport
+     **/
     public Transport transport { get; set; }
+    /**
+     * Sent, when an error has occured
+     **/
+    public signal void hangup();
+
+    //
+    // private API
+    //
     private Gee.LinkedList<AbstractCommandHandler> q;
 
+    //
+    // protected API
+    //
     protected FsoFramework.CommandQueue.UnsolicitedHandler urchandler;
-
     protected AbstractCommandHandler current;
-
     protected abstract void onReadFromTransport( FsoFramework.Transport t );
 
     protected bool checkRestartingQ()
@@ -103,9 +115,8 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
 
     protected void onHupFromTransport()
     {
-        transport.logger.warning( "HUP from transport. closing." );
-        transport.close();
-        //FIXME: Try to open again or leave that to the higher layers?
+        transport.logger.warning( "HUP from transport." );
+        this.hangup(); // emit HUP signal
     }
 
     protected void enqueueCommand( AbstractCommandHandler command )
