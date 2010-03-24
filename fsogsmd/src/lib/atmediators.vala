@@ -841,6 +841,24 @@ public class AtSimGetServiceCenterNumber : SimGetServiceCenterNumber
     }
 }
 
+public class AtSimRetrieveMessage : SimRetrieveMessage
+{
+    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        properties = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+
+        var cmgr = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
+        var response = yield theModem.processAtCommandAsync( cmgr, cmgr.issue( index ) );
+        checkMultiResponseValid( cmgr, response );
+
+        var sms = Sms.Message.newFromHexPdu( cmgr.hexpdu, cmgr.tpdulen );
+        status = Constants.instance().simMessagebookStatusToString( cmgr.status );
+        number = sms.number();
+        contents = sms.to_string();
+        properties = sms.properties();
+    }
+}
+
 public class AtSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -852,30 +870,6 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
         }
 
         phonebook = theModem.pbhandler.storage.phonebook( cat, mindex, maxdex );
-    }
-}
-
-public class AtSimRetrieveMessagebook : SimRetrieveMessagebook
-{
-    public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        // ignore category for now
-
-        //FIXME: Bug in Vala
-        //messagebook = theModem.smshandler.storage.messagebook();
-        //FIXME: Work around
-        var array = theModem.smshandler.storage.messagebook();
-        messagebook = new FreeSmartphone.GSM.SIMMessage[array.length] {};
-        for( int i = 0; i < array.length; ++i )
-        {
-            messagebook[i] = array[i];
-        }
-#if DEBUG
-        foreach ( var entry in messagebook )
-        {
-            debug( "%i %s %s %s, %p", entry.index, entry.number, entry.status, entry.contents, entry.properties );
-        }
-#endif
     }
 }
 
@@ -1264,7 +1258,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimGetServiceCenterNumber) ]    = typeof( AtSimGetServiceCenterNumber );
     table[ typeof(SimGetInformation) ]            = typeof( AtSimGetInformation );
     table[ typeof(SimGetPhonebookInfo) ]          = typeof( AtSimGetPhonebookInfo );
-    table[ typeof(SimRetrieveMessagebook) ]       = typeof( AtSimRetrieveMessagebook );
+    table[ typeof(SimRetrieveMessage) ]           = typeof( AtSimRetrieveMessage );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
     table[ typeof(SimSetAuthCodeRequired) ]       = typeof( AtSimSetAuthCodeRequired );
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );

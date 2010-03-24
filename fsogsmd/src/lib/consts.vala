@@ -453,7 +453,7 @@ public class FsoGsm.Constants
         return -1; // not found
     }
 
-    public PlusCMGL.Mode simMessagebookStringToName( string category )
+    public PlusCMGL.Mode simMessagebookStringToStatus( string category )
     {
         switch ( category )
         {

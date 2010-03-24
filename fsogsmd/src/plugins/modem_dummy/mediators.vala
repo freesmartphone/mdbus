@@ -251,6 +251,17 @@ public class DummyAtSimGetServiceCenterNumber : SimGetServiceCenterNumber
     }
 }
 
+public class DummyAtSimRetrieveMessage : SimRetrieveMessage
+{
+    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        status = "unknown";
+        number = "unknown";
+        contents = "unknown";
+        properties = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+    }
+}
+
 public class DummyAtSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -290,23 +301,6 @@ public class DummyAtSimRetrievePhonebook : SimRetrievePhonebook
             pb += FreeSmartphone.GSM.SIMEntry( 13, "Merlin", "+410001w552w455543210" );
 
         this.phonebook = pb;
-    }
-}
-
-public class DummyAtSimRetrieveMessagebook : SimRetrieveMessagebook
-{
-    public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        var mb = new FreeSmartphone.GSM.SIMMessage[] {};
-
-        var props = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
-
-        mb += FreeSmartphone.GSM.SIMMessage( 1, "READ", "+123456789", "Yo, what's up in da house tonight?", "timestamp", props );
-        mb += FreeSmartphone.GSM.SIMMessage( 2, "READ", "+555456789", "It's going to be cold, don't forget your coat, sun!", "timestamp", props );
-        mb += FreeSmartphone.GSM.SIMMessage( 3, "READ", "+123456789", "And I thought you loved me :(", "timestamp", props );
-        mb += FreeSmartphone.GSM.SIMMessage( 4, "READ", "+555456789", "Don't forget to bring Dad's medicine", "timestamp", props );
-
-        this.messagebook = mb;
     }
 }
 
@@ -557,7 +551,7 @@ public void registerDummyMediators( HashMap<Type,Type> table )
     table[ typeof(SimGetAuthStatus) ]             = typeof( DummyAtSimGetAuthStatus );
     table[ typeof(SimGetServiceCenterNumber) ]    = typeof( DummyAtSimGetServiceCenterNumber );
     table[ typeof(SimGetInformation) ]            = typeof( DummyAtSimGetInformation );
-    table[ typeof(SimRetrieveMessagebook) ]       = typeof( DummyAtSimRetrieveMessagebook );
+    table[ typeof(SimRetrieveMessage) ]           = typeof( DummyAtSimRetrieveMessage );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( DummyAtSimRetrievePhonebook );
     table[ typeof(SimSetAuthCodeRequired) ]       = typeof( DummyAtSimSetAuthCodeRequired );
     table[ typeof(SimSendAuthCode) ]              = typeof( DummyAtSimSendAuthCode );

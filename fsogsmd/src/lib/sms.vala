@@ -33,9 +33,13 @@ namespace FsoGsm
 public class WrapSms
 {
     public Sms.Message message;
-    public WrapSms( owned Sms.Message message )
+    public int index;
+
+    public WrapSms( owned Sms.Message message, int index = -1 )
     {
+        this.index = index;
         this.message = (owned) message;
+
         if ( this.message.type == Sms.Type.DELIVER )
         {
 #if DEBUG

@@ -186,10 +186,9 @@ public abstract class FsoGsm.SimRetrievePhonebook : FsoGsm.AbstractMediator
     public abstract async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
-public abstract class FsoGsm.SimRetrieveMessagebook : FsoGsm.AbstractMediator
+public abstract class FsoGsm.SimRetrieveMessage : FsoGsm.AbstractMediator
 {
-    public FreeSmartphone.GSM.SIMMessage[] messagebook { get; set; }
-    public abstract async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.SimSendAuthCode : FsoGsm.AbstractMediator

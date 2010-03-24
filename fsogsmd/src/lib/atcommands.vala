@@ -530,7 +530,7 @@ public class PlusCMGL : AbstractAtCommand
                 var sms = Sms.Message.newFromHexPdu( response[i], tpdulen );
                 if ( sms != null )
                 {
-                    messagebook.add( new WrapSms( (owned) sms) );
+                    messagebook.add( new WrapSms( (owned) sms, to_int( "id" ) ) );
                 }
             }
         }
@@ -545,6 +545,7 @@ public class PlusCMGL : AbstractAtCommand
 
 public class PlusCMGR : AbstractAtCommand
 {
+    public PlusCMGL.Mode status;
     public string hexpdu;
     public int tpdulen;
 
@@ -565,6 +566,7 @@ public class PlusCMGR : AbstractAtCommand
     public override void parseMulti( string[] response ) throws AtCommandError
     {
         base.parse( response[0] );
+        status = (PlusCMGL.Mode) to_int( "stat" );
         tpdulen = to_int( "tpdulen" );
         hexpdu = response[1];
     }
