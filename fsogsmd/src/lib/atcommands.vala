@@ -949,7 +949,7 @@ public class PlusCPBW : AbstractAtCommand
 
     public string test( string cat )
     {
-        return "+CPBS=\"$cat\";+CPBW=?";
+        return @"+CPBS=\"$cat\";+CPBW=?";
     }
 }
 
