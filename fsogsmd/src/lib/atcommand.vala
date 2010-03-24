@@ -507,6 +507,145 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
 
 }
 
+public class FsoGsm.TwoParamsAtCommand<T1,T2> : FsoGsm.AbstractAtCommand
+{
+    private string name;
+    /* regular operation */
+    public T1 value1;
+    public T2 value2;
+
+    public TwoParamsAtCommand( string name, bool prefixoptional = false )
+    {
+        this.name = name;
+        var regex = prefixoptional ? """(\%s:\ )?""".printf( name ) : """\%s:\ """.printf( name );
+        var testx = prefixoptional ? """(\%s:\ )?""".printf( name ) : """\%s:\ """.printf( name );
+
+        if ( typeof(T1) == typeof(string) )
+        {
+            regex += """"?(?P<arg1>[^"]*)"?""";
+            testx += """"?(?P<arg1>.*)"?""";
+        }
+        else if ( typeof(T1) == typeof(int) )
+        {
+            regex += """(?P<arg1>\d+)""";
+            testx += """\((?P<min1>\d+)-(?P<max1>\d+)\)""";
+        }
+        else
+        {
+            assert_not_reached();
+        }
+
+        if ( typeof(T2) == typeof(string) )
+        {
+            regex += ""","?(?P<arg2>[^"]*)"?""";
+            testx += ""","?(?P<arg2>.*)"?""";
+        }
+        else if ( typeof(T2) == typeof(int) )
+        {
+            regex += """,(?P<arg2>\d+)""";
+            testx += """,\((?P<min2>\d+)-(?P<max2>\d+)\)""";
+        }
+        else
+        {
+            assert_not_reached();
+        }
+
+        if ( !prefixoptional )
+        {
+            prefix = { name + ": " };
+        }
+        try
+        {
+            re = new Regex( regex );
+            tere = new Regex( testx );
+        }
+        catch ( GLib.Error e )
+        {
+            assert_not_reached(); // fail here, if regex is invalid
+        }
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+
+        if ( typeof(T1) == typeof(string) )
+        {
+            value1 = to_string( "arg1" );
+        }
+        else if ( typeof(T1) == typeof(int) )
+        {
+            value1 = to_int( "arg1" );
+        }
+        else
+        {
+            assert_not_reached();
+        }
+
+        if ( typeof(T2) == typeof(string) )
+        {
+            value2 = to_string( "arg2" );
+        }
+        else if ( typeof(T2) == typeof(int) )
+        {
+            value2 = to_int( "arg2" );
+        }
+        else
+        {
+            assert_not_reached();
+        }
+    }
+
+    public string execute()
+    {
+        return name;
+    }
+
+    public string query()
+    {
+        return name + "?";
+    }
+
+    public string test()
+    {
+        return name + "=?";
+    }
+
+    public string issue( T1 val1, T2 val2 )
+    {
+        var cmd = @"$name=";
+
+        if ( typeof(T1) == typeof(string) )
+        {
+            cmd += "\"%s\"".printf( (string)val1 );
+        }
+        else if ( typeof(T1) == typeof(int) )
+        {
+            cmd += "%d".printf( (int)val1 );
+        }
+        else
+        {
+            assert_not_reached();
+        }
+
+        if ( typeof(T2) == typeof(string) )
+        {
+            cmd += ",\"%s\"".printf( (string)val2 );
+        }
+        else if ( typeof(T2) == typeof(int) )
+        {
+            cmd += ",%d".printf( (int)val2 );
+        }
+        else
+        {
+            assert_not_reached();
+        }
+
+        return cmd;
+    }
+
+}
+
 public class FsoGsm.CustomAtCommand : FsoGsm.AbstractAtCommand
 {
 }
