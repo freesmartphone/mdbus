@@ -86,14 +86,22 @@ public class PlusCALA : AbstractAtCommand
 
 public class PlusCBC : AbstractAtCommand
 {
-    public string status;
+    public enum Status
+    {
+        DISCHARGING = 0,
+        CHARGING = 1,
+        AC = 2,
+        UNKNOWN = 3
+    }
+
+    public Status status;
     public int level;
 
     public PlusCBC()
     {
         try
         {
-            re = new Regex( """\+CBC: (?P<status>\d),(?P<level>\d+)""" );
+            re = new Regex( """\+CBC: (?P<status>[0123]),(?P<level>\d+)""" );
         }
         catch ( GLib.RegexError e )
         {
@@ -105,7 +113,7 @@ public class PlusCBC : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        status = Constants.instance().devicePowerStatusToString( to_int( "status" ) );
+        status = (Status) to_int( "status" );
         level = to_int( "level" );
     }
 

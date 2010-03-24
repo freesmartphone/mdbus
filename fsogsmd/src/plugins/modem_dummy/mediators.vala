@@ -106,9 +106,11 @@ public class DummyAtDeviceGetFeatures : DeviceGetFeatures
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         features = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-        features.insert( "gsm", "TA" );
-        features.insert( "gprs", "B" );
-        features.insert( "fax", "4" );
+        features.insert( "voice", true );
+        features.insert( "csd", true );
+        features.insert( "gsm", true );
+        features.insert( "pdp", "B" );
+        features.insert( "fax", "8" );
         features.insert( "facilities", "SM" );
     }
 }
@@ -133,8 +135,8 @@ public class DummyAtDeviceGetPowerStatus : DeviceGetPowerStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        status = "AC";
-        level = 100;
+        status = FreeSmartphone.Device.PowerStatus.DISCHARGING;
+        level = 42;
     }
 }
 
@@ -158,7 +160,7 @@ public class DummyAtDeviceSetFunctionality : DeviceSetFunctionality
     {
         Timeout.add_seconds( 3, run.callback );
         yield;
-        
+
         if ( modem_pin != pin )
         {
             var simiface = theModem.theDevice<FreeSmartphone.GSM.SIM>();
@@ -250,7 +252,7 @@ public class DummyAtSimRetrievePhonebook : SimRetrievePhonebook
         }
 
         var pb = new FreeSmartphone.GSM.SIMEntry[] {};
-        
+
         pb += FreeSmartphone.GSM.SIMEntry( 1, "Dr. Mickey Lauer", "+4912345678" );
         pb += FreeSmartphone.GSM.SIMEntry( 2, "Dr. Sabine Lauer", "+4976543210" );
         pb += FreeSmartphone.GSM.SIMEntry( 3, "Daniel Willmann", "+4976543210" );

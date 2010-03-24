@@ -26,6 +26,7 @@ namespace DBusService {
 class DBusService.Device :
     FreeSmartphone.Info,
     FreeSmartphone.Device.RealtimeClock,
+    FreeSmartphone.Device.PowerSupply,
     FreeSmartphone.GSM.Debug,
     FreeSmartphone.GSM.Device,
     FreeSmartphone.GSM.SIM,
@@ -259,6 +260,39 @@ class DBusService.Device :
     }
 
     //
+    // DBUS (org.freesmartphone.Device.PowerSupply)
+    //
+    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
+    {
+        checkAvailability();
+        var m = modem.createMediator<FsoGsm.DeviceGetPowerStatus>();
+        try
+        {
+            yield m.run();
+            return m.status;
+        }
+        catch ( GLib.Error e ) // get_power_status() should not raise any errors
+        {
+            return FreeSmartphone.Device.PowerStatus.UNKNOWN;
+        }
+    }
+
+    public async int get_capacity() throws DBus.Error
+    {
+        checkAvailability();
+        var m = modem.createMediator<FsoGsm.DeviceGetPowerStatus>();
+        try
+        {
+            yield m.run();
+            return m.level;
+        }
+        catch ( GLib.Error e ) // get_capacity() should not raise any errors
+        {
+            return -1;
+        }
+    }
+
+    //
     // DBUS (org.freesmartphone.GSM.Debug.*)
     //
     public async string debug_command( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -338,15 +372,6 @@ class DBusService.Device :
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceSetSpeakerVolume>();
         yield m.run( volume );
-    }
-
-    public async void get_power_status( out string status, out int level ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        var m = modem.createMediator<FsoGsm.DeviceGetPowerStatus>();
-        yield m.run();
-        status = m.status;
-        level = m.level;
     }
 
     public async FreeSmartphone.GSM.DeviceStatus get_device_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

@@ -83,6 +83,14 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public string simPin;
         public bool keepRegistration;
 
+        // Device Capabilities
+        public bool supportsGSM;
+        public bool supportsCDMA;
+        public bool supportsVoice;
+        public bool supportsCSD;
+        public string supportsPDP;
+        public string supportsFAX;
+
         // PDP
         public string pppCommand;
         public string pppPort;
@@ -347,7 +355,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         modem_data = new FsoGsm.Modem.Data();
 
-        //modem_data.simidentification = "unknown";
+        // set defaults
+        modem_data.supportsGSM = true;
+        modem_data.supportsCDMA = false;
+        modem_data.supportsVoice = true;
+        modem_data.supportsCSD = true;
+        modem_data.supportsPDP = "B";
+        modem_data.supportsFAX = "8";
 
         modem_data.charset = config.stringValue( CONFIG_SECTION, "modem_charset", "guess" ).up();
         modem_data.simHasReadySignal = false;

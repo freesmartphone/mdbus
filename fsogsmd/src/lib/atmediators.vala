@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -481,47 +481,47 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         features = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-        var value = Value( typeof(string) );
 
+        // prefill results with what the modem claims
+        var data = theModem.data();
+        features.insert( "gsm", data.supportsGSM );
+        features.insert( "voice", data.supportsVoice );
+        features.insert( "cdma", data.supportsCDMA );
+        features.insert( "csd", data.supportsCSD );
+        features.insert( "fax", data.supportsFAX );
+
+        // now some additional runtime checks
+
+        // GSM?
         var gcap = theModem.createAtCommand<PlusGCAP>( "+GCAP" );
         var response = yield theModem.processAtCommandAsync( gcap, gcap.execute() );
         if ( gcap.validate( response ) == Constants.AtResponse.VALID )
         {
-            if ( "GSM" in gcap.value )
+            if ( "GSM" in gcap.value || data.supportsGSM )
             {
-                value = (string) "TA";
-                features.insert( "gsm", value );
+                features.insert( "gsm", true );
             }
         }
-
+        // PDP?
         var cgclass = theModem.createAtCommand<PlusCGCLASS>( "+CGCLASS" );
         response = yield theModem.processAtCommandAsync( cgclass, cgclass.test() );
         if ( cgclass.validateTest( response ) == Constants.AtResponse.VALID )
         {
-            value = (string) cgclass.righthandside;
-            features.insert( "gprs", value );
+            features.insert( "gprs", cgclass.righthandside );
         }
-        else
-        {
-            // default these days is B
-            value = (string) "B";
-            features.insert( "gprs", "B" );
-        }
-
+        // FAX?
         var fclass = theModem.createAtCommand<PlusFCLASS>( "+FCLASS" );
         response = yield theModem.processAtCommandAsync( fclass, fclass.test() );
         if ( fclass.validateTest( response ) == Constants.AtResponse.VALID )
         {
-            value = (string) fclass.righthandside;
-            features.insert( "fax", value );
+            features.insert( "fax", fclass.righthandside );
         }
-
+        // facilities
         var fac = theModem.createAtCommand<PlusCLCK>( "+CLCK" );
         response = yield theModem.processAtCommandAsync( fac, fac.test() );
         if ( fac.validateTest( response ) == Constants.AtResponse.VALID )
         {
-            value = (string) fac.facilities;
-            features.insert( "facilities", value );
+            features.insert( "facilities", fac.facilities );
         }
     }
 }
@@ -559,7 +559,8 @@ public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
         checkResponseValid( cmd, response );
 
         var data = theModem.data();
-        volume = data.speakerVolumeMinimum + cmd.value * 100 / ( data.speakerVolumeMaximum - data.speakerVolumeMinimum );
+        var interval = 100.0 / ( data.speakerVolumeMaximum - data.speakerVolumeMinimum );
+        volume = data.speakerVolumeMinimum + (int) Math.round( cmd.value * interval );
     }
 }
 
@@ -569,9 +570,28 @@ public class AtDeviceGetPowerStatus : DeviceGetPowerStatus
     {
         var cmd = theModem.createAtCommand<PlusCBC>( "+CBC" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
-
         checkResponseValid( cmd, response );
-        status = cmd.status;
+
+        switch ( cmd.status )
+        {
+            case PlusCBC.Status.DISCHARGING:
+                if ( cmd.level > 20 )
+                    status = FreeSmartphone.Device.PowerStatus.DISCHARGING;
+                else if ( cmd.level > 10 )
+                    status = FreeSmartphone.Device.PowerStatus.CRITICAL;
+                else if ( cmd.level < 5 )
+                    status = FreeSmartphone.Device.PowerStatus.EMPTY;
+                break;
+            case PlusCBC.Status.CHARGING:
+                status = FreeSmartphone.Device.PowerStatus.CHARGING;
+                break;
+            case PlusCBC.Status.AC:
+                status = FreeSmartphone.Device.PowerStatus.AC;
+                break;
+            default:
+                status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+                break;
+        }
         level = cmd.level;
     }
 }
@@ -678,7 +698,8 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
         yield gatherSpeakerVolumeRange();
 
         var data = theModem.data();
-        var value = data.speakerVolumeMinimum + volume * ( data.speakerVolumeMaximum - data.speakerVolumeMinimum ) / 100;
+        var interval = (double)( data.speakerVolumeMaximum - data.speakerVolumeMinimum ) / 100.0;
+        var value = data.speakerVolumeMinimum + (int) Math.round( volume * interval );
 
         var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
         var response = yield theModem.processAtCommandAsync( clvl, clvl.issue( value ) );
@@ -775,6 +796,8 @@ public class AtSimListPhonebooks : SimListPhonebooks
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        /*
+        phonebooks = theModem.pbhandler.categories();
         yield gatherPhonebookParams();
         var data = theModem.data();
         //FIXME: This doesn't work, returns an empty array -- bug in libgee?
@@ -786,6 +809,7 @@ public class AtSimListPhonebooks : SimListPhonebooks
             a += key;
         }
         phonebooks = a;
+        */
     }
 }
 

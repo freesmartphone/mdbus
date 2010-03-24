@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -398,7 +398,7 @@ public class FsoGsm.SimpleAtCommand<T> : FsoGsm.AbstractAtCommand
         else if ( typeof(T) == typeof(int) )
         {
             regex += """(?P<righthandside>\d+)""";
-            testx += """(?P<min>\d+)-(?P<max>\d+)""";
+            testx += """\((?P<min>\d+)-(?P<max>\d+)\)""";
         }
         else
         {

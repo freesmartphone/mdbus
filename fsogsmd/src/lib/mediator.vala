@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -91,7 +91,7 @@ public abstract class FsoGsm.DeviceGetMicrophoneMuted : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.DeviceGetPowerStatus : FsoGsm.AbstractMediator
 {
-    public string status { get; set; }
+    public FreeSmartphone.Device.PowerStatus status { get; set; }
     public int level { get; set; }
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
