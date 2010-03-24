@@ -216,7 +216,14 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
 
     public FreeSmartphone.GSM.SIMMessage message( string key, int index = 0 )
     {
-        var result = FreeSmartphone.GSM.SIMMessage( index, "unknown", "unknown", "unknown", new GLib.HashTable<string,Value?>( str_hash, str_equal ) );
+        var result = FreeSmartphone.GSM.SIMMessage(
+            index,
+            "unknown",
+            "unknown",
+            "unknown",
+            "unknown",
+            new GLib.HashTable<string,Value?>( str_hash, str_equal )
+        );
 
         if ( ! ( key in keys() ) )
         {
@@ -241,6 +248,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
             result.status = "single";
             result.number = message.number();
             result.contents = message.to_string();
+            result.timestamp = message.timestamp().to_string();
             result.properties = message.properties();
         }
         else
@@ -284,6 +292,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
                     if ( !info )
                     {
                         result.number = smses[i-1].number();
+                        result.timestamp = smses[i-1].timestamp().to_string();
                         result.properties = smses[i-1].properties();
                         info = true;
                     }

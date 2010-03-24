@@ -947,7 +947,23 @@ public class AtSimWriteEntry : SimWriteEntry
 /**
  * SMS Mediators
  **/
-public class AtSmsGetSizeForMessage : SmsGetSizeForMessage
+public class AtSmsRetrieveTextMessages : SmsRetrieveTextMessages
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        //FIXME: Bug in Vala
+        //messagebook = theModem.smshandler.storage.messagebook();
+        //FIXME: Work around
+        var array = theModem.smshandler.storage.messagebook();
+        messagebook = new FreeSmartphone.GSM.SIMMessage[array.length] {};
+        for( int i = 0; i < array.length; ++i )
+        {
+            messagebook[i] = array[i];
+        }
+    }
+}
+
+public class AtSmsGetSizeForTextMessage : SmsGetSizeForTextMessage
 {
     public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
@@ -956,21 +972,20 @@ public class AtSmsGetSizeForMessage : SmsGetSizeForMessage
     }
 }
 
-public class AtSmsSendMessage : SmsSendMessage
+public class AtSmsSendTextMessage : SmsSendTextMessage
 {
     public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         validatePhoneNumber( recipient_number );
-        assert( contents != "" ); // only text messages supported for now
         uint8 refnum = 0;
 
         var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents );
 
-        // signalize that we're sending a couple of MMS
+        // signalize that we're sending a couple of SMS
         var cmms = theModem.createAtCommand<PlusCMMS>( "+CMMS" );
-        yield theModem.processAtCommandAsync( cmms, cmms.issue( 1 ) );
+        yield theModem.processAtCommandAsync( cmms, cmms.issue( 1 ) ); // not interested in the result
 
-        // send the MMS one after another
+        // send the SMS one after another
         foreach( var hexpdu in hexpdus )
         {
             var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
@@ -979,6 +994,9 @@ public class AtSmsSendMessage : SmsSendMessage
         }
         transaction_index = refnum;
         timestamp = "now";
+
+        // signalize that we're done
+        yield theModem.processAtCommandAsync( cmms, cmms.issue( 0 ) ); // not interested in the result
     }
 }
 
@@ -1254,8 +1272,9 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimWriteEntry) ]                = typeof( AtSimWriteEntry );
     table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
 
-    table[ typeof(SmsGetSizeForMessage) ]         = typeof( AtSmsGetSizeForMessage );
-    table[ typeof(SmsSendMessage) ]               = typeof( AtSmsSendMessage );
+    table[ typeof(SmsRetrieveTextMessages) ]      = typeof( AtSmsRetrieveTextMessages );
+    table[ typeof(SmsGetSizeForTextMessage) ]     = typeof( AtSmsGetSizeForTextMessage );
+    table[ typeof(SmsSendTextMessage) ]           = typeof( AtSmsSendTextMessage );
 
     table[ typeof(NetworkGetSignalStrength) ]     = typeof( AtNetworkGetSignalStrength );
     table[ typeof(NetworkGetStatus) ]             = typeof( AtNetworkGetStatus );

@@ -220,13 +220,19 @@ public abstract class FsoGsm.SimUnlock : FsoGsm.AbstractMediator
 //
 // org.freesmartphone.GSM.SMS.*
 //
-public abstract class FsoGsm.SmsGetSizeForMessage : FsoGsm.AbstractMediator
+public abstract class FsoGsm.SmsRetrieveTextMessages : FsoGsm.AbstractMediator
+{
+    public FreeSmartphone.GSM.SIMMessage[] messagebook { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.SmsGetSizeForTextMessage : FsoGsm.AbstractMediator
 {
     public uint size { get; set; }
     public abstract async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
-public abstract class FsoGsm.SmsSendMessage : FsoGsm.AbstractMediator
+public abstract class FsoGsm.SmsSendTextMessage : FsoGsm.AbstractMediator
 {
     public int transaction_index { get; set; }
     public string timestamp { get; set; }

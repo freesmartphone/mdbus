@@ -454,12 +454,14 @@ namespace Sms
             }
         }
 
-        public Sms.Scts timestamp()
+        public string timestamp()
         {
             switch ( type )
             {
+                case Sms.Type.DELIVER:
+                    return deliver.scts.to_string();
                 default:
-                    GLib.assert_not_reached();
+                    return "none";
             }
         }
 

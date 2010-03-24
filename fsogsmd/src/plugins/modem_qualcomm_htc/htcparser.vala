@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -146,7 +146,6 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
             default:
                 assert_not_reached();
         }
-        return State.INVALID;
     }
 
     //
@@ -302,7 +301,6 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
                 curline += c;
                 return State.INLINE;
         }
-        return State.INVALID;
     }
 
     public State inline_r( char c )
@@ -330,7 +328,6 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
             default:
                 return State.INVALID;
         }
-        return State.INVALID;
     }
 
     //
@@ -377,8 +374,8 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
             return resetLine();
         }
 
-        var prefixExpected = expectedPrefix( (string)curline );
 #if DEBUG
+        var prefixExpected = expectedPrefix( (string)curline );
         debug( "prefix expected = %s", prefixExpected.to_string() );
 #endif
         if ( !expectedPrefix( (string)curline ) )

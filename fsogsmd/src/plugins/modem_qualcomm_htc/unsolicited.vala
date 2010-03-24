@@ -23,7 +23,6 @@ using Gee;
 public class QualcommHtc.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHandler
 {
     private bool phbReady;
-    private bool smsReady;
     private bool fullReady;
 
     private void updateReadyness()

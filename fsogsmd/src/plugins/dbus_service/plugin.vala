@@ -531,39 +531,30 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.SMS.*)
     //
-    public async void ack_message( string contents, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+
+    public async uint get_size_for_text_message( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.SmsGetSizeForTextMessage>();
+        yield m.run( contents );
+        return m.size;
     }
 
-    public async void nack_message( string contents, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.SIMMessage[] retrieve_text_messages() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-
-    public async void send_message( string recipient_number, string contents, GLib.HashTable<string,GLib.Value?> properties, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.SmsRetrieveTextMessages>();
+        yield m.run();
+        return m.messagebook;
     }
 
     public async void send_text_message( string recipient_number, string contents, bool want_report, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        var m = modem.createMediator<FsoGsm.SmsSendMessage>();
+        var m = modem.createMediator<FsoGsm.SmsSendTextMessage>();
         yield m.run( recipient_number, contents, want_report );
         transaction_index = m.transaction_index;
         timestamp = m.timestamp;
-    }
-
-    public async uint get_size_for_text_message( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        var m = modem.createMediator<FsoGsm.SmsGetSizeForMessage>();
-        yield m.run( contents );
-        return m.size;
     }
 
     //
