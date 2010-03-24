@@ -231,7 +231,7 @@ public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeS
         foreach ( var pbname in cmd.phonebooks )
         {
             var cpbr = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
-            var pbcode = Constants.instance().simPhonebookStringToName( pbname );
+            var pbcode = Constants.instance().simPhonebookStringToCode( pbname );
             var answer = yield theModem.processAtCommandAsync( cpbr, cpbr.test( pbcode ) );
             if ( cpbr.validateTest( answer ) == Constants.AtResponse.VALID )
             {
@@ -720,6 +720,40 @@ public class AtSimChangeAuthCode : SimChangeAuthCode
     }
 }
 
+public class AtSimDeleteEntry : SimDeleteEntry
+{
+    public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cat = Constants.instance().simPhonebookStringToCode( category );
+        if ( cat == "" )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
+        }
+
+        var cmd = theModem.createAtCommand<PlusCPBW>( "+CPBW" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( cat, index ) );
+        checkResponseExpected( cmd, response, {
+            Constants.AtResponse.OK,
+            Constants.AtResponse.CME_ERROR_021_INVALID_INDEX
+        } );
+        //FIXME: theModem.pbhandler.resync();
+    }
+}
+
+public class AtSimDeleteMessage : SimDeleteMessage
+{
+    public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCMGD>( "+CMGD" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( index ) );
+        checkResponseExpected( cmd, response, {
+            Constants.AtResponse.OK,
+            Constants.AtResponse.CMS_ERROR_321_INVALID_MEMORY_INDEX
+        } );
+        //FIXME: theModem.smshandler.resync();
+    }
+}
+
 public class AtSimGetAuthStatus : SimGetAuthStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -766,7 +800,26 @@ public class AtSimGetInformation : SimGetInformation
             info.insert( "issuer", "unknown" );
         }
 
-        //FIXME: Add dial_prefix and country
+        var cpbs = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
+        response = yield theModem.processAtCommandAsync( cpbs, cpbs.test() );
+        var pbnames = "";
+        if ( cpbs.validateTest( response ) == Constants.AtResponse.VALID )
+        {
+            foreach ( var pbcode in cpbs.phonebooks )
+            {
+                pbnames += Constants.instance().simPhonebookCodeToString( pbcode );
+                pbnames += " ";
+            }
+        }
+        info.insert( "phonebooks", pbnames.strip() );
+
+        var cpms = theModem.createAtCommand<PlusCPMS>( "+CPMS" );
+        response = yield theModem.processAtCommandAsync( cpms, cpms.query() );
+        if ( cpms.validate( response ) == Constants.AtResponse.VALID )
+        {
+            info.insert( "slots", cpms.total );
+            info.insert( "used", cpms.used );
+        }
     }
 }
 
@@ -792,33 +845,12 @@ public class AtSimGetServiceCenterNumber : SimGetServiceCenterNumber
     }
 }
 
-public class AtSimListPhonebooks : SimListPhonebooks
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        /*
-        phonebooks = theModem.pbhandler.categories();
-        yield gatherPhonebookParams();
-        var data = theModem.data();
-        //FIXME: This doesn't work, returns an empty array -- bug in libgee?
-        //phonebooks = (string[]) data.simPhonebooks.keys.to_array();
-        // slow workaround instead:
-        var a = new string[] {};
-        foreach ( var key in data.simPhonebooks.keys )
-        {
-            a += key;
-        }
-        phonebooks = a;
-        */
-    }
-}
-
 public class AtSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
 #if NEW_PHONEBOOK
-        var cat = Constants.instance().simPhonebookStringToName( category );
+        var cat = Constants.instance().simPhonebookStringToCode( category );
         phonebook = theModem.pbhandler.storage.phonebook( cat );
 #else
         yield gatherPhonebookParams();
@@ -829,7 +861,7 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Category needs to be one of ..." );
         }
 
-        var cat = Constants.instance().simPhonebookStringToName( category );
+        var cat = Constants.instance().simPhonebookStringToCode( category );
         assert( category != "" );
         var pp = data.simPhonebooks[category];
 
@@ -843,6 +875,8 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
         }
         phonebook = cmd.phonebook;
 #endif
+
+    //FIXME: yield theModem.pbhandler.resync();
     }
 }
 
@@ -915,6 +949,22 @@ public class AtSimUnlock : SimUnlock
     {
         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( puk, newpin ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
+public class AtSimWriteEntry : SimWriteEntry
+{
+    public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cat = Constants.instance().simPhonebookStringToCode( category );
+        if ( cat == "" )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
+        }
+
+        var cmd = theModem.createAtCommand<PlusCPBW>( "+CPBW" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( cat, index, number, name ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -1214,16 +1264,18 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( AtDeviceSetSpeakerVolume );
 
     table[ typeof(SimChangeAuthCode) ]            = typeof( AtSimChangeAuthCode );
+    table[ typeof(SimDeleteEntry) ]               = typeof( AtSimDeleteEntry );
+    table[ typeof(SimDeleteMessage) ]             = typeof( AtSimDeleteMessage );
     table[ typeof(SimGetAuthCodeRequired) ]       = typeof( AtSimGetAuthCodeRequired );
     table[ typeof(SimGetAuthStatus) ]             = typeof( AtSimGetAuthStatus );
     table[ typeof(SimGetServiceCenterNumber) ]    = typeof( AtSimGetServiceCenterNumber );
     table[ typeof(SimGetInformation) ]            = typeof( AtSimGetInformation );
-    table[ typeof(SimListPhonebooks) ]            = typeof( AtSimListPhonebooks );
     table[ typeof(SimRetrieveMessagebook) ]       = typeof( AtSimRetrieveMessagebook );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
     table[ typeof(SimSetAuthCodeRequired) ]       = typeof( AtSimSetAuthCodeRequired );
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( AtSimSetServiceCenterNumber );
+    table[ typeof(SimWriteEntry) ]                = typeof( AtSimWriteEntry );
     table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
 
     table[ typeof(SmsGetSizeForMessage) ]         = typeof( AtSmsGetSizeForMessage );

@@ -141,6 +141,16 @@ public abstract class FsoGsm.SimChangeAuthCode : FsoGsm.AbstractMediator
     public abstract async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.SimDeleteEntry : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.SimDeleteMessage : FsoGsm.AbstractMediator
+{
+    public abstract async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SimGetAuthCodeRequired : FsoGsm.AbstractMediator
 {
     public bool required;
@@ -162,12 +172,6 @@ public abstract class FsoGsm.SimGetInformation : FsoGsm.AbstractMediator
 public abstract class FsoGsm.SimGetServiceCenterNumber : FsoGsm.AbstractMediator
 {
     public string number;
-    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-}
-
-public abstract class FsoGsm.SimListPhonebooks : FsoGsm.AbstractMediator
-{
-    public string[] phonebooks { get; set; }
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
@@ -196,6 +200,11 @@ public abstract class FsoGsm.SimSetAuthCodeRequired : FsoGsm.AbstractMediator
 public abstract class FsoGsm.SimSetServiceCenterNumber : FsoGsm.AbstractMediator
 {
     public abstract async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.SimWriteEntry : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.SimUnlock : FsoGsm.AbstractMediator

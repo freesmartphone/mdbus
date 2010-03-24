@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -392,13 +392,15 @@ class DBusService.Device :
     public async void delete_entry( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.SimDeleteEntry>();
+        yield m.run( category, index );
     }
 
     public async void delete_message( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.SimDeleteMessage>();
+        yield m.run( index );
     }
 
     public async bool get_auth_code_required() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -418,12 +420,6 @@ class DBusService.Device :
     }
 
     public async FreeSmartphone.GSM.SIMHomeZone[] get_home_zone_parameters() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-
-    public async GLib.HashTable<string,GLib.Value?> get_messagebook_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
@@ -454,14 +450,6 @@ class DBusService.Device :
         var m = modem.createMediator<FsoGsm.SimGetInformation>();
         yield m.run();
         return m.info;
-    }
-
-    public async string[] list_phonebooks() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        var m = modem.createMediator<FsoGsm.SimListPhonebooks>();
-        yield m.run();
-        return m.phonebooks;
     }
 
     public async void retrieve_entry( string category, int index, out string name, out string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -534,7 +522,8 @@ class DBusService.Device :
     public async void store_entry( string category, int index, string name, string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.SimWriteEntry>();
+        yield m.run( category, index, number, name );
     }
 
     public async int store_message( string recipient_number, string contents, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

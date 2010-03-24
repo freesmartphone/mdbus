@@ -1,6 +1,7 @@
 #ifndef CONVERSIONS_H
 #define CONVERSIONS_H
 
+char *gsm_to_utf8(const char* str);
 char *ucs2_to_utf8(const char *str);
 typedef struct sms structsms;
 struct sms* sms_new();

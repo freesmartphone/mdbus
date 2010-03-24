@@ -491,9 +491,9 @@ public class FsoGsm.Constants
         }
     }
 
-    public string simPhonebookNameToString( string name )
+    public string simPhonebookCodeToString( string code )
     {
-        switch ( name )
+        switch ( code )
         {
             case "LD":
                 return "dialed";
@@ -512,11 +512,11 @@ public class FsoGsm.Constants
             case "VM":
                 return "voicebox";
             default:
-                return "unsupported:%s".printf( name );
+                return "aux:%s".printf( code );
         }
     }
 
-    public string simPhonebookStringToName( string category )
+    public string simPhonebookStringToCode( string category )
     {
         switch ( category )
         {
@@ -537,9 +537,9 @@ public class FsoGsm.Constants
             case "voicebox":
                 return "VM";
             default:
-                if ( category.has_prefix( "unsupported:" ) )
+                if ( category.has_prefix( "aux:" ) )
                 {
-                    return ( category.replace( "unsupported:", "" ) );
+                    return ( category.replace( "aux:", "" ) );
                 }
                 else
                 {

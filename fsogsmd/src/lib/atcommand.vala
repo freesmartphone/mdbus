@@ -46,6 +46,7 @@ public abstract interface FsoGsm.AtCommand : GLib.Object, FsoGsm.AtCommandQueueC
     public abstract void parseTest( string response ) throws AtCommandError;
 
     /* Encoding/Decoding */
+    public abstract string encodeString( string str );
     public abstract string decodeString( string str );
 
     public abstract Constants.AtResponse validate( string[] response );
@@ -72,6 +73,25 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
     ~AbstractAtCommand()
     {
         warning( "DESTRUCT %s", Type.from_instance( this ).name() );
+    }
+
+    public string encodeString( string str )
+    {
+        if ( str == null || str == "" )
+            return "";
+
+        var data = theModem.data();
+        switch ( data.charset )
+        {
+            case "UCS2":
+                var res = Conversions.utf8_to_ucs2( str );
+                return ( res != null ) ? res : "";
+            case "HEX":
+                var res = Conversions.utf8_to_gsm( str );
+                return ( res != null ) ? res : "";
+            default:
+                return str;
+        }
     }
 
     public string decodeString( string str )

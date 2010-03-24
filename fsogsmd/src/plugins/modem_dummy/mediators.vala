@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -200,6 +200,20 @@ public class DummyAtSimChangeAuthCode : SimChangeAuthCode
     }
 }
 
+public class DummyAtSimDeleteEntry : SimDeleteEntry
+{
+    public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+}
+
+public class DummyAtSimDeleteMessage : SimDeleteMessage
+{
+    public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+}
+
 public class DummyAtSimGetAuthStatus : SimGetAuthStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -215,6 +229,9 @@ public class DummyAtSimGetInformation : SimGetInformation
         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
         info.insert( "imsi", "262123456789" );
         info.insert( "issuer", "FSO TELEKOM" );
+        info.insert( "slots", 30 );
+        info.insert( "message", 4 );
+        info.insert( "phonebooks", "contacts" );
     }
 }
 
@@ -234,21 +251,13 @@ public class DummyAtSimGetServiceCenterNumber : SimGetServiceCenterNumber
     }
 }
 
-public class DummyAtSimListPhonebooks : SimListPhonebooks
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        phonebooks = { "contacts" };
-    }
-}
-
 public class DummyAtSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( ! ( category == "contacts" ) )
         {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Category needs to be one of ..." );
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Unknown category" );
         }
 
         var pb = new FreeSmartphone.GSM.SIMEntry[] {};
@@ -312,6 +321,13 @@ public class DummyAtSimSetServiceCenterNumber : SimSetServiceCenterNumber
     public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         modem_scsa = number;
+    }
+}
+
+public class DummyAtSimWriteEntry : SimWriteEntry
+{
+    public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
     }
 }
 
@@ -506,11 +522,12 @@ public void registerDummyMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( DummyAtDeviceSetSpeakerVolume );
 
     table[ typeof(SimChangeAuthCode) ]            = typeof( DummyAtSimChangeAuthCode );
+    table[ typeof(SimDeleteEntry) ]               = typeof( DummyAtSimDeleteEntry );
+    table[ typeof(SimDeleteMessage) ]             = typeof( DummyAtSimDeleteMessage );
     table[ typeof(SimGetAuthCodeRequired) ]       = typeof( DummyAtSimGetAuthCodeRequired );
     table[ typeof(SimGetAuthStatus) ]             = typeof( DummyAtSimGetAuthStatus );
     table[ typeof(SimGetServiceCenterNumber) ]    = typeof( DummyAtSimGetServiceCenterNumber );
     table[ typeof(SimGetInformation) ]            = typeof( DummyAtSimGetInformation );
-    table[ typeof(SimListPhonebooks) ]            = typeof( DummyAtSimListPhonebooks );
     table[ typeof(SimRetrieveMessagebook) ]       = typeof( DummyAtSimRetrieveMessagebook );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( DummyAtSimRetrievePhonebook );
     table[ typeof(SimSetAuthCodeRequired) ]       = typeof( DummyAtSimSetAuthCodeRequired );

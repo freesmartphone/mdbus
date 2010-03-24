@@ -23,6 +23,24 @@
 
 #include <string.h>
 
+char* utf8_to_ucs2(const char* str)
+{
+    long len;
+    unsigned char* ucs2 = g_convert(str, strlen(str), "UCS-2BE", "UTF-8//TRANSLIT", NULL, &len, NULL);
+    char* hex = encode_hex(ucs2, len, 0);
+    g_free(ucs2);
+    return hex;
+}
+
+char* utf8_to_gsm(const char* str)
+{
+    long len;
+    char* gsm = convert_utf8_to_gsm(str, strlen(str), NULL, &len, 0);
+    char* hex = encode_hex(gsm, len, 0);
+    g_free(gsm);
+    return hex;
+}
+
 char* ucs2_to_utf8(const char* str)
 {
 //    g_debug( "ucs2_to_utf8: '%s'", str );

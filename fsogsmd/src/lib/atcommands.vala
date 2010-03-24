@@ -477,6 +477,14 @@ public class PlusCLVL : SimpleAtCommand<int>
     }
 }
 
+public class PlusCMGD : SimpleAtCommand<int>
+{
+    public PlusCMGD()
+    {
+        base( "+CMGD" );
+    }
+}
+
 public class PlusCMGL : AbstractAtCommand
 {
     public Gee.ArrayList<WrapSms> messagebook;
@@ -902,6 +910,49 @@ public class PlusCPBS : AbstractAtCommand
     }
 }
 
+public class PlusCPBW : AbstractAtCommand
+{
+    public int max;
+    public int nlength;
+    public int tlength;
+
+    public PlusCPBW()
+    {
+        try
+        {
+            tere = new Regex( """\+CPBW: \((?P<min>\d+)-(?P<max>\d+)\),(?P<nlength>\d*),\((?P<mintype>\d+)-(?P<maxtype>\d+)\),(?P<tlength>\d*)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+CPBW: " };
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        base.parseTest( response );
+        max = to_int( "max" );
+        nlength = to_int( "nlength" );
+        tlength = to_int( "tlength" );
+    }
+
+    public string issue( string cat, int location, string number = "", string name = "" )
+    {
+        var cmd = @"+CPBS=\"$cat\";+CPBW=$location";
+        if ( number != "" )
+        {
+            cmd += ",%s,\"%s\"".printf( Constants.instance().phonenumberStringToTuple( number ), encodeString( name ) );
+        }
+        return cmd;
+    }
+
+    public string test( string cat )
+    {
+        return "+CPBS=\"$cat\";+CPBW=?";
+    }
+}
+
 public class PlusCPIN : AbstractAtCommand
 {
     public FreeSmartphone.GSM.SIMAuthStatus status;
@@ -936,6 +987,42 @@ public class PlusCPIN : AbstractAtCommand
     public string query()
     {
         return "+CPIN?";
+    }
+}
+
+public class PlusCPMS : AbstractAtCommand
+{
+    public int used;
+    public int total;
+
+    public PlusCPMS()
+    {
+        try
+        {
+            re = new Regex( """\+CPMS: "(?P<s1>[^"]*)",(?P<s1u>\d*),(?P<s1t>\d*),"(?P<s2>[^"]*)",(?P<s2u>\d*),(?P<s2t>\d*),"(?P<s3>[^"]*)",(?P<s3u>\d*),(?P<s3t>\d*)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+CPMS: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        used = to_int( "s1u" );
+        total = to_int( "s1t" );
+    }
+
+    public string query()
+    {
+        return "+CPMS?";
+    }
+
+    public string issue( string s1 = "SM", string s2 = "SM", string s3 = "SM" )
+    {
+        return @"+CPMS=\"$s1\",\"$s2\",\"$s3\"";
     }
 }
 
@@ -1234,13 +1321,16 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     // phonebook
     table[ "+CPBR" ]             = new FsoGsm.PlusCPBR();
     table[ "+CPBS" ]             = new FsoGsm.PlusCPBS();
+    table[ "+CPBW" ]             = new FsoGsm.PlusCPBW();
 
     // sms
+    table[ "+CMGD" ]             = new FsoGsm.PlusCMGD();
     table[ "+CMGL" ]             = new FsoGsm.PlusCMGL();
     table[ "+CMGR" ]             = new FsoGsm.PlusCMGR();
     table[ "+CMGS" ]             = new FsoGsm.PlusCMGS();
     table[ "+CMMS" ]             = new FsoGsm.PlusCMMS();
     table[ "+CMTI" ]             = new FsoGsm.PlusCMTI();
+    table[ "+CPMS" ]             = new FsoGsm.PlusCPMS();
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
 
     // pdp

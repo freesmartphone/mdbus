@@ -1,5 +1,5 @@
-/**
- * Copyright (C) 2009 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+/*
+ * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -20,6 +20,9 @@
 [CCode (cheader_filename = "conversions.h,util.h", cprefix = "", lower_case_cprefix = "")]
 namespace Conversions
 {
+    string utf8_to_ucs2( string data );
+    string utf8_to_gsm( string data );
+
     string ucs2_to_utf8( string data );
     string gsm_to_utf8( string data );
 
