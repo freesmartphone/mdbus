@@ -432,12 +432,6 @@ class DBusService.Device :
         yield m.run( category, out slots, out numberlength, out namelength );
     }
 
-    public async GLib.HashTable<string,string> get_provider_list() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-
     public async string get_service_center_number() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         var m = modem.createMediator<FsoGsm.SimGetServiceCenterNumber>();
@@ -451,12 +445,6 @@ class DBusService.Device :
         var m = modem.createMediator<FsoGsm.SimGetInformation>();
         yield m.run();
         return m.info;
-    }
-
-    public async void retrieve_entry( string category, int index, out string name, out string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
     public async void retrieve_message( int index, out string status, out string sender_number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -473,11 +461,11 @@ class DBusService.Device :
         return m.messagebook;
     }
 
-    public async FreeSmartphone.GSM.SIMEntry[] retrieve_phonebook( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.SIMEntry[] retrieve_phonebook( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimRetrievePhonebook>();
-        yield m.run( category );
+        yield m.run( category, mindex, maxdex );
         return m.phonebook;
     }
 

@@ -219,29 +219,6 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
     }
 }
 
-public async void gatherPhonebookParams() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-{
-    var data = theModem.data();
-    if ( data.simPhonebooks.size == 0 )
-    {
-        var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
-        checkTestResponseValid( cmd, response );
-
-        foreach ( var pbname in cmd.phonebooks )
-        {
-            var cpbr = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
-            var pbcode = Constants.instance().simPhonebookStringToCode( pbname );
-            var answer = yield theModem.processAtCommandAsync( cpbr, cpbr.test( pbcode ) );
-            if ( cpbr.validateTest( answer ) == Constants.AtResponse.VALID )
-            {
-                data.simPhonebooks[pbname] = new PhonebookParams( cpbr.min, cpbr.max );
-                assert( theModem.logger.debug( @"Found phonebook '$pbname' w/ indices $(cpbr.min)-$(cpbr.max)" ) );
-            }
-        }
-    }
-}
-
 public async void triggerUpdateNetworkStatus()
 {
     var mstat = theModem.status();
@@ -866,36 +843,15 @@ public class AtSimGetServiceCenterNumber : SimGetServiceCenterNumber
 
 public class AtSimRetrievePhonebook : SimRetrievePhonebook
 {
-    public override async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-#if NEW_PHONEBOOK
         var cat = Constants.instance().simPhonebookStringToCode( category );
-        phonebook = theModem.pbhandler.storage.phonebook( cat );
-#else
-        yield gatherPhonebookParams();
-        var data = theModem.data();
-
-        if ( ! ( category in data.simPhonebooks ) )
+        if ( cat == "" )
         {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Category needs to be one of ..." );
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid Category" );
         }
 
-        var cat = Constants.instance().simPhonebookStringToCode( category );
-        assert( category != "" );
-        var pp = data.simPhonebooks[category];
-
-        var cmd = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( cat, pp.min, pp.max ) );
-
-        var valid = cmd.validateMulti( response );
-        if ( valid != Constants.AtResponse.VALID && valid != Constants.AtResponse.CME_ERROR_022_NOT_FOUND )
-        {
-            throwAppropriateError( valid, response[response.length-1] );
-        }
-        phonebook = cmd.phonebook;
-#endif
-
-    //FIXME: yield theModem.pbhandler.resync();
+        phonebook = theModem.pbhandler.storage.phonebook( cat, mindex, maxdex );
     }
 }
 

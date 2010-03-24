@@ -109,7 +109,7 @@ public class FsoGsm.PhonebookStorage : FsoFramework.AbstractObject
         }
     }
 
-    public FreeSmartphone.GSM.SIMEntry[] phonebook( string cat )
+    public FreeSmartphone.GSM.SIMEntry[] phonebook( string cat, int mindex, int maxdex )
     {
         var pb = new FreeSmartphone.GSM.SIMEntry[] {};
         var dir = GLib.Dir.open( GLib.Path.build_filename( storagedir ) );
@@ -134,7 +134,12 @@ public class FsoGsm.PhonebookStorage : FsoFramework.AbstractObject
                 var components = contents.split( ":" );
                 if ( components.length == 2 )
                 {
-                    pb += FreeSmartphone.GSM.SIMEntry( entry2.to_int(), components[0], components[1] );
+                    var index = entry2.to_int();
+                    //FIXME: Use relational syntax in Vala 0.7.11
+                    if ( mindex <= index && index <= maxdex )
+                    {
+                        pb += FreeSmartphone.GSM.SIMEntry( index, components[0], components[1] );
+                    }
                 }
                 else
                 {

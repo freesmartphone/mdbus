@@ -183,7 +183,7 @@ public abstract class FsoGsm.SimGetServiceCenterNumber : FsoGsm.AbstractMediator
 public abstract class FsoGsm.SimRetrievePhonebook : FsoGsm.AbstractMediator
 {
     public FreeSmartphone.GSM.SIMEntry[] phonebook { get; set; }
-    public abstract async void run( string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.SimRetrieveMessagebook : FsoGsm.AbstractMediator
