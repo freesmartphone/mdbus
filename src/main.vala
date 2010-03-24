@@ -1,4 +1,4 @@
-/**
+/*
  * -- Mickey's DBus Utility V2 --
  *
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- **/
+ */
 
 //=========================================================================//
 using GLib;
@@ -611,7 +611,7 @@ class Commands : Object
         }
     }
 
-    public List<string> _listInterfaces( string busname, string path, string? prefix = null )
+    public List<string> _listInterfaces( string busname, string path, string? prefix = null, bool stripPropertiesAndSignals = false )
     {
         var result = new List<string>();
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
@@ -626,6 +626,10 @@ class Commands : Object
             }
             foreach ( var entity in idata.entitys )
             {
+                if ( stripPropertiesAndSignals && entity.typ != Entity.Typ.METHOD )
+                {
+                    continue;
+                }
                 if ( prefix == null )
                 {
                     result.append( entity.to_string() );
@@ -797,15 +801,6 @@ class Commands : Object
             rule += @",interface='$iface'";
         }
 
-        /*
-
-        if (data->member)
-                offset += snprintf(rule + offset, size - offset,
-                                ",member='%s'", data->member);
-        if (data->argument)
-                snprintf(rule + offset, size - offset,
-                                ",arg0='%s'", data->argument);
-        */
         return rule;
     }
 
@@ -887,16 +882,18 @@ class Commands : Object
                     completions = new List<string>();
                     commands._listObjects( parts[0], "/", ref completions, prefix );
                     break;
-                case 3: /* interfaces */
-                    completions = commands._listInterfaces( parts[0], parts[1], prefix );
+                case 3: /* interfaces (minus signals or properties) */
+                    completions = commands._listInterfaces( parts[0], parts[1], prefix, true );
                     break;
                 default:
                     return null;
             }
+#if DEBUG
             foreach ( var c in completions )
             {
-//               message( "got completion '%s'", c );
+               message( "got completion '%s'", c );
             }
+#endif
         }
         return completions.nth_data( state );
     }
@@ -931,11 +928,11 @@ class Commands : Object
             }
             else
             {
-                Readline.History.add( line );
-                //if ( line != "" )
+                if ( line != "" )
                 {
-                    performCommandFromShell( line );
+                    Readline.History.add( line );
                 }
+                performCommandFromShell( line );
             }
         }
         stderr.printf( "Good bye!\n" );
