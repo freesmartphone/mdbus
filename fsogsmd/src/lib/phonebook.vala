@@ -112,7 +112,18 @@ public class FsoGsm.PhonebookStorage : FsoFramework.AbstractObject
     public FreeSmartphone.GSM.SIMEntry[] phonebook( string cat, int mindex, int maxdex )
     {
         var pb = new FreeSmartphone.GSM.SIMEntry[] {};
-        var dir = GLib.Dir.open( GLib.Path.build_filename( storagedir ) );
+        GLib.Dir dir;
+
+        try
+        {
+            dir = GLib.Dir.open( GLib.Path.build_filename( storagedir ) );
+        }
+        catch ( GLib.FileError e )
+        {
+            logger.error( @"Can't open phonebook: $(e.message)" );
+            return pb;
+        }
+
         var entry = dir.read_name();
         string pbdirname = null;
         while ( entry != null )
@@ -126,7 +137,16 @@ public class FsoGsm.PhonebookStorage : FsoFramework.AbstractObject
         }
         if ( pbdirname != null )
         {
-            var pbdir = GLib.Dir.open( GLib.Path.build_filename( storagedir, pbdirname ) );
+            GLib.Dir pbdir;
+            try
+            {
+                pbdir = GLib.Dir.open( GLib.Path.build_filename( storagedir, pbdirname ) );
+            }
+            catch ( GLib.FileError e )
+            {
+                logger.error( @"Can't open phonebook: $(e.message)" );
+                return pb;
+            }
             var entry2 = pbdir.read_name();
             while ( entry2 != null )
             {
