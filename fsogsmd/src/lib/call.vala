@@ -114,5 +114,9 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
     public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-}
 
+    /**
+     * Override this to implement modem-specific cancelling of an outgoing call
+     **/
+    protected abstract async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}

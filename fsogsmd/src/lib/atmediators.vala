@@ -1076,11 +1076,11 @@ public class AtNetworkGetStatus : NetworkGetStatus
             if ( cgreg.validate( cgregResult2 ) == Constants.AtResponse.VALID )
             {
                 strvalue = Constants.instance().networkRegistrationStatusToString( cgreg.status );
-                status.insert( "data.registration", strvalue );
+                status.insert( "pdp.registration", strvalue );
                 strvalue = cgreg.lac;
-                status.insert( "data.lac", strvalue );
+                status.insert( "pdp.lac", strvalue );
                 strvalue = cgreg.cid;
-                status.insert( "data.cid", strvalue );
+                status.insert( "pdp.cid", strvalue );
             }
         }
     }

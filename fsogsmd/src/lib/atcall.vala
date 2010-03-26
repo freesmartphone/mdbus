@@ -81,6 +81,18 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         return "<>";
     }
 
+    //
+    // protected API
+    //
+
+    protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
+        var c = theModem.createAtCommand<V250H>( "H" );
+        var r = yield theModem.processAtCommandAsync( c, c.execute() );
+        checkResponseOk( c, r );
+    }
+
     protected override void startTimeoutIfNecessary()
     {
         onTimeout();
@@ -229,9 +241,16 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to release found" );
         }
-        var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id ) );
-        checkResponseOk( cmd, response );
+        if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.OUTGOING )
+        {
+            yield cancelOutgoingWithId( id );
+        }
+        else
+        {
+            var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
+            var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id ) );
+            checkResponseOk( cmd, response );
+        }
     }
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
