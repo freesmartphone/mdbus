@@ -31,6 +31,25 @@ const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectabl
 MainLoop mainloop;
 Commands commands;
 List<string> completions;
+//=========================================================================//
+
+public string formatSimpleContainerIter( DBus.RawMessageIter subiter, string start, string trenner, string stop, int depth = 0 )
+{
+    var result = "";
+    result += start + " ";
+    var next = true;
+    while ( next )
+    {
+        result += formatResult( subiter, depth+1 );
+        if ( subiter.has_next() )
+        {
+            result += ", ";
+        }
+        next = subiter.next();
+    }
+    result += " " + stop;
+    return result;    
+}
 
 public string formatMessage( DBus.RawMessage msg )
 {
@@ -41,17 +60,7 @@ public string formatMessage( DBus.RawMessage msg )
     DBus.RawMessageIter iter = DBus.RawMessageIter();
     if ( msg.iter_init( iter ) )
     {
-        var signature = iter.get_signature();
-
-        var result = "( ";
-        result += formatResult( iter );
-
-        while ( iter.has_next() )
-        {
-            iter.next();
-            result += @", $(formatResult(iter))";
-        }
-        return result + " )";
+        return formatSimpleContainerIter( iter, "(", ",", ")" );
     }
     else
     {
@@ -70,24 +79,9 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
      */
     if ( signature[0] == 'a' && signature[1] == '{' )
     {
-#if DEBUG
-        debug( "dict" );
-#endif
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
-        var result = "{ ";
-        var next = true;
-        while ( next )
-        {
-            result += formatResult( subiter, depth+1 );
-            if ( subiter.has_next() )
-            {
-                result += ", ";
-            }
-            next = subiter.next();
-        }
-        result += " }";
-        return result;
+        return formatSimpleContainerIter( subiter, "{", ",", "}", depth+1 );
     }
 
     /*
@@ -95,46 +89,19 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
      */
     if ( signature[0] == 'a' )
     {
-#if DEBUG
-        debug( "array" );
-#endif
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
-        var result = "[ ";
-        var next = true;
-        while ( next )
-        {
-            result += formatResult( subiter, depth+1 );
-            if ( subiter.has_next() )
-            {
-                result += ", ";
-            }
-            next = subiter.next();
-        }
-        result += " ]";
-        return result;
+        return formatSimpleContainerIter( subiter, "[", ",", "]", depth+1 );
     }
 
     /*
-     * Struct Entry
+     * Structure
      */
     if ( signature[0] == '(' && signature[signature.length-1] == ')' )
     {
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
-        var result = "( ";
-        var next = true;
-        while ( next )
-        {
-            result += formatResult( subiter, depth+1 );
-            if ( subiter.has_next() )
-            {
-                result += ", ";
-            }
-            next = subiter.next();
-        }
-        result += " )";
-        return result;
+        return formatSimpleContainerIter( subiter, "(", ",", ")", depth+1 );
     }
 
     /*
@@ -222,7 +189,7 @@ static string formatSimpleType( string signature, DBus.RawMessageIter iter )
 #if DEBUG
             critical( @"signature $signature not yet handled" );
 #endif
-            return @"($signature ???)";
+            return @"<???>";
     }
 }
 
