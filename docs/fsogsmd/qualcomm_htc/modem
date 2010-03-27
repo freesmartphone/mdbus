@@ -8,6 +8,11 @@
 
 * Range for +CLVL is 0-5
 
+* Modem automatically tries to attach to PDP contexts
+
+* Modem is a multiband 3G/WCDMA modem, by default it will look for both systems and emit
+[WCDMA] URCs. It might be possible to set the mode via +BANDSET
+
 === GSM standards violations ===
 
 * Even after setting V1, +CME ERRORS are not correctly terminated with \r\n, but only \r
@@ -15,8 +20,4 @@
 * \r\n missing before SMS continuation character is sent
 
 * International SMS do not accept numbers of the form +4969... you need to substitute the '+' w/ 00
-
-=== Proprietary commands and URCs ===
-
-* +PB_READY: indicating the SIM phonebook is ready
 
