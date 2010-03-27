@@ -84,7 +84,6 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     //
     // protected API
     //
-
     protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );

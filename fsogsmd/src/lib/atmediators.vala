@@ -1059,15 +1059,23 @@ public class AtNetworkGetStatus : NetworkGetStatus
             status.insert( "registration", "unregistered" );
         }
 
-        // query operator code
-        var copsResult2 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
+        // query operator display name
+        var copsResult2 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC_SHORT ) );
         if ( cops.validate( copsResult2 ) == Constants.AtResponse.VALID )
+        {
+            strvalue = cops.oper;
+            status.insert( "display", strvalue );
+        }
+
+        // query operator code
+        var copsResult3 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
+        if ( cops.validate( copsResult3 ) == Constants.AtResponse.VALID )
         {
             strvalue = cops.oper;
             status.insert( "code", strvalue );
         }
 
-        // query data registration status and lac/cid
+        // query pdp registration status and lac/cid
         var cgreg = theModem.createAtCommand<PlusCGREG>( "+CGREG" );
         var cgregResult = yield theModem.processAtCommandAsync( cgreg, cgreg.query() );
         if ( cgreg.validate( cgregResult ) == Constants.AtResponse.VALID )

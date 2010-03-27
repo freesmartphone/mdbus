@@ -741,6 +741,7 @@ public class PlusCOPS : AbstractAtCommand
     public enum Format
     {
         ALPHANUMERIC                    = 0,
+        ALPHANUMERIC_SHORT              = 1,
         NUMERIC                         = 2,
     }
 
