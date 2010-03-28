@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -457,8 +457,9 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
 
         if ( ev.type != Linux.Input.EV_SYN )
         {
-            //FIXME: read from config whether we want debug events
-            logger.debug( @"Input event $(ev.type), $(ev.code), $(ev.value)" );
+#if DEBUG
+            logger.debug( @"Input event (fd$(source.unix_get_fd())): $(ev.type), $(ev.code), $(ev.value)" );
+#endif
             _handleInputEvent( ref ev );
         }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -137,7 +137,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     public override string repr()
     {
-        return "<%s>".printf( sysfsnode );
+        return @"<$sysfsnode>";
     }
 
     private string _cleanBuffer( int length )
@@ -186,7 +186,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     {
         if ( r is CpuResource )
         {
-            logger.debug( "CPU resource changed status to %s".printf( on.to_string() ) );
+            assert( logger.debug( @"CPU resource changed status to $on" ) );
             if (on)
             {
                 // prohibit sending of suspend
@@ -204,7 +204,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
         if ( r is DisplayResource )
         {
-            logger.debug( "Display resource changed status to %s".printf( on.to_string() ) );
+            assert( logger.debug( @"Display resource changed status to $on" ) );
             if (on)
             {
                 // prohibit sending of idle_dim (and later)
@@ -281,11 +281,11 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
                 var fd = Posix.open( Path.build_filename( dev_input, entry ), Posix.O_RDONLY );
                 if ( fd == -1 )
                 {
-                    logger.warning( "Could not open %s: %s (ignoring)".printf( entry, Posix.strerror( Posix.errno ) ) );
+                    logger.warning( @"Could not open $entry: $(strerror(errno)) (ignoring)" );
                 }
                 else if ( _inquireAndCheckForIgnore( fd ) )
                 {
-                    logger.info( "Skipping %s as instructed by configuration.".printf( entry ) );
+                    logger.info( @"Skipping $entry as instructed by configuration" );
                     Posix.close( fd );
                 }
                 else
@@ -320,16 +320,14 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         var bytesread = Posix.read( source.unix_get_fd(), &ev, sizeof(Linux.Input.Event) );
         if ( bytesread == 0 )
         {
-            logger.warning( "could not read from input device fd %d.".printf( source.unix_get_fd() ) );
+            logger.warning( @"Could not read from input device fd $(source.unix_get_fd())" );
             return false;
         }
 
-        // only honor keys and buttons for now
-        if ( ev.type == Linux.Input.EV_KEY )
-        {
-            //logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
-            _handleInputEvent( ref ev );
-        }
+#if DEBUG
+        logger.debug( @"Input event (fd$(source.unix_get_fd())): $(ev.type), $(ev.code), $(ev.value)" );
+#endif
+        _handleInputEvent( ref ev );
 
         return true;
     }
@@ -381,7 +379,7 @@ class DisplayResource : FsoFramework.AbstractDBusResource
     {
         if (on)
             return;
-        logger.debug( "enabling..." );
+        assert( logger.debug( "Enabling..." ) );
         instance.onResourceChanged( this, true );
         on = true;
     }
@@ -390,7 +388,7 @@ class DisplayResource : FsoFramework.AbstractDBusResource
     {
         if (!on)
             return;
-        logger.debug( "disabling..." );
+        assert( logger.debug( "Disabling..." ) );
         instance.onResourceChanged( this, false );
         on = false;
     }
@@ -421,7 +419,7 @@ class CpuResource : FsoFramework.AbstractDBusResource
     {
         if (on)
             return;
-        logger.debug( "enabling..." );
+        assert( logger.debug( "Enabling..." ) );
         instance.onResourceChanged( this, true );
         on = true;
     }
@@ -430,7 +428,7 @@ class CpuResource : FsoFramework.AbstractDBusResource
     {
         if (!on)
             return;
-        logger.debug( "disabling..." );
+        assert( logger.debug( "Disabling..." ) );
         instance.onResourceChanged( this, false );
         on = false;
     }

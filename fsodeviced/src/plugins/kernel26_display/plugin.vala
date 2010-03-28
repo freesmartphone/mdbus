@@ -198,5 +198,5 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    debug( "kernel26_display fso_register_function()" );
+    FsoFramework.theLogger.debug( "fsodevice.kernel26_display fso_register_function()" );
 }
