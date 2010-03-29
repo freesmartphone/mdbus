@@ -1,4 +1,4 @@
-AC_INIT([fsousaged], [0.9.1.2], [smartphones-userland@linuxtogo.org], [fsousaged])
+AC_INIT([fsousaged], [0.9.2], [smartphones-userland@linuxtogo.org], [fsousaged])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -65,6 +65,12 @@ if (test -z "{DBUS_SERVICE_DIR}"); then
   DBUS_SERVICE_DIR="${datadir}/dbus-1/services"
 fi
 AC_SUBST(DBUS_SERVICE_DIR)
+AC_DEFINE_UNQUOTED([DBUS_SERVICE_DIR], ["${DBUS_SERVICE_DIR}"], [dbus service activation dir])
+
+# dbus system service directory
+DBUS_SYSTEM_SERVICE_DIR="`echo $DBUS_SERVICE_DIR | sed -e s,services,system-services,g`"
+AC_SUBST(DBUS_SYSTEM_SERVICE_DIR)
+AC_DEFINE_UNQUOTED([DBUS_SYSTEM_SERVICE_DIR], ["${DBUS_SYSTEM_SERVICE_DIR}"], [dbus system service activation dir])
 
 # fso-glib and framework
 PKG_CHECK_MODULES(FSO,
