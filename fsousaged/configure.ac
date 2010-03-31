@@ -1,4 +1,4 @@
-AC_INIT([fsousaged], [0.9.2], [smartphones-userland@linuxtogo.org], [fsousaged])
+AC_INIT([fsousaged], [0.9.3], [smartphones-userland@linuxtogo.org], [fsousaged])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -96,6 +96,7 @@ AC_CONFIG_FILES([
   src/plugins/Makefile
   src/plugins/dbus_service/Makefile
   src/plugins/lowlevel_kernel26/Makefile
+  src/plugins/lowlevel_kernel26_staysalive/Makefile
   src/plugins/lowlevel_openmoko/Makefile
   tests/Makefile
 ])

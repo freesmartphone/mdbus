@@ -21,14 +21,16 @@ using GLib;
 
 using FsoUsage;
 
-class LowLevel.Kernel26 : FsoUsage.LowLevel, FsoFramework.AbstractObject
+class LowLevel.Kernel26_StaysAlive : FsoUsage.LowLevel, FsoFramework.AbstractObject
 {
     construct
     {
-        logger.info( "Registering kernel26 low level suspend/resume handling" );
+        logger.info( "Registering kernel26_staysalive low level suspend/resume handling" );
         // grab sysfs paths
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
+        // ensure on status
+        FsoFramework.FileHandling.write( "on\n", sys_power_state );
     }
 
     public override string repr()
@@ -57,8 +59,8 @@ string sys_power_state;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    FsoFramework.theLogger.debug( "lowlevel_kernel26 fso_factory_function" );
-    return "fsousage.lowlevel_kernel26";
+    FsoFramework.theLogger.debug( "lowlevel_kernel26_staysalive fso_factory_function" );
+    return "fsousage.lowlevel_kernel26_staysalive";
 }
 
 [ModuleInit]

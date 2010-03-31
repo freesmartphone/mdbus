@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -119,8 +119,8 @@ string sys_resume_subreason;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    debug( "lowlevel_openmoko fso_factory_function" );
-    return "fsousaged.lowlevel_openmoko";
+    FsoFramework.theLogger.debug( "lowlevel_openmoko fso_factory_function" );
+    return "fsousage.lowlevel_openmoko";
 }
 
 [ModuleInit]
