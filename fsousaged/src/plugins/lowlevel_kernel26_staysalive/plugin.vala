@@ -42,14 +42,14 @@ class LowLevel.Kernel26_StaysAlive : FsoUsage.LowLevel, FsoFramework.AbstractObj
 
     public void suspend()
     {
+        assert( logger.debug( "Setting power state 'mem'" ) );
         FsoFramework.FileHandling.write( "mem\n", sys_power_state );
-        assert( logger.debug( "Grabbing input nodes" ) );
 
+        assert( logger.debug( "Grabbing input nodes" ) );
         var fd = Posix.open( "/dev/input/event3", Posix.O_RDONLY );
         Posix.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
 
         assert( logger.debug( "Waiting for action on input node" ) );
-
         var readfds = Posix.fd_set();
         var writefds = Posix.fd_set();
         var exceptfds = Posix.fd_set();
@@ -59,6 +59,9 @@ class LowLevel.Kernel26_StaysAlive : FsoUsage.LowLevel, FsoFramework.AbstractObj
 
         assert( logger.debug( "ACTION! Ungrabbing input nodes" ) );
         Posix.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
+
+        assert( logger.debug( "Setting power state 'on'" ) );
+        FsoFramework.FileHandling.write( "on\n", sys_power_state );
 
         /*
         if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
