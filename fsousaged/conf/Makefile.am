@@ -4,6 +4,7 @@ NULL=
 
 SUBDIRS = \
 	default \
+	htc_qualcomm_dream \
 	openmoko_gta \
 	$(NULL)
 
