@@ -48,7 +48,7 @@ public string formatSimpleContainerIter( DBus.RawMessageIter subiter, string sta
         next = subiter.next();
     }
     result += " " + stop;
-    return result;    
+    return result;
 }
 
 public string formatMessage( DBus.RawMessage msg )
@@ -189,7 +189,7 @@ static string formatSimpleType( string signature, DBus.RawMessageIter iter )
 #if DEBUG
             critical( @"signature $signature not yet handled" );
 #endif
-            return @"<???>";
+            return @"<?$signature?>";
     }
 }
 
@@ -323,8 +323,6 @@ public class Entity : Object
 //===========================================================================
 public class Introspection : Object
 {
-    private string[] _xmldata;
-
     public List<string> nodes;
     public List<string> interfaces;
     public List<Entity> entitys;
@@ -339,13 +337,20 @@ public class Introspection : Object
         MarkupParser parser = { startElement, null, null, null, null };
         var mpc = new MarkupParseContext( parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null );
 
-        foreach ( var line in xmldata.split( "\n" ) )
+        try
         {
-            if ( line[1] != '!' || line[0] != '"' )
+            foreach ( var line in xmldata.split( "\n" ) )
             {
-                //message( "dealing with line '%s'", line );
-                mpc.parse( line, line.length );
+                if ( line[1] != '!' || line[0] != '"' )
+                {
+                    //message( "dealing with line '%s'", line );
+                    mpc.parse( line, line.length );
+                }
             }
+        }
+        catch ( MarkupError e )
+        {
+            stderr.printf( "[ERR]: Invalid introspection data\n" );
         }
     }
 
@@ -818,10 +823,12 @@ class Commands : Object
         }
     }
 
+    /*
     private static unowned string? wordBreakCharacters()
     {
         return " ";
     }
+    */
 
     private static string? completion( string prefix, int state )
     {
@@ -1008,21 +1015,7 @@ mdbus2: DBus has never been that much fun!""" );
             }
             var ok = commands.callMethod( args[1], args[2], args[3], restargs );
             return ok ? 0 : -1;
-            break;
     }
-
-    /*
-    if (version)
-    {
-        stdout.printf ("Vala %s\n", Config.PACKAGE_VERSION);
-        return 0;
-    }
-
-    if (sources == null) {
-        stderr.printf ("No source file specified.\n");
-        return 1;
-    }
-    */
 
     return 0;
 }
