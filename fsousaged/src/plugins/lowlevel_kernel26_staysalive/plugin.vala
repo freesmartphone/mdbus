@@ -23,6 +23,8 @@ using FsoUsage;
 
 class LowLevel.Kernel26_StaysAlive : FsoUsage.LowLevel, FsoFramework.AbstractObject
 {
+    private int fd;
+
     construct
     {
         logger.info( "Registering kernel26_staysalive low level suspend/resume handling" );
@@ -41,11 +43,53 @@ class LowLevel.Kernel26_StaysAlive : FsoUsage.LowLevel, FsoFramework.AbstractObj
     public void suspend()
     {
         FsoFramework.FileHandling.write( "mem\n", sys_power_state );
+        assert( logger.debug( "Grabbing input nodes" ) );
+
+        var fd = Posix.open( "/dev/input/event3", Posix.O_RDONLY );
+        Posix.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
+
+        assert( logger.debug( "Waiting for action on input node" ) );
+
+        var readfds = Posix.fd_set();
+        var writefds = Posix.fd_set();
+        var exceptfds = Posix.fd_set();
+        Posix.FD_SET( fd, readfds );
+        Posix.timeval t = { 60*60*24, 0 };
+        int res = Posix.select( fd+1, readfds, writefds, exceptfds, t ); // block indefinitely
+
+        assert( logger.debug( "ACTION! Ungrabbing input nodes" ) );
+        Posix.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
+
+        /*
+        if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
+            return 0;
+        ssize_t bread = Posix.read( fd, rdata, rlength );
+        return (int)bread;
+        */
+
+
+        /*
+        assert( logger.debug( "Creating reactor" ) );
+        input = new Async.ReactorChannel( fd, onInput, sizeof( Linux.Input.Event ) );
+        */
     }
 
     public ResumeReason resume()
     {
         return ResumeReason.Unknown;
+    }
+
+
+
+
+
+    public void onInput( void* data, ssize_t length )
+    {
+        logger.info( "Received wakeup request... waking up" );
+        assert( logger.debug( "Ungrabbing input nodes" ) );
+        Posix.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
+        assert( logger.debug( "Destroying reactor" ) );
+        //reactor = null;
     }
 }
 

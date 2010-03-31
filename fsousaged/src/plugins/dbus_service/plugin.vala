@@ -119,6 +119,9 @@ public class Controller : FsoFramework.AbstractObject
             case "kernel26":
                 typename = "LowLevelKernel26";
                 break;
+            case "kernel26_staysalive":
+                typename = "LowLevelKernel26_StaysAlive";
+                break;
             case "openmoko":
                 typename = "LowLevelOpenmoko";
                 break;
