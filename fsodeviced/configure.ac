@@ -1,4 +1,4 @@
-AC_INIT([fsodeviced], [0.9.0], [smartphones-userland@linuxtogo.org], [fsodeviced])
+AC_INIT([fsodeviced], [0.9.1], [smartphones-userland@linuxtogo.org], [fsodeviced])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -132,6 +132,14 @@ if test x$gstreamer = "xyes"; then
 fi
 AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
 
+##############################################################################
+# check for debugging
+AC_ARG_ENABLE(debug,
+  [  --enable-debug            Enable debug build (default=disabled)],
+  debug="yes", debug="no")
+AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
+
+##############################################################################
 # git version
 GITV=`cat ../.git/refs/heads/master || echo "unknown"`
 AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
@@ -196,7 +204,9 @@ echo "  kernel26_rfkill......................: $rfkill"
 echo "  player_canberra......................: $canberra"
 echo "  player_gstreamer.....................: $gstreamer"
 echo
-echo "  prefix..................: $prefix"
+echo "  debug build..........................: $debug"
+echo
+echo "  prefix...............................: $prefix"
 echo
 echo "------------------------------------------------------------------------"
 echo
