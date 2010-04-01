@@ -2,14 +2,12 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(NULL)
-
-noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
 	$(top_srcdir)/src/lib/libfsodevice.la \
@@ -27,6 +25,11 @@ VALAC_ARGS = \
 	--pkg linux \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0
+
+if WANT_DEBUG
+VALAC_ARGS += -g -D DEBUG
+AM_CFLAGS += -ggdb -O0
+endif
 
 #
 # plugin
