@@ -219,6 +219,7 @@ public class EventStatus
         this.reportheld = reportheld;
         pressed = false;
         timeout = 0;
+        timestamp = TimeVal();
 #if DEBUG
         message( "event status for %s (held %d) created", name, (int)reportheld );
 #endif
