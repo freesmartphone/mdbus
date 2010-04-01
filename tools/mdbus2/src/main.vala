@@ -35,6 +35,12 @@ List<string> completions;
 
 public string formatSimpleContainerIter( DBus.RawMessageIter subiter, string start, string trenner, string stop, int depth = 0 )
 {
+    // check for empty container
+    if ( depth > 1 && !subiter.has_next() )
+    {
+        return @"$start $stop";
+    }
+
     var result = "";
     result += start + " ";
     var next = true;
@@ -111,6 +117,7 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
     {
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
+
         var result = "";
         result += formatResult( subiter, depth+1 );
         result += ":";
