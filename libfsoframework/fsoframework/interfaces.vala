@@ -145,4 +145,36 @@ namespace FsoFramework
         public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Usage";
         public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Usage";
     }
+    
+    namespace Preferences
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".oprefencesd";
+	
+	public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Preferences";
+	public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Preferences";
+    }
+
+    namespace PIM
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".opimd";
+
+	public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".PIM";
+	public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/PIM";
+
+	public const string MessagesServiceFace = ServiceFacePrefix + ".Messages";
+	public const string MessagesServicePath = ServicePathPrefix + "/Messages";
+	
+	public const string ContactsServiceFace = ServiceFacePrefix + ".Contacts";
+	public const string ContactsServicePath = ServicePathPrefix + "/Contacts";
+	
+	public const string CallsServiceFace = ServiceFacePrefix + ".Calls";
+	public const string CallsServicePath = ServicePathPrefix + "/Calls";
+	
+	public const string TasksServiceFace = ServiceFacePrefix + ".Tasks";
+	public const string TasksServicePath = ServicePathPrefix + "/Tasks";
+	
+	public const string NotesServiceFace = ServiceFacePrefix + ".Notes";
+	public const string NotesServicePath = ServicePathPrefix + "/Notes";
+    }
+
 }
