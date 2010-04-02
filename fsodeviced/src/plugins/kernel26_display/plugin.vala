@@ -1,7 +1,6 @@
 /*
- * plugin.vala
- * Written by Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
- * All Rights Reserved
+ * (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * (C) 2009 Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,23 +23,26 @@ using GLib;
 namespace Kernel26
 {
 
+internal const string DISPLAY_PLUGIN_NAME = "fsodevice.kernel26_display";
+
 class Display : FreeSmartphone.Device.Display,
                 FreeSmartphone.Info,
                 FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-    static uint counter;
+    private static uint counter;
+    private string smooth;
 
     private int max_brightness;
     private int current_brightness;
     private string sysfsnode;
     private int fb_fd = -1;
 
-    const int FBIOBLANK = 0x4611;
-    const int FB_BLANK_UNBLANK = 0;
-    const int FB_BLANK_POWERDOWN = 4;
+    private const int FBIOBLANK = 0x4611;
+    private const int FB_BLANK_UNBLANK = 0;
+    private const int FB_BLANK_POWERDOWN = 4;
 
-    public Display(FsoFramework.Subsystem subsystem, string sysfsnode)
+    public Display( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
@@ -50,7 +52,9 @@ class Display : FreeSmartphone.Device.Display,
 
         fb_fd = Posix.open( dev_fb0, Posix.O_RDONLY );
         if ( fb_fd == -1 )
-            logger.warning( "Can't open %s (%s). Full display power control not available.".printf( dev_fb0, Posix.strerror( Posix.errno ) ) );
+            logger.warning( @"Can't open $dev_fb0 ($(strerror(errno))). Full display power control not available." );
+
+        smooth = config.stringValue( DISPLAY_PLUGIN_NAME, "smooth", "none" ).down();
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
@@ -98,6 +102,22 @@ class Display : FreeSmartphone.Device.Display,
         return _valueToPercent( value );
     }
 
+    private void _setBrightness( int brightness )
+    {
+        var value = _percentToValue( brightness );
+
+        if ( current_brightness != value )
+        {
+            FsoFramework.FileHandling.write( value.to_string(), this.sysfsnode + "/brightness" );
+            if ( current_brightness == 0 ) // previously we were off
+                _setBacklightPower( true );
+            else if ( value == 0 ) // now we are off
+                _setBacklightPower( false );
+            current_brightness = value;
+        }
+        assert( logger.debug( @"Brightness set to $brightness" ) );
+    }
+
     //
     // FreeSmartphone.Info (DBUS API)
     //
@@ -114,8 +134,8 @@ class Display : FreeSmartphone.Device.Display,
             {
                 if( FileUtils.test (this.sysfsnode + "/" + _leaf, FileTest.IS_REGULAR) && _leaf != "uevent" )
                 {
-                    val.take_string(FsoFramework.FileHandling.read(this.sysfsnode + "/" + _leaf).strip());
-                    info_table.insert (_leaf, val);
+                    val.take_string( FsoFramework.FileHandling.read(this.sysfsnode + "/" + _leaf ).strip());
+                    info_table.insert( _leaf, val );
                 }
             }
         }
@@ -129,25 +149,9 @@ class Display : FreeSmartphone.Device.Display,
     //
     // FreeSmartphone.Device.Display (DBUS API)
     //
-    public async string get_name()
-    {
-        return Path.get_basename( sysfsnode );
-    }
-
     public async void set_brightness( int brightness )
     {
-        var value = _percentToValue( brightness );
-
-        if ( current_brightness != value )
-        {
-            FsoFramework.FileHandling.write( value.to_string(), this.sysfsnode + "/brightness" );
-            if ( current_brightness == 0 ) // previously we were off
-                _setBacklightPower( true );
-            else if ( value == 0 ) // now we are off
-                _setBacklightPower( false );
-            current_brightness = value;
-        }
-        logger.debug( "Brightness set to %d".printf( brightness ) );
+        _setBrightness( brightness );
     }
 
     public async int get_brightness()
