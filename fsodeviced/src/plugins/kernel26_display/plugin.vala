@@ -74,7 +74,7 @@ class Display : FreeSmartphone.Device.Display,
 
     public override string repr()
     {
-        return "<FsoFramework.Device.Display @ %s>".printf( this.sysfsnode );
+        return @"<$sysfsnode>";
     }
 
     private void _setBacklightPower( bool on )
@@ -257,7 +257,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         instances.append( new Kernel26.Display( subsystem, filename ) );
         entry = dir.read_name();
     }
-    return "fsodevice.kernel26_display";
+    return Kernel26.DISPLAY_PLUGIN_NAME;
 }
 
 
