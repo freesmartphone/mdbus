@@ -254,8 +254,21 @@ public class EventStatus
 #endif
     }
 
+    public void handleRelative( Linux.Input.Event ev )
+    {
+        var axis = ev.code;
+        var offset = ev.value;
+        aggregate.directional_event( name, axis, offset );
+    }
+
     public void handle( Linux.Input.Event ev )
     {
+        if ( ev.type == Linux.Input.EV_REL )
+        {
+            handleRelative( ev );
+            return;
+        }
+
         switch ( ev.value )
         {
             case ( KEY_PRESS ):
@@ -290,7 +303,6 @@ public class EventStatus
                     aggregate.event( name, FreeSmartphone.Device.InputState.RELEASED, (int) age() ); // DBUS SIGNAL
                 }
                 break;
-                break;
 
             case ( KEY_REPEAT ):
 #if DEBUG
@@ -320,6 +332,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
 
     private HashMap<int,EventStatus> keys;
     private HashMap<int,EventStatus> switches;
+    private HashMap<int,EventStatus> relatives;
 
     public AggregateInputDevice( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
@@ -330,6 +343,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
 
         keys = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
         switches = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
+        relatives = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
 
         _parseConfig();
 
@@ -415,6 +429,9 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                 case "switch":
                     switches[code] = new EventStatus( name, reportheld );
                     break;
+                case "relative":
+                    relatives[code] = new EventStatus( name, reportheld );
+                    break;
                 default:
                     logger.warning( @"Config option $entry has unknown type element $type. Ignoring" );
                     continue;
@@ -433,6 +450,9 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                 break;
             case Linux.Input.EV_SW:
                 table = switches;
+                break;
+            case Linux.Input.EV_REL:
+                table = relatives;
                 break;
             default:
                 break;
