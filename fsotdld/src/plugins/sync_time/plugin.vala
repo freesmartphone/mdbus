@@ -89,15 +89,16 @@ class SyncTime.Service : FsoFramework.AbstractObject
 
         assert( logger.debug( "%s reports %u, we think %u, offset = %d".printf( ((FsoFramework.AbstractObject)source).classname, (uint)since_epoch, (uint)now, (int)offset ) ) );
 
-        var tv = Posix.timeval() { tv_sec = (time_t)offset };
+        var tvdiff = Posix.timeval() { tv_sec = (time_t)offset };
 
         // first try adjtime to get a gradual shift
-        var res = Linux.adjtime( tv );
+        var res = Linux.adjtime( tvdiff );
         if ( res != 0 )
         {
             logger.warning( @"Can't adjtime(2): $(strerror(errno)); setting it hard" );
             // if that fails, resort to brute force
-            res = tv.set_time_of_day();
+            var tvreal = Posix.timeval() { tv_sec = since_epoch };
+            res = tvreal.set_time_of_day();
             if ( res != 0 )
             {
                 logger.warning( @"Can't settimeofday(2): $(strerror(errno))" );
