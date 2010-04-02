@@ -24,6 +24,8 @@ namespace Kernel26
 {
 
 internal const string DISPLAY_PLUGIN_NAME = "fsodevice.kernel26_display";
+internal const double DISPLAY_SMOOTH_PERIOD = 1 * 0.7; // seconds
+internal const double DISPLAY_SMOOTH_STEP =  1 * 0.03; // seconds
 
 class Display : FreeSmartphone.Device.Display,
                 FreeSmartphone.Info,
@@ -31,7 +33,8 @@ class Display : FreeSmartphone.Device.Display,
 {
     private FsoFramework.Subsystem subsystem;
     private static uint counter;
-    private string smooth;
+    private bool smoothup;
+    private bool smoothdown;
 
     private int max_brightness;
     private int current_brightness;
@@ -54,14 +57,18 @@ class Display : FreeSmartphone.Device.Display,
         if ( fb_fd == -1 )
             logger.warning( @"Can't open $dev_fb0 ($(strerror(errno))). Full display power control not available." );
 
-        smooth = config.stringValue( DISPLAY_PLUGIN_NAME, "smooth", "none" ).down();
+        var smooth = config.stringValue( DISPLAY_PLUGIN_NAME, "smooth", "none" ).down();
+        smoothup = smooth in new string[] { "up", "always" };
+        smoothdown = smooth in new string[] { "down", "always" };
+
+        debug( @"smoothup = $smoothup, smoothdown = $smoothdown" );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
                         "%s/%u".printf( FsoFramework.Device.DisplayServicePath, counter++ ),
                         this );
 
-        logger.info( "Created new Display object, max brightness = %d".printf( max_brightness ) );
+        logger.info( @"Created w/ max brightness = $max_brightness, smooth up = $smoothup, smooth down = $smoothdown" );
     }
 
     public override string repr()
@@ -102,20 +109,61 @@ class Display : FreeSmartphone.Device.Display,
         return _valueToPercent( value );
     }
 
+    private async void _setBrightnessSoft( int brightness )
+    {
+        double current = current_brightness;
+        double interval = brightness - current_brightness;
+
+        for ( double dt = 0; dt < DISPLAY_SMOOTH_PERIOD; dt += DISPLAY_SMOOTH_STEP )
+        {
+            double x = dt/DISPLAY_SMOOTH_PERIOD;
+            double fx = ( interval > 0 ) ? x * x * x : (1-x) * (1-x) * (1-x);
+            double val = ( interval > 0 ) ? ( current + ( fx * interval ) ) : ( current + ( (1-fx) * interval ) ); // may want to shit 7+current...
+#if DEBUG
+            message( "x = %.2f, fx = %.2f (val = %.2f)", x, fx, val );
+#endif
+            FsoFramework.FileHandling.write( ( (int)Math.round( val ) ).to_string(), this.sysfsnode + "/brightness" );
+            Timeout.add( (int)(DISPLAY_SMOOTH_STEP * 1000), _setBrightnessSoft.callback );
+            yield;
+        }
+
+        FsoFramework.FileHandling.write( brightness.to_string(), this.sysfsnode + "/brightness" );
+        current_brightness = brightness;
+        assert( logger.debug( @"Brightness set to $brightness [soft]" ) );
+    }
+
     private void _setBrightness( int brightness )
     {
-        var value = _percentToValue( brightness );
-
-        if ( current_brightness != value )
+        if ( current_brightness == brightness )
         {
-            FsoFramework.FileHandling.write( value.to_string(), this.sysfsnode + "/brightness" );
-            if ( current_brightness == 0 ) // previously we were off
-                _setBacklightPower( true );
-            else if ( value == 0 ) // now we are off
-                _setBacklightPower( false );
-            current_brightness = value;
+            return;
         }
-        assert( logger.debug( @"Brightness set to $brightness" ) );
+
+        if ( ( current_brightness < brightness ) && smoothup )
+        {
+            _setBrightnessSoft( brightness );
+            return;
+        }
+
+        if ( ( current_brightness > brightness ) && smoothdown )
+        {
+            _setBrightnessSoft( brightness );
+            return;
+        }
+
+        FsoFramework.FileHandling.write( brightness.to_string(), this.sysfsnode + "/brightness" );
+
+        if ( current_brightness == 0 ) // previously we were off
+        {
+            _setBacklightPower( true );
+        }
+        else if ( brightness == 0 ) // now we are off
+        {
+            _setBacklightPower( false );
+        }
+        current_brightness = brightness;
+
+        assert( logger.debug( @"Brightness set to $brightness [hard]" ) );
     }
 
     //
@@ -151,7 +199,7 @@ class Display : FreeSmartphone.Device.Display,
     //
     public async void set_brightness( int brightness )
     {
-        _setBrightness( brightness );
+        _setBrightness( _percentToValue( brightness ) );
     }
 
     public async int get_brightness()
