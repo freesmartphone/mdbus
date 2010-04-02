@@ -46,6 +46,9 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
             case Modem.Status.ALIVE_SIM_READY:
                 simIsReady();
                 break;
+            case Modem.Status.ALIVE_REGISTERED:
+                simHasRegistered();
+                break;
             default:
                 break;
         }
@@ -88,6 +91,12 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
     private async void simIsReady()
     {
         var seq = theModem.atCommandSequence( name, "unlocked" );
+        yield seq.performOnChannel( this );
+    }
+
+    private async void simHasRegistered()
+    {
+        var seq = theModem.atCommandSequence( name, "registered" );
         yield seq.performOnChannel( this );
     }
 
