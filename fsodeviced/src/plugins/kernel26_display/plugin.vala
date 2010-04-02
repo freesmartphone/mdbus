@@ -35,6 +35,7 @@ class Display : FreeSmartphone.Device.Display,
     private static uint counter;
     private bool smoothup;
     private bool smoothdown;
+    private bool smoothInProgress = false;
 
     private int max_brightness;
     private int current_brightness;
@@ -111,6 +112,8 @@ class Display : FreeSmartphone.Device.Display,
 
     private async void _setBrightnessSoft( int brightness )
     {
+        smoothInProgress = true;
+
         double current = current_brightness;
         double interval = brightness - current_brightness;
 
@@ -122,7 +125,13 @@ class Display : FreeSmartphone.Device.Display,
 #if DEBUG
             message( "x = %.2f, fx = %.2f (val = %.2f)", x, fx, val );
 #endif
+            if ( !smoothInProgress ) // check whether someone else wants to interrupt us
+            {
+                return;
+            }
+
             FsoFramework.FileHandling.write( ( (int)Math.round( val ) ).to_string(), this.sysfsnode + "/brightness" );
+            current_brightness = brightness;
             Timeout.add( (int)(DISPLAY_SMOOTH_STEP * 1000), _setBrightnessSoft.callback );
             yield;
         }
@@ -130,6 +139,8 @@ class Display : FreeSmartphone.Device.Display,
         FsoFramework.FileHandling.write( brightness.to_string(), this.sysfsnode + "/brightness" );
         current_brightness = brightness;
         assert( logger.debug( @"Brightness set to $brightness [soft]" ) );
+
+        smoothInProgress = false;
     }
 
     private void _setBrightness( int brightness )
@@ -150,7 +161,10 @@ class Display : FreeSmartphone.Device.Display,
             _setBrightnessSoft( brightness );
             return;
         }
-
+#if DEBUG
+        message( "interrupting smooth in progress (if any)" );
+#endif
+        smoothInProgress = false; // signalize to stop any smoothing in progress
         FsoFramework.FileHandling.write( brightness.to_string(), this.sysfsnode + "/brightness" );
 
         if ( current_brightness == 0 ) // previously we were off
