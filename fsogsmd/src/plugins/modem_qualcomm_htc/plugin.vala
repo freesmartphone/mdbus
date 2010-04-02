@@ -24,10 +24,16 @@ using FsoGsm;
 /**
  * @class QualcommHtc.Modem
  *
- * This modem plugin supports the Qualcomm MSM 7xxx chipset with HTC firmware.
+ * This modem plugin supports the Qualcomm MSM 7xxx chipset with HTC firmware as found
+ * in devices such as
+ * - HTC Dream (T-Mobile G1, Google ADP-1)
+ * - HTC Magic
+ * - HTC Raphael
+ * - HTC Blackstone
+ * - HTC Diamond
  *
- * HTC firmware comes with some bugs in the parser and non-standard AT extensions,
- * therefore we can't cover these modems with the 'singleline' plugin.
+ * The HTC firmware comes with some bugs in the parser and non-standard AT extensions,
+ * which is the reason we can't cover these modems with the 'singleline' plugin.
  **/
 class QualcommHtc.Modem : FsoGsm.AbstractModem
 {
@@ -52,8 +58,13 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
             """+CTZU=1""",
             """+CTZR=1""",
             """+CREG=2""",
-            """+CGEREP=2,1""",
-            """+CGREG=2"""
+            """+CGREG=2""",
+            """+CGEREP=2,1"""
+        } ) );
+
+        // sequence for when the modem is registered
+        registerAtCommandSequence( "main", "registered", new AtCommandSequence( {
+            """+CNMI=2,1,2,2,1""" // deliver SMS via SIM
         } ) );
     }
 
