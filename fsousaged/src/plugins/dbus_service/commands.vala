@@ -1,5 +1,5 @@
-/**
- * FSO Resource Abstraction
+/*
+ * FSO Resource Commands
  *
  * (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
@@ -249,6 +249,19 @@ public class Reboot : SystemCommand
             Posix.system( "reboot now" );
             return false;
         } );
+    }
+}
+
+/**
+ * @class Resume
+ **/
+public class Resume : SystemCommand
+{
+    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    {
+        yield enqueue();
+        instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.RESUME );
+        yield instance.resumeAllResources();
     }
 }
 

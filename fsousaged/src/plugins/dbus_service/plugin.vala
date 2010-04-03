@@ -538,6 +538,12 @@ public class Controller : FsoFramework.AbstractObject
         yield cmd.run();
     }
 
+    public async void resume() throws DBus.Error
+    {
+        var cmd = new Resume();
+        yield cmd.run();
+    }
+
     // DBUS SIGNALS
     public signal void resource_available( string name, bool availability );
     public signal void resource_changed( string name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
