@@ -61,11 +61,6 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
     // text-format specific. Will change this after 1.0...
     private MsmUnsolicitedResponseHandler msmurchandler;
 
-    construct
-    {
-        msmurchandler = new MsmUnsolicitedResponseHandler();
-    }
-
     protected override void onReadFromTransport( FsoFramework.Transport t )
     {
         context.readFromModem();
@@ -81,7 +76,10 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 
     protected void onUnsolicitedResponse( Msmcomm.EventType urctype, Msmcomm.Message urc )
     {
-        assert( msmurchandler != null );
+        if ( msmurchandler == null )
+        {
+            msmurchandler = new MsmUnsolicitedResponseHandler();
+        }
         msmurchandler.dispatch( urctype, urc );
     }
 
