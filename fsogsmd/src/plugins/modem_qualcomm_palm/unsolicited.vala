@@ -19,7 +19,7 @@
 
 using Gee;
 
-public delegate void MsmUnsolicitedResponseHandlerFunc( Msmcomm.Message command );
+public delegate void MsmUnsolicitedResponseHandlerFunc( Msmcomm.Message urc );
 
 class MsmUnsolicitedResponseHandlerFuncWrapper
 {
@@ -34,7 +34,7 @@ public class MsmBaseUnsolicitedResponseHandler : FsoFramework.AbstractObject
 {
     private HashMap<Msmcomm.EventType,MsmUnsolicitedResponseHandlerFuncWrapper> urcs;
 
-    construct
+    public MsmBaseUnsolicitedResponseHandler()
     {
         urcs = new HashMap<Msmcomm.EventType,MsmUnsolicitedResponseHandlerFuncWrapper>();
     }
@@ -74,11 +74,11 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
     //
     public MsmUnsolicitedResponseHandler()
     {
-        registerUrc( Msmcomm.EventType.SIM_PIN1_ENABLED, handleSimPinEnabled );
+        registerUrc( Msmcomm.EventType.SIM_PIN1_ENABLED, handleSimPin1Enabled );
     }
 
-    public virtual void handleSimPinEnabled( Msmcomm.Message urc )
+    public virtual void handleSimPin1Enabled( Msmcomm.Message urc )
     {
-        debug( "YES!" );
+        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
     }
 }

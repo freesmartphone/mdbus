@@ -18,8 +18,39 @@
  */
 
 using Gee;
+using FsoGsm;
 
-namespace FsoGsm {
+/**
+ * Public helpers
+ **/
+public void updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
+{
+    theModem.logger.info( @"SIM Auth status now $status" );
+    // send the dbus signal
+    var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
+    obj.auth_status( status );
+
+    // check whether we need to advance the modem state
+    var data = theModem.data();
+    if ( status != data.simAuthStatus )
+    {
+        data.simAuthStatus = status;
+
+        // advance global modem state
+        var modemStatus = theModem.status();
+        if ( modemStatus == Modem.Status.INITIALIZING )
+        {
+            if ( status == FreeSmartphone.GSM.SIMAuthStatus.READY )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+            }
+            else
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
+            }
+        }
+    }
+}
 
 /**
  * Debug mediators
@@ -308,5 +339,3 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(CallRelease) ]                  = typeof( MsmCallRelease );
     table[ typeof(CallSendDtmf) ]                 = typeof( MsmCallSendDtmf );
 }
-
-} // namespace FsoGsm

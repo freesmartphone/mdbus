@@ -55,11 +55,11 @@ public class MsmCommandHandler : FsoFramework.AbstractCommandHandler
 public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 {
     public static Msmcomm.Context context;
+    public static MsmUnsolicitedResponseHandler msmurchandler;
 
     // FIXME: This bypasses the generic URChandler idea in the base modem class,
     // however said URChandler is unfortunately not generic at all, but very
     // text-format specific. Will change this after 1.0...
-    private MsmUnsolicitedResponseHandler msmurchandler;
 
     protected override void onReadFromTransport( FsoFramework.Transport t )
     {
@@ -76,10 +76,6 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 
     protected void onUnsolicitedResponse( Msmcomm.EventType urctype, Msmcomm.Message urc )
     {
-        if ( msmurchandler == null )
-        {
-            msmurchandler = new MsmUnsolicitedResponseHandler();
-        }
         msmurchandler.dispatch( urctype, urc );
     }
 
@@ -132,6 +128,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
     {
         base( transport );
         context = new Msmcomm.Context();
+        msmurchandler = new MsmUnsolicitedResponseHandler();
     }
 
     public override async bool open()
