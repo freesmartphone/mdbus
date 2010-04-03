@@ -62,7 +62,7 @@ public class Resource : IResource, Object
     public FreeSmartphone.UsageResourcePolicy policy { get; set; }
     public ArrayList<string> users { get; set; }
 
-    private FreeSmartphone.Resource proxy;
+    public FreeSmartphone.Resource proxy;
 
     // every resource has a command queue
     public LinkedList<unowned ResourceCommand> q;
@@ -254,8 +254,32 @@ public class Resource : IResource, Object
         }
     }
 
+    public virtual async void enableShadowResource() throws FreeSmartphone.ResourceError, DBus.Error
+    {
+        assert( instance.logger.debug( @"Resource $name is shadow resource; pinging..." ) );
+        DBus.IPeer service = dbusconn.get_object( busname, "/", DBus.DBUS_INTERFACE_PEER ) as DBus.IPeer;
+#if DEBUG
+        message( "PING" );
+#endif
+        service.Ping();
+#if DEBUG
+        message( "PONG" );
+        Timeout.add_seconds( 3, enableShadowResource.callback );
+        yield;
+#endif
+    }
+
     public virtual async void enable() throws FreeSmartphone.ResourceError, DBus.Error
     {
+        if ( objectpath == null )
+        {
+            message( "enableShadowResource" );
+            yield enableShadowResource();
+            message( "shadowResourceEnabled" );
+        }
+
+        assert( proxy != null );
+
         try
         {
             yield proxy.enable();

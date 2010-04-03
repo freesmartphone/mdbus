@@ -292,7 +292,7 @@ public class Controller : FsoFramework.AbstractObject
         }
         else
         {
-            assert( logger.debug( "Not really suspending as instructed per debug_do_not_suspend. Sleeping 5 seconds..." ) );
+            assert( logger.debug( "Not really suspending as instructed per debug_do_not_suspend. Sleeping 5 seconds instead..." ) );
             Posix.sleep( 5 );
         }
         logger.info( "<<<<<<< KERNEL RESUME" );
@@ -408,7 +408,24 @@ public class Controller : FsoFramework.AbstractObject
         debug( "register_resource called with parameters: %s %s %s", sender, name, path );
 #endif
         if ( name in resources.keys )
-            throw new FreeSmartphone.UsageError.RESOURCE_EXISTS( @"Resource $name already registered" );
+        {
+            // shadow resource?
+            if ( resources[name].objectpath != null )
+            {
+                // no
+                throw new FreeSmartphone.UsageError.RESOURCE_EXISTS( @"Resource $name already registered" );
+            }
+            else
+            {
+#if DEBUG
+                debug( @"shadow $name will now be substituted with the real thing..." );
+#endif
+                resources[name].objectpath = path;
+                resources[name].proxy = dbusconn.get_object( sender, path, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
+
+                return;
+            }
+        }
 
         var r = new Resource( name, sender, path );
         resources[name] = r;
