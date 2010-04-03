@@ -57,9 +57,10 @@ class LibAlsa : FsoDevice.BaseAudioRouter
             var in_stream = new DataInputStream( file.read( null ) );
             string line;
             // Read lines until end of file (null) is reached
-            while ( ( line = in_stream.read_line( null, null ).strip() ) != null )
+            while ( ( line = in_stream.read_line( null, null ) ) != null )
             {
-                if ( line == "" || line.has_prefix( "#" ) ) // skip empty lines and comments
+                var stripped = line.strip();
+                if ( stripped == "" || stripped.has_prefix( "#" ) ) // skip empty lines and comments
                     continue;
                 var control = device.controlForString( line );
                 controls += control;
