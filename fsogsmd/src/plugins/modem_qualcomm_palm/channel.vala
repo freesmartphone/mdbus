@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -42,6 +42,35 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
 
     public async bool resume()
     {
+        return true;
+    }
+
+    public override async bool open()
+    {
+        // open transport
+        assert( !transport.isOpen() );
+        var opened = yield transport.openAsync();
+
+        if ( !opened /* yield base.open() */ )
+            return false;
+
+        context.registerEventHandler( onMsmcommGotEvent );
+        context.registerReadHandler( onMsmcommShouldRead );
+        context.registerWriteHandler( onMsmcommShouldWrite );
+
+        debug( "SENDING RESET COMMAND" );
+
+        var cmd1 = new Msmcomm.Command.ChangeOperationMode();
+        cmd1.setOperationMode( Msmcomm.OperationMode.RESET );
+        unowned Msmcomm.Message response = yield enqueueAsync( (owned)cmd1 );
+
+        debug( "SENDING TEST ALIVE COMMAND" );
+
+        var cmd2 = new Msmcomm.Command.TestAlive();
+        response = yield enqueueAsync( (owned)cmd2 );
+
+        debug( "OK; MSM CHANNEL OPENED" );
+
         return true;
     }
 }

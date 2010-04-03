@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -56,6 +56,16 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 {
     public static Msmcomm.Context context;
 
+    // FIXME: This bypasses the generic URChandler idea in the base modem class,
+    // however said URChandler is unfortunately not generic at all, but very
+    // text-format specific. Will change this after 1.0...
+    private MsmUnsolicitedResponseHandler msmurchandler;
+
+    construct
+    {
+        msmurchandler = new MsmUnsolicitedResponseHandler();
+    }
+
     protected override void onReadFromTransport( FsoFramework.Transport t )
     {
         context.readFromModem();
@@ -67,6 +77,12 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         transport.logger.info( @"SRC: $bundle" );
         assert( bundle.callback != null );
         bundle.callback();
+    }
+
+    protected void onUnsolicitedResponse( Msmcomm.EventType urctype, Msmcomm.Message urc )
+    {
+        assert( msmurchandler != null );
+        msmurchandler.dispatch( urctype, urc );
     }
 
     public async unowned Msmcomm.Message enqueueAsync( owned Msmcomm.Message command, int retries = DEFAULT_RETRY )
@@ -91,10 +107,14 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 
     public void onMsmcommGotEvent( int event, Msmcomm.Message message )
     {
-        assert( transport.logger.debug( @"$message" ) );
+        // enable when glib bug for unknown types has been fixed
+        //assert( transport.logger.debug( @"$message" ) );
         var et = Msmcomm.eventTypeToString( event );
+        assert( et != null );
+        //transport.logger.debug( et );
 
-        if ( et.has_prefix( "RESPONSE" ) )
+        // FIXME: We're treating some URCs as responses here :/
+        if ( et.has_prefix( "RESPONSE" ) || et.has_prefix( "URC_RESET_RADIO_IND" ) )
         {
             assert( current != null );
             onSolicitedResponse( (MsmCommandHandler)current, message );
@@ -103,7 +123,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         }
         else
         {
-            debug( @"FIXME: CREATE URC HANDLER FOR MSM COMMAND $et" );
+            onUnsolicitedResponse( (Msmcomm.EventType) event, message );
         }
     }
 
@@ -129,12 +149,6 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
             context.registerEventHandler( onMsmcommGotEvent );
             context.registerReadHandler( onMsmcommShouldRead );
             context.registerWriteHandler( onMsmcommShouldWrite );
-
-            /*
-            var cmd = new Msmcomm.Command.ChangeOperationMode();
-            cmd.setOperationMode( Msmcomm.OperationMode.RESET );
-            context.sendMessage( cmd );
-            */
 
             return true;
         }
