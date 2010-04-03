@@ -52,7 +52,7 @@ public class MsmBaseUnsolicitedResponseHandler : FsoFramework.AbstractObject
 
     public bool dispatch( Msmcomm.EventType urctype, Msmcomm.Message urc )
     {
-        assert( logger.debug( @"dispatching AT unsolicited '$urc'" ) );
+        assert( logger.debug( @"dispatching AT unsolicited $(Msmcomm.eventTypeToString( urctype ))" ) );
 
         var urcwrapper = urcs[urctype];
         if ( urcwrapper != null )
