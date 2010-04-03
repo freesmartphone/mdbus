@@ -319,7 +319,6 @@ public class EventStatus
     }
 }
 
-
 /**
  * Implementation of org.freesmartphone.Device.InputDevice as aggregated Kernel Input Device
  **/
