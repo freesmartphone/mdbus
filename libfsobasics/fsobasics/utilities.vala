@@ -31,6 +31,11 @@ internal static string _program = null;
 internal static GLib.Regex _keyValueRe = null;
 
 namespace FsoFramework { namespace FileHandling {
+	
+public bool createDirectory( string filename, Posix.mode_t mode )
+{
+	return ( Posix.mkdir( filename, mode ) != -1 );
+}
 
 public bool removeTree( string path )
 {
