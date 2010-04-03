@@ -272,6 +272,10 @@ public class Resource : IResource, Object
 
     public virtual async void disable() throws FreeSmartphone.ResourceError, DBus.Error
     {
+        // no need to disable a shadow resource
+        if ( objectpath == null )
+            return;
+
         try
         {
             yield proxy.disable();
