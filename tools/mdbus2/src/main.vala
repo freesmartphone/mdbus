@@ -812,11 +812,28 @@ class Commands : Object
 
     private void performCommandFromShell( string commandline )
     {
-        var args = commandline.strip().split( " " );
+        if ( commandline.strip() == "" )
+        {
+            listBusNames();
+            return;
+        }
+
+        string[] args;
+
+        try
+        {
+            GLib.Shell.parse_argv( commandline, out args );
+        }
+        catch ( GLib.ShellError e )
+        {
+            stderr.printf( @"[ERR]: Can't parse cmdline: $(e.message)\n" );
+            return;
+        }
+
         switch ( args.length )
         {
             case 0:
-                listBusNames();
+                assert_not_reached();
                 break;
             case 1:
                 listObjects( args[0] );
