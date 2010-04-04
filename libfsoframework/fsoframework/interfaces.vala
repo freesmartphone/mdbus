@@ -148,7 +148,7 @@ namespace FsoFramework
     
     namespace Preferences
     {
-        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".oprefencesd";
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".opreferencesd";
 	
 	public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Preferences";
 	public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Preferences";
