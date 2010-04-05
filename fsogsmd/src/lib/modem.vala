@@ -293,7 +293,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
                 typename = "LowLevelOpenmoko";
                 break;
             default:
-                logger.warning( "Invalid lowlevel_type '%s'; vendor specifics will NOT be available!".printf( lowleveltype ) );
+                logger.warning( @"Invalid lowlevel_type $lowleveltype; vendor specifics will NOT be available" );
                 lowlevel = new FsoGsm.NullLowLevel();
                 return;
         }
@@ -303,13 +303,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             var lowlevelclass = Type.from_name( typename );
             if ( lowlevelclass == Type.INVALID  )
             {
-                logger.warning( "Can't find plugin for lowlevel_type = '%s'; vendor specifics will NOT be available!".printf( lowleveltype ) );
+                logger.warning( @"Can't find plugin for lowlevel_type $lowleveltype; vendor specifics will NOT be available" );
                 lowlevel = new FsoGsm.NullLowLevel();
                 return;
             }
 
             lowlevel = Object.new( lowlevelclass ) as FsoGsm.LowLevel;
-            logger.info( "Ready. Using lowlevel plugin '%s' to handle vendor specifics".printf( lowleveltype ) );
+            logger.info( @"Ready. Using lowlevel plugin $lowleveltype to handle vendor specifics" );
         }
     }
 
@@ -331,7 +331,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
                 typename = "PdpQmi";
                 break;
             default:
-                logger.warning( "Invalid pdp_type '%s'; data connectivity will NOT be available!".printf( pdphandlertype ) );
+                logger.warning( @"Invalid pdp_type $pdphandlertype; data connectivity will NOT be available" );
                 //pdphandler = new FsoGsm.Nullpdphandler();
                 return;
         }
@@ -341,13 +341,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             var pdphandlerclass = Type.from_name( typename );
             if ( pdphandlerclass == Type.INVALID  )
             {
-                logger.warning( "Can't find plugin for pdp_type = '%s'; data connectivity will NOT be available!".printf( pdphandlertype ) );
+                logger.warning( @"Can't find plugin for pdp_type $pdphandlertype; data connectivity will NOT be available" );
                 //pdphandler = new FsoGsm.Nullpdphandler();
                 return;
             }
 
             pdphandler = Object.new( pdphandlerclass ) as FsoGsm.PdpHandler;
-            logger.info( "Ready. Using pdp plugin '%s' to handle data connectivity".printf( pdphandlertype ) );
+            logger.info( @"Ready. Using pdp plugin $pdphandlertype to handle data connectivity" );
         }
     }
 
@@ -707,7 +707,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         assert( typ != typeof(T) ); // we do NOT want the interface, else things will go havoc
         if ( typ == Type.INVALID )
         {
-            logger.critical( "Requested mediator '$(typeof(T).name())' unknown" );
+            logger.critical( @"Requested mediator $(typeof(T).name()) unknown" );
             assert_not_reached();
         }
         T obj = Object.new( typ );
@@ -720,7 +720,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         AtCommand? cmd = commands[command];
         if (cmd == null )
         {
-            logger.critical( @"Requested AT command '$command' unknown" );
+            logger.critical( @"Requested AT command $command unknown" );
             assert_not_reached();
         }
         return (T) cmd;
@@ -770,7 +770,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         assert( urc != null );
         if ( !urc.dispatch( prefix, righthandside, pdu ) )
         {
-            logger.warning( @"No handler for URC '$prefix', please report to smartphones-userland@linuxtogo.org" );
+            logger.warning( @"No handler for URC $prefix w/ rhs $righthandside, please report to Mickey <smartphones-userland@linuxtogo.org>" );
         }
     }
 
@@ -779,7 +779,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         var typ = mediators[mediator];
         if ( typ == Type.INVALID )
         {
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested mediator '%s' unknown".printf( mediator.name() ) );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Requested mediator $(mediator.name()) unknown" );
         }
         return typ;
     }
@@ -789,7 +789,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         AtCommand? cmd = commands[command];
         if (cmd == null )
         {
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Requested AT command '%s' unknown".printf( command ) );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Requested AT command $command unknown" );
         }
         return cmd;
     }
@@ -850,7 +850,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             var obj = parent as FreeSmartphone.GSM.Device;
             obj.device_status( externalStatus() );
         }
-        logger.info( "Modem Status changed to %s".printf( FsoFramework.StringHandling.enumToString( typeof(Modem.Status), modem_status ) ) );
+        logger.info( @"Modem Status changed to $modem_status" );
     }
 
     public AtCommandSequence atCommandSequence( string channel, string purpose )
@@ -859,6 +859,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return ( seq != null ) ? seq : modem_data.cmdSequences["null"];
     }
 
+    // FIXME: Sync
     public FreeSmartphone.GSM.DeviceStatus externalStatus()
     {
         switch ( modem_status )

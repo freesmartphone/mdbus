@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -59,7 +59,7 @@ public class FsoGsm.BaseUnsolicitedResponseHandler : FsoGsm.UnsolicitedResponseH
 
     protected void registerUrc( string prefix, UnsolicitedResponseHandlerFunc func )
     {
-        assert( logger.debug( @"registering URC '$prefix'" ) );
+        assert( logger.debug( @"Registering URC '$prefix'" ) );
         urcs[prefix] = new UnsolicitedResponseHandlerFuncWrapper() { func=func };
     }
 
@@ -70,7 +70,7 @@ public class FsoGsm.BaseUnsolicitedResponseHandler : FsoGsm.UnsolicitedResponseH
 
     public bool dispatch( string prefix, string rhs, string? pdu = null )
     {
-        assert( logger.debug( @"dispatching AT unsolicited '$prefix', '$rhs'" ) );
+        assert( logger.debug( @"Dispatching AT unsolicited '$prefix', '$rhs'" ) );
 
         if ( pdu == null )
         {
