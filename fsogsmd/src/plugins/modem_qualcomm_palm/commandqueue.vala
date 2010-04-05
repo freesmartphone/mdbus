@@ -106,9 +106,21 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         var et = Msmcomm.eventTypeToString( event );
         assert( et != null );
         //transport.logger.debug( et );
-
+#if 0
+        //FIXME: This is wrong, but works for now... (treating every command as a response, if we got a pending one)
+        if ( current != null )
+        {
+            onSolicitedResponse( (MsmCommandHandler)current, message );
+            current = null;
+            Idle.add( checkRestartingQ );
+        }
+        else
+        {
+            onUnsolicitedResponse( (Msmcomm.EventType) event, message );
+        }
+#else
         // FIXME: We're treating some URCs as responses here :/
-        if ( et.has_prefix( "RESPONSE" ) || et.has_prefix( "URC_RESET_RADIO_IND" ) )
+        if ( et.has_prefix( "RESPONSE" ) || et.has_prefix( "URC_RESET_RADIO_IND" ) || et.has_prefix( "URC_OPERATION_MODE" ) )
         {
             assert( current != null );
             onSolicitedResponse( (MsmCommandHandler)current, message );
@@ -119,6 +131,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         {
             onUnsolicitedResponse( (Msmcomm.EventType) event, message );
         }
+#endif
     }
 
     //

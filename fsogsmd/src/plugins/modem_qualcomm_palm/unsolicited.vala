@@ -76,6 +76,7 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
     {
         registerUrc( Msmcomm.EventType.SIM_PIN1_ENABLED, handleSimPin1Enabled );
         registerUrc( Msmcomm.EventType.SIM_PIN1_VERIFIED, handleSimPin1Verified );
+        registerUrc( Msmcomm.EventType.NETWORK_STATE_INFO, handleNetworkStateInfo );
     }
 
     public virtual void handleSimPin1Enabled( Msmcomm.Message urc )
@@ -86,5 +87,28 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
     public virtual void handleSimPin1Verified( Msmcomm.Message urc )
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
+    }
+
+    public virtual void handleNetworkStateInfo( Msmcomm.Message urc )
+    {
+        var status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+
+        unowned Msmcomm.Unsolicited.NetworkStateInfo netinfo = (Msmcomm.Unsolicited.NetworkStateInfo) urc;
+
+        status.insert( "mode", "automatic" );
+        status.insert( "strength", (int)netinfo.rssi );
+        status.insert( "registration", "home" );
+        status.insert( "lac", "unknown" );
+        status.insert( "cid", "unknown" );
+        status.insert( "provider", netinfo.operator_name );
+        status.insert( "display", netinfo.operator_name );
+        status.insert( "code", "unknown" );
+        status.insert( "pdp.registration", netinfo.gprs_attached.to_string() );
+        status.insert( "pdp.lac", "unknown" );
+        status.insert( "pdp.cid", "unknown" );
+
+        var obj = FsoGsm.theModem.theDevice<FreeSmartphone.GSM.Network>();
+        obj.status( status );
+
     }
 }
