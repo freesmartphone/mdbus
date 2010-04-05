@@ -61,6 +61,27 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     {
         registerMsmMediators( mediators );
     }
+
+    public async void openAuxChannel()
+    {
+/*
+        // create AT channel for data use
+        var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );
+        var parser = new FsoGsm.StateBasedAtParser();
+        var channel = new FsoGsm.AtChannel( AT_CHANNEL_NAME, datatransport, parser );
+
+        var ok = yield channel.open();
+
+        if ( ok )
+        {
+            debug( "COMPANION AT CHANNEL OPEN OK" );
+        }
+        else
+        {
+            debug( "COMPANION AT CHANNEL OPEN FAILED" );
+        }
+*/
+    }
 }
 
 /**

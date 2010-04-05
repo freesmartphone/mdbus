@@ -18,6 +18,7 @@
  */
 
 using Gee;
+using FsoGsm;
 
 public delegate void MsmUnsolicitedResponseHandlerFunc( Msmcomm.Message urc );
 
@@ -82,6 +83,9 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
     public virtual void handleSimPin1Enabled( Msmcomm.Message urc )
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+
+        var msmModem = theModem as QualcommPalm.Modem;
+        msmModem.openAuxChannel();
     }
 
     public virtual void handleSimPin1Verified( Msmcomm.Message urc )
@@ -109,6 +113,5 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
 
         var obj = FsoGsm.theModem.theDevice<FreeSmartphone.GSM.Network>();
         obj.status( status );
-
     }
 }

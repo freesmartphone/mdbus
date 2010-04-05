@@ -18,16 +18,19 @@
  */
 
 using GLib;
+using FsoGsm;
 
 public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
 {
     public string name;
+    private bool atChannelOpened;
 
     public MsmChannel( string name, FsoFramework.Transport transport )
     {
         base( transport );
         this.name = name;
-        FsoGsm.theModem.registerChannel( name, this );
+        theModem.registerChannel( name, this );
+        theModem.signalStatusChanged += onModemStatusChanged;
     }
 
     public void injectResponse( string response )
@@ -64,6 +67,8 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         cmd1.setOperationMode( Msmcomm.OperationMode.RESET );
         unowned Msmcomm.Message response = yield enqueueAsync( (owned)cmd1 );
 
+        // FIXME: Should send test alive command until first URC has been received
+
         debug( "SENDING TEST ALIVE COMMAND" );
 
         var cmd2 = new Msmcomm.Command.TestAlive();
@@ -72,6 +77,10 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         debug( "OK; MSM CHANNEL OPENED" );
 
         return true;
+    }
+
+    public void onModemStatusChanged( Modem modem, Modem.Status status )
+    {
     }
 }
 
