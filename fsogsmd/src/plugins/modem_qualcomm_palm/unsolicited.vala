@@ -75,10 +75,16 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
     public MsmUnsolicitedResponseHandler()
     {
         registerUrc( Msmcomm.EventType.SIM_PIN1_ENABLED, handleSimPin1Enabled );
+        registerUrc( Msmcomm.EventType.SIM_PIN1_VERIFIED, handleSimPin1Verified );
     }
 
     public virtual void handleSimPin1Enabled( Msmcomm.Message urc )
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+    }
+
+    public virtual void handleSimPin1Verified( Msmcomm.Message urc )
+    {
+        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
     }
 }

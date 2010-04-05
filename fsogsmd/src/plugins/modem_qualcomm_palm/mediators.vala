@@ -211,10 +211,11 @@ public class MsmSimSendAuthCode : SimSendAuthCode
 {
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-//~         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-//~         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( pin ) );
-//~         checkResponseOk( cmd, response );
-//~         gatherSimStatusAndUpdate();
+        var cmd = new Msmcomm.Command.VerifyPin();
+        cmd.pin = pin;
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        unowned Msmcomm.Message response = yield channel.enqueueAsync( (owned) cmd );
+        // FIXME: No way to find out whether the operation succeeded or not
     }
 }
 
