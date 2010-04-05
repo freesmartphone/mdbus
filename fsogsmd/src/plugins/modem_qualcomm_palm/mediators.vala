@@ -70,6 +70,7 @@ public class MsmDeviceGetFunctionality : DeviceGetFunctionality
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
 //~         var response = yield theModem.processAtCommandAsync( cfun, cfun.query() );
 //~         checkResponseValid( cfun, response );
@@ -103,6 +104,7 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         var cmd = theModem.createAtCommand<PlusCBC>( "+CBC" );
 //~         var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
 //~
@@ -150,6 +152,7 @@ public class MsmSimGetAuthStatus : SimGetAuthStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
 //~         var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
 //~         checkResponseValid( cmd, response );
@@ -161,6 +164,7 @@ public class MsmSimGetInformation : SimGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
 //~
 //~         var value = Value( typeof(string) );
@@ -200,6 +204,7 @@ public class MsmSimGetAuthCodeRequired : SimGetAuthCodeRequired
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         var cmd = theModem.createAtCommand<PlusCLCK>( "+CLCK" );
 //~         var response = yield theModem.processAtCommandAsync( cmd, cmd.query( "SC" ) );
 //~         checkResponseValid( cmd, response );
@@ -237,10 +242,6 @@ public class MsmNetworkRegister : NetworkRegister
         var channel = theModem.channel( "main" ) as MsmChannel;
 
         unowned Msmcomm.Message response = yield channel.enqueueAsync( (owned) cmd );
-
-//~         var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-//~         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
-//~         checkResponseOk( cmd, response );
     }
 }
 
@@ -251,6 +252,7 @@ public class MsmCallActivate : CallActivate
 {
     public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         yield theModem.callhandler.activate( id );
     }
 }
@@ -259,6 +261,7 @@ public class MsmCallHoldActive : CallHoldActive
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         yield theModem.callhandler.hold();
     }
 }
@@ -267,6 +270,7 @@ public class MsmCallInitiate : CallInitiate
 {
     public override async void run( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         validatePhoneNumber( number );
 //~         id = yield theModem.callhandler.initiate( number, ctype );
     }
@@ -276,6 +280,7 @@ public class MsmCallListCalls : CallListCalls
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         var cmd = theModem.createAtCommand<PlusCLCC>( "+CLCC" );
 //~         var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
 //~         checkMultiResponseValid( cmd, response );
@@ -287,6 +292,7 @@ public class MsmCallSendDtmf : CallSendDtmf
 {
     public override async void run( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         var cmd = theModem.createAtCommand<PlusVTS>( "+VTS" );
 //~         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( tones ) );
 //~         checkResponseOk( cmd, response );
@@ -297,6 +303,7 @@ public class MsmCallRelease : CallRelease
 {
     public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         yield theModem.callhandler.release( id );
     }
 }
@@ -305,6 +312,7 @@ public class MsmCallReleaseAll : CallReleaseAll
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
 //~         yield theModem.callhandler.releaseAll();
     }
 }
