@@ -15,6 +15,7 @@ SUBDIRS = \
 	player_alsa \
 	\
 	kernel26_display \
+	kernel26_firmwareloader \
 	kernel26_leds \
 	kernel26_powersupply \
 	kernel26_rtc \

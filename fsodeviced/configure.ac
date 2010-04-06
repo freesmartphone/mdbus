@@ -164,15 +164,16 @@ AC_CONFIG_FILES([
   src/plugins/accelerometer_lis302/Makefile
   src/plugins/audio/Makefile
   src/plugins/kernel26_display/Makefile
+  src/plugins/kernel26_firmwareloader/Makefile
   src/plugins/kernel26_leds/Makefile
   src/plugins/kernel26_powersupply/Makefile
-  src/plugins/palmpre_powersupply/Makefile
   src/plugins/kernel26_rfkill/Makefile
   src/plugins/kernel26_rtc/Makefile
   src/plugins/kernel_idle/Makefile
   src/plugins/kernel_info/Makefile
   src/plugins/kernel_input/Makefile
   src/plugins/openmoko_powercontrol/Makefile
+  src/plugins/palmpre_powersupply/Makefile
   src/plugins/player_alsa/Makefile
   src/plugins/player_canberra/Makefile
   src/plugins/player_gstreamer/Makefile
