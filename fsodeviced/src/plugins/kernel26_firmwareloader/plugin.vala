@@ -31,12 +31,58 @@ internal class FirmwareLoader : FsoFramework.AbstractObject
 {
     public FirmwareLoader()
     {
+        FsoFramework.BaseKObjectNotifier.addMatch( "add", "firmware", onFirmwareUploadRequest );
         logger.info( "Created." );
     }
 
     public override string repr()
     {
         return "<>";
+    }
+
+    private void onFirmwareUploadRequest( HashTable<string, string> properties )
+    {
+        var devpath = properties.lookup( "DEVPATH" );
+        if ( devpath == null )
+        {
+            logger.error( "Can't process firmware upload due to missing DEVPATH in kobject notification" );
+            return;
+        }
+        var firmware = properties.lookup( "FIRMWARE" );
+        if ( firmware == null )
+        {
+            logger.error( "Can't process firmware upload request due to missing FIRMWARE in kobject notification" );
+            return;
+        }
+
+        var loading = Path.build_filename( sysfs_root, devpath, "loading" );
+        var data = Path.build_filename( sysfs_root, devpath, "data" );
+        var sourcepath = Path.build_filename( FIRMWARE_PATH, firmware );
+
+        try
+        {
+//#if DEBUG
+            debug( @"announcing device firmware upload start: $loading = 1" );
+//#endif
+            FsoFramework.FileHandling.write( "1\n", loading );
+
+            string blob;
+            size_t length;
+            FileUtils.get_contents( sourcepath, out blob, out length );
+//#if DEBUG
+            debug( @"loaded $length bytes from file $sourcepath" );
+//#endif
+            FileUtils.set_contents( data, blob, (ssize_t)length );
+//#if DEBUG
+            debug( @"announcing device firmware upload stop: $loading = 0" );
+//#endif
+        }
+        catch ( FileError e )
+        {
+            logger.error( @"Could not upload firmware $sourcepath to $data: $(e.message)" );
+            return;
+        }
+        logger.info( @"Successfully uploaded firmware $sourcepath to $data" );
     }
 }
 } /* namespace */
