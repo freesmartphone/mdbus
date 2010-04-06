@@ -80,6 +80,7 @@ internal class FirmwareLoader : FsoFramework.AbstractObject
         catch ( FileError e )
         {
             logger.error( @"Could not upload firmware $sourcepath to $data: $(e.message)" );
+            FsoFramework.FileHandling.write( "-1\n", loading );
             return;
         }
         logger.info( @"Successfully uploaded firmware $sourcepath to $data" );
