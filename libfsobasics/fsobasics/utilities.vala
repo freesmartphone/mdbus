@@ -150,13 +150,13 @@ public uint8[] readContentsOfFile( string filename ) throws GLib.FileError
 {
     Posix.Stat structstat;
     var ok = Posix.stat( filename, out structstat );
-    if ( ok != 0 )
+    if ( ok == -1 )
     {
         throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
     }
 
     var fd = Posix.open( filename, Posix.O_RDONLY );
-    if ( fd != 0 )
+    if ( fd == -1 )
     {
         throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
     }
