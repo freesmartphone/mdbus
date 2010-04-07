@@ -61,18 +61,18 @@ internal class FirmwareLoader : FsoFramework.AbstractObject
 
         try
         {
-//#if DEBUG
+#if DEBUG
             debug( @"announcing device firmware upload start: $loading = 1" );
-//#endif
+#endif
             FsoFramework.FileHandling.write( "1\n", loading );
             var blob = FsoFramework.FileHandling.readContentsOfFile( sourcepath );
-//#if DEBUG
+#if DEBUG
             debug( @"loaded $(blob.length) bytes from file $sourcepath" );
-//#endif
+#endif
             FsoFramework.FileHandling.writeContentsToFile( blob, data );
-//#if DEBUG
+#if DEBUG
             debug( @"announcing device firmware upload stop: $loading = 0" );
-//#endif
+#endif
             FsoFramework.FileHandling.write( "0\n", loading );
         }
         catch ( FileError e )
