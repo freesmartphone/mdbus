@@ -31,7 +31,7 @@ internal static string _program = null;
 internal static GLib.Regex _keyValueRe = null;
 
 namespace FsoFramework { namespace FileHandling {
-	
+
 public bool createDirectory( string filename, Posix.mode_t mode )
 {
 	return ( Posix.mkdir( filename, mode ) != -1 );
@@ -144,6 +144,33 @@ public void write( string contents, string filename, bool create = false )
         }
         Posix.close( fd );
     }
+}
+
+public uint8[] readContentsOfFile( string filename ) throws GLib.FileError
+{
+    Posix.Stat structstat;
+    var ok = Posix.stat( filename, out structstat );
+    if ( ok != 0 )
+    {
+        throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
+    }
+
+    var fd = Posix.open( filename, Posix.O_RDONLY );
+    if ( fd != 0 )
+    {
+        throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
+    }
+
+    var buf = new uint8[structstat.st_size];
+    var bread = Posix.read( fd, buf, structstat.st_size );
+    if ( bread != structstat.st_size )
+    {
+        Posix.close( fd );
+        throw new GLib.FileError.FAILED( @"Short read; got only $bread of $(structstat.st_size)" );
+    }
+
+    Posix.close( fd );
+    return buf;
 }
 
 public void writeBuffer( void* buffer, ulong length, string filename, bool create = false )

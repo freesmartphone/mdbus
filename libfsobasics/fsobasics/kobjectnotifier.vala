@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -173,7 +173,7 @@ public class FsoFramework.BaseKObjectNotifier : Object
                 table = remove;
                 break;
             default:
-                critical( @"Unsupported action $action in _addMatch, must be one of { add, change, remove }" );
+                FsoFramework.theLogger.warning( @"Unsupported action $action in _addMatch, must be one of { add, change, remove }" );
                 break;
         }
 
@@ -199,12 +199,12 @@ public class FsoFramework.BaseKObjectNotifier : Object
     //
     // public API
     //
-    public static void addMatch( string action, string path, KObjectNotifierFunc callback )
+    public static void addMatch( string action, string subsystem, KObjectNotifierFunc callback )
     {
         if ( BaseKObjectNotifier.instance == null )
             BaseKObjectNotifier.instance = new BaseKObjectNotifier();
 
-        BaseKObjectNotifier.instance._addMatch( action, path, callback );
+        BaseKObjectNotifier.instance._addMatch( action, subsystem, callback );
     }
 
 }
