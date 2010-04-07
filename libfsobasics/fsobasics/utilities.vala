@@ -173,6 +173,33 @@ public uint8[] readContentsOfFile( string filename ) throws GLib.FileError
     return buf;
 }
 
+/**
+ * Write buffer to file, supports partial writes.
+ **/
+public void writeContentsToFile( uint8[] buffer, string filename ) throws GLib.FileError
+{
+    var fd = Posix.open( filename, Posix.O_WRONLY );
+    if ( fd == -1 )
+    {
+        throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
+    }
+
+    var written = 0;
+    uint8* pointer = buffer;
+
+    while ( written < buffer.length )
+    {
+        var wrote = Posix.write( fd, pointer + written, buffer.length - written );
+        if ( wrote <= 0 )
+        {
+            Posix.close( fd );
+            throw new GLib.FileError.FAILED( @"Short write; aborting after writing $written of buffer.length" );
+        }
+        written += (int)wrote;
+    }
+    Posix.close( fd );
+}
+
 public void writeBuffer( void* buffer, ulong length, string filename, bool create = false )
 {
     Posix.mode_t mode = 0;
@@ -180,7 +207,7 @@ public void writeBuffer( void* buffer, ulong length, string filename, bool creat
     if ( create )
     {
         mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
-        flags |= Posix.O_CREAT  | Posix.O_EXCL;
+        flags |= Posix.O_CREAT | Posix.O_EXCL;
     }
     var fd = Posix.open( filename, flags, mode );
     if ( fd == -1 )
