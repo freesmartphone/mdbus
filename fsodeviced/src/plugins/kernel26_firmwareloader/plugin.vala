@@ -69,7 +69,7 @@ internal class FirmwareLoader : FsoFramework.AbstractObject
 //#if DEBUG
             debug( @"loaded $(blob.length) bytes from file $sourcepath" );
 //#endif
-            FsoFramework.FileHandling.writeBuffer( blob, blob.length, data );
+            FsoFramework.FileHandling.writeContentsToFile( blob, data );
 //#if DEBUG
             debug( @"announcing device firmware upload stop: $loading = 0" );
 //#endif
