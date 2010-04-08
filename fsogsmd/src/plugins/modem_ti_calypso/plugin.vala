@@ -56,7 +56,10 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         // sequence for initializing every channel
         registerAtCommandSequence( "CHANNEL", "init", new AtCommandSequence( {
             """E0Q0V1""",
-            """%CUNS=2"""
+            """%CUNS=2""",
+            """+CMEE=1""",
+            """+CRC=1""",
+            """+CSNS=0"""
         } ) );
 
         // sequence for initializing the channel urc
