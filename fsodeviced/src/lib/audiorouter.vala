@@ -28,6 +28,8 @@ public interface AudioRouter : GLib.Object
     public abstract void pushScenario( string scenario );
     public abstract void setScenario( string scenario );
     public abstract void saveScenario( string scenario );
+    public abstract uchar currentVolume() throws FreeSmartphone.Error;
+    public abstract void setVolume( uchar volume ) throws FreeSmartphone.Error;
 }
 
 public class NullRouter : AudioRouter, GLib.Object
@@ -63,6 +65,15 @@ public class NullRouter : AudioRouter, GLib.Object
     public void saveScenario( string scenario )
     {
     }
+
+    public uchar currentVolume() throws FreeSmartphone.Error
+    {
+        return 0;
+    }
+
+    public void setVolume( uchar volume ) throws FreeSmartphone.Error
+    {
+    }
 }
 
 public abstract class BaseAudioRouter : AudioRouter, GLib.Object
@@ -74,6 +85,16 @@ public abstract class BaseAudioRouter : AudioRouter, GLib.Object
     public abstract void pushScenario( string scenario );
     public abstract void setScenario( string scenario );
     public abstract void saveScenario( string scenario );
+
+    public uchar currentVolume() throws FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not Implemented" );
+    }
+
+    public void setVolume( uchar volume ) throws FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not Implemented" );
+    }
 }
 
 } /* namespace FsoDevice */

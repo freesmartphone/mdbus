@@ -177,17 +177,17 @@ class AudioManager : FreeSmartphone.Device.Audio,
 
     //
     // Scenario
-    public async string[] get_available_scenarios() throws DBus.Error
+    public async string[] get_available_scenarios() throws FreeSmartphone.Error, DBus.Error
     {
         return router.availableScenarios();
     }
 
-    public async string get_scenario() throws DBus.Error
+    public async string get_scenario() throws FreeSmartphone.Error, DBus.Error
     {
         return router.currentScenario();
     }
 
-    public async string pull_scenario() throws FreeSmartphone.Device.AudioError, DBus.Error
+    public async string pull_scenario() throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error, DBus.Error
     {
         return router.pullScenario();
     }
@@ -217,6 +217,18 @@ class AudioManager : FreeSmartphone.Device.Audio,
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Scenario not available" );
         }
         router.saveScenario( scenario );
+    }
+
+    //
+    // Mixer
+    public async uchar get_volume() throws FreeSmartphone.Error, DBus.Error
+    {
+        return router.currentVolume();
+    }
+
+    public async void set_volume( uchar volume ) throws FreeSmartphone.Error, DBus.Error
+    {
+        router.setVolume( volume );
     }
 
     //
