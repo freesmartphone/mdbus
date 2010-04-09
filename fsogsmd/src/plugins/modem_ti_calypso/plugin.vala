@@ -83,6 +83,11 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """@ST="-26""""
         } ) );
 
+        // sequence for when the modem is registered
+        registerAtCommandSequence( "urc", "registered", new AtCommandSequence( {
+            """+CNMI=2,1,2,1,1""" // deliver SMS via SIM
+        } ) );
+
         // sequence for suspending the channel urc
         registerAtCommandSequence( "urc", "suspend", new AtCommandSequence( {
             """+CREG=0""",
