@@ -265,13 +265,14 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         var scenario = allscenarios[currentscenario];
         assert( scenario != null );
 
-        return device.volumeForElementIdx( scenario.idxMainVolume );
+        return device.volumeForIndex( scenario.idxMainVolume );
     }
 
     public override void setVolume( uint8 volume ) throws FreeSmartphone.Error
     {
         var scenario = allscenarios[currentscenario];
         assert( scenario != null );
+        device.setVolumeForIndex( scenario.idxMainVolume, volume );
     }
 
 }
