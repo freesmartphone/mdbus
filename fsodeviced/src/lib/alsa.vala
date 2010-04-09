@@ -37,9 +37,15 @@ public class FsoDevice.BunchOfMixerControls
 {
     public FsoDevice.MixerControl[] controls;
 
-    public BunchOfMixerControls( FsoDevice.MixerControl[] controls )
+    /**
+     * Index of the control that should be used as main volume control
+     **/
+    public uint mainvolume;
+
+    public BunchOfMixerControls( FsoDevice.MixerControl[] controls, uint mainvolume = 0 )
     {
         this.controls = controls;
+        this.mainvolume = mainvolume;
     }
 
     public string to_string()
