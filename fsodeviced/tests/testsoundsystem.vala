@@ -21,7 +21,7 @@ using GLib;
 using FsoDevice;
 
 //===========================================================================
-void test_sound_system()
+void test_controls()
 //===========================================================================
 {
     var sd = SoundDevice.create( "hw:0" );
@@ -36,12 +36,26 @@ void test_sound_system()
 }
 
 //===========================================================================
+void test_mixer()
+//===========================================================================
+{
+    var sd = SoundDevice.create( "hw:0" );
+    var mainvolume = sd.volumeForIndex( 0 );
+    debug( @"mainvolume now $mainvolume" );
+    sd.setVolumeForIndex( 0, 42 );
+    mainvolume = sd.volumeForIndex( 0 );
+    debug( @"mainvolume now $mainvolume" );
+    //assert( sd.volumeForIndex( 0 ) == 42 );
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
     Test.init( ref args );
 
-    Test.add_func( "/SoundSystem/All", test_sound_system );
+    Test.add_func( "/SoundSystem/Controls", test_controls );
+    Test.add_func( "/SoundSystem/Mixer", test_mixer );
 
     Test.run();
 }

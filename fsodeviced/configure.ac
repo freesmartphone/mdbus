@@ -19,7 +19,7 @@ AC_SUBST(LDFLAGS)
 
 ##############################################################################
 # required versions
-VALA_REQUIRED=0.7.9
+VALA_REQUIRED=0.8.0.69
 GLIB_REQUIRED=2.18.0
 GEE_REQUIRED=0.5.0
 DBUS_REQUIRED=1.2.1

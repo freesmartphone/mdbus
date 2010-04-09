@@ -264,11 +264,8 @@ class LibAlsa : FsoDevice.BaseAudioRouter
     {
         var scenario = allscenarios[currentscenario];
         assert( scenario != null );
-        var control = device.controlForId( scenario.idxMainVolume );
-#if DEBUG
-        debug( @"$control" );
-#endif
-        return 42; // (uint8) control.value.get_integer( 0 );
+
+        return device.volumeForElementIdx( scenario.idxMainVolume );
     }
 
     public override void setVolume( uint8 volume ) throws FreeSmartphone.Error

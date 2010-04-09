@@ -69,14 +69,16 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
     public string name;
     public string fullname;
     public string mixername;
+    public string cardname;
 
-    private SoundDevice( ref Card card, ref ElemList list, string name, string fullname, string mixername )
+    private SoundDevice( ref Card card, ref ElemList list, string name, string fullname, string mixername, string cardname )
     {
         this.card = (owned) card;
         this.list = (owned) list;
         this.name = name;
         this.fullname = fullname;
         this.mixername = mixername;
+        this.cardname = cardname;
     }
 
     /**
@@ -117,7 +119,7 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
         if ( res < 0 )
             throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
 
-        return new SoundDevice( ref card, ref list, info.get_id(), info.get_longname(), info.get_mixername() );
+        return new SoundDevice( ref card, ref list, info.get_id(), info.get_longname(), info.get_mixername(), cardname );
     }
 
     public override string repr()
@@ -256,6 +258,59 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
         }
         return control;
     }
+
+    /**
+     * @return volume percent for mixer element with @a id
+     **/
+    public uint8 volumeForIndex( uint id )
+    {
+        Alsa.Mixer mix;
+        Alsa.Mixer.open( out mix );
+        assert( mix != null );
+        mix.attach( cardname );
+        mix.register();
+        mix.load();
+
+        Alsa.MixerElement mel = mix.first_elem();
+        while ( id-- > 0 )
+        {
+            mel = mel.next();
+            assert( mel != null );
+        }
+
+        long val;
+        long min;
+        long max;
+        mel.get_playback_volume( Alsa.SimpleChannelId.MONO, out val );
+        mel.get_playback_volume_range( out min, out max );
+
+        return (uint8) Math.round(( val * 100 / (double)( max-min ) ) );
+    }
+
+    /**
+     * @set volume percent for mixer element with @a id
+     **/
+    public void setVolumeForIndex( uint id, uint8 val )
+    {
+        Alsa.Mixer mix;
+        Alsa.Mixer.open( out mix );
+        assert( mix != null );
+        mix.attach( cardname );
+        mix.register();
+        mix.load();
+
+        Alsa.MixerElement mel = mix.first_elem();
+        while ( id-- > 0 )
+        {
+            mel = mel.next();
+            assert( mel != null );
+        }
+
+        long min;
+        long max;
+        mel.get_playback_volume_range( out min, out max );
+        mel.set_playback_volume_all( val * ( max-min ) / 100 );
+    }
 }
 
 /**
@@ -314,6 +369,16 @@ public class FsoDevice.MixerControl
                 break;
         }
         return ( infoline[infoline.length-1] == ',' ) ? infoline.substring( 0, infoline.length-1 ) : infoline;
+    }
+
+    public uint volume {
+        set {
+            assert_not_reached();
+        }
+
+        get {
+            assert_not_reached();
+        }
     }
 }
 
