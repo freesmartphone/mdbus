@@ -7,7 +7,6 @@ AM_CFLAGS = \
 	-I../fsoframework \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
-	$(ALSA_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
 	$(NULL)
 
@@ -19,7 +18,6 @@ noinst_PROGRAMS = $(TEST_PROGS)
 progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
-	$(ALSA_LIBS) \
 	$(FSOBASICS_LIBS) \
 	../fsoframework/libfsoframework.la
 
@@ -140,18 +138,6 @@ $(testobject_SOURCES): $(testobject_VALASOURCES)
 	touch $@
 testobject_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testobject_VALASOURCES)
-
-#
-# soundsystem test
-#
-TEST_PROGS += testsoundsystem
-testsoundsystem_VALASOURCES = testsoundsystem.vala
-testsoundsystem_SOURCES = testsoundsystem.c
-$(testsoundsystem_SOURCES): $(testsoundsystem_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testsoundsystem_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testsoundsystem_VALASOURCES)
 
 CLEANFILES = \
     $(TEST_PROGS) \

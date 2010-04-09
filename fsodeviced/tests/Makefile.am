@@ -2,24 +2,39 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(DEPS_CFLAGS) \
+AM_CFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	$(GLIB_CFLAGS) \
+	$(FSO_CFLAGS) \
 	$(NULL)
+
+VALAC_ARGS = \
+	-C \
+	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/src/lib \
+	--pkg posix \
+	--pkg glib-2.0 \
+	--pkg gio-2.0 \
+	--pkg fsodevice-2.0
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(DEPS_LIBS) ../fsodeviced/lib/libfsodeviced.la
+progs_ldadd = \
+	$(GLIB_LIBS) \
+	$(FSO_LIBS) \
+	../src/lib/libfsodevice.la
 
-# TEST_PROGS += testsmartkeyfile
-# testsmartkeyfile_VALASOURCES = testsmartkeyfile.vala
-# testsmartkeyfile_SOURCES = testsmartkeyfile.c
-# $(testsmartkeyfile_SOURCES): $(testsmartkeyfile_VALASOURCES)
-# 	$(VALAC) -C --basedir $(top_srcdir) --vapidir $(top_srcdir)/fsoframework --pkg glib-2.0 --pkg gio-2.0 --pkg fsoframework-2.0 $^
-# 	touch $@
-# testsmartkeyfile_LDADD = $(progs_ldadd)
-# EXTRA_DIST += $(testsmartkeyfile_VALASOURCES)
-# 
+#
+# soundsystem test
+#
+TEST_PROGS += testsoundsystem
+testsoundsystem_VALASOURCES = testsoundsystem.vala
+testsoundsystem_SOURCES = testsoundsystem.c
+$(testsoundsystem_SOURCES): $(testsoundsystem_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testsoundsystem_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testsoundsystem_VALASOURCES)
 
 CLEANFILES = \
     $(TEST_PROGS) \

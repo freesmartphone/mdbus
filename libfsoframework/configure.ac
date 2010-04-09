@@ -1,4 +1,4 @@
-AC_INIT([libfsoframework], [0.8.0], [smartphones-userland@linuxtogo.org], [libfsoframework])
+AC_INIT([libfsoframework], [0.8.1], [smartphones-userland@linuxtogo.org], [libfsoframework])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -20,7 +20,6 @@ VALA_REQUIRED=0.7.9.7
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
 GLIB_REQUIRED=2.18.0
-ALSA_REQUIRED=0.20
 FSOBASICS_REQUIRED=0.9.9
 
 # vala
@@ -43,12 +42,6 @@ PKG_CHECK_MODULES(DBUS,
   dbus-glib-1 >= $DBUS_GLIB_REQUIRED)
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
-
-# alsa
-PKG_CHECK_MODULES(ALSA,
-  alsa >= $ALSA_REQUIRED)
-AC_SUBST(ALSA_CFLAGS)
-AC_SUBST(ALSA_LIBS)
 
 # libfsobasics
 PKG_CHECK_MODULES(FSOBASICS,

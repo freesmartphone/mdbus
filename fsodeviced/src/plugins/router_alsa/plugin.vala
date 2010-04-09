@@ -29,8 +29,8 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 {
     private const string MODULE_NAME = "fsodevice.router_alsa";
 
-    private FsoFramework.SoundDevice device;
-    private HashMap<string,FsoFramework.BunchOfMixerControls> allscenarios;
+    private FsoDevice.SoundDevice device;
+    private HashMap<string,FsoDevice.BunchOfMixerControls> allscenarios;
     private string currentscenario;
     private GLib.Queue<string> scenarios;
 
@@ -48,7 +48,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 
     private void addScenario( string scenario, File file )
     {
-        FsoFramework.MixerControl[] controls = {};
+        FsoDevice.MixerControl[] controls = {};
 
         try
         {
@@ -68,7 +68,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 #if DEBUG
             debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
 #endif
-            var bunch = new FsoFramework.BunchOfMixerControls( controls );
+            var bunch = new FsoDevice.BunchOfMixerControls( controls );
             allscenarios[scenario] = bunch;
         }
         catch ( IOError e )
@@ -82,7 +82,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         configurationPath = FsoFramework.Utility.machineConfigurationDir() + "/alsa.conf";
 
         scenarios = new GLib.Queue<string>();
-        allscenarios = new HashMap<string,FsoFramework.BunchOfMixerControls>( str_hash, str_equal );
+        allscenarios = new HashMap<string,FsoDevice.BunchOfMixerControls>( str_hash, str_equal );
         currentscenario = "unknown";
 
         // init scenarios
@@ -94,9 +94,9 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 
             try
             {
-                device = FsoFramework.SoundDevice.create( soundcard );
+                device = FsoDevice.SoundDevice.create( soundcard );
             }
-            catch ( FsoFramework.SoundError e )
+            catch ( FsoDevice.SoundError e )
             {
                 FsoFramework.theLogger.warning( @"Sound card problem: $(e.message)" );
                 return;
@@ -183,7 +183,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         {
             FsoFramework.theLogger.info( @"Scenario $name has been changed; invalidating cache for this." );
             // save current one
-            var scene = new FsoFramework.BunchOfMixerControls( device.allMixerControls() );
+            var scene = new FsoDevice.BunchOfMixerControls( device.allMixerControls() );
             // reload changed one from disk
             var file = File.new_for_path( Path.build_filename( dataPath, name ) );
             if ( !file.query_exists(null) )
@@ -242,7 +242,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 
     public override void saveScenario( string scenario )
     {
-        var scene = new FsoFramework.BunchOfMixerControls( device.allMixerControls() );
+        var scene = new FsoDevice.BunchOfMixerControls( device.allMixerControls() );
         var filename = Path.build_filename( dataPath, scenario );
         FsoFramework.FileHandling.write( scene.to_string(), filename );
     }

@@ -6,7 +6,6 @@ AM_CFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
-	$(ALSA_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
 	$(NULL)
 
@@ -19,7 +18,6 @@ VALAC_ARGS = \
 	--pkg gmodule-2.0 \
 	--pkg gio-2.0 \
 	--pkg dbus-glib-1 \
-	--pkg alsa \
 	--pkg fsobasics-2.0 \
 	--pkg config \
 	--header fsoframework.h \
@@ -37,7 +35,6 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsoframework_la_VALASOURCES = \
-	alsa.vala \
 	dbus.vala \
 	interfaces.vala \
 	object.vala \
@@ -60,7 +57,6 @@ fsoframework-2.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 libfsoframework_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
-	$(ALSA_LIBS) \
 	$(FSOBASICS_LIBS) \
 	$(NULL)
 

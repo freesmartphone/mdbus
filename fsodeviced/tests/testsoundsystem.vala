@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
  */
 
 using GLib;
-using FsoFramework;
+using FsoDevice;
 
 //===========================================================================
 void test_sound_system()

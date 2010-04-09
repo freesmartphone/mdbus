@@ -5,6 +5,7 @@ NULL =
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
+	$(ALSA_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(NULL)
 
@@ -12,6 +13,7 @@ VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg posix \
+	--pkg alsa \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
 	--pkg dbus-glib-1 \
@@ -29,6 +31,7 @@ lib_LTLIBRARIES = \
 
 libfsodevice_la_VALASOURCES = \
 	accelerometer.vala \
+	alsa.vala \
 	audioplayer.vala \
 	audiorouter.vala \
 	dispatcher.vala \
@@ -51,6 +54,7 @@ $(BUILT_SOURCES): $(libfsodevice_la_VALASOURCES)
 
 libfsodevice_la_LIBADD = \
 	$(FSO_LIBS) \
+	$(ALSA_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 

@@ -22,7 +22,7 @@ using Alsa;
 /**
  * Errordomain
  **/
-public errordomain FsoFramework.SoundError
+public errordomain FsoDevice.SoundError
 {
     NO_DEVICE,
     DEVICE_ERROR,
@@ -31,13 +31,13 @@ public errordomain FsoFramework.SoundError
 }
 
 /**
- * @class FsoFramework.BunchOfMixerControls
+ * @class FsoDevice.BunchOfMixerControls
  **/
-public class FsoFramework.BunchOfMixerControls
+public class FsoDevice.BunchOfMixerControls
 {
-    public FsoFramework.MixerControl[] controls;
+    public FsoDevice.MixerControl[] controls;
 
-    public BunchOfMixerControls( FsoFramework.MixerControl[] controls )
+    public BunchOfMixerControls( FsoDevice.MixerControl[] controls )
     {
         this.controls = controls;
     }
@@ -54,9 +54,9 @@ public class FsoFramework.BunchOfMixerControls
 }
 
 /**
- * @class FsoFramework.SoundDevice
+ * @class FsoDevice.SoundDevice
  **/
-public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
+public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
 {
     private Card card;
     private ElemList list;
@@ -253,9 +253,9 @@ public class FsoFramework.SoundDevice : FsoFramework.AbstractObject
 }
 
 /**
- * @class FsoFramework.MixerControl
+ * @class FsoDevice.MixerControl
  **/
-public class FsoFramework.MixerControl
+public class FsoDevice.MixerControl
 {
     public ElemId eid;
     public ElemInfo info;

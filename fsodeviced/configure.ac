@@ -1,4 +1,4 @@
-AC_INIT([fsodeviced], [0.9.1], [smartphones-userland@linuxtogo.org], [fsodeviced])
+AC_INIT([fsodeviced], [0.9.2], [smartphones-userland@linuxtogo.org], [fsodeviced])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -27,6 +27,7 @@ DBUS_GLIB_REQUIRED=0.76
 FSO_GLIB_REQUIRED=0.2.0
 FSO_FRAMEWORK_REQUIRED=0.2.4
 FSO_RESOURCE_REQUIRED=0.1.0
+ALSA_REQUIRED=0.20
 CANBERRA_REQUIRED=0.17
 GSTREAMER_REQUIRED=0.10.20
 
@@ -79,6 +80,13 @@ PKG_CHECK_MODULES(FSO,
   fsoframework-2.0 >= $FSO_FRAMEWORK_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
+
+##############################################################################
+# alsa
+PKG_CHECK_MODULES(ALSA,
+  alsa >= $ALSA_REQUIRED)
+AC_SUBST(ALSA_CFLAGS)
+AC_SUBST(ALSA_LIBS)
 
 ##############################################################################
 # optional feature: fsoresource integration
