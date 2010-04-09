@@ -40,12 +40,12 @@ public class FsoDevice.BunchOfMixerControls
     /**
      * Index of the control that should be used as main volume control
      **/
-    public uint mainvolume;
+    public uint idxMainVolume;
 
-    public BunchOfMixerControls( FsoDevice.MixerControl[] controls, uint mainvolume = 0 )
+    public BunchOfMixerControls( FsoDevice.MixerControl[] controls, uint idxMainVolume = 0 )
     {
         this.controls = controls;
-        this.mainvolume = mainvolume;
+        this.idxMainVolume = idxMainVolume;
     }
 
     public string to_string()
@@ -125,7 +125,7 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
         return @"<$name>";
     }
 
-    private MixerControl controlForId( uint idx ) throws SoundError
+    public MixerControl controlForId( uint idx ) throws SoundError
     {
         ElemId eid;
         var res = ElemId.alloc( out eid );

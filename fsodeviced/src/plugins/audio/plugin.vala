@@ -221,12 +221,12 @@ class AudioManager : FreeSmartphone.Device.Audio,
 
     //
     // Mixer
-    public async uchar get_volume() throws FreeSmartphone.Error, DBus.Error
+    public async uint8 get_volume() throws FreeSmartphone.Error, DBus.Error
     {
         return router.currentVolume();
     }
 
-    public async void set_volume( uchar volume ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_volume( uint8 volume ) throws FreeSmartphone.Error, DBus.Error
     {
         router.setVolume( volume );
     }

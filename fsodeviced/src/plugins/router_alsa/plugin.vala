@@ -137,6 +137,19 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         else
         {
             FsoFramework.theLogger.warning( @"Could not load $configurationPath. No scenarios available." );
+            // try to set sane default state; use "default" as soundcard and current values as default scenario
+            try
+            {
+                device = FsoDevice.SoundDevice.create( "default" );
+            }
+            catch ( FsoDevice.SoundError e )
+            {
+                FsoFramework.theLogger.warning( @"Sound card problem: $(e.message)" );
+                return;
+            }
+            var bunch = new FsoDevice.BunchOfMixerControls( device.allMixerControls() );
+            allscenarios["current"] = bunch;
+            currentscenario = "current";
         }
     }
 
@@ -246,6 +259,24 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         var filename = Path.build_filename( dataPath, scenario );
         FsoFramework.FileHandling.write( scene.to_string(), filename );
     }
+
+    public override uint8 currentVolume() throws FreeSmartphone.Error
+    {
+        var scenario = allscenarios[currentscenario];
+        assert( scenario != null );
+        var control = device.controlForId( scenario.idxMainVolume );
+#if DEBUG
+        debug( @"$control" );
+#endif
+        return 42; // (uint8) control.value.get_integer( 0 );
+    }
+
+    public override void setVolume( uint8 volume ) throws FreeSmartphone.Error
+    {
+        var scenario = allscenarios[currentscenario];
+        assert( scenario != null );
+    }
+
 }
 
 } /* namespace Router */
