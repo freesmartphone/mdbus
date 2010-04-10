@@ -42,6 +42,31 @@ class Commands : Object
 
     public void dumpMixer()
     {
+        Alsa.Mixer mix;
+        Alsa.Mixer.open( out mix );
+        assert( mix != null );
+        mix.attach( cardname );
+        mix.register();
+        mix.load();
+
+        Alsa.SimpleElementId seid;
+        Alsa.SimpleElementId.alloc( out seid );
+
+        stdout.printf( @"# simple mixer settings\n" );
+
+        for ( Alsa.MixerElement mel = mix.first_elem(); mel != null; mel = mel.next() )
+        {
+            long val;
+            long min;
+            long max;
+            mel.get_playback_volume( Alsa.SimpleChannelId.MONO, out val );
+            mel.get_playback_volume_range( out min, out max );
+
+            mel.get_id( seid );
+            var name = seid.get_name();
+
+            stdout.printf( @"$name: [ $min - $val - $max ]\n" );
+        }
     }
 
     public void info()
