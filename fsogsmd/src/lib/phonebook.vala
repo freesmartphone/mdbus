@@ -92,7 +92,7 @@ public class FsoGsm.PhonebookStorage : FsoFramework.AbstractObject
 
     public void writePhonebookEntry( FreeSmartphone.GSM.SIMEntry entry, string filename )
     {
-        var text = @"$(entry.number):$(entry.name)";
+        var text = @"$(entry.name):$(entry.number)";
         FsoFramework.FileHandling.write( text, filename, true );
     }
 
