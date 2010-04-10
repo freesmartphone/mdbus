@@ -1,0 +1,5 @@
+# scenario for cardname default (4 controls)
+1:'PCM Playback Volume':1:-3
+2:'Handset Switch':1:0
+3:'Speaker Switch':1:1
+4:'Headset Switch':1:0

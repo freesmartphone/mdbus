@@ -159,6 +159,7 @@ AC_CONFIG_FILES([
   conf/Makefile
   conf/default/Makefile
   conf/htc_qualcomm_dream/Makefile
+  conf/htc_qualcomm_dream/alsa-default/Makefile
   conf/htc_qualcomm_msm/Makefile
   conf/openmoko_gta/Makefile
   conf/openmoko_gta/alsa-default/Makefile
