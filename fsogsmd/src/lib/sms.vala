@@ -474,7 +474,9 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         else /* complete */
         {
             logger.info( @"Got new SMS from $(sms.number())" );
-            // compute text and send dbus signal
+            var msg = storage.message( sms.hash() );
+            var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
+            obj.incoming_text_message( msg.number, msg.timestamp, msg.contents );
         }
     }
 }
