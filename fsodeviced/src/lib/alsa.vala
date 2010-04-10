@@ -284,7 +284,7 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
         mel.get_playback_volume( Alsa.SimpleChannelId.MONO, out val );
         mel.get_playback_volume_range( out min, out max );
 
-        return (uint8) Math.round(( val * 100 / (double)( max-min ) ) );
+        return (uint8) Math.round(( (val-min) * 100 / (double)( max-min ) ) );
     }
 
     /**
@@ -309,7 +309,7 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
         long min;
         long max;
         mel.get_playback_volume_range( out min, out max );
-        mel.set_playback_volume_all( val * ( max-min ) / 100 );
+        mel.set_playback_volume_all( min + val * ( max-min ) / 100 );
     }
 }
 
