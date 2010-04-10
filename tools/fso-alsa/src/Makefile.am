@@ -3,16 +3,14 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 VALAC_ARGS = \
-	-C --vapidir vapi \
-        --pkg posix \
-        --pkg dbus-glib-1 \
+	-C  --vapidir vapi \
+        --pkg fsodevice-2.0 \
+        --pkg fsoframework-2.0 \
         --save-temps \
         --basedir $(top_srcdir)
 
-INCLUDES = \
-	$(DBUS_CFLAGS) \
-	$(GLIB_CFLAGS) \
-	-include $(CONFIG_HEADER) \
+AM_CFLAGS = \
+	$(DEPS_CFLAGS) \
 	$(NULL)
 
 BUILT_SOURCES = .vala.stamp
@@ -32,8 +30,8 @@ $(BUILT_SOURCES): $(fso_alsa_VALASOURCES)
 	touch $@
 
 fso_alsa_LDADD = \
-	$(DBUS_LIBS) \
-	$(GLIB_LIBS) \
+	$(DEPS_LIBS) \
+	-lfsodevice \
 	$(NULL)
 
 EXTRA_DIST += \

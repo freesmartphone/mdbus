@@ -1,4 +1,4 @@
-/**
+/*
  * FSO Alsa Testing / Diagnostics Utility
  *
  * Copyright (C) 2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
@@ -16,37 +16,49 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- **/
+ */
 
 //=========================================================================//
 using GLib;
+using FsoDevice;
 
 //=========================================================================//
 class Commands : Object
 {
-    DBus.Connection bus;
-    dynamic DBus.Object usage;
-
     public Commands()
+    {
+    }
+
+    public void dumpScenario()
+    {
+        var sd = SoundDevice.create( cardname );
+        var controls = sd.allMixerControls();
+        stdout.printf( @"# scenario for cardname $cardname (%d controls)\n", controls.length );
+        foreach ( var control in controls )
+        {
+            stdout.printf( @"$control\n" );
+        }
+    }
+
+    public void dumpMixer()
+    {
+    }
+
+    public void info()
     {
     }
 }
 
 //=========================================================================//
-static bool listresources;
-static bool force;
-static bool timeout;
-[NoArrayLength()]
-static string[] resources;
+static string cardname;
+static bool dump;
+static bool info;
 [NoArrayLength()]
 static string[] command;
 
 const OptionEntry[] options =
 {
-    { "listresources", 'l', 0, OptionArg.NONE, ref listresources, "List resources (do not mix with -r)", null },
-    { "resources", 'r', 0, OptionArg.STRING_ARRAY, ref resources, "Allocate resources during program execution", "RESOURCE..." },
-    { "force", 'f', 0, OptionArg.NONE, ref force, "Continue execution, even if (some) resources can't be allocated.", null },
-    { "timeout", 't', 0, OptionArg.INT, ref timeout, "Override default dbus timeout", "MSECS" },
+    { "cardname", 'c', 0, OptionArg.STRING, ref cardname, "The card name [default='default']", "CARDNAME" },
     { "", 0, 0, OptionArg.FILENAME_ARRAY, ref command, null, "[--] COMMAND [ARGS]..." },
     { null }
 };
@@ -54,6 +66,8 @@ const OptionEntry[] options =
 //=========================================================================//
 int main( string[] args )
 {
+    cardname = "default";
+
     try
     {
         var opt_context = new OptionContext( "- FSO Alsa Diagnostics" );
@@ -69,6 +83,24 @@ int main( string[] args )
     }
 
     var commands = new Commands();
+    if ( command == null )
+    {
+        commands.info();
+        return 0;
+    }
+    switch ( command[0] )
+    {
+        case "scenario":
+            commands.dumpScenario();
+            break;
+        case "mixer":
+            commands.dumpMixer();
+            break;
+        default:
+            commands.info();
+            break;
+    }
+
     return 0;
 }
 
