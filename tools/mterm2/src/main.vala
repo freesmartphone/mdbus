@@ -1,7 +1,7 @@
-/**
- * This file is part of fso-term.
+/*
+ * This file is part of mterm2
  *
- * (C) 2009 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
- **/
+ */
 
 //===========================================================================
 using GLib;
