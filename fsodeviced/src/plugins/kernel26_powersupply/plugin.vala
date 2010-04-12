@@ -300,7 +300,7 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
 
         assert( status != null );
 
-        logger.info( "Got power status change notification for %s: %s".printf( name, status ) );
+        logger.info( "Got power status change notification for $name: $status" );
 
         // set status in instance
         foreach ( var supply in instances )
@@ -353,8 +353,8 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
         // first, check whether we have enough information to compute the status at all
         foreach ( var supply in instances )
         {
-            logger.debug( "supply %s status = %d".printf( supply.name, supply.status ) );
-            logger.debug( "supply %s type = %s".printf( supply.name, supply.typ ) );
+            assert( logger.debug( @"supply $(supply.name) status = $(supply.status)" ) );
+            assert( logger.debug( @"supply $(supply.name) type = $(supply.typ)" ) );
 
             if ( supply.status == FreeSmartphone.Device.PowerStatus.UNKNOWN )
             {
@@ -375,7 +375,7 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
 
         if ( !statusForAll )
         {
-            logger.debug( "^^^ not enough information present to compute overall status" );
+            assert( logger.debug( "^^^ not enough information present to compute overall status" ) );
             return;
         }
 
