@@ -21,7 +21,11 @@ using GLib;
 
 namespace SyncTime {
     const string MODULE_NAME = "fsotdl.sync_time";
+    // contains the timezone as verbose string, e.g. 'Europe/Berlin'
     const string TIMEZONE_FILE_DEFAULT = "/etc/timezone";
+    // contains the timezone data as found in /usr/share/zoneinfo
+    const string LOCALTIME_FILE_DEFAULT = "/etc/localtime";
+    // contains all the timezone files
     const string ZONEINFO_DIR_DEFAULT = "/usr/share/zoneinfo";
 }
 
@@ -30,6 +34,7 @@ class SyncTime.Service : FsoFramework.AbstractObject
     FsoFramework.Subsystem subsystem;
     private Gee.HashMap<string,FsoTime.Source> sources;
     private string timezone_file;
+    private string localtime_file;
     private string zoneinfo_dir;
 
     public Service( FsoFramework.Subsystem subsystem )
@@ -41,6 +46,7 @@ class SyncTime.Service : FsoFramework.AbstractObject
             addSource( source );
         }
         timezone_file = config.stringValue( MODULE_NAME, "timezone_file", TIMEZONE_FILE_DEFAULT );
+        localtime_file = config.stringValue( MODULE_NAME, "localtime_file", LOCALTIME_FILE_DEFAULT );
         zoneinfo_dir = config.stringValue( MODULE_NAME, "zoneinfo_dir", ZONEINFO_DIR_DEFAULT );
         logger.info( @"Ready. Configured for $(sources.size) sources" );
     }
@@ -59,6 +65,9 @@ class SyncTime.Service : FsoFramework.AbstractObject
                 break;
             case "gsm":
                 typename = "SourceGsm";
+                break;
+            case "dummy":
+                typename = "SourceDummy";
                 break;
             default:
                 logger.warning( @"Unknown source $name - Ignoring" );
@@ -116,17 +125,29 @@ class SyncTime.Service : FsoFramework.AbstractObject
             logger.warning( @"Timezone file $newzone not present; ignoring zone report" );
             return;
         }
-        assert( logger.debug( @"Removing $timezone_file and symlinking to $newzone" ) );
-
-        var res = GLib.FileUtils.remove( timezone_file );
-        if ( res != 0 )
+        else
         {
-            logger.warning( @"Can't remove $(timezone_file): $(strerror(errno))" );
+            try
+            {
+                GLib.FileUtils.set_contents( timezone_file, zone + "\n" );
+            }
+            catch ( GLib.FileError e )
+            {
+                logger.warning( @"Can't write to $timezone_file: $(e.message)" );
+            }
         }
-        res = GLib.FileUtils.symlink( newzone, timezone_file );
+
+        assert( logger.debug( @"Removing $localtime_file and symlinking to $newzone" ) );
+
+        var res = GLib.FileUtils.remove( localtime_file );
         if ( res != 0 )
         {
-            logger.warning( @"Can't symlink $timezone_file -> $newzone: $(strerror(errno))" );
+            logger.warning( @"Can't remove $(localtime_file): $(strerror(errno))" );
+        }
+        res = GLib.FileUtils.symlink( newzone, localtime_file );
+        if ( res != 0 )
+        {
+            logger.warning( @"Can't symlink $localtime_file -> $newzone: $(strerror(errno))" );
         }
         else
         {

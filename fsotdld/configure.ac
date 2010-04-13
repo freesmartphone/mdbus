@@ -1,4 +1,4 @@
-AC_INIT([fsotdld], [0.2.0], [smartphones-userland@linuxtogo.org], [fsotdld])
+AC_INIT([fsotdld], [0.3.0], [smartphones-userland@linuxtogo.org], [fsotdld])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -17,7 +17,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-VALA_REQUIRED=0.7.9.1
+VALA_REQUIRED=0.8.0
 GLIB_REQUIRED=2.22.0
 GEE_REQUIRED=0.5.0
 DBUS_REQUIRED=1.2.1
@@ -97,6 +97,7 @@ AC_CONFIG_FILES([
   src/plugins/alarm/Makefile
   src/plugins/provider_gps/Makefile
   src/plugins/provider_gps_nmea/Makefile
+  src/plugins/source_dummy/Makefile
   src/plugins/source_gps/Makefile
   src/plugins/source_gsm/Makefile
   src/plugins/source_ntp/Makefile
