@@ -23,6 +23,7 @@ namespace FsoGsm
 {
     public FsoGsm.Modem theModem;
     public const string CONFIG_SECTION = "fsogsm";
+    internal const string PPPD_DEFAULT_COMMAND = "/usr/sbin/pppd";
 }
 
 /**
@@ -386,7 +387,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.simPin = config.stringValue( CONFIG_SECTION, "auto_unlock", "" );
         modem_data.keepRegistration = config.boolValue( CONFIG_SECTION, "auto_register", false );
 
-        modem_data.pppCommand = config.stringValue( CONFIG_SECTION, "ppp_command", "pppd" );
+        modem_data.pppCommand = config.stringValue( CONFIG_SECTION, "ppp_command", PPPD_DEFAULT_COMMAND );
         modem_data.pppPort = data_port ?? config.stringValue( CONFIG_SECTION, "ppp_port", "/dev/null" );
         modem_data.pppOptions = config.stringListValue( CONFIG_SECTION, "ppp_options", {
             "115200",
