@@ -713,7 +713,7 @@ class Commands : Object
                     if ( error.is_set() )
                     {
 #if DEBUG
-                        stderr.printf( @"Method call OK. Result:\nDBus Error $(error.name): $(error.message)\n" );
+                        stdout.printf( @"Method call done. Result:\nDBus Error $(error.name): $(error.message)\n" );
 #else
                         stderr.printf( @"$(error.name): $(error.message)\n" );
 #endif
@@ -721,9 +721,9 @@ class Commands : Object
                     else
                     {
 #if DEBUG
-                        stderr.printf( @"Method call OK. Result:\n$(formatMessage(reply))\n" );
+                        stdout.printf( @"Method call done. Result:\n$(formatMessage(reply))\n" );
 #else
-                        stderr.printf( @"$(formatMessage(reply))\n" );
+                        stdout.printf( @"$(formatMessage(reply))\n" );
 #endif
                     }
                     return true;
