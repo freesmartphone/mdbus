@@ -1,4 +1,4 @@
-AC_INIT([fsodeviced], [0.9.2], [smartphones-userland@linuxtogo.org], [fsodeviced])
+AC_INIT([fsodeviced], [0.9.3], [smartphones-userland@linuxtogo.org], [fsodeviced])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -192,6 +192,7 @@ AC_CONFIG_FILES([
   src/plugins/router_palmpre/Makefile
   src/plugins/thinkpad_powercontrol/Makefile
   src/plugins/vibrator_ledclass/Makefile
+  src/plugins/vibrator_omapvibe/Makefile
   src/plugins/vibrator_timedoutputclass/Makefile
   tests/Makefile
 ])

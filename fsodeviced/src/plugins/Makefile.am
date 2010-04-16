@@ -28,6 +28,7 @@ SUBDIRS = \
 	thinkpad_powercontrol \
 	\
 	vibrator_ledclass \
+	vibrator_omapvibe \
 	vibrator_timedoutputclass \
     \
     palmpre_powersupply \
