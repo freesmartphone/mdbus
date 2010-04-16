@@ -5,6 +5,8 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
+	ambientlight_palmpre \
+	\
 	accelerometer \
 	accelerometer_lis302 \
 	\
@@ -32,6 +34,7 @@ SUBDIRS = \
 	vibrator_timedoutputclass \
     \
     palmpre_powersupply \
+    proximity_palmpre \
 	\
 	$(NULL)
 
