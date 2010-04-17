@@ -391,7 +391,8 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         var sms = Sms.Message.newFromHexPdu( cmd.hexpdu, cmd.tpdulen );
         if ( sms == null )
         {
-            logger.warning( "Can't parse SMS" );
+            logger.warning( @"Can't parse new SMS at index $index" );
+            return;
         }
         var result = storage.addSms( sms );
         if ( result == SmsStorage.SMS_ALREADY_SEEN )
@@ -412,6 +413,32 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
             obj.incoming_text_message( msg.number, msg.timestamp, msg.contents );
         }
     }
+
+    public void _handleIncomingSmsReport( Sms.Message sms )
+    {
+        var number = sms.number();
+        var reference = sms.status_report.mr;
+        var status = sms.status_report.st;
+
+        debug( @"sms report addr: $number" );
+        debug( @"sms report ref: $reference" );
+        debug( @"sms report status: $status" );
+        debug( @"sms report text: $sms" );
+
+    }
+
+    public async void handleIncomingSmsReport( string hexpdu, int tpdulen )
+    {
+        var sms = Sms.Message.newFromHexPdu( hexpdu, tpdulen );
+        if ( sms == null )
+        {
+            logger.warning( @"Can't parse SMS Status Report" );
+            return;
+        }
+
+        _handleIncomingSmsReport( (owned) sms );
+    }
+
 }
 
 
