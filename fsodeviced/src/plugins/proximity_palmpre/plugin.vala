@@ -21,43 +21,57 @@ using GLib;
 
 namespace Proximity
 {
+    internal const string DEFAULT_INPUT_NODE = "input/event3";
+    internal const int NEAR = 0;
+    internal const int FAR = 1000;
 
-class PalmPre : FreeSmartphone.Device.Proximity, FsoFramework.AbstractObject
+class PalmPre : FreeSmartphone.Device.Proximity,
+                FreeSmartphone.Device.PowerControl,
+                FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
     private string sysfsnode;
-    private string direction;
+    private string powernode;
 
-    private int max_strength;
+    private int maxvalue;
+    private int minvalue;
 
-    private uint fulltimeoutwatch;
-    private uint smalltimeoutwatch;
-    private uint don;
-    private uint doff;
-    private bool on;
-    private int pulses;
-    private int strength;
+    FsoFramework.Async.ReactorChannel input;
 
     public PalmPre( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
+        minvalue = FAR;
+        maxvalue = NEAR;
+
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
 
-        this.direction = sysfsnode + "/direction";
+        this.powernode = sysfsnode + "/enable_detection";
 
-        if ( !FsoFramework.FileHandling.isPresent( this.direction ) )
+        if ( !FsoFramework.FileHandling.isPresent( this.powernode ) )
         {
-            logger.error( @"sysfs class is damaged, missing $(this.direction); skipping." );
+            logger.error( @"Sysfs class is damaged, missing $(this.powernode); skipping." );
             return;
         }
+
+        var fd = Posix.open( GLib.Path.build_filename( devfs_root, DEFAULT_INPUT_NODE ), Posix.O_RDONLY );
+        if ( fd == -1 )
+        {
+            logger.error( @"Can't open $devfs_root/$DEFAULT_INPUT_NODE: $(Posix.strerror(Posix.errno))" );
+            return;
+        }
+
+        input = new FsoFramework.Async.ReactorChannel( fd, onInputEvent, sizeof( Linux.Input.Event ) );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObjectWithPrefix(
             FsoFramework.Device.ServiceDBusName,
             FsoFramework.Device.ProximityServicePath,
             this );
+
         logger.info( "Created" );
+
     }
 
     public override string repr()
@@ -65,25 +79,23 @@ class PalmPre : FreeSmartphone.Device.Proximity, FsoFramework.AbstractObject
         return @"<$sysfsnode>";
     }
 
-    private int _valueToPercent( int value )
+    private void onInputEvent( void* data, ssize_t length )
     {
-        double max = max_strength;
-        double v = value;
-        return (int)(100.0 / max * v);
+        var event = (Linux.Input.Event*) data;
+        if ( event->type != 4 || event->code != 1 )
+        {
+            assert( logger.debug( @"Unknown event w/ type $(event->type) and code $(event->code); ignoring" ) );
+            return;
+        }
+
+        // send dbus signal
+        this.proximity( event->value > 0 ? 100 : 0 );
     }
 
-    private uint _percentToValue( uint percent )
+    private int _valueToPercent( int value )
     {
-        double p = percent;
-        double max = max_strength;
-        double value;
-        if ( percent >= 100 )
-            value = max_strength;
-        else if ( percent <= 0 )
-            value = 0;
-        else
-            value = p / 100.0 * max;
-        return (int)value;
+        double v = value;
+        return (int)(100.0 / (maxvalue-minvalue) * (v-minvalue));
     }
 
     //
@@ -94,11 +106,28 @@ class PalmPre : FreeSmartphone.Device.Proximity, FsoFramework.AbstractObject
         proximity = -1;
         timestamp = 0;
     }
+
+    //
+    // FreeSmartphone.Device.PowerControl (DBUS API)
+    //
+    public async bool get_power() throws DBus.Error
+    {
+        var contents = FsoFramework.FileHandling.read( powernode ) ?? "";
+        return contents.strip() == "1";
+    }
+
+    public async void set_power( bool on ) throws DBus.Error
+    {
+        var contents = on ? "1" : "0";
+        FsoFramework.FileHandling.write( contents, powernode );
+    }
+
 }
 
 } /* namespace */
 
 static string sysfs_root;
+static string devfs_root;
 Proximity.PalmPre instance;
 
 /**
@@ -111,6 +140,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 {
     // grab sysfs paths
     var config = FsoFramework.theConfig;
+    devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     var dirname = GLib.Path.build_filename( sysfs_root, "class", "input", "input3" );
     if ( FsoFramework.FileHandling.isPresent( dirname ) )
