@@ -21,43 +21,59 @@ using GLib;
 
 namespace AmbientLight
 {
+    internal const string DEFAULT_INPUT_NODE = "input/event4";
+    internal const int DARKNESS = 0;
+    internal const int SUNLIGHT = 1000;
 
 class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
     private string sysfsnode;
-    private string direction;
+    private string resultnode;
+    private string averagenode;
+    private string pollintervalnode;
 
-    private int max_strength;
+    private int maxvalue;
+    private int minvalue;
 
-    private uint fulltimeoutwatch;
-    private uint smalltimeoutwatch;
-    private uint don;
-    private uint doff;
-    private bool on;
-    private int pulses;
-    private int strength;
+    FsoFramework.Async.ReactorChannel input;
 
     public PalmPre( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
+        minvalue = DARKNESS;
+        maxvalue = SUNLIGHT;
+
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
 
-        this.direction = sysfsnode + "/direction";
+        this.resultnode = sysfsnode + "/result";
+        this.averagenode = sysfsnode + "/average";
+        this.pollintervalnode = sysfsnode + "/poll_interval";
 
-        if ( !FsoFramework.FileHandling.isPresent( this.direction ) )
+        if ( !FsoFramework.FileHandling.isPresent( this.resultnode ) )
         {
-            logger.error( @"sysfs class is damaged, missing $(this.direction); skipping." );
+            logger.error( @"Sysfs class is damaged, missing $(this.resultnode); skipping." );
             return;
         }
+
+        var fd = Posix.open( GLib.Path.build_filename( devfs_root, DEFAULT_INPUT_NODE ), Posix.O_RDONLY );
+        if ( fd == -1 )
+        {
+            logger.error( @"Can't open $devfs_root/$DEFAULT_INPUT_NODE: $(Posix.strerror(Posix.errno))" );
+            return;
+        }
+
+        input = new FsoFramework.Async.ReactorChannel( fd, onInputEvent, sizeof( Linux.Input.Event ) );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObjectWithPrefix(
             FsoFramework.Device.ServiceDBusName,
             FsoFramework.Device.AmbientLightServicePath,
             this );
+
         logger.info( "Created" );
+
     }
 
     public override string repr()
@@ -65,11 +81,23 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
         return @"<$sysfsnode>";
     }
 
+    private void onInputEvent( void* data, ssize_t length )
+    {
+        var event = (Linux.Input.Event*) data;
+        if ( event->type != 3 || event->code != 40 )
+        {
+            assert( logger.debug( @"Unknown event w/ type $(event->type) and code $(event->code); ignoring" ) );
+            return;
+        }
+
+        // send dbus signal
+        this.ambient_light_brightness( _valueToPercent( (int)event->value ) );
+    }
+
     private int _valueToPercent( int value )
     {
-        double max = max_strength;
         double v = value;
-        return (int)(100.0 / max * v);
+        return (int)(100.0 / (maxvalue-minvalue) * (v-minvalue));
     }
 
     //
@@ -85,6 +113,7 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
 } /* namespace */
 
 static string sysfs_root;
+static string devfs_root;
 AmbientLight.PalmPre instance;
 
 /**
@@ -98,6 +127,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     // grab sysfs paths
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+    devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
     var dirname = GLib.Path.build_filename( sysfs_root, "class", "input", "input4" );
     if ( FsoFramework.FileHandling.isPresent( dirname ) )
     {
