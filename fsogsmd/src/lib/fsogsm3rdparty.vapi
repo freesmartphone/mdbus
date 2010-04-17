@@ -46,7 +46,7 @@ namespace Sms
 {
     public const int CBS_MAX_GSM_CHARS;
 
-    [CCode (cprefix = "SMS_TYPE_")]
+    [CCode (cprefix = "SMS_TYPE_", has_type_id = false)]
     public enum Type
     {
         DELIVER,
@@ -60,7 +60,7 @@ namespace Sms
     }
 
     /* 23.040 Section 9.1.2.5 */
-    [CCode (cprefix = "SMS_NUMBER_TYPE_")]
+    [CCode (cprefix = "SMS_NUMBER_TYPE_", has_type_id = false)]
     public enum NumberType
     {
         UNKNOWN,
@@ -74,7 +74,7 @@ namespace Sms
     }
 
     /* 23.040 Section 9.1.2.5 */
-    [CCode (cprefix = "SMS_NUMBERING_PLAN_")]
+    [CCode (cprefix = "SMS_NUMBERING_PLAN_", has_type_id = false)]
     public enum NumberingPlan
     {
         UNKNOWN,
@@ -89,7 +89,7 @@ namespace Sms
         RESERVED
     }
 
-    [CCode (cprefix = "SMS_VALIDITY_PERIOD_FORMAT_")]
+    [CCode (cprefix = "SMS_VALIDITY_PERIOD_FORMAT_", has_type_id = false)]
     public enum ValidityPeriodFormat
     {
         ABSENT,
@@ -98,7 +98,7 @@ namespace Sms
         ABSOLUTE,
     }
 
-    [CCode (cprefix = "SMS_ST_")]
+    [CCode (cname = "guint", cprefix = "SMS_ST_", has_type_id = false)]
     public enum Status
     {
         COMPLETED_RECEIVED,
@@ -132,7 +132,7 @@ namespace Sms
         TEMPFINAL_LAST
     }
 
-    [CCode (cprefix = "SMS_CT_")]
+    [CCode (cprefix = "SMS_CT_", has_type_id = false)]
     public enum Ct
     {
         ENQUIRY,
@@ -141,7 +141,7 @@ namespace Sms
         ENABLE_SRR
     }
 
-    [CCode (cprefix = "SMS_IEI_")]
+    [CCode (cprefix = "SMS_IEI_", has_type_id = false)]
     public enum Iei
     {
         CONCATENATED_8BIT,
@@ -178,7 +178,7 @@ namespace Sms
         INVALID
     }
 
-    [CCode (cprefix = "SMS_")]
+    [CCode (cprefix = "SMS_", has_type_id = false)]
     public enum Class
     {
         CLASS_0,
@@ -188,7 +188,7 @@ namespace Sms
         CLASS_UNSPECIFIED,
     }
 
-    [CCode (cprefix = "SMS_")]
+    [CCode (cprefix = "SMS_", has_type_id = false)]
     public enum Charset
     {
         CHARSET_7BIT,
@@ -196,7 +196,7 @@ namespace Sms
         CHARSET_UCS2
     }
 
-    [CCode (cprefix = "SMS_MWI_TYPE_")]
+    [CCode (cprefix = "SMS_MWI_TYPE_", has_type_id = false)]
     public enum MwiType
     {
         VOICE,
@@ -206,7 +206,7 @@ namespace Sms
         VIDEO,
     }
 
-    [CCode (cprefix = "SMS_PID_TYPE_")]
+    [CCode (cprefix = "SMS_PID_TYPE_", has_type_id = false)]
     public enum PidType
     {
         SM_TYPE_0,
