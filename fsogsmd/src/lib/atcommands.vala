@@ -871,7 +871,8 @@ public class PlusCPBR : AbstractAtCommand
         foreach ( var line in response )
         {
             base.parse( line );
-            var entry = FreeSmartphone.GSM.SIMEntry( to_int( "id" ), decodeString( to_string( "name" ) ), to_string( "number" ) );
+            var number = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
+            var entry = FreeSmartphone.GSM.SIMEntry( to_int( "id" ), decodeString( to_string( "name" ) ), number );
             phonebook += entry;
         }
         this.phonebook = phonebook;
