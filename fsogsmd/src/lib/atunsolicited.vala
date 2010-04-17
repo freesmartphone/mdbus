@@ -136,7 +136,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     public virtual void plusCDS( string prefix, string rhs, string pdu )
     {
         var cds = theModem.createAtCommand<PlusCDS>( "+CDS" );
-        if ( cds.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        if ( cds.validateUrcPdu( { @"$prefix: $rhs", pdu } ) == Constants.AtResponse.VALID )
         {
             theModem.smshandler.handleIncomingSmsReport( cds.hexpdu, cds.tpdulen );
         }

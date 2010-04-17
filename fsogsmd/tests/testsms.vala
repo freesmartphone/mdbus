@@ -73,6 +73,9 @@ public const string pdus2[] = {
 public const string pdu3 = "0791947106004034040C9194713900303341009001910002108059D6B75B076A86D36CF11BEF024DD365103A2C2EBB413290BB5C2F839CE1315A9E1EA3E96537C805D2D6DBA0A0585E3797DDA0FB1ECD2EBB41D37419244ED3E965906845CBC56EB9190C069BCD6622";
 public const int pdulength3 = 97;
 
+public const string pdu4 = "079144999701903706990C91448748749999101151714000001011517140000000";
+public const int pdulength4 = 25;
+
 SList<weak Sms.Message> smslist;
 
 /******************************************************************************************
@@ -195,6 +198,22 @@ void test_sms_decode_deliver_whole_concatenated_default_alphabet()
 }
 
 //===========================================================================
+void test_sms_decode_status_report()
+//===========================================================================
+{
+    var sms = Sms.Message.newFromHexPdu( pdu4, pdulength4 );
+
+    var number = sms.number();
+    var reference = sms.status_report.mr;
+    var status = sms.status_report.st;
+
+    debug( @"sms report addr: $number" );
+    debug( @"sms report ref: $reference" );
+    debug( @"sms report status: $status" );
+    debug( @"sms report text: $sms" );
+}
+
+//===========================================================================
 void test_sms_encode_submit_single_default_alphabet()
 //===========================================================================
 {
@@ -288,9 +307,11 @@ void main( string[] args )
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Single/Concatenated/DefaultAlphabet", test_sms_decode_deliver_single_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Multiple/Concatenated/DefaultAlphabet", test_sms_decode_deliver_multiple_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Whole/Concatenated/DefaultAlphabet", test_sms_decode_deliver_whole_concatenated_default_alphabet );
+    Test.add_func( "/3rdparty/Sms/Decode/StatusReport", test_sms_decode_status_report );
 
     Test.add_func( "/3rdparty/Sms/Encode/Submit/Single/DefaultAlphabet", test_sms_encode_submit_single_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Encode/Submit/Concatenated/DefaultAlphabet", test_sms_encode_submit_concatenated_default_alphabet );
+
 
     Test.add_func( "/Fso/Sms/Storage/New", test_fso_sms_storage_new );
     //Test.add_func( "/Fso/Sms/Storage/Existing", test_fso_sms_storage_new_existing );

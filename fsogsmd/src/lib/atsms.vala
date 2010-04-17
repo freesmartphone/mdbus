@@ -286,7 +286,10 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
     {
         //FIXME: Use random init or read from file, so that this is increasing even during relaunches
         increasingReferenceNumber = 0;
-        assert( theModem != null ); // can't create SMS handler before modem
+        if ( theModem == null )
+        {
+            logger.warning( "SMS Handler created before modem" );
+        }
         theModem.signalStatusChanged += onModemStatusChanged;
     }
 
@@ -419,12 +422,15 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         var number = sms.number();
         var reference = sms.status_report.mr;
         var status = sms.status_report.st;
-
+        var text = sms.to_string();
+#if DEBUG
         debug( @"sms report addr: $number" );
         debug( @"sms report ref: $reference" );
         debug( @"sms report status: $status" );
-        debug( @"sms report text: $sms" );
-
+        debug( @"sms report text: '$text'" );
+#endif
+        var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
+        obj.incoming_message_report( reference, status.to_string(), number, text );
     }
 
     public async void handleIncomingSmsReport( string hexpdu, int tpdulen )

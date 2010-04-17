@@ -98,7 +98,7 @@ namespace Sms
         ABSOLUTE,
     }
 
-    [CCode (cname = "guint", cprefix = "SMS_ST_", has_type_id = false)]
+    [CCode (cname = "int", cprefix = "SMS_ST_", has_type_id = false)]
     public enum Status
     {
         COMPLETED_RECEIVED,
