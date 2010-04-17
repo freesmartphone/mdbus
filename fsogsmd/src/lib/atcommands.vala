@@ -172,6 +172,33 @@ public class PlusCCLK : AbstractAtCommand
     }
 }
 
+public class PlusCDS : AbstractAtCommand
+{
+    public string hexpdu;
+    public int tpdulen;
+
+    public PlusCDS()
+    {
+        try
+        {
+            re = new Regex( """\+CDS: (?P<tpdulen>\d+)""");
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+CDS: " };
+        length = 2;
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        base.parse( response[0] );
+        tpdulen = to_int( "tpdulen" );
+        hexpdu = response[1];
+    }
+}
+
 public class PlusCEER : AbstractAtCommand
 {
     public int location;
@@ -1327,6 +1354,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CPBW" ]             = new FsoGsm.PlusCPBW();
 
     // sms
+    table[ "+CDS" ]              = new FsoGsm.PlusCDS();
     table[ "+CMGD" ]             = new FsoGsm.PlusCMGD();
     table[ "+CMGL" ]             = new FsoGsm.PlusCMGL();
     table[ "+CMGR" ]             = new FsoGsm.PlusCMGR();
