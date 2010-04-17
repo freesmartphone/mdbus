@@ -110,6 +110,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     {
         registerUrc( "+CALA", plusCALA );
         registerUrc( "+CCWA", plusCCWA );
+        registerUrcPdu( "+CDS", plusCDS );
         registerUrc( "+CIEV", plusCIEV );
         registerUrc( "+CMTI", plusCMTI );
         registerUrc( "+CREG", plusCREG );
@@ -131,6 +132,20 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         // 'VOICE' since call waiting does only apply to voice calls.
         theModem.callhandler.handleIncomingCall( "VOICE" );
     }
+
+    public virtual void plusCDS( string prefix, string rhs, string pdu )
+    {
+        var cds = theModem.createAtCommand<PlusCDS>( "+CDS" );
+        if ( cds.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            theModem.smshandler.handleIncomingSmsReport( cds.hexpdu, cds.tpdulen );
+        }
+        else
+        {
+            logger.warning( @"Received invalid +CMTI message $rhs. Please report" );
+        }
+    }
+
 
     public virtual void plusCIEV( string prefix, string rhs )
     {
