@@ -321,6 +321,28 @@ public class Entity : Object
         return line;
     }
 
+    public string inSignature()
+    {
+        var result = "";
+
+        foreach ( var arg in inArgs )
+        {
+            result += arg.typ;
+        }
+        return result;
+    }
+
+    public string outSignature()
+    {
+        var result = "";
+
+        foreach ( var arg in outArgs )
+        {
+            result += arg.typ;
+        }
+        return result;
+    }
+
     public string name;
     public Typ typ;
     public List<Argument> inArgs;
@@ -685,7 +707,7 @@ class Commands : Object
                     // check number of input params
                     if ( args.length != entity.inArgs.length() )
                     {
-                        stderr.printf( "[ERR]: Need %u params, supplied %u\n", entity.inArgs.length(), args.length );
+                        stderr.printf( "[ERR]: Need %u params for signature '%s', supplied %u\n", entity.inArgs.length(), entity.inSignature(), args.length );
                         return false;
                     }
 
