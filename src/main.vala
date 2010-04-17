@@ -899,10 +899,10 @@ class Commands : Object
     public void launchShell()
     {
         Readline.initialize();
-        Readline.readline_name = "fso-term";
+        Readline.readline_name = "mdbus2";
         Readline.terminal_name = Environment.get_variable( "TERM" );
 
-        Readline.History.read( "%s/.fso-term.history".printf( Environment.get_variable( "HOME" ) ) );
+        Readline.History.read( "%s/.mdbus2.history".printf( Environment.get_variable( "HOME" ) ) );
         Readline.History.max_entries = 512;
 
         Readline.completion_entry_function = completion;
