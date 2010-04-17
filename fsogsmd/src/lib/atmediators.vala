@@ -961,7 +961,7 @@ public class AtSmsGetSizeForTextMessage : SmsGetSizeForTextMessage
 {
     public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var hexpdus = theModem.smshandler.formatTextMessage( "+123456789", contents );
+        var hexpdus = theModem.smshandler.formatTextMessage( "+123456789", contents, false );
         size = hexpdus.size;
     }
 }
@@ -973,7 +973,7 @@ public class AtSmsSendTextMessage : SmsSendTextMessage
         validatePhoneNumber( recipient_number );
         uint8 refnum = 0;
 
-        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents );
+        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report );
 
         // signalize that we're sending a couple of SMS
         var cmms = theModem.createAtCommand<PlusCMMS>( "+CMMS" );

@@ -362,7 +362,7 @@ namespace Sms
         public Sms.ValidityPeriodFormat vpf;
         public bool rp;
         public bool udhi;
-        public bool srr;
+        public bool srr; // status report request
         public uint8 mr;
         public Sms.Address daddr;
         public uint8 pid;

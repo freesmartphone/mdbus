@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -222,7 +222,7 @@ void test_sms_encode_submit_concatenated_default_alphabet()
 //===========================================================================
 {
     SmsHandler handler = new AtSmsHandler();
-    var pdu = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT );
+    var pdu = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT, false );
     assert( pdu.size == 4 );
 
     assert( pdu[0].hexpdu == LONG_TEXT_PDUS[0] );
