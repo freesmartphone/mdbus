@@ -491,6 +491,7 @@ class Commands : Object
 
     public bool isValidBusName( string busname )
     {
+#if ALWAYS_INTROSPECT
         var allnames = _listBusNames();
         foreach ( var name in allnames )
         {
@@ -499,11 +500,24 @@ class Commands : Object
                 return true;
             }
         }
+#else
+        var reUnique = /:[0-9]\.[0-9]+/;
+        if ( reUnique.match( busname ) )
+        {
+            return true;
+        }
+        var reWellKnown = /[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+/;
+        if ( reWellKnown.match( busname ) )
+        {
+            return true;
+        }
+#endif
         return false;
     }
 
     public bool isValidObjectPath( string busname, string path )
     {
+#if ALWAYS_INTROSPECT
         var allpaths = new List<string>();
         _listObjects( busname, "/", ref allpaths );
         foreach ( var p in allpaths )
@@ -513,6 +527,19 @@ class Commands : Object
                 return true;
             }
         }
+#else
+        if ( !isValidBusName( busname ) )
+        {
+            return false;
+        }
+        var reObjPath = new GLib.Regex( "^/([a-zA-Z0-9]+(/[a-zA-Z0-9]+)*)?$" );
+        if ( reObjPath.match( path ) )
+        {
+            return true;
+        }
+        return false;
+
+#endif
         return false;
     }
 
