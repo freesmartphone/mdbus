@@ -174,6 +174,7 @@ AC_CONFIG_FILES([
   src/plugins/accelerometer_lis302/Makefile
   src/plugins/ambientlight_palmpre/Makefile
   src/plugins/audio/Makefile
+  src/plugins/backlight_omappanel/Makefile
   src/plugins/kernel26_display/Makefile
   src/plugins/kernel26_firmwareloader/Makefile
   src/plugins/kernel26_leds/Makefile

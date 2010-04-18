@@ -16,6 +16,8 @@ SUBDIRS = \
     router_palmpre \
 	player_alsa \
 	\
+	backlight_omappanel \
+	\
 	kernel26_display \
 	kernel26_firmwareloader \
 	kernel26_leds \
