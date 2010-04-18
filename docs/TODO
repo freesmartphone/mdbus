@@ -20,3 +20,8 @@
 ==fsousaged==
 * Suspend/Resume resources in parallel
 * Intermediate Resume Tasks
+
+==fsodeviced==
+===Multiple plugins===
+* Apply split into device-independent part and device-specific part, i.e.
+  such as done with accelerometer could also be handy for vibrator, brightness, etc.
