@@ -171,6 +171,7 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/accelerometer/Makefile
+  src/plugins/accelerometer_kxsd9/Makefile
   src/plugins/accelerometer_lis302/Makefile
   src/plugins/ambientlight_palmpre/Makefile
   src/plugins/audio/Makefile

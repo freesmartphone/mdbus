@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -111,6 +111,9 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
             {
                 case "lis302":
                     typename = "HardwareAccelerometerLis302";
+                    break;
+                case "kxsd9":
+                    typename = "HardwareAccelerometerKxsd9";
                     break;
                 default:
                     logger.error( "Unknown accelerometer device type '%s'".printf( devicetype ) );

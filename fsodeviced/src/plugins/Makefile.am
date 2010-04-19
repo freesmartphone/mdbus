@@ -8,6 +8,7 @@ SUBDIRS = \
 	ambientlight_palmpre \
 	\
 	accelerometer \
+	accelerometer_kxsd9 \
 	accelerometer_lis302 \
 	\
 	audio \

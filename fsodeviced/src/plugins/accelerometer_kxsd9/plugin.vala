@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -21,18 +21,18 @@ using GLib;
 
 namespace Hardware {
 
-    internal const string PLUGIN_NAME = "fsodevice.accelerometer_kxsd9";
-    internal const string DEFAULT_EVENT_NODE = "/input/event5";
-    internal const string KXSD9_CONFIGURATION_NODE = "/class/input/input5/";
+    internal const string HW_ACCEL_LIS302_PLUGIN_NAME = "fsodevice.accelerometer_kxsd9";
+    internal const string DEFAULT_EVENT_NODE = "/input/event2";
+    internal const string LIS302_CONFIGURATION_NODE = "/bus/spi/drivers/kxsd9dl/spi3.0";
 
-    internal const int KXSD9_DEFAULT_SAMPLERATE = 250;
-    internal const int KXSD9_DEFAULT_THRESHOLD = 3;
+    internal const int LIS302_DEFAULT_SAMPLERATE = 100;
+    internal const int LIS302_DEFAULT_THRESHOLD = 100;
+    internal const string LIS302_DEFAULT_FULLSCALE = "2.3";
 
-class AccelerometerKxsd9 : FsoDevice.BaseAccelerometer
+class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 {
     private string inputnode;
     private string sysfsnode;
-    private string modenode;
 
     private uint sample_rate;
     private uint threshold;
@@ -48,27 +48,26 @@ class AccelerometerKxsd9 : FsoDevice.BaseAccelerometer
 
     construct
     {
-        logger.info( "Registering lis302 accelerometer" );
+        logger.info( "Registering kxsd9 accelerometer" );
         // grab sysfs paths
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         var devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
-        inputnode = devfs_root + config.stringValue( PLUGIN_NAME, "inputnode", "/input/event2" );
-        sysfsnode = sysfs_root + KXSD9_CONFIGURATION_NODE;
-        modenode  = sysfsnode + "/mode";
+        inputnode = devfs_root + config.stringValue( HW_ACCEL_LIS302_PLUGIN_NAME, "inputnode", "/input/event2" );
+        sysfsnode = sysfs_root + LIS302_CONFIGURATION_NODE;
 
-        sample_rate = config.intValue( PLUGIN_NAME, "poll_interval", KXSD9_DEFAULT_SAMPLERATE );
-        threshold = config.intValue( PLUGIN_NAME, "threshold", KXSD9_DEFAULT_THRESHOLD );
-        //full_scale = config.stringValue( PLUGIN_NAME, "full_scale", KXSD9_DEFAULT_FULLSCALE );
+        sample_rate = config.intValue( HW_ACCEL_LIS302_PLUGIN_NAME, "sample_rate", LIS302_DEFAULT_SAMPLERATE );
+        threshold = config.intValue( HW_ACCEL_LIS302_PLUGIN_NAME, "threshold", LIS302_DEFAULT_THRESHOLD );
+        full_scale = config.stringValue( HW_ACCEL_LIS302_PLUGIN_NAME, "full_scale", LIS302_DEFAULT_FULLSCALE );
 
         if ( !FsoFramework.FileHandling.isPresent( sysfsnode ) )
         {
-            logger.warning( "Kxsd9 configuration sysfs not available at %s. Accelerometer will not work properly.".printf( sysfsnode ) );
+            logger.warning( "Lis302 configuration sysfs not available at %s. Accelerometer will not work properly.".printf( sysfsnode ) );
         }
         else
         {
-            FsoFramework.FileHandling.write( sample_rate.to_string(), sysfsnode + "/poll_interval" );
-            FsoFramework.FileHandling.write( threshold.to_string(), sysfsnode + "/accelerometer_motion_wake_up_threshold" );
-            //FsoFramework.FileHandling.write( full_scale, sysfsnode + "/full_scale" );
+            FsoFramework.FileHandling.write( sample_rate.to_string(), sysfsnode + "/sample_rate" );
+            FsoFramework.FileHandling.write( threshold.to_string(), sysfsnode + "/threshold" );
+            FsoFramework.FileHandling.write( full_scale, sysfsnode + "/full_scale" );
         }
         axis = new int[3];
     }
@@ -93,19 +92,15 @@ class AccelerometerKxsd9 : FsoDevice.BaseAccelerometer
         fd = Posix.open( inputnode, Posix.O_RDONLY );
         if ( fd == -1 )
         {
-            logger.warning( @"Can't open $inputnode: $(strerror(errno)) Kxsd9 Accelerometer not available." );
+            logger.warning( @"Can't open $inputnode: $(strerror(errno)) Lis302 Accelerometer not available." );
             return;
         }
         channel = new IOChannel.unix_new( fd );
         watch = channel.add_watch( IOCondition.IN, onInputEvent );
-
-        FsoFramework.FileHandling.write( "all", modenode );
     }
 
     public override void stop()
     {
-        FsoFramework.FileHandling.write( "off", modenode );
-
         if ( watch > 0 )
         {
             Source.remove( watch );
@@ -154,13 +149,13 @@ class AccelerometerKxsd9 : FsoDevice.BaseAccelerometer
         // we're only interested in the absolute axis values
         if ( ev.type == Linux.Input.EV_ABS )
         {
-            assert( logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) ) );
+            logger.debug( "input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
             _handleInputEvent( ref ev );
         }
 #if DEBUG
         else
         {
-            assert( logger.debug( "(ignoring non-ABS) input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) ) );
+            logger.debug( "(ignoring non-ABS) input ev %d, %d, %d, %d".printf( source.unix_get_fd(), ev.type, ev.code, ev.value ) );
         }
 #endif
 
@@ -178,11 +173,11 @@ class AccelerometerKxsd9 : FsoDevice.BaseAccelerometer
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    return Hardware.PLUGIN_NAME;
+    return "fsodevice.accelerometer_kxsd9";
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsodevice.accelerometer_lis302 fso_register_function" );
+    FsoFramework.theLogger.debug( "fsodevice.accelerometer_kxsd9 fso_register_function" );
 }
