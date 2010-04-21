@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-confdir = $(sysconfdir)/freesmartphone/conf/openmoko_gta/alsa-default
+confdir = $(sysconfdir)/freesmartphone/conf/openmoko_gta/alsa-2.6.31
 dist_conf_DATA = \
 	capturehandset \
 	gsmbluetooth \
