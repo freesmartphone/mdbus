@@ -45,6 +45,8 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     public bool poweron()
     {
+        debug( "lowlevel_openmoko_poweron()" );
+
         if ( powerNode == "unknown" )
         {
             logger.error( "power_node not defined. Can't poweron." );
@@ -70,27 +72,31 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         while ( i++ < POWERUP_RETRIES )
         {
+            debug( @" --- while loop ENTER; i = $i" );
             var bread = transport.writeAndRead( "ATE0Q0V1\r\n", 10, buf, 512 );
             buf[bread] = '\0';
-            assert( logger.debug( "setPower: got %d bytes in buf".printf( (int)bread ) ) );
+            debug( "setPower: got %d bytes in buf".printf( (int)bread ) );
             if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
             {
-                assert( logger.debug( "setPower: answer OK, ready to send first command" ) );
+                debug( "setPower: answer OK, ready to send first command" );
                 bread = transport.writeAndRead( "AT%SLEEP=2\r\n", 12, buf, 512 );
                 if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
                 {
-                    assert( logger.debug( "setPower: answer OK, modem prepared for MUX commands" ) );
+                    debug( "setPower: answer OK, modem prepared for MUX commands" );
                     transport.close();
+                    debug( "OK! returning true" );
                     return true;
                 }
             }
         }
+        debug( "NOTHING WORKS :/ returning false" );
         transport.close();
         return false;
     }
 
     public bool poweroff()
     {
+        debug( "lowlevel_openmoko_poweron()" );
         FsoFramework.FileHandling.write( "0\n", powerNode );
         return true;
     }
