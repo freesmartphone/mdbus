@@ -63,28 +63,38 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         var transport = FsoFramework.Transport.create( modem.modem_transport, modem.modem_port, modem.modem_speed );
         transport.open();
-
         assert( transport.isOpen() );
 
         var buf = new char[512];
-
+        var bread = transport.writeAndRead( "AT\r\n", 4, buf, 512, 0 );
+        bread = transport.writeAndRead( "AT\r\n", 4, buf, 512, 0 );
         uint i = 0;
 
         while ( i++ < POWERUP_RETRIES )
         {
+            transport.drain();
+            transport.flush();
+
             debug( @" --- while loop ENTER; i = $i" );
-            var bread = transport.writeAndRead( "ATE0Q0V1\r\n", 10, buf, 512 );
+            bread = transport.writeAndRead( "ATE0Q0V1\r\n", 10, buf, 512 );
             buf[bread] = '\0';
-            debug( "setPower: got %d bytes in buf".printf( (int)bread ) );
+
+            var displayString = ((string)buf).escape( "" );
+            debug( @"setPower: 1) got '$displayString'" );
+
             if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
             {
                 debug( "setPower: answer OK, ready to send first command" );
                 bread = transport.writeAndRead( "AT%SLEEP=2\r\n", 12, buf, 512 );
+                buf[bread] = '\0';
+
+                displayString = ((string)buf).escape( "" );
+                debug( @"setPower: 2) got '$displayString'" );
+
                 if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
                 {
-                    debug( "setPower: answer OK, modem prepared for MUX commands" );
+                    debug( "setPower: answer OK, ready to send MUX command" );
                     transport.close();
-                    debug( "OK! returning true" );
                     return true;
                 }
             }
@@ -96,7 +106,7 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     public bool poweroff()
     {
-        debug( "lowlevel_openmoko_poweron()" );
+        debug( "lowlevel_openmoko_poweroff()" );
         FsoFramework.FileHandling.write( "0\n", powerNode );
         return true;
     }

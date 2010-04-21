@@ -1,3 +1,4 @@
+
 include $(top_srcdir)/Makefile.decl
 
 NULL = 
@@ -15,7 +16,7 @@ SUBDIRS = \
 	\
 	pdp_qmi \
 	$(NULL)
-	
+
 if WANT_PPP
 SUBDIRS += pdp_ppp
 if WANT_MUX
