@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -36,5 +36,10 @@ namespace FsoFramework
     {
         public T1 first;
         public T2 second;
+    }
+
+    public bool typeInherits( Type subtype, Type type )
+    {
+        return type in subtype.children();
     }
 }
