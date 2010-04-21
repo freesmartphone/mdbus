@@ -431,8 +431,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         buffered = on;
     }
 
-    public override int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 1000 )
+    public override int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 5000 )
     {
+#if DEBUG
+        debug( @"writeAndRead: writing $((string)wdata) ($wlength)" );
+#endif
         assert( fd != -1 );
         ssize_t byteswritten = Posix.write( fd, wdata, wlength );
         assert( byteswritten == wlength ); // FIXME: support partial writes
@@ -442,11 +445,20 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         var writefds = Posix.fd_set();
         var exceptfds = Posix.fd_set();
         Posix.FD_SET( fd, readfds );
-        Posix.timeval t = { 1, 0 };
+        var t = Posix.timeval();
+        t.tv_sec = maxWait / 1000;
+        t.tv_usec = maxWait % 1000;
         int res = Posix.select( fd+1, readfds, writefds, exceptfds, t );
+#if DEBUG
+        debug( @"writeAndRead: select returns $res, FD_ISSET = $(Posix.FD_ISSET( fd, readfds ))" );
+#endif
         if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
             return 0;
         ssize_t bread = Posix.read( fd, rdata, rlength );
+#if DEBUG
+        ((char[])rdata)[bread] = 0;
+        debug( @"writeAndRead: reading $((string)rdata) ($bread)" );
+#endif
         return (int)bread;
     }
 

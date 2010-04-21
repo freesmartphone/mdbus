@@ -155,7 +155,7 @@ public abstract class FsoFramework.Transport : Object
      * Write data to the transport and wait for a response.
      * Read the response into a buffer provided and owned by the caller.
      **/
-    public abstract int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 1000 );
+    public abstract int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 5000 );
     /**
      * Read data from the transport into buffer provided and owned by caller.
      **/
