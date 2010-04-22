@@ -1,5 +1,4 @@
-/**
- * linux.vapi
+/* linux.vapi
  *
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
@@ -16,11 +15,271 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
- *
- **/
+ */
 
 [CCode (cprefix = "", lower_case_cprefix = "")]
 namespace Linux {
+
+    /*
+     * Console
+     */
+    [CCode (cprefix = "", lower_case_cprefix = "")]
+    namespace Console {
+
+        /* constants */
+
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int GIO_FONT;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int PIO_FONT;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int GIO_FONTX;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int PIO_FONTX;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int PIO_FONTRESET;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int GIO_CMAP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int PIO_CMAP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KIOCSOUND;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDMKTONE;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGETLED;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSETLED;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGKBTYPE;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KB_84;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KB_101;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KB_OTHER;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDADDIO;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDDELIO;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDENABIO;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDDISABIO;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSETMODE;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGETMODE;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDMAPDISP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDUNMAPDISP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int E_TABSZ;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int GIO_SCRNMAP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int PIO_SCRNMAP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int GIO_UNISCRNMAP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int PIO_UNISCRNMAP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int GIO_UNIMAP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int PIO_UNIMAP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int PIO_UNIMAPCLR;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int UNI_DIRECT_BASE;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int UNI_DIRECT_MASK;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGKBMODE;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSKBMODE;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGKBMETA;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSKBMETA;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGKBLED;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSKBLED;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int K_NORMTAB;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int K_SHIFTTAB;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int K_ALTTAB;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int K_ALTSHIFTTAB;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGKBSENT;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSKBSENT;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGKBDIACR;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSKBDIACR;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGKBDIACRUC;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSKBDIACRUC;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDGETKEYCODE;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSETKEYCODE;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDSIGACCEPT;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDKBDREP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KDFONTOP;
+        [CCode (cheader_filename = "linux/kd.h")]
+        public const int KD_FONT_FLAG_DONT_RECALC;
+
+        /* enums */
+
+        [CCode (cprefix = "KD_FONT_OP_", cheader_filename = "linux/kd.h")]
+        public enum FontOperationCode {
+            SET,
+            GET,
+            SET_DEFAULT,
+            COPY
+        }
+
+        [CCode (cprefix = "K_", cheader_filename = "linux/kd.h")]
+        public enum KeyboardMode {
+            RAW,
+            XLATE,
+            MEDIUMRAW,
+            UNICODE
+        }
+
+        [CCode (cprefix = "K_", cheader_filename = "linux/kd.h")]
+        public enum LedMode {
+            SCROLLLOCK,
+            NUMLOCK,
+            CAPSLOCK
+        }
+
+        [CCode (cprefix = "LED_", cheader_filename = "linux/kd.h")]
+        public enum LedType {
+            SCR,
+            NUM,
+            CAP
+        }
+
+        [CCode (cprefix = "KD_", cheader_filename = "linux/kd.h")]
+        public enum TerminalMode {
+            TEXT,
+            GRAPHICS
+        }
+
+        [CCode (cprefix = "K_", cheader_filename = "linux/kd.h")]
+        public enum MetaMode {
+            METABIT,
+            ESCPREFIX
+        }
+
+        /* structs */
+
+        [CCode (cname = "struct kbdiacr", cheader_filename = "linux/kd.h")]
+        public struct Diacritic {
+            public uchar diacr;
+            public uchar base;
+            public uchar result;
+        }
+
+        [CCode (cname = "struct kbdiacrs", cheader_filename = "linux/kd.h")]
+        public struct Diacritics {
+            public uint kb_cnt;
+            public Diacritic kbdiacr[256];
+        }
+
+        [CCode (cname = "struct kbdiacruc", cheader_filename = "linux/kd.h")]
+        public struct Diacruc {
+            public uint diacr;
+            public uint base;
+            public uint result;
+        }
+
+        [CCode (cname = "struct kbdiacrsuc", cheader_filename = "linux/kd.h")]
+        public struct Diacrucs {
+            public uint kb_cnt;
+            public Diacruc kbdiacruc[256];
+        }
+
+        [CCode (cname = "struct console_font", cheader_filename = "linux/kd.h")]
+        public struct Font {
+            public uint width;
+            public uint height;
+            public uint charcount;
+            public uchar* data;
+        }
+
+        [CCode (cname = "struct consolefontdesc", cheader_filename = "linux/kd.h")]
+        public struct FontDescription {
+            public uint16 charcount;
+            public uint16 charheight;
+            public string chardata;
+        }
+
+        [CCode (cname = "struct console_font_op", cheader_filename = "linux/kd.h")]
+        public struct FontOperation {
+            public FontOperationCode op;
+            public uint flags;
+            public uint width;
+            public uint height;
+            public uint charcount;
+            public uchar* data;
+        }
+
+        [CCode (cname = "struct kbkeycode", cheader_filename = "linux/kd.h")]
+        public struct KeyCode {
+            public uint scancode;
+            public uint keycode;
+        }
+
+        [CCode (cname = "struct kbentry", cheader_filename = "linux/kd.h")]
+        public struct KeyboardEntry {
+            public uchar kb_table;
+            public uchar kb_index;
+            public uint16 kb_value;
+        }
+
+        [CCode (cname = "struct kbsentry", cheader_filename = "linux/kd.h")]
+        public struct KeyboardEntries {
+            public uchar kb_func;
+            public uchar kb_string[512];
+        }
+
+        [CCode (cname = "struct kbd_repeat", cheader_filename = "linux/kd.h")]
+        public struct KeyRepeat {
+            public int delay;
+            public int period;
+        }
+
+        [CCode (cname = "struct unipair", cheader_filename = "linux/kd.h")]
+        public struct UniPair {
+            public uint16 unicode;
+            public uint16 fontpos;
+        }
+
+        [CCode (cname = "struct unimapdesc", cheader_filename = "linux/kd.h")]
+        public struct UniMapDesc {
+            public uint16 entry_ct;
+            UniPair entries;
+        }
+
+        [CCode (cname = "struct unimapinit", cheader_filename = "linux/kd.h")]
+        public struct UniMapInit {
+            public uint16 advised_hashsize;
+            public uint16 advised_hashstep;
+            public uint16 advised_hashlevel;
+        }
+    }
 
     /*
      * EventFd
@@ -35,6 +294,299 @@ namespace Linux {
     public int eventfd (uint count = 0, EventFdFlags flags = 0);
     public int eventfd_read (int fd, out uint64 value);
     public int eventfd_write (int fd, uint64 value);
+
+    /*
+     * Framebuffer
+     */
+    [CCode (cprefix = "", lower_case_cprefix = "")]
+    namespace Framebuffer {
+
+        /* ioctls */
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOGET_VSCREENINFO;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOPUT_VSCREENINFO;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOGET_FSCREENINFO;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOGETCMAP;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOPUTCMAP;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOPAN_DISPLAY;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIO_CURSOR;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOGET_MONITORSPEC;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOPUT_MONITORSPEC;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOSWITCH_MONIBIT;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOGET_CON2FBMAP;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOPUT_CON2FBMAP;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOBLANK;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOGET_VBLANK;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIO_ALLOC;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIO_FREE;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOGET_GLYPH;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOGET_HWCINFO;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOPUT_MODEINFO;
+        [CCode (cheader_filename = "linux/fb.h")]
+        public const int FBIOGET_DISPINFO;
+
+        /* enums */
+
+        [CCode (cname = "guint32", cprefix = "FB_TYPE_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Type {
+            PACKED_PIXELS,
+            PLANES,
+            INTERLEAVED_PLANES,
+            TEXT,
+            VGA_PLANES
+        }
+
+        [CCode (cname = "guint32", cprefix = "FB_ACTIVATE_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Activate {
+            NOW,
+            NXTOPEN,
+            TEST,
+            MASK,
+            VBL,
+            [CCode (cname = "FB_CHANGE_CMAP_VBL")]
+            CHANGE_CMAP_VBL,
+            ALL,
+            FORCE,
+            INV_MODE
+        }
+
+        [CCode (cname = "guint32", cprefix = "FB_ACCEL_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Accel {
+            NONE
+        }
+
+        [CCode (cname = "guint32", cprefix = "FB_AUX_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Aux {
+             TEXT_MDA,
+             TEXT_CGA,
+             TEXT_S3_MMIO,
+             TEXT_MGA_STEP16,
+             TEXT_MGA_STEP8,
+             TEXT_SVGA_GROUP,
+             TEXT_SVGA_MASK,
+             TEXT_SVGA_STEP2,
+             TEXT_SVGA_STEP4,
+             TEXT_SVGA_STEP8,
+             TEXT_SVGA_STEP16,
+             TEXT_SVGA_LAST,
+             VGA_PLANES_VGA4,
+             VGA_PLANES_CFB4,
+             VGA_PLANES_CFB8
+        }
+
+        [CCode (cprefix = "FB_BLANK_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Blank {
+            UNBLANK,
+            NORMAL,
+            VSYNC_SUSPEND,
+            HSYNC_SUSPEND,
+            POWERDOWN
+        }
+
+        [CCode (cprefix = "FB_CUR_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Cur {
+            SETIMAGE,
+            SETPOS,
+            SETHOT,
+            SETCMAP,
+            SETSHAPE,
+            SETSIZE,
+            SETALL
+        }
+
+        [CCode (cname = "guint32", cprefix = "ROP_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Rop {
+            COPY,
+            XOR
+        }
+
+        [CCode (cprefix = "FB_ROTATE_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Rotate {
+            UR,
+            CW,
+            UD,
+            CCW
+        }
+
+        [CCode (cname = "guint32", cprefix = "FB_SYNC_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Sync {
+            HOR_HIGH_ACT,
+            VERT_HIGH_ACT,
+            EXT,
+            COMP_HIGH_ACT,
+            BROADCAST,
+            ON_GREEN
+        }
+
+        [CCode (cname = "guint32", cprefix = "FB_VISUAL_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Visual {
+            MONO01,
+            MONO10,
+            TRUECOLOR,
+            PSEUDOCOLOR,
+            DIRECTCOLOR,
+            STATIC_PSEUDOCOLOR
+        }
+
+        [CCode (cname = "guint32", cprefix = "FB_VMODE_", has_type_id = false, cheader_filename = "linux/fb.h")]
+        public enum Vmode {
+            NONINTERLACED,
+            INTERLACED,
+            DOUBLE,
+            ODD_FLD_FIRST,
+            MASK,
+            YWRAP,
+            SMOOTH_XPAN,
+            CONUPDATE
+        }
+
+        /* structures */
+
+        [CCode (cname = "struct fb_bitfield", cheader_filename = "linux/fb.h")]
+        public struct BitField {
+            public uint32 offset;
+            public uint32 length;
+            public uint32 msb_right;
+        }
+
+        [CCode (cname = "struct fb_cmap", cheader_filename = "linux/fb.h")]
+        public struct Cmap {
+            public uint32 start;
+            public uint32 len;
+            public uint16* red;
+            public uint16* green;
+            public uint16* blue;
+            public uint16* transp;
+        }
+
+        [CCode (cname = "struct fb_con2fbmap", cheader_filename = "linux/fb.h")]
+        public struct Con2FbMap {
+            public uint32 console;
+            public uint32 framebuffer;
+        }
+
+        [CCode (cname = "struct fbcurpos", cheader_filename = "linux/fb.h")]
+        public struct CurPos {
+            public uint16 x;
+            public uint16 y;
+        }
+
+        [CCode (cname = "struct fb_cursor", cheader_filename = "linux/fb.h")]
+        public struct Cursor {
+            public uint16 set;
+            public uint16 enable;
+            public uint16 rop;
+            string mask;
+            public CurPos hot;
+            public Image image;
+        }
+
+        [CCode (cname = "struct fb_copyarea", cheader_filename = "linux/fb.h")]
+        public struct CopyArea {
+            public uint32 dx;
+            public uint32 dy;
+            public uint32 width;
+            public uint32 height;
+            public uint32 sx;
+            public uint32 sy;
+        }
+
+        [CCode (cname = "struct fb_fillrect", cheader_filename = "linux/fb.h")]
+        public struct FillRect {
+            public uint32 dx;
+            public uint32 dy;
+            public uint32 width;
+            public uint32 height;
+            public uint32 color;
+            public Rop rop;
+        }
+
+        [CCode (cname = "struct fb_image", cheader_filename = "linux/fb.h")]
+        public struct Image {
+            public uint32 dx;
+            public uint32 dy;
+            public uint32 width;
+            public uint32 height;
+            public uint32 fg_color;
+            public uint32 bg_color;
+            public uint8 depth;
+            public char* data;
+            public Cmap cmap;
+        }
+
+        [CCode (cname = "struct fb_fix_screeninfo", cheader_filename = "linux/fb.h")]
+        public struct FixScreenInfo {
+            public char id[16];
+            public long smem_start;
+            public uint32 smem_len;
+            public Type type;
+            public Aux type_aux;
+            public Visual visual;
+            public uint16 xpanstep;
+            public uint16 ypanstep;
+            public uint16 ywrapstep;
+            public uint32 line_length;
+            public long mmio_start;
+            public uint32 mmio_len;
+            public Accel accel;
+        }
+
+        [CCode (cname = "struct fb_var_screeninfo", cheader_filename = "linux/fb.h")]
+        public struct VarScreenInfo {
+            public uint32 xres;
+            public uint32 yres;
+            public uint32 xres_virtual;
+            public uint32 yres_virtual;
+            public uint32 xoffset;
+            public uint32 yoffset;
+            public uint32 bits_per_pixel;
+            public uint32 grayscale;
+            public BitField red;
+            public BitField green;
+            public BitField blue;
+            public BitField transp;
+            public uint32 nonstd;
+            public Activate activate;
+            public uint32 height;
+            public uint32 width;
+            public uint32 pixclock;
+            public uint32 left_margin;
+            public uint32 right_margin;
+            public uint32 upper_margin;
+            public uint32 lower_margin;
+            public uint32 hsync_len;
+            public uint32 vsync_len;
+            public Sync sync;
+            public Vmode vmode;
+            public uint32 rotate;
+        }
+
+        [CCode (cname = "struct fb_vblank", cheader_filename = "linux/fb.h")]
+        public struct Vblank {
+            public uint32 flags;
+            public uint32 count;
+            public uint32 vcount;
+            public uint32 hcount;
+        }
+    }
 
     /*
      * Inotify
@@ -161,7 +713,42 @@ namespace Linux {
     public void backtrace_symbols_fd (void* buffer, int size, int fd);
 
     [CCode (cheader_filename = "arpa/inet.h")]
-    public int inet_aton(string cp, out Posix.InAddr addr);
+    public int inet_aton (string cp, out Posix.InAddr addr);
+
+    [CCode (cname = "long", cprefix = "", cheader_filename = "sys/mount.h,linux/fs.h")]
+    public enum MountFlags {
+        MS_BIND,
+        MS_DIRSYNC,
+        MS_MANDLOCK,
+        MS_MOVE,
+        MS_NOATIME,
+        MS_NODEV,
+        MS_NODIRATIME,
+        MS_NOEXEC,
+        MS_NOSUID,
+        MS_RDONLY,
+        MS_RELATIME,
+        MS_REMOUNT,
+        MS_SILENT,
+        MS_SYNCHRONOUS,
+        S_WRITE,
+        S_APPEND,
+        S_IMMUTABLE,
+    }
+
+    [CCode (cname = "int", cprefix = "", cheader_filename = "sys/mount.h")]
+    public enum UnmountFlags {
+        MNT_FORCE,                /* Force unmounting.  */
+        MNT_DETACH,               /* Just detach from the tree.  */
+        MNT_EXPIRE                /* Mark for expiry.  */
+    }
+
+    [CCode (cheader_filename = "sys/mount.h")]
+    public int mount (string source, string target, string filesystemtype, MountFlags flags = 0, string options = "");
+    [CCode (cheader_filename = "sys/mount.h")]
+    public int umount (string target);
+    [CCode (cheader_filename = "sys/mount.h")]
+    public int umount2 (string target, UnmountFlags flags);
 
     [CCode (cname = "struct winsize", cheader_filename = "termios.h", destroy_function = "")]
     public struct winsize {
@@ -184,6 +771,18 @@ namespace Linux {
                         [CCode (array_length=false, array_null_terminated=true)] char[] name,
                         Posix.termios? termp,
                         winsize? winp);
+
+    [CCode (cprefix = "RB_", cheader_filename = "unistd.h,sys/reboot.h")]
+    public enum RebootCommands {
+         AUTOBOOT,
+         HALT_SYSTEM,
+         ENABLE_CAD,
+         DISABLE_CAD,
+         POWER_OFF
+    }
+
+    [CCode (cheader_filename = "unistd.h,sys/reboot.h")]
+    public int reboot (RebootCommands cmd);
 
     [CCode (cprefix = "CLONE_", cheader_filename = "sched.h")]
     public enum CloneFlags {
@@ -257,7 +856,7 @@ namespace Linux {
     // syscall(2)
     [CCode (cprefix = "SYS_", cname = "int")]
     public enum SysCall {
-            gettid
+        gettid
     }
 
     [CCode (cname = "syscall", cheader_filename = "unistd.h,sys/syscall.h")]
@@ -271,17 +870,118 @@ namespace Linux {
     }
 
     [CCode (cheader_filename = "sys/mman.h")]
-    public void *mremap(void *old_address, size_t old_size, size_t new_size, MremapFlags flags);
+    public void *mremap (void *old_address, size_t old_size, size_t new_size, MremapFlags flags);
 
     /*
      * Network
      */
     [CCode (cprefix = "", lower_case_cprefix = "")]
     namespace Network {
+
+        // interface consts, structs, and methods
+        [CCode (cheader_filename = "net/if.h")]
+        public const int IF_NAMESIZ;
+
+        [CCode (cheader_filename = "net/if.h")]
+        public uint if_nametoindex (string ifname);
+        [CCode (cheader_filename = "net/if.h")]
+        public unowned string if_indextoname (uint ifindex, string ifname);
+        [CCode (cheader_filename = "net/if.h")]
+        public IfNameindex if_nameindex ();
+
+        [CCode (cname = "int", cprefix = "IFF_", cheader_filename = "net/if.h")]
+        public enum IfFlag {
+            UP,
+            BROADCAST,
+            DEBUG,
+            LOOPBACK,
+            POINTOPOINT,
+            NOTRAILERS,
+            RUNNING,
+            NOARP,
+            PROMISC,
+            ALLMULTI,
+            MASTER,
+            SLAVE,
+            PORTSEL,
+            AUTOMEDIA,
+            DYNAMIC
+        }
+
+        [CCode (cname = "struct if_nameindex", cheader_filename = "net/if.h", destroy_function = "if_freenameindex")]
+        public struct IfNameindex {
+            public uint if_index;
+            public string if_name;
+        }
+
+        [CCode (cname = "struct ifmap", cheader_filename = "net/if.h", destroy_function = "")]
+        public struct IfMap {
+            public ulong mem_start;
+            public ulong mem_end;
+            public short base_addr;
+            public uchar irq;
+            public uchar dma;
+            public uchar port;
+        }
+
         [CCode (cname = "struct ifreq", cheader_filename = "net/if.h", destroy_function = "")]
         public struct IfReq {
             public char[] ifr_name;
             public Posix.SockAddr ifr_addr;
+            public Posix.SockAddr ifr_dstaddr;
+            public Posix.SockAddr ifr_broadaddr;
+            public Posix.SockAddr ifr_netmask;
+            public Posix.SockAddr ifr_hwaddr;
+            public short ifr_flags;
+            public int ifr_metric;
+            public int ifr_mtu;
+            public IfMap ifr_map;
+            public char[] ifr_slave;
+            public string ifr_data;
+            public int ifr_ifindex;
+            public int ifr_bandwidth;
+            public int ifr_qlen;
+            public char[] ifr_newname;
+        }
+
+        [CCode (cname = "struct ifconf", cheader_filename = "net/if.h", destroy_function = "")]
+        public struct IfConf {
+            public int ifc_len;
+            public string ifc_buf;
+            public IfReq ifc_req;
+        }
+
+        // route consts, structs, and methods
+        [CCode (cname = "struct rtentry", cheader_filename = "net/route.h", destroy_function = "")]
+        public struct RtEntry {
+            public Posix.SockAddr rt_dst;
+            public Posix.SockAddr rt_gateway;
+            public Posix.SockAddr rt_genmask;
+            public RtFlag rt_flags;
+            public short rt_metric;
+            public string rt_dev;
+            public ulong rt_mtu;
+            public ulong rt_window;
+            public ushort rt_irtt;
+        }
+
+        [CCode (cname = "ushort", cprefix = "RTF_", cheader_filename = "net/route.h")]
+        public enum RtFlag {
+            UP,
+            GATEWAY,
+            HOST,
+            REINSTATE,
+            DYNAMIC,
+            MODIFIED,
+            MTU,
+            WINDOW,
+            IRTT,
+            REJECT,
+            STATIC,
+            XRESOLVE,
+            NOFORWARD,
+            THROW,
+            NOPMTUDISC
         }
 
         /* ioctls */
@@ -2148,5 +2848,90 @@ namespace Linux {
 
         [CCode (cheader_filename = "sys/ioctl.h")]
         public const int TIOCSER_TEMT;
+    }
+
+    /*
+     * Virtual Terminal
+     */
+    [CCode (cprefix = "", lower_case_cprefix = "")]
+    namespace VirtualTerminal {
+
+        /* constants */
+
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int MIN_NR_CONSOLES;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int MAX_NR_CONSOLES;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int MAX_NR_USER_CONSOLES;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_OPENQRY;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_GETMODE;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_SETMODE;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_AUTO;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_PROCESS;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_ACKACQ;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_GETSTATE;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_SENDSIG;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_RELDISP;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_ACTIVATE;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_WAITACTIVE;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_DISALLOCATE;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_RESIZE;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_RESIZEX;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_LOCKSWITCH;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_UNLOCKSWITCH;
+        [CCode (cheader_filename = "linux/vt.h")]
+        public const int VT_GETHIFONTMASK;
+
+        /* structs */
+
+        [CCode (cname = "struct vt_mode", cheader_filename = "linux/vt.h")]
+        public struct Mode {
+            public char mode;
+            public char waitv;
+            public int16 relsig;
+            public int16 acqsig;
+            public int16 frsig;
+        }
+
+        [CCode (cname = "struct vt_stat", cheader_filename = "linux/vt.h")]
+        public struct Stat {
+            public uint16 v_active;
+            public uint16 v_signal;
+            public uint16 v_state;
+        }
+
+        [CCode (cname = "struct vt_sizes", cheader_filename = "linux/vt.h")]
+        public struct Sizes {
+            public uint16 v_rows;
+            public uint16 v_cols;
+            public uint16 v_scrollsize;
+        }
+
+        [CCode (cname = "struct vt_consize", cheader_filename = "linux/vt.h")]
+        public struct Consize {
+            public uint16 v_rows;
+            public uint16 v_cols;
+            public uint16 v_vlin;
+            public uint16 v_clin;
+            public uint16 v_vcol;
+            public uint16 v_ccol;
+        }
     }
 }

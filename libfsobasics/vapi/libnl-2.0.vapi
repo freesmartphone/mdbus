@@ -1,4 +1,4 @@
-/**
+/*
  * libnl-2.0.vapi
  *
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
@@ -59,7 +59,7 @@ namespace Netlink {
         public void*    get_binary_addr();
 
         [CCode (cname = "nl_addr2str")]
-        public weak string to_stringbuf(char[] buf);
+        public unowned string to_stringbuf(char[] buf);
 
         public string to_string() {
             char[] buf = new char[256];
@@ -125,7 +125,7 @@ namespace Netlink {
         public void     set_scope (int scope);
         public int      get_scope ();
 
-        public weak Address get_local();
+        public unowned Address get_local();
     }
 
     [Compact]
@@ -320,5 +320,5 @@ namespace Netlink {
         public unowned Posix.FILE dp_fd;
         public unowned string dp_buf;
         public size_t dp_buflen;
-    }    
+    }
 }
