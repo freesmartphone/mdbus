@@ -1051,6 +1051,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
             status.insert( "mode", strvalue );
             strvalue = cops.oper;
             status.insert( "provider", strvalue );
+            status.insert( "display", strvalue ); // base value
             strvalue = cops.act;
             status.insert( "act", strvalue );
         }
