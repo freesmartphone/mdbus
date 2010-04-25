@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -44,7 +44,7 @@ void test_process_signals()
 }
 
 //===========================================================================
-void test_process_kill()
+void test_process_kill_explicit()
 //===========================================================================
 {
     var guard = new GProcessGuard();
@@ -60,6 +60,22 @@ void test_process_kill()
 }
 
 //===========================================================================
+void test_process_kill_implicit()
+//===========================================================================
+{
+    var guard = new GProcessGuard();
+    var ok = guard.launch( { "/bin/sleep", "60" } );
+    assert( ok );
+    bool signalok = false;
+    guard.stopped.connect( ( guard ) => { signalok = true; } );
+    var timeout = WaitForPredicate.Wait( 5, () => {
+        guard = null;
+        return !signalok;
+    } );
+    assert( !timeout );
+}
+
+//===========================================================================
 void main (string[] args)
 //===========================================================================
 {
@@ -67,7 +83,8 @@ void main (string[] args)
 
     Test.add_func( "/Process/launch", test_process_launch );
     Test.add_func( "/Process/signals", test_process_signals );
-    Test.add_func( "/Process/kill", test_process_kill );
+    Test.add_func( "/Process/kill/explicit", test_process_kill_explicit );
+    Test.add_func( "/Process/kill/implicit", test_process_kill_implicit );
 
     Test.run ();
 }
