@@ -153,7 +153,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         {
             return;
         }
-        ppp = null; // this will stop the process
+        ppp.stop(); // trigger stopping
     }
 
     public string uintToIp4Address( uint32 address )
