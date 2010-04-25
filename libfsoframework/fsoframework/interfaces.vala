@@ -173,7 +173,6 @@ namespace FsoFramework
 	public const string ContactsServiceFace = ServiceFacePrefix + ".Contacts";
 	public const string ContactsServicePath = ServicePathPrefix + "/Contacts";
 	public const string ContactServiceFace = ServiceFacePrefix + ".Contact";
-	public const string ContactServicePathPrefix = ServicePathPrefix + "/Contact";
 
 	public const string CallsServiceFace = ServiceFacePrefix + ".Calls";
 	public const string CallsServicePath = ServicePathPrefix + "/Calls";
