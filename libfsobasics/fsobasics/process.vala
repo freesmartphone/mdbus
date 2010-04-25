@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
             debug( "Implicit kill of pid %d due to guard being freed", (int)pid );
 #endif
             relaunch = false;
-            stopSendSignal( false );
+            stopSendStopped( false );
         }
     }
 
@@ -123,7 +123,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
 
     public void stop( int sig = Posix.SIGTERM )
     {
-        stopSendSignal( true );
+        stopSendStopped( true );
     }
 
     public void setAutoRelaunch( bool on )
@@ -150,7 +150,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
     //
     // private API
     //
-    private void stopSendSignal( bool send )
+    private void stopSendStopped( bool send )
     {
         _stop( Posix.SIGKILL );
         if ( send )
@@ -169,7 +169,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
 #if DEBUG
         debug( "CHILD WATCH EVENT FOR %d: %d", (int)pid, status );
 #endif
-        stopSendSignal( true );
+        stopSendStopped( true );
 
         if ( relaunch )
         {
