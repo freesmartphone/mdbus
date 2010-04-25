@@ -25,8 +25,11 @@ void test_process_launch()
 //===========================================================================
 {
     var guard = new GProcessGuard();
-    var ok = guard.launch( { "/bin/sleep", "5" } );
+    var ok = guard.launch( { "/bin/sleep", "1" } );
     assert( ok );
+    assert( guard.isRunning() );
+    var timeout = WaitForPredicate.Wait( 3, () => { return true; } );
+    assert( !guard.isRunning() );
 }
 
 //===========================================================================
@@ -68,9 +71,11 @@ void test_process_kill_implicit()
     assert( ok );
     bool signalok = false;
     guard.stopped.connect( ( guard ) => { signalok = true; } );
+    int pid = guard._pid();
+    guard = null;
     var timeout = WaitForPredicate.Wait( 5, () => {
-        guard = null;
-        return !signalok;
+        var res = Posix.kill( (Posix.pid_t)pid, 0 );
+        return ( res == 0 );
     } );
     assert( !timeout );
 }

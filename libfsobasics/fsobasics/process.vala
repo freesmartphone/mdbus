@@ -43,6 +43,11 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
     private string[] command;
     private bool relaunch;
 
+    public Posix.pid_t _pid()
+    {
+        return (Posix.pid_t)pid;
+    }
+
     ~GProcessGuard()
     {
         if ( pid != (Pid)0 )
@@ -51,7 +56,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
             debug( "Implicit kill of pid %d due to guard being freed", (int)pid );
 #endif
             relaunch = false;
-            stopSendStopped( false );
+            syncStop();
         }
     }
 
@@ -65,7 +70,6 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
             return false;
         }
 
-        var res = 0;
         try
         {
             GLib.Process.spawn_async( GLib.Environment.get_variable( "PWD" ),
@@ -96,7 +100,6 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
             return false;
         }
 
-        var res = 0;
         try
         {
             GLib.Process.spawn_async_with_pipes(
@@ -152,11 +155,18 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
     //
     private void stopSendStopped( bool send )
     {
-        _stop( Posix.SIGKILL );
-        if ( send )
+        _stop( send );
+    }
+
+    private void cleanupResources()
+    {
+        if ( watch > 0 )
         {
-            this.stopped();
+            GLib.Source.remove( watch );
         }
+        GLib.Process.close_pid( pid );
+        pid = 0;
+        this.stopped();
     }
 
     private void onChildWatchEvent( Pid pid, int status )
@@ -169,7 +179,8 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
 #if DEBUG
         debug( "CHILD WATCH EVENT FOR %d: %d", (int)pid, status );
 #endif
-        stopSendStopped( true );
+        pid = 0;
+        cleanupResources();
 
         if ( relaunch )
         {
@@ -184,21 +195,160 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         }
     }
 
-    private void _stop( int sig )
+    internal const int KILL_SLEEP_TIMEOUT  = 1000 * 1000 * 5; // 5 seconds
+    internal const int KILL_SLEEP_INTERVAL = 1000 * 1000 * 1; // 1 second
+
+    private async void _stop( bool send )
     {
-#if DEBUG
-        debug( "stopping pid %d", (int)pid );
-#endif
-        if ( pid == (Pid)0 )
+        if ( (Posix.pid_t)pid == 0 )
         {
             return;
         }
-        GLib.Process.close_pid( pid );
-        Posix.kill( (Posix.pid_t)pid, sig );
+#if DEBUG
+        debug( "Attempting to stop pid %d - sending SIGTERM first...", pid );
+#endif
+        Posix.kill( (Posix.pid_t)pid, Posix.SIGTERM );
+        var done = false;
+        var timer = new GLib.Timer();
+        timer.start();
+
+        while ( !done && pid != 0 )
+        {
+            var pid_result = Posix.waitpid( (Posix.pid_t)pid, null, Posix.WNOHANG );
+#if DEBUG
+            debug( "Waitpid result %d", pid_result );
+#endif
+			if ( pid_result < 0 )
+			{
+				done = true;
+#if DEBUG
+				debug( "Failed to wait for process to exit: waitpid returned %d", pid_result );
+#endif
+			}
+			else if ( pid_result == 0 )
+			{
+				if ( timer.elapsed() >= KILL_SLEEP_TIMEOUT )
+				{
+#if DEBUG
+					debug( "Timeout for pid %d elapsed, exiting wait loop", pid );
+#endif
+					done = true;
+				}
+				else
+				{
+#if DEBUG
+					debug( "Process %d is still running, waiting...", pid );
+#endif
+                    Timeout.add_seconds( 1, _stop.callback );
+                    yield;
+				}
+			}
+			else /* pid_result > 0 */
+			{
+				done = true;
+#if DEBUG
+				debug( "Process %d terminated normally", pid );
+#endif
+				GLib.Process.close_pid( pid );
+				pid = 0;
+			}
+        }
+
+        if ( pid != 0 )
+        {
+            warning( "Process %d ignored SIGTERM, sending SIGKILL", pid );
+
+            if ( watch > 0 )
+            {
+                GLib.Source.remove( watch );
+                watch = 0;
+            }
+
+            Posix.kill( (Posix.pid_t)pid, Posix.SIGKILL );
+            Thread.usleep( 1000 );
+            pid = 0;
+#if DEBUG
+            debug( "Process %d stop complete", pid );
+#endif
+        }
+
+        if ( send )
+        {
+            this.stopped();
+        }
+    }
+
+    private void syncStop()
+    {
         if ( watch > 0 )
         {
             GLib.Source.remove( watch );
+            watch = 0;
         }
-        pid = (Pid)0;
+#if DEBUG
+        debug( "Attempting to syncstop pid %d - sending SIGTERM first...", pid );
+#endif
+        Posix.kill( (Posix.pid_t)pid, Posix.SIGTERM );
+        var done = false;
+        var timer = new GLib.Timer();
+        timer.start();
+
+        while ( !done && pid != 0 )
+        {
+            var pid_result = Posix.waitpid( (Posix.pid_t)pid, null, Posix.WNOHANG );
+#if DEBUG
+            debug( "Waitpid result %d", pid_result );
+#endif
+			if ( pid_result < 0 )
+			{
+				done = true;
+#if DEBUG
+				debug( "Failed to syncwait for process to exit: waitpid returned %d", pid_result );
+#endif
+			}
+			else if ( pid_result == 0 )
+			{
+				if ( timer.elapsed() >= KILL_SLEEP_TIMEOUT )
+				{
+#if DEBUG
+					debug( "Timeout for pid %d elapsed, exiting syncwait loop", pid );
+#endif
+					done = true;
+				}
+				else
+				{
+#if DEBUG
+					debug( "Process %d is still running, sync waiting...", pid );
+#endif
+                    Thread.usleep( KILL_SLEEP_INTERVAL );
+				}
+			}
+			else /* pid_result > 0 */
+			{
+				done = true;
+#if DEBUG
+				debug( "Process %d terminated normally", pid );
+#endif
+				GLib.Process.close_pid( pid );
+				pid = 0;
+			}
+        }
+
+        if ( pid != 0 )
+        {
+            warning( "Process %d ignored SIGTERM, sending SIGKILL", pid );
+
+            if ( watch > 0 )
+            {
+                GLib.Source.remove( watch );
+            }
+
+            Posix.kill( (Posix.pid_t)pid, Posix.SIGKILL );
+            Thread.usleep( 1000 );
+            pid = 0;
+#if DEBUG
+            debug( "Process %d stop complete", pid );
+#endif
+        }
     }
 }
