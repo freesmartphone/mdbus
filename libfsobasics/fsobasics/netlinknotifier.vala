@@ -156,7 +156,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
             List<NetlinkDelegateHolder> newlist = new List<NetlinkDelegateHolder>();
             newlist.append( new NetlinkDelegateHolder( callback ) );
 #if DEBUG
-            debug( @"# delegates for action $action and subsystem $subsystem now $(newlist.length())" );
+            debug( @"# delegates for type $type is now $(newlist.length())" );
 #endif
             map.insert( type, (owned) newlist );
         }
@@ -164,7 +164,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         {
             list.append( new NetlinkDelegateHolder( callback ) );
 #if DEBUG
-            debug( @"# delegates for action $action and subsystem $subsystem now $(list.length())" );
+            debug( @"# delegates for type $type is now $(list.length())" );
 #endif
         }
     }
