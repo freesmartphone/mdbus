@@ -53,7 +53,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         if ( pid != (Pid)0 )
         {
 #if DEBUG
-            debug( "Implicit kill of pid %d due to guard being freed", (int)pid );
+            warning( "Guard being freed, while child %d still running. This is most likely a bug in your problem. Trying to kill the child in a synchronous way...", (int)pid );
 #endif
             relaunch = false;
             syncStop();
@@ -124,6 +124,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         return true;
     }
 
+    // FIXME: consider making this async?
     public void stop( int sig = Posix.SIGTERM )
     {
         stopSendStopped( true );
