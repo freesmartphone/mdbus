@@ -25,3 +25,7 @@
 ===Multiple plugins===
 * Apply split into device-independent part and device-specific part, i.e.
   such as done with accelerometer could also be handy for vibrator, brightness, etc.
+
+==fsogsmd==
+===General===
+* Remember certain parameters (i.e. GSM timezone) and augment GSM.Network.Status() signal and method
