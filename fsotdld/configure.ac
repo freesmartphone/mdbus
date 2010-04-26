@@ -88,6 +88,7 @@ AC_CONFIG_FILES([
   Makefile
   conf/Makefile
   conf/default/Makefile
+  conf/openmoko_gta/Makefile
   data/Makefile
   data/org.freesmartphone.otdld.service
   src/Makefile
