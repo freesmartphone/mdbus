@@ -111,11 +111,12 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CALA", plusCALA );
         registerUrc( "+CCWA", plusCCWA );
         registerUrcPdu( "+CDS", plusCDS );
+        registerUrc( "+CGREG", plusCGREG );
         registerUrc( "+CIEV", plusCIEV );
         registerUrc( "+CMTI", plusCMTI );
         registerUrc( "+CREG", plusCREG );
-        registerUrc( "+CGREG", plusCGREG );
         registerUrc( "+CRING", plusCRING );
+        registerUrc( "+CTZV", plusCTZV );
     }
 
     public virtual void plusCALA( string prefix, string rhs )
@@ -147,6 +148,11 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     }
 
 
+    public virtual void plusCGREG( string prefix, string rhs )
+    {
+        triggerUpdateNetworkStatus();
+    }
+
     public virtual void plusCIEV( string prefix, string rhs )
     {
         //FIXME: Implement
@@ -157,10 +163,6 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         triggerUpdateNetworkStatus();
     }
 
-    public virtual void plusCGREG( string prefix, string rhs )
-    {
-        triggerUpdateNetworkStatus();
-    }
 
     public virtual void plusCRING( string prefix, string rhs )
     {
@@ -180,5 +182,21 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         }
     }
 
+    public virtual void plusCTZV( string prefix, string rhs )
+    {
+        // FIXME: +CTZV should be remembered
 
+        var tzoffset = rhs.to_int();
+        if ( tzoffset < 0 )
+        {
+            logger.warning( @"Receive invalid +CTZV message $rhs. Please report" );
+        }
+        else
+        {
+            var utcoffset = Constants.instance().ctzvToTimeZone( tzoffset );
+            logger.info( @"Received time zone report from GSM: $utcoffset minutes" );
+            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            obj.time_zone_report( utcoffset );
+        }
+    }
 }

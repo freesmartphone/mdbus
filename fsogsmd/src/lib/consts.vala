@@ -914,4 +914,31 @@ public class FsoGsm.Constants
         }
         return res;
     }
+
+    /**
+     * Compute the timezone offset out of a value from +CTZV
+     * 35 (observed in Taipei, UTC+7)
+     * 105 (observed in UTC-4)
+     *
+     * Excerpt from IRC:
+     * <DieterS> Lets try again: 0x19 -> swap the BCD digits: 0x91, high bit is minus -> -11 this is -2:45
+     * <wpwrak> dieter: i think if you try enough variations, you can produce any number ;-)
+     * <DieterS> Now the same for a real world example: 105  = 0x69 swap 0x96, high bit set, minus 16, this minus 4 hours
+     * <DieterS> Werner: Sure, but one can also read the GSM spec ;-)
+     * <wpwrak> dieter: that's cheating :)
+     * <DieterS> Start with 04.08, check 03.40 and look at 02.42
+     * <DieterS> So it's is really simple ;-)
+     **/
+    public int ctzvToTimeZone( int ctzv )
+    {
+        var bcd1 = ( ctzv / 0x10 );
+        var bcd2 = ( ctzv % 0x10 ) & 0x7;
+#if DEBUG
+        message( @"bcd = 0x $bcd1 $bcd2" );
+#endif
+        var zone = bcd2 * 10 + bcd1;
+        var sign = ( ctzv & 0x08 ) == 8;
+
+        return sign ? -zone * 15 : zone * 15;
+    }
 }
