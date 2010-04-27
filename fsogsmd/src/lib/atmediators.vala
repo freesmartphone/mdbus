@@ -1116,6 +1116,16 @@ public class AtNetworkRegister : NetworkRegister
     }
 }
 
+public class AtNetworkSendUssdRequest : NetworkSendUssdRequest
+{
+    public override async void run( string request ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCUSD>( "+CUSD" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query( request ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
 /**
  * Call Mediators
  **/
@@ -1283,6 +1293,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(NetworkGetStatus) ]             = typeof( AtNetworkGetStatus );
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
     table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
+    table[ typeof(NetworkSendUssdRequest) ]       = typeof( AtNetworkSendUssdRequest );
 
     table[ typeof(CallActivate) ]                 = typeof( AtCallActivate );
     table[ typeof(CallHoldActive) ]               = typeof( AtCallHoldActive );

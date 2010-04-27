@@ -269,6 +269,11 @@ public abstract class FsoGsm.NetworkRegisterWithProvider : FsoGsm.AbstractMediat
     public abstract async void run( string provider ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.NetworkSendUssdRequest : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string request ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.NetworkUnregister : FsoGsm.AbstractMediator
 {
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;

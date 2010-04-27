@@ -117,6 +117,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CREG", plusCREG );
         registerUrc( "+CRING", plusCRING );
         registerUrc( "+CTZV", plusCTZV );
+        registerUrc( "+CUSD", plusCUSD );
     }
 
     public virtual void plusCALA( string prefix, string rhs )
@@ -197,6 +198,21 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
             logger.info( @"Received time zone report from GSM: $utcoffset minutes" );
             var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
             obj.time_zone_report( utcoffset );
+        }
+    }
+
+    public virtual void plusCUSD( string prefix, string rhs )
+    {
+        var cusd = theModem.createAtCommand<PlusCUSD>( "+CUSD" );
+        if ( cusd.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            debug( @"CUSD MODE: $(cusd.mode), RESULT: $(cusd.result), CODE: $(cusd.code)" );
+            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            obj.incoming_ussd( (FreeSmartphone.GSM.UssdStatus)cusd.mode, cusd.result );
+        }
+        else
+        {
+            logger.warning( @"Received invalid +CUSD message $rhs. Please report" );
         }
     }
 }

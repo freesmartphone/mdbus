@@ -1233,6 +1233,55 @@ public class PlusCSQ : AbstractAtCommand
     }
 }
 
+
+public class PlusCUSD : AbstractAtCommand
+{
+    public enum Mode
+    {
+        COMPLETED = 0,
+        USERACTION = 1,
+        TERMINATED = 2,
+        LOCALCLIENT = 3,
+        UNSUPPORTED = 4,
+        TIMEOUT = 5,
+    }
+
+    public Mode mode;
+    public string result;
+    public int code;
+
+    public PlusCUSD()
+    {
+        try
+        {
+            re = new Regex( """\+CUSD: (?P<mode>\d)(?:,"(?P<result>[a-zA-Z0-9]*)"(?:,(?P<code>\d+))?)?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+CUSD: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        mode = (Mode)to_int( "mode" );
+        result = decodeString( to_string( "result" ) );
+        code = to_int( "code" );
+    }
+
+    public string query( string request )
+    {
+        return "+CUSD=1,\"%s\",15".printf( encodeString( request ) );
+    }
+
+    public string issue( bool enable )
+    {
+        return "+CUSD=%u".printf( enable ? 1 : 0 );
+    }
+}
+
 public class PlusFCLASS : SimpleAtCommand<string>
 {
     public PlusFCLASS()
@@ -1339,6 +1388,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CREG" ]             = new FsoGsm.PlusCREG();
     table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
     table[ "+CSQ" ]              = new FsoGsm.PlusCSQ();
+    table[ "+CUSD" ]             = new FsoGsm.PlusCUSD();
 
     // call control
     table[ "A" ]                 = new FsoGsm.V250A();
