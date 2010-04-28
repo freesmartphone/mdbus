@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -42,6 +42,13 @@ namespace TiCalypso
  **/
 class TiCalypso.Modem : FsoGsm.AbstractModem
 {
+    public string dspCommand;
+
+    construct
+    {
+        dspCommand = "%N" + config.stringValue( MODULE_NAME, "dsp_mode", "0187" );
+    }
+
     public override string repr()
     {
         return @"<$(channels.size)C>";

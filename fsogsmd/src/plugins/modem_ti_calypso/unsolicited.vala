@@ -44,6 +44,7 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
     public UnsolicitedResponseHandler()
     {
         registerUrc( "AT-Command Interpreter ready", channelReady );
+        registerUrc( "%CPI", percentCPI );
         registerUrc( "%CPRI", percentCPRI );
         registerUrc( "%CSTAT", percentCSTAT );
         registerUrc( "%CSQ", percentCSQ );
@@ -52,6 +53,22 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
     public virtual void channelReady( string prefix, string rhs )
     {
         assert( theModem.logger.debug( "Congratulations Madam, it's a channel!" ) );
+    }
+
+    public virtual void percentCPI( string prefix, string rhs )
+    {
+        switch ( rhs[2] )
+        {
+            case '0':
+            case '9':
+                var calypso = (TiCalypso.Modem) theModem;
+                var cmd = new CustomAtCommand();
+                theModem.processAtCommandAsync( cmd, calypso.dspCommand );
+                break;
+            default:
+                break;
+        }
+
     }
 
     public virtual void percentCPRI( string prefix, string rhs )
