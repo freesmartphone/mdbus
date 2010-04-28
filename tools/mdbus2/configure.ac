@@ -1,4 +1,4 @@
-AC_INIT([mdbus], [2.0.0], [smartphones-userland@linuxtogo.org], [mdbus])
+AC_INIT([mdbus], [2.0.1], [smartphones-userland@linuxtogo.org], [mdbus])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -55,9 +55,7 @@ PKG_CHECK_MODULES(VALA,
 
 # glib and friends
 PKG_CHECK_MODULES(GLIB,
-  glib-2.0 >= $GLIB_REQUIRED
-  gobject-2.0 >= $GLIB_REQUIRED
-  gio-2.0 >= $GLIB_REQUIRED)
+  glib-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
