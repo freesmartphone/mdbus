@@ -635,7 +635,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual async bool resume()
     {
-        advanceToState( Modem.Status.SUSPENDING );
+        advanceToState( Modem.Status.RESUMING );
 
         // suspend all channels
         var channels = this.channels.values;
