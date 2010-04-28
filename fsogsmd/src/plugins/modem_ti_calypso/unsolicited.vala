@@ -105,6 +105,12 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 
     public virtual void percentCSQ( string prefix, string rhs )
     {
-        // FIXME: do something with ii
+        var csq = theModem.createAtCommand<PercentCSQ>( "%CSQ" );
+        if ( csq.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            // FIXME: Might want to remember the status
+            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            obj.signal_strength( csq.strength );
+        }
     }
 }
