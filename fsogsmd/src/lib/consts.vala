@@ -620,16 +620,15 @@ public class FsoGsm.Constants
         }
     }
 
-    public int networkSignalToPercentage( int signal )
+    public int networkSignalToPercentage( int sig )
     {
-        if ( signal <= 0 || signal > 31 )
+        if ( sig <= 0 || sig > 31 )
         {
+            warning( @"networkSignalToPercentage(): Invalid signal strength $sig; returning 0" );
             return 0;
         }
-        double dsig = signal;
-        var dpercentage = Math.round( Math.log10( dsig ) / Math.log10( 31.0 ) * 100 );
-
-        return (int)dpercentage;
+        double dsig = sig;
+        return (int) Math.round( Math.log10( dsig ) / Math.log10( 31.0 ) * 100 );
     }
 
     public string phonenumberTupleToString( string number, int ntype )

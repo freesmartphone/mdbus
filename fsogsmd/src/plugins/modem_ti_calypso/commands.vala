@@ -23,6 +23,44 @@ using Gee;
 namespace TiCalypso
 {
 
+/**
+ * %CPRI: GSM / PDP cipher indication
+ **/
+public class PercentCPRI : AbstractAtCommand
+{
+    public enum Status
+    {
+        DISABLED = 0,
+        ENABLED  = 1,
+        UNKNOWN  = 2
+    }
+
+    public Status telcipher;
+    public Status pdpcipher;
+
+    public PercentCPRI()
+    {
+        try
+        {
+            re = new Regex( """%CPRI: (?P<tel>[012]), (?P<pdp>[012])""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail, if invalid
+        }
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        telcipher = (Status) to_int( "tel" );
+        pdpcipher = (Status) to_int( "pdp" );
+    }
+}
+
+/**
+ * %CSTAT: Subsystem readyness indication
+ **/
 public class PercentCSTAT : AbstractAtCommand
 {
     public string subsystem;
@@ -30,7 +68,14 @@ public class PercentCSTAT : AbstractAtCommand
 
     public PercentCSTAT()
     {
-        re = new Regex( """%CSTAT: (?P<subsystem>[A-Z]+), (?P<ready>[01])""" );
+        try
+        {
+            re = new Regex( """%CSTAT: (?P<subsystem>[A-Z]+), (?P<ready>[01])""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail, if invalid
+        }
     }
 
     public override void parse( string response ) throws AtCommandError
@@ -41,9 +86,40 @@ public class PercentCSTAT : AbstractAtCommand
     }
 }
 
+/**
+ * %CSQ: Signal strength indication
+ **/
+public class PercentCSQ : AbstractAtCommand
+{
+    public int strength;
+
+    public PercentCSQ()
+    {
+        try
+        {
+            re = new Regex( """%CSQ: (?P<signal>\d+), (?:\d+), \d""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail, if invalid
+        }
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        strength = Constants.instance().networkSignalToPercentage( to_int( "signal" ) );
+    }
+}
+
+/**
+ * Register all custom commands
+ **/
 public void registerCustomAtCommands( HashMap<string,AtCommand> table )
 {
+    table[ "%CPRI" ]              = new PercentCPRI();
     table[ "%CSTAT" ]             = new PercentCSTAT();
+    table[ "%CSQ" ]               = new PercentCSQ();
 }
 
 } /* namespace TiCalypso */

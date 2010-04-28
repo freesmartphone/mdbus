@@ -56,7 +56,13 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 
     public virtual void percentCPRI( string prefix, string rhs )
     {
-        // FIXME: do something with it
+        var cpri = theModem.createAtCommand<PercentCPRI>( "%CPRI" );
+        if ( cpri.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            // FIXME: Might want to remember the status
+            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            obj.cipher_status( (FreeSmartphone.GSM.CipherStatus) cpri.telcipher, (FreeSmartphone.GSM.CipherStatus) cpri.pdpcipher );
+        }
     }
 
     /**
