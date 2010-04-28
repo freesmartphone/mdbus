@@ -28,10 +28,12 @@ public interface FsoGsm.WatchDog : GLib.Object
 
 /**
  * @class GenericWatchDog
+ *
  **/
 public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObject
 {
     private bool unlockFailed;
+    private Modem.Status lastStatus;
 
     public override string repr()
     {
@@ -43,7 +45,7 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
 
     private void onModemStatusChange( Modem.Status status )
     {
-        assert( logger.debug( @"onModemStatusChange $status" ) );
+        assert( logger.debug( @"onModemStatusChange $lastStatus -> $status" ) );
         var data = theModem.data();
 
         switch ( status )
@@ -64,9 +66,18 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
                 }
                 break;
 
+            case Modem.Status.ALIVE_REGISTERED:
+                if ( lastStatus == Modem.Status.RESUMING )
+                {
+                    triggerUpdateNetworkStatus();
+                }
+                break;
+
             default:
                 break;
         }
+
+        lastStatus = status;
     }
 
     private async void unlockModem()
@@ -111,6 +122,7 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
     //
     public GenericWatchDog()
     {
+        lastStatus = theModem.status();
         theModem.signalStatusChanged.connect( onModemStatusChange );
     }
 
