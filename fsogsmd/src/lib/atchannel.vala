@@ -49,6 +49,9 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
             case Modem.Status.ALIVE_REGISTERED:
                 simHasRegistered();
                 break;
+            case Modem.Status.CLOSING:
+                shutdown();
+                break;
             default:
                 break;
         }
@@ -85,6 +88,15 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         {
             // charset ok, now it's save to call mediators
             gatherSimStatusAndUpdate();
+        }
+    }
+
+    private async void shutdown()
+    {
+        if ( this.isMainChannel )
+        {
+            var seq = theModem.atCommandSequence( "MODEM", "shutdown" );
+            yield seq.performOnChannel( this );
         }
     }
 

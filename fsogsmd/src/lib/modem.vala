@@ -430,8 +430,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             "+CSMS=1"       /* gsm phase 2+ commands = enable */
         } );
         initsequence.append( config.stringListValue( CONFIG_SECTION, "modem_init", { } ) );
-
         registerAtCommandSequence( "MODEM", "init", initsequence );
+
+        registerAtCommandSequence( "MODEM", "shutdown", new AtCommandSequence( {} ) );
 
         configureData();
     }
