@@ -38,7 +38,6 @@ $(BUILT_SOURCES): $(mdbus2_VALASOURCES)
 
 mdbus2_LDADD = \
 	$(LIBREADLINE) \
-	$(LIBHISTORY) \
 	$(DBUS_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
