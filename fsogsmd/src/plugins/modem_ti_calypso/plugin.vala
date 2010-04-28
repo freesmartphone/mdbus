@@ -60,6 +60,20 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         modem_data.simHasReadySignal = true;
         modem_data.simReadyTimeout = 60; /* seconds */
 
+        // configure deep sleep mode
+        var deep_sleep = config.stringValue( MODULE_NAME, "deep_sleep", "never" );
+        if ( deep_sleep == "always" )
+        {
+            theModem.atCommandSequence( "MODEM", "init" ).append( { "%SLEEP=4" } );
+        }
+        else
+        {
+            theModem.atCommandSequence( "MODEM", "init" ).append( { "%SLEEP=2" } );
+        }
+
+        // configure power off
+        theModem.atCommandSequence( "MODEM", "shutdown" ).append( { "@POFF" } );
+
         // sequence for initializing every channel
         registerAtCommandSequence( "CHANNEL", "init", new AtCommandSequence( {
             """E0Q0V1""",
@@ -69,16 +83,6 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """+CSNS=0"""
         } ) );
 
-        // configure deep sleep mode
-        var deep_sleep = config.stringValue( MODULE_NAME, "deep_sleep", "never" );
-        if ( deep_sleep == "always" )
-        {
-            theModem.atCommandSequence( "MODEM", "INIT" ).append( { "%SLEEP=4" } );
-        }
-        else
-        {
-            theModem.atCommandSequence( "MODEM", "INIT" ).append( { "%SLEEP=2" } );
-        }
 
         // sequence for initializing the channel urc
         registerAtCommandSequence( "urc", "init", new AtCommandSequence( {
