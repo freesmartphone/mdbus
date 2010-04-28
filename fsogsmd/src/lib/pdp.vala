@@ -20,15 +20,89 @@
 /**
  * @interface PdpHandler
  **/
-public abstract class FsoGsm.PdpHandler : FsoFramework.AbstractObject
+public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
 {
     public async abstract void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-    public async abstract void deactivate();
+    public async abstract void deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+
+    public async abstract void statusUpdate( string status, GLib.HashTable<string,Value?> properties );
+
+    public async abstract void connectedWithNewDefaultRoute( string iface, string ipv4addr, string ipv4mask, string ipv4gateway, string dns1, string dns2 );
+}
+
+/**
+ * @class PdpHandler
+ **/
+public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObject
+{
+    public FreeSmartphone.GSM.ContextStatus status { get; set; }
+    public GLib.HashTable<string,Value?> properties { get; set; }
+
+    construct
+    {
+        status = FreeSmartphone.GSM.ContextStatus.RELEASED;
+        properties = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+    }
+
+    //
+    // protected API
+    //
+    protected async virtual void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    protected async virtual void sc_deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    protected async void updateStatus( FreeSmartphone.GSM.ContextStatus status, GLib.HashTable<string,Value?> properties )
+    {
+        if ( status == this.status )
+        {
+            return;
+        }
+
+        logger.info( @"PDP Context Status now $status" );
+        this.status = status;
+        this.properties = properties;
+
+        var obj = theModem.theDevice<FreeSmartphone.GSM.PDP>();
+        obj.context_status( status, properties );
+    }
+
+    //
+    // public API
+    //
+    public async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        if ( this.status != FreeSmartphone.GSM.ContextStatus.RELEASED )
+        {
+            throw new FreeSmartphone.Error.UNAVAILABLE( @"Can't activate context while in status $status" );
+        }
+
+        yield sc_activate();
+
+        updateStatus( FreeSmartphone.GSM.ContextStatus.OUTGOING, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+    }
+
+    public async void deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        if ( this.status != FreeSmartphone.GSM.ContextStatus.ACTIVE )
+        {
+            throw new FreeSmartphone.Error.UNAVAILABLE( @"Can't deactivate context while in status $status" );
+        }
+
+        yield sc_deactivate();
+
+        updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+    }
 
     public async abstract void statusUpdate( string status, GLib.HashTable<string,Value?> properties );
 
     public async void connectedWithNewDefaultRoute( string iface, string ipv4addr, string ipv4mask, string ipv4gateway, string dns1, string dns2 )
     {
+        updateStatus( FreeSmartphone.GSM.ContextStatus.ACTIVE, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+
         try
         {
             var conn = DBus.Bus.get( DBus.BusType.SYSTEM );

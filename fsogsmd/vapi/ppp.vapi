@@ -1,4 +1,4 @@
-/**
+/*
  * ppp.vapi
  *
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
- **/
+ */
 [CCode (cprefix = "", lower_case_cprefix = "", cheader_filename = "./pppd-local.h")]
 namespace PPPD
 {
@@ -30,7 +30,7 @@ namespace PPPD
     public const int MAX_ENDP_LEN;
 
     // Enums
-    [CCode (cname = "int", cprefix = "PHASE_")]
+    [CCode (cname = "int", cprefix = "PHASE_", has_type_id = false)]
     public enum Phase {
          DEAD,
          INITIALIZE,

@@ -81,7 +81,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
     // public API
     //
 
-    public async override void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( ppp != null && ppp.isRunning() )
         {
@@ -143,7 +143,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         yield setupTransport();
     }
 
-    public async override void deactivate()
+    public async override void sc_deactivate()
     {
         if ( ppp == null )
         {
@@ -184,6 +184,15 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
             assert( logger.debug( @"IPCP: Gateway   addr is $(uintToIp4Address(vgateway.get_uint()))" ) );
         }
 
-        //FIXME: communicate with fsonetworkd to offer new route to internet
+        if ( viface != null && vlocal != null && vgateway != null )
+        {
+            Value vdns1 = properties.lookup( "dns1" ) ?? "8.8.8.8";
+            Value vdns2 = properties.lookup( "dns2" ) ?? "8.8.8.8";
+            this.connectedWithNewDefaultRoute( viface.get_string(), vlocal.get_string(), "255.255.255.0", vgateway.get_string(), vdns1.get_string(), vdns2.get_string() );
+        }
+        else
+        {
+            assert( logger.debug( @"IPCP: Not enough information for default route" ) );
+        }
     }
 }

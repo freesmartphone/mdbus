@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -21,6 +21,11 @@ using GLib;
 
 using FsoGsm;
 
+/**
+ * @class Pdp.Qmi
+ *
+ * Pdp Handler implemented with the proprietary Qualcomm Management Interface protocol
+ **/
 class Pdp.Qmi : FsoGsm.PdpHandler
 {
     public const string MODULE_NAME = "fsogsm.pdp_qmi";
@@ -91,7 +96,7 @@ class Pdp.Qmi : FsoGsm.PdpHandler
         }
     }
 
-    public async override void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var data = theModem.data();
 
@@ -110,7 +115,7 @@ class Pdp.Qmi : FsoGsm.PdpHandler
         Posix.write( fd, cmdline, cmdline.length );
     }
 
-    public async override void deactivate()
+    public async override void sc_deactivate()
     {
         Posix.write( fd, "down", 5 );
     }
