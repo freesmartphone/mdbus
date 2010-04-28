@@ -62,6 +62,17 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """+CSNS=0"""
         } ) );
 
+        // configure deep sleep mode
+        var deep_sleep = config.stringValue( MODULE_NAME, "deep_sleep", "never" );
+        if ( deep_sleep == "always" )
+        {
+            theModem.atCommandSequence( "MODEM", "INIT" ).append( { "%SLEEP=4" } );
+        }
+        else
+        {
+            theModem.atCommandSequence( "MODEM", "INIT" ).append( { "%SLEEP=2" } );
+        }
+
         // sequence for initializing the channel urc
         registerAtCommandSequence( "urc", "init", new AtCommandSequence( {
             """+CCWA=1""",
