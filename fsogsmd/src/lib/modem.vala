@@ -214,6 +214,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     protected FsoGsm.Modem.Status modem_status_before_suspend;
 
+    protected uint modemSimTimeoutWatch;
+
     construct
     {
         // only one modem allowed per process
@@ -822,6 +824,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             return;
         }
 
+        // kill timeout, if next one is closing
+        if ( next == Modem.Status.CLOSING )
+        {
+            if ( modemSimTimeoutWatch > 0 )
+            {
+                GLib.Source.remove( modemSimTimeoutWatch );
+            }
+        }
+
         // if there is no SIM readyness signal, assume it's ready NOW
         if ( next == Modem.Status.ALIVE_SIM_UNLOCKED )
         {
@@ -832,7 +843,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             // started yet, so we miss that signal.
             if ( modem_data.simHasReadySignal )
             {
-                GLib.Timeout.add_seconds( modem_data.simReadyTimeout, () => {
+                modemSimTimeoutWatch = GLib.Timeout.add_seconds( modem_data.simReadyTimeout, () => {
+                    modemSimTimeoutWatch = 0;
                     advanceToState( Modem.Status.ALIVE_SIM_READY );
                     return false;
                 } );
