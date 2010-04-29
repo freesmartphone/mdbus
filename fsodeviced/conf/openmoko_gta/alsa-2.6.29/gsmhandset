@@ -2,7 +2,7 @@
 2:'ADC Capture Volume':2:0,0
 3:'Headphone Playback Volume':2:0,0
 4:'Speaker Playback Volume':2:127,127
-5:'Mono Playback Volume':1:110
+5:'Mono Playback Volume':1:87
 6:'Bypass Playback Volume':2:7,7
 7:'Sidetone Playback Volume':2:0,0
 8:'Voice Playback Volume':2:0,0
