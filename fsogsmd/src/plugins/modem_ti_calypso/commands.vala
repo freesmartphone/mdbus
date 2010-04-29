@@ -42,7 +42,7 @@ public class PercentCPRI : AbstractAtCommand
     {
         try
         {
-            re = new Regex( """%CPRI: (?P<tel>[012]), (?P<pdp>[012])""" );
+            re = new Regex( """%CPRI: (?P<tel>[012]),(?P<pdp>[012])""" );
         }
         catch ( GLib.RegexError e )
         {
@@ -97,7 +97,7 @@ public class PercentCSQ : AbstractAtCommand
     {
         try
         {
-            re = new Regex( """%CSQ: (?P<signal>\d+), (?:\d+), \d""" );
+            re = new Regex( """%CSQ:  (?P<signal>\d+), (?:\d+), \d""" );
         }
         catch ( GLib.RegexError e )
         {
