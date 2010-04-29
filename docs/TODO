@@ -9,6 +9,9 @@
 * More unit tests, add a MockTransport
 * Find out how to make sure that we always read what's available from a transport before attempting to write.
 
+==libgsm0710mux==
+* Consider a threading model
+
 ==fsotdld==
 ===alarm===
 * Should we support a customizable object path for alarm notifications?
@@ -29,3 +32,5 @@
 ==fsogsmd==
 ===General===
 * Remember certain parameters (i.e. GSM timezone) and augment GSM.Network.Status() signal and method
+* Open/Close logic is suboptimal; it would be better to remove channels on shutdown and install them
+  on startup, i.e. _not_ in the object constructor
