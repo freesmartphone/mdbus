@@ -22,7 +22,7 @@ using GLib;
 public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 {
     protected string name;
-
+    private bool isInitialized;
     private bool isMainChannel;
 
     public AtChannel( string name, FsoFramework.Transport transport, FsoFramework.Parser parser )
@@ -89,14 +89,22 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
             // charset ok, now it's save to call mediators
             gatherSimStatusAndUpdate();
         }
+        this.isInitialized = true;
     }
 
     private async void shutdown()
     {
         if ( this.isMainChannel )
         {
-            var seq = theModem.atCommandSequence( "MODEM", "shutdown" );
-            yield seq.performOnChannel( this );
+            if ( this.isInitialized )
+            {
+                var seq = theModem.atCommandSequence( "MODEM", "shutdown" );
+                yield seq.performOnChannel( this );
+            }
+            else
+            {
+                theModem.logger.info( "Not sending shutdown commands, since modem hasn't been initialized yet" );
+            }
         }
     }
 
