@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -28,6 +28,10 @@ static async void fsogsmd_report_status( HashTable<string,Value?> properties )
     try
     {
         yield fsogsmd_pdp.internal_status_update( PPPD.phase.to_string(), properties );
+    }
+    catch ( FreeSmartphone.GSM.Error e0 )
+    {
+        PPPD.error( @"Can't report status to fsogsmd: $(e0.message)" );
     }
     catch ( FreeSmartphone.Error e1 )
     {
@@ -146,9 +150,18 @@ static void plugin_init()
     PPPD.pap_passwd_hook = fsogsmd_get_credentials;
     PPPD.pap_check_hook = fsogsmd_get_pap_check;
 
-    dbus_conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-    fsogsmd_pdp = dbus_conn.get_object(
-        FsoFramework.GSM.ServiceDBusName,
-        FsoFramework.GSM.DeviceServicePath,
-        FsoFramework.GSM.ServiceFacePrefix + ".PDP" ) as FreeSmartphone.GSM.PDP;
+    try
+    {
+
+        dbus_conn = DBus.Bus.get( DBus.BusType.SYSTEM );
+
+        fsogsmd_pdp = dbus_conn.get_object(
+            FsoFramework.GSM.ServiceDBusName,
+            FsoFramework.GSM.DeviceServicePath,
+            FsoFramework.GSM.ServiceFacePrefix + ".PDP" ) as FreeSmartphone.GSM.PDP;
+    }
+    catch ( DBus.Error e )
+    {
+        PPPD.error( @"DBus Error while initializing plugin: $(e.message)" );
+    }
 }
