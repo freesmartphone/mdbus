@@ -115,7 +115,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         }
         catch ( SpawnError e )
         {
-            warning( @"Can't spawn w/ pipes $(command[0]): $(strerror(errno))" );
+            warning( @"Can't spawn w/ pipes $(command[0]): $(e.message))" );
             return false;
         }
 
