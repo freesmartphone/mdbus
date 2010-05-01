@@ -37,4 +37,5 @@
 ===Error Handling===
 * Retry commands upon certain (well-defined) error results, i.e.
   +CMS ERROR 314 (SIM busy)
-
+===SMS===
+* Store last reference number in persistent configuration
