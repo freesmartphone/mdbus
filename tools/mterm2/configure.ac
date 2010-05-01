@@ -44,6 +44,11 @@ fi
 
 AC_SUBST(LIBHISTORY)
 
+if test -z "$LIBHISTORY" && test -z "$LIBREADLINE"; then
+    AC_ERROR( [Can not find readline support. Please install the development package for readline.] )
+fi
+
+# dependencies
 VALA_REQUIRED=0.7.10
 GLIB_REQUIRED=2.12.0
 FSO_TRANSPORT_REQUIRED=0.9
