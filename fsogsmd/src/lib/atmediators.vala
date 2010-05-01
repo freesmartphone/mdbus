@@ -1064,8 +1064,12 @@ public class AtNetworkGetStatus : NetworkGetStatus
         var copsResult2 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC_SHORT ) );
         if ( cops.validate( copsResult2 ) == Constants.AtResponse.VALID )
         {
-            strvalue = cops.oper;
-            status.insert( "display", strvalue );
+            // only override default, if set
+            if ( cops.oper != "" )
+            {
+                strvalue = cops.oper;
+                status.insert( "display", strvalue );
+            }
         }
 
         // query operator code
