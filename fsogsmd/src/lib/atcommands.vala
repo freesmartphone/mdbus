@@ -123,6 +123,33 @@ public class PlusCBC : AbstractAtCommand
     }
 }
 
+public class PlusCBM : AbstractAtCommand
+{
+    public string hexpdu;
+    public int tpdulen;
+
+    public PlusCBM()
+    {
+        try
+        {
+            re = new Regex( """\+CBM: (?P<tpdulen>\d+)""");
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+CBM: " };
+        length = 2;
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        base.parse( response[0] );
+        tpdulen = to_int( "tpdulen" );
+        hexpdu = response[1];
+    }
+}
+
 public class PlusCCLK : AbstractAtCommand
 {
     public int year;
@@ -1414,6 +1441,9 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CMTI" ]             = new FsoGsm.PlusCMTI();
     table[ "+CPMS" ]             = new FsoGsm.PlusCPMS();
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
+
+    // cell broadcast
+    table[ "+CBM" ]              = new FsoGsm.PlusCBM();
 
     // pdp
     table[ "+CGACT" ]            = new FsoGsm.PlusCGACT();

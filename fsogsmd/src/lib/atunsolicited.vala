@@ -110,7 +110,6 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     {
         registerUrc( "+CALA", plusCALA );
         registerUrc( "+CCWA", plusCCWA );
-        registerUrcPdu( "+CDS", plusCDS );
         registerUrc( "+CGEV", plusCGEV );
         registerUrc( "+CGREG", plusCGREG );
         registerUrc( "+CIEV", plusCIEV );
@@ -120,7 +119,13 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CTZV", plusCTZV );
         registerUrc( "+CUSD", plusCUSD );
         registerUrc( "NO CARRIER", no_carrier );
+
+        registerUrcPdu( "+CBM", plusCBM );
+        registerUrcPdu( "+CDS", plusCDS );
     }
+
+    //
+    // simple URCs
 
     public virtual void plusCALA( string prefix, string rhs )
     {
@@ -135,19 +140,6 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         // immediately via +CLCC anyways. Note that we force type to be
         // 'VOICE' since call waiting does only apply to voice calls.
         theModem.callhandler.handleIncomingCall( "VOICE" );
-    }
-
-    public virtual void plusCDS( string prefix, string rhs, string pdu )
-    {
-        var cds = theModem.createAtCommand<PlusCDS>( "+CDS" );
-        if ( cds.validateUrcPdu( { @"$prefix: $rhs", pdu } ) == Constants.AtResponse.VALID )
-        {
-            theModem.smshandler.handleIncomingSmsReport( cds.hexpdu, cds.tpdulen );
-        }
-        else
-        {
-            logger.warning( @"Received invalid +CMTI message $rhs. Please report" );
-        }
     }
 
     public virtual void plusCGEV( string prefix, string rhs )
@@ -212,7 +204,9 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         var cusd = theModem.createAtCommand<PlusCUSD>( "+CUSD" );
         if ( cusd.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
+#if DEBUG
             debug( @"CUSD MODE: $(cusd.mode), RESULT: $(cusd.result), CODE: $(cusd.code)" );
+#endif
             var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
             obj.incoming_ussd( (FreeSmartphone.GSM.UssdStatus)cusd.mode, cusd.result );
         }
@@ -225,5 +219,46 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     public virtual void no_carrier( string prefix, string rhs )
     {
         //FIXME: Implement
+    }
+
+    //
+    // URCs w/ PDU
+
+    public virtual void plusCDS( string prefix, string rhs, string pdu )
+    {
+        var cds = theModem.createAtCommand<PlusCDS>( "+CDS" );
+        if ( cds.validateUrcPdu( { @"$prefix: $rhs", pdu } ) == Constants.AtResponse.VALID )
+        {
+            theModem.smshandler.handleIncomingSmsReport( cds.hexpdu, cds.tpdulen );
+        }
+        else
+        {
+            logger.warning( @"Received invalid +CDS message $rhs. Please report" );
+        }
+    }
+
+    public virtual void plusCBM( string prefix, string rhs, string pdu )
+    {
+        var cbm = theModem.createAtCommand<PlusCBM>( "+CBM" );
+        if ( cbm.validateUrcPdu( { @"$prefix: $rhs", pdu } ) == Constants.AtResponse.VALID )
+        {
+            Cb.Message? cb = Cb.Message.newFromHexPdu( cbm.hexpdu, cbm.tpdulen );
+            if ( cb == null )
+            {
+                logger.warning( @"Error while decoding cell broadcast message w/ PDU $(cbm.hexpdu) $(cbm.tpdulen). Please report" );
+            }
+            else
+            {
+                string lang;
+                var text = cb.decode_all( out lang );
+
+                var obj = theModem.theDevice<FreeSmartphone.GSM.CB>();
+                obj.incoming_cell_broadcast( text, lang, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+            }
+        }
+        else
+        {
+            logger.warning( @"Received invalid +CBM message $rhs. Please report" );
+        }
     }
 }

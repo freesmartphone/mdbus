@@ -34,6 +34,7 @@ class DBusService.Device :
     FreeSmartphone.GSM.Network,
     FreeSmartphone.GSM.Call,
     FreeSmartphone.GSM.PDP,
+    FreeSmartphone.GSM.CB,
     FreeSmartphone.GSM.HZ,
     FsoFramework.AbstractObject
 {
@@ -764,6 +765,21 @@ class DBusService.Device :
         checkAvailability();
         var m = modem.createMediator<FsoGsm.PdpSetCredentials>();
         yield m.run( apn, username, password );
+    }
+
+    //
+    // DBUS (org.freesmartphone.GSM.CB.*)
+    //
+    public async string get_cell_broadcast_subscriptions() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async void set_cell_broadcast_subscriptions( string channels ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
     //
