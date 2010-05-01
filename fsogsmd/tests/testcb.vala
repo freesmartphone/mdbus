@@ -20,15 +20,6 @@
 using GLib;
 using FsoGsm;
 
-/*
-
-
-2010-05-01T16:03:47.060686Z [INFO]  libfsotransport <0710:3>: URC: [ "+CBM: 22", "001000DD001133DAED46ABD56AB5186CD668341A8D46" ]
-2010-05-01T16:03:51.511536Z [INFO]  libfsotransport <0710:3>: URC: [ "+CBM: 88", "001000DD001133DAED46ABD56AB5186CD668341A8D46A3D168341A8D46A3D168341A8D46A3D168341A8D46A3D168341A8D46A3D168341A8D46A3D168341A8D46A3D168341A8D46A3D168341A8D46A3D168341A8D46A3D100" ]
-2010-05-01T16:03:51.511563Z [DEBUG] TiCalypsoUnsolicitedResponseHandler : Dispatching AT unsolicited '+CBM', '88'
-
-*/
-
 //===========================================================================
 void test_cb_decode1()
 //===========================================================================
@@ -61,7 +52,7 @@ void test_cb_decode2()
 
     message( @"lang = $lang; text = $text" );
 
-    assert( lang == "unspecified" );
+    assert( lang == "de" );
     assert( text == "347745555103" );
 }
 
@@ -79,8 +70,8 @@ void test_cb_decode3()
 
     message( @"lang = $lang; text = $text" );
 
-    assert( lang == "en" );
-    assert( text == "Belconnen" );
+    assert( lang == "de" );
+    assert( text == "347745555103" );
 }
 
 //===========================================================================

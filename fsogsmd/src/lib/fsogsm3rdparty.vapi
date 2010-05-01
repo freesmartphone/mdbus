@@ -649,6 +649,35 @@ namespace Cb
         ICELANDIC
     }
 
+    public string language_to_string( Language lang )
+    {
+        switch ( lang )
+        {
+            case Language.GERMAN: return "de";
+            case Language.ENGLISH: return "en";
+            case Language.ITALIAN: return "it";
+            case Language.FRENCH: return "fr";
+            case Language.SPANISH: return "es";
+            case Language.DUTCH: return "nl";
+            case Language.SWEDISH: return "se";
+            case Language.DANISH: return "dk";
+            case Language.PORTUGESE: return "pg";
+            case Language.FINNISH: return "fi";
+            case Language.NORWEGIAN: return "no";
+            case Language.GREEK: return "gr";
+            case Language.TURKISH: return "tr";
+            case Language.HUNGARIAN: return "hu";
+            case Language.POLISH: return "pl";
+            case Language.CZECH: return "cz";
+            case Language.HEBREW: return "il";
+            case Language.ARABIC: return "ae";
+            case Language.RUSSIAN: return "ru";
+            case Language.ICELANDIC: return "is";
+            default:
+                return "unspecified";
+        }
+    }
+
     [CCode (cname = "cbs_geo_scope", cprefix = "CBS_GEO_SCOPE_", cheader_filename = "smsutil.h")]
     public enum GeoScope
     {
@@ -711,7 +740,7 @@ namespace Cb
 
             string text = Cb.decode_text( list, iso639_2 );
 
-            language = iso639_2[0] != '\0' ? (string)iso639_2 : "unspecified";
+            language = iso639_2[0] != '\0' ? (string)iso639_2 : language_to_string( lang );
 
             return text;
         }

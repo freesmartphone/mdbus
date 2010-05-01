@@ -2855,8 +2855,8 @@ gboolean cbs_dcs_decode(guint8 dcs, gboolean *udhi, enum sms_class *cls,
 
 gboolean cbs_decode(const unsigned char *pdu, int len, struct cbs *out)
 {
-	/* CBS is always a fixed length of 88 bytes */
-	if (len != 88)
+	/* CBS lengths seen in the field: 22, 88 */
+	if (len != 88 && len != 22)
 		return FALSE;
 
 	out->gs = (enum cbs_geo_scope) ((pdu[0] >> 6) & 0x03);
