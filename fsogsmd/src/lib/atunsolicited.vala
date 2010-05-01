@@ -111,6 +111,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CALA", plusCALA );
         registerUrc( "+CCWA", plusCCWA );
         registerUrcPdu( "+CDS", plusCDS );
+        registerUrc( "+CGEV", plusCGEV );
         registerUrc( "+CGREG", plusCGREG );
         registerUrc( "+CIEV", plusCIEV );
         registerUrc( "+CMTI", plusCMTI );
@@ -118,6 +119,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CRING", plusCRING );
         registerUrc( "+CTZV", plusCTZV );
         registerUrc( "+CUSD", plusCUSD );
+        registerUrc( "NO CARRIER", no_carrier );
     }
 
     public virtual void plusCALA( string prefix, string rhs )
@@ -148,6 +150,10 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         }
     }
 
+    public virtual void plusCGEV( string prefix, string rhs )
+    {
+        //FIXME: Implement
+    }
 
     public virtual void plusCGREG( string prefix, string rhs )
     {
@@ -214,5 +220,10 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         {
             logger.warning( @"Received invalid +CUSD message $rhs. Please report" );
         }
+    }
+
+    public virtual void no_carrier( string prefix, string rhs )
+    {
+        //FIXME: Implement
     }
 }
