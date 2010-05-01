@@ -85,6 +85,8 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
 
     public abstract async void handleIncomingSmsReport( string hexpdu, int tpdulen );
 
+    public abstract uint16 lastReferenceNumber();
+
     public abstract uint16 nextReferenceNumber();
 
     public abstract Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents, bool requestReport );

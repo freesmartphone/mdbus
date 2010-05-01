@@ -310,6 +310,11 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         }
     }
 
+    public uint16 lastReferenceNumber()
+    {
+        return increasingReferenceNumber-1;
+    }
+
     public uint16 nextReferenceNumber()
     {
         return ++increasingReferenceNumber;

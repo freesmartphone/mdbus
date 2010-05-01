@@ -971,9 +971,9 @@ public class AtSmsSendTextMessage : SmsSendTextMessage
     public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         validatePhoneNumber( recipient_number );
-        uint8 refnum = 0;
 
-        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report );
+        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report ); // will increase the reference number
+        transaction_index = theModem.smshandler.lastReferenceNumber();
 
         // signalize that we're sending a couple of SMS
         var cmms = theModem.createAtCommand<PlusCMMS>( "+CMMS" );
@@ -986,7 +986,7 @@ public class AtSmsSendTextMessage : SmsSendTextMessage
             var response = yield theModem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
             checkResponseOk( cmd, response );
         }
-        transaction_index = refnum;
+        //FIXME: What should we do with that?
         timestamp = "now";
 
         // signalize that we're done
