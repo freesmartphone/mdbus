@@ -186,8 +186,18 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
 
         if ( viface != null && vlocal != null && vgateway != null )
         {
-            Value vdns1 = properties.lookup( "dns1" ) ?? "8.8.8.8";
-            Value vdns2 = properties.lookup( "dns2" ) ?? "8.8.8.8";
+            Value? vdns1 = properties.lookup( "dns1" );
+            if ( vdns1 == null )
+            {
+                logger.warning( @"IPCP: Did not receive DNS1, using default one" );
+                vdns1 = "8.8.8.8";
+            }
+            Value? vdns2 = properties.lookup( "dns2" );
+            if ( vdns2 == null )
+            {
+                logger.warning( @"IPCP: Did not receive DNS2, using default one" );
+                vdns2 = "8.8.8.8";
+            }
             this.connectedWithNewDefaultRoute( viface.get_string(), vlocal.get_string(), "255.255.255.0", vgateway.get_string(), vdns1.get_string(), vdns2.get_string() );
         }
         else
