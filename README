@@ -27,3 +27,7 @@ Build Order:
 6. libfso-glib
 7. libfsoresource
 
+NOTE: Although there is a top-level Makefile present, you rather want to build the individual
+projects. The top-level Makefile is just a convenience for me :) [Patches to make a full
+recursive autotools project out of it appreciated...]
+
