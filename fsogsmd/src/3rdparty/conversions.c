@@ -92,3 +92,14 @@ long sms_size()
 {
     return sizeof( struct sms );
 }
+
+struct cbs* cbs_new()
+{
+    return g_new(struct cbs, 1);
+}
+
+void cbs_free( struct cb* self )
+{
+    g_free( self );
+}
+

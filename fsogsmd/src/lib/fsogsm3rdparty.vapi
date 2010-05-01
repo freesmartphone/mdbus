@@ -46,7 +46,7 @@ namespace Sms
 {
     public const int CBS_MAX_GSM_CHARS;
 
-    [CCode (cprefix = "SMS_TYPE_", has_type_id = false)]
+    [CCode (cname = "sms_language", cprefix = "SMS_TYPE_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum Type
     {
         DELIVER,
@@ -60,7 +60,7 @@ namespace Sms
     }
 
     /* 23.040 Section 9.1.2.5 */
-    [CCode (cprefix = "SMS_NUMBER_TYPE_", has_type_id = false)]
+    [CCode (cname = "sms_number_type", cprefix = "SMS_NUMBER_TYPE_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum NumberType
     {
         UNKNOWN,
@@ -74,7 +74,7 @@ namespace Sms
     }
 
     /* 23.040 Section 9.1.2.5 */
-    [CCode (cprefix = "SMS_NUMBERING_PLAN_", has_type_id = false)]
+    [CCode (cname = "sms_numbering_plan", cprefix = "SMS_NUMBERING_PLAN_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum NumberingPlan
     {
         UNKNOWN,
@@ -89,7 +89,7 @@ namespace Sms
         RESERVED
     }
 
-    [CCode (cprefix = "SMS_VALIDITY_PERIOD_FORMAT_", has_type_id = false)]
+    [CCode (cname = "sms_validity_period_format", cprefix = "SMS_VALIDITY_PERIOD_FORMAT_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum ValidityPeriodFormat
     {
         ABSENT,
@@ -98,7 +98,7 @@ namespace Sms
         ABSOLUTE,
     }
 
-    [CCode (cname = "int", cprefix = "SMS_ST_", has_type_id = false)]
+    [CCode (cname = "int", cprefix = "SMS_ST_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum Status
     {
         COMPLETED_RECEIVED,
@@ -132,7 +132,7 @@ namespace Sms
         TEMPFINAL_LAST
     }
 
-    [CCode (cprefix = "SMS_CT_", has_type_id = false)]
+    [CCode (cname = "sms_ct", cprefix = "SMS_CT_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum Ct
     {
         ENQUIRY,
@@ -141,7 +141,7 @@ namespace Sms
         ENABLE_SRR
     }
 
-    [CCode (cprefix = "SMS_IEI_", has_type_id = false)]
+    [CCode (cname = "sms_iei", cprefix = "SMS_IEI_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum Iei
     {
         CONCATENATED_8BIT,
@@ -178,7 +178,7 @@ namespace Sms
         INVALID
     }
 
-    [CCode (cprefix = "SMS_", has_type_id = false)]
+    [CCode (cname = "enum sms_class", cprefix = "SMS_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum Class
     {
         CLASS_0,
@@ -188,7 +188,7 @@ namespace Sms
         CLASS_UNSPECIFIED,
     }
 
-    [CCode (cprefix = "SMS_", has_type_id = false)]
+    [CCode (cname = "enum sms_charset", cprefix = "SMS_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum Charset
     {
         CHARSET_7BIT,
@@ -196,7 +196,7 @@ namespace Sms
         CHARSET_UCS2
     }
 
-    [CCode (cprefix = "SMS_MWI_TYPE_", has_type_id = false)]
+    [CCode (cname = "enum sms_mwi_type", cprefix = "SMS_MWI_TYPE_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum MwiType
     {
         VOICE,
@@ -206,7 +206,7 @@ namespace Sms
         VIDEO,
     }
 
-    [CCode (cprefix = "SMS_PID_TYPE_", has_type_id = false)]
+    [CCode (cname = "enum sms_pid_type", cprefix = "SMS_PID_TYPE_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum PidType
     {
         SM_TYPE_0,
@@ -225,7 +225,7 @@ namespace Sms
         USIM_DOWNLOAD,
     }
 
-    [CCode (cname = "struct sms_address", cprefix = "sms_address_", destroy_function = "")]
+    [CCode (cname = "struct sms_address", cprefix = "sms_address_", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct Address
     {
         public unowned string to_string();
@@ -239,7 +239,7 @@ namespace Sms
         public char[] address; /* Max 20 in semi-octet, 11 in alnum */
     }
 
-    [CCode (cname = "struct sms_scts", destroy_function = "")]
+    [CCode (cname = "struct sms_scts", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct Scts
     {
         public string to_string()
@@ -262,7 +262,7 @@ namespace Sms
         public int8 timezone;
     }
 
-    [CCode (cname = "struct sms_validity_period", destroy_function = "")]
+    [CCode (cname = "struct sms_validity_period", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct ValidityPeriod
     {
         public uint8 relative;
@@ -270,7 +270,7 @@ namespace Sms
         public uint8 enhanced;
     }
 
-    [CCode (cname = "struct sms_deliver", destroy_function = "")]
+    [CCode (cname = "struct sms_deliver", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct Deliver
     {
         public GLib.HashTable<string,GLib.Value?> properties()
@@ -300,7 +300,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_deliver_err_report", destroy_function = "")]
+    [CCode (cname = "struct sms_deliver_err_report", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct DeliverErrorReport
     {
         public bool udhi;
@@ -312,7 +312,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_deliver_ack_report", destroy_function = "")]
+    [CCode (cname = "struct sms_deliver_ack_report", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct DeliverAckReport
     {
         public bool udhi;
@@ -323,7 +323,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_command", destroy_function = "")]
+    [CCode (cname = "struct sms_command", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct Command
     {
         public bool udhi;
@@ -337,7 +337,7 @@ namespace Sms
         public uint8 cd[];
     }
 
-    [CCode (cname = "struct sms_status_report", destroy_function = "")]
+    [CCode (cname = "struct sms_status_report", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct StatusReport
     {
         public bool udhi;
@@ -355,7 +355,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_submit", destroy_function = "")]
+    [CCode (cname = "struct sms_submit", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct Submit
     {
         public bool rd;
@@ -372,7 +372,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_submit_ack_report", destroy_function = "")]
+    [CCode (cname = "struct sms_submit_ack_report", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct SubmitAckReport
     {
         public bool udhi;
@@ -384,7 +384,7 @@ namespace Sms
         public uint8 ud[];
     }
 
-    [CCode (cname = "struct sms_submit_err_report", destroy_function = "")]
+    [CCode (cname = "struct sms_submit_err_report", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct SubmitErrorReport
     {
         public bool udhi;
@@ -398,7 +398,7 @@ namespace Sms
     }
 
     [Compact]
-    [CCode (cname = "structsms", cprefix = "sms_")]
+    [CCode (cname = "structsms", cprefix = "sms_", cheader_filename = "smsutil.h,conversions.h")]
     public class Message
     {
         public string to_string()
@@ -580,8 +580,7 @@ namespace Sms
     [CCode (cname = "sms_text_prepare")]
     public GLib.SList<unowned Sms.Message> text_prepare( string utf8, uint16 reference, bool use_16bit, out int ref_offset );
 
-    /*
-
+#if USE_ASSEMBLY
     [CCode (cname = "struct sms_udh_iter", destroy_function = "")]
     public struct UserDataHeaderIter
     {
@@ -618,13 +617,13 @@ namespace Sms
         public string imsi;
         private GLib.SList<AssemblyNode?> assembly_list;
     }
-    */
-
+#endif
 }
 
+[CCode (cheader_filename = "conversions.h,util.h,smsutil.h", cprefix = "CB_", lower_case_cprefix = "cbs_")]
 namespace Cb
 {
-    [CCode (cprefix = "CBS_LANGUAGE_")]
+    [CCode (cname = "enum cbs_language", cprefix = "CBS_LANGUAGE_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum Language
     {
         GERMAN,
@@ -650,7 +649,7 @@ namespace Cb
         ICELANDIC
     }
 
-    [CCode (cprefix = "CBS_GEO_SCOPE_")]
+    [CCode (cname = "cbs_geo_scope", cprefix = "CBS_GEO_SCOPE_", cheader_filename = "smsutil.h")]
     public enum GeoScope
     {
         CELL_IMMEDIATE,
@@ -659,9 +658,12 @@ namespace Cb
         CELL_NORMAL
     }
 
-    [CCode (cname = "cbs", destroy_function = "")]
-    public struct Message
+    [Compact]
+    [CCode (cname = "struct cbs", cprefix = "cbs_", cheader_filename = "smsutil.h")]
+    public class Message
     {
+        public Message();
+
         public GeoScope gs;
         public uint16 message_code;
         public uint8 update_number;
@@ -670,9 +672,73 @@ namespace Cb
         public uint8 max_pages;
         public uint8 page;
         public uint8 ud[];
-    }
 
-    [CCode (cname = "cbs_assembly_node", destroy_function = "")]
+        public string to_string()
+        {
+            string language;
+            return decode_all( out language );
+        }
+
+        public string decode_all( out string language )
+        {
+            bool udhi;
+            Sms.Class cls;
+            Sms.Charset charset;
+            bool compressed;
+            Cb.Language lang;
+            bool iso639;
+
+            if ( !dcs_decode( dcs, out udhi, out cls, out charset, out compressed, out lang, out iso639 ) )
+            {
+                GLib.warning( @"Cb.Message::to_string: could not decode dcs" );
+                return "<unknown/invalid>";
+            }
+
+            /*
+            var iso639_2 = new char[3];
+            if ( !iso639_2_from_language( lang, iso639_2 ) )
+            {
+                GLib.warning( @"Cb.Message::to_string: iso639-2 charset unknown" );
+                return "<unknown/invalid>";
+            }
+            *
+            */
+
+            var iso639_2 = new char[3];
+
+            var list = new GLib.SList<unowned Cb.Message>();
+            list.append( this );
+
+            string text = Cb.decode_text( list, iso639_2 );
+
+            language = iso639_2[0] != '\0' ? (string)iso639_2 : "unspecified";
+
+            return text;
+        }
+
+        public static Cb.Message? newFromHexPdu( string hexpdu, int tpdulen )
+        {
+            long items_written = -1;
+            char[] binpdu = new char[1024];
+            Conversions.decode_hex_own_buf( hexpdu, -1, out items_written, 0, binpdu );
+            GLib.assert( items_written != -1 );
+
+            var cb = new Cb.Message();
+            var res = Cb.decode( binpdu, tpdulen, cb );
+
+            if ( !res )
+            {
+                GLib.warning( @"Cb.Message::newFromHexPdu: could not decode message w/ tpdulen $(tpdulen) and hexpdu $(hexpdu)" );
+                return null;
+            }
+            else
+            {
+                return cb;
+            }
+        }
+    }
+#if USE_ASSEMBLIES
+    [CCode (cname = "cbs_assembly_node", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct AssemblyNode
     {
         uint32 serial;
@@ -680,7 +746,7 @@ namespace Cb
         GLib.SList<void*> pages;
     }
 
-    [CCode (cname = "cbs_assembly", destroy_function = "cbs_assembly_free")]
+    [CCode (cname = "cbs_assembly", destroy_function = "cbs_assembly_free", cheader_filename = "smsutil.h")]
     public struct Assembly
     {
         GLib.SList<void*> assembly_list;
@@ -689,12 +755,22 @@ namespace Cb
         GLib.SList<void*> recv_cell;
     }
 
-    [CCode (cname = "cbs_topic_range", destroy_function = "")]
+    [CCode (cname = "cbs_topic_range", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct TopicRange
     {
         ushort min;
         ushort max;
     }
+#endif
+    //
+    // Global methods
+    //
+    public static bool decode( [CCode (array_length = false)] char[] binpdu, int tpdulen, Cb.Message message );
+    public static bool dcs_decode( uint8 dcs, out bool udhi, out Sms.Class cls, out Sms.Charset charset, out bool compressed, out Cb.Language lang, out bool iso639 );
+    [CCode (cname = "iso639_2_from_language")]
+    public static bool iso639_2_from_language( Cb.Language lang, [CCode (array_length = false)] char[] iso639 );
+
+    public static string decode_text( GLib.SList<unowned Cb.Message> list, [CCode (array_length = false)] char[] iso639_lang );
 
     /*
     static inline bool is_bit_set(unsigned char oct, int bit)
