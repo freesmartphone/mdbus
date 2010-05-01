@@ -640,11 +640,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         advanceToState( Modem.Status.RESUMING );
 
-        // suspend all channels
+        // resume all channels
         var channels = this.channels.values;
         foreach( var channel in channels )
         {
-            channel.suspend();
+            channel.resume();
         }
 
         advanceToState( modem_status_before_suspend, true ); // force
