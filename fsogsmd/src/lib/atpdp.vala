@@ -170,6 +170,14 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         Value? viface = properties.lookup( "iface" );
         Value? vlocal = properties.lookup( "local" );
         Value? vgateway = properties.lookup( "gateway" );
+        Value? vdns1 = properties.lookup( "dns1" );
+        Value? vdns2 = properties.lookup( "dns2" );
+
+        string local = "unknown";
+        string gateway = "unknown";
+        //FIXME: use customizable DNS default entries
+        string dns1 = "8.8.8.8";
+        string dns2 = "8.8.8.8";
 
         if ( viface != null )
         {
@@ -177,28 +185,28 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         }
         if ( vlocal != null )
         {
-            assert( logger.debug( @"IPCP: Interface addr is $(uintToIp4Address(vlocal.get_uint()))" ) );
+            local = uintToIp4Address(vlocal.get_uint());
+            assert( logger.debug( @"IPCP: Interface addr is $local" ) );
         }
         if ( vgateway != null )
         {
-            assert( logger.debug( @"IPCP: Gateway   addr is $(uintToIp4Address(vgateway.get_uint()))" ) );
+            gateway = uintToIp4Address(vgateway.get_uint());
+            assert( logger.debug( @"IPCP: Gateway   addr is $gateway" ) );
+        }
+        if ( vdns1 != null )
+        {
+            dns1 = uintToIp4Address(vdns1.get_uint());
+            assert( logger.debug( @"IPCP: DNS1      addr is $dns1" ) );
+        }
+        if ( vdns2 != null )
+        {
+            dns2 = uintToIp4Address(vdns2.get_uint());
+            assert( logger.debug( @"IPCP: DNS2      addr is $dns2" ) );
         }
 
         if ( viface != null && vlocal != null && vgateway != null )
         {
-            Value? vdns1 = properties.lookup( "dns1" );
-            if ( vdns1 == null )
-            {
-                logger.warning( @"IPCP: Did not receive DNS1, using default one" );
-                vdns1 = "8.8.8.8";
-            }
-            Value? vdns2 = properties.lookup( "dns2" );
-            if ( vdns2 == null )
-            {
-                logger.warning( @"IPCP: Did not receive DNS2, using default one" );
-                vdns2 = "8.8.8.8";
-            }
-            this.connectedWithNewDefaultRoute( viface.get_string(), vlocal.get_string(), "255.255.255.0", vgateway.get_string(), vdns1.get_string(), vdns2.get_string() );
+            this.connectedWithNewDefaultRoute( viface.get_string(), local, "255.255.255.0", gateway, dns1, dns2 );
         }
         else
         {
