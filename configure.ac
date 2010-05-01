@@ -49,6 +49,10 @@ fi
 
 AC_SUBST(LIBHISTORY)
 
+if test -z "$LIBHISTORY" && test -z "$LIBREADLINE"; then
+    AC_ERROR( [Can not find readline support. Please install the development package for readline.] )
+fi
+
 # vala
 PKG_CHECK_MODULES(VALA,
   vala-1.0 >= $VALA_REQUIRED)
