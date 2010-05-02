@@ -34,14 +34,13 @@ public class PlusHTCCTZV : AbstractAtCommand
     public int hour;
     public int minute;
     public int second;
-    public int sign;
-    public int tzoffset;
+    public int tzoffset; // in minutes against UTC
 
     public PlusHTCCTZV()
     {
         try
         {
-            var str = """\+HTCCTZV: "?(?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?P<sign>[\+-])(?P<tzoffset>\d\d))?"""";
+            var str = """\+HTCCTZV: "?(?P<year>\d?\d)/(?P<month>\d?\d)/(?P<day>\d?\d),(?P<hour>\d?\d):(?P<minute>\d?\d):(?P<second>\d?\d)(?P<sign>[\+-])(?P<tzoffset>\d\d)?,1"?"""";
             re = new Regex( str );
         }
         catch ( GLib.RegexError e )
@@ -53,14 +52,17 @@ public class PlusHTCCTZV : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        year = to_int( "year" );
+        year = 2000 + to_int( "year" );
         month = to_int( "month" );
         day = to_int( "day" );
         hour = to_int( "hour" );
         minute = to_int( "minute" );
         second = to_int( "second" );
-        sign = to_string( "sign" ) == "+" ? 1 : -1;
-        tzoffset = to_int( "tzoffset" );
+        tzoffset = to_int( "tzoffset" ) * 15;
+        if ( to_string( "sign" ) == "-" )
+        {
+            tzoffset = -tzoffset;
+        }
     }
 }
 

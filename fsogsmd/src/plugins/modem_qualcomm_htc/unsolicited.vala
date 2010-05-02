@@ -71,8 +71,24 @@ public class QualcommHtc.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedRespon
         var htcctv = theModem.createAtCommand<PlusHTCCTZV>( "+HTCCTZV" );
         if ( htcctv.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
-            // FIXME: Send time report signal
-        }
-    }
+            GLib.Time t = {};
+            t.hour = htcctv.hour;
+            t.minute = htcctv.minute;
+            t.second = htcctv.second;
+            t.day = htcctv.day;
+            t.month = htcctv.month - 1;
+            t.year = htcctv.year - 1900;
 
+            var epoch = Linux.timegm( t );
+
+            // send dbus signal
+            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            obj.time_report( (int)epoch, htcctv.tzoffset );
+        }
+        else
+        {
+            logger.warning( @"Received invalid +HTCCTZV message $rhs. Please report" );
+        }
+
+    }
 }

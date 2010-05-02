@@ -101,6 +101,11 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
     {
         return new QualcommHtc.UnsolicitedResponseHandler();
     }
+
+    protected override void registerCustomAtCommands( Gee.HashMap<string,FsoGsm.AtCommand> commands )
+    {
+        QualcommHtc.registerCustomAtCommands( commands );
+    }
 }
 
 /**
