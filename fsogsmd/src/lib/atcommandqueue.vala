@@ -141,8 +141,7 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
         }
 
         // AT URCs have the form PREFIX:SUFFIX
-        var strings = response[0].split( ":" );
-        assert( strings.length == 2 ); // multiple ':' in URC not yet supported
+        var strings = response[0].split( ":", 2 );
 
         if ( response.length == 1 ) // simple URCs
         {
