@@ -43,6 +43,8 @@ public class QualcommHtc.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedRespon
     public UnsolicitedResponseHandler()
     {
         registerUrc( "+PB_READY", plusPB_READY );
+        registerUrc( "+HTCCTZV", plusHTCCTZV );
+
     }
 
     /**
@@ -57,4 +59,20 @@ public class QualcommHtc.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedRespon
         phbReady = true;
         updateReadyness();
     }
+
+    /**
+     * Qualcomm HTC time report
+     *
+     * +HTCCTZV: "10/05/02,15:27:30+08,1"
+     *
+     */
+    public virtual void plusHTCCTZV( string prefix, string rhs )
+    {
+        var htcctv = theModem.createAtCommand<PlusHTCCTZV>( "+HTCCTZV" );
+        if ( htcctv.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            // FIXME: Send time report signal
+        }
+    }
+
 }

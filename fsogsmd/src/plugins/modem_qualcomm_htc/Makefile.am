@@ -43,8 +43,8 @@ endif
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_qualcomm_htc.la
 # warning: file order is important here! otherwise we run into vala bug https://bugzilla.gnome.org/show_bug.cgi?id=553928
-modem_qualcomm_htc_la_SOURCES = htcparser.c unsolicited.c plugin.c
-modem_qualcomm_htc_la_VALASOURCES = htcparser.vala unsolicited.vala plugin.vala
+modem_qualcomm_htc_la_SOURCES = htcparser.c commands.c unsolicited.c plugin.c
+modem_qualcomm_htc_la_VALASOURCES = htcparser.vala commands.vala unsolicited.vala plugin.vala
 $(modem_qualcomm_htc_la_SOURCES): $(modem_qualcomm_htc_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@

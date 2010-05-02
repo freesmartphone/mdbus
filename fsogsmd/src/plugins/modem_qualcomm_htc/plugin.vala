@@ -59,7 +59,9 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
             """+CTZR=1""",
             """+CREG=2""",
             """+CGREG=2""",
-            """+CGEREP=2,1"""
+            """+CGEREP=2,1""",
+
+            """+HTCCTZR=2"""
         } ) );
 
         // sequence for when the modem is registered
