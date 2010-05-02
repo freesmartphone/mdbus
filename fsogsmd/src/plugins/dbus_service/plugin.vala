@@ -773,13 +773,16 @@ class DBusService.Device :
     public async string get_cell_broadcast_subscriptions() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.CbGetCellBroadcastSubscriptions>();
+        yield m.run();
+        return m.subscriptions;
     }
 
-    public async void set_cell_broadcast_subscriptions( string channels ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_cell_broadcast_subscriptions( string subscriptions ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.CbSetCellBroadcastSubscriptions>();
+        yield m.run( subscriptions );
     }
 
     //

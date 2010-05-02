@@ -1223,6 +1223,50 @@ public class PlusCSCA : AbstractAtCommand
     }
 }
 
+public class PlusCSCB : AbstractAtCommand
+{
+    public int mode;
+    public int channels;
+    public int encodings;
+
+    public enum Mode
+    {
+        NONE,
+        ALL
+    }
+
+    public PlusCSCB()
+    {
+        try
+        {
+            re = new Regex( """\+CSCB: +(?P<mode>[01]), *"(?P<channels>\d*)", *"(?P<encodings>\d*)"""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+CSCB: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        mode = to_int( "mode" );
+        channels = to_int( "channels" );
+        encodings = to_int( "encodings" );
+    }
+
+    public string query()
+    {
+        return "+CSCB?";
+    }
+
+    public string issue( Mode m )
+    {
+        return "+CSCB=%u,\"\",\"\"".printf( m == Mode.NONE ? 0 : 1 );
+    }
+}
+
 public class PlusCSCS : SimpleAtCommand<string>
 {
     public PlusCSCS()
@@ -1444,6 +1488,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 
     // cell broadcast
     table[ "+CBM" ]              = new FsoGsm.PlusCBM();
+    table[ "+CSCB" ]             = new FsoGsm.PlusCSCB();
 
     // pdp
     table[ "+CGACT" ]            = new FsoGsm.PlusCGACT();

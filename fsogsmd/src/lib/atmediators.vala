@@ -1195,6 +1195,9 @@ public class AtCallReleaseAll : CallReleaseAll
     }
 }
 
+/**
+ * PDP Mediators
+ **/
 public class AtPdpActivateContext : PdpActivateContext
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -1248,6 +1251,42 @@ public class AtPdpSetCredentials : PdpSetCredentials
         checkResponseOk( cmd, response );
     }
 }
+
+/**
+ * CB Mediators
+ **/
+public class AtCbSetCellBroadcastSubscriptions : CbSetCellBroadcastSubscriptions
+{
+    public override async void run( string subscriptions ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        if ( ! ( subscriptions in new string[] { "none", "all" } ) )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Must use 'none' or 'all' as parameter." );
+        }
+        var cmd = theModem.createAtCommand<PlusCSCB>( "+CSCB" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( subscriptions == "all" ? PlusCSCB.Mode.ALL : PlusCSCB.Mode.NONE ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
+public class AtCbGetCellBroadcastSubscriptions : CbGetCellBroadcastSubscriptions
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCSCB>( "+CSCB" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        if ( cmd.mode == PlusCSCB.Mode.ALL )
+        {
+            subscriptions = "all";
+        }
+        else
+        {
+            subscriptions = "none";
+        }
+    }
+}
+
 
 /**
  * Register all mediators
@@ -1311,6 +1350,9 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(PdpDeactivateContext) ]         = typeof( AtPdpDeactivateContext );
     table[ typeof(PdpSetCredentials) ]            = typeof( AtPdpSetCredentials );
     table[ typeof(PdpGetCredentials) ]            = typeof( AtPdpGetCredentials );
+
+    table[ typeof(CbSetCellBroadcastSubscriptions) ] = typeof( AtCbSetCellBroadcastSubscriptions );
+    table[ typeof(CbGetCellBroadcastSubscriptions) ] = typeof( AtCbGetCellBroadcastSubscriptions );
 
 }
 
