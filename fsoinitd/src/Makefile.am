@@ -31,8 +31,8 @@ fsoinitd_VALASOURCES = \
 	main.vala \
 	contracts.vala \
 	actionqueue.vala \
-	mountfilesystemaction.vala \
-	sysfsconfigaction.vala \
+	actions/mountfilesystemaction.vala \
+	actions/sysfsconfigaction.vala \
 	initprocessworker.vala \
 	configurations/baseconfiguration.vala \
 	$(NULL)
