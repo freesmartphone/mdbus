@@ -1,0 +1,49 @@
+=======================================================================
+ fsoinitd: a legacy-free minimal system initializer for modern systems
+=======================================================================
+
+fso-boot is an attempt to a) minimize userland boot time and b) get rid
+of the full-fledged init system, which we usually don't need for smartphones.
+
+It is aimed to be an init process replacement that can either run stand-
+alone or be linked as a stub to any process that will then handle system
+initialization. This is very important on some embedded platforms.
+
+Things like sysvinit, udev, hal, and friends are having a negative impact
+and are overkill for modern dbus-based service architectures. If I boot a
+Linux-based smartphone, I don't want any
+* runlevels
+* initscripts
+* inittab
+* udev and friends.
+
+fso-boot can be used as init process replacement. On startup, it does:
+
+0.) mount virtual filesystems:
+	* /proc
+	* /dev/pts
+	* /sys
+
+1.) mount physical filesystems:
+	* root file system
+	* volatile filesystems
+
+2.) bring up local networking:
+	* lo
+	* usb0
+	* eth0
+	* set hostname
+	* set default route
+
+3.) start a getty and/or ssh daemon
+
+4.) launch the dbus system daemon
+
+5.) (optionally) start a user session, i.e. X11, Framebuffer, etc.
+
+This reduces the enormous complexity, but of course comes with a price
+of (very) limited flexiblity. Where exactly we will draw the line has not
+been decided yet, the first phase of this project is merely a proof of
+concept to see how fast we can actually get.
+
+:M:
