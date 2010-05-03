@@ -633,6 +633,8 @@ public class PlusCMGR : AbstractAtCommand
 
 public class PlusCMGS : AbstractAtCommand
 {
+    public int refnum;
+
     public PlusCMGS()
     {
         try
@@ -644,6 +646,12 @@ public class PlusCMGS : AbstractAtCommand
             assert_not_reached(); // fail here if Regex is broken
         }
         prefix = { "+CMGS: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        refnum = to_int( "id" );
     }
 
     public string issue( WrapHexPdu pdu )
