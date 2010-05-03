@@ -146,6 +146,8 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
 
     /**
      * Validate the terminal response for this At command
+     *
+     * Does NOT parse!
      **/
     public virtual Constants.AtResponse validateOk( string[] response )
     {
@@ -191,7 +193,7 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
     }
 
     /**
-     * Validate a response for this At command
+     * Parse actual response to this At command and validate
      **/
     public virtual Constants.AtResponse validate( string[] response )
     {

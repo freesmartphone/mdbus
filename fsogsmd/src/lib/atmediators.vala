@@ -972,8 +972,7 @@ public class AtSmsSendTextMessage : SmsSendTextMessage
     {
         validatePhoneNumber( recipient_number );
 
-        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report ); // will increase the reference number
-        transaction_index = theModem.smshandler.lastReferenceNumber();
+        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report );
 
         // signalize that we're sending a couple of SMS
         var cmms = theModem.createAtCommand<PlusCMMS>( "+CMMS" );
@@ -984,7 +983,8 @@ public class AtSmsSendTextMessage : SmsSendTextMessage
         {
             var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
             var response = yield theModem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
-            checkResponseOk( cmd, response );
+            checkResponseValid( cmd, response );
+            transaction_index = cmd.refnum;
         }
         //FIXME: What should we do with that?
         timestamp = "now";
