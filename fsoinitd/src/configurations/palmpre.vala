@@ -22,7 +22,7 @@ namespace FsoInit {
 
 public BaseConfiguration createMachineConfiguration() 
 {
-	return new PalmPreConfiguration()
+	return new PalmPreConfiguration();
 }
 
 public class PalmPreConfiguration : BaseConfiguration
@@ -34,7 +34,28 @@ public class PalmPreConfiguration : BaseConfiguration
 
 	public override void registerActionsInQueue(IActionQueue queue)
 	{
-		
+		// Mount proc and sysfs filesystem
+		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT));
+		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "sys", "/sys", "sysfs", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID ));
+        
+        // Turn led on, so the user know the init process has been started
+        queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "50"));
+        
+        // Mount relevant filesystems
+        queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "tmpfs", "/tmp", "tmpfs", Linux.MountFlags.MS_SILENT));
+        queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID ));
+        
+        // Configure network interface
+        queue.registerAction(new ConfigureNetworkInterfaceAction.with_settings("lo", "127.0.0.1", "255.255.255.0"));
+        queue.registerAction(new ConfigureNetworkInterfaceAction.with_settings("usb0", "192.168.0.202", "255.255.255.0"));
+        
+        // Launch several other daemons we need right after the init process is over
+        queue.registerAction(new SpawnProcessAction.from_cmdline("dbus --system --fork"));
+        queue.registerAction(new SpawnProcessAction.from_cmdline("/sbin/getty 38400 tty0"));
+        queue.registerAction(new SpawnProcessAction.from_cmdline("/etc/init.d/dropbear start"));
+        
+        // Turn led off to let the user know we have finished
+        queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "0"));
 	}
 }
 
