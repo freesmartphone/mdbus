@@ -32,6 +32,15 @@ public class MountFilesystemAction : IAction, GLib.Object
 	{
 		mode = (Posix.mode_t)0755;
 	}
+	
+	public MountFilesystemAction.with_settings(Posix.mode_t mode, string source, string target,  string fs_type, Linux.MountFlags flags)
+	{
+		this.mode = mode;
+		this.fs_type = fs_type;
+		this.source = source;
+		this.target = target;
+		this.flags = flags;
+	}
 
 	public void run() throws ActionError
 	{

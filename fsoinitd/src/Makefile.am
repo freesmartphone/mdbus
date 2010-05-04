@@ -36,6 +36,7 @@ fsoinitd_VALASOURCES = \
 	spawnprocessaction.vala \
 	sysfsconfigaction.vala \
 	mountfilesystemaction.vala \
+	configurenetworkinterfaceaction.vala \
 	$(NULL)
 
 if WANT_MACHINE_PALMPRE
