@@ -32,6 +32,11 @@ public class SysfsConfigAction : IAction, GLib.Object
 		this.valueForWrite = valueForWrite;
 	}
 
+	public string to_string() 
+	{
+		return @"[$(name)] :: path='$(path)' valueForWrite='$(valueForWrite)'";
+	}
+
 	public void run() throws ActionError
 	{
 		if (FsoFramework.FileHandling.isPresent(path)) 

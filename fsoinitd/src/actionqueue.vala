@@ -47,9 +47,11 @@ public class ActionQueue : IActionQueue, GLib.Object
 				action.run();
 				FsoFramework.theLogger.debug(@"finished '$(action.name)' action!");
 			}
-			catch (GLib.Error err) 
+			catch (ActionError err) 
 			{
-				// FIXME how to handle this?
+				FsoFramework.theLogger.error(@"an error occured while running action '$(action.name)'");
+				FsoFramework.theLogger.error(@"action was executed as the following: ");
+				FsoFramework.theLogger.error(@" -> $(action.to_string())");
 			}
 		}
 	}

@@ -28,6 +28,26 @@ public enum RouteType
     HOST
 }
 
+public string routeTypeToString (RouteType type) 
+{
+	var result = "<unknown>";
+	switch (type) 
+	{
+	case RouteType.DEFAULT:
+		result = "DEFAULT";
+		break;
+	case RouteType.NET:
+		result = "NET";
+		break;
+	case RouteType.HOST:
+		result = "HOST";
+		break;
+	default:
+		break;
+	}
+	return result;
+}
+
 public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 {
 	public string name { get { return "ConfigureNetworkInterfaceAction"; } }
@@ -42,6 +62,17 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 		this.iface = iface;
 		this.address = address;
 		this.netmask = netmask;
+	}
+
+	public string to_string() 
+	{
+		string tmp = @"[$(name)] :: ";
+		tmp += @"iface='$(iface)' ";
+		tmp += @"address='$(address)' ";
+		tmp += @"netmask='$(netmask)' ";
+		tmp += @"routeType='$(routeTypeToString(routeType))' ";
+		tmp += @"gateway='$(gateway)'";
+		return tmp;
 	}
 
 	private bool configureInterfaceWithAddress( string iface, string address, string netmask )
@@ -109,7 +140,7 @@ public bool CHECK( Predicate p, string message, bool abort = false )
 		return true;
 	}
 
-	FsoFramework.theLogger.info( @"$message: $(strerror(errno))" );
+	FsoFramework.theLogger.error( @"$message: $(strerror(errno))" );
 
 	if ( abort )
 	{

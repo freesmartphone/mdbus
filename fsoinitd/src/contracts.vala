@@ -34,6 +34,7 @@ public interface IAction : GLib.Object
 	public abstract string name { get; }
 	public abstract void run() throws ActionError;
 	public abstract void reset() throws ActionError;
+	public abstract string to_string();
 }
 
 public interface IActionQueue : GLib.Object

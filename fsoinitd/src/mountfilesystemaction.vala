@@ -30,7 +30,7 @@ public class MountFilesystemAction : IAction, GLib.Object
 	
 	construct
 	{
-		mode = (Posix.mode_t)0755;
+		mode = (Posix.mode_t) 0755;
 	}
 	
 	public MountFilesystemAction.with_settings(Posix.mode_t mode, string source, string target,  string fs_type, Linux.MountFlags flags)
@@ -40,6 +40,18 @@ public class MountFilesystemAction : IAction, GLib.Object
 		this.source = source;
 		this.target = target;
 		this.flags = flags;
+	}
+
+	public string to_string() 
+	{
+		string tmp = @"[$(name)] :: ";
+		tmp += "mode='%l' ".printf((long)mode);
+		tmp += @"source='$(source)' ";
+		tmp += @"target='$(target)' ";
+		tmp += @"fs_type='$(fs_type)' ";
+		// FIXME write function to translate flags into string
+		tmp += @"flags=''"; 
+		return tmp;
 	}
 
 	public void run() throws ActionError

@@ -34,6 +34,20 @@ public class SpawnProcessAction : IAction, GLib.Object
 		command = cmdline.split(" ");
 	}
 
+	public string to_string() 
+	{
+		string cmdline = "";
+		var first = false;
+		foreach (var cmd in command) 
+		{
+			if (!first) 
+				cmdline += " ";
+			cmdline += cmd;
+			first = false;
+		}
+		return @"[$(name)] :: command = '$(cmdline)'";
+	}
+
 	public void run() throws ActionError
 	{
 		try 
