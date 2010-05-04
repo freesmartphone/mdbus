@@ -29,6 +29,10 @@ public class SpawnProcessAction : IAction, GLib.Object
 	construct
 	{
 	}
+	
+	public SpawnProcessAction.from_cmdline(string cmdline) {
+		command = cmdline.split(" ");
+	}
 
 	public void run() throws ActionError
 	{
