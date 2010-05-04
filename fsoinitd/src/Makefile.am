@@ -31,10 +31,11 @@ fsoinitd_VALASOURCES = \
 	main.vala \
 	contracts.vala \
 	actionqueue.vala \
-	actions/mountfilesystemaction.vala \
-	actions/sysfsconfigaction.vala \
 	initprocessworker.vala \
 	configurations/baseconfiguration.vala \
+	spawnprocessaction.vala \
+	sysfsconfigaction.vala \
+	mountfilesystemaction.vala \
 	$(NULL)
 
 if WANT_MACHINE_PALMPRE

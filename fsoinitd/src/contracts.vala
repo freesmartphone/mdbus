@@ -26,6 +26,7 @@ public errordomain ActionError
 	COULD_NOT_MOUNT_FILESYSTEM,
 	COULD_NOT_UMOUNT_FILESYSTEM,
 	COULD_NOT_FIND_SYSFS_NODE,
+	COULD_NOT_SPAWN_PROCESS,
 }
 
 public interface IAction : GLib.Object
