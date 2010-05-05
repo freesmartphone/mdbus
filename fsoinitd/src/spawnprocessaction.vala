@@ -22,48 +22,36 @@ namespace FsoInit {
 public class SpawnProcessAction : IAction, GLib.Object
 {
 	public string name { get { return "SpawnProcessAction"; } }
-	public string[] command { get; set; }
-	
-	private Pid pid;
+	public string cmdline { get; set; }
+	public bool inBackground { get; set; default = false; }
 	
 	construct
 	{
 	}
 	
-	public SpawnProcessAction.from_cmdline(string cmdline) {
-		command = cmdline.split(" ");
+	public SpawnProcessAction.with_settings(string cmdline, bool inBackground = false) {
+		this.cmdline = cmdline;
+		this.inBackground = inBackground;
 	}
 
 	public string to_string() 
 	{
-		string cmdline = "";
-		var first = false;
-		foreach (var cmd in command) 
-		{
-			if (!first) 
-				cmdline += " ";
-			cmdline += cmd;
-			first = false;
-		}
-		return @"[$(name)] :: command = '$(cmdline)'";
+		return @"[$(name)] :: cmdline = '$(cmdline)'";
 	}
 
 	public void run() throws ActionError
 	{
-		try 
-		{
-			// Spawn process and save it's process id for later use
-			GLib.Process.spawn_async(GLib.Environment.get_variable( "PWD" ),
-									 command,
-									 null,
-									 GLib.SpawnFlags.DO_NOT_REAP_CHILD | GLib.SpawnFlags.SEARCH_PATH,
-									 null,
-									 out pid);
+		int res = 0; string command = cmdline;
+		if (inBackground) {
+			command = @"$(cmdline) &";
 		}
-		catch (GLib.SpawnError err) 
-		{	
+
+		res = Posix.system(command);
+
+		if (res < 0) 
+		{
 			var msg = "Could not spawn process '";
-			msg += command.length > 1 ? command[0] : "<unknown>";
+			msg += cmdline.length > 1 ? cmdline : "<unknown>";
 			msg += "'";
 			throw new ActionError.COULD_NOT_SPAWN_PROCESS(msg);
 		}
