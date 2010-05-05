@@ -36,6 +36,7 @@ class DBusService.Device :
     FreeSmartphone.GSM.PDP,
     FreeSmartphone.GSM.CB,
     FreeSmartphone.GSM.HZ,
+    FreeSmartphone.GSM.Monitor,
     FsoFramework.AbstractObject
 {
     //FsoFramework.Subsystem subsystem;
@@ -795,6 +796,21 @@ class DBusService.Device :
     }
 
     public async string[] get_known_home_zones() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    //
+    // DBUS (org.freesmartphone.GSM.Monitor.*)
+    //
+    public async GLib.HashTable<string,GLib.Value?>[] get_neighbour_cell_information() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public async GLib.HashTable<string,GLib.Value?> get_serving_cell_information() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
