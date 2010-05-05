@@ -113,6 +113,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CGEV", plusCGEV );
         registerUrc( "+CGREG", plusCGREG );
         registerUrc( "+CIEV", plusCIEV );
+        registerUrc( "+CLIP", plusCLIP );
         registerUrc( "+CMTI", plusCMTI );
         registerUrc( "+CREG", plusCREG );
         registerUrc( "+CRING", plusCRING );
@@ -155,6 +156,10 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     public virtual void plusCIEV( string prefix, string rhs )
     {
         //FIXME: Implement
+    }
+
+    public virtual void plusCLIP( string prefix, string rhs )
+    {
     }
 
     public virtual void plusCREG( string prefix, string rhs )

@@ -96,6 +96,11 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """+CTZU=1""",
             """+CTZR=1""",
 
+            """%CPVWI=1""",
+            """%CTZV=1""",
+            """%CSSN=1""",
+            """%CSSD=1""",
+
             """%CPI=3""",
             """%CPRI=1""",
             """%CNIV=1""",
