@@ -359,3 +359,20 @@ public abstract class FsoGsm.CbGetCellBroadcastSubscriptions : FsoGsm.AbstractMe
 
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
+
+//
+// org.freesmartphone.GSM.Monitor.*
+//
+public abstract class FsoGsm.MonitorGetServingCellInformation : FsoGsm.AbstractMediator
+{
+    public GLib.HashTable<string,GLib.Value?> cell { get; set; }
+
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.MonitorGetNeighbourCellInformation : FsoGsm.AbstractMediator
+{
+    public GLib.HashTable<string,GLib.Value?>[] cells { get; set; }
+
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}

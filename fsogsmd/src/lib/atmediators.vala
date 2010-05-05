@@ -1287,6 +1287,24 @@ public class AtCbGetCellBroadcastSubscriptions : CbGetCellBroadcastSubscriptions
     }
 }
 
+/**
+ * Monitor Mediators
+ **/
+public class AtMonitorGetServingCellInformation : MonitorGetServingCellInformation
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
+    }
+}
+
+public class AtMonitorGetNeighbourCellInformation : MonitorGetNeighbourCellInformation
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
+    }
+}
 
 /**
  * Register all mediators
@@ -1353,6 +1371,9 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
 
     table[ typeof(CbSetCellBroadcastSubscriptions) ] = typeof( AtCbSetCellBroadcastSubscriptions );
     table[ typeof(CbGetCellBroadcastSubscriptions) ] = typeof( AtCbGetCellBroadcastSubscriptions );
+
+    table[ typeof(MonitorGetServingCellInformation) ] = typeof( AtMonitorGetServingCellInformation );
+    table[ typeof(MonitorGetNeighbourCellInformation) ] = typeof( AtMonitorGetNeighbourCellInformation );
 
 }
 

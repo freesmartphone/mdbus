@@ -804,16 +804,20 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.Monitor.*)
     //
-    public async GLib.HashTable<string,GLib.Value?>[] get_neighbour_cell_information() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
-    {
-        checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-
     public async GLib.HashTable<string,GLib.Value?> get_serving_cell_information() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.MonitorGetServingCellInformation>();
+        yield m.run();
+        return m.cell;
+    }
+
+    public async GLib.HashTable<string,GLib.Value?>[] get_neighbour_cell_information() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        var m = modem.createMediator<FsoGsm.MonitorGetNeighbourCellInformation>();
+        yield m.run();
+        return m.cells;
     }
 }
 
