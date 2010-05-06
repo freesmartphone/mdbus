@@ -34,12 +34,25 @@ public class PalmPreConfiguration : BaseConfiguration
 
 	public override void registerActionsInQueue(IActionQueue queue)
 	{
+		// Remount rootfs read-write
+		queue.registerAction(new SpawnProcessAction.with_settings("mount -o remount,rw /"));
+		
+		// FIXME: we don't want to use udev anymore, but currently we 
+		// don't have devtmpfs in our kernel. When devtmpfs is ported to
+		// our kernel we stop using udev
+		
+		// Start udev
+		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/udev start"));
+		
 		// Mount proc and sysfs filesystem
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT));
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "sys", "/sys", "sysfs", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID ));
 
 		// Turn led on, so the user know the init process has been started
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "50"));
+		
+		// Populate volatile
+		// FIXME
 
 		// Mount relevant filesystems
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "tmpfs", "/tmp", "tmpfs", Linux.MountFlags.MS_SILENT));
