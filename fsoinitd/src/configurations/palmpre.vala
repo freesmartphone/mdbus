@@ -34,6 +34,10 @@ public class PalmPreConfiguration : BaseConfiguration
 
 	public override void registerActionsInQueue(IActionQueue queue)
 	{
+		// Mount proc and sysfs filesystem
+		queue.registerAction(new SpawnProcessAction.with_settings("mount -t proc proc /proc -o rw,noexec,nosuid,nodev"));
+		queue.registerAction(new SpawnProcessAction.with_settings("mount -t sysfs sys /sys -o rw,noexec,nosuid,nodev"));
+		
 		// Remount rootfs read-write
 		queue.registerAction(new SpawnProcessAction.with_settings("mount -o remount,rw /"));
 		
@@ -44,10 +48,6 @@ public class PalmPreConfiguration : BaseConfiguration
 		// Start udev
 		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/udev start"));
 		
-		// Mount proc and sysfs filesystem
-		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT));
-		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "sys", "/sys", "sysfs", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID ));
-
 		// Turn led on, so the user know the init process has been started
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "50"));
 		
@@ -55,17 +55,16 @@ public class PalmPreConfiguration : BaseConfiguration
 		// FIXME
 
 		// Mount relevant filesystems
-		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "tmpfs", "/tmp", "tmpfs", Linux.MountFlags.MS_SILENT));
-		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID ));
+		queue.registerAction(new SpawnProcessAction.with_settings("mount -t tmpfs tmpfs /tmp"));
+		queue.registerAction(new SpawnProcessAction.with_settings("mount -t devpts devpts /dev/pts"));
 		
 		// Debug!
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_left/brightness", "50"));
 
+		// Set the hostname
+		queue.registerAction(new SpawnProcessAction.with_settings("hostname -f /etc/hostname"));
+		
 		// Configure network interface
-#if 0
-		queue.registerAction(new ConfigureNetworkInterfaceAction.with_settings("lo", "127.0.0.1", "255.255.255.0"));
-		queue.registerAction(new ConfigureNetworkInterfaceAction.with_settings("usb0", "192.168.0.202", "255.255.255.0"));
-#endif
 		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifup -f lo"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifup -f usb0"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifconfig usb0 192.168.0.202"));
