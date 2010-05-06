@@ -10,6 +10,7 @@ VALAC_ARGS = \
 	--pkg linux \
 	--pkg dbus-glib-1 \
 	--pkg fsobasics-2.0 \
+	--pkg util \
 	--save-temps
 
 if WANT_DEBUG
@@ -38,6 +39,7 @@ fsoinitd_VALASOURCES = \
 	mountfilesystemaction.vala \
 	configurenetworkinterfaceaction.vala \
 	additionalbootprocessaction.vala \
+	setuphostnameaction.vala \
 	$(NULL)
 
 if WANT_MACHINE_PALMPRE
