@@ -70,7 +70,10 @@ AC_ARG_WITH(machine,
 ],[
   machine="dummy"
 ])
+AM_CONDITIONAL( [WANT_MACHINE_OPENMOKO_GTA02], [test x"$machine" = x"om-gta02"])
 AM_CONDITIONAL( [WANT_MACHINE_PALMPRE], [test x"$machine" = x"palmpre"])
+AM_CONDITIONAL( [WANT_MACHINE_DUMMY], [test x"$machine" = x"dummy"])
+
 
 # output
 AC_CONFIG_FILES([

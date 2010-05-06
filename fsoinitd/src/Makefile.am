@@ -45,7 +45,13 @@ fsoinitd_VALASOURCES = \
 
 if WANT_MACHINE_PALMPRE
 fsoinitd_VALASOURCES += configurations/palmpre.vala
-else
+endif
+
+if WANT_MACHINE_OPENMOKO_GTA02
+fsoinitd_VALASOURCES += configurations/om-gta02.vala
+endif
+
+if WANT_MACHINE_DUMMY
 fsoinitd_VALASOURCES += configurations/dummy.vala
 endif
 

@@ -52,12 +52,12 @@ public class GTA02Configuration : BaseConfiguration
 		queue.registerAction(new ConfigureNetworkInterfaceAction.with_settings("usb0", "192.168.0.202", "255.255.255.0"));
 		
 		// Launch several other daemons we need right after the init process is over
-		queue.registerAction(new SpawnProcessAction.from_cmdline("dbus --system --fork"));
-		queue.registerAction(new SpawnProcessAction.from_cmdline("/etc/init.d/fsodeviced start"));
-		queue.registerAction(new SpawnProcessAction.from_cmdline("/etc/init.d/fsotdld start"));
-		queue.registerAction(new SpawnProcessAction.from_cmdline("/etc/init.d/sshd start"));
-		queue.registerAction(new SpawnProcessAction.from_cmdline("/etc/init.d/phonefsod start"));
-		queue.registerAction(new SpawnProcessAction.from_cmdline("/etc/init.d/xserver-nodm start"));
+		queue.registerAction(new SpawnProcessAction.with_settings("dbus --system --fork"));
+		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/fsodeviced start"));
+		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/fsotdld start"));
+		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/sshd start"));
+		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/phonefsod start"));
+		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/xserver-nodm start"));
 		
 		// Turn led off to let the user know we have finished
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/gta02-aux:red/brightness", "0"));
