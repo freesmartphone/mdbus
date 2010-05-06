@@ -29,11 +29,7 @@ int main( string[] args )
 
 	var worker = new FsoInit.InitProcessWorker();
 	worker.setup();
-
-	Idle.add( () => {
-		worker.run(); 
-		return false;
-	} );
+	worker.run();
 	
 	FsoFramework.theLogger.info( "%s => mainloop".printf( bin ) );
 	mainloop.run();
