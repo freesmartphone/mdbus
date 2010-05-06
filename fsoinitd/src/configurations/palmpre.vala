@@ -57,6 +57,9 @@ public class PalmPreConfiguration : BaseConfiguration
 		// Mount relevant filesystems
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "tmpfs", "/tmp", "tmpfs", Linux.MountFlags.MS_SILENT));
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID ));
+		
+		// Debug!
+		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_left/brightness", "50"));
 
 		// Configure network interface
 #if 0
@@ -66,11 +69,18 @@ public class PalmPreConfiguration : BaseConfiguration
 		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifup -f lo"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifup -f usb0"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifconfig usb0 192.168.0.202"));
+		
+		// Debug!
+		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_right/brightness", "50"));
 
 		// Launch several other daemons we need right after the init process is over
 		queue.registerAction(new SpawnProcessAction.with_settings("dbus --system --fork"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/getty 38400 tty0"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/dropbear start"));
+		
+		// Debug!
+		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_right/brightness", "0"));
+		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_left/brightness", "0"));
 
 		// Turn led off to let the user know we have finished
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "0"));
