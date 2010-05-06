@@ -62,7 +62,7 @@ public class PalmPreConfiguration : BaseConfiguration
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_left/brightness", "50"));
 
 		// Set the hostname
-		queue.registerAction(new SpawnProcessAction.with_settings("hostname -f /etc/hostname"));
+		queue.registerAction(new SetupHostnameAction());
 		
 		// Configure network interface
 		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifup -f lo"));
