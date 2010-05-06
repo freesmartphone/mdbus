@@ -28,6 +28,7 @@ public errordomain ActionError
 	COULD_NOT_FIND_SYSFS_NODE,
 	COULD_NOT_SPAWN_PROCESS,
 	COULD_NOT_SET_HOSTNAME,
+	COULD_NOT_ACTIVATE_DBUS_SERVICE,
 }
 
 public interface IAction : GLib.Object
