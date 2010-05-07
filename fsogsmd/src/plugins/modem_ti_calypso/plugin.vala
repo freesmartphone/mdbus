@@ -180,6 +180,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
     {
+        TiCalypso.registerCustomMediators( mediators );
     }
 
     protected override void registerCustomAtCommands( HashMap<string,FsoGsm.AtCommand> commands )
