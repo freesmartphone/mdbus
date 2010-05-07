@@ -43,9 +43,10 @@ public class ActionQueue : IActionQueue, GLib.Object
 		{
 			try 
 			{
-				FsoFramework.theLogger.debug(@"running '$(action.name)' action ...");
+				FsoFramework.theLogger.debug(@"run '$(action.name)' action ...");
+				FsoFramework.theLogger.debug(@"ACTION INFO: $(action.to_string())");
 				action.run();
-				FsoFramework.theLogger.debug(@"finished '$(action.name)' action!");
+				FsoFramework.theLogger.debug(@"--> finished action'$(action.name)'");
 			}
 			catch (ActionError err) 
 			{

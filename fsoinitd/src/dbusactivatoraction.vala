@@ -23,11 +23,11 @@ public class DBusActivatorAction : IAction, GLib.Object
 {
 	public string name { get { return "DBusActivatorAction"; } }
 	
-	public string service_name { get; set; }
+	public string service_name { get; set; default = ""; }
 	public bool use_system_bus { get; set; default = true; }
-	public string object_name { get; set; }
-	public string object_path { get; set; }
-	public string iface { get; set; }
+	public string object_name { get; set; default = ""; }
+	public string object_path { get; set; default = ""; }
+	public string iface { get; set; default = ""; }
 	
 	public DBusActivatorAction.with_settings(string service_name, 
 											 bool use_system_bus,

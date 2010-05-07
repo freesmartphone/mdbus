@@ -22,7 +22,7 @@ namespace FsoInit {
 public class SpawnProcessAction : IAction, GLib.Object
 {
 	public string name { get { return "SpawnProcessAction"; } }
-	public string cmdline { get; set; }
+	public string cmdline { get; set; default = ""; }
 	public bool inBackground { get; set; default = false; }
 	
 	construct
@@ -46,6 +46,7 @@ public class SpawnProcessAction : IAction, GLib.Object
 			command = @"$(cmdline) &";
 		}
 
+		FsoFramework.theLogger.debug(@"Spawn process with '$(command)'");
 		res = Posix.system(command);
 
 		if (res < 0) 

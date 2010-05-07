@@ -35,6 +35,7 @@ public class SetupHostnameAction : IAction, GLib.Object
 			string hostname = FsoFramework.FileHandling.read("/etc/hostname");
 			if (hostname.length > 0) 
 			{
+				FsoFramework.theLogger.debug(@"Set hostname to '$(hostname)'");
 				var res = Posix.sethostname(hostname, hostname.length);
 				
 				if (res < 0)

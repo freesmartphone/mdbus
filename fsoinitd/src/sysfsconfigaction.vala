@@ -22,14 +22,14 @@ namespace FsoInit {
 public class SysfsConfigAction : IAction, GLib.Object
 {
 	public string name { get { return "SysfsConfigAction"; } }
-	public string path { get; set; }
-	public string valueForWrite { get; set; }
+	public string path { get; set; default = ""; }
+	public string valueForWrite { get; set; default = ""; }
 	
 	
-	public SysfsConfigAction.with_settings(string path, string valueToWrite) 
+	public SysfsConfigAction.with_settings(string pathname, string val) 
 	{
-		this.path = path;
-		this.valueForWrite = valueForWrite;
+		this.path = pathname;
+		this.valueForWrite = val;
 	}
 
 	public string to_string() 
@@ -39,9 +39,12 @@ public class SysfsConfigAction : IAction, GLib.Object
 
 	public void run() throws ActionError
 	{
+		if (path.length == 0 && valueForWrite.length == 0)
+			return;
+		
 		if (FsoFramework.FileHandling.isPresent(path)) 
 		{
-			FsoFramework.theLogger.info(@"SysfsConfigAction: '$(valueForWrite)' = '$(path)'");
+			FsoFramework.theLogger.debug(@"SysfsConfigAction: '$(valueForWrite)' = '$(path)'");
 			FsoFramework.FileHandling.write(valueForWrite, path);
 		}
 		else 
