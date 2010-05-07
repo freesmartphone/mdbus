@@ -122,6 +122,8 @@ echo
 echo "Configuration Options:"
 echo
 echo "  prefix..................: $prefix"
+echo 
+echo "  debug...................: $debug"
 echo
 echo "------------------------------------------------------------------------"
 echo
