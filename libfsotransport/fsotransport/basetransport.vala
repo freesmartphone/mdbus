@@ -387,7 +387,9 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         assert( fd != -1 );
         assert( data != null );
         ssize_t bytesread = Posix.read( fd, data, len );
+#if DEBUG
         assert( logger.debug( @"read $bytesread bytes" ) );
+#endif
         if ( bytesread == 0 )
         {
             logger.error( @"Read 0 bytes => synthesizing actionCallback w/ HUP." );
@@ -407,7 +409,9 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         }
         else
         {
+#if DEBUG
             assert( logger.debug( @"Writing $len bytes" ) );
+#endif
             assert( data != null );
             if ( fd == -1 )
             {
@@ -448,7 +452,9 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         while ( true )
         {
             var bread = _read( rdata, rlength );
+#if DEBUG
             debug( "writeAndRead -> read %d", (int)bread );
+#endif
             if ( bread == 0 )
                 break;
             fullRead += (int)bread;
