@@ -215,6 +215,16 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
         yield syncWithSim();
     }
 
+    public T[] copy<T>( T[] array )
+    {
+        T[] result = new T[] {};
+        foreach ( T t in array )
+        {
+            result += t;
+        }
+        return result;
+    }
+
     public async void syncWithSim()
     {
         // gather IMSI
@@ -238,7 +248,11 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
             return;
         }
 
-        foreach ( var pbcode in cmd.phonebooks )
+        // NOTE: Work around a reentrancy issue by copying the phonebooks
+        // FIXME: This has to be investigated in more detail!
+        var phonebooks = copy<string>( cmd.phonebooks );
+
+        foreach ( var pbcode in phonebooks )
         {
             var cpbr = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
             var answer = yield theModem.processAtCommandAsync( cpbr, cpbr.test( pbcode ) );
