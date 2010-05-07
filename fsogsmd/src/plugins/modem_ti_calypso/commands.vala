@@ -186,38 +186,89 @@ public class PercentEM21 : AbstractAtCommand
  **/
 public class PercentEM23 : AbstractAtCommand
 {
-    public int arfcn[6];
-    public int c1[6];
-    public int c2[6];
-    public int rxlev[6];
-    public int bsic[6];
-    public int cid[6];
-    public int lac[6];
-    public int foffset[6];
-    public int timea[6];
-    public int cba[6];
-    public int cbq[6];
-    public int ctype[6];
-    public int rac[6];
-    public int roffset[6];
-    public int toffset[6];
-    public int rxlevam[6];
+    public int valid;
+
+    public int[] arfcn;
+    public int[] c1;
+    public int[] c2;
+    public int[] rxlev;
+    public int[] bsic;
+    public int[] cid;
+    public int[] lac;
+    public int[] foffset;
+    public int[] timea;
+    public int[] cba;
+    public int[] cbq;
+    public int[] ctype;
+    public int[] rac;
+    public int[] roffset;
+    public int[] toffset;
+    public int[] rxlevam;
 
     public PercentEM23()
     {
         try
         {
-            re = new Regex( """%EM: (?P<val1>\d+),(?P<val2>\d+),(?P<val3>\d+),(?P<val4>\d+),(?P<val5>\d+),(?P<val6>\d+)""" );
+            re = new Regex( """(?P<val1>\d+),(?P<val2>\d+),(?P<val3>\d+),(?P<val4>\d+),(?P<val5>\d+),(?P<val6>\d+)""" );
         }
         catch ( GLib.RegexError e )
         {
             assert_not_reached(); // fail, if invalid
         }
+
+        length = 1 + 16;
+
     }
 
-    public override void parse( string response ) throws AtCommandError
+    public override void parseMulti( string[] response ) throws AtCommandError
     {
-        base.parse( response );
+        if ( ! response[0].has_prefix( "%EM: " ) )
+        {
+            base.parse( response[0] );
+        }
+        else
+        {
+            var line0 = response[0].split( ":" );
+            valid = line0[1].strip().to_int();
+        }
+
+        base.parse( response[1] );
+        fillArray( ref arfcn, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[2] );
+        fillArray( ref c1, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[3] );
+        fillArray( ref c2, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[4] );
+        fillArray( ref rxlev, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[5] );
+        fillArray( ref bsic, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[6] );
+        fillArray( ref cid, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[7] );
+        fillArray( ref lac, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[8] );
+        fillArray( ref foffset, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[9] );
+        fillArray( ref timea, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[10] );
+        fillArray( ref cba, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[11] );
+        fillArray( ref cbq, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[12] );
+        fillArray( ref ctype, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[13] );
+        fillArray( ref rac, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[14] );
+        fillArray( ref roffset, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[15] );
+        fillArray( ref toffset, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+        base.parse( response[16] );
+        fillArray( ref rxlevam, to_int( "val1" ), to_int( "val2" ), to_int( "val3" ), to_int( "val4" ), to_int( "val5" ), to_int( "val6" ) );
+    }
+
+    private void fillArray( ref int[] array, int v1, int v2, int v3, int v4, int v5, int v6 )
+    {
+        array = new int[] { v1, v2, v3, v4, v5, v6 };
     }
 
     public string query()

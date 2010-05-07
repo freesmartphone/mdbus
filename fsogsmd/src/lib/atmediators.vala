@@ -104,7 +104,7 @@ internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] respons
     }
 }
 
-internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+public void checkResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validate( response );
     if ( code == Constants.AtResponse.VALID )
@@ -117,7 +117,7 @@ internal void checkResponseValid( FsoGsm.AtCommand command, string[] response ) 
     }
 }
 
-internal void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+public void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validateMulti( response );
     if ( code == Constants.AtResponse.VALID )
