@@ -57,6 +57,51 @@ public class FsoGsm.ContextParams
     }
 }
 
+public class FsoGsm.NetworkTimeReport
+{
+    public int time;
+    public int zone;
+    public int timestamp;
+    public int zonestamp;
+
+    public NetworkTimeReport()
+    {
+        time = 0;
+        zone = 10000;
+        timestamp = 0;
+        zonestamp = 0;
+    }
+
+    public void setTime( int time )
+    {
+        this.time = time;
+        this.timestamp = (int) TimeVal().tv_sec;
+        sendUpdateSignal();
+    }
+
+    public void setZone( int zone )
+    {
+        this.zone = zone;
+        this.zonestamp = (int) TimeVal().tv_sec;
+        sendUpdateSignal();
+    }
+
+    public void setTimeAndZone( int time, int zone )
+    {
+        this.time = time;
+        this.zone = zone;
+        this.timestamp = (int) TimeVal().tv_sec;
+        this.zonestamp = (int) TimeVal().tv_sec;
+        sendUpdateSignal();
+    }
+
+    private void sendUpdateSignal()
+    {
+        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        obj.time_report( time, zone );
+    }
+}
+
 public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 {
     public class Data : GLib.Object
@@ -97,6 +142,9 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public string pppPort;
         public string[] pppOptions;
         public ContextParams contextParams;
+
+        // Network Information
+        public NetworkTimeReport networkTimeReport;
     }
 
     public const int DEFAULT_RETRIES = 3;
@@ -385,6 +433,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.simPhonebooks = new HashMap<string,PhonebookParams>();
 
         modem_data.cmdSequences = new HashMap<string,AtCommandSequence>();
+
+        modem_data.networkTimeReport = new NetworkTimeReport();
 
         modem_data.simPin = config.stringValue( CONFIG_SECTION, "auto_unlock", "" );
         modem_data.keepRegistration = config.boolValue( CONFIG_SECTION, "auto_register", false );
