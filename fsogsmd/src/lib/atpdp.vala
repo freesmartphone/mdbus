@@ -39,6 +39,8 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         logger.debug( "ppp has been stopped" );
         shutdownTransport();
         ppp = null;
+        // inform base class
+        disconnected();
     }
 
     //

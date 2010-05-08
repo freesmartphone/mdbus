@@ -28,6 +28,8 @@ public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
     public async abstract void statusUpdate( string status, GLib.HashTable<string,Value?> properties );
 
     public async abstract void connectedWithNewDefaultRoute( string iface, string ipv4addr, string ipv4mask, string ipv4gateway, string dns1, string dns2 );
+
+    public abstract void disconnected();
 }
 
 /**
@@ -80,9 +82,22 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
             throw new FreeSmartphone.Error.UNAVAILABLE( @"Can't activate context while in status $status" );
         }
 
-        yield sc_activate();
-
         updateStatus( FreeSmartphone.GSM.ContextStatus.OUTGOING, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+
+        try
+        {
+            yield sc_activate();
+        }
+        catch ( FreeSmartphone.GSM.Error e1 )
+        {
+            updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+            throw e1;
+        }
+        catch ( FreeSmartphone.Error e2 )
+        {
+            updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+            throw e2;
+        }
     }
 
     public async void deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -117,5 +132,11 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         {
             logger.error( @"Can't call offer_default_route on onetworkd: $(e.message)" );
         }
+    }
+
+    // FIXME: reason?
+    public void disconnected()
+    {
+        updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
     }
 }
