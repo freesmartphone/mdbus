@@ -164,7 +164,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             "novjccomp",
             // "persist",
             "proxyarp",
-            "silent",
+            //"silent", /* do NOT use silent on Calypso, the modem does not always initiate LCP */
             "usepeerdns" } );
     }
 
