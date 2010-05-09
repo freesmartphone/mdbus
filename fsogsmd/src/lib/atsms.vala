@@ -396,21 +396,38 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
             logger.warning( @"Can't read new SMS from SIM storage at index $index." );
             return;
         }
-        var sms = Sms.Message.newFromHexPdu( cmd.hexpdu, cmd.tpdulen );
+        yield _handleIncomingSms( cmd.hexpdu, cmd.tpdulen );
+    }
+
+    public async void handleIncomingSms( string hexpdu, int tpdulen )
+    {
+        // acknowledge SMS
+        var cmd = theModem.createAtCommand<PlusCNMA>( "+CNMA" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
+        if ( cmd.validate( response ) != Constants.AtResponse.VALID )
+        {
+            logger.warning( @"Can't acknowledge new SMS" );
+        }
+        yield _handleIncomingSms( hexpdu, tpdulen );
+    }
+
+    public async void _handleIncomingSms( string hexpdu, int tpdulen )
+    {
+        var sms = Sms.Message.newFromHexPdu( hexpdu, tpdulen );
         if ( sms == null )
         {
-            logger.warning( @"Can't parse new SMS at index $index" );
+            logger.warning( @"Can't parse incoming SMS" );
             return;
         }
         var result = storage.addSms( sms );
         if ( result == SmsStorage.SMS_ALREADY_SEEN )
         {
-            logger.warning( @"Ignoring CMTI for already seen SMS w/ index $index" );
+            logger.warning( @"Ignoring already seen SMS" );
             return;
         }
         else if ( result == SmsStorage.SMS_MULTI_INCOMPLETE )
         {
-            logger.info( @"Got new fragment for still-incomplete concatenated SMS on index $index" );
+            logger.info( @"Got new fragment for still-incomplete concatenated SMS" );
             return;
         }
         else /* complete */

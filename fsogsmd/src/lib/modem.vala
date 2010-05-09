@@ -108,9 +108,6 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     {
         public int alarmCleared;
 
-        public AtNewMessageIndication cnmiBufferedSms;
-        public AtNewMessageIndication cnmiDirectSms;
-
         public bool simHasReadySignal;
         public uint simReadyTimeout;
 
@@ -422,9 +419,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.alarmCleared = 946684800; // 00/01/01,00:00:00 (default for SIEMENS mc75i)
         modem_data.simAuthStatus = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
         modem_data.simBuffersSms = config.boolValue( CONFIG_SECTION, "sim_buffers_sms", true );
-
-        modem_data.cnmiBufferedSms = AtNewMessageIndication() { mode=2, mt=1, bm=2, ds=1, bfr=1 };
-        modem_data.cnmiDirectSms = AtNewMessageIndication() { mode=2, mt=2, bm=2, ds=1, bfr=1 };
 
         modem_data.simPhonebooks = new HashMap<string,PhonebookParams>();
 

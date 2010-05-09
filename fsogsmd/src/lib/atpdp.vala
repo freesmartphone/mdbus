@@ -77,10 +77,10 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
 
     protected async virtual void leaveDataState()
     {
-        // leave data state
+        // leave data state (ignoring response for now)
         var cmd = theModem.createAtCommand<PlusCGACT>( "+CGACT" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
-        //checkResponseOk( cmd, response ); we're not really interested in the response
+        /* var response = */ yield theModem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
+        /* checkResponseOk( cmd, response ); */
     }
 
     protected virtual void shutdownTransport()
