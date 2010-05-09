@@ -199,8 +199,8 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         {
             var utcoffset = Constants.instance().ctzvToTimeZone( tzoffset );
             logger.info( @"Received time zone report from GSM: $utcoffset minutes" );
-            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-            obj.time_zone_report( utcoffset );
+            var data = theModem.data();
+            data.networkTimeReport.setZone( utcoffset );
         }
     }
 

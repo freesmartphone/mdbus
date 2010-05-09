@@ -167,6 +167,7 @@ AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
 AC_CONFIG_FILES([
   Makefile
   conf/Makefile
+  conf/default/Makefile
   conf/htc_qualcomm_dream/Makefile
   conf/htc_qualcomm_msm/Makefile
   conf/openmoko_gta/Makefile

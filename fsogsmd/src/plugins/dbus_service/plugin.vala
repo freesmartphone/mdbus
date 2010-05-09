@@ -579,6 +579,16 @@ class DBusService.Device :
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
+    public async void get_time_report( out int time, out int timestamp, out int zone, out int zonestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        var ltr = modem.data().networkTimeReport;
+        time = ltr.time;
+        timestamp = ltr.timestamp;
+        zone = ltr.zone;
+        zonestamp = ltr.zonestamp;
+    }
+
     public async int get_signal_strength() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();

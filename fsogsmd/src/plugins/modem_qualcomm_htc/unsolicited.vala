@@ -81,9 +81,8 @@ public class QualcommHtc.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedRespon
 
             var epoch = Linux.timegm( t );
 
-            // send dbus signal
-            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-            obj.time_report( (int)epoch, htcctv.tzoffset );
+            var data = theModem.data();
+            data.networkTimeReport.setTimeAndZone( (int)epoch, htcctv.tzoffset );
         }
         else
         {

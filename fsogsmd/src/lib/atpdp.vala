@@ -39,6 +39,8 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         logger.debug( "ppp has been stopped" );
         shutdownTransport();
         ppp = null;
+        // inform base class
+        disconnected();
     }
 
     //
@@ -71,6 +73,14 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         var cmd = theModem.createAtCommand<V250D>( "D" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( "*99***1#", false ) );
         checkResponseConnect( cmd, response );
+    }
+
+    protected async virtual void leaveDataState()
+    {
+        // leave data state
+        var cmd = theModem.createAtCommand<PlusCGACT>( "+CGACT" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
+        //checkResponseOk( cmd, response ); we're not really interested in the response
     }
 
     protected virtual void shutdownTransport()
@@ -145,6 +155,8 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
 
     public async override void sc_deactivate()
     {
+        yield leaveDataState();
+        /*
         if ( ppp == null )
         {
             return;
@@ -154,6 +166,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
             return;
         }
         ppp.stop(); // trigger stopping
+        */
     }
 
     public string uintToIp4Address( uint32 address )
