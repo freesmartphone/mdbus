@@ -34,12 +34,18 @@ public class PalmPreConfiguration : BaseConfiguration
 
 	public override void registerActionsInQueue(IActionQueue queue)
 	{
+		// Turn led on, so the user know the init process has been started
+		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "100"));
+		
 		// Mount proc and sysfs filesystem
 		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -t proc proc /proc -o rw,noexec,nosuid,nodev"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -t sysfs sys /sys -o rw,noexec,nosuid,nodev"));
 		
 		// Remount rootfs read-write
 		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -o remount,rw /"));
+		
+		// Turn led on, so the user know the init process has been started
+		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "10"));
 		
 		// FIXME: we don't want to use udev anymore, but currently we 
 		// don't have devtmpfs in our kernel. When devtmpfs is ported to
