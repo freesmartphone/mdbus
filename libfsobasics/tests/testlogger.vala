@@ -126,6 +126,16 @@ void test_syslog_logger_new()
 }
 
 //===========================================================================
+void test_kmsg_logger_new()
+//===========================================================================
+{
+    var logger = new KmsgLogger( TEST_LOG_DOMAIN );
+    logger.setLevel( LogLevelFlags.LEVEL_DEBUG );
+
+    logger.debug( "foo" );
+}
+
+//===========================================================================
 void test_logger_create_from_keyfilename()
 //===========================================================================
 {
@@ -142,6 +152,11 @@ void test_logger_create_from_keyfilename()
 
     logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "file", TEST_LOG_DOMAIN );
     assert( Type.from_instance( logger ) == typeof( FileLogger ) );
+    assert( logger.getLevel() == LogLevelFlags.LEVEL_WARNING );
+    assert( logger.getDestination() == "log.txt" );
+
+    logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "kmsg", TEST_LOG_DOMAIN );
+    assert( Type.from_instance( logger ) == typeof( KmsgLogger ) );
     assert( logger.getLevel() == LogLevelFlags.LEVEL_WARNING );
     assert( logger.getDestination() == "log.txt" );
 }
@@ -168,6 +183,10 @@ void test_logger_create_from_keyfile()
     assert( Type.from_instance( logger ) == typeof( FileLogger ) );
     assert( logger.getLevel() == LogLevelFlags.LEVEL_WARNING );
     assert( logger.getDestination() == "log.txt" );
+
+    logger = Logger.createFromKeyFile( smk, "kmsg", TEST_LOG_DOMAIN );
+    assert( Type.from_instance( logger ) == typeof( KmsgLogger ) );
+    assert( logger.getLevel() == LogLevelFlags.LEVEL_WARNING );
 }
 
 //===========================================================================
@@ -181,6 +200,7 @@ void main (string[] args)
     Test.add_func ("/NullLogger/New", test_null_logger_new);
     Test.add_func ("/FileLogger/New", test_file_logger_new);
     Test.add_func ("/SyslogLogger/New", test_syslog_logger_new);
+    Test.add_func ("/Kmsg/New", test_kmsg_logger_new);
     Test.add_func ("/Logger/CreateFromKeyFileName", test_logger_create_from_keyfilename);
     Test.add_func ("/Logger/CreateFromKeyFile", test_logger_create_from_keyfile);
 
