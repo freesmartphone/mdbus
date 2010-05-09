@@ -73,10 +73,10 @@ public class PalmPreConfiguration : BaseConfiguration
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_right/brightness", "50"));
 
 		// Launch several other daemons we need right after the init process is over
-		queue.registerAction(new SpawnProcessAction.with_settings("dbus-daemon --system --fork"));
+		queue.registerAction(new SpawnProcessAction.with_settings("/usr/bin/dbus-daemon --system --fork"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/dropbear start"));
 		
-		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/getty 38400 tty0"));
+		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/getty 115200 console"));
 		
 		// Debug!
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_right/brightness", "0"));

@@ -21,7 +21,7 @@ namespace FsoInit {
 
 public class SetupHostnameAction : IAction, GLib.Object
 {
-	public string name { get { return "AdditionalBootProcessAction"; } }
+	public string name { get { return "SetupHostnameAction"; } }
 	
 	public string to_string()
 	{
