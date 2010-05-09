@@ -123,6 +123,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
         registerUrcPdu( "+CBM", plusCBM );
         registerUrcPdu( "+CDS", plusCDS );
+        registerUrcPdu( "+CMT", plusCMT );
     }
 
     //
@@ -264,6 +265,19 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         else
         {
             logger.warning( @"Received invalid +CBM message $rhs. Please report" );
+        }
+    }
+
+    public virtual void plusCMT( string prefix, string rhs, string pdu )
+    {
+        var cmt = theModem.createAtCommand<PlusCMT>( "+CMT" );
+        if ( cmt.validateUrcPdu( { @"$prefix: $rhs", pdu } ) == Constants.AtResponse.VALID )
+        {
+            theModem.smshandler.handleIncomingSms( cmt.hexpdu, cmt.tpdulen );
+        }
+        else
+        {
+            logger.warning( @"Received invalid +CMT message $rhs. Please report" );
         }
     }
 }

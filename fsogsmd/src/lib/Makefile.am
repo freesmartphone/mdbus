@@ -67,7 +67,6 @@ libfsogsm_la_VALASOURCES = \
 	phonebook.vala \
 	pdp.vala \
 	sms.vala \
-	structs.vala \
 	watchdog.vala \
 	$(NULL)
 

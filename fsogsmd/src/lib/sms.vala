@@ -82,7 +82,7 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
     public abstract SmsStorage storage { get; set; }
 
     public abstract async void handleIncomingSmsOnSim( uint index );
-
+    public abstract async void handleIncomingSms( string hexpdu, int tpdulen );
     public abstract async void handleIncomingSmsReport( string hexpdu, int tpdulen );
 
     public abstract uint16 lastReferenceNumber();

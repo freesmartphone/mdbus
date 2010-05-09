@@ -697,6 +697,33 @@ public class PlusCMICKEY : SimpleAtCommand<int>
     }
 }
 
+public class PlusCMT : AbstractAtCommand
+{
+    public string hexpdu;
+    public int tpdulen;
+
+    public PlusCMT()
+    {
+        try
+        {
+            re = new Regex( """\+CMT: (?:"[a-zA-Z]+")?,?(?P<tpdulen>\d+)""");
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+CMT: " };
+        length = 2;
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        base.parse( response[0] );
+        tpdulen = to_int( "tpdulen" );
+        hexpdu = response[1];
+    }
+}
+
 public class PlusCMTI : AbstractAtCommand
 {
     public string storage;
@@ -737,6 +764,14 @@ public class PlusCMUT : SimpleAtCommand<int>
     public PlusCMUT()
     {
         base( "+CMUT" );
+    }
+}
+
+public class PlusCNMA : SimpleAtCommand<int>
+{
+    public PlusCNMA()
+    {
+        base( "+CNMA" );
     }
 }
 
@@ -1490,7 +1525,9 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CMGR" ]             = new FsoGsm.PlusCMGR();
     table[ "+CMGS" ]             = new FsoGsm.PlusCMGS();
     table[ "+CMMS" ]             = new FsoGsm.PlusCMMS();
+    table[ "+CMT" ]              = new FsoGsm.PlusCMT();
     table[ "+CMTI" ]             = new FsoGsm.PlusCMTI();
+    table[ "+CNMA" ]             = new FsoGsm.PlusCNMA();
     table[ "+CPMS" ]             = new FsoGsm.PlusCPMS();
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
 
