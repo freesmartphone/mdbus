@@ -26,6 +26,12 @@ int main( string[] args )
 	
 	FsoFramework.theLogger.info("startup ...");
 	mainloop = new GLib.MainLoop(null, false);
+	
+	if (Posix.getpid() != 1)
+	{
+		FsoFramework.theLogger.error("Running fsoinitd not as real init process (pid=1), is not supported currently");
+		return -1;
+	}
 
 	var worker = new FsoInit.InitProcessWorker();
 	worker.setup();
