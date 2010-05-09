@@ -133,6 +133,10 @@ public interface FsoFramework.Logger : Object
                 var logger = new SyslogLogger( domain );
                 theLogger = logger;
                 break;
+            case "kmsg":
+                var logger = new KmsgLogger( domain );
+                theLogger = logger;
+                break;
             case "none":
                 var logger = new NullLogger( domain );
                 theLogger = logger;
@@ -421,5 +425,31 @@ public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
             basename = "%s".printf( FsoFramework.Utility.programName() );
         }
         Posix.openlog( basename, Posix.LOG_PID | Posix.LOG_CONS, Posix.LOG_DAEMON );
+    }
+}
+
+/**
+ * @class KmsgLogger 
+ */
+public class FsoFramework.KmsgLogger : FsoFramework.AbstractLogger
+{
+    private int kmsg_fd;
+
+    protected override void write(string message)
+    {
+        Posix.write(kmsg_fd, message, message.size());
+    }
+
+    protected override string format(string message, string level)
+    {
+        var repr = (reprdelegate != null ? reprdelegate() : "");
+        var str = "%s %s %s: %s\n".printf(level, domain, repr, message);
+        return str;
+    }
+
+    public KmsgLogger(string domain) 
+    {
+        base(domain);
+        kmsg_fd = Posix.open("/dev/kmsg", Posix.O_WRONLY | Posix.O_NOCTTY);
     }
 }
