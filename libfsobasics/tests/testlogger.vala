@@ -158,7 +158,6 @@ void test_logger_create_from_keyfilename()
     logger = Logger.createFromKeyFileName( TEST_LOG_KEYFILE_NAME, "kmsg", TEST_LOG_DOMAIN );
     assert( Type.from_instance( logger ) == typeof( KmsgLogger ) );
     assert( logger.getLevel() == LogLevelFlags.LEVEL_WARNING );
-    assert( logger.getDestination() == "log.txt" );
 }
 
 //===========================================================================
