@@ -89,7 +89,6 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
         // sequence for initializing the channel urc
         registerAtCommandSequence( "urc", "init", new AtCommandSequence( {
-            """+CCWA=1""",
             """+CGEREP=2,1""",
             """+CGREG=2""",
             """+CLIP=1""",
@@ -117,7 +116,8 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
         // sequence for when the modem is registered
         registerAtCommandSequence( "urc", "registered", new AtCommandSequence( {
-            cnmiCommand
+            cnmiCommand,
+            """+CCWA=1,1""" /* register for waiting call notifications */
         } ) );
 
         // sequence for suspending the channel urc
