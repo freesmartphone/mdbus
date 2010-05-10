@@ -10,7 +10,6 @@ VALAC_ARGS = \
 	--pkg linux \
 	--pkg dbus-glib-1 \
 	--pkg fsobasics-2.0 \
-	--pkg util \
 	--save-temps
 
 if WANT_DEBUG
@@ -42,7 +41,7 @@ fsoinitd_VALASOURCES = \
 	setuphostnameaction.vala \
 	dbusactivatoraction.vala \
 	$(NULL)
-
+	
 if WANT_MACHINE_PALMPRE
 fsoinitd_VALASOURCES += configurations/palmpre.vala
 endif
@@ -62,6 +61,12 @@ fsoinitd_SOURCES = \
 $(BUILT_SOURCES): $(fsoinitd_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
+
+# static build
+#fsoinitd_LDFLAGS = \
+#	-static \
+#	-all-static \
+#	$(NULL)
 
 fsoinitd_LDADD = \
 	$(DBUS_LIBS) \
