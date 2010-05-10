@@ -71,7 +71,7 @@ public void setupConsole(ConsoleType type, bool reset) throws SetupConsoleError
 		}
 
 		if (type == ConsoleType.OWNER)
-			Posix.ioctl(Linux.Termios.TIOCSCTTY, 1);
+			Linux.ioctl(Linux.Termios.TIOCSCTTY, 1);
 		break;
 	case ConsoleType.NONE:
 		/* No console really means /dev/null */
