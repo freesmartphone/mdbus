@@ -795,7 +795,7 @@ public class FsoGsm.Constants
     {
         var res = "";
 
-        if ( location != 8 )
+        if ( location != 8 && location != 0 )
         {
             return @"<$location:$reason:$ssrelease>";
         }

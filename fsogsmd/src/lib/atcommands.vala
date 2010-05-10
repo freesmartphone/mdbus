@@ -236,7 +236,7 @@ public class PlusCEER : AbstractAtCommand
     {
         try
         {
-            re = new Regex( """\+CEER: (?P<location>\d+),(?P<reason>\d+),(?P<ssrelease>\d+)""" );
+            re = new Regex( """\+CEER: (?:(?P<v0>\d+),)?(?P<v1>\d+),(?P<v2>\d+),(?P<v3>\d+)""" );
         }
         catch ( GLib.RegexError e )
         {
@@ -248,9 +248,23 @@ public class PlusCEER : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        location = to_int( "location" );
-        reason = to_int( "reason" );
-        ssrelease = to_int( "ssrelease" );
+        var v0 = to_int( "v0" );
+        var v1 = to_int( "v1" );
+        var v2 = to_int( "v2" );
+        var v3 = to_int( "v3" );
+
+        if ( v0 == 0 && v1 == 0 && v2 != 0 && v3 != 0 )
+        {
+            location = v1;
+            reason = v2;
+            ssrelease = v3;
+        }
+        else
+        {
+            location = v0;
+            reason = v1;
+            ssrelease = v3;
+        }
     }
 
     public string execute()
