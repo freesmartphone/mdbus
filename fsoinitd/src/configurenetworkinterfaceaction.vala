@@ -117,17 +117,24 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 
     private bool setRouteOnInterface( RouteType type, string address, string iface, string gateway = "" )
 	{
-		return false;
+		/* FIXME */
+		return true;
 	}
 	
-	public void run() throws ActionError
+	public bool run()
 	{
-		configureInterfaceWithAddress(iface, address, netmask);
-		setRouteOnInterface(routeType, address, iface, gateway);
+		if (!configureInterfaceWithAddress(iface, address, netmask) ||
+			!setRouteOnInterface(routeType, address, iface, gateway))
+		{
+			return false;
+		}
+		
+		return true;
 	}
 
-	public void reset() throws ActionError
+	public bool reset()
 	{
+		return true;
 	}
 }
 

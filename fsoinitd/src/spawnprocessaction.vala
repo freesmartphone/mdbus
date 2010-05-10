@@ -39,7 +39,7 @@ public class SpawnProcessAction : IAction, GLib.Object
 		return @"[$(name)] :: cmdline = '$(cmdline)'";
 	}
 
-	public void run() throws ActionError
+	public bool run()
 	{
 		int res = 0; string command = cmdline;
 		if (inBackground) {
@@ -54,13 +54,17 @@ public class SpawnProcessAction : IAction, GLib.Object
 			var msg = "Could not spawn process '";
 			msg += cmdline.length > 1 ? cmdline : "<unknown>";
 			msg += "'";
-			throw new ActionError.COULD_NOT_SPAWN_PROCESS(msg);
+			FsoFramework.theLogger.error(msg);
+			return false;
 		}
+		
+		return true;
 	}
 
-	public void reset() throws ActionError
+	public bool reset()
 	{
 		// FIXME what to do here?
+		return true;
 	}
 }
 

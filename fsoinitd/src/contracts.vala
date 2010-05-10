@@ -34,8 +34,8 @@ public errordomain ActionError
 public interface IAction : GLib.Object
 {
 	public abstract string name { get; }
-	public abstract void run() throws ActionError;
-	public abstract void reset() throws ActionError;
+	public abstract bool run();
+	public abstract bool reset();
 	public abstract string to_string();
 }
 

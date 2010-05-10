@@ -28,6 +28,7 @@ BUILT_SOURCES = .vala.stamp
 sbin_PROGRAMS = fsoinitd
 
 fsoinitd_VALASOURCES = \
+	util.vala \
 	main.vala \
 	contracts.vala \
 	actionqueue.vala \

@@ -54,7 +54,7 @@ public class DBusActivatorAction : IAction, GLib.Object
 		return res;
 	}
 	
-	public void run() throws ActionError
+	public bool run()
 	{
 		try 
 		{	
@@ -62,17 +62,21 @@ public class DBusActivatorAction : IAction, GLib.Object
 			var conn = DBus.Bus.get(bus_type);
 			var obj = conn.get_object(object_name, object_path, iface);
 			
+			if (obj == null) { /* FIXME */ }
 			// FIXME maybe call the Ping() function?
 		}
 		catch (DBus.Error err) 
 		{
-			var msg = @"Could not activate dbus service '$(service_name)'";
-			throw new ActionError.COULD_NOT_ACTIVATE_DBUS_SERVICE(msg);
+			FsoFramework.theLogger.error(@"Could not activate dbus service '$(service_name)'");
+			return false;
 		}
+		
+		return true;
 	}
 
-	public void reset() throws ActionError
+	public bool reset()
 	{
+		return true;
 	}
 }
 

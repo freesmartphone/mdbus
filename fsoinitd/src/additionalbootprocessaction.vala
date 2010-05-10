@@ -28,22 +28,25 @@ public class AdditionalBootProcessAction : IAction, GLib.Object
 		return @"[$(name)] :: no parameter";
 	}
 	
-	public void run() throws ActionError
+	public bool run()
 	{
 		if (FsoFramework.FileHandling.isPresent("/etc/rc.local")) {
 			var res = Posix.system("/bin/sh /etc/rc.local &");
 
 			if (res < 0) 
 			{
-				var msg = "Could not launch additional boot process from /etc/rc.local";
-				throw new ActionError.COULD_NOT_SPAWN_PROCESS(msg);
+				FsoFramework.theLogger.error("Could not launch additional boot process from /etc/rc.local");
+				return false;
 			}
 		}
+		
+		return true;
 	}
 
-	public void reset() throws ActionError
+	public bool reset()
 	{
 		// FIXME what to do here?
+		return true;
 	}
 }
 

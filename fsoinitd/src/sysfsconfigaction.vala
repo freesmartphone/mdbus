@@ -37,10 +37,13 @@ public class SysfsConfigAction : IAction, GLib.Object
 		return @"[$(name)] :: path='$(path)' valueForWrite='$(valueForWrite)'";
 	}
 
-	public void run() throws ActionError
+	public bool run()
 	{
-		if (path.length == 0 && valueForWrite.length == 0)
-			return;
+		if (path.length == 0 && valueForWrite.length == 0) 
+		{
+			FsoFramework.theLogger.error("Arguments are invalid!");
+			return false;
+		}
 		
 		if (FsoFramework.FileHandling.isPresent(path)) 
 		{
@@ -49,13 +52,17 @@ public class SysfsConfigAction : IAction, GLib.Object
 		}
 		else 
 		{
-			throw new ActionError.COULD_NOT_FIND_SYSFS_NODE("Could not sysfs node");
+			FsoFramework.theLogger.error("Could not sysfs node");
+			return false;
 		}
+		
+		return true;
 	}
 
-	public void reset() throws ActionError
+	public bool reset()
 	{
 		// do nothing ...
+		return true;
 	}
 }
 

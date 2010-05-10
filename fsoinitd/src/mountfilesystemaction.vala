@@ -54,7 +54,7 @@ public class MountFilesystemAction : IAction, GLib.Object
 		return tmp;
 	}
 
-	public void run() throws ActionError
+	public bool run()
 	{
 		if (!FsoFramework.FileHandling.isPresent(target))
 		{
@@ -62,27 +62,31 @@ public class MountFilesystemAction : IAction, GLib.Object
 			if (!FsoFramework.FileHandling.createDirectory(target, mode))
 			{
 				FsoFramework.theLogger.error(@"Can't create $(target): $(strerror(errno))" );
-				throw new ActionError.COULD_NOT_CREATE_TARGET_DIRECTORY("could not create target directory");
+				return false;
 			}
 		}
 		
 		if (Linux.mount(source, target, fs_type, (Linux.MountFlags)flags) == -1)
 		{
 			FsoFramework.theLogger.error(@"can't mount $(source) on $(target)");
-			throw new ActionError.COULD_NOT_MOUNT_FILESYSTEM("Could not mount filesystem");	
+			return false;
 		}
+		
+		return true;
 	}
 
-	public void reset() throws ActionError
+	public bool reset()
 	{
 		if (!FsoFramework.FileHandling.isPresent( target ))
 		{
 			if (Linux.umount(target) == -1) 
 			{
 				FsoFramework.theLogger.error(@"can not umount $(target)");
-				throw new ActionError.COULD_NOT_UMOUNT_FILESYSTEM("Could not umount filesystem");
+				return false;
 			}
 		}
+		
+		return true;
 	}
 }
 

@@ -28,7 +28,7 @@ public class SetupHostnameAction : IAction, GLib.Object
 		return @"[$(name)] :: no parameter";
 	}
 	
-	public void run() throws ActionError
+	public bool run()
 	{
 		if (FsoFramework.FileHandling.isPresent("/etc/hostname")) 
 		{
@@ -40,16 +40,19 @@ public class SetupHostnameAction : IAction, GLib.Object
 				
 				if (res < 0)
 				{
-					var msg = @"Cannot set hostname to '$(hostname)'";
-					throw new ActionError.COULD_NOT_SET_HOSTNAME(msg);
+					FsoFramework.theLogger.error(@"Cannot set hostname to '$(hostname)'");
+					return false;
 				}
 			}
 		}
+		
+		return true;
 	}
 
-	public void reset() throws ActionError
+	public bool reset()
 	{
 		// FIXME what to do here?
+		return true;
 	}
 }
 

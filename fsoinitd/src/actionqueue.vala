@@ -41,18 +41,19 @@ public class ActionQueue : IActionQueue, GLib.Object
 	{
 		foreach (var action in actions)
 		{
-			try 
-			{
-				FsoFramework.theLogger.debug(@"run '$(action.name)' action ...");
-				FsoFramework.theLogger.debug(@"ACTION INFO: $(action.to_string())");
-				action.run();
-				FsoFramework.theLogger.debug(@"--> finished action'$(action.name)'");
-			}
-			catch (ActionError err) 
+			
+			FsoFramework.theLogger.debug(@"run '$(action.name)' action ...");
+			FsoFramework.theLogger.debug(@"ACTION INFO: $(action.to_string())");
+			
+			if (!action.run())
 			{
 				FsoFramework.theLogger.error(@"an error occured while running action '$(action.name)'");
 				FsoFramework.theLogger.error(@"action was executed as the following: ");
 				FsoFramework.theLogger.error(@" -> $(action.to_string())");
+			}	
+			else 
+			{
+				FsoFramework.theLogger.debug(@"--> finished action'$(action.name)'");
 			}
 		}
 	}
