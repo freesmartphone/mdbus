@@ -35,10 +35,16 @@ List<string> completions;
 
 public string formatSimpleContainerIter( DBus.RawMessageIter subiter, string start, string trenner, string stop, int depth = 0 )
 {
+#if DEBUG
+    debug( @"formatSimpleContainerIter: depth = $depth, subiter.has_next() = $(subiter.has_next())" );
+#endif
+
     // check for empty container
     if ( depth > 1 && !subiter.has_next() )
     {
-        return @"$start $stop";
+        var result = formatResult( subiter, depth+1 );
+        return @"$start $result $stop";
+        //return @"$start $stop";
     }
 
     var result = "";
