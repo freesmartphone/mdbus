@@ -48,6 +48,10 @@ public class ValidateSystemAction : IAction, GLib.Object
 		 if (!Util.CHECK( () => { return res > -1; }, "Cannot set root directory!"))
 			return false;
 
+		/* Set path for binaries */
+		var path = "/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin";
+		GLib.Environment.set_variable("PATH", path, true);
+
 		return true;
 	}
 
