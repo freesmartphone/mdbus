@@ -41,6 +41,7 @@ fsoinitd_VALASOURCES = \
 	additionalbootprocessaction.vala \
 	setuphostnameaction.vala \
 	dbusactivatoraction.vala \
+	validatesystemaction.vala \
 	$(NULL)
 	
 if WANT_MACHINE_PALMPRE
