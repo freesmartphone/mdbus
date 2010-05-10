@@ -50,6 +50,7 @@ class Source.Gsm : FsoTime.AbstractSource
 
         //FIXME: Work around bug in Vala (signal handlers can't be async yet)
         ogsmd_device.status.connect( (status) => { onGsmNetworkStatusSignal( status ); } );
+        ogsmd_device.time_report.connect( (time, zone) => { onGsmNetworkTimeReportSignal( time, zone ); } );
 
         Idle.add( () => { triggerQuery(); return false; } );
 
@@ -194,6 +195,13 @@ class Source.Gsm : FsoTime.AbstractSource
         }
 
         this.reportLocation( lat, lon, 0, this ); // GOBJECT SIGNAL
+    }
+
+    private async void onGsmNetworkTimeReportSignal( int time, int zone )
+    {
+        logger.info( "Received GSM network time report signal" );
+
+        // FIXME: Use signal to improve timezone value if we country spans multiple zones
     }
 }
 
