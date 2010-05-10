@@ -105,7 +105,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
         }
         else
         {
-            var length = Posix.ioctl( fd, Linux.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
+            var length = Linux.ioctl( fd, Linux.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
             if ( length > 0 )
             {
                 product = _cleanBuffer( length );
@@ -117,7 +117,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
                     }
                 }
             }
-            length = Posix.ioctl( fd, Linux.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
+            length = Linux.ioctl( fd, Linux.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
             if ( length > 0 )
             {
                 phys = _cleanBuffer( length );
@@ -130,7 +130,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
                 }
             }
             ushort b = 0;
-            if ( Posix.ioctl( fd, Linux.Input.EVIOCGBIT( 0, Linux.Input.EV_MAX ), &b ) < 0 )
+            if ( Linux.ioctl( fd, Linux.Input.EVIOCGBIT( 0, Linux.Input.EV_MAX ), &b ) < 0 )
             {
                 logger.error( @"Can't inquire input device capabilities: $(strerror(errno))" );
             }
@@ -164,7 +164,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
             }
             caps = caps.strip();
 
-            if ( Posix.ioctl( fd, Linux.Input.EVIOCGKEY( typelength ), keystate ) < 0 )
+            if ( Linux.ioctl( fd, Linux.Input.EVIOCGKEY( typelength ), keystate ) < 0 )
             {
                 logger.error( @"Can't inquire input device key status: $(strerror(errno))" );
             }

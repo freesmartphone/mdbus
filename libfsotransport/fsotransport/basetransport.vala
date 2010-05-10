@@ -278,7 +278,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         {
             // set ready to read/write
             var v24 = Linux.Termios.TIOCM_DTR | Linux.Termios.TIOCM_RTS;
-            Posix.ioctl( fd, Linux.Termios.TIOCMBIS, &v24 );
+            Linux.ioctl( fd, Linux.Termios.TIOCMBIS, &v24 );
         }
     }
 

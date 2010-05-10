@@ -93,7 +93,7 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 		Memory.copy( ifreq.ifr_name, iface, iface.length );
 		Memory.copy( &ifreq.ifr_addr, &addr, sizeof( Posix.SockAddrIn ) );
 
-		res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFADDR, &ifreq );
+		res = Linux.ioctl( socketfd, Linux.Network.SIOCSIFADDR, &ifreq );
 		CHECK( () => { return res > -1; }, @"Can't set address $address on $iface" );
 
 		// set ip netmask
@@ -102,14 +102,14 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 		addr.sin_addr.s_addr = inaddr.s_addr;
 
 		Memory.copy( &ifreq.ifr_netmask, &addr, sizeof( Posix.SockAddrIn ) );
-		res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFNETMASK, &ifreq );
+		res = Linux.ioctl( socketfd, Linux.Network.SIOCSIFNETMASK, &ifreq );
 		CHECK( () => { return res > -1; }, @"Can't set netmask $netmask on $iface" );
 
 		// bring it up
-		res = Posix.ioctl( socketfd, Linux.Network.SIOCGIFFLAGS, &ifreq );
+		res = Linux.ioctl( socketfd, Linux.Network.SIOCGIFFLAGS, &ifreq );
 		CHECK( () => { return res > -1; }, @"Can't get interface flags for $iface" );
 		ifreq.ifr_flags |= Linux.Network.IfFlag.UP;
-		res = Posix.ioctl( socketfd, Linux.Network.SIOCSIFFLAGS, &ifreq );
+		res = Linux.ioctl( socketfd, Linux.Network.SIOCSIFFLAGS, &ifreq );
 		CHECK( () => { return res > -1; }, @"Can't set interface flags for $iface" );
 
 		return true;

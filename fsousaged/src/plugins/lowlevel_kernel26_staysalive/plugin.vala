@@ -47,7 +47,7 @@ class LowLevel.Kernel26_StaysAlive : FsoUsage.LowLevel, FsoFramework.AbstractObj
 
         assert( logger.debug( "Grabbing input nodes" ) );
         var fd = Posix.open( "/dev/input/event3", Posix.O_RDONLY );
-        Posix.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
+        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
 
         assert( logger.debug( "Waiting for action on input node" ) );
         var readfds = Posix.fd_set();
@@ -58,7 +58,7 @@ class LowLevel.Kernel26_StaysAlive : FsoUsage.LowLevel, FsoFramework.AbstractObj
         int res = Posix.select( fd+1, readfds, writefds, exceptfds, t ); // block indefinitely
 
         assert( logger.debug( "ACTION! Ungrabbing input nodes" ) );
-        Posix.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
+        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
 
         assert( logger.debug( "Setting power state 'on'" ) );
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
@@ -90,7 +90,7 @@ class LowLevel.Kernel26_StaysAlive : FsoUsage.LowLevel, FsoFramework.AbstractObj
     {
         logger.info( "Received wakeup request... waking up" );
         assert( logger.debug( "Ungrabbing input nodes" ) );
-        Posix.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
+        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
         assert( logger.debug( "Destroying reactor" ) );
         //reactor = null;
     }

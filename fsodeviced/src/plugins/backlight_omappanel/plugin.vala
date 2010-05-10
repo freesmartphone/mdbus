@@ -86,7 +86,7 @@ class OmapPanel : FreeSmartphone.Device.Display,
     {
         /*
         if ( fb_fd != -1 )
-            Posix.ioctl( fb_fd, FBIOBLANK, on ? FB_BLANK_UNBLANK : FB_BLANK_POWERDOWN );
+            Linux.ioctl( fb_fd, FBIOBLANK, on ? FB_BLANK_UNBLANK : FB_BLANK_POWERDOWN );
         */
         FsoFramework.FileHandling.write( on ? "1" : "0", this.state );
     }

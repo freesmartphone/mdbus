@@ -55,7 +55,7 @@ int main( string[] args )
         param = args[3].to_int();
     }
 
-    var res = Posix.ioctl( fd, ctl, param );
+    var res = Linux.ioctl( fd, ctl, param );
     if ( res == -1 )
     {
         stdout.printf( @"Error: can't ioctl on $(args[1]): $(strerror(errno))\n" );

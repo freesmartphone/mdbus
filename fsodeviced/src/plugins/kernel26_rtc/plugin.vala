@@ -118,7 +118,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
     {
         openRtc();
         GLib.Time t = {};
-        var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_RD_TIME, &t );
+        var res = Linux.ioctl( rtc_fd, Linux.Rtc.RTC_RD_TIME, &t );
         closeRtc( res == -1 );
         logger.info( "RTC time equals %s".printf( t.to_string() ) );
         return (int)Linux.timegm( t );
@@ -142,7 +142,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         openRtc();
         var t = GLib.Time.gm( (time_t) seconds_since_epoch ); // VALABUG: cast is necessary here, otherwise things go havoc
         logger.info( "Setting RTC time to %s (dst=%d)".printf( t.to_string(), t.isdst ) );
-        var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_SET_TIME, &t );
+        var res = Linux.ioctl( rtc_fd, Linux.Rtc.RTC_SET_TIME, &t );
         closeRtc( res == -1 );
     }
 
@@ -150,7 +150,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
     {
         openRtc();
         Linux.Rtc.WakeAlarm alarm = {};
-        var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_WKALM_RD, &alarm );
+        var res = Linux.ioctl( rtc_fd, Linux.Rtc.RTC_WKALM_RD, &alarm );
         closeRtc( res == -1 );
         GLib.Time t = {};
         t.second = alarm.time.tm_sec;
@@ -190,7 +190,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         alarm.pending = 0;
 
         openRtc();
-        var res = Posix.ioctl( rtc_fd, Linux.Rtc.RTC_WKALM_SET, &alarm );
+        var res = Linux.ioctl( rtc_fd, Linux.Rtc.RTC_WKALM_SET, &alarm );
         if ( res == -1 )
         {
             closeRtc( true );

@@ -80,7 +80,7 @@ class Display : FreeSmartphone.Device.Display,
     private void _setBacklightPower( bool on )
     {
         if ( fb_fd != -1 )
-            Posix.ioctl( fb_fd, FBIOBLANK, on ? FB_BLANK_UNBLANK : FB_BLANK_POWERDOWN );
+            Linux.ioctl( fb_fd, FBIOBLANK, on ? FB_BLANK_UNBLANK : FB_BLANK_POWERDOWN );
     }
 
     private int _valueToPercent( int value )
