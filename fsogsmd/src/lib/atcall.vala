@@ -87,9 +87,19 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
-        var c = theModem.createAtCommand<V250H>( "H" );
-        var r = yield theModem.processAtCommandAsync( c, c.execute() );
-        checkResponseOk( c, r );
+        var cmd = theModem.data().atCommandCancelOutgoing;
+        if ( cmd != null )
+        {
+            var c1 = new CustomAtCommand();
+            var r1 = yield theModem.processAtCommandAsync( c1, cmd );
+            checkResponseOk( c1, r1 );
+        }
+        else
+        {
+            var c2 = theModem.createAtCommand<V250H>( "H" );
+            var r2 = yield theModem.processAtCommandAsync( c2, c2.execute() );
+            checkResponseOk( c2, r2 );
+        }
     }
 
     protected override void startTimeoutIfNecessary()

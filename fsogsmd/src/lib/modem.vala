@@ -138,6 +138,10 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public string[] pppOptions;
         public ContextParams contextParams;
 
+        // Common AT extensions
+        public string? atCommandCancelOutgoing;
+        public string? atCommandRejectIncoming;
+
         // Network Information
         public NetworkTimeReport networkTimeReport;
     }
