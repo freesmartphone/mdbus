@@ -34,6 +34,8 @@ public class PalmPreConfiguration : BaseConfiguration
 
 	public override void registerActionsInQueue(IActionQueue queue)
 	{
+		queue.registerAction(new ValidateSystemAction());
+
 		// Mount proc and sysfs filesystem
 		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -t proc proc /proc -o rw,noexec,nosuid,nodev"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -t sysfs sys /sys -o rw,noexec,nosuid,nodev"));
