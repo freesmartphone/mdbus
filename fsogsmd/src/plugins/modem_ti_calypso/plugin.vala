@@ -60,6 +60,9 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         modem_data.simHasReadySignal = true;
         modem_data.simReadyTimeout = 60; /* seconds */
 
+        // special commands
+        modem_data.atCommandCancelOutgoing = "%CHLD=i";
+
         // configure deep sleep mode
         var deep_sleep = config.stringValue( MODULE_NAME, "deep_sleep", "never" );
         if ( deep_sleep == "always" )
@@ -200,6 +203,14 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         if ( query.has_prefix( "D*99" ) )
         {
             return channels["data"];
+        }
+        if ( query.has_prefix( "D" ) && query.has_suffix( ";" ) )
+        {
+            return channels["call"];
+        }
+        if ( query.has_prefix( "%CHLD" ) )
+        {
+            return channels["call"];
         }
         return channels[ "main" ];
     }
