@@ -34,9 +34,6 @@ public class PalmPreConfiguration : BaseConfiguration
 
 	public override void registerActionsInQueue(IActionQueue queue)
 	{
-		// Turn led on, so the user know the init process has been started
-		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "100"));
-		
 		// Mount proc and sysfs filesystem
 		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -t proc proc /proc -o rw,noexec,nosuid,nodev"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -t sysfs sys /sys -o rw,noexec,nosuid,nodev"));
