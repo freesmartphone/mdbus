@@ -117,5 +117,25 @@ public void setupConsole(ConsoleType type, bool reset) throws SetupConsoleError
 	while (Posix.dup(fd) < 2);
 }
 
+public delegate bool Predicate();
+
+public bool CHECK( Predicate p, string message, bool abort = false )
+{
+	if ( p() )
+	{
+		return true;
+	}
+
+	FsoFramework.theLogger.error( @"$message: $(strerror(errno))" );
+
+	if ( abort )
+	{
+		Posix.exit( -1 );
+	}
+
+	return false;
+}
+
+
 } // namespace
 

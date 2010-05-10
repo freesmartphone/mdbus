@@ -32,18 +32,21 @@ public class ValidateSystemAction : IAction, GLib.Object
 	public bool run()
 	{
 		/* Assure that we are the number one */
-		if (Posix.getpid() != 1)
-		{
-			FsoFramework.theLogger.error("Not being executed as init");
+		var res = (int) Posix.getpid();
+		if (!Util.CHECK( () => { return res > -1; }, "Not being executed as init"))
 			return false;
-		}
 
 		/* Assure that we started as root */
-		if (Posix.getuid() == 1) 
-		{
-			FsoFramework.theLogger.error("Need to be root!");
+		res = (int) Posix.getuid();
+		if (!Util.CHECK( () => { return res > -1; }, "Need to be root!"))
 			return false;
-		}
+
+		/* Set root directory to be at the right place if we were 
+		 * started from some strange place 
+		 */
+		 res = Posix.chdir("/");
+		 if (!Util.CHECK( () => { return res > -1; }, "Cannot set root directory!"))
+			return false;
 
 		return true;
 	}

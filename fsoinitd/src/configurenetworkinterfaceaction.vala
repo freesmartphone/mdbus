@@ -78,12 +78,12 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 	private bool configureInterfaceWithAddress( string iface, string address, string netmask )
 	{
 		var socketfd = Posix.socket( Posix.AF_INET, Posix.SOCK_DGRAM, 0 );
-		CHECK( () => { return socketfd > -1; }, "Can't create socket" );
+		Util.CHECK( () => { return socketfd > -1; }, "Can't create socket" );
 
 		// set ip address
 		Posix.InAddr inaddr = { 0 };
 		var res = Linux.inet_aton( address, out inaddr );
-		CHECK( () => { return res > -1; }, @"Can't convert address $address" );
+		Util.CHECK( () => { return res > -1; }, @"Can't convert address $address" );
 
 		Posix.SockAddrIn addr = { 0 };
 		addr.sin_family = Posix.AF_INET;
@@ -94,23 +94,23 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 		Memory.copy( &ifreq.ifr_addr, &addr, sizeof( Posix.SockAddrIn ) );
 
 		res = Linux.ioctl( socketfd, Linux.Network.SIOCSIFADDR, &ifreq );
-		CHECK( () => { return res > -1; }, @"Can't set address $address on $iface" );
+		Util.CHECK( () => { return res > -1; }, @"Can't set address $address on $iface" );
 
 		// set ip netmask
 		res = Linux.inet_aton( netmask, out inaddr );
-		CHECK( () => { return res > -1; }, @"Can't convert address $netmask" );
+		Util.CHECK( () => { return res > -1; }, @"Can't convert address $netmask" );
 		addr.sin_addr.s_addr = inaddr.s_addr;
 
 		Memory.copy( &ifreq.ifr_netmask, &addr, sizeof( Posix.SockAddrIn ) );
 		res = Linux.ioctl( socketfd, Linux.Network.SIOCSIFNETMASK, &ifreq );
-		CHECK( () => { return res > -1; }, @"Can't set netmask $netmask on $iface" );
+		Util.CHECK( () => { return res > -1; }, @"Can't set netmask $netmask on $iface" );
 
 		// bring it up
 		res = Linux.ioctl( socketfd, Linux.Network.SIOCGIFFLAGS, &ifreq );
-		CHECK( () => { return res > -1; }, @"Can't get interface flags for $iface" );
+		Util.CHECK( () => { return res > -1; }, @"Can't get interface flags for $iface" );
 		ifreq.ifr_flags |= Linux.Network.IfFlag.UP;
 		res = Linux.ioctl( socketfd, Linux.Network.SIOCSIFFLAGS, &ifreq );
-		CHECK( () => { return res > -1; }, @"Can't set interface flags for $iface" );
+		Util.CHECK( () => { return res > -1; }, @"Can't set interface flags for $iface" );
 
 		return true;
 	}
@@ -136,25 +136,6 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 	{
 		return true;
 	}
-}
-
-public delegate bool Predicate();
-
-public bool CHECK( Predicate p, string message, bool abort = false )
-{
-	if ( p() )
-	{
-		return true;
-	}
-
-	FsoFramework.theLogger.error( @"$message: $(strerror(errno))" );
-
-	if ( abort )
-	{
-		Posix.exit( -1 );
-	}
-
-	return false;
 }
 
 } // namespace

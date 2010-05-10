@@ -5,6 +5,7 @@ NULL =
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ../vapi \
+	--pkg util \
 	--pkg gee-1.0 \
 	--pkg posix \
 	--pkg linux \
