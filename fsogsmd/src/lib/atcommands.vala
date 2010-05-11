@@ -537,6 +537,14 @@ public class PlusCLCK : AbstractAtCommand
     }
 }
 
+public class PlusCLIR : SimpleAtCommand<int>
+{
+    public PlusCLIR()
+    {
+        base( "+CLIR" );
+    }
+}
+
 public class PlusCLVL : SimpleAtCommand<int>
 {
     public PlusCLVL()
@@ -1513,6 +1521,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 
     // network
     table[ "+CGREG" ]            = new FsoGsm.PlusCGREG();
+    table[ "+CLIR" ]             = new FsoGsm.PlusCLIR();
     table[ "+CREG" ]             = new FsoGsm.PlusCREG();
     table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
     table[ "+CSQ" ]              = new FsoGsm.PlusCSQ();

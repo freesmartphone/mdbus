@@ -573,10 +573,12 @@ class DBusService.Device :
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async string get_calling_identification() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.CallingIdentificationStatus get_calling_identification() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.NetworkGetCallingId>();
+        yield m.run();
+        return m.status;
     }
 
     public async void get_time_report( out int time, out int timestamp, out int zone, out int zonestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
@@ -633,10 +635,11 @@ class DBusService.Device :
         yield m.run( request );
     }
 
-    public async void set_calling_identification( string visible ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_calling_identification( FreeSmartphone.GSM.CallingIdentificationStatus status ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.NetworkSetCallingId>();
+        yield m.run( status );
     }
 
     public async void unregister() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

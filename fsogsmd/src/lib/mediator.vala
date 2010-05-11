@@ -279,6 +279,17 @@ public abstract class FsoGsm.NetworkUnregister : FsoGsm.AbstractMediator
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.NetworkGetCallingId : FsoGsm.AbstractMediator
+{
+    public FreeSmartphone.GSM.CallingIdentificationStatus status { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.NetworkSetCallingId : FsoGsm.AbstractMediator
+{
+    public abstract async void run( FreeSmartphone.GSM.CallingIdentificationStatus status ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 //
 // org.freesmartphone.GSM.Call.*
 //

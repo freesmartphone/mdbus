@@ -1130,6 +1130,27 @@ public class AtNetworkSendUssdRequest : NetworkSendUssdRequest
     }
 }
 
+public class AtNetworkGetCallingId : NetworkGetCallingId
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCLIR>( "+CLIR" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        status = (FreeSmartphone.GSM.CallingIdentificationStatus) cmd.value;
+    }
+}
+
+public class AtNetworkSetCallingId : NetworkSetCallingId
+{
+    public override async void run( FreeSmartphone.GSM.CallingIdentificationStatus status ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCLIR>( "+CLIR" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( status ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
 /**
  * Call Mediators
  **/
@@ -1355,6 +1376,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
     table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
     table[ typeof(NetworkSendUssdRequest) ]       = typeof( AtNetworkSendUssdRequest );
+    table[ typeof(NetworkGetCallingId) ]          = typeof( AtNetworkGetCallingId );
+    table[ typeof(NetworkSetCallingId) ]          = typeof( AtNetworkSetCallingId );
 
     table[ typeof(CallActivate) ]                 = typeof( AtCallActivate );
     table[ typeof(CallHoldActive) ]               = typeof( AtCallHoldActive );
