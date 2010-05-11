@@ -17,6 +17,8 @@
  *
  */
 
+using FsoInit.Util;
+
 namespace FsoInit 
 {
 
@@ -56,8 +58,9 @@ public class ValidateSystemAction : IAction, GLib.Object
 		GLib.Environment.set_variable("PATH", path, true);
 
 		/* Change destination of stdout and stderr to the console device and stdin to
-		** /dev/null */
-		Util.setupConsole(true);
+		 ** /dev/null */
+		if (!setupConsole(true))
+			return false;
 
 		return true;
 	}

@@ -26,15 +26,6 @@ public const string CONSOLE_PATH = "/dev/console";
 public const string DEV_NULL_PATH = "/dev/null";
 public const string TTY_PATH = "/dev/tty";
 
-public errordomain SetupConsoleError 
-{
-	COULD_NOT_OPEN_TTY,
-	COULD_NOT_IOCTL_TIOCNOTTY,
-	COULD_NOT_OPEN_CONSOLE,
-	COULD_NOT_OPEN_DEV_NULL,
-	COULD_NOT_CHANGE_FDS,
-}
-
 /**
  * setupConsole:
  * @reset: reset console to sane defaults
@@ -42,8 +33,10 @@ public errordomain SetupConsoleError
  * Set up the standard input, output and error file descriptors for the
  * current process based on the console @type given. If @reset is TRUE then
  * the console device will be reset to sane defaults.
+ *
+ * @return:  setup process of the console was successfull
  **/
-public void setupConsole(bool reset) throws SetupConsoleError
+public bool setupConsole(bool reset)
 {
 	int tty_fd = -1, null_fd = -1, i;
 
@@ -58,30 +51,31 @@ public void setupConsole(bool reset) throws SetupConsoleError
 	tty_fd = open(TTY_PATH, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	if (tty_fd < 0) 
 	{
-		var msg = @"Could not open tty on '$(TTY_PATH)'";
-		throw new SetupConsoleError.COULD_NOT_OPEN_TTY(msg);
+		FsoFramework.theLogger.error(@"Could not open tty on '$(TTY_PATH)'");
+		return false;
 	}
 
 	if (ioctl(tty_fd, Linux.Termios.TIOCNOTTY) < 0) 
 	{
 		close(tty_fd);
-		var msg = @"Could not run ioctl(TIOCNOTTY) on $(TTY_PATH)";
-		throw new SetupConsoleError.COULD_NOT_IOCTL_TIOCNOTTY(msg);
+		FsoFramework.theLogger.error(@"Could not run ioctl(TIOCNOTTY) on $(TTY_PATH)");
+		return false;
 	}
 
 	close(tty_fd);
 
 	/* Open /dev/console and /dev/null */
 	tty_fd = open(CONSOLE_PATH, O_WRONLY);
-	if (null_fd < 0) {
-		var msg = @"Could not open console on '$(CONSOLE_PATH)'";
-		throw new SetupConsoleError.COULD_NOT_OPEN_CONSOLE(msg);
+	if (tty_fd < 0) {
+		FsoFramework.theLogger.error(@"Could not open console on '$(CONSOLE_PATH)'");
+		return false;
 	}
 	
 	null_fd = open(DEV_NULL_PATH, O_RDONLY);
 	if (null_fd < 0) {
-		var msg = @"Could not open /dev/null on '$(DEV_NULL_PATH)'";
-		throw new SetupConsoleError.COULD_NOT_OPEN_DEV_NULL(msg);
+		close(tty_fd);
+		FsoFramework.theLogger.error(@"Could not open /dev/null on '$(DEV_NULL_PATH)'");
+		return false;
 	}
 
 	GLib.assert(tty_fd >= 3);
@@ -121,13 +115,18 @@ public void setupConsole(bool reset) throws SetupConsoleError
 	/* move stdout/stderr to /dev/console and stdin to /dev/null */
 	if (dup2(tty_fd, STDOUT_FILENO) < 0 ||
 		dup2(tty_fd, STDERR_FILENO) < 0 ||
-		dup2(null_fd, STDIN_FILENO) < 0) {
-		var msg = @"Could not move stdin,stdout and stderr to console or /dev/null";
-		throw new SetupConsoleError.COULD_NOT_CHANGE_FDS(msg);
+		dup2(null_fd, STDIN_FILENO) < 0) 
+	{
+		close(tty_fd);
+		close(null_fd);
+		FsoFramework.theLogger.error(@"Could not move stdin,stdout and stderr to console or /dev/null");
+		return false;
 	}
 
 	close(tty_fd);
 	close(null_fd);
+
+	return true;
 }
 
 public delegate bool Predicate();
