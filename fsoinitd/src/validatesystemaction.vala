@@ -41,6 +41,9 @@ public class ValidateSystemAction : IAction, GLib.Object
 		if (!Util.CHECK( () => { return res > -1; }, "Need to be root!"))
 			return false;
 
+		/* Become the leader of a new session and process group */
+		Posix.setsid();
+
 		/* Set root directory to be at the right place if we were 
 		 * started from some strange place 
 		 */
