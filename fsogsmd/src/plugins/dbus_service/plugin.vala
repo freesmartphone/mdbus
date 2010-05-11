@@ -746,12 +746,10 @@ class DBusService.Device :
         yield m.run();
     }
 
-    public async void get_context_status( out /*FreeSmartphone.GSM.ContextStatus*/ string status, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void get_context_status( out FreeSmartphone.GSM.ContextStatus status, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-        // BROKEN IN VALA ATM.
-        status = modem.pdphandler.status.to_string();
+        status = modem.pdphandler.status;
         properties = modem.pdphandler.properties;
     }
 
