@@ -17,104 +17,117 @@
  *
  */
 
+using Posix;
+
 namespace FsoInit.Util
 {
 
 public const string CONSOLE_PATH = "/dev/console";
 public const string DEV_NULL_PATH = "/dev/null";
-
-public enum ConsoleType 
-{
-	OUTPUT,
-	OWNER,
-	NONE,
-}
+public const string TTY_PATH = "/dev/tty";
 
 public errordomain SetupConsoleError 
 {
+	COULD_NOT_OPEN_TTY,
+	COULD_NOT_IOCTL_TIOCNOTTY,
 	COULD_NOT_OPEN_CONSOLE,
+	COULD_NOT_OPEN_DEV_NULL,
+	COULD_NOT_CHANGE_FDS,
 }
-
-/* fairly copied from upstart: init/system.c */
 
 /**
  * setupConsole:
- * @type: console type
  * @reset: reset console to sane defaults
  *
  * Set up the standard input, output and error file descriptors for the
  * current process based on the console @type given. If @reset is TRUE then
  * the console device will be reset to sane defaults.
  **/
-public void setupConsole(ConsoleType type, bool reset) throws SetupConsoleError
+public void setupConsole(bool reset) throws SetupConsoleError
 {
-	int fd = -1, i;
+	int tty_fd = -1, null_fd = -1, i;
 
 	/* Close the standard file descriptors since we're about to re-open
 	 * them; it may be that some of these aren't already open, we got
 	 * called in some very strange ways.
 	 */
 	for (i = 0; i < 3; i++)
-		Posix.close(i);
+		close(i);
 
-	/* Open the new first descriptor, which always become 
-	 * file zero.
-	 */
-	switch (type) {
-	case ConsoleType.OUTPUT:
-	case ConsoleType.OWNER:
-		/* Ordinary console input and output */
-		fd = Posix.open(CONSOLE_PATH, Posix.O_RDWR | Posix.O_NOCTTY);
-		if (fd < 0) {
-			var msg = @"Could not open console on '$(CONSOLE_PATH)'";
-			throw new SetupConsoleError.COULD_NOT_OPEN_CONSOLE(msg);
-		}
-
-		if (type == ConsoleType.OWNER)
-			Posix.ioctl(Linux.Termios.TIOCSCTTY, 1);
-		break;
-	case ConsoleType.NONE:
-		/* No console really means /dev/null */
-		fd = Posix.open(DEV_NULL_PATH, Posix.O_RDWR | Posix.O_NOCTTY);
-		if (fd < 0) {
-			var msg = @"Could not open console on '$(DEV_NULL_PATH)'";
-			throw new SetupConsoleError.COULD_NOT_OPEN_CONSOLE(msg);
-		}
-		break;
+	/* Release tty */
+	tty_fd = open(TTY_PATH, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	if (tty_fd < 0) 
+	{
+		var msg = @"Could not open tty on '$(TTY_PATH)'";
+		throw new SetupConsoleError.COULD_NOT_OPEN_TTY(msg);
 	}
+
+	if (ioctl(tty_fd, Linux.Termios.TIOCNOTTY) < 0) 
+	{
+		close(tty_fd);
+		var msg = @"Could not run ioctl(TIOCNOTTY) on $(TTY_PATH)";
+		throw new SetupConsoleError.COULD_NOT_IOCTL_TIOCNOTTY(msg);
+	}
+
+	close(tty_fd);
+
+	/* Open /dev/console and /dev/null */
+	tty_fd = open(CONSOLE_PATH, O_WRONLY);
+	if (null_fd < 0) {
+		var msg = @"Could not open console on '$(CONSOLE_PATH)'";
+		throw new SetupConsoleError.COULD_NOT_OPEN_CONSOLE(msg);
+	}
+	
+	null_fd = open(DEV_NULL_PATH, O_RDONLY);
+	if (null_fd < 0) {
+		var msg = @"Could not open /dev/null on '$(DEV_NULL_PATH)'";
+		throw new SetupConsoleError.COULD_NOT_OPEN_DEV_NULL(msg);
+	}
+
+	GLib.assert(tty_fd >= 3);
+	GLib.assert(null_fd >= 3);
 	
 	/* Reset to sane defaults, cribbed from sysviit, initng, etc. */
 	if (reset) {
-		Posix.termios tty = {};
-		Posix.tcgetattr(fd, tty);
+		termios tty = {};
+		tcgetattr(tty_fd, tty);
 
-		tty.c_cflag &= (Posix.CBAUD | Posix.CBAUDEX | Posix.CSIZE | Posix.CSTOPB
-						| Posix.PARENB | Posix.PARODD);
-		tty.c_cflag |= (Posix.HUPCL | Posix.CLOCAL | Posix.CREAD);
+		tty.c_cflag &= (CBAUD | CBAUDEX | CSIZE | CSTOPB
+						| PARENB | PARODD);
+		tty.c_cflag |= (HUPCL | CLOCAL | CREAD);
 
 		/* Set up usual keys */
-		tty.c_cc[Posix.VINTR]  = 3;   /* ^C */
-		tty.c_cc[Posix.VQUIT]  = 28;  /* ^\ */
-		tty.c_cc[Posix.VERASE] = 127;
-		tty.c_cc[Posix.VKILL]  = 24;  /* ^X */
-		tty.c_cc[Posix.VEOF]   = 4;   /* ^D */
-		tty.c_cc[Posix.VTIME]  = 0;
-		tty.c_cc[Posix.VMIN]   = 1;
-		tty.c_cc[Posix.VSTART] = 17;  /* ^Q */
-		tty.c_cc[Posix.VSTOP]  = 19;  /* ^S */
-		tty.c_cc[Posix.VSUSP]  = 26;  /* ^Z */
+		tty.c_cc[VINTR]  = 3;   /* ^C */
+		tty.c_cc[VQUIT]  = 28;  /* ^\ */
+		tty.c_cc[VERASE] = 127;
+		tty.c_cc[VKILL]  = 24;  /* ^X */
+		tty.c_cc[VEOF]   = 4;   /* ^D */
+		tty.c_cc[VTIME]  = 0;
+		tty.c_cc[VMIN]   = 1;
+		tty.c_cc[VSTART] = 17;  /* ^Q */
+		tty.c_cc[VSTOP]  = 19;  /* ^S */
+		tty.c_cc[VSUSP]  = 26;  /* ^Z */
 
-		tty.c_iflag = (Posix.IGNPAR | Posix.ICRNL | Posix.IXON | Posix.IXANY);
-		tty.c_oflag = (Posix.OPOST | Posix.ONLCR);
-		tty.c_lflag = (Posix.ISIG | Posix.ICANON | Posix.ECHO | Posix.ECHOCTL
-					   | Posix.ECHOPRT | Posix.ECHOKE);
+		tty.c_iflag = (IGNPAR | ICRNL | IXON | IXANY);
+		tty.c_oflag = (OPOST | ONLCR);
+		tty.c_lflag = (ISIG | ICANON | ECHO | ECHOCTL
+					   | ECHOPRT | ECHOKE);
 
 		/* Set the terminal line and flush it */
-		Posix.tcsetattr(0, Posix.TCSANOW, tty);
-		Posix.tcflush(0, Posix.TCIOFLUSH);
+		tcsetattr(0, TCSANOW, tty);
+		tcflush(0, TCIOFLUSH);
 	}
 
-	while (Posix.dup(fd) < 2);
+	/* move stdout/stderr to /dev/console and stdin to /dev/null */
+	if (dup2(tty_fd, STDOUT_FILENO) < 0 ||
+		dup2(tty_fd, STDERR_FILENO) < 0 ||
+		dup2(null_fd, STDIN_FILENO) < 0) {
+		var msg = @"Could not move stdin,stdout and stderr to console or /dev/null";
+		throw new SetupConsoleError.COULD_NOT_CHANGE_FDS(msg);
+	}
+
+	close(tty_fd);
+	close(null_fd);
 }
 
 public delegate bool Predicate();
@@ -126,11 +139,11 @@ public bool CHECK( Predicate p, string message, bool abort = false )
 		return true;
 	}
 
-	FsoFramework.theLogger.error( @"$message: $(strerror(errno))" );
+	FsoFramework.theLogger.error( @"$message: $(Posix.strerror(Posix.errno))" );
 
 	if ( abort )
 	{
-		Posix.exit( -1 );
+		exit( -1 );
 	}
 
 	return false;
