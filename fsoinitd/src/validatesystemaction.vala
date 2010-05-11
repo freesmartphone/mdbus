@@ -55,6 +55,10 @@ public class ValidateSystemAction : IAction, GLib.Object
 		var path = "/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin";
 		GLib.Environment.set_variable("PATH", path, true);
 
+		/* Change destination of stdout and stderr to the console device and stdin to
+		** /dev/null */
+		Util.setupConsole(true);
+
 		return true;
 	}
 
