@@ -58,7 +58,7 @@ public class ValidateSystemAction : IAction, GLib.Object
 		GLib.Environment.set_variable("PATH", path, true);
 
 		/* Change destination of stdout and stderr to the console device and stdin to
-		 ** /dev/null */
+		 * /dev/null */
 		if (!setupConsole(true))
 			return false;
 

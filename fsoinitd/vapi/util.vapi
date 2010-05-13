@@ -18,3 +18,9 @@ namespace Posix {
 	[CCode (cheader_filename = "termios.h")]
 	public const tcflag_t ECHOKE;
 } // namespace
+
+[CCode (cprefix = "", lower_case_cprefix = "")]
+namespace Linux 
+{
+	
+} // namespace
