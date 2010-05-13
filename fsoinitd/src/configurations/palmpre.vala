@@ -59,10 +59,6 @@ public class PalmPreConfiguration : BaseConfiguration
 		
 		// Populate volatile
 		// FIXME
-
-		// Mount relevant filesystems
-		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -t tmpfs tmpfs /tmp"));
-		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -t devpts devpts /dev/pts"));
 		
 		// Debug!
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_left/brightness", "50"));
@@ -71,9 +67,7 @@ public class PalmPreConfiguration : BaseConfiguration
 		queue.registerAction(new SetupHostnameAction());
 		
 		// Configure network interface
-		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifup -f lo"));
-		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifup -f usb0"));
-		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/ifconfig usb0 192.168.0.202"));
+		queue.registerAction(new ConfigureNetworkInterfaceAction.with_settings("usb0", "192.168.0.202", "255.255.255.0"));
 		
 		// Debug!
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_right/brightness", "50"));
