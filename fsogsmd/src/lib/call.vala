@@ -85,7 +85,13 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
      * Call this, when the network has indicated an incoming call.
      **/
     public abstract void handleIncomingCall( string ctype );
-
+    /**
+     * Call this, when the network has indicated a supplementary service indication.
+     **/
+    public abstract void addSupplementaryInformation( string direction, string info );
+    /**
+     * Call Actions
+     **/
     public abstract async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async int  initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
@@ -106,6 +112,8 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
     {
         startTimeoutIfNecessary();
     }
+
+    public abstract void addSupplementaryInformation( string direction, string info );
 
     protected abstract void startTimeoutIfNecessary();
 

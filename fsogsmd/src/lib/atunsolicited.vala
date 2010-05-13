@@ -117,6 +117,8 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         registerUrc( "+CMTI", plusCMTI );
         registerUrc( "+CREG", plusCREG );
         registerUrc( "+CRING", plusCRING );
+        registerUrc( "+CSSI", plusCSSI );
+        registerUrc( "+CSSU", plusCSSU );
         registerUrc( "+CTZV", plusCTZV );
         registerUrc( "+CUSD", plusCUSD );
         registerUrc( "NO CARRIER", no_carrier );
@@ -163,17 +165,6 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     {
     }
 
-    public virtual void plusCREG( string prefix, string rhs )
-    {
-        triggerUpdateNetworkStatus();
-    }
-
-
-    public virtual void plusCRING( string prefix, string rhs )
-    {
-        theModem.callhandler.handleIncomingCall( rhs );
-    }
-
     public virtual void plusCMTI( string prefix, string rhs )
     {
         var cmti = theModem.createAtCommand<PlusCMTI>( "+CMTI" );
@@ -184,6 +175,42 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         else
         {
             logger.warning( @"Received invalid +CMTI message $rhs. Please report" );
+        }
+    }
+
+    public virtual void plusCREG( string prefix, string rhs )
+    {
+        triggerUpdateNetworkStatus();
+    }
+
+    public virtual void plusCRING( string prefix, string rhs )
+    {
+        theModem.callhandler.handleIncomingCall( rhs );
+    }
+
+    public virtual void plusCSSI( string prefix, string rhs )
+    {
+        var cssi = theModem.createAtCommand<PlusCSSI>( "+CSSI" );
+        if ( cssi.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            theModem.callhandler.addSupplementaryInformation( Constants.instance().callDirectionToString( 0 ), Constants.instance().cssiCodeToString( cssi.value ) );
+        }
+        else
+        {
+            logger.warning( @"Received invalid +CSSI message $rhs. Please report" );
+        }
+    }
+
+    public virtual void plusCSSU( string prefix, string rhs )
+    {
+        var cssu = theModem.createAtCommand<PlusCSSU>( "+CSSU" );
+        if ( cssu.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            theModem.callhandler.addSupplementaryInformation( Constants.instance().callDirectionToString( 1 ), Constants.instance().cssuCodeToString( cssu.value ) );
+        }
+        else
+        {
+            logger.warning( @"Received invalid +CSSU message $rhs. Please report" );
         }
     }
 

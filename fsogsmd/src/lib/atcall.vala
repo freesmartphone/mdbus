@@ -29,6 +29,8 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     protected uint timeout;
     protected FsoGsm.Call[] calls;
 
+    protected FsoFramework.Pair<string,string> supplementary;
+
     construct
     {
         calls = new FsoGsm.Call[Constants.CALL_INDEX_MAX+1] {};
@@ -117,6 +119,11 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         return true;
     }
 
+    public override void addSupplementaryInformation( string direction, string info )
+    {
+        supplementary = new FsoFramework.Pair<string,string>( direction, info );
+    }
+
     protected async void syncCallStatus()
     {
         try
@@ -141,6 +148,20 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
                 assert( logger.debug( "call status idle -> stopping updater" ) );
                 Source.remove( timeout );
                 timeout = 0;
+            }
+
+            if ( supplementary != null )
+            {
+                // add supplementary information to incoming or outgoing
+                foreach ( var ca in m.calls )
+                {
+                    var direction = ca.properties.lookup( "direction" ).get_string();
+                    if ( direction == supplementary.first )
+                    {
+                        ca.properties.insert( "service", supplementary.second );
+                    }
+                }
+                supplementary = null;
             }
 
             // visit all busy (incoming,outgoing,held,active) calls to send updates...

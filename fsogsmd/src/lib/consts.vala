@@ -914,6 +914,29 @@ public class FsoGsm.Constants
         return res;
     }
 
+    public string cssiCodeToString( int code )
+    {
+        switch ( code )
+        {
+            case 0: return "unconditional-forwardings-active";
+            case 1: return "conditional-forwardings-active";
+            case 2: return "forwarded";
+            case 3: return "waiting-call-pending";
+            default: return @"<unknown:cssi:$code>";
+        }
+    }
+
+    public string cssuCodeToString( int code )
+    {
+        switch ( code )
+        {
+            case 0: return "forwarded";
+            case 5: return "held-terminated";
+            case 10: return "additional-call-forwarded";
+            default: return @"<unknown:cssu:$code>";
+        }
+    }
+
     /**
      * Compute the timezone offset out of a value from +CTZV
      * 35 (observed in Taipei, UTC+7)

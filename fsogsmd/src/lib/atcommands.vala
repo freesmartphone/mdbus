@@ -1369,6 +1369,21 @@ public class PlusCSQ : AbstractAtCommand
     }
 }
 
+public class PlusCSSI : SimpleAtCommand<int>
+{
+    public PlusCSSI()
+    {
+        base( "+CSSI" );
+    }
+}
+
+public class PlusCSSU : SimpleAtCommand<int>
+{
+    public PlusCSSU()
+    {
+        base( "+CSSU" );
+    }
+}
 
 public class PlusCUSD : AbstractAtCommand
 {
@@ -1525,6 +1540,8 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CREG" ]             = new FsoGsm.PlusCREG();
     table[ "+COPS" ]             = new FsoGsm.PlusCOPS();
     table[ "+CSQ" ]              = new FsoGsm.PlusCSQ();
+    table[ "+CSSI" ]             = new FsoGsm.PlusCSSI();
+    table[ "+CSSU" ]             = new FsoGsm.PlusCSSU();
     table[ "+CUSD" ]             = new FsoGsm.PlusCUSD();
 
     // call control
