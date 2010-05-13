@@ -39,7 +39,7 @@ public class PalmPreConfiguration : BaseConfiguration
 		// Mount proc and sysfs filesystem
 		queue.registerAction(new MountFilesystemAction.with_settings(0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT));
 		queue.registerAction(new MountFilesystemAction.with_settings(0755, "sys", "/sys", "sysfs",  Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID));
-		queue.registerAction(new MountFilesystemAction.with_settings(0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID);
+		queue.registerAction(new MountFilesystemAction.with_settings(0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID));
 		
 		// Remount rootfs read-write
 		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -o remount,rw /"));
