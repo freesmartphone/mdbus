@@ -51,11 +51,11 @@ public string routeTypeToString (RouteType type)
 public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 {
 	public string name { get { return "ConfigureNetworkInterfaceAction"; } }
-	public string iface { get; set; }
-	public string address { get; set; }
-	public string netmask { get; set; }
-	public RouteType routeType { get; set; }
-	public string gateway { get; set; }
+	public string iface { get; set; default = ""; }
+	public string address { get; set; default = ""; }
+	public string netmask { get; set; default = ""; }
+	public RouteType routeType { get; set; default = RouteType.DEFAULT; }
+	public string gateway { get; set; default = ""; }
 
 	public ConfigureNetworkInterfaceAction.with_settings(string iface, string address, string netmask)
 	{
