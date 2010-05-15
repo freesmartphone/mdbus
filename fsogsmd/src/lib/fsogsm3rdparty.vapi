@@ -273,9 +273,8 @@ namespace Sms
     [CCode (cname = "struct sms_deliver", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct Deliver
     {
-        public GLib.HashTable<string,GLib.Value?> properties()
+        public void addProperties( GLib.HashTable<string,GLib.Value?> props )
         {
-            var props = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
             props.insert( "mms", mms );
             props.insert( "sri", sri );
             props.insert( "udhi", udhi );
@@ -284,8 +283,9 @@ namespace Sms
             props.insert( "dcs", dcs );
             props.insert( "udl", udl );
             if ( udhi )
-                props.insert( "udh", "%02X %02X %02X %02X".printf( (ud[1] << 4) + ud[0], (ud[3] << 4) + ud[2], (ud[5] << 4) + ud[4], ud[6] ) );
-            return props;
+            {
+                props.insert( "udh", "%02X %02X %02X %04X %04X".printf( ud[0], ud[1], ud[2], ud[4] + (ud[3] << 8), ud[6] + (ud[5] << 8) ) );
+            }
         }
 
         public bool mms;
@@ -467,10 +467,23 @@ namespace Sms
 
         public GLib.HashTable<string,GLib.Value?> properties()
         {
+            var props = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+
+            int dst;
+            int src;
+            bool is8bit;
+            var hasAppPort = extract_app_port( out dst, out src, out is8bit );
+            if ( hasAppPort )
+            {
+                props.insert( "app-port-src", src );
+                props.insert( "app-port-dst", dst );
+                props.insert( "app-port-8bit", is8bit );
+            }
+
             switch ( type )
             {
                 case Sms.Type.DELIVER:
-                    return deliver.properties();
+                    deliver.addProperties( props );
                     /*
                 case Sms.Type.DELIVER_REPORT_ACK:
                     return deliver_ack_report.properties();
@@ -488,8 +501,9 @@ namespace Sms
                     return status_report.properties();
                     */
                 default:
-                    return new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+                    break;
             }
+            return props;
         }
 
         public static Sms.Message? newFromHexPdu( string hexpdu, int tpdulen )

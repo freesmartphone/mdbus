@@ -76,6 +76,9 @@ public const int pdulength3 = 97;
 public const string pdu4 = "079144999701903706990C91448748749999101151714000001011517140000000";
 public const int pdulength4 = 25;
 
+public const string pdu5 = "0791947106004034440B899421436587F900F501505102500280860605040B8423F06106226170706C69636174696F6E2F766E642E7761702E6D6D732D6D65737361676500AF848C82986B70684544414F637942008D908919802B3439313730323732303030332F545950453D504C4D4E008A808E0261A88805810303F47983687474703A2F2F31302E38312E302E373A383030322F6B70684544414F63794200"; /* sms control message for incoming MMS */
+public const int pdulength5 = 153;
+
 SList<weak Sms.Message> smslist;
 
 /******************************************************************************************
@@ -198,6 +201,34 @@ void test_sms_decode_deliver_whole_concatenated_default_alphabet()
 }
 
 //===========================================================================
+void test_sms_decode_deliver_incoming_mms_control_message()
+//===========================================================================
+{
+    var sms = Sms.Message.newFromHexPdu( pdu5, pdulength5 );
+
+    int dst;
+    int src;
+    bool is8bit;
+
+    var has_app_port = sms.extract_app_port( out dst, out src, out is8bit );
+
+    assert( has_app_port );
+    assert( dst == 2948 );
+    assert( src == 9200 );
+    assert( !is8bit );
+
+    string contents = "";
+    uint8* ud = sms.deliver.ud;
+    for ( var i = 0; i < sms.deliver.udl; ++i )
+    {
+        contents += "%c".printf( ud[i] );
+    }
+    debug( @"content = $contents" );
+
+    assert( false );
+}
+
+//===========================================================================
 void test_sms_decode_status_report()
 //===========================================================================
 {
@@ -307,6 +338,7 @@ void main( string[] args )
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Single/Concatenated/DefaultAlphabet", test_sms_decode_deliver_single_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Multiple/Concatenated/DefaultAlphabet", test_sms_decode_deliver_multiple_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Whole/Concatenated/DefaultAlphabet", test_sms_decode_deliver_whole_concatenated_default_alphabet );
+    Test.add_func( "/3rdparty/Sms/Decode/Deliver/IncomingMmsControlMessage", test_sms_decode_deliver_incoming_mms_control_message );
     Test.add_func( "/3rdparty/Sms/Decode/StatusReport", test_sms_decode_status_report );
 
     Test.add_func( "/3rdparty/Sms/Encode/Submit/Single/DefaultAlphabet", test_sms_encode_submit_single_default_alphabet );
