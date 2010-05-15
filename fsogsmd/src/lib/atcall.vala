@@ -104,6 +104,24 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         }
     }
 
+    protected override async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        assert( logger.debug( @"Rejecting incoming call with ID $id" ) );
+        var cmd = theModem.data().atCommandRejectIncoming;
+        if ( cmd != null )
+        {
+            var c1 = new CustomAtCommand();
+            var r1 = yield theModem.processAtCommandAsync( c1, cmd );
+            checkResponseOk( c1, r1 );
+        }
+        else
+        {
+            var c2 = theModem.createAtCommand<V250H>( "H" );
+            var r2 = yield theModem.processAtCommandAsync( c2, c2.execute() );
+            checkResponseOk( c2, r2 );
+        }
+    }
+
     protected override void startTimeoutIfNecessary()
     {
         onTimeout();
@@ -187,7 +205,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
                     var result = yield theModem.processAtCommandAsync( ceer, ceer.execute() );
                     if ( ceer.validate( result ) == Constants.AtResponse.VALID )
                     {
-                        detail.properties.insert( "cause", Constants.instance().ceerCauseToString( ceer.location, ceer.reason, ceer.ssrelease ) );
+                        detail.properties.insert( "cause", ceer.reason );
                     }
 
                     calls[i].update( detail );
@@ -274,6 +292,12 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.OUTGOING )
         {
             yield cancelOutgoingWithId( id );
+            return;
+        }
+        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.INCOMING ) == 1 && calls[id].detail.status == FreeSmartphone.GSM.CallStatus.INCOMING )
+        {
+            yield rejectIncomingWithId( id );
+            return;
         }
         else
         {

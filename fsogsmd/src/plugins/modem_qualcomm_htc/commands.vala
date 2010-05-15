@@ -66,12 +66,54 @@ public class PlusHTCCTZV : AbstractAtCommand
     }
 }
 
+public class MyPlusCEER : FsoGsm.PlusCEER
+{
+    public MyPlusCEER()
+    {
+        try
+        {
+            re = new Regex( """\+CEER: (?P<reason>[A-Z a-z]+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+CEER: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        var r = to_string( "reason" );
+
+        if ( "Call rejected" in r )
+        {
+            reason = "local-reject";
+        }
+        else if ( "Client ended call" in r )
+        {
+            reason = "local-cancel";
+        }
+        else if ( "Network ended call" in r )
+        {
+            reason = "remote-cancel";
+        }
+        else
+        {
+            theModem.logger.info( @"Unknown +CEER cause '$r'; please report to Mickey <smartphones-userland@linuxtogo.org>" );
+        }
+    }
+}
+
+
 /**
  * Register all custom commands
  **/
 public void registerCustomAtCommands( HashMap<string,AtCommand> table )
 {
     table[ "+HTCCTZV" ]           = new PlusHTCCTZV();
+
+    table[ "+CEER" ]              = new MyPlusCEER();
 }
 
 } /* namespace QualcommHtc */

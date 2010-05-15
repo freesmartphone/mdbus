@@ -127,4 +127,8 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
      * Override this to implement modem-specific cancelling of an outgoing call
      **/
     protected abstract async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    /**
+     * Override this to implement modem-specific rejecting of an incoming call
+     **/
+    protected abstract async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }

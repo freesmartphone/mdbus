@@ -228,9 +228,7 @@ public class PlusCDS : AbstractAtCommand
 
 public class PlusCEER : AbstractAtCommand
 {
-    public int location;
-    public int reason;
-    public int ssrelease;
+    public string reason;
 
     public PlusCEER()
     {
@@ -255,15 +253,11 @@ public class PlusCEER : AbstractAtCommand
 
         if ( v0 == 0 && v1 == 0 && v2 != 0 && v3 != 0 )
         {
-            location = v1;
-            reason = v2;
-            ssrelease = v3;
+            reason = Constants.instance().ceerCauseToString( v1, v2, v3 );
         }
         else
         {
-            location = v0;
-            reason = v1;
-            ssrelease = v3;
+            reason = Constants.instance().ceerCauseToString( v0, v1, v3 );
         }
     }
 
