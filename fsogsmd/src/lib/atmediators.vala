@@ -275,7 +275,7 @@ public class AtDebugCommand : DebugCommand
 
         var response = yield channel.enqueueAsync( cmd, command, 0 );
         var result = "";
-        for ( int i = 0; i < response.length-1; ++i )
+        for ( int i = 0; i < response.length; ++i )
         {
             result += "\r\n";
             result += response[i];
