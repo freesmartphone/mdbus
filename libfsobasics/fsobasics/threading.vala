@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -40,7 +40,14 @@ internal class DummyThread
     {
         assert( pself != null );
         this.pself = pself;
-        Thread.create( main, false );
+        try
+        {
+            Thread.create( main, false );
+        }
+        catch ( GLib.ThreadError e )
+        {
+            error( @"Can't spawn thread: $(e.message)" );
+        }
     }
 
     public void* main()

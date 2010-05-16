@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@ namespace FsoFramework
     public SmartKeyFile theConfig;
 }
 
-internal static void vala_library_init()
+static void vala_library_init()
 {
     var bin = FsoFramework.Utility.programName();
     FsoFramework.theConfig = FsoFramework.SmartKeyFile.createFromConfig( bin );
@@ -32,7 +32,7 @@ internal static void vala_library_init()
     FsoFramework.theLogger.info( @"Binary launched successful ($classname created as theLogger)" );
 }
 
-internal static void vala_library_fini()
+static void vala_library_fini()
 {
     FsoFramework.theConfig = null;
     FsoFramework.theLogger = null;

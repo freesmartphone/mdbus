@@ -311,15 +311,34 @@ public GLib.HashTable<string,string> splitKeyValuePairs( string str )
     var result = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
     if ( _keyValueRe == null )
     {
-        _keyValueRe = new GLib.Regex( "(?P<key>[A-Za-z0-9]+)=(?P<value>[A-Za-z0-9.]+)" );
+        try
+        {
+            _keyValueRe = new GLib.Regex( "(?P<key>[A-Za-z0-9]+)=(?P<value>[A-Za-z0-9.]+)" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // regex invalid
+        }
     }
     GLib.MatchInfo mi;
     var next = _keyValueRe.match( str, GLib.RegexMatchFlags.NEWLINE_CR, out mi );
     while ( next )
     {
-        //debug( "got match '%s' = '%s'", mi.fetch_named( "key" ), mi.fetch_named( "value" ) );
+#if DEBUG
+        debug( "got match '%s' = '%s'", mi.fetch_named( "key" ), mi.fetch_named( "value" ) );
+#endif
         result.insert( mi.fetch_named( "key" ), mi.fetch_named( "value" ) );
-        next = mi.next();
+        try
+        {
+            next = mi.next();
+        }
+        catch ( GLib.RegexError e )
+        {
+#if DEBUG
+            debug( @"regex error: $(e.message)" );
+#endif
+            next = false;
+        }
     }
     return result;
 }
@@ -473,7 +492,6 @@ namespace FsoFramework { namespace Async {
         private GLib.IOChannel channel;
         private ActionFunc actionfunc;
         private char[] buffer;
-        private size_t bufferlength;
 
         public ReactorChannel( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
         {

@@ -87,7 +87,7 @@ public class FsoFramework.INotifier : Object
         {
             assert( fd != -1 );
             assert( buffer != null );
-            ssize_t bytesread = Posix.read( fd, buffer, BUFFER_LENGTH );
+            /* ssize_t bytesread = */ Posix.read( fd, buffer, BUFFER_LENGTH );
 
             Linux.InotifyEvent* pevent = (Linux.InotifyEvent*) buffer;
             handleEvent( *pevent );

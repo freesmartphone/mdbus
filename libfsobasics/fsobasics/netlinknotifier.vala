@@ -109,7 +109,7 @@ public class FsoFramework.BaseNetlinkNotifier : Object
         debug( "received netlink message w/ type %d", hdr.nlmsg_type );
 #endif
 
-        var res = msg.parse( ( obj ) => {
+        /* var res = */ msg.parse( ( obj ) => {
 
             var params = Netlink.DumpParams() { dp_type = Netlink.DumpType.ENV,
                                                 dp_dump_msgtype = true,

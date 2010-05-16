@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -17,11 +17,11 @@
  *
  */
 
-#include <glib.h>
+#include <glib-object.h>
 
 // Unfortunately we need to do this in a C file, since Vala
 // does not have support for it yet. I have created a bug
-// report for that but chances are it won't make it upstream
+// report for that but chances are it won't be accepted upstream
 // See https://bugzilla.gnome.org/show_bug.cgi?id=599606
 
 void gcc_library_init() __attribute__((constructor));
