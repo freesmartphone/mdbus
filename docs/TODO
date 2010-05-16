@@ -39,3 +39,6 @@
   +CMS ERROR 314 (SIM busy)
 ===SMS===
 * Store last reference number in persistent configuration
+* Improve support for binary SMS, i.e. WAP PUSH and WBXML configuration messages
+* Add support for a) plugins or b) agents
+
