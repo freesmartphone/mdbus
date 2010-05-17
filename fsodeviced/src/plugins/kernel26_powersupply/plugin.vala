@@ -300,7 +300,7 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
 
         assert( status != null );
 
-        logger.info( "Got power status change notification for $name: $status" );
+        logger.info( @"Got power status change notification for $name: $status" );
 
         // set status in instance
         foreach ( var supply in instances )
