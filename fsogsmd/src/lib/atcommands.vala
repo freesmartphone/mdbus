@@ -722,7 +722,7 @@ public class PlusCMT : AbstractAtCommand
     {
         try
         {
-            re = new Regex( """\+CMT: (?:"[a-zA-Z]+")?,?(?P<tpdulen>\d+)""");
+            re = new Regex( """\+CMT: (?:"[0-9A-F]*")?,?(?P<tpdulen>\d+)""");
         }
         catch ( GLib.RegexError e )
         {
