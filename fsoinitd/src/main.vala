@@ -29,7 +29,8 @@ int main( string[] args )
 	
 	var worker = new FsoInit.InitProcessWorker();
 	worker.setup();
-	worker.run();
+	if (!worker.run())
+		return -1;
 	
 	FsoFramework.theLogger.info( "%s => mainloop".printf( bin ) );
 	mainloop.run();

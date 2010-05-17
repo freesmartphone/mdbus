@@ -42,7 +42,7 @@ public interface IAction : GLib.Object
 public interface IActionQueue : GLib.Object
 {
 	public abstract void registerAction(IAction action);
-	public abstract void run();
+	public abstract bool run();
 }
 
 } // namespace

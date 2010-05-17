@@ -37,7 +37,7 @@ public class ActionQueue : IActionQueue, GLib.Object
 		actions.add(action);
 	}
 
-	public void run() 
+	public bool run() 
 	{
 		foreach (var action in actions)
 		{
@@ -50,6 +50,7 @@ public class ActionQueue : IActionQueue, GLib.Object
 				FsoFramework.theLogger.error(@"an error occured while running action '$(action.name)'");
 				FsoFramework.theLogger.error(@"action was executed as the following: ");
 				FsoFramework.theLogger.error(@" -> $(action.to_string())");
+				return false;
 			}	
 			else 
 			{

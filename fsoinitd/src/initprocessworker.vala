@@ -40,12 +40,12 @@ public class InitProcessWorker : GLib.Object
 		configuration.registerActionsInQueue(actionQueue);
 	}
 
-	public void run() 
+	public bool run() 
 	{
 		assert(configuration != null);
 		
 		FsoFramework.theLogger.info(@"run all actions for machine configuration '$(configuration.name)'");
-		actionQueue.run();
+		return actionQueue.run();
 	}
 }
 
