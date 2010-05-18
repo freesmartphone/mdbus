@@ -57,6 +57,8 @@ public class ActionQueue : IActionQueue, GLib.Object
 				FsoFramework.theLogger.debug(@"--> finished action'$(action.name)'");
 			}
 		}
+
+		return true;
 	}
 }
 
