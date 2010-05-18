@@ -39,6 +39,10 @@ public enum ResumeReason
     PhoneKey,
     Unknown,
     WiFi,
+    RingerSwitch,
+    Slider,
+    Keypad,
+    RTC,
 }
 
 public interface LowLevel : FsoFramework.AbstractObject

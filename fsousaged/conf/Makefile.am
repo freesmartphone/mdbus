@@ -6,6 +6,7 @@ SUBDIRS = \
 	default \
 	htc_qualcomm_dream \
 	openmoko_gta \
+	palm_pre \
 	$(NULL)
 
 MAINTAINERCLEANFILES = Makefile.in

@@ -96,6 +96,7 @@ AC_CONFIG_FILES([
   conf/default/Makefile
   conf/htc_qualcomm_dream/Makefile
   conf/openmoko_gta/Makefile
+  conf/palm_pre/Makefile
   data/org.freesmartphone.ousaged.service
   data/Makefile
   src/Makefile
@@ -106,6 +107,7 @@ AC_CONFIG_FILES([
   src/plugins/lowlevel_kernel26/Makefile
   src/plugins/lowlevel_kernel26_staysalive/Makefile
   src/plugins/lowlevel_openmoko/Makefile
+  src/plugins/lowlevel_palmpre/Makefile
   tests/Makefile
 ])
 

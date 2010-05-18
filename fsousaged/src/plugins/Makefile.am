@@ -9,4 +9,5 @@ SUBDIRS = \
 	lowlevel_kernel26 \
 	lowlevel_kernel26_staysalive \
 	lowlevel_openmoko \
+	lowlevel_palmpre \
 	$(NULL)
