@@ -23,6 +23,8 @@
 // does not have support for it yet. I have created a bug
 // report for that but chances are it won't be accepted upstream
 // See https://bugzilla.gnome.org/show_bug.cgi?id=599606
+void vala_library_init (void);
+void vala_library_fini (void);
 
 void gcc_library_init() __attribute__((constructor));
 void gcc_library_fini() __attribute__((destructor));
