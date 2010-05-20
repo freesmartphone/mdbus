@@ -344,6 +344,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
                 break;
             case "palmpre":
                 typename = "LowLevelPalmPre";
+                break;
             default:
                 logger.warning( @"Invalid lowlevel_type $lowleveltype; vendor specifics will NOT be available" );
                 lowlevel = new FsoGsm.NullLowLevel();
