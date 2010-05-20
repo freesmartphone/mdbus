@@ -32,10 +32,69 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 {
     private const string AT_CHANNEL_NAME = "data";
     private const string MSM_CHANNEL_NAME = "main";
+    private bool launch_msmcommd = false;
+    private string workdir_msmcommd = "/tmp";
+    
+    construct 
+    {
+        launch_msmcommd = config.boolValue("fsogsm.modem_qualcomm_palm", "launch_msmcommd", false);
+        workdir_msmcommd = config.stringValue("fsogsm.modem_qualcomm_palm", "workdir_msmcommd", "/tmp");
+    }
 
     public override string repr()
     {
         return "<>";
+    }
+    
+    private bool launchMsmcommDaemon(bool restart)
+    {
+        if (Msmcomm.isDaemonRunning()) {
+            if (restart) {
+                logger.info("Msmcomm daemon is already running; we kill it now!");
+                Msmcomm.shutdownDaemon();
+            }
+            else {
+                logger.info("Msmcomm daemon is already running, but should not be restarted -> let it running");
+                return true;
+            }
+        }
+        
+        if (!Msmcomm.launchDaemon(workdir_msmcommd)) {
+            logger.error("Could not launch the Msmcomm daemon - that is bad, everything else will even fail");
+            return false;
+        }
+        
+        logger.info("Msmcomm daemon was successfully started");
+        
+        Thread.usleep(1000 * 1000);
+        
+        return true;
+    }
+    
+    private void shutdownMsmcommDaemon()
+    {
+        if (Msmcomm.isDaemonRunning()) {
+            logger.info("Shutdown Msmcomm daemon");
+            Msmcomm.shutdownDaemon();
+        }
+        else {
+            logger.error("Msmcomm daemon could not be shut down as it is not running anymore. Maybe it was killed or died itself?");
+        }
+    }
+    
+    protected override bool powerOn()
+    {
+        /* As per configuration option we have to launch the msmcomm daemon
+         * before the channel and transport are opened as both depend on it */
+        var result = false;
+        if (launch_msmcommd && launchMsmcommDaemon(true)) 
+            result = true;
+        return result;
+    }
+    
+    protected override void powerOff()
+    {
+        shutdownMsmcommDaemon();
     }
 
     protected override void createChannels()
@@ -46,9 +105,11 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         var parser = new FsoGsm.StateBasedAtParser();
         new FsoGsm.AtChannel( AT_CHANNEL_NAME, datatransport, parser );
 #endif
+        
         // create MAIN channel
         var maintransport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
-        new MsmChannel( MSM_CHANNEL_NAME, maintransport );
+        if (maintransport != null)
+            new MsmChannel( MSM_CHANNEL_NAME, maintransport );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

@@ -580,6 +580,23 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
         return new GenericWatchDog();
     }
+    
+    /**
+     * Override this to power on external components before the maintransport 
+     * will be opened
+     **/
+    protected virtual bool powerOn()
+    {
+        return true;
+    }
+    
+    /**
+     * Override this to power off external components before the maintransport 
+     * will be closed
+     **/
+    protected virtual void powerOff()
+    {
+    }
 
     /**
      * Override this to create your channels and assorted transports.
@@ -609,6 +626,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
 
         if ( !lowlevel.poweron() )
+        {
+            return false;
+        }
+        
+        if ( !powerOn() )
         {
             return false;
         }
@@ -661,6 +683,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         }
 
         lowlevel.poweroff();
+        
+        powerOff();
 
         advanceToState( Modem.Status.CLOSED, true ); // force wraparound
     }
