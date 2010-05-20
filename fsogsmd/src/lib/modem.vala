@@ -342,6 +342,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             case "openmoko":
                 typename = "LowLevelOpenmoko";
                 break;
+            case "palmpre":
+                typename = "LowLevelPalmPre";
             default:
                 logger.warning( @"Invalid lowlevel_type $lowleveltype; vendor specifics will NOT be available" );
                 lowlevel = new FsoGsm.NullLowLevel();
