@@ -165,7 +165,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
                 Process.spawn_command_line_async( command );
                 assert( logger.debug( @"executing $command" ) );
             }
-            FsoFramework.FileHandling.write( "1", IP_FORWARD );
+            FsoFramework.FileHandling.write( "0", IP_FORWARD );
 
             string nameservers = get_nameservers();
             FsoFramework.FileHandling.write( UDHCPD_TEMPLATE.printf( iface, nameservers, ip ), ETC_UDHCPD_CONF );
