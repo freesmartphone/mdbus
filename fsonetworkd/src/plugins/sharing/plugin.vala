@@ -130,8 +130,8 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         /* Re-launch udhcpd */
         try
         {
-            Process.spawn_command_line_async( "killall udhcpd" );
-            Process.spawn_command_line_async( "udhcpd" );
+            Posix.system( "killall udhcpd" );
+            Posix.system( "udhcpd" );
         }
         catch ( GLib.SpawnError e )
         {
@@ -162,13 +162,18 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         {
             foreach( string command in commands )
             {
-                Process.spawn_command_line_async( command );
-                assert( logger.debug( @"executing $command" ) );
+		    assert( logger.debug( @"executing $command" ) );
+		    var ok = Posix.system( command );
+		    if ( ok != 0 )
+		    {
+			logger.error( @"Can't execute '$command' - error code $ok" );
+			throw new FreeSmartphone.Error.SYSTEM_ERROR( @"Can't execute '$command' - error code $ok" );
+		    }
             }
             FsoFramework.FileHandling.write( "0", IP_FORWARD );
 
             /* Stop udhcpd */
-            Process.spawn_command_line_async( "killall udhcpd" );
+            Posix.system( "killall udhcpd" );
         }
         catch ( GLib.SpawnError e )
         {
