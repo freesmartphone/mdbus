@@ -123,7 +123,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         FsoFramework.FileHandling.write( "1", IP_FORWARD );
 
         string nameservers = get_nameservers();
-        FsoFramework.FileHandling.write( UDHCPD_TEMPLATE.printf( iface, nameservers, ip ), ETC_UDHCPD_CONF );
+        FsoFramework.FileHandling.write( UDHCPD_TEMPLATE.printf( iface, nameservers, ip ), ETC_UDHCPD_CONF, true );
 
         //FIXME: This needs to be configurable
 
