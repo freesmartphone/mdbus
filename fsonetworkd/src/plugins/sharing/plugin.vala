@@ -167,9 +167,6 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
             }
             FsoFramework.FileHandling.write( "0", IP_FORWARD );
 
-            string nameservers = get_nameservers();
-            FsoFramework.FileHandling.write( UDHCPD_TEMPLATE.printf( iface, nameservers, ip ), ETC_UDHCPD_CONF );
-
             /* Stop udhcpd */
             Process.spawn_command_line_async( "killall udhcpd" );
         }
