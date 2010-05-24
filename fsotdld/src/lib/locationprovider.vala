@@ -18,6 +18,7 @@
  */
 
 using Gee;
+using GLib;
 
 public abstract interface FsoTdl.ILocationProvider : FsoFramework.AbstractObject
 {

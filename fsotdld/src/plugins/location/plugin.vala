@@ -26,46 +26,31 @@ class Location.Service : FsoFramework.AbstractObject
     FsoFramework.Subsystem subsystem;
     private Gee.HashMap<string,FsoTdl.ILocationProvider> providers;
 
+    construct
+    {
+        providers = new Gee.HashMap<string,FsoTdl.ILocationProvider>();
+    }
+
     public Service( FsoFramework.Subsystem subsystem )
     {
-    }
+        var t = Type.from_name( "FsoTdlAbstractLocationProvider" );
+        var tchildren = t.children();
 
-    /*
-    public void addProvider( string name )
-    {
-        var typename = "unknown";
+        logger.debug( @"$(tchildren.length) location providers found" );
 
-        switch ( name )
+        if ( tchildren.length == 0 )
         {
-            case "ntp":
-                typename = "SourceNtp";
-                break;
-            case "gps":
-                typename = "SourceGps";
-                break;
-            case "gsm":
-                typename = "SourceGsm";
-                break;
-            case "dummy":
-                typename = "SourceDummy";
-                break;
-            default:
-                logger.warning( @"Unknown source $name - Ignoring" );
-                return;
-        }
-        var sourceclass = Type.from_name( typename );
-        if ( sourceclass == Type.INVALID  )
-        {
-            logger.warning( @"Can't find source $name (type=$typename) - plugin loaded?" );
+            logger.warning( "No location providers loaded." );
             return;
         }
-        sources[name] = (FsoTime.Source) Object.new( sourceclass );
-        logger.info( @"Added source $name ($typename)" );
-        sources[name].reportTime.connect( onTimeReport );
-        sources[name].reportZone.connect( onZoneReport );
-        sources[name].reportLocation.connect( onLocationReport );
+
+        foreach ( var typ in tchildren )
+        {
+            providers[ typ.name() ] = Object.new( typ ) as FsoTdl.AbstractLocationProvider;
+        }
+
+        logger.info( "Ready." );
     }
-    */
 
     public override string repr()
     {
@@ -90,7 +75,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsotdl.sync_time fso_register_function" );
+    FsoFramework.theLogger.debug( "fsotdl.location fso_register_function" );
 }
 
 /**
