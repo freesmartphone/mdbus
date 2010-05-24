@@ -21,18 +21,112 @@ using GLib;
 
 class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
 {
-    const string MODULE_NAME = "fsotdl.provider_location_freegeoip";
+    internal const string MODULE_NAME = "fsotdl.provider_location_freegeoip";
+    private const string SERVER_NAME = "freegeoip.net";
+    private const string QUERY_URI = "/csv/%s";
 
     FsoFramework.Subsystem subsystem;
+    string servername;
+    string queryuri;
 
-    public FreeGeoIp( FsoFramework.Subsystem subsystem )
+    construct
     {
+        servername = SERVER_NAME;
+        queryuri = QUERY_URI.printf( "85.180.141.230" );
         logger.info( "Ready." );
     }
 
     public override string repr()
     {
         return "<>";
+    }
+
+    //
+    // private API
+    //
+    private async void asyncTrigger()
+    {
+        var result = yield askServer();
+        if ( result != null )
+        {
+            var components = result.split( "," );
+            // Usual form:
+            // True,85.180.141.230,DE,Germany,05,Hessen,Frankfurt Am Main,,50.1167,8.6833,1.0,2.0
+            var map = new HashTable<string,Value?>( str_hash, str_equal );
+            map.insert( "code", components[2] );
+            map.insert( "country", components[3] );
+            map.insert( "region", components[4] );
+            map.insert( "city", components[5] );
+            map.insert( "zip", components[6] );
+            map.insert( "lat", components[7] );
+            map.insert( "lon", components[8] );
+            map.insert( "gmt", components[9] );
+            map.insert( "dst", components[10] );
+            this.location( map );
+        }
+    }
+
+    private async string? askServer()
+    {
+        var resolver = Resolver.get_default();
+        List<InetAddress> addresses = null;
+        try
+        {
+             addresses = yield resolver.lookup_by_name_async( servername, null );
+        }
+        catch ( Error e )
+        {
+            logger.warning( @"Could not resolve server address $(e.message). Will try again next time." );
+            return null;
+        }
+        var serveraddr = addresses.nth_data( 0 );
+        assert( logger.debug( @"Resolved $servername to $serveraddr" ) );
+
+        var socket = new InetSocketAddress( serveraddr, 80 );
+        var client = new SocketClient();
+        var conn = yield client.connect_async( socket, null );
+
+        assert( logger.debug( @"Connected to $serveraddr" ) );
+
+        var message = @"GET $queryuri HTTP/1.1\r\nHost: $servername\r\n\r\n";
+        yield conn.output_stream.write_async( message, message.size(), 1, null );
+        assert( logger.debug( @"Wrote request" ) );
+
+        conn.socket.set_blocking( true );
+        var input = new DataInputStream( conn.input_stream );
+
+        var line = yield input.read_line_async( 0, null, null ).strip();
+        assert( logger.debug( @"Received status line: $line" ) );
+
+        if ( ! ( line.has_prefix( "HTTP/1.1 200 OK" ) ) )
+        {
+            return null;
+        }
+
+        var result = "";
+
+        while ( line != null )
+        {
+            line = yield input.read_line_async( 0, null, null ).strip();
+            if ( line != null )
+            {
+                assert( logger.debug( @"Received line: $line" ) );
+            }
+            if ( line.has_prefix( "True," ) )
+            {
+                result = line;
+                break;
+            }
+        }
+        return result;
+    }
+
+    //
+    // FsoTdl.AbstractLocationProvider
+    //
+    public override void trigger()
+    {
+        asyncTrigger();
     }
 }
 

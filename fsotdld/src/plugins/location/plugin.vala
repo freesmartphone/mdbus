@@ -46,15 +46,33 @@ class Location.Service : FsoFramework.AbstractObject
 
         foreach ( var typ in tchildren )
         {
-            providers[ typ.name() ] = Object.new( typ ) as FsoTdl.AbstractLocationProvider;
+            var obj = Object.new( typ ) as FsoTdl.AbstractLocationProvider;
+            obj.location.connect( onLocationUpdate );
+            providers[ typ.name() ] = obj;
         }
 
         logger.info( "Ready." );
+
+        Timeout.add_seconds( 2, () => {
+            foreach ( var obj in providers.values )
+            {
+                obj.trigger();
+            }
+            return false;
+        } );
     }
 
     public override string repr()
     {
         return @"<$(providers.size)>";
+    }
+
+    //
+    // private API
+    //
+    private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Value?> location )
+    {
+        debug( "got location update from %s", provider.repr() );
     }
 }
 
