@@ -22,6 +22,9 @@ using GLib;
 class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
 {
     internal const string MODULE_NAME = "fsotdl.provider_location_freegeoip";
+
+    private const string MYIP_SERVER_NAME = "checkip.dyndns.org";
+    // alternatively we could use http://ipinfodb.com/ip_query.php?timezone=true
     private const string SERVER_NAME = "freegeoip.net";
     private const string QUERY_URI = "/csv/%s";
 
@@ -46,79 +49,57 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
     //
     private async void asyncTrigger()
     {
-        var result = yield askServer();
-        if ( result != null )
+        var myip = yield FsoFramework.Network.textForUri( MYIP_SERVER_NAME );
+        if ( myip == null )
         {
-            var components = result.split( "," );
-            // Usual form:
-            // True,85.180.141.230,DE,Germany,05,Hessen,Frankfurt Am Main,,50.1167,8.6833,1.0,2.0
-            var map = new HashTable<string,Value?>( str_hash, str_equal );
-            map.insert( "code", components[2] );
-            map.insert( "country", components[3] );
-            map.insert( "region", components[4] );
-            map.insert( "city", components[5] );
-            map.insert( "zip", components[6] );
-            map.insert( "lat", components[7] );
-            map.insert( "lon", components[8] );
-            map.insert( "gmt", components[9] );
-            map.insert( "dst", components[10] );
-            this.location( map );
+            logger.warning( "Can't gather my IP from $MYIP_SERVER_NAME" );
+            return;
         }
-    }
 
-    private async string? askServer()
-    {
-        var resolver = Resolver.get_default();
-        List<InetAddress> addresses = null;
+        Regex regex;
         try
         {
-             addresses = yield resolver.lookup_by_name_async( servername, null );
+            regex = new Regex( "Current IP Address: (?P<ip>[0-9][0-9]?[0-9]?[0-9]?.[0-9][0-9]?[0-9]?[0-9]?.[0-9][0-9]?[0-9]?[0-9]?.[0-9][0-9]?[0-9]?[0-9]?)" );
         }
-        catch ( Error e )
+        catch ( RegexError e )
         {
-            logger.warning( @"Could not resolve server address $(e.message). Will try again next time." );
-            return null;
+            assert_not_reached();
         }
-        var serveraddr = addresses.nth_data( 0 );
-        assert( logger.debug( @"Resolved $servername to $serveraddr" ) );
 
-        var socket = new InetSocketAddress( serveraddr, 80 );
-        var client = new SocketClient();
-        var conn = yield client.connect_async( socket, null );
-
-        assert( logger.debug( @"Connected to $serveraddr" ) );
-
-        var message = @"GET $queryuri HTTP/1.1\r\nHost: $servername\r\n\r\n";
-        yield conn.output_stream.write_async( message, message.size(), 1, null );
-        assert( logger.debug( @"Wrote request" ) );
-
-        conn.socket.set_blocking( true );
-        var input = new DataInputStream( conn.input_stream );
-
-        var line = yield input.read_line_async( 0, null, null ).strip();
-        assert( logger.debug( @"Received status line: $line" ) );
-
-        if ( ! ( line.has_prefix( "HTTP/1.1 200 OK" ) ) )
+        MatchInfo mi;
+        regex.match( myip[0], 0, out mi );
+        if ( mi == null )
         {
-            return null;
+            logger.warning( @"Can't parse $(myip[0])" );
+            return;
         }
+        var ip = mi.fetch_named( "ip" );
+        assert( logger.debug( @"My IP seems to be $ip" ) );
 
-        var result = "";
-
-        while ( line != null )
+        var result = yield FsoFramework.Network.textForUri( servername, queryuri.printf( ip ) );
+        if ( result == null || result.length != 3 || result[2].has_prefix( "False" ) )
         {
-            line = yield input.read_line_async( 0, null, null ).strip();
-            if ( line != null )
-            {
-                assert( logger.debug( @"Received line: $line" ) );
-            }
-            if ( line.has_prefix( "True," ) )
-            {
-                result = line;
-                break;
-            }
+            logger.warning( @"Could not get information for IP $ip from $servername" );
+            return;
         }
-        return result;
+
+        // Usual answer retrieved from this server is something like:
+        // 52
+        // True,85.180.141.230,DE,Germany,05,Hessen,Frankfurt Am Main,,50.1167,8.6833,1.0,2.0
+        // 0
+
+        var components = result[1].split( "," );
+        var map = new HashTable<string,Value?>( str_hash, str_equal );
+        map.insert( "code", components[2] );
+        map.insert( "country", components[3] );
+        map.insert( "region", components[4] );
+        map.insert( "city", components[5] );
+        map.insert( "zip", components[6] );
+        map.insert( "lat", components[7] );
+        map.insert( "lon", components[8] );
+        map.insert( "gmt", components[9] );
+        map.insert( "dst", components[10] );
+        this.location( this, map );
     }
 
     //
