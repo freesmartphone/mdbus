@@ -545,9 +545,9 @@ namespace FsoFramework { namespace Async {
 
 namespace FsoFramework { namespace Network {
 
-    public async string textForUri( string servername, string uri = "/" )
+    public async string[]? textForUri( string servername, string uri = "/" )
     {
-        var result = "";
+        var result = new string[] {};
 
         var resolver = Resolver.get_default();
         List<InetAddress> addresses = null;
@@ -558,7 +558,7 @@ namespace FsoFramework { namespace Network {
         catch ( Error e )
         {
             FsoFramework.theLogger.warning( @"Could not resolve server address $(e.message)" );
-            return result;
+            return null;
         }
         var serveraddr = addresses.nth_data( 0 );
         assert( FsoFramework.theLogger.debug( @"Resolved $servername to $serveraddr" ) );
@@ -569,7 +569,7 @@ namespace FsoFramework { namespace Network {
 
         assert( FsoFramework.theLogger.debug( @"Connected to $serveraddr" ) );
 
-        var message = @"GET $uri HTTP/1.1\r\nHost: $servername\r\n\r\n";
+        var message = @"GET $uri HTTP/1.1\r\nHost: $servername\r\nConnection: close\r\n\r\n";
         yield conn.output_stream.write_async( message, message.size(), 1, null );
         assert( FsoFramework.theLogger.debug( @"Wrote request" ) );
 
@@ -581,7 +581,7 @@ namespace FsoFramework { namespace Network {
 
         if ( ! ( line.has_prefix( "HTTP/1.1 200 OK" ) ) )
         {
-            return result;
+            return null;
         }
 
         // skip headers
@@ -597,15 +597,13 @@ namespace FsoFramework { namespace Network {
         while ( line != null )
         {
             line = yield input.read_line_async( 0, null, null );
-            if ( line != null )
+            if ( line != null && line != "\r" && line != "\r\n" && line != "" )
             {
                 assert( FsoFramework.theLogger.debug( @"Received content line: $line" ) );
-                result += line;
+                result += line.strip();
             }
         }
-        assert( FsoFramework.theLogger.debug( @"Full result is $(result.escape( """""" ))" ) );
-
-        return result.strip();
+        return result;
     }
 
 } }
