@@ -28,6 +28,7 @@ lib_LTLIBRARIES = \
 libfsotdl_la_VALASOURCES = \
 	gpsreceiver.vala \
 	gpschannel.vala \
+	locationprovider.vala \
 	source.vala \
 	$(NULL)
 
