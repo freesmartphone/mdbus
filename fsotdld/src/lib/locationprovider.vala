@@ -20,10 +20,14 @@
 using Gee;
 using GLib;
 
-public abstract interface FsoTdl.ILocationProvider : FsoFramework.AbstractObject
+public interface FsoTdl.ILocationProvider : FsoFramework.AbstractObject
 {
+    public signal void location( FsoTdl.ILocationProvider provider, HashTable<string,Value?> location );
+
+    public abstract void trigger();
 }
 
 public abstract class FsoTdl.AbstractLocationProvider : FsoTdl.ILocationProvider, FsoFramework.AbstractObject
 {
+    public abstract void trigger();
 }
