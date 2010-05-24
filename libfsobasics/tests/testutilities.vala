@@ -20,6 +20,8 @@
 using GLib;
 using FsoFramework;
 
+MainLoop loop;
+
 //===========================================================================
 void test_utilities_filehandling_presence()
 //===========================================================================
@@ -134,6 +136,21 @@ void test_utilities_utility_hardware()
 }
 
 //===========================================================================
+async void foo()
+{
+    var text = yield Network.textForUri( "checkip.dyndns.org", "/" );
+    loop.quit();
+}
+
+void test_utilities_network_textForUri()
+//===========================================================================
+{
+    loop = new MainLoop();
+    Idle.add( () => { foo(); return false; } );
+    loop.run();
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -151,6 +168,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/Utility/firstAvailableProgram", test_utilities_utility_first_available_program );
     Test.add_func( "/Utilities/Utility/createBacktrace", test_utilities_utility_create_backtrace );
     Test.add_func( "/Utilities/Utility/hardware", test_utilities_utility_hardware );
+    Test.add_func( "/Utilities/Network/textForUri", test_utilities_network_textForUri );
 
     Test.run();
 }

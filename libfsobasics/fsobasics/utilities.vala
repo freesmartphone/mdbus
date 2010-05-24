@@ -542,3 +542,70 @@ namespace FsoFramework { namespace Async {
         }
     }
 } }
+
+namespace FsoFramework { namespace Network {
+
+    public async string textForUri( string servername, string uri = "/" )
+    {
+        var result = "";
+
+        var resolver = Resolver.get_default();
+        List<InetAddress> addresses = null;
+        try
+        {
+             addresses = yield resolver.lookup_by_name_async( servername, null );
+        }
+        catch ( Error e )
+        {
+            FsoFramework.theLogger.warning( @"Could not resolve server address $(e.message)" );
+            return result;
+        }
+        var serveraddr = addresses.nth_data( 0 );
+        assert( FsoFramework.theLogger.debug( @"Resolved $servername to $serveraddr" ) );
+
+        var socket = new InetSocketAddress( serveraddr, 80 );
+        var client = new SocketClient();
+        var conn = yield client.connect_async( socket, null );
+
+        assert( FsoFramework.theLogger.debug( @"Connected to $serveraddr" ) );
+
+        var message = @"GET $uri HTTP/1.1\r\nHost: $servername\r\n\r\n";
+        yield conn.output_stream.write_async( message, message.size(), 1, null );
+        assert( FsoFramework.theLogger.debug( @"Wrote request" ) );
+
+        conn.socket.set_blocking( true );
+        var input = new DataInputStream( conn.input_stream );
+
+        var line = yield input.read_line_async( 0, null, null ).strip();
+        assert( FsoFramework.theLogger.debug( @"Received status line: $line" ) );
+
+        if ( ! ( line.has_prefix( "HTTP/1.1 200 OK" ) ) )
+        {
+            return result;
+        }
+
+        // skip headers
+        while ( line != null && line != "\r" && line != "\r\n" )
+        {
+            line = yield input.read_line_async( 0, null, null );
+            if ( line != null )
+            {
+                assert( FsoFramework.theLogger.debug( @"Received header line: $(line.escape( """""" ) )" ) );
+            }
+        }
+
+        while ( line != null )
+        {
+            line = yield input.read_line_async( 0, null, null );
+            if ( line != null )
+            {
+                assert( FsoFramework.theLogger.debug( @"Received content line: $line" ) );
+                result += line;
+            }
+        }
+        assert( FsoFramework.theLogger.debug( @"Full result is $(result.escape( """""" ))" ) );
+
+        return result.strip();
+    }
+
+} }
