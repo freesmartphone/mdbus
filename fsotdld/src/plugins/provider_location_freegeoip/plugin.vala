@@ -23,6 +23,7 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
 {
     internal const string MODULE_NAME = "fsotdl.provider_location_freegeoip";
 
+    // alternatively we could use http://ipdetect.dnspark.com/
     private const string MYIP_SERVER_NAME = "checkip.dyndns.org";
     // alternatively we could use http://ipinfodb.com/ip_query.php?timezone=true
     private const string SERVER_NAME = "freegeoip.net";

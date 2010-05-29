@@ -145,23 +145,17 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
 
     private void alarmNotificationViaDbus( string busname )
     {
-        dynamic DBus.Object proxy = subsystem.dbusConnection().get_object(
+        var proxy = subsystem.dbusConnection().get_object(
             busname,
             "/",
-            "org.freesmartphone.Notification" );
-        // async, so that we don't get stuck by broken clients
-        proxy.Alarm( onDBusAlarmNotificationReply );
-    }
-
-    private void onDBusAlarmNotificationReply( GLib.Error e )
-    {
-        if ( e != null )
+            "org.freesmartphone.Notification" ) as FreeSmartphone.Notification;
+        // this is a no-reply call
+        try
         {
-            logger.error( @"Can't notify client: $(e.message)" );
+            proxy.alarm();
         }
-        else
+        catch ( DBus.Error e )
         {
-            logger.info( "Alarm Notification sent and received" );
         }
     }
 
