@@ -18,6 +18,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+/**
+ * TODO:
+ * - Allow specifying the signature for method calls, this becomes necessary
+ *   when there is no introspection data available.
+ **/
+
 //=========================================================================//
 using GLib;
 
