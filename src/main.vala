@@ -923,6 +923,14 @@ class Commands : Object
             message( "Readline.line_buffer = '%s'", Readline.line_buffer );
 #endif
             var parts = Readline.line_buffer.split( " " );
+            if ( parts.length == 0 )
+            {
+                return null;
+            }
+            if ( parts[0].strip() == "" )
+            {
+                return null;
+            }
 #if DEBUG
             message( "'%s' length = %d", prefix, parts.length );
 #endif
