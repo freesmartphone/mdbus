@@ -538,7 +538,7 @@ class Commands : Object
         {
             return false;
         }
-        var reObjPath = new GLib.Regex( "^/([a-zA-Z0-9]+(/[a-zA-Z0-9]+)*)?$" );
+        var reObjPath = new GLib.Regex( "^/([a-zA-Z0-9_]+(/[a-zA-Z0-9_]+)*)?$" );
         if ( reObjPath.match( path ) )
         {
             return true;
