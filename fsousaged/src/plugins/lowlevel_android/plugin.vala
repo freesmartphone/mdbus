@@ -23,7 +23,12 @@ using FsoUsage;
 
 class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 {
+    internal const string MODULE_NAME = "fsousage.lowlevel_android";
+
     private int fd;
+
+    private int inputnodenumber;
+    private int powerkeycode;
 
     construct
     {
@@ -33,6 +38,11 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
         // ensure on status
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
+
+        // which input node to observe for power on key
+        inputnodenumber = config.intValue( MODULE_NAME, "wakeup_inputnode", -1 );
+        // value of the power on key
+        powerkeycode = config.intValue( MODULE_NAME, "wakeup_powerkeycode", -1 );
     }
 
     public override string repr()
@@ -51,49 +61,60 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
      **/
     public void suspend()
     {
-        assert( logger.debug( "Setting power state 'mem'" ) );
-        FsoFramework.FileHandling.write( "mem\n", sys_power_state );
-
-        assert( logger.debug( "Grabbing input nodes" ) );
-        var fd = Posix.open( "/dev/input/event3", Posix.O_RDONLY );
+        assert( logger.debug( "Grabbing input node" ) );
+        fd = Posix.open( @"/dev/input/event$inputnodenumber", Posix.O_RDONLY );
         Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
 
-        assert( logger.debug( "Waiting for action on input node" ) );
-        var readfds = Posix.fd_set();
-        var writefds = Posix.fd_set();
-        var exceptfds = Posix.fd_set();
-        Posix.FD_SET( fd, readfds );
-        Posix.timeval t = { 60*60*24, 0 };
-        int res = Posix.select( fd+1, readfds, writefds, exceptfds, t ); // block indefinitely
+        while ( true )
+        {
+            assert( logger.debug( "Setting power state 'mem'" ) );
+            FsoFramework.FileHandling.write( "mem\n", sys_power_state );
 
-        assert( logger.debug( "ACTION! Ungrabbing input nodes" ) );
+            assert( logger.debug( "Checking for action on input node" ) );
+            var readfds = Posix.fd_set();
+            var writefds = Posix.fd_set();
+            var exceptfds = Posix.fd_set();
+            Posix.FD_SET( fd, readfds );
+            Posix.timeval t = { 5, 0 };
+            int res = Posix.select( fd+1, readfds, writefds, exceptfds, t );
+
+            if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
+            {
+                assert( logger.debug( "No action on input device node; seems something else woke us up!" ) );
+                break;
+            }
+
+            Linux.Input.Event ev = {};
+            var bytesread = Posix.read( fd, &ev, sizeof(Linux.Input.Event) );
+            if ( bytesread == 0 )
+            {
+                assert( logger.debug( @"Can't read from fd $fd; waking up!" ) );
+                break;
+            }
+
+            if ( ev.code == powerkeycode )
+            {
+                assert( logger.debug( @"Power key; waking up!" ) );
+                break;
+            }
+            else
+            {
+                assert( logger.debug( @"Some other key w/ value $(ev.code); NOT waking up!" ) );
+            }
+        }
+
+        assert( logger.debug( "Ungrabbing input nodes" ) );
         Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
+        Posix.close( fd );
 
         assert( logger.debug( "Setting power state 'on'" ) );
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
-
-        /*
-        if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
-            return 0;
-        ssize_t bread = Posix.read( fd, rdata, rlength );
-        return (int)bread;
-        */
-
-
-        /*
-        assert( logger.debug( "Creating reactor" ) );
-        input = new Async.ReactorChannel( fd, onInput, sizeof( Linux.Input.Event ) );
-        */
     }
 
     public ResumeReason resume()
     {
         return ResumeReason.Unknown;
     }
-
-
-
-
 
     public void onInput( void* data, ssize_t length )
     {
@@ -116,7 +137,7 @@ string sys_power_state;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     FsoFramework.theLogger.debug( "lowlevel_android fso_factory_function" );
-    return "fsousage.lowlevel_android";
+    return LowLevel.Android.MODULE_NAME;
 }
 
 [ModuleInit]

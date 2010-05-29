@@ -116,6 +116,9 @@ public class Controller : FsoFramework.AbstractObject
 
         switch ( lowleveltype )
         {
+            case "android":
+                typename = "LowLevelAndroid";
+                break;
             case "kernel26":
                 typename = "LowLevelKernel26";
                 break;
