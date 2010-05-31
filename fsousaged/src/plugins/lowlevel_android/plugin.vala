@@ -114,6 +114,12 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
     private void wait_for_early_resume()
     {
+        assert( logger.debug( "Setting power state 'mem'" ) );
+        FsoFramework.FileHandling.write( "mem\n", sys_power_state );
+
+        Thread.usleep( 3 * 1000 * 1000 );
+
+        /*
         int res = 0;
 
         do
@@ -132,6 +138,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             assert( logger.debug( @"Select returned $res" ) );
         }
         while ( res == 0 );
+        **/
     }
 
     public ResumeReason resume()
