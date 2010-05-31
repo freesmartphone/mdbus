@@ -70,6 +70,9 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             assert( logger.debug( "Setting power state 'mem'" ) );
             FsoFramework.FileHandling.write( "mem\n", sys_power_state );
 
+            // sleep while we're (hopefully) suspending
+            Thread.usleep( 1000 * 1000 * 5 );
+
             assert( logger.debug( "Checking for action on input node" ) );
             var readfds = Posix.fd_set();
             var writefds = Posix.fd_set();
