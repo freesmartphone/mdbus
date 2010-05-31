@@ -122,13 +122,16 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             FsoFramework.FileHandling.write( "mem\n", sys_power_state );
 
             var fds = Posix.fd_set();
+            Posix.FD_ZERO( fds );
             var t = Posix.timeval();
-            t.tv_sec = MAX_WAIT_FOR_SLEEP / 1000;
+            t.tv_sec = 5;
             t.tv_usec = 0;
 
-            res = Posix.select( 0, fds, fds,fds, t );
+            assert( logger.debug( "Calling select..." ) );
+            res = Posix.select( 1, fds, fds, fds, t );
+            assert( logger.debug( @"Select returned $res" ) );
         }
-        while ( res != -ERESTARTNOHAND );
+        while ( res == 0 );
     }
 
     public ResumeReason resume()
