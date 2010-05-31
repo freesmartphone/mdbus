@@ -24,6 +24,8 @@ using FsoUsage;
 class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 {
     internal const string MODULE_NAME = "fsousage.lowlevel_android";
+    internal const int MAX_WAIT_FOR_SLEEP = 2000; /* ms */
+    internal const int ERESTARTNOHAND = 514;
 
     private int fd;
 
@@ -67,11 +69,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
         while ( true )
         {
-            assert( logger.debug( "Setting power state 'mem'" ) );
-            FsoFramework.FileHandling.write( "mem\n", sys_power_state );
-
-            // sleep while we're (hopefully) suspending
-            Thread.usleep( 1000 * 1000 * 5 );
+            wait_for_early_resume();
 
             assert( logger.debug( "Checking for action on input node" ) );
             var readfds = Posix.fd_set();
@@ -114,11 +112,31 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
     }
 
+    private void wait_for_early_resume()
+    {
+        int res = 0;
+
+        do
+        {
+            assert( logger.debug( "Setting power state 'mem'" ) );
+            FsoFramework.FileHandling.write( "mem\n", sys_power_state );
+
+            var fds = Posix.fd_set();
+            var t = Posix.timeval();
+            t.tv_sec = MAX_WAIT_FOR_SLEEP / 1000;
+            t.tv_usec = 0;
+
+            res = Posix.select( 0, fds, fds,fds, t );
+        }
+        while ( res != -ERESTARTNOHAND );
+    }
+
     public ResumeReason resume()
     {
         return ResumeReason.Unknown;
     }
 
+    /*
     public void onInput( void* data, ssize_t length )
     {
         logger.info( "Received wakeup request... waking up" );
@@ -127,6 +145,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         assert( logger.debug( "Destroying reactor" ) );
         //reactor = null;
     }
+    */
 }
 
 string sys_power_state;
