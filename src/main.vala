@@ -34,7 +34,6 @@ const string DBUS_INTERFACE = "org.freedesktop.DBus";
 const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectable";
 
 //=========================================================================//
-MainLoop mainloop;
 Commands commands;
 List<string> completions;
 //=========================================================================//
@@ -497,7 +496,8 @@ class Commands : Object
         }
         catch ( DBus.Error e )
         {
-            critical( "Dbus error: %s", e.message );
+            stderr.printf( @"Can't hook to DBus %s bus: $(e.message)\n".printf( useSystemBus ? "system" : "session" ) );
+            Posix.exit( -1 );
         }
     }
 
@@ -549,8 +549,6 @@ class Commands : Object
         {
             return true;
         }
-        return false;
-
 #endif
         return false;
     }
@@ -853,24 +851,6 @@ class Commands : Object
         ( new MainLoop() ).run();
     }
 
-    private bool isValidDBusName( string busname )
-    {
-        var parts = busname.split( "." );
-        if ( parts.length < 2 )
-        {
-            return false;
-        }
-        if ( busname.has_prefix( "." ) )
-        {
-            return false;
-        }
-        if ( busname.has_suffix( "." ) )
-        {
-            return false;
-        }
-        return true;
-    }
-
     private void performCommandFromShell( string commandline )
     {
         if ( commandline.strip() == "" )
@@ -894,7 +874,7 @@ class Commands : Object
         switch ( args.length )
         {
             case 0:
-                assert_not_reached();
+                stderr.printf( @"Oops!" );
                 break;
             case 1:
                 listObjects( args[0] );
