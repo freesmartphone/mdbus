@@ -708,6 +708,35 @@ class Commands : Object
         }
     }
 
+    private bool callMethodWithoutIntrospection( string busname, string path, string method )
+    {
+        var methodWithPoint = method.rchr( -1, '.' );
+        var baseMethod = methodWithPoint.substring( 1 );
+        var iface = method.substring( 0, method.length - baseMethod.length - 1 );
+        var call = new DBus.RawMessage.call( busname, path, iface, baseMethod );
+        DBus.RawError error = DBus.RawError();
+        DBus.RawConnection* connection = bus.get_connection();
+        DBus.RawMessage reply = connection->send_with_reply_and_block( call, 100000, ref error );
+
+        if ( error.is_set() )
+        {
+#if DEBUG
+            stdout.printf( @"Method call done. Result:\nDBus Error $(error.name): $(error.message)\n" );
+#else
+            stderr.printf( @"$(error.name): $(error.message)\n" );
+#endif
+        }
+        else
+        {
+#if DEBUG
+            stdout.printf( @"Method call done. Result:\n$(formatMessage(reply))\n" );
+#else
+            stdout.printf( @"$(formatMessage(reply))\n" );
+#endif
+        }
+        return true;
+    }
+
     public bool callMethod( string busname, string path, string method, string[] args )
     {
         if ( !isValidBusName( busname ) )
@@ -720,6 +749,12 @@ class Commands : Object
         {
             stderr.printf( @"[ERR]: Unknown object path $path for $busname\n" );
             return false;
+        }
+
+        // skip introspection if we don't have any arguments
+        if ( args.length == 0 )
+        {
+            return callMethodWithoutIntrospection( busname, path, method );
         }
 
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
