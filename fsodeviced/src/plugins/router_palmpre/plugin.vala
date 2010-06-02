@@ -32,14 +32,14 @@ private class KernelScriptInterface
         if (FsoFramework.FileHandling.isPresent(filename))
         {
             string script = FsoFramework.FileHandling.read(filename);
-            FsoFramework.FileHandling.write(FSO_PALMPRE_AUDIO_SCINIT_PATH, script);
+            FsoFramework.FileHandling.write(script, FSO_PALMPRE_AUDIO_SCINIT_PATH);
         }
     }
 
     public static void runScript(string script_name)
     {
         FsoFramework.theLogger.debug( @"executing audio script '$(script_name)'" );
-        FsoFramework.FileHandling.write(FSO_PALMPRE_AUDIO_SCRUN_PATH, script_name);
+        FsoFramework.FileHandling.write(script_name, FSO_PALMPRE_AUDIO_SCRUN_PATH);
     }
     
     public static void runScripts(string[] scripts)
@@ -304,6 +304,24 @@ class PalmPre : FsoDevice.BaseAudioRouter
         available_events += audioEventTypeToString(AudioEventType.SWITCH_TO_FRONT_SPEAKER);
         available_events += audioEventTypeToString(AudioEventType.VOIP_STARTED);
         available_events += audioEventTypeToString(AudioEventType.VOIP_ENDED);
+        
+        /*
+         * Load all needed scripts
+         */
+        var script_path = FsoFramework.theConfig.stringValue( "fsodevice.router_palmpre", "script_path", "/etc/audio/scripts" );
+        string[] scripts_needed = { 
+            "media_back_speaker",
+            "media_front_speaker",
+            "media_headset",
+            "phone_back_speaker",
+            "phone_front_speaker",
+            "phone_headset"
+        };
+    
+        foreach ( var script in scripts_needed )
+        {
+            KernelScriptInterface.loadAndStoreScriptFromFile( @"$(script_path)/$(script).txt" );
+        }
     }
     
     private void handleEvent( AudioEventType event )
