@@ -87,14 +87,15 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         /* As per configuration option we have to launch the msmcomm daemon
          * before the channel and transport are opened as both depend on it */
         var result = false;
-        if (launch_msmcommd && launchMsmcommDaemon(true)) 
+        if (launch_msmcommd && launchMsmcommDaemon(true) || !launch_msmcommd) 
             result = true;
         return result;
     }
     
     protected override void powerOff()
     {
-        shutdownMsmcommDaemon();
+        if (launch_msmcommd)
+            shutdownMsmcommDaemon();
     }
 
     protected override void createChannels()
