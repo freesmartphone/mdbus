@@ -20,7 +20,7 @@
 2009-02-20	Michael Lauer	<mlauer@vanille-media.de>
 
 	* Support for wakeup threshold and waitms is now configurable as well.
-	
+
 	* Released as 0.3.1
 
 2009-02-15	Michael Lauer	<mlauer@vanille-media.de>

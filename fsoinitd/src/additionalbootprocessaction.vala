@@ -22,24 +22,24 @@ namespace FsoInit {
 public class AdditionalBootProcessAction : IAction, GLib.Object
 {
 	public string name { get { return "AdditionalBootProcessAction"; } }
-	
+
 	public string to_string()
 	{
 		return @"[$(name)] :: no parameter";
 	}
-	
+
 	public bool run()
 	{
 		if (FsoFramework.FileHandling.isPresent("/etc/rc.local")) {
 			var res = Posix.system("/bin/sh /etc/rc.local &");
 
-			if (res < 0) 
+			if (res < 0)
 			{
 				FsoFramework.theLogger.error("Could not launch additional boot process from /etc/rc.local");
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 

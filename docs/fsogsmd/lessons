@@ -26,19 +26,19 @@
   data. When we are actually waiting for an answer and it triggers,
   try to escalate resetting the parser and/or (transparently) relaunching
   the last command. [done in frameworkd] [DONE]
-  
+
 * Per-command retries _might_ make sense.
 
 * Dragging an error callback around for every command does not make
   sense, if the error refers to channel errors (such as a timeout),
   as opposed to an actual command response error (which makes sense). [DONE]
-  
+
 * If there's no reliable way to detect unsolicited responses (such as
   a physical or a virtual RING line) _and_ the modem does not
   guarantee delaying them between a request and a response, then
   the low level parser needs to be fed a list of valid prefixes for
   every command. [done in frameworkd] [DONE]
-  
+
 * It _might_ make sense to define every AT command as a struct, including:
   * a list of valid prefixes,
   * a regular expression that groups values into elements,

@@ -19,14 +19,14 @@
 
 using FsoInit.Util;
 
-namespace FsoInit 
+namespace FsoInit
 {
 
 public class ValidateSystemAction : IAction, GLib.Object
 {
 	public string name { get { return "ValidateSystemAction"; } }
 
-	public string to_string() 
+	public string to_string()
 	{
 		return @"[$(name)] :: no parameters";
 	}
@@ -46,8 +46,8 @@ public class ValidateSystemAction : IAction, GLib.Object
 		/* Become the leader of a new session and process group */
 		Posix.setsid();
 
-		/* Set root directory to be at the right place if we were 
-		 * started from some strange place 
+		/* Set root directory to be at the right place if we were
+		 * started from some strange place
 		 */
 		 res = Posix.chdir("/");
 		 if (!Util.CHECK( () => { return res > -1; }, "Cannot set root directory!"))

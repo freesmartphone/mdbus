@@ -24,17 +24,17 @@ public class SpawnProcessAction : IAction, GLib.Object
 	public string name { get { return "SpawnProcessAction"; } }
 	public string cmdline { get; set; default = ""; }
 	public bool inBackground { get; set; default = false; }
-	
+
 	construct
 	{
 	}
-	
+
 	public SpawnProcessAction.with_settings(string cmdline, bool inBackground = false) {
 		this.cmdline = cmdline;
 		this.inBackground = inBackground;
 	}
 
-	public string to_string() 
+	public string to_string()
 	{
 		return @"[$(name)] :: cmdline = '$(cmdline)'";
 	}
@@ -49,7 +49,7 @@ public class SpawnProcessAction : IAction, GLib.Object
 		FsoFramework.theLogger.debug(@"Spawn process with '$(command)'");
 		res = Posix.system(command);
 
-		if (res < 0) 
+		if (res < 0)
 		{
 			var msg = "Could not spawn process '";
 			msg += cmdline.length > 1 ? cmdline : "<unknown>";
@@ -57,7 +57,7 @@ public class SpawnProcessAction : IAction, GLib.Object
 			FsoFramework.theLogger.error(msg);
 			return false;
 		}
-		
+
 		return true;
 	}
 

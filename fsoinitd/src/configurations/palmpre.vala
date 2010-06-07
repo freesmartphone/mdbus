@@ -20,7 +20,7 @@
 
 namespace FsoInit {
 
-public BaseConfiguration createMachineConfiguration() 
+public BaseConfiguration createMachineConfiguration()
 {
 	return new PalmPreConfiguration();
 }
@@ -40,44 +40,44 @@ public class PalmPreConfiguration : BaseConfiguration
 		queue.registerAction(new MountFilesystemAction.with_settings(0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT));
 		queue.registerAction(new MountFilesystemAction.with_settings(0755, "sys", "/sys", "sysfs",  Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID));
 		queue.registerAction(new MountFilesystemAction.with_settings(0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID));
-		
+
 		// Remount rootfs read-write
 		queue.registerAction(new SpawnProcessAction.with_settings("/bin/mount -o remount,rw /"));
-		
+
 		// Turn led on, so the user know the init process has been started
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "10"));
-		
-		// FIXME: we don't want to use udev anymore, but currently we 
+
+		// FIXME: we don't want to use udev anymore, but currently we
 		// don't have devtmpfs in our kernel. When devtmpfs is ported to
 		// our kernel we stop using udev
-		
+
 		// Start udev
 		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/udev start"));
-		
+
 		// Turn led on, so the user know the init process has been started
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_center/brightness", "50"));
-		
+
 		// Populate volatile
 		// FIXME
-		
+
 		// Debug!
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_left/brightness", "50"));
 
 		// Set the hostname
 		queue.registerAction(new SetupHostnameAction());
-		
+
 		// Configure network interface
 		queue.registerAction(new ConfigureNetworkInterfaceAction.with_settings("usb0", "192.168.0.202", "255.255.255.0"));
-		
+
 		// Debug!
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_right/brightness", "50"));
 
 		// Launch several other daemons we need right after the init process is over
 		queue.registerAction(new SpawnProcessAction.with_settings("/usr/bin/dbus-daemon --system --fork"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/dropbear start"));
-		
+
 		queue.registerAction(new SpawnProcessAction.with_settings("/sbin/getty 115200 console"));
-		
+
 		// Debug!
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_right/brightness", "0"));
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/core_navi_left/brightness", "0"));

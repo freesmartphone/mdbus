@@ -10,7 +10,7 @@ The Cornucopia libraries contain utility functions for freesmartphone.org API im
 Paradigm: Test Driven Development
 
 Indentation: -bad -bap -bbb -bl -bli0 -bs -cbi4 -cli4 -i4 -l100 -lp
-             -nbbo -nbc -ncs -npcs -npsl -nut 
+             -nbbo -nbc -ncs -npcs -npsl -nut
              -pi0 -prs-saf -sai -saw -sbi4 -st
 
 Note: Some of this code may need several Vala patches that have not been integrated into

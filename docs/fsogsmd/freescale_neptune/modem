@@ -2,20 +2,20 @@
 
 === Behaviour ===
 
-* +CFUN=0;+CFUN=1 does _not_ reset the PIN lock; sending these commands too often / too fast confuses the 
+* +CFUN=0;+CFUN=1 does _not_ reset the PIN lock; sending these commands too often / too fast confuses the
 modem.
 
 * Giving a valid PIN to unlock starts autoregister
   (likewise, for an unlocked SIM +CFUN=1 will autoregister)
-  
+
 * Modem needs +EPMS? and +EGML=4 before +CGML (and friends) will work. Said commands will only work once after BP initialization though.
   Afterwards they will return +CMS ERROR 500 (unknown error).
 
 * Unregistering is generally frowned upon -- if you query the operator too early after unregistering, you'll get garbage:
-  2008.07.02 22:19:38 ogsmd    DEBUG    <MiscChannel via /dev/mux6>: got 31 bytes from: '\r\n+COPS: 0,2,"\x10*Zd\x12\x04I\xdc"\r\n\r\nOK\r\n'      
+  2008.07.02 22:19:38 ogsmd    DEBUG    <MiscChannel via /dev/mux6>: got 31 bytes from: '\r\n+COPS: 0,2,"\x10*Zd\x12\x04I\xdc"\r\n\r\nOK\r\n'
   Without antenna off/on, it doesn't seem to be possible to reregister again
 
-* After +CFUN=1 (previously +CFUN=0), the modem sends quite a bunch of URCs, e.g. +CMSM: 3 and +EMSR: 0, 
+* After +CFUN=1 (previously +CFUN=0), the modem sends quite a bunch of URCs, e.g. +CMSM: 3 and +EMSR: 0,
 +EFLEX, and much more.
 
 * To enable USB charging, you need to issue +USBSTAT=255,1
@@ -42,7 +42,7 @@ modem.
 
 * +CLIN: 0 indicates an incoming call on line 0
 
-* +CMSM: 3 means "SIM unlocked"; +CMSM: 0 means "SIM locked". If the SIM slot is empty, it will not appear at 
+* +CMSM: 3 means "SIM unlocked"; +CMSM: 0 means "SIM locked". If the SIM slot is empty, it will not appear at
 all after +CFUN=1 (before +ESCR)
 
 * +EHOZ: 0,"" (homezone indication, homezone name)

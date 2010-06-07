@@ -429,7 +429,7 @@ public class FsoFramework.SyslogLogger : FsoFramework.AbstractLogger
 }
 
 /**
- * @class KmsgLogger 
+ * @class KmsgLogger
  */
 public class FsoFramework.KmsgLogger : FsoFramework.AbstractLogger
 {
@@ -447,7 +447,7 @@ public class FsoFramework.KmsgLogger : FsoFramework.AbstractLogger
         return str;
     }
 
-    public KmsgLogger(string domain) 
+    public KmsgLogger(string domain)
     {
         base(domain);
         kmsg_fd = Posix.open("/dev/kmsg", Posix.O_WRONLY | Posix.O_NOCTTY);

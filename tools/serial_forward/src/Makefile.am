@@ -25,7 +25,7 @@ serial_forward_LDFLAGS = \
 pty_forward_SOURCES = \
 	pty_forward.c \
 	$(NULL)
-	
+
 pty_forward_LDADD = \
 	-lutil
 

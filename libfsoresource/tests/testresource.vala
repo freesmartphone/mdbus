@@ -34,7 +34,7 @@ public class DummyResource : AbstractDBusResource
 
 void async testit()
 {
-    
+
 }
 */
 
@@ -54,7 +54,7 @@ void test_resource_all()
     testit.begin();
     loop = new MainLoop();
     loop.run();
-    
+
 */
 }
 

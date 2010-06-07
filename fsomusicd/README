@@ -2,11 +2,11 @@ A daemon that logs data from the frameworkd, such as:
 
  * Usage statistics
   - Resource on/off
-  
+
  * Location Updates
   - GPS Coordinates
   - GSM Cell IDs
-  
+
  * Diagnostic Data
   - Modem Info
   - Wakeup Reason

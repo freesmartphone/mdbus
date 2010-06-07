@@ -71,7 +71,7 @@ libfsogsm_la_VALASOURCES = \
 	$(NULL)
 
 if WANT_MUX
-VALAC_ARGS += --pkg gsm0710mux-1.0 
+VALAC_ARGS += --pkg gsm0710mux-1.0
 libfsogsm_la_VALASOURCES += \
 	muxtransport.vala \
 	$(NULL)

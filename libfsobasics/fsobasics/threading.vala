@@ -26,7 +26,7 @@ internal class DummyThread
     private VoidFuncWithVoidStarParam func;
     private void* param;
     public DummyThread* pself;
-    
+
     public DummyThread( VoidFuncWithVoidStarParam func, void* param )
     {
         this.func = func;

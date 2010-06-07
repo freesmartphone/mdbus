@@ -20,7 +20,7 @@ namespace Posix {
 } // namespace
 
 [CCode (cprefix = "", lower_case_cprefix = "")]
-namespace Linux 
+namespace Linux
 {
-	
+
 } // namespace

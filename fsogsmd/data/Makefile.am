@@ -1,5 +1,5 @@
 include $(top_srcdir)/Makefile.decl
-NULL = 
+NULL =
 
 dbusconfdir = @DBUS_DIR@/system.d
 dist_dbusconf_DATA = fsogsmd.conf

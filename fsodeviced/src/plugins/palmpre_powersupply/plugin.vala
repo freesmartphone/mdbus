@@ -22,7 +22,7 @@ using GLib;
 namespace PalmPre
 {
 
-class TokenLib 
+class TokenLib
 {
     public static string tokenValue(string key, string def)
     {
@@ -33,7 +33,7 @@ class TokenLib
             return "";
         }
 
-        FsoFramework.SmartKeyFile tf = 
+        FsoFramework.SmartKeyFile tf =
             new FsoFramework.SmartKeyFile();
         if (tf.loadFromFile(tokens_file))
 			tf.stringValue("tokens", key, def);
@@ -75,7 +75,7 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
         /* check that we only use a valid battery */
         if (authenticateBattery())
             return;
-        
+
         subsystem.registerServiceName(FsoFramework.Device.ServiceDBusName);
         subsystem.registerServiceObject(FsoFramework.Device.ServiceDBusName,
                                         "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 0),
@@ -93,7 +93,7 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
 
         var mac_node = @"$(slave_node)/mac";
         FsoFramework.FileHandling.write(battToCh, mac_node);
-        
+
         string response = FsoFramework.FileHandling.read(mac_node);
         if (response != battToResp) {
             logger.error("battery does not answer with the right response!");

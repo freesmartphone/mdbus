@@ -21,7 +21,7 @@ EXTRA_DIST += $(NULL)
 # 	touch $@
 # testsmartkeyfile_LDADD = $(progs_ldadd)
 # EXTRA_DIST += $(testsmartkeyfile_VALASOURCES)
-# 
+#
 
 CLEANFILES = \
     $(TEST_PROGS) \

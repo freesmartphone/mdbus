@@ -33,7 +33,7 @@
 #define HSUART_SPEED_115K	115200
 #define HSUART_SPEED_3686K	3686400
 
-/* 
+/*
     Specifies target HSUART_IOCTL_CLEAR_FIFO/HSUART_IOCTL_FLUSH
 */
 #define HSUART_RX_FIFO   (1 << 0)    // UART RX FIFO
@@ -41,7 +41,7 @@
 #define HSUART_TX_QUEUE  (1 << 2)    // RX BUFFERS
 #define HSUART_RX_QUEUE  (1 << 3)    // TX BUFFERS
 
-/* 
+/*
  *  Rx flow control
  */
 #define HSUART_RX_FLOW_OFF    0  // DEPRECATED
@@ -80,7 +80,7 @@ struct hsuart_stat {
 #define HSUART_MODE_PARITY_NONE       (0 << HSUART_MODE_PARITY_BIT)
 #define HSUART_MODE_PARITY_ODD        (1 << HSUART_MODE_PARITY_BIT)
 #define HSUART_MODE_PARITY_EVEN       (2 << HSUART_MODE_PARITY_BIT)
- 
+
 
 /* IOCTLs */
 #define HSUART_IOCTL_GET_VERSION     _IOR('h', 0x01, int)
@@ -103,7 +103,7 @@ struct hsuart_stat {
 
 struct hsuart_platform_data {
 	const char *dev_name;
-	int   uart_mode;       // default uart mode 
+	int   uart_mode;       // default uart mode
 	int   uart_speed;      // default uart speed
 	int   options;         // operation options
 	int   tx_buf_size;     // size of tx buffer
@@ -112,10 +112,10 @@ struct hsuart_platform_data {
 	int   rx_buf_num;      // number of preallocated rx buffers
 	int   max_packet_size; // max packet size
 	int   min_packet_size; // min packet size
-	int   rx_latency;      // in bytes at current speed 
+	int   rx_latency;      // in bytes at current speed
 	int   rts_pin;         // uart rts line pin
-	char *rts_act_mode;    // uart rts line active mode 
-	char *rts_gpio_mode;   // uart rts line gpio mode 
+	char *rts_act_mode;    // uart rts line active mode
+	char *rts_gpio_mode;   // uart rts line gpio mode
 	int   idle_timeout;       // idle timeout
 	int   idle_poll_timeout;  // idle poll timeout
 	int   dbg_level;          // default debug level.

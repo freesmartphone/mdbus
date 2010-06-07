@@ -34,7 +34,7 @@ public class DummyConfiguration : BaseConfiguration
 
 	public override void registerActionsInQueue(IActionQueue queue)
 	{
-		
+
 	}
 }
 

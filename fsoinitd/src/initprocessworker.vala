@@ -26,11 +26,11 @@ public class InitProcessWorker : GLib.Object
 	private IActionQueue actionQueue;
 	private BaseConfiguration configuration;
 
-	construct 
+	construct
 	{
 		actionQueue = new ActionQueue();
 	}
-	
+
 	public void setup()
 	{
 		configuration = createMachineConfiguration();
@@ -40,10 +40,10 @@ public class InitProcessWorker : GLib.Object
 		configuration.registerActionsInQueue(actionQueue);
 	}
 
-	public bool run() 
+	public bool run()
 	{
 		assert(configuration != null);
-		
+
 		FsoFramework.theLogger.info(@"run all actions for machine configuration '$(configuration.name)'");
 		return actionQueue.run();
 	}

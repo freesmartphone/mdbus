@@ -1,5 +1,5 @@
-/* 
- * File Name: 
+/*
+ * File Name:
  * Creation Date: 23-08-2009
  * Last Modified:
  *
@@ -26,7 +26,7 @@ using DBus;
 namespace DBus
 {
     [DBus (name = "org.freedesktop.DBus")]
-    public interface Service : GLib.Object 
+    public interface Service : GLib.Object
     {
         public abstract string hello() throws DBus.Error;
         public abstract uint request_name(string param0, uint param1) throws DBus.Error;

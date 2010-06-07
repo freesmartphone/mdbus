@@ -22,22 +22,22 @@ namespace FsoInit {
 public class SetupHostnameAction : IAction, GLib.Object
 {
 	public string name { get { return "SetupHostnameAction"; } }
-	
+
 	public string to_string()
 	{
 		return @"[$(name)] :: no parameter";
 	}
-	
+
 	public bool run()
 	{
-		if (FsoFramework.FileHandling.isPresent("/etc/hostname")) 
+		if (FsoFramework.FileHandling.isPresent("/etc/hostname"))
 		{
 			string hostname = FsoFramework.FileHandling.read("/etc/hostname");
-			if (hostname.length > 0) 
+			if (hostname.length > 0)
 			{
 				FsoFramework.theLogger.debug(@"Set hostname to '$(hostname)'");
 				var res = Linux.sethostname(hostname, hostname.length);
-				
+
 				if (res < 0)
 				{
 					FsoFramework.theLogger.error(@"Cannot set hostname to '$(hostname)'");
@@ -45,7 +45,7 @@ public class SetupHostnameAction : IAction, GLib.Object
 				}
 			}
 		}
-		
+
 		return true;
 	}
 

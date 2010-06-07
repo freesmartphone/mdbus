@@ -20,7 +20,7 @@
 
 namespace FsoInit {
 
-public BaseConfiguration createMachineConfiguration() 
+public BaseConfiguration createMachineConfiguration()
 {
 	return new GTA02Configuration();
 }
@@ -38,19 +38,19 @@ public class GTA02Configuration : BaseConfiguration
 		queue.registerAction(new SpawnProcessAction.with_settings("mount -o remount,rw /"));
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0555, "proc", "/proc", "proc", Linux.MountFlags.MS_SILENT));
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "sys", "/sys", "sysfs", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID ));
-        
+
 		// Turn led on, so the user know the init process has been started
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/gta02-aux:red/brightness", "50"));
-		
+
 		// Mount relevant filesystems
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "devtmpfs", "/dev", "devtmpfs", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID ));
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "tmpfs", "/tmp", "tmpfs", Linux.MountFlags.MS_SILENT));
 		queue.registerAction(new MountFilesystemAction.with_settings((Posix.mode_t) 0755, "devpts", "/dev/pts", "devpts", Linux.MountFlags.MS_SILENT | Linux.MountFlags.MS_NOEXEC | Linux.MountFlags.MS_NODEV | Linux.MountFlags.MS_NOSUID ));
-		
+
 		// Configure network interface
 		queue.registerAction(new ConfigureNetworkInterfaceAction.with_settings("lo", "127.0.0.1", "255.255.255.0"));
 		queue.registerAction(new ConfigureNetworkInterfaceAction.with_settings("usb0", "192.168.0.202", "255.255.255.0"));
-		
+
 		// Launch several other daemons we need right after the init process is over
 		queue.registerAction(new SpawnProcessAction.with_settings("dbus --system --fork"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/fsodeviced start"));
@@ -58,7 +58,7 @@ public class GTA02Configuration : BaseConfiguration
 		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/sshd start"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/phonefsod start"));
 		queue.registerAction(new SpawnProcessAction.with_settings("/etc/init.d/xserver-nodm start"));
-		
+
 		// Turn led off to let the user know we have finished
 		queue.registerAction(new SysfsConfigAction.with_settings("/sys/class/leds/gta02-aux:red/brightness", "0"));
 	}

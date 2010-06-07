@@ -95,7 +95,7 @@ AC_SUBST(FSO_LIBS)
 # optional feature: ppp
 AC_ARG_ENABLE(ppp-support,
   [  --disable-ppp-support   Disable building ppp support (default=enabled)],
-  [ppp=$enableval], 
+  [ppp=$enableval],
   [ppp="yes"])
 
 if test "x$ppp" = "xyes"; then
@@ -109,7 +109,7 @@ AM_CONDITIONAL( [WANT_PPP], [test x"$ppp" = x"yes"])
 # optional feature: libgsm0710mux support
 AC_ARG_ENABLE(libgsm0710mux,
   [  --enable-libgsm0710mux  Build modem plugins which require libgsm0710mux (default=disabled)],
-  [mux=$enableval], 
+  [mux=$enableval],
   [mux="no"])
 
 if test x$mux = "xyes"; then
@@ -124,7 +124,7 @@ AM_CONDITIONAL( [WANT_MUX], [test x"$mux" = x"yes"])
 # optional feature: palm pre (plus) support
 AC_ARG_ENABLE(modem-qualcomm-palm,
   [  --enable-modem-qualcomm-palm  Enable building the modem_qualcomm_palm plugin (default=disabled)],
-  [palm=$enableval], 
+  [palm=$enableval],
   [palm="no"])
 
 if test x$palm = "xyes"; then
@@ -159,7 +159,7 @@ AC_DEFINE_UNQUOTED([PACKAGE_LIBDIR], ["${PACKAGE_LIBDIR}"], [Module directory])
 # check for debugging
 AC_ARG_ENABLE(debug,
   [  --enable-debug            Enable debug build (default=disabled)],
-  [debug=$enableval], 
+  [debug=$enableval],
   [debug="no"])
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 

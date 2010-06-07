@@ -1,5 +1,5 @@
 include $(top_srcdir)/Makefile.decl
-NULL = 
+NULL =
 
 AUTOMAKE_OPTIONS = subdir-objects
 

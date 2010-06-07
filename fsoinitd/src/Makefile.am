@@ -44,7 +44,7 @@ fsoinitd_VALASOURCES = \
 	dbusactivatoraction.vala \
 	validatesystemaction.vala \
 	$(NULL)
-	
+
 if WANT_MACHINE_PALMPRE
 fsoinitd_VALASOURCES += configurations/palmpre.vala
 endif
@@ -76,7 +76,7 @@ fsoinitd_LDADD = \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
 	$(NULL)
-	
+
 EXTRA_DIST += \
 	$(fsoinitd_VALASOURCES) \
 	$(BUILT_SOURCES) \

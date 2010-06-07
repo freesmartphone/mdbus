@@ -41,7 +41,7 @@ private class KernelScriptInterface
         FsoFramework.theLogger.debug( @"executing audio script '$(script_name)'" );
         FsoFramework.FileHandling.write(script_name, FSO_PALMPRE_AUDIO_SCRUN_PATH);
     }
-    
+
     public static void runScripts(string[] scripts)
     {
         foreach ( var script in scripts )
@@ -77,7 +77,7 @@ private enum AudioStateType
 private string audioStateTypeToString( AudioStateType state )
 {
     string result = "<unknown>";
-    
+
     switch ( state )
     {
         case AudioStateType.MEDIA_BACKSPEAKER:
@@ -138,7 +138,7 @@ private string audioStateTypeToString( AudioStateType state )
             result = "VOICE_DIALING_HEADSET";
             break;
     }
-    
+
     return result;
 }
 
@@ -158,7 +158,7 @@ private enum AudioEventType
 private AudioEventType stringToAudioEventType( string str )
 {
     AudioEventType event = AudioEventType.NONE;
-    
+
     switch ( str )
     {
         case "CALL_STARTED":
@@ -186,7 +186,7 @@ private AudioEventType stringToAudioEventType( string str )
             event = AudioEventType.VOIP_ENDED;
             break;
     }
-    
+
     return event;
 }
 
@@ -225,16 +225,16 @@ private string audioEventTypeToString( AudioEventType event )
 
 private class AudioTransition : GLib.Object
 {
-    public AudioStateType next_state 
-    { 
+    public AudioStateType next_state
+    {
         get; private set;
     }
-    
-    public AudioEventType event 
-    { 
+
+    public AudioEventType event
+    {
         get; private set;
     }
-    
+
     public AudioTransition( AudioEventType event, AudioStateType next_state )
     {
         this.event = event;
@@ -251,51 +251,51 @@ class PalmPre : FsoDevice.BaseAudioRouter
     private Gee.HashMap<AudioStateType,Gee.ArrayList<AudioTransition>> transitions;
     private AudioStateType current_state;
     private string[] available_events = {};
-    
+
     construct
     {
         current_state = AudioStateType.MEDIA_BACKSPEAKER;
-        
+
         /*
          * Here we add all currently available state transitions
          */
-        
+
         transitions = new Gee.HashMap<AudioStateType,Gee.ArrayList<AudioTransition>>();
-        
+
         transitions[AudioStateType.MEDIA_BACKSPEAKER] = new Gee.ArrayList<AudioTransition>();
         transitions[AudioStateType.MEDIA_BACKSPEAKER].add(new AudioTransition( AudioEventType.HEADSET_IN, AudioStateType.MEDIA_HEADSET ) );
         transitions[AudioStateType.MEDIA_BACKSPEAKER].add(new AudioTransition( AudioEventType.CALL_STARTED, AudioStateType.PHONE_BACKSPEAKER ) ) ;
         transitions[AudioStateType.MEDIA_BACKSPEAKER].add(new AudioTransition( AudioEventType.SWITCH_TO_FRONT_SPEAKER, AudioStateType.MEDIA_FRONTSPEAKER ) );
-        
+
         transitions[AudioStateType.MEDIA_FRONTSPEAKER] = new Gee.ArrayList<AudioTransition>();
         transitions[AudioStateType.MEDIA_FRONTSPEAKER].add(new AudioTransition( AudioEventType.SWITCH_TO_BACK_SPEAKER, AudioStateType.MEDIA_BACKSPEAKER ) );
         transitions[AudioStateType.MEDIA_FRONTSPEAKER].add(new AudioTransition( AudioEventType.HEADSET_IN, AudioStateType.MEDIA_HEADSET ) );
         transitions[AudioStateType.MEDIA_FRONTSPEAKER].add(new AudioTransition( AudioEventType.CALL_STARTED, AudioStateType.PHONE_FRONTSPEAKER ) );
-        
+
         transitions[AudioStateType.MEDIA_HEADSET] = new Gee.ArrayList<AudioTransition>();
         transitions[AudioStateType.MEDIA_HEADSET].add(new AudioTransition( AudioEventType.HEADSET_OUT, AudioStateType.MEDIA_BACKSPEAKER ) );
         transitions[AudioStateType.MEDIA_HEADSET].add(new AudioTransition( AudioEventType.CALL_STARTED, AudioStateType.PHONE_HEADSET ) );
-        
+
         transitions[AudioStateType.PHONE_BACKSPEAKER] = new Gee.ArrayList<AudioTransition>();
         transitions[AudioStateType.PHONE_BACKSPEAKER].add(new AudioTransition( AudioEventType.HEADSET_IN, AudioStateType.PHONE_HEADSET ) );
         transitions[AudioStateType.PHONE_BACKSPEAKER].add(new AudioTransition( AudioEventType.CALL_ENDED, AudioStateType.MEDIA_BACKSPEAKER ) );
         transitions[AudioStateType.PHONE_BACKSPEAKER].add(new AudioTransition( AudioEventType.SWITCH_TO_FRONT_SPEAKER, AudioStateType.PHONE_FRONTSPEAKER ) );
-        
+
         transitions[AudioStateType.PHONE_FRONTSPEAKER] = new Gee.ArrayList<AudioTransition>();
         transitions[AudioStateType.PHONE_FRONTSPEAKER].add(new AudioTransition( AudioEventType.HEADSET_IN, AudioStateType.PHONE_HEADSET ) );
         transitions[AudioStateType.PHONE_FRONTSPEAKER].add(new AudioTransition( AudioEventType.CALL_ENDED, AudioStateType.MEDIA_FRONTSPEAKER ) );
         transitions[AudioStateType.PHONE_FRONTSPEAKER].add(new AudioTransition( AudioEventType.SWITCH_TO_BACK_SPEAKER, AudioStateType.PHONE_BACKSPEAKER ) );
-        
+
         transitions[AudioStateType.PHONE_HEADSET] = new Gee.ArrayList<AudioTransition>();
         transitions[AudioStateType.PHONE_HEADSET].add(new AudioTransition( AudioEventType.HEADSET_OUT, AudioStateType.PHONE_BACKSPEAKER ) );
         transitions[AudioStateType.PHONE_HEADSET].add(new AudioTransition( AudioEventType.CALL_ENDED, AudioStateType.MEDIA_HEADSET ) );
         transitions[AudioStateType.PHONE_HEADSET].add(new AudioTransition( AudioEventType.SWITCH_TO_BACK_SPEAKER, AudioStateType.PHONE_BACKSPEAKER ) );
         transitions[AudioStateType.PHONE_HEADSET].add(new AudioTransition( AudioEventType.SWITCH_TO_FRONT_SPEAKER, AudioStateType.PHONE_FRONTSPEAKER ) );
-        
+
         /*
          * All available events
          */
-        
+
         available_events += audioEventTypeToString(AudioEventType.CALL_STARTED);
         available_events += audioEventTypeToString(AudioEventType.CALL_ENDED);
         available_events += audioEventTypeToString(AudioEventType.HEADSET_IN);
@@ -304,12 +304,12 @@ class PalmPre : FsoDevice.BaseAudioRouter
         available_events += audioEventTypeToString(AudioEventType.SWITCH_TO_FRONT_SPEAKER);
         available_events += audioEventTypeToString(AudioEventType.VOIP_STARTED);
         available_events += audioEventTypeToString(AudioEventType.VOIP_ENDED);
-        
+
         /*
          * Load all needed scripts
          */
         var script_path = FsoFramework.theConfig.stringValue( "fsodevice.router_palmpre", "script_path", "/etc/audio/scripts" );
-        string[] scripts_needed = { 
+        string[] scripts_needed = {
             "media_back_speaker",
             "media_front_speaker",
             "media_headset",
@@ -317,18 +317,18 @@ class PalmPre : FsoDevice.BaseAudioRouter
             "phone_front_speaker",
             "phone_headset"
         };
-    
+
         foreach ( var script in scripts_needed )
         {
             KernelScriptInterface.loadAndStoreScriptFromFile( @"$(script_path)/$(script).txt" );
         }
     }
-    
+
     private void handleEvent( AudioEventType event )
-    {   
+    {
         foreach ( var transition in transitions[current_state] )
         {
-            if ( transition.event == event ) 
+            if ( transition.event == event )
             {
                 FsoFramework.theLogger.debug( @"Event '$(audioEventTypeToString(event))' is known by the current state '$(audioStateTypeToString(current_state))'" );
                 releaseState( current_state );
@@ -337,24 +337,24 @@ class PalmPre : FsoDevice.BaseAudioRouter
                 current_state = transition.next_state;
                 break;
             }
-            
+
             if ( transition.event == AudioEventType.CALL_STARTED )
             {
                 KernelScriptInterface.runScript( "call_started" );
             }
-            else if ( transition.event == AudioEventType.CALL_ENDED ) 
+            else if ( transition.event == AudioEventType.CALL_ENDED )
             {
                 KernelScriptInterface.runScript( "call_ended" );
             }
         }
     }
-    
+
     private void initState( AudioStateType state )
-    {   
+    {
         string[] scripts = { };
-        
+
         FsoFramework.theLogger.debug(@"Init '$(audioStateTypeToString(state))' state");
-        
+
         switch ( state )
         {
             case AudioStateType.MEDIA_BACKSPEAKER:
@@ -376,33 +376,33 @@ class PalmPre : FsoDevice.BaseAudioRouter
                 scripts += "phone_headset";
                 break;
         }
-        
+
         KernelScriptInterface.runScripts(scripts);
     }
-    
+
     private void releaseState( AudioStateType state )
-    {   
+    {
         string[] scripts = { };
-        
+
         FsoFramework.theLogger.debug(@"Release '$(audioStateTypeToString(state))' state");
-        
+
         switch ( state )
         {
             default:
                 break;
         }
-        
+
         KernelScriptInterface.runScripts(scripts);
     }
-    
+
     public override void setScenario( string scenario )
     {
         FsoFramework.theLogger.debug("got a $(scenario) audio event");
-        // For now we treat the scenario give as event. API need to be 
+        // For now we treat the scenario give as event. API need to be
         // reworked for a audio state machine ...
         handleEvent( stringToAudioEventType( scenario.up() ) );
     }
-    
+
     public override bool isScenarioAvailable( string scenario )
     {
         return (scenario in available_events);
@@ -412,9 +412,9 @@ class PalmPre : FsoDevice.BaseAudioRouter
     {
         return available_events;
     }
-    
+
     /*
-     * NOTE: The following methods are not used by this plugin as we 
+     * NOTE: The following methods are not used by this plugin as we
      *       don't implement audio routing in the way the other plugins
      *       does.
      */

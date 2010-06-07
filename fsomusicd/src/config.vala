@@ -1,4 +1,4 @@
-/* 
+/*
  * File Name: config.vala
  * Creation Date: 23-08-2009
  * Last Modified: 15-11-2009 23:36:40
@@ -54,5 +54,5 @@ namespace FsoMusic.Config
     //Timout for quering the current position in milliseconds
     public const int poll_timeout = 1000;
     //precision of the progress. should be power 0f 10 in nanoseconds
-    public const int precision = 1; 
+    public const int precision = 1;
 }

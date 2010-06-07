@@ -31,28 +31,28 @@ public class ActionQueue : IActionQueue, GLib.Object
 	{
 		actions = new ArrayList<IAction>();
 	}
-	
+
 	public void registerAction(IAction action)
 	{
 		actions.add(action);
 	}
 
-	public bool run() 
+	public bool run()
 	{
 		foreach (var action in actions)
 		{
-			
+
 			FsoFramework.theLogger.debug(@"run '$(action.name)' action ...");
 			FsoFramework.theLogger.debug(@"ACTION INFO: $(action.to_string())");
-			
+
 			if (!action.run())
 			{
 				FsoFramework.theLogger.error(@"an error occured while running action '$(action.name)'");
 				FsoFramework.theLogger.error(@"action was executed as the following: ");
 				FsoFramework.theLogger.error(@" -> $(action.to_string())");
 				return false;
-			}	
-			else 
+			}
+			else
 			{
 				FsoFramework.theLogger.debug(@"--> finished action'$(action.name)'");
 			}

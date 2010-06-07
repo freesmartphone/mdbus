@@ -63,7 +63,7 @@ public void anotherDelegate( void* data )
 //===========================================================================
 void test_threading_call_delegate_on_main_thread_async()
 //===========================================================================
-{  
+{
     loop = new MainLoop();
     Thread.create( thread_func_async, false);
     loop.run();

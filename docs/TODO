@@ -1,5 +1,5 @@
 ==libfsobasics==
-* add SmartKeyFile.pathValue( section, key, constraints, defaultpath ) querying for a path from the configuration, 
+* add SmartKeyFile.pathValue( section, key, constraints, defaultpath ) querying for a path from the configuration,
   checking several whether the constraints are met; if not, return the default.
 * make read/write a bit more flexible
 ** read/write: sometimes it should not complain, if there is no file

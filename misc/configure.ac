@@ -45,11 +45,11 @@ if test "$enable_tests" != no; then
   PKG_CHECK_MODULES(ALSA,
     alsa >= $ALSA_REQUIRED)
   AC_SUBST(ALSA_CFLAGS)
-  AC_SUBST(ALSA_LIBS)        
+  AC_SUBST(ALSA_LIBS)
 else
   AC_MSG_RESULT(no)
 fi
-    
+
 #
 # output
 #

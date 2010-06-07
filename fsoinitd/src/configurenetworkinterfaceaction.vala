@@ -20,7 +20,7 @@
 using GLib;
 
 namespace FsoInit {
-	
+
 public enum RouteType
 {
     DEFAULT,
@@ -28,10 +28,10 @@ public enum RouteType
     HOST
 }
 
-public string routeTypeToString (RouteType type) 
+public string routeTypeToString (RouteType type)
 {
 	var result = "<unknown>";
-	switch (type) 
+	switch (type)
 	{
 	case RouteType.DEFAULT:
 		result = "DEFAULT";
@@ -64,7 +64,7 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 		this.netmask = netmask;
 	}
 
-	public string to_string() 
+	public string to_string()
 	{
 		string tmp = @"[$(name)] :: ";
 		tmp += @"iface='$(iface)' ";
@@ -120,7 +120,7 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 		/* FIXME */
 		return true;
 	}
-	
+
 	public bool run()
 	{
 		if (!configureInterfaceWithAddress(iface, address, netmask) ||
@@ -128,7 +128,7 @@ public class ConfigureNetworkInterfaceAction : IAction, GLib.Object
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
 

@@ -27,12 +27,12 @@ public class MountFilesystemAction : IAction, GLib.Object
 	public string target { get; set; default = ""; }
 	public string name { get { return "MountFileSystemAction"; } }
 	public long flags { get; set; default = Linux.MountFlags.MS_SILENT; }
-	
+
 	construct
 	{
 		mode = (Posix.mode_t) 0755;
 	}
-	
+
 	public MountFilesystemAction.with_settings(Posix.mode_t mode, string source, string target,  string fs_type, Linux.MountFlags flags)
 	{
 		this.mode = mode;
@@ -42,7 +42,7 @@ public class MountFilesystemAction : IAction, GLib.Object
 		this.flags = flags;
 	}
 
-	public string to_string() 
+	public string to_string()
 	{
 		string tmp = @"[$(name)] :: ";
 		tmp += "mode='%l' ".printf((long)mode);
@@ -50,7 +50,7 @@ public class MountFilesystemAction : IAction, GLib.Object
 		tmp += @"target='$(target)' ";
 		tmp += @"fs_type='$(fs_type)' ";
 		// FIXME write function to translate flags into string
-		tmp += @"flags=''"; 
+		tmp += @"flags=''";
 		return tmp;
 	}
 
@@ -65,13 +65,13 @@ public class MountFilesystemAction : IAction, GLib.Object
 				return false;
 			}
 		}
-		
+
 		if (Linux.mount(source, target, fs_type, (Linux.MountFlags)flags) == -1)
 		{
 			FsoFramework.theLogger.error(@"can't mount $(source) on $(target)");
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -79,13 +79,13 @@ public class MountFilesystemAction : IAction, GLib.Object
 	{
 		if (!FsoFramework.FileHandling.isPresent( target ))
 		{
-			if (Linux.umount(target) == -1) 
+			if (Linux.umount(target) == -1)
 			{
 				FsoFramework.theLogger.error(@"can not umount $(target)");
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 }

@@ -22,14 +22,14 @@ namespace FsoInit {
 public class DBusActivatorAction : IAction, GLib.Object
 {
 	public string name { get { return "DBusActivatorAction"; } }
-	
+
 	public string service_name { get; set; default = ""; }
 	public bool use_system_bus { get; set; default = true; }
 	public string object_name { get; set; default = ""; }
 	public string object_path { get; set; default = ""; }
 	public string iface { get; set; default = ""; }
-	
-	public DBusActivatorAction.with_settings(string service_name, 
+
+	public DBusActivatorAction.with_settings(string service_name,
 											 bool use_system_bus,
 											 string object_name,
 											 string object_path,
@@ -41,7 +41,7 @@ public class DBusActivatorAction : IAction, GLib.Object
 		this.object_path = object_path;
 		this.iface = iface;
 	}
-	
+
 	public string to_string()
 	{
 		var res = @"[$(name)] :: ";
@@ -53,24 +53,24 @@ public class DBusActivatorAction : IAction, GLib.Object
 		res += @"iface='$(iface)' ";
 		return res;
 	}
-	
+
 	public bool run()
 	{
-		try 
-		{	
+		try
+		{
 			var bus_type = use_system_bus ? DBus.BusType.SYSTEM : DBus.BusType.SESSION;
 			var conn = DBus.Bus.get(bus_type);
 			var obj = conn.get_object(object_name, object_path, iface);
-			
+
 			if (obj == null) { /* FIXME */ }
 			// FIXME maybe call the Ping() function?
 		}
-		catch (DBus.Error err) 
+		catch (DBus.Error err)
 		{
 			FsoFramework.theLogger.error(@"Could not activate dbus service '$(service_name)'");
 			return false;
 		}
-		
+
 		return true;
 	}
 

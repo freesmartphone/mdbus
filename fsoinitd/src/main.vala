@@ -20,24 +20,24 @@
 
 GLib.MainLoop mainloop;
 
-int main( string[] args ) 
+int main( string[] args )
 {
 	var bin = FsoFramework.Utility.programName();
-	
+
 	FsoFramework.theLogger.info("startup ...");
 	mainloop = new GLib.MainLoop(null, false);
-	
+
 	var worker = new FsoInit.InitProcessWorker();
 	worker.setup();
 	if (!worker.run())
 		return -1;
-	
+
 	FsoFramework.theLogger.info( "%s => mainloop".printf( bin ) );
 	mainloop.run();
 	FsoFramework.theLogger.info( "mainloop => %s".printf( bin ) );
 
 	FsoFramework.theLogger.info( "%s exit".printf( bin ) );
-	
+
 	return 0;
 }
 

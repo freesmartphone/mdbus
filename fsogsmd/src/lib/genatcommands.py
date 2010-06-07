@@ -38,7 +38,7 @@ def nameToClassName( name ):
 
 #========================================================================#
 commands = { \
-     "+CFUN":       ( "standard", [ "+CFUN: ", "<int=fun>" ] ), 
+     "+CFUN":       ( "standard", [ "+CFUN: ", "<int=fun>" ] ),
      #"+COPS":       ( "standard", [ "+COPS: ", "<digit=registration>", "[digit=mode]", "[string=provider]" ] ),
      "+COPS":       ( "standard",  ( "+COPS: digit=opStatus,[digit=mode[,string=oper]]" ]
      "+COPS":       ( "standard",  "+COPS: digit=opStatus,[digit=mode[,string=oper]]" ]

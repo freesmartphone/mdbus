@@ -11,7 +11,7 @@ It contains classes for
  * inotify watching
  * netlink watching
  * kobject watching
- 
+
 While being used primarily for the freesmartphone.org project,
 it is versatile enough to be of use for many 3rd party projects.
 

@@ -49,13 +49,13 @@ public bool setupConsole(bool reset)
 
 	/* Release tty */
 	tty_fd = open(TTY_PATH, O_RDWR | O_NOCTTY | O_NONBLOCK);
-	if (tty_fd < 0) 
+	if (tty_fd < 0)
 	{
 		FsoFramework.theLogger.error(@"Could not open tty on '$(TTY_PATH)'");
 		return false;
 	}
 
-	if (ioctl(tty_fd, Linux.Termios.TIOCNOTTY) < 0) 
+	if (ioctl(tty_fd, Linux.Termios.TIOCNOTTY) < 0)
 	{
 		close(tty_fd);
 		FsoFramework.theLogger.error(@"Could not run ioctl(TIOCNOTTY) on $(TTY_PATH)");
@@ -70,7 +70,7 @@ public bool setupConsole(bool reset)
 		FsoFramework.theLogger.error(@"Could not open console on '$(CONSOLE_PATH)'");
 		return false;
 	}
-	
+
 	null_fd = open(DEV_NULL_PATH, O_RDONLY);
 	if (null_fd < 0) {
 		close(tty_fd);
@@ -80,7 +80,7 @@ public bool setupConsole(bool reset)
 
 	GLib.assert(tty_fd >= 3);
 	GLib.assert(null_fd >= 3);
-	
+
 	/* Reset to sane defaults, cribbed from sysviit, initng, etc. */
 	if (reset) {
 		termios tty = {};
@@ -115,7 +115,7 @@ public bool setupConsole(bool reset)
 	/* move stdout/stderr to /dev/console and stdin to /dev/null */
 	if (dup2(tty_fd, STDOUT_FILENO) < 0 ||
 		dup2(tty_fd, STDERR_FILENO) < 0 ||
-		dup2(null_fd, STDIN_FILENO) < 0) 
+		dup2(null_fd, STDIN_FILENO) < 0)
 	{
 		close(tty_fd);
 		close(null_fd);

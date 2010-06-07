@@ -41,7 +41,7 @@ fso_boot_LDADD = \
 	$(DBUS_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
-	
+
 EXTRA_DIST += \
 	$(fso_boot_VALASOURCES) \
 	$(BUILT_SOURCES) \

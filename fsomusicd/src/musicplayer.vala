@@ -1,4 +1,4 @@
-/* 
+/*
  * File Name: musicplayer.vala
  * Creation Date: 23-08-2009
  * Last Modified: 09-01-2010 18:54:15
@@ -82,7 +82,7 @@ namespace FsoMusic
         private ObjectPath current_playlist
         {
             get{ return _current_playlist; }
-            set 
+            set
             {
                 var playlist = playlists.lookup( value );
                 if( playlist != null )
@@ -113,7 +113,7 @@ namespace FsoMusic
         private string last_extension = null;
         private string last_protcol = null;
         private MusicPlayerState cur_state = FreeSmartphone.MusicPlayerState.STOPPED;
-        private MusicPlayerState _state { 
+        private MusicPlayerState _state {
             get{ return this.cur_state; }
             set
             {
@@ -411,7 +411,7 @@ namespace FsoMusic
             playlists.remove( list );
             playlist_removed( list );
             the_list = null;
-            
+
         }
         public async ObjectPath new_playlist( string name ) throws MusicPlayerError, DBus.Error
         {
@@ -494,7 +494,7 @@ namespace FsoMusic
             key_file.set_string( Config.MUSIC_PLAYER_GROUP, Config.LAST_PLAYLIST, list );
 
             foreach( var k in playlists.get_values() )
-            { 
+            {
                 k.save();
             }
             logger.info( @"saving config to $(Config.get_config_path())" );
@@ -569,7 +569,7 @@ namespace FsoMusic
                     return false;
                 }
             }
-            return true; 
+            return true;
         }
 
         //
@@ -682,9 +682,9 @@ namespace FsoMusic
 
         private class TagHelper: GLib.Object
         {
-            public HashTable<string,GLib.Value?> tags{ 
-                get; 
-                set; 
+            public HashTable<string,GLib.Value?> tags{
+                get;
+                set;
                 default = new HashTable<string,GLib.Value?>(str_hash, str_equal );}
             public void foreach_tag( Gst.TagList list, string tag )
             {

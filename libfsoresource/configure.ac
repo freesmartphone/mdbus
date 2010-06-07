@@ -42,7 +42,7 @@ AC_SUBST(GLIB_LIBS)
 # check for debugging
 AC_ARG_ENABLE(debug,
   [  --enable-debug            Enable debug build (default=disabled)],
-  [debug=$enableval], 
+  [debug=$enableval],
   [debug="no"])
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 

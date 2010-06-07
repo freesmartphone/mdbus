@@ -34,8 +34,8 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     private const string MSM_CHANNEL_NAME = "main";
     private bool launch_msmcommd = false;
     private string workdir_msmcommd = "/tmp";
-    
-    construct 
+
+    construct
     {
         launch_msmcommd = config.boolValue("fsogsm.modem_qualcomm_palm", "launch_msmcommd", false);
         workdir_msmcommd = config.stringValue("fsogsm.modem_qualcomm_palm", "workdir_msmcommd", "/tmp");
@@ -45,7 +45,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     {
         return "<>";
     }
-    
+
     private bool launchMsmcommDaemon(bool restart)
     {
         if (Msmcomm.isDaemonRunning()) {
@@ -58,19 +58,19 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
                 return true;
             }
         }
-        
+
         if (!Msmcomm.launchDaemon(workdir_msmcommd)) {
             logger.error("Could not launch the Msmcomm daemon - that is bad, everything else will even fail");
             return false;
         }
-        
+
         logger.info("Msmcomm daemon was successfully started");
-        
+
         Thread.usleep(1000 * 1000);
-        
+
         return true;
     }
-    
+
     private void shutdownMsmcommDaemon()
     {
         if (Msmcomm.isDaemonRunning()) {
@@ -81,17 +81,17 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
             logger.error("Msmcomm daemon could not be shut down as it is not running anymore. Maybe it was killed or died itself?");
         }
     }
-    
+
     protected override bool powerOn()
     {
         /* As per configuration option we have to launch the msmcomm daemon
          * before the channel and transport are opened as both depend on it */
         var result = false;
-        if (launch_msmcommd && launchMsmcommDaemon(true) || !launch_msmcommd) 
+        if (launch_msmcommd && launchMsmcommDaemon(true) || !launch_msmcommd)
             result = true;
         return result;
     }
-    
+
     protected override void powerOff()
     {
         if (launch_msmcommd)
@@ -106,7 +106,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         var parser = new FsoGsm.StateBasedAtParser();
         new FsoGsm.AtChannel( AT_CHANNEL_NAME, datatransport, parser );
 #endif
-        
+
         // create MAIN channel
         var maintransport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
         if (maintransport != null)

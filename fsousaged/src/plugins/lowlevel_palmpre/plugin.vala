@@ -67,17 +67,17 @@ class LowLevel.PalmPre : FsoUsage.LowLevel, FsoFramework.AbstractObject
     {
         var reasons = FsoFramework.FileHandling.read( sys_resume_reason ).split( "\n" );
         var reasonkey = "unknown";
-        
+
         /*
          * An entry in /sys/power/wakeup_event_list looks like this:
          * [    0.000012] GPIO (HEADSET_INSERT) omap3_wakeup_sources_save+0x114/0x144 (a004962c)
          */
-        try 
+        try
         {
             var regex = new Regex("""\[.*\]\sGPIO\s\((\w*)\).*""");
-            
+
             // We want only the last reason !
-            if (reasons != null && reasons.length > 0) 
+            if (reasons != null && reasons.length > 0)
             {
                 string[] parts = regex.split_full(reasons[reasons.length-1]);
                 if (parts != null && parts.length == 3)
@@ -90,7 +90,7 @@ class LowLevel.PalmPre : FsoUsage.LowLevel, FsoFramework.AbstractObject
         {
             logger.error("Regex determination of the resumevalue failed");
         }
-        
+
         var reasonvalue = eventSources.lookup( reasonkey );
         if ( reasonvalue == 0 )
         {
