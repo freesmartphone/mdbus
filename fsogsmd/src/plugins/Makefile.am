@@ -13,6 +13,7 @@ SUBDIRS = \
 	modem_dummy \
 	modem_singleline \
 	modem_qualcomm_htc \
+	modem_freescale_neptune \
 	\
 	pdp_qmi \
 	$(NULL)

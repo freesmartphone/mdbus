@@ -174,6 +174,7 @@ AC_CONFIG_FILES([
   conf/default/Makefile
   conf/htc_qualcomm_dream/Makefile
   conf/htc_qualcomm_msm/Makefile
+  conf/motorola_ezx/Makefile
   conf/openmoko_gta/Makefile
   conf/palm_pre/Makefile
   data/Makefile
@@ -187,6 +188,7 @@ AC_CONFIG_FILES([
   src/plugins/lowlevel_palmpre/Makefile
   src/plugins/modem_cinterion_mc75/Makefile
   src/plugins/modem_dummy/Makefile
+  src/plugins/modem_freescale_neptune/Makefile
   src/plugins/modem_singleline/Makefile
   src/plugins/modem_ti_calypso/Makefile
   src/plugins/modem_qualcomm_htc/Makefile
