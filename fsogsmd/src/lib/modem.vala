@@ -339,6 +339,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         switch ( lowleveltype )
         {
+            case "motorola_ezx":
+                typename = "LowLevelMotorolaEZX";
+                break;
             case "openmoko":
                 typename = "LowLevelOpenmoko";
                 break;
