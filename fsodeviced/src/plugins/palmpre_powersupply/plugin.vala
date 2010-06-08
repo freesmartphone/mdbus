@@ -36,7 +36,7 @@ class TokenLib
         FsoFramework.SmartKeyFile tf =
             new FsoFramework.SmartKeyFile();
         if (tf.loadFromFile(tokens_file))
-			tf.stringValue("tokens", key, def);
+            tf.stringValue("tokens", key, def);
         return "";
     }
 }
