@@ -24,6 +24,10 @@ VALAC_ARGS += -g -D DEBUG
 AM_CFLAGS = -ggdb -O0
 endif
 
+if FAST_BAUD
+VALAC_ARGS += -D FAST_BAUD
+endif
+
 BUILT_SOURCES = .vala.stamp
 
 lib_LTLIBRARIES = \

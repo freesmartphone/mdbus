@@ -44,6 +44,16 @@ AC_ARG_ENABLE(debug,
   [debug="no"])
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
+# check for disabling of fast baud rates
+AC_ARG_ENABLE(fast-baud,
+  AS_HELP_STRING([--disable-fast-baud], [Disable fast baud rates]),
+  [fastbaud="$enableval"],
+  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+    #include <termios.h>
+    int tspeed = B2500000 + B4000000;
+  ]])],fastbaud="yes",fastbaud="no") )
+AM_CONDITIONAL( [FAST_BAUD], [test x"$fastbaud" = x"yes"])
+
 # git version
 GITV=`cat ../.git/refs/heads/master || echo "unknown"`
 AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
@@ -67,6 +77,8 @@ echo
 echo "Configuration Options:"
 echo
 echo "  debug build.............: $debug"
+echo
+echo "  fast baud rates.........: $fastbaud"
 echo
 echo "  prefix..................: $prefix"
 echo

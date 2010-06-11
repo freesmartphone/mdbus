@@ -193,6 +193,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             case 2000000:
                 tspeed = Linux.Termios.B2000000;
                 break;
+#if FAST_BAUD
             case 2500000:
                 tspeed = Linux.Termios.B2500000;
                 break;
@@ -205,6 +206,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
             case 4000000:
                 tspeed = Linux.Termios.B4000000;
                 break;
+#endif
             default:
                 logger.warning( @"Invalid speed $speed selected. using 0" );
                 tspeed = Posix.B0;
