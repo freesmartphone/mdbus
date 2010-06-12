@@ -91,7 +91,7 @@ AC_SUBST(ALSA_LIBS)
 ##############################################################################
 # optional feature: fsoresource integration
 AC_ARG_ENABLE(resource_integration,
-  [  --disable-resource-integration      Disable FSO resource integration (default=enabled)],
+  AS_HELP_STRING([--disable-resource-integration],[Disable FSO resource integration (default=enabled)]),
   [fsoresource=$enableval],
   [fsoresource="yes"])
 
@@ -100,7 +100,7 @@ AM_CONDITIONAL( [WANT_FSORESOURCE], [test x"$fsoresource" = x"yes"])
 ##############################################################################
 # optional feature: kernel26_rfkill
 AC_ARG_ENABLE(kernel26_rfkill,
-  [  --enable-kernel26-rfkill            Enable building the rfkill power control plugin (default=disabled)],
+  AS_HELP_STRING([--enable-kernel26-rfkill],[Enable building the rfkill power control plugin (default=disabled)]),
   [rfkill=$enableval],
   [rfkill="no"])
 
@@ -113,7 +113,7 @@ AM_CONDITIONAL( [WANT_RFKILL], [test x"$rfkill" = x"yes"])
 ##############################################################################
 # optional feature: player_canberra
 AC_ARG_ENABLE(player_canberra,
-  [  --enable-player-canberra            Enable building the libcanberra audio player plugin (default=disabled)],
+  AS_HELP_STRING([--enable-player-canberra], [Enable building the libcanberra audio player plugin (default=disabled)]),
   [canberra=$enableval],
   [canberra="no"])
 
@@ -131,7 +131,7 @@ AM_CONDITIONAL( [WANT_CANBERRA], [test x"$canberra" = x"yes"])
 ##############################################################################
 # optional feature: player_gstreamer
 AC_ARG_ENABLE(player_gstreamer,
-  [  --enable-player-gstreamer           Enable building the gstreamer audio player plugin (default=disabled)],
+  AS_HELP_STRING([--enable-player-gstreamer],[Enable building the gstreamer audio player plugin (default=disabled)]),
   [gstreamer=$enableval],
   [gstreamer="no"])
 
@@ -147,7 +147,7 @@ AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
 ##############################################################################
 # check for debugging
 AC_ARG_ENABLE(debug,
-  [  --enable-debug            Enable debug build (default=disabled)],
+  AS_HELP_STRING([--enable-debug],[Enable debug build (default=disabled)]),
   [debug=$enableval],
   [debug="no"])
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
