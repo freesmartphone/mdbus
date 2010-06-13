@@ -124,6 +124,13 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
         q.offer_tail( command );
         Idle.add( checkRestartingQ );
     }
+    
+    protected void reset()
+    {
+        transport.logger.info( "Reset commandqueue ..." );
+        current = null;
+        q.clear();
+    }
 
     //
     // public API
