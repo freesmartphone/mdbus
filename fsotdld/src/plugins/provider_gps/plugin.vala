@@ -54,10 +54,8 @@ class DBusService.Device : FsoFramework.AbstractObject
             return;
         }
 
-        /*
         subsystem.registerServiceName( FsoFramework.GPS.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.GPS.ServiceDBusName, FsoFramework.GPS.DeviceServicePath, this );
-        */
 
         receiver = (FsoGps.Receiver) Object.new( receiverclass );
         receiver.parent = this;
@@ -70,13 +68,18 @@ class DBusService.Device : FsoFramework.AbstractObject
         return "<DBusService>";
     }
 
-    public async void enable()
+    public async bool enable()
     {
         var ok = yield receiver.open();
         if ( !ok )
+        {
             logger.error( "Can't open receiver" );
+        }
         else
+        {
             logger.info( "GPS receiver opened successfully" );
+        }
+        return ok;
     }
 
     public void disable()
@@ -103,10 +106,14 @@ public class DBusService.Resource : FsoFramework.AbstractDBusResource
         base( "GPS", subsystem );
     }
 
-    public override async void enableResource()
+    public override async void enableResource() throws FreeSmartphone.ResourceError
     {
         logger.debug( "Enabling GPS resource..." );
-        yield device.enable();
+        var ok = yield device.enable();
+        if ( !ok )
+        {
+            throw new FreeSmartphone.ResourceError.UNABLE_TO_ENABLE( "Can't open the device." );
+        }
     }
 
     public override async void disableResource()

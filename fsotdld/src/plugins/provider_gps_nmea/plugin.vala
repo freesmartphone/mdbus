@@ -125,9 +125,9 @@ class Nmea.Protocol : Object
         delegates = new Gee.HashMap<string,Nmea.DelegateAndRegex>();
 
         // $GPZDA,204629.00,30,11,2009,00,00*65
-        var reGpzda = new Regex( """\$GPZDA,(?P<hour>[0-2][0-4])(?P<minute>[0-9][0-9])(?P<second>[0-9][0-9])\.[0-9][0-9],(?P<day>[0-3][0-9]),(?P<month>[01][0-9]),(?P<year>20[0-9][0-9]),(?P<zoneh>[01][0-9]),(?P<zonem>[01][0-9])""" );
+        var reGpzda = /\$GPZDA,(?P<hour>[0-2][0-9])(?P<minute>[0-9][0-9])(?P<second>[0-9][0-9])\.[0-9][0-9],(?P<day>[0-3][0-9]),(?P<month>[01][0-9]),(?P<year>20[0-9][0-9]),(?P<zoneh>[01][0-9]),(?P<zonem>[01][0-9])/;
+        //var reGpzda = new Regex( """\$GPZDA,(?P<hour>[0-2][0-4])(?P<minute>[0-9][0-9])(?P<second>[0-9][0-9])\.[0-9][0-9],(?P<day>[0-3][0-9]),(?P<month>[01][0-9]),(?P<year>20[0-9][0-9]),(?P<zoneh>[01][0-9]),(?P<zonem>[01][0-9])""" );
         delegates["GPZDA"] = new Nmea.DelegateAndRegex( onGpzda, (owned) reGpzda );
-
     }
 
     public void feed( string datum )
