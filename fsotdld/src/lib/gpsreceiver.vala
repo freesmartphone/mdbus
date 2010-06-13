@@ -21,6 +21,9 @@ using Gee;
 
 namespace FsoGps { public FsoGps.Receiver theReceiver; }
 
+/**
+ * @interface FsoGps.Receiver
+ **/
 public abstract interface FsoGps.Receiver : FsoFramework.AbstractObject
 {
     public class Data : GLib.Object

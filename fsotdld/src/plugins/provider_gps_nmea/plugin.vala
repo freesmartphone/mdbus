@@ -116,6 +116,12 @@ class Nmea.Protocol : Object
         debug( "GPZDA reports %d".printf( (int)epoch ) );
     }
 
+    public void onGpgsv( string datum )
+    {
+        int numsats = to<int>( "numsats" );
+        debug( @"GPGSV reports $numsats sats in view" );
+    }
+
     //
     // public API
     //
@@ -126,8 +132,10 @@ class Nmea.Protocol : Object
 
         // $GPZDA,204629.00,30,11,2009,00,00*65
         var reGpzda = /\$GPZDA,(?P<hour>[0-2][0-9])(?P<minute>[0-9][0-9])(?P<second>[0-9][0-9])\.[0-9][0-9],(?P<day>[0-3][0-9]),(?P<month>[01][0-9]),(?P<year>20[0-9][0-9]),(?P<zoneh>[01][0-9]),(?P<zonem>[01][0-9])/;
-        //var reGpzda = new Regex( """\$GPZDA,(?P<hour>[0-2][0-4])(?P<minute>[0-9][0-9])(?P<second>[0-9][0-9])\.[0-9][0-9],(?P<day>[0-3][0-9]),(?P<month>[01][0-9]),(?P<year>20[0-9][0-9]),(?P<zoneh>[01][0-9]),(?P<zonem>[01][0-9])""" );
         delegates["GPZDA"] = new Nmea.DelegateAndRegex( onGpzda, (owned) reGpzda );
+
+        var reGpgsv = /\$GPGSV,(?P<seqtotal>[0-9]),(?P<seqthis>[0-9]),(?P<numsats>[0-9]*),(?P<sat1id>[0-9]*),(?P<sat1ev>[-0-9]*),(?P<sat1az>[0-9]*),(?P<sat1qual>[0-9]*)(?:,(?P<sat2id>[0-9]*),(?P<sat2ev>[-0-9]*),(?P<sat2az>[0-9]*),(?P<sat2qual>[0-9]*),(?:(?P<sat3id>[0-9]*),(?P<sat3ev>[-0-9]*),(?P<sat3az>[0-9]*),(?P<sat3qual>[0-9]*),(?P<sat4id>[0-9]*),(?P<sat4ev>[-0-9]*)(?:,(?P<sat4az>[0-9]*),(?P<sat4qual>[0-9]*))?)?)?/;
+        delegates["GPGSV"] = new Nmea.DelegateAndRegex( onGpgsv, (owned) reGpgsv );
     }
 
     public void feed( string datum )
