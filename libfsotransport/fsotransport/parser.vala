@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -43,7 +43,6 @@ public abstract interface FsoFramework.Parser : GLib.Object
     public abstract int feed( void* data, int len );
 }
 
-
 /**
  * Base Parser Class
  **/
@@ -59,6 +58,11 @@ public class FsoFramework.BaseParser : FsoFramework.Parser, GLib.Object
                               Parser.SolicitedCompletedFunc solicitedCompleted,
                               Parser.UnsolicitedCompletedFunc unsolicitedCompleted )
     {
+        if ( haveCommand != null ) assert( this.haveCommand == null );
+        if ( expectedPrefix != null ) assert( this.expectedPrefix == null );
+        if ( solicitedCompleted != null ) assert( this.solicitedCompleted == null );
+        if ( unsolicitedCompleted != null ) assert( this.unsolicitedCompleted == null );
+
         this.haveCommand = haveCommand;
         this.expectedPrefix = expectedPrefix;
         this.solicitedCompleted = solicitedCompleted;
