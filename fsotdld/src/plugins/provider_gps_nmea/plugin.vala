@@ -122,6 +122,14 @@ class Nmea.Protocol : Object
         debug( @"GPGSV reports $numsats sats in view" );
     }
 
+    public void onGprmc( string datum )
+    {
+        string lat = to<string>( "lat" ) + to<string>( "latsign" );
+        string lon = to<string>( "lon" ) + to<string>( "lonsign" );
+
+        debug( @"GPRMC reports location $lat + $lon" );
+    }
+
     //
     // public API
     //
@@ -136,6 +144,10 @@ class Nmea.Protocol : Object
 
         var reGpgsv = /\$GPGSV,(?P<seqtotal>[0-9]),(?P<seqthis>[0-9]),(?P<numsats>[0-9]*),(?P<sat1id>[0-9]*),(?P<sat1ev>[-0-9]*),(?P<sat1az>[0-9]*),(?P<sat1qual>[0-9]*)(?:,(?P<sat2id>[0-9]*),(?P<sat2ev>[-0-9]*),(?P<sat2az>[0-9]*),(?P<sat2qual>[0-9]*),(?:(?P<sat3id>[0-9]*),(?P<sat3ev>[-0-9]*),(?P<sat3az>[0-9]*),(?P<sat3qual>[0-9]*),(?P<sat4id>[0-9]*),(?P<sat4ev>[-0-9]*)(?:,(?P<sat4az>[0-9]*),(?P<sat4qual>[0-9]*))?)?)?/;
         delegates["GPGSV"] = new Nmea.DelegateAndRegex( onGpgsv, (owned) reGpgsv );
+
+        var reGprmc = /\$GPRMC,(?P<hour>[0-9][0-9])(?P<minute>[0-9][0-9])(?P<second>[0-9][0-9])(?:.00)?,(?P<valid>[AV]),(?P<lat>[0-9.]*),(?P<latsign>[NS])?,(?P<lon>[0-9.]*),(?P<lonsign>[WE])?,(?P<velocity>[0-9.]*),(?P<angle>[0-9.]*),(?P<day>[0-3][0-9])?(?P<month>[01][0-9])?(?P<year>[0-9][0-9])?,(?P<misangle>[0-9.]*),(?P<misanglesign>[WE]?)?,(?P<type>[ADENS])/;
+        delegates["GPRMC"] = new Nmea.DelegateAndRegex( onGprmc, (owned) reGprmc );
+
     }
 
     public void feed( string datum )
