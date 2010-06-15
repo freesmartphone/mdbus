@@ -58,7 +58,7 @@ internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) thr
  *
  * @returns the (expected) AT error code
  **/
-internal Constants.AtResponse checkResponseExpected( FsoGsm.AtCommand command,
+public Constants.AtResponse checkResponseExpected( FsoGsm.AtCommand command,
                                      string[] response,
                                      Constants.AtResponse[] expected
                                    ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
