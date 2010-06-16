@@ -645,7 +645,8 @@ class DBusService.Device :
     public async void unregister() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.NetworkUnregister>();
+        yield m.run();
     }
 
     //
