@@ -1120,6 +1120,16 @@ public class AtNetworkRegister : NetworkRegister
     }
 }
 
+public class AtNetworkUnregister : NetworkUnregister
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.UNREGISTER ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
 public class AtNetworkSendUssdRequest : NetworkSendUssdRequest
 {
     public override async void run( string request ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -1375,6 +1385,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(NetworkGetStatus) ]             = typeof( AtNetworkGetStatus );
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
     table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
+    table[ typeof(NetworkUnregister) ]            = typeof( AtNetworkUnregister );
     table[ typeof(NetworkSendUssdRequest) ]       = typeof( AtNetworkSendUssdRequest );
     table[ typeof(NetworkGetCallingId) ]          = typeof( AtNetworkGetCallingId );
     table[ typeof(NetworkSetCallingId) ]          = typeof( AtNetworkSetCallingId );
