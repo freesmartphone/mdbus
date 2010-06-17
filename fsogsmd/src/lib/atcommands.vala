@@ -472,6 +472,11 @@ public class PlusCLCC : AbstractAtCommand
     {
         return "+CLCC";
     }
+
+    public string query()
+    {
+        return "+CLCC?";
+    }
 }
 
 public class PlusCLCK : AbstractAtCommand
