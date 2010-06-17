@@ -136,7 +136,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
             current = null;
             Idle.add( checkRestartingQ );
         }
-        else if ( et.has_prefix( "URC_RESET_RADIO_IND") )
+        else if ( message.type == Msmcomm.EventType.RESET_RADIO_IND )
         {
             /* Modem was reseted, we should do the same */
             reset();
