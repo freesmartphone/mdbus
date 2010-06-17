@@ -40,7 +40,7 @@ internal void throwAppropriateError( Constants.AtResponse code, string detail ) 
 /**
  * Throws an error if response is not OK
  **/
-internal void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+public void checkResponseOk( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validateOk( response );
     if ( code == Constants.AtResponse.OK )
