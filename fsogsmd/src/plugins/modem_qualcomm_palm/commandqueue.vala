@@ -65,13 +65,25 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
     {
         context.readFromModem();
     }
+    
+    private bool checkResponseForCommandHandler(Msmcomm.Message response, MsmCommandHandler bundle)
+    {
+        return response.index == bundle.command.index;
+    }
 
     protected void onSolicitedResponse( MsmCommandHandler bundle, Msmcomm.Message response )
     {
-        bundle.response = response;
-        transport.logger.info( @"SRC: $bundle" );
-        assert( bundle.callback != null );
-        bundle.callback();
+        if ( checkResponseForCommandHandler( response, bundle ) )
+        {
+            bundle.response = response;
+            transport.logger.info( @"SRC: $bundle" );
+            assert( bundle.callback != null );
+            bundle.callback();
+        }
+        else 
+        {
+            transport.logger.error( @"got response for current command with wrong ref id!" );
+        }
     }
 
     protected void onUnsolicitedResponse( Msmcomm.EventType urctype, Msmcomm.Message urc )
