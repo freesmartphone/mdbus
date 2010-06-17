@@ -56,6 +56,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 {
     public static Msmcomm.Context context;
     public static MsmUnsolicitedResponseHandler msmurchandler;
+    public uint32 current_index;
 
     // FIXME: This bypasses the generic URChandler idea in the base modem class,
     // however said URChandler is unfortunately not generic at all, but very
@@ -69,6 +70,17 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
     private bool checkResponseForCommandHandler(Msmcomm.Message response, MsmCommandHandler bundle)
     {
         return response.index == bundle.command.index;
+    }
+    
+    private uint32 nextValidMessageIndex()
+    {
+        if (current_index > uint32.MAX) {
+            current_index = 0;
+        }
+        else {
+            current_index++;
+        }
+        return current_index;
     }
 
     protected void onSolicitedResponse( MsmCommandHandler bundle, Msmcomm.Message response )
@@ -93,6 +105,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 
     public async unowned Msmcomm.Message enqueueAsync( owned Msmcomm.Message command, int retries = DEFAULT_RETRY )
     {
+        command.index = nextValidMessageIndex();
         var handler = new MsmCommandHandler( command, retries );
         handler.callback = enqueueAsync.callback;
         enqueueCommand( handler );
@@ -140,6 +153,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
     public MsmCommandQueue( FsoFramework.Transport transport )
     {
         base( transport );
+        current_index = 0;
         context = new Msmcomm.Context();
         msmurchandler = new MsmUnsolicitedResponseHandler();
     }
