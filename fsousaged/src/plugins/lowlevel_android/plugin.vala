@@ -38,6 +38,8 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         // grab sysfs paths
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
+        // grab procfs paths
+        proc_wakelocks_last_lock = "/proc/wakelocks_last_lock";
         // ensure on status
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
 
@@ -69,7 +71,13 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
         while ( true )
         {
+            message( FsoFramework.FileHandling.read( proc_wakelocks_last_lock ) );
+            message( "before wait for early resume()" );
             wait_for_early_resume();
+            message( "after wait for early resume()" );
+            message( FsoFramework.FileHandling.read( proc_wakelocks_last_lock ) );
+
+            /*
 
             assert( logger.debug( "Checking for action on input node" ) );
             var readfds = Posix.fd_set();
@@ -102,6 +110,8 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             {
                 assert( logger.debug( @"Some other key w/ value $(ev.code); NOT waking up!" ) );
             }
+            *
+            */
         }
 
         assert( logger.debug( "Ungrabbing input nodes" ) );
@@ -158,7 +168,8 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
     */
 }
 
-string sys_power_state;
+internal string sys_power_state;
+internal string proc_wakelocks_last_lock;
 
 /**
  * This function gets called on plugin initialization time.
