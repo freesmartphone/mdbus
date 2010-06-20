@@ -32,6 +32,9 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
     private int inputnodenumber;
     private int powerkeycode;
 
+    string irq_before;
+    string irq_after;
+
     construct
     {
         logger.info( "Registering android low level suspend/resume handling" );
@@ -39,7 +42,8 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
         // grab procfs paths
-        proc_wakelocks_last_lock = "/proc/wakelocks_last_lock";
+        proc_wakelocks_suspend_resume = "/proc/wakelocks_suspend_resume";
+        proc_interrupts = "/proc/interrupts";
         // ensure on status
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
 
@@ -65,17 +69,28 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
      **/
     public void suspend()
     {
-        assert( logger.debug( "Grabbing input node" ) );
-        fd = Posix.open( @"/dev/input/event$inputnodenumber", Posix.O_RDONLY );
-        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
+        //assert( logger.debug( "Grabbing input node" ) );
+        //fd = Posix.open( @"/dev/input/event$inputnodenumber", Posix.O_RDONLY );
+        //Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
 
         while ( true )
         {
-            message( FsoFramework.FileHandling.read( proc_wakelocks_last_lock ) );
-            message( "before wait for early resume()" );
             wait_for_early_resume();
-            message( "after wait for early resume()" );
-            message( FsoFramework.FileHandling.read( proc_wakelocks_last_lock ) );
+
+            debug( "resume done; IRQ diff here:" );
+
+            var irqs_before = irq_before.split( "\n" );
+            var irqs_after  = irq_after.split( "\n" );
+
+            for ( var i = 0; i < irqs_before.length; ++i )
+            {
+                if ( irqs_before[i] != irqs_after[i] )
+                {
+                    debug( @"%s -> %s", irqs_before[i], irqs_after[i] );
+                }
+            }
+            break;
+
 
             /*
 
@@ -114,9 +129,9 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             */
         }
 
-        assert( logger.debug( "Ungrabbing input nodes" ) );
-        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
-        Posix.close( fd );
+        //assert( logger.debug( "Ungrabbing input nodes" ) );
+        //Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
+        //Posix.close( fd );
 
         assert( logger.debug( "Setting power state 'on'" ) );
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
@@ -124,10 +139,35 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
     private void wait_for_early_resume()
     {
+        irq_before = FsoFramework.FileHandling.read( proc_interrupts );
+
         assert( logger.debug( "Setting power state 'mem'" ) );
         FsoFramework.FileHandling.write( "mem\n", sys_power_state );
 
-        Thread.usleep( 3 * 1000 * 1000 );
+        var counter = 10;
+
+        while ( counter-- > 0 )
+        {
+            Thread.usleep( 1 * 1000 * 1000 );
+
+            debug( "checking whether we felt asleep..." );
+            var cycle = FsoFramework.FileHandling.read( proc_wakelocks_suspend_resume );
+            if ( cycle.has_prefix( "cycle" ) )
+            {
+                debug( "we did! and now we're alive and kicking again!" );
+                break;
+            }
+            else
+            {
+                debug( "not yet... waiting one second longer" );
+            }
+        }
+        if ( counter == 0 )
+        {
+            error( "did not suspend after 10 seconds!!! what now?" );
+        }
+
+        irq_after = FsoFramework.FileHandling.read( proc_interrupts );
 
         /*
         int res = 0;
@@ -169,7 +209,8 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 }
 
 internal string sys_power_state;
-internal string proc_wakelocks_last_lock;
+internal string proc_wakelocks_suspend_resume;
+internal string proc_interrupts;
 
 /**
  * This function gets called on plugin initialization time.
