@@ -32,8 +32,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
     private int inputnodenumber;
     private int powerkeycode;
 
-    string irq_before;
-    string irq_after;
+    string reason = "unknown";
 
     construct
     {
@@ -43,7 +42,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
         // grab procfs paths
         proc_wakelocks_suspend_resume = "/proc/wakelocks_suspend_resume";
-        proc_interrupts = "/proc/interrupts";
+        proc_wakelocks_resume_reason = "/proc/wakelocks_resume_reason";
         // ensure on status
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
 
@@ -69,31 +68,19 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
      **/
     public void suspend()
     {
-        //assert( logger.debug( "Grabbing input node" ) );
-        //fd = Posix.open( @"/dev/input/event$inputnodenumber", Posix.O_RDONLY );
-        //Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
+        /*
+        assert( logger.debug( "Grabbing input node" ) );
+        fd = Posix.open( @"/dev/input/event$inputnodenumber", Posix.O_RDONLY );
+        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
+        */
 
         while ( true )
         {
-            wait_for_early_resume();
+            reason = wait_for_early_resume();
 
-            debug( "resume done; IRQ diff here:" );
-
-            var irqs_before = irq_before.split( "\n" );
-            var irqs_after  = irq_after.split( "\n" );
-
-            for ( var i = 0; i < irqs_before.length; ++i )
-            {
-                if ( irqs_before[i] != irqs_after[i] )
-                {
-                    debug( @"%s -> %s", irqs_before[i], irqs_after[i] );
-                }
-            }
-            break;
-
-
+            if ( reason == "SMD_RPCCALL" || reason == "gpio_keys" )
+                break;
             /*
-
             assert( logger.debug( "Checking for action on input node" ) );
             var readfds = Posix.fd_set();
             var writefds = Posix.fd_set();
@@ -125,22 +112,19 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             {
                 assert( logger.debug( @"Some other key w/ value $(ev.code); NOT waking up!" ) );
             }
-            *
             */
         }
-
-        //assert( logger.debug( "Ungrabbing input nodes" ) );
-        //Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
-        //Posix.close( fd );
-
+        /*
+        assert( logger.debug( "Ungrabbing input nodes" ) );
+        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
+        Posix.close( fd );
+        */
         assert( logger.debug( "Setting power state 'on'" ) );
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
     }
 
-    private void wait_for_early_resume()
+    private string wait_for_early_resume()
     {
-        irq_before = FsoFramework.FileHandling.read( proc_interrupts );
-
         assert( logger.debug( "Setting power state 'mem'" ) );
         FsoFramework.FileHandling.write( "mem\n", sys_power_state );
 
@@ -165,9 +149,10 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         if ( counter == 0 )
         {
             error( "did not suspend after 10 seconds!!! what now?" );
+            return "none";
         }
 
-        irq_after = FsoFramework.FileHandling.read( proc_interrupts );
+        return FsoFramework.FileHandling.read( proc_wakelocks_resume_reason );
 
         /*
         int res = 0;
@@ -193,7 +178,15 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
     public ResumeReason resume()
     {
-        return ResumeReason.Unknown;
+        switch ( reason )
+        {
+            case "SMD_RPCCALL":
+                return ResumeReason.PMU;
+            case "gpio_keys":
+                return ResumeReason.PowerKey;
+            default:
+                return ResumeReason.Unknown;
+        }
     }
 
     /*
@@ -210,7 +203,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
 internal string sys_power_state;
 internal string proc_wakelocks_suspend_resume;
-internal string proc_interrupts;
+internal string proc_wakelocks_resume_reason;
 
 /**
  * This function gets called on plugin initialization time.
