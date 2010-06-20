@@ -76,9 +76,11 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
         while ( true )
         {
+            debug( "waiting for early resume" );
             reason = wait_for_early_resume();
+            debug( "wait returned with resume reason '%s'", reason );
 
-            if ( reason == "SMD_RPCCALL" || reason == "gpio_keys" )
+            if ( reason == "SMD_RPCCALL" || reason == "event3-219" )
                 break;
             /*
             assert( logger.debug( "Checking for action on input node" ) );
@@ -146,7 +148,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
                 debug( "not yet... waiting one second longer" );
             }
         }
-        if ( counter == 0 )
+        if ( counter <= 1 )
         {
             error( "did not suspend after 10 seconds!!! what now?" );
             return "none";
@@ -182,7 +184,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         {
             case "SMD_RPCCALL":
                 return ResumeReason.PMU;
-            case "gpio_keys":
+            case "event3-219":
                 return ResumeReason.PowerKey;
             default:
                 return ResumeReason.Unknown;
