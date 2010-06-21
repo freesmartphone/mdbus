@@ -76,12 +76,21 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
         while ( true )
         {
-            debug( "waiting for early resume" );
+            assert( logger.debug( "Setting power state 'mem'" ) );
+            FsoFramework.FileHandling.write( "mem\n", sys_power_state );
+
+            assert( logger.debug( "Waiting for suspend to actually happen..." ) );
+
             reason = wait_for_early_resume();
-            debug( "wait returned with resume reason '%s'", reason );
+
+            assert( logger.debug( @"Waiting for suspend returned with resume reason '$(reason)'" ) );
 
             if ( reason == "SMD_RPCCALL" || reason == "event3-219" )
+            {
+                assert( logger.debug( @"Resume reason is Baseband or Power button... waking up fully" ) );
                 break;
+            }
+
             /*
             assert( logger.debug( "Checking for action on input node" ) );
             var readfds = Posix.fd_set();
@@ -127,30 +136,27 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
     private string wait_for_early_resume()
     {
-        assert( logger.debug( "Setting power state 'mem'" ) );
-        FsoFramework.FileHandling.write( "mem\n", sys_power_state );
-
         var counter = 10;
 
         while ( counter-- > 0 )
         {
-            Thread.usleep( 1 * 1000 * 1000 );
+            Thread.usleep( 2 * 1000 * 1000 );
 
-            debug( "checking whether we felt asleep..." );
+            debug( "--- checking whether we felt asleep..." );
             var cycle = FsoFramework.FileHandling.read( proc_wakelocks_suspend_resume );
             if ( cycle.has_prefix( "cycle" ) )
             {
-                debug( "we did! and now we're alive and kicking again!" );
+                debug( "--- we did! and now we're alive and kicking again!" );
                 break;
             }
             else
             {
-                debug( "not yet... waiting one second longer" );
+                debug( "--- not yet... waiting a bit longer" );
             }
         }
         if ( counter <= 1 )
         {
-            error( "did not suspend after 10 seconds!!! what now?" );
+            warning( "--- did not suspend after 20 seconds! returning with suspend reason = none" );
             return "none";
         }
 
