@@ -25,6 +25,7 @@
 
 #include "forward.h"
 #include "hsuart.h"
+#include "cy8mrln.h"
 
 int lflag = ICANON;
 
@@ -94,6 +95,23 @@ static void set_hsuart(int modem_fd)
     ioctl(modem_fd, HSUART_IOCTL_RX_FLOW, HSUART_RX_FLOW_ON);
 }
 
+static void set_cy8mrln(int modem_fd)
+{
+    static int scanrate = 60;
+    static int verbose = 0;
+    static int wot_threshold = 22;
+    static int sleepmode = CY8MRLN_ON_STATE;
+    static int wot_scanrate = WOT_SCANRATE_512HZ;
+    static int timestamp_mode = 1;
+
+    ioctl(modem_fd, CY8MRLN_IOCTL_SET_VERBOSE_MODE, &verbose);
+    ioctl(modem_fd, CY8MRLN_IOCTL_SET_SCANRATE, &scanrate);
+    ioctl(modem_fd, CY8MRLN_IOCTL_SET_TIMESTAMP_MODE, &timestamp_mode);
+    ioctl(modem_fd, CY8MRLN_IOCTL_SET_SLEEPMODE, &sleepmode);
+    ioctl(modem_fd, CY8MRLN_IOCTL_SET_WOT_SCANRATE, &wot_scanrate);
+    ioctl(modem_fd, CY8MRLN_IOCTL_SET_WOT_THRESHOLD, &wot_threshold);
+}
+
 int main(int argc, char** argv)
 {
     opterr = 0;
@@ -101,7 +119,7 @@ int main(int argc, char** argv)
     int chr;
     char serial_node[30] = "\0";
     int network_port;
-    int type = 0; /* 0 = serial, 1 = palmpre hsuart */
+    int type = 0; /* 0 = serial, 1 = palmpre hsuart, 2 = palmpre touch screen cy8mrln */
 
     struct option opts[] = {
         { "raw", no_argument, 0, 'r' },
@@ -139,6 +157,10 @@ int main(int argc, char** argv)
                 {
                     type = 1;
                 }
+                else if (!strncmp((char*)optarg, "cy8mrln", 7))
+                {
+                    type = 2;
+                }
             default:
                 break;
             }
@@ -150,13 +172,18 @@ int main(int argc, char** argv)
     printf( "raw = %d\n", lflag );
 #endif
 
-	if ( showhelp || network_port == 0 || serial_node[0] == 0 )
+    if ( showhelp || network_port == 0 || serial_node[0] == 0 )
     {
-		printf("Usage: ./serial_forward -n <serial node> -p <network port> [-t, --type=(serial|hsuart)] [-r, --raw]\n");
-		exit(1);
-	}
+        printf("Usage: ./serial_forward -n <serial node> -p <network port> [-t, --type=(serial|hsuart|cy8mrln)] [-r, --raw]\n");
+        exit(1);
+    }
 
-    int modem_fd = open(serial_node, O_RDWR | O_NOCTTY);
+    int modem_fd;
+    if (type == 0 || type == 1)
+        modem_fd = open(serial_node, O_RDWR | O_NOCTTY);
+    else if (type == 2)
+        modem_fd = open(serial_node, O_RDONLY);
+
     if (modem_fd < 0)
     {
         perror("Failed to open device");
@@ -167,6 +194,8 @@ int main(int argc, char** argv)
         set_termios(modem_fd);
     else if (type == 1)
         set_hsuart(modem_fd);
+    else if (type == 2)
+        set_cy8mrln(modem_fd);
 
     int socket_fd = socket(PF_INET, SOCK_STREAM, 0);
     if (socket_fd < 0) {

@@ -17,6 +17,7 @@ serial_forward_SOURCES = \
 	forward.c \
 	forward.h \
 	hsuart.h \
+	cy8mrln.h \
 	$(NULL)
 
 serial_forward_LDFLAGS = \
