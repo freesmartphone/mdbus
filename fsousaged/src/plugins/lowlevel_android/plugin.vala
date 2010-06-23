@@ -81,7 +81,9 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
             assert( logger.debug( "Waiting for suspend to actually happen..." ) );
 
+            assert( logger.debug( ">>> wait for early resume" ) );
             reason = wait_for_early_resume();
+            assert( logger.debug( "<<< wait for early resume" ) );
 
             assert( logger.debug( @"Waiting for suspend returned with resume reason '$(reason)'" ) );
 
@@ -142,25 +144,21 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         {
             Thread.usleep( 2 * 1000 * 1000 );
 
-            debug( "--- checking whether we felt asleep..." );
+            assert( logger.debug( "--- checking whether we felt asleep..." ) );
             var cycle = FsoFramework.FileHandling.read( proc_wakelocks_suspend_resume );
             if ( cycle.has_prefix( "cycle" ) )
             {
-                debug( "--- we did! and now we're alive and kicking again!" );
-                break;
+                assert( logger.debug( "--- we did! and now we're alive and kicking again!" ) );
+                return FsoFramework.FileHandling.read( proc_wakelocks_resume_reason );
             }
             else
             {
-                debug( "--- not yet... waiting a bit longer" );
+                assert( logger.debug( "--- not yet... waiting a bit longer" ) );
             }
         }
-        if ( counter <= 1 )
-        {
-            warning( "--- did not suspend after 20 seconds! returning with suspend reason = none" );
-            return "none";
-        }
 
-        return FsoFramework.FileHandling.read( proc_wakelocks_resume_reason );
+        assert( logger.warning( "--- did not suspend after 20 seconds! returning with suspend reason = none" ) );
+        return "none";
 
         /*
         int res = 0;
