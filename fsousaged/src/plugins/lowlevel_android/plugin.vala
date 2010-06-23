@@ -68,11 +68,9 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
      **/
     public void suspend()
     {
-        /*
         assert( logger.debug( "Grabbing input node" ) );
         fd = Posix.open( @"/dev/input/event$inputnodenumber", Posix.O_RDONLY );
         Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
-        */
 
         while ( true )
         {
@@ -81,57 +79,57 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
             assert( logger.debug( "Waiting for suspend to actually happen..." ) );
 
-            assert( logger.debug( ">>> wait for early resume" ) );
             reason = wait_for_early_resume();
-            assert( logger.debug( "<<< wait for early resume" ) );
 
             assert( logger.debug( @"Waiting for suspend returned with resume reason '$(reason)'" ) );
 
-            if ( reason == "SMD_RPCCALL" || reason == "event3-219" )
+            if ( reason == "SMD_RPCCALL" )
             {
-                assert( logger.debug( @"Resume reason is Baseband or Power button... waking up fully" ) );
+                assert( logger.debug( @"Resume reason is baseband... waking up fully" ) );
                 break;
             }
 
-            /*
-            assert( logger.debug( "Checking for action on input node" ) );
-            var readfds = Posix.fd_set();
-            var writefds = Posix.fd_set();
-            var exceptfds = Posix.fd_set();
-            Posix.FD_SET( fd, readfds );
-            Posix.timeval t = { 5, 0 };
-            int res = Posix.select( fd+1, readfds, writefds, exceptfds, t );
+            if ( reason.has_prefix( @"event$inputnodenumber" ) )
+            {
+                assert( logger.debug( @"Resume reason is input event... checking what exactly happened" ) );
 
-            if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
-            {
-                assert( logger.debug( "No action on input device node; seems something else woke us up!" ) );
-                break;
-            }
+                var readfds = Posix.fd_set();
+                var writefds = Posix.fd_set();
+                var exceptfds = Posix.fd_set();
+                Posix.FD_SET( fd, readfds );
+                Posix.timeval t = { 5, 0 };
+                int res = Posix.select( fd+1, readfds, writefds, exceptfds, t );
 
-            Linux.Input.Event ev = {};
-            var bytesread = Posix.read( fd, &ev, sizeof(Linux.Input.Event) );
-            if ( bytesread == 0 )
-            {
-                assert( logger.debug( @"Can't read from fd $fd; waking up!" ) );
-                break;
-            }
+                if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
+                {
+                    assert( logger.debug( "Huh? No action on input device node; now I'm confused; waking up!" ) );
+                    break;
+                }
 
-            if ( ev.code == powerkeycode )
-            {
-                assert( logger.debug( @"Power key; waking up!" ) );
-                break;
+                Linux.Input.Event ev = {};
+                var bytesread = Posix.read( fd, &ev, sizeof(Linux.Input.Event) );
+                if ( bytesread == 0 )
+                {
+                    assert( logger.debug( @"Can't read from fd $fd; waking up!" ) );
+                    break;
+                }
+
+                if ( ev.code == powerkeycode )
+                {
+                    assert( logger.debug( @"Power key; waking up!" ) );
+                    break;
+                }
+                else
+                {
+                    assert( logger.debug( @"Some other key w/ value $(ev.code); NOT waking up!" ) );
+                }
             }
-            else
-            {
-                assert( logger.debug( @"Some other key w/ value $(ev.code); NOT waking up!" ) );
-            }
-            */
         }
-        /*
+
         assert( logger.debug( "Ungrabbing input nodes" ) );
         Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
         Posix.close( fd );
-        */
+
         assert( logger.debug( "Setting power state 'on'" ) );
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
     }
@@ -144,21 +142,25 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         {
             Thread.usleep( 2 * 1000 * 1000 );
 
-            assert( logger.debug( "--- checking whether we felt asleep..." ) );
+            debug( "--- checking whether we felt asleep..." );
             var cycle = FsoFramework.FileHandling.read( proc_wakelocks_suspend_resume );
             if ( cycle.has_prefix( "cycle" ) )
             {
-                assert( logger.debug( "--- we did! and now we're alive and kicking again!" ) );
-                return FsoFramework.FileHandling.read( proc_wakelocks_resume_reason );
+                debug( "--- we did! and now we're alive and kicking again!" );
+                break;
             }
             else
             {
-                assert( logger.debug( "--- not yet... waiting a bit longer" ) );
+                debug( "--- not yet... waiting a bit longer" );
             }
         }
+        if ( counter <= 1 )
+        {
+            warning( "--- did not suspend after 20 seconds! returning with suspend reason = none" );
+            return "none";
+        }
 
-        assert( logger.warning( "--- did not suspend after 20 seconds! returning with suspend reason = none" ) );
-        return "none";
+        return FsoFramework.FileHandling.read( proc_wakelocks_resume_reason );
 
         /*
         int res = 0;
