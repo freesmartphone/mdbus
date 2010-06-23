@@ -189,6 +189,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             case "SMD_RPCCALL":
                 return ResumeReason.PMU;
             case "event3-219":
+            case "event3-531":
                 return ResumeReason.PowerKey;
             default:
                 return ResumeReason.Unknown;
