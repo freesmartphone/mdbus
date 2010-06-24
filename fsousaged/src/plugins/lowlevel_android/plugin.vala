@@ -79,7 +79,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
             assert( logger.debug( "Waiting for suspend to actually happen..." ) );
 
-            reason = wait_for_early_resume();
+            reason = wait_for_next_resume();
 
             assert( logger.debug( @"Waiting for suspend returned with resume reason '$(reason)'" ) );
 
@@ -134,13 +134,19 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
     }
 
-    private string wait_for_early_resume()
+    private string wait_for_next_resume()
     {
         var counter = 10;
 
         while ( counter-- > 0 )
         {
             Thread.usleep( 2 * 1000 * 1000 );
+            var reason = FsoFramework.FileHandling.read( proc_wakelocks_resume_reason );
+            if ( reason != "" )
+            {
+                return reason;
+            }
+            /*
 
             debug( "--- checking whether we felt asleep..." );
             var cycle = FsoFramework.FileHandling.read( proc_wakelocks_suspend_resume );
@@ -153,6 +159,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             {
                 debug( "--- not yet... waiting a bit longer" );
             }
+            */
         }
         if ( counter <= 1 )
         {
