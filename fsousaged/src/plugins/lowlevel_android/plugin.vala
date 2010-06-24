@@ -77,6 +77,59 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
         while ( true )
         {
+            var readfds = Posix.fd_set();
+            var writefds = Posix.fd_set();
+            var exceptfds = Posix.fd_set();
+            Posix.FD_SET( fd, readfds );
+            Posix.timeval t = { 1, 0 };
+            int res = Posix.select( fd+1, readfds, writefds, exceptfds, t );
+
+            if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
+            {
+                assert( logger.debug( "No action on input device node; continuing to sleep" ) );
+                continue;
+            }
+
+            Linux.Input.Event ev = {};
+            var bytesread = Posix.read( fd, &ev, sizeof(Linux.Input.Event) );
+            if ( bytesread == 0 )
+            {
+                assert( logger.debug( @"Action on input node, but can't read from fd $fd; waking up!" ) );
+                break;
+            }
+
+            if ( ev.code == powerkeycode )
+            {
+                assert( logger.debug( @"Power key; waking up!" ) );
+                break;
+            }
+            else
+            {
+                assert( logger.debug( @"Some other key w/ value $(ev.code); NOT waking up!" ) );
+                continue;
+            }
+        }
+        
+        assert( logger.debug( "Ungrabbing input node" ) );
+        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
+        Posix.close( fd );
+
+        assert( logger.debug( "Setting power state 'on'" ) );
+        FsoFramework.FileHandling.write( "on\n", sys_power_state );
+    }
+
+#if FOO
+    public void suspend()
+    {
+        assert( logger.debug( "Grabbing input node" ) );
+        fd = Posix.open( @"/dev/input/event$inputnodenumber", Posix.O_RDONLY );
+        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
+
+        assert( logger.debug( "Setting power state 'mem'" ) );
+        FsoFramework.FileHandling.write( "mem\n", sys_power_state );
+
+        while ( true )
+        {
             assert( logger.debug( "Waiting for suspend to actually happen..." ) );
             reason = wait_for_next_resume();
             assert( logger.debug( @"Waiting for suspend returned with resume reason '$(reason)'" ) );
@@ -182,7 +235,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         while ( res == 0 );
         **/
     }
-
+#endif
     public ResumeReason resume()
     {
         return ResumeReason.PowerKey;
