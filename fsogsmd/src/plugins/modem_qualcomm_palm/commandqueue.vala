@@ -129,19 +129,19 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         var et = Msmcomm.eventTypeToString( event );
         transport.logger.debug( et );
 
-        if ( et.has_prefix( "RESPONSE" ) )
+        if ( message.type == Msmcomm.EventType.RESET_RADIO_IND )
+        {
+            /* Modem was reseted, we should do the same */
+            reset();
+        }
+        else if ( message.message_type == Msmcomm.MessageType.RESPONSE )
         {
             assert( current != null );
             onSolicitedResponse( (MsmCommandHandler)current, message );
             current = null;
             Idle.add( checkRestartingQ );
         }
-        else if ( message.type == Msmcomm.EventType.RESET_RADIO_IND )
-        {
-            /* Modem was reseted, we should do the same */
-            reset();
-        }
-        else
+        else if ( message.message_type == Msmcomm.MessageType.EVENT )
         {
             onUnsolicitedResponse( (Msmcomm.EventType) event, message );
         }
