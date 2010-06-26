@@ -36,3 +36,17 @@ public class FsoGps.SatelliteInfo
     }
 }
 
+/**
+ * @class FsoGps.FixInfo
+ **/
+public class FsoGps.FixInfo
+{
+    float lat;
+    float lon;
+
+    public FixInfo( float lat, float lon )
+    {
+        this.lat = lat;
+        this.lon = lon;
+    }
+}
