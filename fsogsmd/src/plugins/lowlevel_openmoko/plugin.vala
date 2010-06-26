@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
     public const string MODULE_NAME = "fsogsm.lowlevel_openmoko";
     private string powerNode;
+    private string fcNode;
     private FsoGsm.AbstractModem modem; // for access to modem properties
     private const uint POWERUP_RETRIES = 5;
 
@@ -32,6 +33,8 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
     {
         // power node
         powerNode = config.stringValue( MODULE_NAME, "power_node", "unknown" );
+        // flow control node
+        fcNode = config.stringValue( MODULE_NAME, "fc_node", "unknown" );
         // modem
         modem = FsoGsm.theModem as FsoGsm.AbstractModem;
 
@@ -45,8 +48,6 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     public bool poweron()
     {
-        debug( "lowlevel_openmoko_poweron()" );
-
         if ( powerNode == "unknown" )
         {
             logger.error( "power_node not defined. Can't poweron." );
@@ -108,6 +109,30 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
     {
         debug( "lowlevel_openmoko_poweroff()" );
         FsoFramework.FileHandling.write( "0\n", powerNode );
+        return true;
+    }
+
+    public bool suspend()
+    {
+        debug( "lowlevel_openmoko_suspend()" );
+        if ( fcNode == "unknown" )
+        {
+            logger.error( "fc_node not defined. Can't prepare for suspend." );
+            return false;
+        }
+        FsoFramework.FileHandling.write( "1", fcNode );
+        return true;
+    }
+
+    public bool resume()
+    {
+        debug( "lowlevel_openmoko_resume()" );
+        if ( fcNode == "unknown" )
+        {
+            logger.error( "fc_node not defined. Can't recover from suspend." );
+            return false;
+        }
+        FsoFramework.FileHandling.write( "1", fcNode );
         return true;
     }
 }
