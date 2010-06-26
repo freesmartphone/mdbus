@@ -18,24 +18,58 @@
  */
 
 using GLib;
+using PalmPre;
 
 //===========================================================================
-public class FsoFramework.HsuartTransport : FsoFramework.SerialTransport
+public class FsoFramework.HsuartTransport : FsoFramework.BaseTransport
 //===========================================================================
 {
     public HsuartTransport( string portname )
     {
+        base( portname );
     }
     
-    protected override void configure()
+    public override bool open()
     {
-    }
+        fd = Posix.open( name, Posix.O_RDWR | Posix.O_NOCTTY );
+        if ( fd == -1 )
+        {
+            logger.warning( "could not open %s: %s".printf( name, Posix.strerror( Posix.errno ) ) );
+            return false;
+        }
 
+        configure();
+
+        return base.open();
+    }
+    
     public override string repr()
     {
         return "<Hsuart %s@%u (fd %d)>".printf( name, speed, fd );
     }
-
+    
+    protected override void configure()
+    {
+        // Flush everything
+        var flush = Hsuart.FlushType.RX_QUEUE | 
+                    Hsuart.FlushType.TX_QUEUE |
+                    Hsuart.FlushType.RX_FIFO |
+                    Hsuart.FlushType.TX_FIFO;
+        
+        Linux.ioctl(fd, Hsuart.IoctlType.FLUSH, flush);
+        
+        // Get current mode and modify it
+        Hsuart.Mode mode;
+        Linux.ioctl(fd, Hsuart.IoctlType.GET_UARTMODE, out mode);
+        
+        mode.speed = Hsuart.SpeedType.SPEED_115K;
+        mode.flags |= Hsuart.FlagType.PARITY_NONE;
+        mode.flags |= Hsuart.FlagType.FLOW_CTRL_HW;
+        Linux.ioctl(fd, Hsuart.IoctlType.SET_UARTMODE, mode);
+        
+        // We want flow control for the rx line
+        Linux.ioctl(fd, Hsuart.IoctlType.RX_FLOW, Hsuart.RxFlowControlType.ON);
+    }
 }
 
 
