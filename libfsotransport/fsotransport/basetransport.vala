@@ -102,7 +102,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return (int)byteswritten;
     }
 
-    internal void configure()
+    protected virtual void configure()
     {
         Posix.fcntl( fd, Posix.F_SETFL, 0 );
         Posix.termios termios = {};
