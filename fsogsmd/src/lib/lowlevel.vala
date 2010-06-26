@@ -31,6 +31,14 @@ public interface LowLevel : FsoFramework.AbstractObject
      * Power off the device
      **/
     public abstract bool poweroff();
+    /**
+     * Prepare device for suspend
+     **/
+    public abstract bool suspend();
+    /**
+     * Recover from suspend
+     **/
+    public abstract bool resume();
 }
 
 public class NullLowLevel : LowLevel, FsoFramework.AbstractObject
@@ -49,6 +57,18 @@ public class NullLowLevel : LowLevel, FsoFramework.AbstractObject
     public bool poweroff()
     {
         logger.warning( "NullLowlevel::poweroff() - this is probably not what you want" );
+        return true;
+    }
+
+    public bool suspend()
+    {
+        logger.warning( "NullLowlevel::suspend() - this is probably not what you want" );
+        return true;
+    }
+
+    public bool resume()
+    {
+        logger.warning( "NullLowlevel::resume() - this is probably not what you want" );
         return true;
     }
 }

@@ -702,6 +702,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             channel.suspend();
         }
 
+        lowlevel.suspend();
+
         advanceToState( Modem.Status.SUSPENDED );
 
         return true;
@@ -709,6 +711,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual async bool resume()
     {
+        lowlevel.resume();
+
         advanceToState( Modem.Status.RESUMING );
 
         // resume all channels
