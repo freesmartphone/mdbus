@@ -132,7 +132,7 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
             logger.error( "fc_node not defined. Can't recover from suspend." );
             return false;
         }
-        FsoFramework.FileHandling.write( "1", fcNode );
+        FsoFramework.FileHandling.write( "0", fcNode );
         return true;
     }
 }
