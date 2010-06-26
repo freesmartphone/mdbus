@@ -31,7 +31,7 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         this.name = name;
         theModem.registerChannel( name, this );
 
-        theModem.signalStatusChanged += onModemStatusChanged;
+        theModem.signalStatusChanged.connect( onModemStatusChanged );
 
         this.isMainChannel = ( name == "main" );
     }
