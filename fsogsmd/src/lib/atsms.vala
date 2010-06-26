@@ -290,7 +290,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         {
             logger.warning( "SMS Handler created before modem" );
         }
-        theModem.signalStatusChanged += onModemStatusChanged;
+        theModem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
     private override string repr()

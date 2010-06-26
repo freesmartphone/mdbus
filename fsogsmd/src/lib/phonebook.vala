@@ -190,7 +190,7 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
     public AtPhonebookHandler()
     {
         assert( theModem != null ); // Can't create PB handler before modem
-        theModem.signalStatusChanged += onModemStatusChanged;
+        theModem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
     private override string repr()
