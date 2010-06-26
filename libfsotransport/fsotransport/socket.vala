@@ -110,8 +110,9 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
             fd = -1;
             return false;
         }
-
-        configure();
+        
+        // FIXME should we really call configure here?
+        // configure();
 
         return base.open();
     }

@@ -56,6 +56,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 {
     public static Msmcomm.Context context;
     public static MsmUnsolicitedResponseHandler msmurchandler;
+    public uint32 current_index;
 
     // FIXME: This bypasses the generic URChandler idea in the base modem class,
     // however said URChandler is unfortunately not generic at all, but very
@@ -65,13 +66,36 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
     {
         context.readFromModem();
     }
+    
+    private bool checkResponseForCommandHandler(Msmcomm.Message response, MsmCommandHandler bundle)
+    {
+        return response.index == bundle.command.index;
+    }
+    
+    private uint32 nextValidMessageIndex()
+    {
+        if (current_index > uint32.MAX) {
+            current_index = 0;
+        }
+        else {
+            current_index++;
+        }
+        return current_index;
+    }
 
     protected void onSolicitedResponse( MsmCommandHandler bundle, Msmcomm.Message response )
     {
-        bundle.response = response;
-        transport.logger.info( @"SRC: $bundle" );
-        assert( bundle.callback != null );
-        bundle.callback();
+        if ( checkResponseForCommandHandler( response, bundle ) )
+        {
+            bundle.response = response;
+            transport.logger.info( @"SRC: $bundle" );
+            assert( bundle.callback != null );
+            bundle.callback();
+        }
+        else 
+        {
+            transport.logger.error( @"got response for current command with wrong ref id!" );
+        }
     }
 
     protected void onUnsolicitedResponse( Msmcomm.EventType urctype, Msmcomm.Message urc )
@@ -81,6 +105,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 
     public async unowned Msmcomm.Message enqueueAsync( owned Msmcomm.Message command, int retries = DEFAULT_RETRY )
     {
+        command.index = nextValidMessageIndex();
         var handler = new MsmCommandHandler( command, retries );
         handler.callback = enqueueAsync.callback;
         enqueueCommand( handler );
@@ -101,37 +126,25 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 
     public void onMsmcommGotEvent( int event, Msmcomm.Message message )
     {
-        // enable when glib bug for unknown types has been fixed
-        //assert( transport.logger.debug( @"$message" ) );
         var et = Msmcomm.eventTypeToString( event );
-        assert( et != null );
-        //transport.logger.debug( et );
-#if 0
-        //FIXME: This is wrong, but works for now... (treating every command as a response, if we got a pending one)
-        if ( current != null )
+        transport.logger.debug( et );
+
+        if ( message.type == Msmcomm.EventType.RESET_RADIO_IND )
         {
-            onSolicitedResponse( (MsmCommandHandler)current, message );
-            current = null;
-            Idle.add( checkRestartingQ );
+            /* Modem was reseted, we should do the same */
+            reset();
         }
-        else
-        {
-            onUnsolicitedResponse( (Msmcomm.EventType) event, message );
-        }
-#else
-        // FIXME: We're treating some URCs as responses here :/
-        if ( et.has_prefix( "RESPONSE" ) || et.has_prefix( "URC_RESET_RADIO_IND" ) || et.has_prefix( "URC_OPERATION_MODE" ) )
+        else if ( message.message_type == Msmcomm.MessageType.RESPONSE )
         {
             assert( current != null );
             onSolicitedResponse( (MsmCommandHandler)current, message );
             current = null;
             Idle.add( checkRestartingQ );
         }
-        else
+        else if ( message.message_type == Msmcomm.MessageType.EVENT )
         {
             onUnsolicitedResponse( (Msmcomm.EventType) event, message );
         }
-#endif
     }
 
     //
@@ -140,6 +153,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
     public MsmCommandQueue( FsoFramework.Transport transport )
     {
         base( transport );
+        current_index = 0;
         context = new Msmcomm.Context();
         msmurchandler = new MsmUnsolicitedResponseHandler();
     }
