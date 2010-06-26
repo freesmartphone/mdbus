@@ -20,6 +20,7 @@ VALA_REQUIRED=0.8.1.1
 GLIB_REQUIRED=2.22.0
 GEE_REQUIRED=0.5.0
 FSO_BASICS_REQUIRED=0.9.9
+PALMPRE_SYSTEM_DEPS=0.1
 
 # vala
 AC_PATH_PROG(VALAC, valac, valac)
@@ -54,6 +55,24 @@ AC_ARG_ENABLE(fast-baud,
   ]])],fastbaud="yes",fastbaud="no") )
 AM_CONDITIONAL( [FAST_BAUD], [test x"$fastbaud" = x"yes"])
 
+# check for machine configuration
+AC_ARG_WITH(machine,
+[  --with-machine=BANE              specify the machine],
+[
+  v=$withval;
+  machine=$v
+  echo "NOTE: Machine set to "$machine;
+],[
+  machine="default"
+])
+AM_CONDITIONAL( [WANT_MACHINE_PALMPRE], [test x"$machine" = x"palmpre"])
+AM_CONDITIONAL( [WANT_MACHINE_DEFAULT], [test x"$machine" = x"default"])
+
+if test x"$machine" = x"palmpre" ; then
+    PKG_CHECK_MODULES(PALMPRE_SYSTEM_DEPS, palmpre-system-deps-1.0 >= $PALMPRE_SYSTEM_DEPS )
+    AC_SUBST(PALMPRE_SYSTEM_DEPS_CFLAGS)
+fi
+
 # git version
 GITV=`cat ../.git/refs/heads/master || echo "unknown"`
 AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
@@ -81,6 +100,8 @@ echo
 echo "  fast baud rates.........: $fastbaud"
 echo
 echo "  prefix..................: $prefix"
+echo
+echo "  machine.................: $machine"
 echo
 echo "------------------------------------------------------------------------"
 echo
