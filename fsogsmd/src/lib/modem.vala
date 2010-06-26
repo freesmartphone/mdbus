@@ -699,7 +699,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         var channels = this.channels.values;
         foreach( var channel in channels )
         {
-            channel.suspend();
+            yield channel.suspend();
         }
 
         lowlevel.suspend();
@@ -719,7 +719,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         var channels = this.channels.values;
         foreach( var channel in channels )
         {
-            channel.resume();
+            yield channel.resume();
         }
 
         advanceToState( modem_status_before_suspend, true ); // force
