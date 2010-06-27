@@ -76,6 +76,18 @@ class LowLevel.PalmPre : FsoGsm.LowLevel, FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( "0\n", bootModeNode );
         return true;
     }
+    
+    public bool suspend()
+    {
+        debug( "lowlevel_palmpre_suspend()" );
+        return true;
+    }
+
+    public bool resume()
+    {
+        debug( "lowlevel_palmpre_resume()" );
+        return true;
+    }
 }
 
 /**
