@@ -1,6 +1,6 @@
 include $(top_srcdir)/Makefile.decl
 
-EXTRA_DIST = $(service_DATA)
+EXTRA_DIST += $(service_DATA)
 
 dbusconfdir = @DBUS_DIR@/system.d
 dist_dbusconf_DATA = fsomusicd.conf
