@@ -66,12 +66,12 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
     {
         context.readFromModem();
     }
-    
+
     private bool checkResponseForCommandHandler(Msmcomm.Message response, MsmCommandHandler bundle)
     {
         return response.index == bundle.command.index;
     }
-    
+
     private uint32 nextValidMessageIndex()
     {
         if (current_index > uint32.MAX) {
@@ -92,7 +92,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
             assert( bundle.callback != null );
             bundle.callback();
         }
-        else 
+        else
         {
             transport.logger.error( @"got response for current command with wrong ref id!" );
         }
