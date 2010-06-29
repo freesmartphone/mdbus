@@ -30,7 +30,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         base( transport );
         this.name = name;
         theModem.registerChannel( name, this );
-        theModem.signalStatusChanged += onModemStatusChanged;
+        theModem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
     public void injectResponse( string response )
