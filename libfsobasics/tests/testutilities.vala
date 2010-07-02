@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -98,6 +98,14 @@ void test_utilities_stringhandling_key_value_split()
 }
 
 //===========================================================================
+void test_utilities_stringhandling_filter_by_allowed_characters()
+//===========================================================================
+{
+    var result = StringHandling.filterByAllowedCharacters( "(0) 69-243 448", "+0123456789wp" );
+    assert( result == "069243448" );
+}
+
+//===========================================================================
 void test_utilities_utility_program_name()
 //===========================================================================
 {
@@ -163,6 +171,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/StringHandling/List", test_utilities_stringhandling_list );
     Test.add_func( "/Utilities/StringHandling/Enum", test_utilities_stringhandling_enum );
     Test.add_func( "/Utilities/StringHandling/Split", test_utilities_stringhandling_key_value_split );
+    Test.add_func( "/Utilities/StringHandling/Filter", test_utilities_stringhandling_filter_by_allowed_characters );
     Test.add_func( "/Utilities/Utility/programName", test_utilities_utility_program_name );
     Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );
     Test.add_func( "/Utilities/Utility/firstAvailableProgram", test_utilities_utility_first_available_program );

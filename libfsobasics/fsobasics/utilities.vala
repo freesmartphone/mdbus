@@ -343,6 +343,21 @@ public GLib.HashTable<string,string> splitKeyValuePairs( string str )
     return result;
 }
 
+public string filterByAllowedCharacters( string input, string allowed )
+{
+    var output = "";
+
+    for ( var i = 0; i < input.length; ++i )
+    {
+        var str = input[i].to_string();
+        if ( str in allowed )
+        {
+            output += str;
+        }
+    }
+    return output;
+}
+
 } }
 
 namespace FsoFramework { namespace Utility {
@@ -545,7 +560,7 @@ namespace FsoFramework { namespace Async {
 
 namespace FsoFramework { namespace Network {
 
-    public async string[]? textForUri( string servername, string uri = "/" )
+    public async string[]? textForUri( string servername, string uri = "/" ) throws GLib.Error
     {
         var result = new string[] {};
 
