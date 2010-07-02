@@ -1487,7 +1487,8 @@ public class V250D : V250terCommand
     public string issue( string number, bool voice = true )
     {
         var postfix = voice ? ";" : "";
-        return @"D$number$postfix";
+        var safenumber = Constants.instance().cleanPhoneNumber( number );
+        return @"D$safenumber$postfix";
     }
 }
 

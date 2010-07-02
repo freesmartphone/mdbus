@@ -393,6 +393,11 @@ public class FsoGsm.Constants
         }
     }
 
+    public string cleanPhoneNumber( string number )
+    {
+        return FsoFramework.StringHandling.filterByAllowedCharacters( number, PHONE_DIGITS );
+    }
+
     public string devicePowerStatusToString( int code )
     {
         switch ( code )
