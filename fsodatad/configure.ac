@@ -84,6 +84,13 @@ AC_SUBST(FSO_LIBS)
 PKG_CHECK_MODULES(FSO_GLIB,
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED)
 
+# check for debugging
+AC_ARG_ENABLE(debug,
+  [  --enable-debug            Enable debug build (default=disabled)],
+  [debug=$enableval],
+  [debug="no"])
+AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
+
 # git version
 GITV=`cat ../.git/refs/heads/master || echo "unknown"`
 AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
@@ -133,6 +140,8 @@ echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
 echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
+echo
+echo "  debug build.............: $debug"
 echo
 echo "  prefix..................: $prefix"
 echo
