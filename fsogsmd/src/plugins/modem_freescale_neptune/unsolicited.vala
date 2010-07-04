@@ -25,7 +25,6 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
     public UnsolicitedResponseHandler()
     {
         registerUrc( "+MBAN", channelReady );
-        registerUrc( "+CIEV", plusCIEV );
         registerUrc( "+CLIN", plusCLIN );
         registerUrc( "+CLIP", plusCLIP );
         registerUrc( "+EBAD", dummy );
@@ -50,50 +49,37 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
      *  4: voice mail (message) (0-1)
      *  5: transmit activated by voice activity (0-1)
      *  6: call progress (0-3) [0:no more in progress, 1:incoming, 2:outgoing, 3:ringing]
-     *  7: roaming (0-2)
+     *  7: roaming (0-2) [0:local, 1:home roaming, 2:overseas roaming]
      *  8: sms storage full (0-1)
-     * 11: ???
-     * 20: ??? (SIM not inserted?)
+     * 11: gprs context attachment (0-2) [0:detach, 1:attach, 2:combined attach]
+     * 12: gprs service availability (0-1)
+     * 13: gprs automatic attach availability (0-1)
+     * 14: gprs status (0-1)
+     * 15: gprs display status (0-1) [0:display, 1:do not display]
+     * 18: power on mode (0-1)
+     * 19: EONS status (0-1)
+     * 20: EGPRS possible (0-1)
+     * 21: EGPRS in use (0-1)
      **/
     public override void plusCIEV( string prefix, string rhs )
     {
-        int indicator = rhs.split(",")[0].to_int();
-        int value = rhs.split(",")[1].to_int();
+        var ciev = theModem.createAtCommand<PlusCIEV>( "+CIEV" );
+        if ( ! ( ciev.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID ) )
+        {
+            logger.warning( @"Received invalid +CIEV message $rhs. Please report" );
+            return;
+        }
 
-        switch (indicator) {
-        case 1:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        case 2:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        case 3:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        case 4:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        case 5:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        case 6:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        case 7:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        case 8:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        case 11:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        case 20:
-            theModem.logger.debug( @"plusCIEV: $indicator,$value NOT implemented" );
-            break;
-        default:
-            theModem.logger.warning( @"plusCIEV: $indicator,$value UNKNOWN" );
-            break;
+        switch ( ciev.value1 ) /* indicator */
+        {
+            case 1:
+                // FIXME: Might want to remember the status
+                var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+                obj.signal_strength( Constants.instance().networkSignalIndicatorToPercentage( ciev.value2 ) );
+                break;
+            default:
+                theModem.logger.warning( @"plusCIEV: $(ciev.value1),$(ciev.value2) unknown or not implemented" );
+                break;
         }
     }
 
@@ -103,7 +89,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
      **/
     public void plusCLIN( string prefix, string rhs )
     {
-            theModem.callhandler.handleIncomingCall("VOICE");
+        theModem.callhandler.handleIncomingCall( "VOICE" );
     }
 
     /**
