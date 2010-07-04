@@ -415,6 +415,14 @@ public class PlusCHLD : AbstractAtCommand
     }
 }
 
+public class PlusCIEV : TwoParamsAtCommand<int,int>
+{
+    public PlusCIEV()
+    {
+        base( "+CIEV" );
+    }
+}
+
 public class PlusCIMI : SimpleAtCommand<string>
 {
     public PlusCIMI()
@@ -1521,7 +1529,8 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CPIN" ]             = new FsoGsm.PlusCPIN();
     table[ "+CPWD" ]             = new FsoGsm.PlusCPWD();
 
-    // URC
+    // URC only
+    table[ "+CIEV" ]             = new FsoGsm.PlusCIEV();
     table[ "+CNMI" ]             = new FsoGsm.PlusCNMI();
 
     // device and peripheral control
