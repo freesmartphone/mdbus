@@ -625,6 +625,20 @@ public class FsoGsm.Constants
         }
     }
 
+    public int networkSignalIndicatorToPercentage( int sig )
+    {
+        var result = sig * 20;
+        if ( result < 0 )
+        {
+            return 0;
+        }
+        if ( result > 100 )
+        {
+            return 100;
+        }
+        return result;
+    }
+
     public int networkSignalToPercentage( int sig )
     {
         if ( sig <= 0 || sig > 31 )
