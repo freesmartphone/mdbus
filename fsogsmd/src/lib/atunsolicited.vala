@@ -158,7 +158,15 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCIEV( string prefix, string rhs )
     {
-        //FIXME: Implement
+        var ciev = theModem.createAtCommand<PlusCIEV>( "+CIEV" );
+        if ( ciev.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            logger.warning( @"Received unhandled +CIEV $(ciev.value1), $(ciev.value2)" );
+        }
+        else
+        {
+            logger.warning( @"Received invalid +CIEV message $rhs. Please report" );
+        }
     }
 
     public virtual void plusCLIP( string prefix, string rhs )
