@@ -912,6 +912,30 @@ public class AtSimSetServiceCenterNumber : SimSetServiceCenterNumber
     }
 }
 
+public class AtSimStoreMessage : SimStoreMessage
+{
+    public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        validatePhoneNumber( recipient_number );
+
+        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report );
+
+        if ( hexpdus.size != 1 )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Message does not fit in one slot, would rather take $(hexpdus.size) slots" );
+        }
+
+        // send the SMS one after another
+        foreach( var hexpdu in hexpdus )
+        {
+            var cmd = theModem.createAtCommand<PlusCMGW>( "+CMGW" );
+            var response = yield theModem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
+            checkResponseValid( cmd, response );
+            memory_index = cmd.memory_index;
+        }
+    }
+}
+
 public class AtSimUnlock : SimUnlock
 {
     public override async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -1371,9 +1395,10 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimGetPhonebookInfo) ]          = typeof( AtSimGetPhonebookInfo );
     table[ typeof(SimRetrieveMessage) ]           = typeof( AtSimRetrieveMessage );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
-    table[ typeof(SimSetAuthCodeRequired) ]       = typeof( AtSimSetAuthCodeRequired );
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );
+    table[ typeof(SimSetAuthCodeRequired) ]       = typeof( AtSimSetAuthCodeRequired );
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( AtSimSetServiceCenterNumber );
+    table[ typeof(SimStoreMessage) ]              = typeof( AtSimStoreMessage );
     table[ typeof(SimWriteEntry) ]                = typeof( AtSimWriteEntry );
     table[ typeof(SimUnlock) ]                    = typeof( AtSimUnlock );
 

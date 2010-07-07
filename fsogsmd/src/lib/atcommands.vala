@@ -694,6 +694,8 @@ public class PlusCMGS : AbstractAtCommand
 
 public class PlusCMGW : AbstractAtCommand
 {
+    public int memory_index;
+    
     public PlusCMGW()
     {
         try
@@ -707,12 +709,16 @@ public class PlusCMGW : AbstractAtCommand
         prefix = { "+CMGW: " };
     }
 
-    /*
-    public string issue( ShortMessage.HexPdu hexpdu )
+    public string issue( WrapHexPdu pdu )
     {
-        return "AT+CMGW=%d\r\n%s%c".printf( hexpdu.tpdulen, hexpdu.pdu, '\x1A' );
+        return "AT+CMGW=%u\r\n%s%c".printf( pdu.tpdulen, pdu.hexpdu, '\x1A' );
     }
-    */
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        memory_index = to_int( "id" );
+    }
 
     public override string get_prefix() { return ""; }
     public override string get_postfix() { return ""; }
@@ -1573,6 +1579,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CMGL" ]             = new FsoGsm.PlusCMGL();
     table[ "+CMGR" ]             = new FsoGsm.PlusCMGR();
     table[ "+CMGS" ]             = new FsoGsm.PlusCMGS();
+    table[ "+CMGW" ]             = new FsoGsm.PlusCMGW();
     table[ "+CMMS" ]             = new FsoGsm.PlusCMMS();
     table[ "+CMT" ]              = new FsoGsm.PlusCMT();
     table[ "+CMTI" ]             = new FsoGsm.PlusCMTI();

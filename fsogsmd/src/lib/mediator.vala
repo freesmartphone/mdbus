@@ -206,6 +206,12 @@ public abstract class FsoGsm.SimSetServiceCenterNumber : FsoGsm.AbstractMediator
     public abstract async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.SimStoreMessage : FsoGsm.AbstractMediator
+{
+    public int memory_index { get; set; }
+    public abstract async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SimWriteEntry : FsoGsm.AbstractMediator
 {
     public abstract async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
