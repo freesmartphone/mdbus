@@ -486,7 +486,10 @@ class DBusService.Device :
     public async void send_stored_message( int index, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.SimSendStoredMessage>();
+        yield m.run( index );
+        transaction_index = m.transaction_index;
+        timestamp = m.timestamp;        
     }
 
     public async void set_auth_code_required( bool check, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error

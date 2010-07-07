@@ -901,6 +901,20 @@ public class AtSimSendAuthCode : SimSendAuthCode
     }
 }
 
+public class AtSimSendStoredMessage : SimSendStoredMessage
+{
+    public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCMSS>( "+CMSS" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( index ) );
+        checkResponseValid( cmd, response );
+        transaction_index = cmd.refnum;
+
+        //FIXME: What should we do with that?
+        timestamp = "now";
+    }
+}
+
 public class AtSimSetServiceCenterNumber : SimSetServiceCenterNumber
 {
     public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -1396,6 +1410,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimRetrieveMessage) ]           = typeof( AtSimRetrieveMessage );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );
+    table[ typeof(SimSendStoredMessage) ]         = typeof( AtSimSendStoredMessage );
     table[ typeof(SimSetAuthCodeRequired) ]       = typeof( AtSimSetAuthCodeRequired );
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( AtSimSetServiceCenterNumber );
     table[ typeof(SimStoreMessage) ]              = typeof( AtSimStoreMessage );

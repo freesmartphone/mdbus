@@ -732,6 +732,35 @@ public class PlusCMICKEY : SimpleAtCommand<int>
     }
 }
 
+public class PlusCMSS : AbstractAtCommand
+{
+    public int refnum;
+
+    public PlusCMSS()
+    {
+        try
+        {
+            re = new Regex( """\+CMSS: (?P<id>\d)(?:,"(?P<name>[0-9ABCDEF]*)")?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+CMSS: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        refnum = to_int( "id" );
+    }
+
+    public string issue( int index )
+    {
+        return @"+CMSS=$index";
+    }
+}
+
 public class PlusCMT : AbstractAtCommand
 {
     public string hexpdu;
@@ -1581,6 +1610,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CMGS" ]             = new FsoGsm.PlusCMGS();
     table[ "+CMGW" ]             = new FsoGsm.PlusCMGW();
     table[ "+CMMS" ]             = new FsoGsm.PlusCMMS();
+    table[ "+CMSS" ]             = new FsoGsm.PlusCMSS();
     table[ "+CMT" ]              = new FsoGsm.PlusCMT();
     table[ "+CMTI" ]             = new FsoGsm.PlusCMTI();
     table[ "+CNMA" ]             = new FsoGsm.PlusCNMA();

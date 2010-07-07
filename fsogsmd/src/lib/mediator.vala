@@ -196,6 +196,13 @@ public abstract class FsoGsm.SimSendAuthCode : FsoGsm.AbstractMediator
     public abstract async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.SimSendStoredMessage : FsoGsm.AbstractMediator
+{
+    public int transaction_index { get; set; }
+    public string timestamp { get; set; }
+    public abstract async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SimSetAuthCodeRequired : FsoGsm.AbstractMediator
 {
     public abstract async void run( bool required, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
