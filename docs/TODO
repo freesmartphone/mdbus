@@ -38,6 +38,10 @@
 * Retry commands upon certain (well-defined) error results, i.e.
   +CMS ERROR 314 (SIM busy)
 ===SMS===
+* When attempting to send an SMS:
+  If we are not registered, we may receive an error instead of the continuation characters.
+  This will trigger an assertion in the At parser which we need to take fix!
+  Alternatively, make sure that we never attempt to actually send, when we are not registered.
 * Store last reference number in persistent configuration
 * Improve support for binary SMS, i.e. WAP PUSH and WBXML configuration messages
 * Add support for a) plugins or b) agents
