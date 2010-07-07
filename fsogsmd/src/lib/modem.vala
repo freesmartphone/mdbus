@@ -132,6 +132,9 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public string supportsPDP;
         public string supportsFAX;
 
+        // Contents of SIM elementary files
+        public GLib.HashTable<string,string> simOperatorbook;
+
         // PDP
         public string pppCommand;
         public string pppPort;
@@ -317,7 +320,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         registerAtCommands();
         createChannels();
 
-        var configuration = @"configured for $modem_transport:$modem_port@$modem_speed";
+        var configuration = @"$modem_transport:$modem_port@$modem_speed";
         if ( data_config != "" )
         {
             configuration += @" / $data_transport:$data_port@$data_speed";

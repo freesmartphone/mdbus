@@ -881,6 +881,42 @@ public class PlusCNMI : AbstractAtCommand
     }
 }
 
+public class PlusCOPN : AbstractAtCommand
+{
+    public GLib.HashTable<string,string> operators;
+
+    public PlusCOPN()
+    {
+        try
+        {
+            re = new Regex( """\+COPN: "(?P<mccmnc>[^"]*)","(?P<name>[^"]*)"""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+        prefix = { "+COPN: " };
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        operators = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
+        foreach ( var line in response )
+        {
+            base.parse( line );
+            var mccmnc = to_string( "mccmnc" );
+            var name = decodeString( to_string( "name" ) );
+            message( @"adding operator $mccmnc = $name" );
+            operators.insert( to_string( "mccmnc" ), to_string( "name" ) );
+        }
+    }
+
+    public string execute()
+    {
+        return "+COPN";
+    }
+}
+
 public class PlusCOPS : AbstractAtCommand
 {
     public int format;
@@ -1556,6 +1592,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CGMR" ]             = new FsoGsm.PlusCGMR();
     table[ "+CGSN" ]             = new FsoGsm.PlusCGSN();
     table[ "+CIMI" ]             = new FsoGsm.PlusCIMI();
+    table[ "+COPN" ]             = new FsoGsm.PlusCOPN();
     table[ "+FCLASS" ]           = new FsoGsm.PlusFCLASS();
     table[ "+GCAP" ]             = new FsoGsm.PlusGCAP();
 

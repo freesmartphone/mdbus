@@ -152,6 +152,26 @@ internal void validatePhoneNumber( string number ) throws FreeSmartphone.Error
 /**
  * Modem facilities helpers
  **/
+public async void gatherSimOperators() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+{
+    /*
+    var data = theModem.data();
+    if ( data.simOperatorbook == null );
+    {
+        var copn = theModem.createAtCommand<PlusCOPN>( "+COPN" );
+        var response = yield theModem.processAtCommandAsync( copn, copn.execute() );
+        if ( copn.validateMulti( response ) == Constants.AtResponse.VALID )
+        {
+            data.simOperatorbook = copn.operators;
+        }
+        else
+        {
+            data.simOperatorbook = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
+        }
+    }
+    */
+}
+
 public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var data = theModem.data();
@@ -175,6 +195,8 @@ public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, Fr
 
 public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
+    yield gatherSimOperators();
+    
     var data = theModem.data();
 
     var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
@@ -896,7 +918,7 @@ public class AtSimSendAuthCode : SimSendAuthCode
         {
             throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"PIN $pin not accepted" );
         }
-
+        //FIXME: Was it intended to do this in background? (i.e. not yielding)
         gatherSimStatusAndUpdate();
     }
 }
