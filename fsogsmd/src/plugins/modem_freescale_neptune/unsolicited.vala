@@ -28,7 +28,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
         registerUrc( "+CLIN", plusCLIN );
         registerUrc( "+CLIP", plusCLIP );
         registerUrc( "+EBPV", plusEBPV );
-        registerUrc( "+EBAD", dummy );
+        registerUrc( "+EBAD", plusEBAD );
         registerUrc( "+EFLEX", dummy );
     }
 
@@ -109,6 +109,24 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
     {
         var modem = theModem as FreescaleNeptune.Modem;
         modem.revision = rhs;
+    }
+
+    /**
+     * +EBAD shows the bluetooth device address, with octets in decimal
+     * +EBAD:n,n,n,n,n,n
+     **/
+    public void plusEBAD( string prefix, string rhs )
+    {
+        var modem = theModem as FreescaleNeptune.Modem;
+
+        var octets = rhs.split( "," );
+        for (uint i = 0; i < octets.length; i++) {
+            modem.bdaddr[i] = (uint8) octets[i].to_int();
+        }
+
+        theModem.logger.debug( "bdaddr: %02X:%02X:%02X:%02X:%02X:%02X".printf(
+            modem.bdaddr[0], modem.bdaddr[1], modem.bdaddr[2],
+            modem.bdaddr[3], modem.bdaddr[4], modem.bdaddr[5] ) );
     }
 
     public virtual void dummy( string prefix, string rhs )

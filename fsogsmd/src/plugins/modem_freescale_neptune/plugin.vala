@@ -37,6 +37,7 @@ namespace FreescaleNeptune
 class FreescaleNeptune.Modem : FsoGsm.AbstractModem
 {
     public string revision { get; set; default = "unknown"; }
+    public uint8[] bdaddr { get; set; default = {0, 0, 0, 0, 0, 0}; }
 
     construct
     {
