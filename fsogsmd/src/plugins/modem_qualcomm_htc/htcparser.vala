@@ -24,7 +24,8 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
     char[] curline;
     string[] solicited;
     string[] unsolicited;
-    bool pendingPDU;
+    bool pendingUnsolicitedPDU;
+    bool pendingSolicitedPDU;
 
     string[] final_responses = {
         "OK",
@@ -364,13 +365,18 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
             return endoflineSurelySolicited();
         }
 
-        if ( pendingPDU )
+        if ( pendingUnsolicitedPDU )
+        {
+            return endoflineSurelyUnsolicited();
+        }
+
+        if ( pendingSolicitedPDU )
         {
 #if DEBUG
         debug( "endoflinePerhapsSolicited: detected pending PDU" );
 #endif
             solicited += (string)curline;
-            pendingPDU = false;
+            pendingSolicitedPDU = false;
             return resetLine();
         }
 
@@ -383,7 +389,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
             return endoflineSurelyUnsolicited();
         }
 
-        pendingPDU = hasSolicitedPdu();
+        pendingSolicitedPDU = hasSolicitedPdu();
         solicited += (string)curline;
         return resetLine();
     }
@@ -408,12 +414,12 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
 #endif
         unsolicited += (string)curline;
 
-        if ( pendingPDU )
+        if ( pendingUnsolicitedPDU )
         {
 #if DEBUG
             debug( "pending PDU received; unsolicited response completed." );
 #endif
-            pendingPDU = false;
+            pendingUnsolicitedPDU = false;
             unsolicitedCompleted( unsolicited );
             return resetAll( false );
         }
@@ -423,7 +429,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
 #if DEBUG
             debug( "unsolicited response pending PDU..." );
 #endif
-            pendingPDU = true;
+            pendingUnsolicitedPDU = true;
             return resetLine();
         }
 #if DEBUG
@@ -453,3 +459,4 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
         return state;
     }
 }
+

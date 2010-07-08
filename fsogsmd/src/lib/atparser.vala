@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -343,13 +343,15 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
             return endoflineSurelySolicited();
         }
 
-        if (pendingUnsolicitedPDU )
+        if ( pendingUnsolicitedPDU )
+        {
             return endoflineSurelyUnsolicited();
+        }
 
         if ( pendingSolicitedPDU )
         {
 #if DEBUG
-        debug( "endoflinePerhapsSolicited: detected pending PDU" );
+            debug( "endoflinePerhapsSolicited: detected pending PDU" );
 #endif
             solicited += (string)curline;
             pendingSolicitedPDU = false;
