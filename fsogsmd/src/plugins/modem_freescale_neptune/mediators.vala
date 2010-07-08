@@ -33,6 +33,7 @@ public class NeptuneDeviceGetInformation : DeviceGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var modem = theModem as FreescaleNeptune.Modem;
         /*
         var channel = theModem.channel( "main" ) as AtChannel;
         */
@@ -41,8 +42,8 @@ public class NeptuneDeviceGetInformation : DeviceGetInformation
         info.insert( "manufacturer", "Motorola" );
         info.insert( "model", "Neptune Freescale Modem" );
 
-        /* FIXME: Use information from the +EBPV URC we get on modem init */
-        info.insert( "revision", "unknown" );
+        /* Use information from the +EBPV URC we got on modem init */
+        info.insert( "revision", modem.revision );
 
         /* "+CGSN" */
         var cgsn = theModem.createAtCommand<PlusCGSN>( "+CGSN" );

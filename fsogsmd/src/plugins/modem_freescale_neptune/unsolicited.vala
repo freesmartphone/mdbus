@@ -27,9 +27,9 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
         registerUrc( "+MBAN", channelReady );
         registerUrc( "+CLIN", plusCLIN );
         registerUrc( "+CLIP", plusCLIP );
+        registerUrc( "+EBPV", plusEBPV );
         registerUrc( "+EBAD", dummy );
         registerUrc( "+EFLEX", dummy );
-        registerUrc( "+EBPV", dummy );
     }
 
     public virtual void channelReady( string prefix, string rhs )
@@ -98,6 +98,17 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
     public override void plusCLIP( string prefix, string rhs )
     {
         assert( theModem.logger.debug( @"plusCLIP: not implemented on Neptune" ) );
+    }
+
+
+    /**
+     * When the main channel is opened the BP shows its revision
+     * +EBPV: "R52_G_0D.C0.B1P","GCOA780XXXXXXXX","XXXXXXXX","Quad-Band GSM"
+     **/
+    public void plusEBPV( string prefix, string rhs )
+    {
+        var modem = theModem as FreescaleNeptune.Modem;
+        modem.revision = rhs;
     }
 
     public virtual void dummy( string prefix, string rhs )

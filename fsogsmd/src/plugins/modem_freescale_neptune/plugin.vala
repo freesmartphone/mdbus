@@ -36,6 +36,8 @@ namespace FreescaleNeptune
  **/
 class FreescaleNeptune.Modem : FsoGsm.AbstractModem
 {
+    public string revision { get; set; default = "unknown"; }
+
     construct
     {
         /* Init the modem */
