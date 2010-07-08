@@ -145,11 +145,11 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
 
         if ( response.length == 1 ) // simple URCs
         {
-            urchandler( strings[0], strings[1].offset( 1 ) );
+            urchandler( strings[0], strings[1].strip() );
         }
         else if ( response.length == 2 ) // PDU URC
         {
-            urchandler( strings[0], strings[1].offset( 1 ), response[1] );
+            urchandler( strings[0], strings[1].strip(), response[1] );
         }
         else
         {
