@@ -72,7 +72,9 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
 
     ~AbstractAtCommand()
     {
+#if DEBUG
         warning( "DESTRUCT %s", Type.from_instance( this ).name() );
+#endif
     }
 
     public string encodeString( string str )
