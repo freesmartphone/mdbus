@@ -203,6 +203,10 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
+    int opt = 1;
+    if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) == -1) {
+        perror("Warning; can't set SO_REUSEADDR");
+    }
 
     struct sockaddr_in addr = { 0, };
     addr.sin_family = PF_INET;
@@ -213,7 +217,6 @@ int main(int argc, char** argv)
         perror("Error binding");
         return EXIT_FAILURE;
     }
-
 
     if (listen(socket_fd, 1) == -1) {
         perror("Error listening");
