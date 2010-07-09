@@ -59,6 +59,10 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
             """+EAPF=12,1,0""",
          *   so we put these commands in the lowlevel plugin
          */
+        registerAtCommandSequence( "MODEM", "init", new AtCommandSequence( {
+            """+EPOM=1,0""",
+            """+EAPF=12,1,0"""
+        } ) );
 
         // sequence for initializing the channel
         registerAtCommandSequence( "main", "init", new AtCommandSequence( {

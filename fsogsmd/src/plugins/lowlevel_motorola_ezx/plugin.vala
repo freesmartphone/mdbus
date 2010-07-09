@@ -105,18 +105,6 @@ class LowLevel.MotorolaEZX : FsoGsm.LowLevel, FsoFramework.AbstractObject
             return true;
 
         bool ret = modem_init();
-
-        // XXX: this could go into modem plugin "main" channel init.
-        var transport = FsoFramework.Transport.create( "serial", "/dev/mux1", 115200 );
-        transport.open();
-        GLib.assert( transport.isOpen() );
-        var buf = new char[512];
-        var bread = transport.writeAndRead( "AT+EPOM=1,0\r\n", 13, buf, 512, 0 );
-        bread = transport.writeAndRead( "AT+EAPF=12,1,0\r\n", 16, buf, 512, 0 );
-        transport.drain();
-        transport.flush();
-        transport.close();
-
         initDone = true;
         return ret;
     }
