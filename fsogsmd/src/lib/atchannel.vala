@@ -21,6 +21,8 @@ using GLib;
 
 public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 {
+    private static bool isMainInitialized;
+
     protected string name;
     private bool isInitialized;
     private bool isMainChannel;
@@ -63,6 +65,14 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         {
             var seq1 = theModem.atCommandSequence( "MODEM", "init" );
             yield seq1.performOnChannel( this );
+            isMainInitialized = true;
+        }
+
+        while ( !isMainInitialized )
+        {
+            theModem.logger.debug( "Main channel not initialized yet... waiting" );
+            Timeout.add_seconds( 1, initialize.callback );
+            yield;
         }
 
         var seq2 = theModem.atCommandSequence( "CHANNEL", "init" );
