@@ -21,7 +21,8 @@ using GLib;
 
 namespace Kernel26
 {
-    internal const string FIRMWARE_PATH = "/lib/firmware";
+    internal const string MODULE_NAME = "fsodevice.kernel26_firmwareloader";
+    internal const string FIRMWARE_PATH_DEFAULT = "/lib/firmware";
 /**
  * @class Kernel26.FirmwareLoader
  *
@@ -29,9 +30,12 @@ namespace Kernel26
  **/
 internal class FirmwareLoader : FsoFramework.AbstractObject
 {
+    private string firmwarePath;
+
     public FirmwareLoader()
     {
         FsoFramework.BaseKObjectNotifier.addMatch( "add", "firmware", onFirmwareUploadRequest );
+        firmwarePath = config.stringValue( MODULE_NAME, "firmware_path", FIRMWARE_PATH_DEFAULT );
         logger.info( "Created." );
     }
 
@@ -57,7 +61,7 @@ internal class FirmwareLoader : FsoFramework.AbstractObject
 
         var loading = Path.build_filename( sysfs_root, devpath, "loading" );
         var data = Path.build_filename( sysfs_root, devpath, "data" );
-        var sourcepath = Path.build_filename( FIRMWARE_PATH, firmware );
+        var sourcepath = Path.build_filename( firmwarePath, firmware );
 
         try
         {
