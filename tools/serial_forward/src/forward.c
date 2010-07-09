@@ -1,10 +1,9 @@
 /*
- * Forward a serial over TCP/IP
+ * Forward device nodes over TCP/IP
  *
  * Copyright (C) 2008 Openmoko Inc.
  *
- * Author: Holger Hans Peter Freyther <zecke@openmoko.org>
- * Minor enhancements by Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * See AUTHORS
  */
 
 #include <sys/types.h>
@@ -12,6 +11,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 
+#include <arpa/inet.h>
 #include <netinet/in.h>
 
 #include <fcntl.h>

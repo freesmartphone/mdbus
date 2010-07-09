@@ -1,3 +1,10 @@
+/*
+ * Forward device nodes over TCP/IP
+ *
+ * Copyright (C) 2008 Openmoko Inc.
+ *
+ * See AUTHORS
+ */
 
 static void forward_data(int source_fd, int dest_fd)
 {
@@ -23,15 +30,15 @@ static void forward_data(int source_fd, int dest_fd)
                 if (size <= 0)
                     break;
 
-                printf("Sending from source %d\n", size);
-                write(dest_fd, &buf, size);
+                printf("Sending from source %ld\n", size);
+                ssize_t written = write(dest_fd, &buf, size);
             } else if (FD_ISSET(dest_fd, &rfds)) {
                 ssize_t size = read(dest_fd, &buf, sizeof(buf));
                 if (size <= 0)
                     break;
 
-                printf("Sending from destination %d\n", size);
-                write(source_fd, &buf, size);
+                printf("Sending from destination %ld\n", size);
+                ssize_t written = write(source_fd, &buf, size);
             }
         }
     }

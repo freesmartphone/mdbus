@@ -1,4 +1,4 @@
-AC_INIT([serial-forward], [1.2], [smartphones-userland@linuxtogo.org], [serial-forward])
+AC_INIT([serial-forward], [1.2.1], [smartphones-userland@linuxtogo.org], [serial-forward])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
