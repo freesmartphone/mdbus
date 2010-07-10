@@ -695,7 +695,7 @@ public class PlusCMGS : AbstractAtCommand
 public class PlusCMGW : AbstractAtCommand
 {
     public int memory_index;
-    
+
     public PlusCMGW()
     {
         try
@@ -1665,7 +1665,6 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 
     // misc
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
-    table[ "CUSTOM" ]            = new FsoGsm.CustomAtCommand();
 }
 
 } /* namespace FsoGsm */
