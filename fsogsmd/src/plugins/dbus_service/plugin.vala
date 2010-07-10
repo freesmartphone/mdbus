@@ -107,12 +107,19 @@ class DBusService.Device :
 
         switch ( modem.status() )
         {
-            case FsoGsm.Modem.Status.SUSPENDING:
-            case FsoGsm.Modem.Status.RESUMING:
-            case FsoGsm.Modem.Status.SUSPENDED:
-            case FsoGsm.Modem.Status.CLOSING:
-            case FsoGsm.Modem.Status.CLOSED:
-            throw new FreeSmartphone.Error.UNAVAILABLE( @"This function is not available while modem is in state $(modem.status())" );
+            case FsoGsm.Modem.Status.ALIVE_NO_SIM:
+                break;
+            case FsoGsm.Modem.Status.ALIVE_SIM_LOCKED:
+                break;
+            case FsoGsm.Modem.Status.ALIVE_SIM_UNLOCKED:
+                break;
+            case FsoGsm.Modem.Status.ALIVE_SIM_READY:
+                break;
+            case FsoGsm.Modem.Status.ALIVE_REGISTERED:
+                break;
+            default:
+                throw new FreeSmartphone.Error.UNAVAILABLE( @"This function is not available while modem is in state $(modem.status())" );
+                break;
         }
     }
 
@@ -436,6 +443,7 @@ class DBusService.Device :
 
     public async string get_service_center_number() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
+        checkAvailability();
         var m = modem.createMediator<FsoGsm.SimGetServiceCenterNumber>();
         yield m.run();
         return m.number;
@@ -489,7 +497,7 @@ class DBusService.Device :
         var m = modem.createMediator<FsoGsm.SimSendStoredMessage>();
         yield m.run( index );
         transaction_index = m.transaction_index;
-        timestamp = m.timestamp;        
+        timestamp = m.timestamp;
     }
 
     public async void set_auth_code_required( bool check, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
