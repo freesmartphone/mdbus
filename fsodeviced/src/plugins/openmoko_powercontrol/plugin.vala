@@ -64,7 +64,7 @@ class UsbHostModeControl : FsoDevice.BasePowerControl
         base( Path.build_filename( sysfsnode, "hostmode" ) );
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
-        this.umodenode = Path.build_filename( sysfs_root, "devices", "platform", "s3c-ohci", "usb_mode" );
+        this.umodenode = Path.build_filename( sysfs_root, "devices", "platform", "s3c2410-ohci", "usb_mode" );
         this.name = Path.get_basename( sysfsnode );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
@@ -152,7 +152,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 #endif
     }
 
-    var usbhost = Path.build_filename( devices, "neo1973-pm-host.0" );
+    var usbhost = Path.build_filename( devices, "gta02-pm-usbhost.0" );
     if ( FsoFramework.FileHandling.isPresent( usbhost ) )
     {
         var o = new Openmoko.UsbHostModeControl( subsystem, usbhost );
