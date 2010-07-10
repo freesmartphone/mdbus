@@ -70,6 +70,13 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
         while ( !isMainInitialized )
         {
+            // make sure that we still are initializing; if not, just return as
+            // we obviously have been requested to shutdown then
+            if ( theModem.status() == Modem.Status.CLOSING )
+            {
+                return;
+            }
+
             theModem.logger.debug( "Main channel not initialized yet... waiting" );
             Timeout.add_seconds( 1, initialize.callback );
             yield;

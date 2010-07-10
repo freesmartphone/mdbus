@@ -208,10 +208,8 @@ public class FsoGsm.AtCommandSequence
         foreach( var element in commands )
         {
             var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
-            //debug( "before yield" );
-            var result = yield channel.enqueueAsync( cmd, element );
-            //debug( "after yield" );
-            // no error checks here
+            /* var result = */ yield channel.enqueueAsync( cmd, element );
+            // no error checks here as we don't care about the result
         }
     }
 }
