@@ -23,7 +23,7 @@ COMPAT = \
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)/etc/freesmartphone/conf/
-	ln -sf alsa-2.6.29 $(DESTDIR)/etc/freesmartphone/conf/$(THISDIR)/alsa-default
+	ln -sf alsa-2.6.31 $(DESTDIR)/etc/freesmartphone/conf/$(THISDIR)/alsa-default
 	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(DESTDIR)/etc/freesmartphone/conf/$$compat; done
 
 MAINTAINERCLEANFILES = Makefile.in
