@@ -34,7 +34,8 @@ internal class FirmwareLoader : FsoFramework.AbstractObject
 
     public FirmwareLoader()
     {
-        FsoFramework.BaseKObjectNotifier.addMatch( "add", "firmware", onFirmwareUploadRequest );
+        FsoFramework.BaseKObjectNotifier.addMatch( "add", "firmware", onFirmwareUploadRequest ); // standard
+        FsoFramework.BaseKObjectNotifier.addMatch( "add", "compat_firmware", onFirmwareUploadRequest ); // compat-wireless
         firmwarePath = config.stringValue( MODULE_NAME, "firmware_path", FIRMWARE_PATH_DEFAULT );
         logger.info( "Created." );
     }
