@@ -26,6 +26,7 @@ internal const int CALL_STATUS_REFRESH_TIMEOUT = 3; // in seconds
  */
 public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 {
+    private bool inSyncCallStatus;
     protected uint timeout;
     protected FsoGsm.Call[] calls;
 
@@ -133,7 +134,14 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     protected bool onTimeout()
     {
-        syncCallStatus.begin();
+        if ( inSyncCallStatus )
+        {
+            assert( logger.debug( "Synchronizing call status not done yet... ignoring" ) );
+        }
+        else
+        {
+            syncCallStatus.begin();
+        }
         return true;
     }
 
@@ -144,6 +152,8 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     protected async void syncCallStatus()
     {
+        inSyncCallStatus = true;
+
         try
         {
             assert( logger.debug( "Synchronizing call status" ) );
@@ -216,6 +226,8 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         {
             logger.error( @"Can't synchronize call status: $(e.message)" );
         }
+
+        inSyncCallStatus = false;
     }
 
     //
