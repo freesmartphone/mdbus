@@ -28,7 +28,6 @@ public abstract interface FsoFramework.CommandQueue : GLib.Object
      * The underlying transport
      **/
     public abstract Transport transport { get; set; }
-
     /**
      * Open the command queue
      **/
@@ -83,6 +82,7 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
     // private API
     //
     private Gee.LinkedList<AbstractCommandHandler> q;
+    private uint timeoutWatch;
 
     //
     // protected API
@@ -90,6 +90,7 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
     protected FsoFramework.CommandQueue.UnsolicitedHandler urchandler;
     protected AbstractCommandHandler current;
     protected abstract void onReadFromTransport( FsoFramework.Transport t );
+    protected abstract void onResponseTimeout( AbstractCommandHandler ach );
 
     protected bool checkRestartingQ()
     {
@@ -108,13 +109,34 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
     {
         current = q.poll_head();
         current.writeToTransport( transport );
-        assert( transport.logger.debug( @"Wrote '$current'. Waiting for answer..." ) );
+        assert( transport.logger.debug( @"Wrote '$current'. Waiting ($(current.timeout)s) for answer..." ) );
+        if ( current.timeout > 0 )
+        {
+            timeoutWatch = GLib.Timeout.add_seconds( current.timeout, onTimeout );
+        }
     }
 
     protected void onHupFromTransport()
     {
         transport.logger.warning( "HUP from transport." );
         this.hangup(); // emit HUP signal
+    }
+
+    protected bool onTimeout()
+    {
+        assert( transport.logger.warning( @"Timeout while waiting for an answer to '$current'" ) );
+        if ( current.retry > 0 )
+        {
+            current.retry--;
+            assert( transport.logger.debug( @"Retrying '$current', retry counter = $(current.retry)" ) );
+            current.writeToTransport( transport );
+            return true; // call me again
+        }
+        else
+        {
+            onResponseTimeout( current ); // derived class is responsible for relaunching the command queue
+        }
+        return false; // don't call me again
     }
 
     protected void enqueueCommand( AbstractCommandHandler command )
