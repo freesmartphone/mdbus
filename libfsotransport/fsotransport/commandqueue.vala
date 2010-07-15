@@ -116,6 +116,14 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
         }
     }
 
+    protected void resetTimeout()
+    {
+        if ( timeoutWatch > 0 )
+        {
+            GLib.Source.remove( timeoutWatch );
+        }
+    }
+
     protected void onHupFromTransport()
     {
         transport.logger.warning( "HUP from transport." );
