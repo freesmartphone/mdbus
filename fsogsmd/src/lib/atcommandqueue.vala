@@ -160,6 +160,8 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
 
     protected void onSolicitedResponse( AtCommandHandler bundle, string[] response )
     {
+        resetTimeout();
+
         bundle.response = response;
         transport.logger.info( @"SRC: $bundle" );
         assert( bundle.callback != null );
