@@ -166,9 +166,9 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
         bundle.callback();
     }
 
-    protected void onResponseTimeout( AtCommandHandler bundle )
+    protected override void onResponseTimeout( FsoFramework.AbstractCommandHandler bundle )
     {
-        onSolicitedResponse( bundle, new string[] { "+EXT: ERROR 261271" } );
+        onSolicitedResponse( (AtCommandHandler) bundle, new string[] { @"+EXT: TIMEOUT $(bundle.timeout)" } );
     }
 
     public async string[] enqueueAsync( FsoGsm.AtCommandQueueCommand command, string request, int retries = 0, int timeout = 0 )

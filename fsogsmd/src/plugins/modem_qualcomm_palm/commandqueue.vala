@@ -103,7 +103,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         msmurchandler.dispatch( urctype, urc );
     }
 
-    public async unowned Msmcomm.Message enqueueAsync( owned Msmcomm.Message command, int retries = DEFAULT_RETRY )
+    public async unowned Msmcomm.Message enqueueAsync( owned Msmcomm.Message command, int retries = 0, int timeout = 0 )
     {
         command.index = nextValidMessageIndex();
         var handler = new MsmCommandHandler( command, retries );
