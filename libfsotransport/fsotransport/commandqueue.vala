@@ -90,7 +90,6 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
     protected FsoFramework.CommandQueue.UnsolicitedHandler urchandler;
     protected AbstractCommandHandler current;
     protected abstract void onReadFromTransport( FsoFramework.Transport t );
-    protected abstract void onResponseTimeout( AbstractCommandHandler ach );
 
     protected bool checkRestartingQ()
     {
@@ -145,6 +144,10 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
             onResponseTimeout( current ); // derived class is responsible for relaunching the command queue
         }
         return false; // don't call me again
+    }
+
+    protected virtual void onResponseTimeout( AbstractCommandHandler ach )
+    {
     }
 
     protected void enqueueCommand( AbstractCommandHandler command )
