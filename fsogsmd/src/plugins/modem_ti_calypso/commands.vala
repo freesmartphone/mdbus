@@ -97,7 +97,7 @@ public class PercentCSQ : AbstractAtCommand
     {
         try
         {
-            re = new Regex( """%CSQ:  (?P<signal>\d+), (?:\d+), \d""" );
+            re = new Regex( """%CSQ: (?P<signal>\d+), (?:\d+), \d""" );
         }
         catch ( GLib.RegexError e )
         {
