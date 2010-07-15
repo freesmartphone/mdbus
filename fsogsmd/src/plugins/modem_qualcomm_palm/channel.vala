@@ -54,7 +54,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         assert( !transport.isOpen() );
         var opened = yield transport.openAsync();
 
-        if ( !opened /* yield base.open() */ )
+        if ( !yield base.open() )
             return false;
 
         context.registerEventHandler( onMsmcommGotEvent );
