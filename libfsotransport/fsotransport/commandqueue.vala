@@ -29,8 +29,6 @@ public abstract interface FsoFramework.CommandQueue : GLib.Object
      **/
     public abstract Transport transport { get; set; }
 
-    public const uint DEFAULT_RETRY = 3;
-
     /**
      * Open the command queue
      **/
