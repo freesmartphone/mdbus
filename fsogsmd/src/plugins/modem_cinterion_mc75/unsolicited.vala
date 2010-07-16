@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -25,12 +25,18 @@ public class CinterionMc75.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResp
     public UnsolicitedResponseHandler()
     {
         registerUrc( "^SSIM READY", dachSSIM_READY );
+        registerUrc( "^SIND", dachSIND );
     }
 
     public virtual void dachSSIM_READY( string prefix, string rhs )
     {
         theModem.logger.info( "mc75i sim ready" );
         theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+    }
+
+    public virtual void dachSIND( string prefix, string rhs )
+    {
+        // FIXME: Handle
     }
 
     public override void plusCIEV( string prefix, string rhs )
