@@ -196,7 +196,7 @@ public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, Fr
 public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     yield gatherSimOperators();
-    
+
     var data = theModem.data();
 
     var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
@@ -917,6 +917,11 @@ public class AtSimSendAuthCode : SimSendAuthCode
         if ( code == Constants.AtResponse.CME_ERROR_016_INCORRECT_PASSWORD )
         {
             throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"PIN $pin not accepted" );
+        }
+        else
+        {
+            // PIN seems known good, save for later
+            theModem.data().simPin = pin;
         }
         //FIXME: Was it intended to do this in background? (i.e. not yielding)
         gatherSimStatusAndUpdate();
