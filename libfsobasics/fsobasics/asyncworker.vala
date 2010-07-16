@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -22,9 +22,9 @@
  **/
 public abstract interface FsoFramework.AbstractWorkerQueue<T> : GLib.Object
 {
-    public delegate void WorkerFunc( T element );
+    public delegate void WorkerFunc<T>( T element );
 
-    public abstract void setDelegate( WorkerFunc worker );
+    public abstract void setDelegate( WorkerFunc<T> worker );
     public abstract void enqueue( T element );
     public abstract void trigger();
 }
@@ -35,7 +35,7 @@ public abstract interface FsoFramework.AbstractWorkerQueue<T> : GLib.Object
 public class FsoFramework.AsyncWorkerQueue<T> : FsoFramework.AbstractWorkerQueue<T>, GLib.Object
 {
     protected GLib.Queue<T> q;
-    protected AbstractWorkerQueue.WorkerFunc worker;
+    protected AbstractWorkerQueue.WorkerFunc<T> worker;
     uint watch;
 
     protected bool _onIdle()
@@ -52,7 +52,7 @@ public class FsoFramework.AsyncWorkerQueue<T> : FsoFramework.AbstractWorkerQueue
         q = new GLib.Queue<T>();
     }
 
-    public void setDelegate( AbstractWorkerQueue.WorkerFunc worker )
+    public void setDelegate( AbstractWorkerQueue.WorkerFunc<T> worker )
     {
         this.worker = worker;
         trigger();
