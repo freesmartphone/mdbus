@@ -44,12 +44,17 @@ public string formatSimpleContainerIter( DBus.RawMessageIter subiter, string sta
     debug( @"formatSimpleContainerIter: depth = $depth, subiter.has_next() = $(subiter.has_next())" );
 #endif
 
+    // check for invalid container
+    if ( depth == 0 && !subiter.has_next() )
+    {
+        return @"$start $stop";
+    }
+
     // check for empty container
     if ( depth > 1 && !subiter.has_next() )
     {
         var result = formatResult( subiter, depth+1 );
         return @"$start $result $stop";
-        //return @"$start $stop";
     }
 
     var result = "";
@@ -196,7 +201,7 @@ static string formatSimpleType( string signature, DBus.RawMessageIter iter )
             iter.get_basic( &i );
             return i.to_string();
         case "s":
-            unowned string s = null;
+            unowned string s = "";
             iter.get_basic( &s );
             return @"\"$s\"";
         case "o":
