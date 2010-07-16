@@ -109,7 +109,9 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """%CSCN=1,2,1,2""",
             """%CSTAT=1""",
             """%CSQ=1""",
-            """@ST="-26""""
+            """@ST="-26"""",
+
+            """+CFUN=1"""
         } ) );
 
         var cnmiCommand = modem_data.simBuffersSms ? """+CNMI=2,1,2,1,1""" : """+CNMI=2,2,2,1,1""";
