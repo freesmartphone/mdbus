@@ -52,3 +52,7 @@ endif
 if WANT_RFKILL
 SUBDIRS += kernel26_rfkill
 endif
+
+if WANT_HTCDREAM_POWERCONTROL
+SUBDIRS += htcdream_powercontrol
+
