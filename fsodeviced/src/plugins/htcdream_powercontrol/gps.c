@@ -318,10 +318,13 @@ void dispatch(struct svc_req* a, registered_server* svc) {
 	svc_sendreply(svc, xdr_int, &result);
 }
 
-int gps_query_main() {
+static struct CLIENT* clnt;
+
+void gps_query_setup()
+{
 	//timeout isn't taken in account by librpc
 	struct timeval timeout;
-	struct CLIENT *clnt=clnt_create(NULL, 0x3000005B, 0x90380d3d, NULL);
+	clnt=clnt_create(NULL, 0x3000005B, 0x90380d3d, NULL);
 #if 0
 	struct CLIENT *clnt_atl=clnt_create(NULL, 0x3000001D, 0x90380d3d, NULL);
 #else
@@ -454,13 +457,16 @@ int gps_query_main() {
 
 	//pdsm_get_position(clnt, 0x0000000B, 0x00000000, 0x00000001, 0x00000001, 0x00000001, 0x3B9AC9FF, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000032, 0x00000002, client_IDs[1]);
 	pdsm_get_position(clnt, 0, 0, 1, 1, 1, 0x3B9AC9FF, 1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,1,32,2,client_IDs[2]);
-	while(1) {
-		sleep(5);
-		pdsm_get_position(clnt, 0, 0, 1, 1, 1, 0x3B9AC9FF, 1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,1,32,2,client_IDs[2]);
-	//	pdsm_get_position(clnt, 0x0000000A, 0x00000000, 0x00000001, 0x00000001, 0x00000001, 0x3B9AC9FF, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000032, 0x00000002, 0x00000DA3);
-	}
 #endif
+}
 
+void gps_query_iteration()
+{
+	pdsm_get_position(clnt, 0, 0, 1, 1, 1, 0x3B9AC9FF, 1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,1,32,2,client_IDs[2]);
+	//	pdsm_get_position(clnt, 0x0000000A, 0x00000000, 0x00000001, 0x00000001, 0x00000001, 0x3B9AC9FF, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000032, 0x00000002, 0x00000DA3);
+}
 
-	return 0;
+void gps_query_shutdown()
+{
+	// ???
 }

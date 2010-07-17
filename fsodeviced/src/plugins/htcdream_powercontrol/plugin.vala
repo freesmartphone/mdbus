@@ -19,6 +19,10 @@
 
 using GLib;
 
+extern void gps_query_setup();
+extern void gps_query_iteration();
+extern void gps_query_shutdown();
+
 namespace HtcDream
 {
 
@@ -31,7 +35,7 @@ class GpsPowerControl : FsoDevice.BasePowerControl
     private string sysfsnode;
     private string name;
 
-    bool on;
+    uint timeoutWatch;
 
     public GpsPowerControl( FsoFramework.Subsystem subsystem )
     {
@@ -47,21 +51,41 @@ class GpsPowerControl : FsoDevice.BasePowerControl
 
 
         logger.info( "Created." );
+
+
     }
 
     public override bool getPower()
     {
-        return on;
+        return ( timeoutWatch > 0 );
     }
 
     public override void setPower( bool on )
     {
-        if ( this.on == on )
+        var running = timeoutWatch > 0;
+
+        if ( running == on )
         {
             return;
         }
 
-        // FIXME: Start/Stop GPS Thread
+        if ( on )
+        {
+            gps_query_setup();
+            timeoutWatch = GLib.Timeout.add_seconds( 5, onTimeout );
+        }
+        else
+        {
+            GLib.Source.remove( timeoutWatch );
+            gps_query_shutdown();
+        }
+    }
+
+    private bool onTimeout()
+    {
+        gps_query_iteration();
+
+        return true; // call me again
     }
 }
 
