@@ -148,17 +148,17 @@ AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
 # optional feature: htcdream_powercontrol
 AC_ARG_ENABLE(htcdream_powercontrol,
   AS_HELP_STRING([--enable-htcdream-powercontrol], [Enable building the htcdream powercontrol plugin (default=disabled)]),
-  [powercontrol=$enableval],
-  [powercontrol="no"])
+  [htcpowercontrol=$enableval],
+  [htcpowercontrol="no"])
 
-if test x$powercontrol = "xyes"; then
+if test x$htcpowercontrol = "xyes"; then
     # android-rpc
     PKG_CHECK_MODULES(HTCDREAM_POWERCONTROL,
       android-rpc-1.0 >= 0.0.0)
     AC_SUBST(HTCDREAM_POWERCONTROL_CFLAGS)
     AC_SUBST(HTCDREAM_POWERCONTROL_LIBS)
 fi
-AM_CONDITIONAL( [WANT_HTCDREAM_POWERCONTROL], [test x"$powercontrol" = x"yes"])
+AM_CONDITIONAL( [WANT_HTCDREAM_POWERCONTROL], [test x"$htcpowercontrol" = x"yes"])
 
 ##############################################################################
 # check for debugging
@@ -244,6 +244,7 @@ echo
 echo "  kernel26_rfkill......................: $rfkill"
 echo "  player_canberra......................: $canberra"
 echo "  player_gstreamer.....................: $gstreamer"
+echo "  htcdream_powercontrol ...............: $htcpowercontrol"
 echo
 echo "  debug build..........................: $debug"
 echo

@@ -33,7 +33,7 @@ class GpsPowerControl : FsoDevice.BasePowerControl
 
     bool on;
 
-    public BluetoothPowerControl( FsoFramework.Subsystem subsystem )
+    public GpsPowerControl( FsoFramework.Subsystem subsystem )
     {
         base( Path.build_filename( sysfsnode, "" ) );
         this.subsystem = subsystem;

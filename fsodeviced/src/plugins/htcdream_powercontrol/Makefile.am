@@ -47,7 +47,7 @@ htcdream_powercontrol_la_LDFLAGS = -no-undefined -module -avoid-version
 htcdream_powercontrol_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
-    *.c \
+    plugin.c \
     *.h \
     *.la \
     *.lo \

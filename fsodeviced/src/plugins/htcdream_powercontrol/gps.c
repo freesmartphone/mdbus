@@ -1,45 +1,44 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <rpc/rpc.h>
-#include <sys/select.h>
-#include <sys/types.h>
+#include <android-rpc/rpc.h>
+#include <android-rpc/rpc_router_ioctl.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <rpc/rpc_router_ioctl.h>
-#include <debug.h>
 #include <pthread.h>
 
-typedef struct registered_server_struct {
-	    /* MUST BE AT OFFSET ZERO!  The client code assumes this when it overwrites
-	     *        the XDR for server entries which represent a callback client.  Those
-	     *               server entries do not have their own XDRs.
-	     *                   */
-	    XDR *xdr;
-	        /* Because the xdr is NULL for callback clients (as opposed to true
-		 *        servers), we keep track of the program number and version number in this
-		 *               structure as well.
-		 *                   */
-	        rpcprog_t x_prog; /* program number */
-		    rpcvers_t x_vers; /* program version */
+typedef struct registered_server_struct
+{
+	/* MUST BE AT OFFSET ZERO!  The client code assumes this when it overwrites
+	 *        the XDR for server entries which represent a callback client.  Those
+	 *               server entries do not have their own XDRs.
+	 *
+	 **/
+	XDR *xdr;
+	/* Because the xdr is NULL for callback clients (as opposed to true
+	 *        servers), we keep track of the program number and version number in this
+	 *               structure as well.
+	 *
+	 */
+	rpcprog_t x_prog; /* program number */
+	rpcvers_t x_vers; /* program version */
 
-		        int active;
-			    struct registered_server_struct *next;
-			        SVCXPRT *xprt;
-				    __dispatch_fn_t dispatch;
+	int active;
+	struct registered_server_struct *next;
+	SVCXPRT *xprt;
+	__dispatch_fn_t dispatch;
 } registered_server;
 
-struct SVCXPRT {
-	    fd_set fdset;
-	        int max_fd;
-		    pthread_attr_t thread_attr;
-		        pthread_t  svc_thread;
-			    pthread_mutexattr_t lock_attr;
-			        pthread_mutex_t lock;
-				    registered_server *servers;
-				        volatile int num_servers;
+struct SVCXPRT
+{
+	fd_set fdset;
+	int max_fd;
+	pthread_attr_t thread_attr;
+	pthread_t  svc_thread;
+	pthread_mutexattr_t lock_attr;
+	pthread_mutex_t lock;
+	registered_server *servers;
+	volatile int num_servers;
 };
-
-
 
 #define SEND_VAL(x) do { \
 	val=x;\
@@ -319,17 +318,17 @@ void dispatch(struct svc_req* a, registered_server* svc) {
 	svc_sendreply(svc, xdr_int, &result);
 }
 
-int main(int argc, char **argv, char **envp) {
+int gps_query_main() {
 	//timeout isn't taken in account by librpc
 	struct timeval timeout;
 	struct CLIENT *clnt=clnt_create(NULL, 0x3000005B, 0x90380d3d, NULL);
 #if 0
 	struct CLIENT *clnt_atl=clnt_create(NULL, 0x3000001D, 0x90380d3d, NULL);
-#else 
+#else
 	struct CLIENT *clnt_atl=clnt_create(NULL, 0x3000001D, 0x51c92bd8, NULL);
 #endif
-	
-	
+
+
 	int i;
 	SVCXPRT *svc=svcrtr_create();
 	xprt_register(svc);
@@ -452,7 +451,7 @@ int main(int argc, char **argv, char **envp) {
 	pdsm_client_init(clnt, 4);
 	pdsm_client_lcs_reg(clnt, 4, 0,0,0,0x3f0, 0);
 	pdsm_client_act(clnt, 4);
-	
+
 	//pdsm_get_position(clnt, 0x0000000B, 0x00000000, 0x00000001, 0x00000001, 0x00000001, 0x3B9AC9FF, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000032, 0x00000002, client_IDs[1]);
 	pdsm_get_position(clnt, 0, 0, 1, 1, 1, 0x3B9AC9FF, 1, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,1,32,2,client_IDs[2]);
 	while(1) {

@@ -55,4 +55,5 @@ endif
 
 if WANT_HTCDREAM_POWERCONTROL
 SUBDIRS += htcdream_powercontrol
+endif
 
