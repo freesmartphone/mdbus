@@ -272,6 +272,21 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
         }
         return mb;
     }
+
+    public uint16 lastReferenceNumber()
+    {
+        var filename = GLib.Path.build_filename( storagedir, "refnum" );
+        return (uint16) FsoFramework.FileHandling.read( filename ).to_int();
+    }
+
+    public uint16 increasingReferenceNumber()
+    {
+        var filename = GLib.Path.build_filename( storagedir, "refnum" );
+        var number = FsoFramework.FileHandling.read( filename );
+        uint16 num = (uint16) number.to_int() + 1;
+        FsoFramework.FileHandling.write( filename, num.to_string() );
+        return num;
+    }
 }
 
 /**
@@ -280,12 +295,10 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
 public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 {
     public SmsStorage storage { get; set; }
-    private uint16 increasingReferenceNumber;
 
     public AtSmsHandler()
     {
         //FIXME: Use random init or read from file, so that this is increasing even during relaunches
-        increasingReferenceNumber = 0;
         if ( theModem == null )
         {
             logger.warning( "SMS Handler created before modem" );
@@ -312,12 +325,12 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
 
     public uint16 lastReferenceNumber()
     {
-        return increasingReferenceNumber-1;
+        return storage.lastReferenceNumber();
     }
 
     public uint16 nextReferenceNumber()
     {
-        return ++increasingReferenceNumber;
+        return storage.increasingReferenceNumber();
     }
 
     public Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents, bool requestReport )
