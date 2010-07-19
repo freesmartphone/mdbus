@@ -94,6 +94,22 @@ public string readIfPresent( string filename )
     return isPresent( filename ) ? read( filename ) : "";
 }
 
+public string[] listDirectory( string dirname )
+{
+    var result = new string[] {};
+    var dir = Posix.opendir( dirname );
+    if ( dir != null )
+    {
+        unowned Posix.DirEnt dirent = Posix.readdir( dir );
+        while ( dirent != null )
+        {
+            result += (string)dirent.d_name;
+            dirent = Posix.readdir( dir );
+        }
+    }
+    return result;
+}
+
 public string read( string filename )
 {
     char[] buf = new char[READ_BUF_SIZE];
