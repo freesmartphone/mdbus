@@ -1049,13 +1049,20 @@ public class AtSmsSendTextMessage : SmsSendTextMessage
             var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
             var response = yield theModem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
             checkResponseValid( cmd, response );
-            transaction_index = cmd.refnum;
+            hexpdu.transaction_index = cmd.refnum;
         }
-        //FIXME: What should we do with that?
+        transaction_index = theModem.smshandler.lastReferenceNumber();
+        //FIXME: What about ACK PDUs?
         timestamp = "now";
 
         // signalize that we're done
         yield theModem.processAtCommandAsync( cmms, cmms.issue( 0 ) ); // not interested in the result
+
+        // remember transaction indizes for later
+        if ( want_report )
+        {
+            theModem.smshandler.storeTransactionIndizesForSentMessage( hexpdus );
+        }
     }
 }
 

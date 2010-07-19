@@ -66,11 +66,13 @@ public class WrapHexPdu
 {
     public string hexpdu;
     public uint tpdulen;
+    public int transaction_index;
 
     public WrapHexPdu( string hexpdu, uint tpdulen )
     {
         this.hexpdu = hexpdu;
         this.tpdulen = tpdulen;
+        this.transaction_index = -1;
     }
 }
 
@@ -89,4 +91,5 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
     public abstract uint16 nextReferenceNumber();
 
     public abstract Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents, bool requestReport );
+    public abstract void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus );
 }

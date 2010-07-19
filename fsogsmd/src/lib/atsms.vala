@@ -464,6 +464,10 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         debug( @"sms report status: $status" );
         debug( @"sms report text: '$text'" );
 #endif
+
+        //FIXME: Check stored transaction indizes and map back to original
+        //       reference number, if all segments have been ACKed
+
         var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
         obj.incoming_message_report( reference, status.to_string(), number, text );
     }
@@ -480,6 +484,10 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         _handleIncomingSmsReport( (owned) sms );
     }
 
+    public void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus )
+    {
+        //FIXME: Implement this
+    }
 }
 
 
