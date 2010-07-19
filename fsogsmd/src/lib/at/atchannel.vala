@@ -110,7 +110,7 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
         if ( this.isMainChannel )
         {
-            // charset ok, now it's save to call mediators
+            // charset ok, now it's safe to call mediators
             gatherSimStatusAndUpdate();
         }
         this.isInitialized = true;
