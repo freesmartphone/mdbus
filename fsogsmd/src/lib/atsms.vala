@@ -22,6 +22,7 @@ using Gee;
 namespace FsoGsm
 {
     public const string SMS_STORAGE_DEFAULT_STORAGE_DIR = "/tmp/fsogsmd/sms";
+    public const string SMS_STORAGE_SENT_UNCONFIRMED = "sent-unconfirmed";
     public const int SMS_STORAGE_DIRECTORY_PERMISSIONS = (int)Posix.S_IRUSR|Posix.S_IWUSR|Posix.S_IXUSR|Posix.S_IRGRP|Posix.S_IXGRP|Posix.S_IROTH|Posix.S_IXOTH;
 } /* namespace FsoGsm */
 
@@ -287,6 +288,61 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( filename, num.to_string() );
         return num;
     }
+
+    public void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus )
+    {
+        var refnum = lastReferenceNumber().to_string();
+
+        var name = "";
+        foreach ( var hexpdu in hexpdus )
+        {
+            name += @":$(hexpdu.transaction_index)";
+        }
+
+        var dirname = GLib.Path.build_filename( storagedir, SMS_STORAGE_SENT_UNCONFIRMED, name );
+        if ( ! FsoFramework.FileHandling.isPresent( dirname ) )
+        {
+            GLib.DirUtils.create_with_parents( dirname, SMS_STORAGE_DIRECTORY_PERMISSIONS );
+        }
+        foreach ( var hexpdu in hexpdus )
+        {
+            var filename = GLib.Path.build_filename( dirname, hexpdu.transaction_index.to_string() );
+            FsoFramework.FileHandling.write( refnum, filename );
+        }
+    }
+
+    public int confirmReceivedMessage( int netreference )
+    {
+        var dirname = GLib.Path.build_filename( storagedir, SMS_STORAGE_SENT_UNCONFIRMED );
+        var listUnconfirmed = FsoFramework.FileHandling.listDirectory( dirname );
+        foreach ( var unconfirmed in listUnconfirmed )
+        {
+            var components = unconfirmed.split( ":" );
+            foreach ( var component in components )
+            {
+                if ( component.to_int() == netreference )
+                {
+                    logger.debug( @"Found reference ($netreference) of unconfirmed SMS: $component in $unconfirmed" );
+                    var filename = GLib.Path.build_filename( dirname, unconfirmed, component );
+                    GLib.FileUtils.unlink( filename );
+                    if ( components.length > 1 )
+                    {
+                        logger.debug( @"Not all fragments confirmed yet; missing $(components.length-1) more" );
+                        return -1;
+                    }
+                    else
+                    {
+                        var transaction_index = FsoFramework.FileHandling.read( filename ).to_int();
+                        logger.debug( @"All fragments confirmed; removing directory and returning index $transaction_index" );
+                        GLib.FileUtils.unlink( GLib.Path.build_filename( dirname, unconfirmed ) );
+                        return transaction_index;
+                    }
+                }
+            }
+        }
+        logger.warning( @"Did not find unconfirmed SMS for reference $netreference" );
+        return -1;
+    }
 }
 
 /**
@@ -464,12 +520,12 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         debug( @"sms report status: $status" );
         debug( @"sms report text: '$text'" );
 #endif
-
-        //FIXME: Check stored transaction indizes and map back to original
-        //       reference number, if all segments have been ACKed
-
-        var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
-        obj.incoming_message_report( reference, status.to_string(), number, text );
+        var transaction_index = storage.confirmReceivedMessage( reference );
+        if ( transaction_index >= 0 )
+        {
+            var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
+            obj.incoming_message_report( transaction_index, status.to_string(), number, text );
+        }
     }
 
     public async void handleIncomingSmsReport( string hexpdu, int tpdulen )
@@ -486,9 +542,6 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
 
     public void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus )
     {
-        //FIXME: Implement this
+        storage.storeTransactionIndizesForSentMessage( hexpdus );
     }
 }
-
-
-
