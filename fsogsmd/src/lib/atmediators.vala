@@ -663,13 +663,11 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
         }
         var data = theModem.data();
         data.keepRegistration = autoregister;
-        data.simPin = pin;
-
         if ( pin != "" )
         {
+            data.simPin = pin;
             theModem.watchdog.resetUnlockMarker();
         }
-
         yield gatherSimStatusAndUpdate();
     }
 }
