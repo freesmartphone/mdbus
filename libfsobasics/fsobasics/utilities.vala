@@ -143,7 +143,7 @@ public void write( string contents, string filename, bool create = false )
     if ( create )
     {
         mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
-        flags |= Posix.O_CREAT  | Posix.O_EXCL;
+        flags |= Posix.O_CREAT /* | Posix.O_EXCL */ | Posix.O_TRUNC;
     }
     var fd = Posix.open( filename, flags, mode );
     if ( fd == -1 )
