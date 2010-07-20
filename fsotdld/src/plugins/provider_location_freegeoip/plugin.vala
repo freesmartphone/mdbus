@@ -53,7 +53,7 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
         var myip = yield FsoFramework.Network.textForUri( MYIP_SERVER_NAME );
         if ( myip == null )
         {
-            logger.warning( "Can't gather my IP from $MYIP_SERVER_NAME" );
+            logger.warning( @"Can't gather my IP from $MYIP_SERVER_NAME" );
             return;
         }
 

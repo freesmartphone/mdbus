@@ -22,7 +22,7 @@ using GLib;
 public delegate void StringInVoidOutFunc( string str );
 
 namespace Nmea {
-    const string MODULE_NAME = "fsotldl.source_gps_nmea";
+    const string MODULE_NAME = "fsotdl.source_gps_nmea";
     const string CHANNEL_NAME = "NMEA";
 }
 
@@ -177,14 +177,14 @@ class Nmea.Protocol : Object
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    FsoFramework.theLogger.debug( "fsoltdl.provider_gps_nmea fso_factory_function" );
+    FsoFramework.theLogger.debug( "fsotdl.provider_gps_nmea fso_factory_function" );
     return Nmea.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsotdl.source_gps fso_register_function" );
+    FsoFramework.theLogger.debug( "fsotdl.provider_gps_nmea fso_register_function" );
     // do not remove this function
 }
 

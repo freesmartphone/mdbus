@@ -157,7 +157,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsotdld.provider_gps fso_register_function" );
+    FsoFramework.theLogger.debug( "fsotdl.provider_gps fso_register_function" );
 }
 
 /**
