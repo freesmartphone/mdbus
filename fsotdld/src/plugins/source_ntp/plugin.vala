@@ -160,9 +160,9 @@ class Source.Ntp : FsoTime.AbstractSource
     private void onNetlinkNewRoute( HashTable<string,string> properties )
     {
         var scope = properties.lookup( "ROUTE_SCOPE" );
-        if ( scope != null && scope == "universe" )
+        if ( scope != null )
         {
-            assert( logger.debug( "Default route has changed; triggering NTP sync" ) );
+            assert( logger.debug( "Route has changed; triggering NTP sync" ) );
             Idle.add( () => { triggerQuery(); return false; } );
         }
     }
