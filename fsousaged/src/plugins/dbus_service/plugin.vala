@@ -89,8 +89,12 @@ public class Controller : FsoFramework.AbstractObject
         // init resources and low level helpers
         initResources();
         initLowlevel();
-        scanForResourceProviders();
 
+        var useShadowing = config.boolValue( CONFIG_SECTION, "enable_shadow_resources", false );
+        if ( useShadowing )
+        {
+            scanForResourceProviders();
+        }
         // initial status
         Idle.add( () => {
             updateSystemStatus( FreeSmartphone.UsageSystemAction.ALIVE );
