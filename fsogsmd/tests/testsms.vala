@@ -329,6 +329,35 @@ void test_fso_sms_storage_add_concatenated()
 }
 
 //===========================================================================
+void test_fso_sms_storage_store_transaction_index()
+//===========================================================================
+{
+    var handler = new AtSmsHandler();
+    handler.storage = new SmsStorage( IMSI );
+    //handler.storage.clean();
+    var pdus = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT, true );
+    var i = 0;
+    foreach ( var pdu in pdus )
+    {
+        pdu.transaction_index = ++i;
+    }
+    handler.storeTransactionIndizesForSentMessage( pdus );
+}
+
+//===========================================================================
+void test_fso_sms_storage_confirm_ack()
+//===========================================================================
+{
+    var handler = new AtSmsHandler();
+    handler.storage = new SmsStorage( IMSI );
+    //handler.storage.clean();
+    assert( handler.storage.confirmReceivedMessage( 2 ) == -1 );
+    assert( handler.storage.confirmReceivedMessage( 3 ) == -1 );
+    assert( handler.storage.confirmReceivedMessage( 4 ) == -1 );
+    assert( handler.storage.confirmReceivedMessage( 1 ) != -1 );
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -338,7 +367,7 @@ void main( string[] args )
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Single/Concatenated/DefaultAlphabet", test_sms_decode_deliver_single_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Multiple/Concatenated/DefaultAlphabet", test_sms_decode_deliver_multiple_concatenated_default_alphabet );
     Test.add_func( "/3rdparty/Sms/Decode/Deliver/Whole/Concatenated/DefaultAlphabet", test_sms_decode_deliver_whole_concatenated_default_alphabet );
-    Test.add_func( "/3rdparty/Sms/Decode/Deliver/IncomingMmsControlMessage", test_sms_decode_deliver_incoming_mms_control_message );
+    //Test.add_func( "/3rdparty/Sms/Decode/Deliver/IncomingMmsControlMessage", test_sms_decode_deliver_incoming_mms_control_message );
     Test.add_func( "/3rdparty/Sms/Decode/StatusReport", test_sms_decode_status_report );
 
     Test.add_func( "/3rdparty/Sms/Encode/Submit/Single/DefaultAlphabet", test_sms_encode_submit_single_default_alphabet );
@@ -349,6 +378,10 @@ void main( string[] args )
     //Test.add_func( "/Fso/Sms/Storage/Existing", test_fso_sms_storage_new_existing );
     Test.add_func( "/Fso/Sms/Storage/Add/Single", test_fso_sms_storage_add_single );
     Test.add_func( "/Fso/Sms/Storage/Add/Concatenated", test_fso_sms_storage_add_concatenated );
+
+    Test.add_func( "/Fso/Sms/Storage/StoreTransactionIndex", test_fso_sms_storage_store_transaction_index );
+    Test.add_func( "/Fso/Sms/Storage/ConfirmReceivedMessage", test_fso_sms_storage_confirm_ack );
+    
 
     Test.run();
 }

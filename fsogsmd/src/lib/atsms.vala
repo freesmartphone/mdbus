@@ -277,15 +277,15 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
     public uint16 lastReferenceNumber()
     {
         var filename = GLib.Path.build_filename( storagedir, "refnum" );
-        return (uint16) FsoFramework.FileHandling.read( filename ).to_int();
+        return (uint16) FsoFramework.FileHandling.readIfPresent( filename ).to_int();
     }
 
     public uint16 increasingReferenceNumber()
     {
         var filename = GLib.Path.build_filename( storagedir, "refnum" );
-        var number = FsoFramework.FileHandling.read( filename );
+        var number = FsoFramework.FileHandling.readIfPresent( filename );
         uint16 num = (uint16) number.to_int() + 1;
-        FsoFramework.FileHandling.write( filename, num.to_string() );
+        FsoFramework.FileHandling.write( num.to_string(), filename, true ); // create, if not existing
         return num;
     }
 
@@ -307,7 +307,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
         foreach ( var hexpdu in hexpdus )
         {
             var filename = GLib.Path.build_filename( dirname, hexpdu.transaction_index.to_string() );
-            FsoFramework.FileHandling.write( refnum, filename );
+            FsoFramework.FileHandling.write( refnum, filename, true );
         }
     }
 
@@ -322,19 +322,26 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
             {
                 if ( component.to_int() == netreference )
                 {
-                    logger.debug( @"Found reference ($netreference) of unconfirmed SMS: $component in $unconfirmed" );
-                    var filename = GLib.Path.build_filename( dirname, unconfirmed, component );
+#if DEBUG
+                    debug( @"Found reference ($netreference) of unconfirmed SMS:$component in $unconfirmed" );
+#endif
+                    var filedirname = GLib.Path.build_filename( dirname, unconfirmed );
+                    var filename = GLib.Path.build_filename( filedirname, component );
+                    var transaction_index = FsoFramework.FileHandling.read( filename ).to_int();
                     GLib.FileUtils.unlink( filename );
-                    if ( components.length > 1 )
+                    var ok = GLib.DirUtils.remove( filedirname );
+                    if ( ok != 0 )
                     {
-                        logger.debug( @"Not all fragments confirmed yet; missing $(components.length-1) more" );
+#if DEBUG
+                        debug( @"$(strerror(errno)) (Not all fragments confirmed yet)" );
+#endif
                         return -1;
                     }
                     else
                     {
-                        var transaction_index = FsoFramework.FileHandling.read( filename ).to_int();
-                        logger.debug( @"All fragments confirmed; removing directory and returning index $transaction_index" );
-                        GLib.FileUtils.unlink( GLib.Path.build_filename( dirname, unconfirmed ) );
+#if DEBUG
+                        debug( @"All fragments confirmed & removed directory. Returning index $transaction_index" );
+#endif
                         return transaction_index;
                     }
                 }
@@ -359,7 +366,10 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         {
             logger.warning( "SMS Handler created before modem" );
         }
-        theModem.signalStatusChanged.connect( onModemStatusChanged );
+        else
+        {
+            theModem.signalStatusChanged.connect( onModemStatusChanged );
+        }
     }
 
     private override string repr()
@@ -392,13 +402,16 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
     public Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents, bool requestReport )
     {
         uint16 inref = nextReferenceNumber();
+#if DEBUG
+        debug( @"using reference number $inref" );
+#endif        
         int byteOffsetForRefnum;
 
         var hexpdus = new Gee.ArrayList<WrapHexPdu>();
 
         var smslist = Sms.text_prepare( contents, inref, true, out byteOffsetForRefnum );
 #if DEBUG
-        debug( "message prepared in %u smses", smslist.length() );
+        debug( @"message prepared in $(smslist.length()) smses" );
 #endif
 
         smslist.foreach ( (element) => {
