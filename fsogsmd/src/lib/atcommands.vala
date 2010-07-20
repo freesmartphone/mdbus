@@ -1665,7 +1665,6 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 
     // misc
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
-    table[ "CUSTOM" ]            = new FsoGsm.CustomAtCommand();
 }
 
 } /* namespace FsoGsm */
