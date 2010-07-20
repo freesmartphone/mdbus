@@ -81,7 +81,8 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
             """^SIND="band",1""",
             """^SIND="simlocal",1""",
 
-            """+CMER=3,0,2,0"""         /* +CIND URC = enable */
+            """+CMER=3,0,2,0""" , /* +CIND URC = enable */
+            """+CFUN=1"""
 
         } ) );
 
