@@ -307,7 +307,7 @@ public class AtDebugCommand : DebugCommand
 {
     public override async void run( string command, string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+        var cmd = new CustomAtCommand( command );
 
         AtChannel channel = theModem.channel( category ) as AtChannel;
         //FIXME: assert channel is really an At channel
