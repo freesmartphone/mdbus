@@ -193,8 +193,18 @@ public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, Fr
     }
 }
 
+static bool inGatherSimStatusAndUpdate;
+static bool inTriggerUpdateNetworkStatus;
+
 public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
+    if ( inGatherSimStatusAndUpdate )
+    {
+        assert( theModem.logger.debug( "already gathering sim status... ignoring additional trigger" ) );
+        return;
+    }
+    inGatherSimStatusAndUpdate = true;
+
     yield gatherSimOperators();
 
     var data = theModem.data();
@@ -239,10 +249,19 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
     {
         theModem.logger.warning( "Unhandled error while querying SIM PIN status" );
     }
+
+    inGatherSimStatusAndUpdate = false;
 }
 
 public async void triggerUpdateNetworkStatus()
 {
+    if ( inTriggerUpdateNetworkStatus )
+    {
+        assert( theModem.logger.debug( "already gathering network status... ignoring additional trigger" ) );
+        return;
+    }
+    inTriggerUpdateNetworkStatus = true;
+
     var mstat = theModem.status();
 
     // ignore, if we don't have proper status to issue networking commands yet
@@ -277,6 +296,8 @@ public async void triggerUpdateNetworkStatus()
     // send dbus signal
     var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
     obj.status( m.status );
+
+    inTriggerUpdateNetworkStatus = false;
 }
 
 /**
