@@ -216,15 +216,15 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
 
             // advance global modem state
             var modemStatus = theModem.status();
-            if ( modemStatus == Modem.Status.INITIALIZING )
+            if ( modemStatus >= Modem.Status.INITIALIZING && modemStatus <= Modem.Status.ALIVE_REGISTERED )
             {
                 if ( cmd.status == FreeSmartphone.GSM.SIMAuthStatus.READY )
                 {
-                    theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+                    theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED, true );
                 }
                 else
                 {
-                    theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
+                    theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED, true );
                 }
             }
         }
