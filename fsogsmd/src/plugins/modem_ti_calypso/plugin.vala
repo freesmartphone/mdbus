@@ -86,6 +86,10 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """+CSNS=0"""
         } ) );
 
+        // sequence for initializing main channel
+        registerAtCommandSequence( "main", "init", new AtCommandSequence( {
+            """+CFUN=1"""
+        } ) );
 
         // sequence for initializing the channel urc
         registerAtCommandSequence( "urc", "init", new AtCommandSequence( {
@@ -109,9 +113,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """%CSCN=1,2,1,2""",
             """%CSTAT=1""",
             """%CSQ=1""",
-            """@ST="-26"""",
-
-            """+CFUN=1"""
+            """@ST="-26""""
         } ) );
 
         var cnmiCommand = modem_data.simBuffersSms ? """+CNMI=2,1,2,1,1""" : """+CNMI=2,2,2,1,1""";
