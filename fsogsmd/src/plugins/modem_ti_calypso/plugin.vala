@@ -216,6 +216,10 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         {
             return channels["call"];
         }
+        if ( query.has_prefix( "+CLIR" ) )
+        {
+            return channels["call"];
+        }
         return channels[ "main" ];
     }
 
