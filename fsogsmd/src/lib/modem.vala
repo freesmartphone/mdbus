@@ -694,6 +694,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         powerOff();
 
         advanceToState( Modem.Status.CLOSED, true ); // force wraparound
+
+        initData();
     }
 
     public virtual async bool suspend()
