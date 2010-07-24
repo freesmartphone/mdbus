@@ -128,6 +128,11 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         return new CinterionMc75.UnsolicitedResponseHandler();
     }
 
+    protected override void registerCustomAtCommands( Gee.HashMap<string,FsoGsm.AtCommand> commands )
+    {
+        CinterionMc75.registerCustomAtCommands( commands );
+    }
+
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
         if ( query.has_prefix( "D*99" ) || query.has_prefix( "+CGD" ) )

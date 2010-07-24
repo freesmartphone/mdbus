@@ -38,8 +38,8 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_cinterion_mc75.la
-modem_cinterion_mc75_la_SOURCES = unsolicited.c plugin.c
-modem_cinterion_mc75_la_VALASOURCES = unsolicited.vala plugin.vala
+modem_cinterion_mc75_la_SOURCES = commands.c unsolicited.c plugin.c
+modem_cinterion_mc75_la_VALASOURCES = commands.vala unsolicited.vala plugin.vala
 $(modem_cinterion_mc75_la_SOURCES): $(modem_cinterion_mc75_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
