@@ -39,10 +39,12 @@ class GpsPowerControl : FsoDevice.BasePowerControl
 
     public GpsPowerControl( FsoFramework.Subsystem subsystem )
     {
-        base( Path.build_filename( sysfsnode, "" ) );
+        base( "" );
+
         this.subsystem = subsystem;
-        this.sysfsnode = sysfsnode;
+        this.sysfsnode = "dummy";
         this.name = Path.get_basename( sysfsnode );
+
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
@@ -51,8 +53,6 @@ class GpsPowerControl : FsoDevice.BasePowerControl
 
 
         logger.info( "Created." );
-
-
     }
 
     public override bool getPower()
