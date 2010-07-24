@@ -628,8 +628,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     //
     public virtual async bool open()
     {
-        assert( logger.debug( "Powering up the device..." ) );
-
+        assert( logger.debug( "Opening the modem device..." ) );
 
         if ( !lowlevel.poweron() )
         {
@@ -679,6 +678,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual async void close()
     {
+        assert( logger.debug( "Closing the modem device..." ) );
+
         advanceToState( Modem.Status.CLOSING );
 
         // close all channels
