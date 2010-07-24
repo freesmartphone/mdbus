@@ -16,9 +16,6 @@
 ===alarm===
 * Should we support a customizable object path for alarm notifications?
 * Should registered alarms be persistent in case the daemon dies or the system gets rebooted?
-===source_ntp===
-* Listen for default route changes; then trigger sync
-* Sync regularly (configurable frequency)
 
 ==fsousaged==
 * Suspend/Resume resources in parallel
@@ -45,4 +42,3 @@
 * Store last reference number in persistent configuration
 * Improve support for binary SMS, i.e. WAP PUSH and WBXML configuration messages
 * Add support for a) plugins or b) agents
-
