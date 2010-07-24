@@ -268,6 +268,7 @@ public async void triggerUpdateNetworkStatus()
     if ( mstat != Modem.Status.ALIVE_SIM_READY && mstat != Modem.Status.ALIVE_REGISTERED )
     {
         assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() ignored while modem is in status $mstat" ) );
+        inTriggerUpdateNetworkStatus = false;
         return;
     }
 
@@ -280,12 +281,12 @@ public async void triggerUpdateNetworkStatus()
     catch ( GLib.Error e )
     {
         theModem.logger.warning( @"Can't query networking status: $(e.message)" );
+        inTriggerUpdateNetworkStatus = false;
         return;
     }
 
     // advance modem status, if necessary
     var status = m.status.lookup( "registration" ).get_string();
-
     assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
 
     if ( status == "home" || status == "roaming" )
