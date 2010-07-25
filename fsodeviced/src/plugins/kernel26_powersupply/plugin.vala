@@ -74,18 +74,20 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply,
         // trigger initial coldplug change notification, if we are on a real sysfs
         if ( sysfsnode.has_prefix( "/sys" ) )
         {
-            logger.debug( "Triggering initial coldplug change notification" );
+            assert( logger.debug( "Triggering initial coldplug change notification" ) );
             FsoFramework.FileHandling.write( "change", "%s/uevent".printf( sysfsnode ) );
         }
         else
         {
-            logger.debug( "Synthesizing initial coldplug change notification" );
+            assert( logger.debug( "Synthesizing initial coldplug change notification" ) );
             var uevent = FsoFramework.FileHandling.read( "%s/uevent".printf( sysfsnode ) );
             var parts = uevent.split( "\n" );
             var properties = new HashTable<string, string>( str_hash, str_equal );
             foreach ( var part in parts )
             {
+#if DEBUG
                 message( "%s", part );
+#endif
                 var elements = part.split( "=" );
                 if ( elements.length == 2 )
                 {
