@@ -59,13 +59,14 @@ public class IdleStatus
 
     public void onState( FreeSmartphone.Device.IdleState status )
     {
-        instance.logger.debug( "onState transitioning from s%d to s%d".printf( this.status, status ) );
-
         if ( watch > 0 )
+        {
             Source.remove( watch );
+        }
 
         if ( this.status != status )
         {
+            assert( instance.logger.debug( @"onState transitioning from $(this.status) to $(status)" ) );
             this.status = status;
             instance.state( this.status ); // DBUS SIGNAL
         }
@@ -81,7 +82,7 @@ public class IdleStatus
         }
         else
         {
-            instance.logger.debug( "Timeout for s%d disabled, not falling into this state next.".printf( next ) );
+            assert( instance.logger.debug( @"Timeout for $(next) disabled, not falling into this state." ) );
         }
     }
 
@@ -266,12 +267,23 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         if ( fds != null )
         {
             foreach ( var fd in fds )
+            {
                 Posix.close( fd );
+            }
         }
 
         fds = new int[] {};
+        Dir dir;
         // scan sysfs path
-        var dir = Dir.open( sysfsnode );
+        try
+        {
+            dir = Dir.open( sysfsnode );
+        }
+        catch ( GLib.Error e )
+        {
+            logger.error( @"Can't open $sysfsnode ($(e.message)); idle notifier will not work" );
+            return;
+        }
         var entry = dir.read_name();
         while ( entry != null )
         {
@@ -289,7 +301,9 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
                     Posix.close( fd );
                 }
                 else
+                {
                     fds += fd;
+                }
             }
             entry = dir.read_name();
         }
@@ -325,7 +339,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         }
 
 #if DEBUG
-        logger.debug( @"Input event (fd$(source.unix_get_fd())): $(ev.type), $(ev.code), $(ev.value)" );
+        assert( logger.debug( @"Input event (fd$(source.unix_get_fd())): $(ev.type), $(ev.code), $(ev.value)" ) );
 #endif
         _handleInputEvent( ref ev );
 
