@@ -815,6 +815,8 @@ public class AtSimGetInformation : SimGetInformation
             info.insert( "imsi", "unknown" );
         }
 
+        /* SIM Issuer */
+        info.insert( "issuer", "unknown" );
         var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
         response = yield theModem.processAtCommandAsync( crsm, crsm.issue(
                 Constants.SimFilesystemCommand.READ_BINARY,
@@ -825,9 +827,19 @@ public class AtSimGetInformation : SimGetInformation
             value = issuer != "" ? issuer : "unknown";
             info.insert( "issuer", value );
         }
-        else
+
+        if ( value.get_string() == "unknown" )
         {
-            info.insert( "issuer", "unknown" );
+            crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
+            response = yield theModem.processAtCommandAsync( crsm, crsm.issue(
+                Constants.SimFilesystemCommand.READ_BINARY,
+                Constants.instance().simFilesystemEntryNameToCode( "EF_SPN_CPHS" ), 0, 0, 10 ) );
+            if ( crsm.validate( response ) == Constants.AtResponse.VALID )
+            {
+                var issuer2 = Codec.hexToString( crsm.payload );
+                value = issuer2 != "" ? issuer2 : "unknown";
+                info.insert( "issuer", value );
+            }
         }
 
         var cpbs = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
