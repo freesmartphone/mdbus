@@ -115,7 +115,7 @@ public class FsoGsm.Constants
         { 0x6FC5,        0x7F20,      "EFpnn" },           // 51.011
         { 0x6FC6,        0x7F20,      "EFopl" },           // 51.011
         { 0x6FC7,        0x7F20,      "EFmbdn" },          // 51.011
-        { 0x6FC8,        0x7F20,      "EFext6" },          // 51.011
+        { 0x6FC8,        0x7F20,      "EFext6" },          // Ext record for EFmbdn
         { 0x6FC9,        0x7F20,      "EFmbi" },           // 51.011
         { 0x6FCA,        0x7F20,      "EFmwis" },          // 51.011
         { 0x6FCB,        0x7F20,      "EFcfis" },          // 51.011
@@ -126,6 +126,13 @@ public class FsoGsm.Constants
         { 0x6FD0,        0x7F20,      "EFmmsicp" },        // 51.011
         { 0x6FD1,        0x7F20,      "EFmmsup" },         // 51.011
         { 0x6FD2,        0x7F20,      "EFmmsucp" },        // 51.011
+
+        { 0x6F17,        0x7F20,      "EF_MAILBOX_CPHS" },                  // CPHS phase 2
+        { 0x6F11,        0x7F20,      "EF_VOICE_MAIL_INDICATOR_CPHS" },     // CPHS phase 2
+        { 0x6F13,        0x7F20,      "EF_CFF_CPHS" },                      // CPHS phase 2
+        { 0x6f14,        0x7F20,      "EF_SPN_CPHS" },                      // CPHS phase 2
+        { 0x6f18,        0x7F20,      "EF_SPN_SHORT_CPHS" },                // CPHS phase 2
+        { 0x6f16,        0x7F20,      "EF_INFO_CPHS" },                     // CPHS phase 2
 
         { 0x5F30,        0x7F20,      "DFiridium" },
         { 0x5F31,        0x7F20,      "DFglobst" },
