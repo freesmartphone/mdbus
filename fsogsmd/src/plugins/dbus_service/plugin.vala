@@ -457,6 +457,17 @@ class DBusService.Device :
         return m.info;
     }
 
+    public async GLib.HashTable<string,GLib.Value?> get_unlock_counters() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        /*
+        var m = modem.createMediator<FsoGsm.SimGetUnlockCounters>();
+        yield m.run();
+        return m.info;
+        */
+    }
+
     public async void retrieve_message( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
