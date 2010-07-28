@@ -97,13 +97,22 @@ public class AtMonitorGetNeighbourCellInformation : MonitorGetNeighbourCellInfor
     }
 }
 
+public class AtSimGetUnlockCounters : SimGetUnlockCounters
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented -- even for TI Calypso ;)" );
+    }
+}
+
 /**
  * Register all mediators
  **/
 public void registerCustomMediators( HashMap<Type,Type> table )
 {
-    table[ typeof(MonitorGetServingCellInformation) ] = typeof( AtMonitorGetServingCellInformation );
+    table[ typeof(MonitorGetServingCellInformation) ]   = typeof( AtMonitorGetServingCellInformation );
     table[ typeof(MonitorGetNeighbourCellInformation) ] = typeof( AtMonitorGetNeighbourCellInformation );
+    table[ typeof(SimGetUnlockCounters) ]               = typeof( TiCalypso.AtSimGetUnlockCounters );
 }
 
 } /* namespace TiCalypso */

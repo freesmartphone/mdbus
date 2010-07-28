@@ -895,6 +895,14 @@ public class AtSimGetServiceCenterNumber : SimGetServiceCenterNumber
     }
 }
 
+public class AtSimGetUnlockCounters : SimGetUnlockCounters
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+}
+
 public class AtSimRetrieveMessage : SimRetrieveMessage
 {
     public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -1473,6 +1481,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(SimGetServiceCenterNumber) ]    = typeof( AtSimGetServiceCenterNumber );
     table[ typeof(SimGetInformation) ]            = typeof( AtSimGetInformation );
     table[ typeof(SimGetPhonebookInfo) ]          = typeof( AtSimGetPhonebookInfo );
+    table[ typeof(SimGetUnlockCounters) ]         = typeof( AtSimGetUnlockCounters );
     table[ typeof(SimRetrieveMessage) ]           = typeof( AtSimRetrieveMessage );
     table[ typeof(SimRetrievePhonebook) ]         = typeof( AtSimRetrievePhonebook );
     table[ typeof(SimSendAuthCode) ]              = typeof( AtSimSendAuthCode );

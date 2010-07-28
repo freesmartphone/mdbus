@@ -180,6 +180,12 @@ public abstract class FsoGsm.SimGetServiceCenterNumber : FsoGsm.AbstractMediator
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.SimGetUnlockCounters : FsoGsm.AbstractMediator
+{
+    public GLib.HashTable<string,Value?> counters { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SimRetrievePhonebook : FsoGsm.AbstractMediator
 {
     public FreeSmartphone.GSM.SIMEntry[] phonebook { get; set; }
