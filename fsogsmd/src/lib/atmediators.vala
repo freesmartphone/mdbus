@@ -293,6 +293,10 @@ public async void triggerUpdateNetworkStatus()
     {
         theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
     }
+    else
+    {
+        theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
+    }
 
     // send dbus signal
     var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
