@@ -106,7 +106,9 @@ public class AtSimGetUnlockCounters : SimGetUnlockCounters
         checkResponseValid( cmd, response );
         counters = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
         counters.insert( "SIM PIN", cmd.pin );
+        counters.insert( "SIM PIN2", cmd.pin2 );
         counters.insert( "SIM PUK", cmd.puk );
+        counters.insert( "SIM PUK2", cmd.puk2 );
     }
 }
 

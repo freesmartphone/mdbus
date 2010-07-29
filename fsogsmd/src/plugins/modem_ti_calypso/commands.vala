@@ -283,13 +283,15 @@ public class PercentEM23 : AbstractAtCommand
 public class PercentPVRF : AbstractAtCommand
 {
     public int pin;
+    public int pin2;
     public int puk;
+    public int puk2;
 
     public PercentPVRF()
     {
         try
         {
-            re = new Regex( """%PVRF: (?P<pin>\d+), (?P<puk>\d+), (?P<na1>\d+), (?P<na2>\d+), (?P<required>\d+), (?P<na4>-?\d+)""" );
+            re = new Regex( """%PVRF: (?P<pin>\d+), (?P<pin2>\d+), (?P<puk>\d+), (?P<puk2>\d+), (?P<locked>\d+), (?P<na4>-?\d+)""" );
         }
         catch ( GLib.RegexError e )
         {
@@ -302,7 +304,9 @@ public class PercentPVRF : AbstractAtCommand
     {
         base.parse( response );
         pin = to_int( "pin" );
+        pin2 = to_int( "pin2" );
         puk = to_int( "puk" );
+        puk2 = to_int( "puk2" );
     }
 
     public string query()
