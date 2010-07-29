@@ -902,9 +902,17 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     public void advanceToState( Modem.Status next, bool force = false )
     {
-        // do nothing, if we're already in the requested state or beyond
-        if ( !force && ( next <= modem_status ) )
+        // do nothing, if we are already in the requested state
+        if ( next == modem_status )
         {
+            logger.debug( @"Already in status $next, not advancing" );
+            return;
+        }
+
+        // unless forced, do nothing if we are beyond the requested state
+        if ( !force && ( next < modem_status ) )
+        {
+            logger.debug( @"Already beyond status $next, not advancing" );
             return;
         }
 
