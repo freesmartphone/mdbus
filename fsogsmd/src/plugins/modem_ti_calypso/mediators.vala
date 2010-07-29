@@ -101,7 +101,12 @@ public class AtSimGetUnlockCounters : SimGetUnlockCounters
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented -- even for TI Calypso ;)" );
+        var cmd = theModem.createAtCommand<PercentPVRF>( "%PVRF" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        counters = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        counters.insert( "SIM PIN", cmd.pin );
+        counters.insert( "SIM PUK", cmd.puk );
     }
 }
 

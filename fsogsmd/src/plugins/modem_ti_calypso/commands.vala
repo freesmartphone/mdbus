@@ -278,6 +278,40 @@ public class PercentEM23 : AbstractAtCommand
 }
 
 /**
+ * %PVRF: SIM authentication counters
+ **/
+public class PercentPVRF : AbstractAtCommand
+{
+    public int pin;
+    public int puk;
+
+    public PercentPVRF()
+    {
+        try
+        {
+            re = new Regex( """%PVRF: (?P<pin>\d+), (?P<puk>\d+), (?P<na1>\d+), (?P<na2>\d+), (?P<required>\d+), (?P<na4>-?\d+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail, if invalid
+        }
+        prefix = { "%PVRF: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        pin = to_int( "pin" );
+        puk = to_int( "puk" );
+    }
+
+    public string query()
+    {
+        return "%PVRF?";
+    }
+}
+
+/**
  * Register all custom commands
  **/
 public void registerCustomAtCommands( HashMap<string,AtCommand> table )
@@ -288,6 +322,8 @@ public void registerCustomAtCommands( HashMap<string,AtCommand> table )
 
     table[ "%EM21" ]              = new PercentEM21();
     table[ "%EM23" ]              = new PercentEM23();
+
+    table[ "%PVRF" ]              = new PercentPVRF();
 }
 
 } /* namespace TiCalypso */
