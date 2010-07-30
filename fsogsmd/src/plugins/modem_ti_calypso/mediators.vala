@@ -112,6 +112,17 @@ public class AtSimGetUnlockCounters : SimGetUnlockCounters
     }
 }
 
+public class AtVoiceMailboxGetNumber : VoiceMailboxGetNumber
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PercentCPMB>( "%CPMB" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        number = cmd.number;
+    }
+}
+
 /**
  * Register all mediators
  **/
@@ -120,6 +131,7 @@ public void registerCustomMediators( HashMap<Type,Type> table )
     table[ typeof(MonitorGetServingCellInformation) ]   = typeof( AtMonitorGetServingCellInformation );
     table[ typeof(MonitorGetNeighbourCellInformation) ] = typeof( AtMonitorGetNeighbourCellInformation );
     table[ typeof(SimGetUnlockCounters) ]               = typeof( TiCalypso.AtSimGetUnlockCounters );
+    table[ typeof(VoiceMailboxGetNumber) ]              = typeof( TiCalypso.AtVoiceMailboxGetNumber );
 }
 
 } /* namespace TiCalypso */

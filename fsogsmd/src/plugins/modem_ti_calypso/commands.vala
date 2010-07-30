@@ -24,6 +24,38 @@ namespace TiCalypso
 {
 
 /**
+ * %CPMB: SIM voice mailbox number
+ **/
+public class PercentCPMB : AbstractAtCommand
+{
+    public string number;
+
+    public PercentCPMB()
+    {
+        try
+        {
+            re = new Regex( """%CPMB: (?P<id>\d),(?P<type>\d+),"(?P<number>[\+0-9*#w]*)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail, if invalid
+        }
+        prefix = { "%CPMB: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        number = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
+    }
+
+    public string query()
+    {
+        return "%CPMB=1";
+    }
+}
+
+/**
  * %CPRI: GSM / PDP cipher indication
  **/
 public class PercentCPRI : AbstractAtCommand
@@ -320,6 +352,8 @@ public class PercentPVRF : AbstractAtCommand
  **/
 public void registerCustomAtCommands( HashMap<string,AtCommand> table )
 {
+    table[ "%CPMB" ]              = new PercentCPMB();
+
     table[ "%CPRI" ]              = new PercentCPRI();
     table[ "%CSTAT" ]             = new PercentCSTAT();
     table[ "%CSQ" ]               = new PercentCSQ();
