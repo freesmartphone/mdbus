@@ -650,7 +650,6 @@ public class FsoGsm.Constants
     {
         if ( sig <= 0 || sig > 31 )
         {
-            warning( @"networkSignalToPercentage(): Invalid signal strength $sig; returning 0" );
             return 0;
         }
         double dsig = sig;
