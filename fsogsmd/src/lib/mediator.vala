@@ -406,3 +406,18 @@ public abstract class FsoGsm.MonitorGetNeighbourCellInformation : FsoGsm.Abstrac
 
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
+
+//
+// org.freesmartphone.GSM.VoiceMail.*
+//
+public abstract class FsoGsm.VoiceMailboxGetNumber : FsoGsm.AbstractMediator
+{
+    public string number;
+
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.VoiceMailboxSetNumber : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}

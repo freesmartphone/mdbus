@@ -845,7 +845,9 @@ public class AtSimGetInformation : SimGetInformation
                 info.insert( "issuer", value );
             }
         }
+        theModem.data().simIssuer = value.get_string();
 
+        /* Phonebooks */
         var cpbs = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
         response = yield theModem.processAtCommandAsync( cpbs, cpbs.test() );
         var pbnames = "";
@@ -859,6 +861,7 @@ public class AtSimGetInformation : SimGetInformation
         }
         info.insert( "phonebooks", pbnames.strip() );
 
+        /* Messages */
         var cpms = theModem.createAtCommand<PlusCPMS>( "+CPMS" );
         response = yield theModem.processAtCommandAsync( cpms, cpms.query() );
         if ( cpms.validate( response ) == Constants.AtResponse.VALID )
@@ -1128,6 +1131,13 @@ public class AtNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+#if 0
+        if ( theModem.data().simIssuer == null )
+        {
+            var mediator = new AtSimGetInformation();
+            yield mediator.run();
+        }
+#endif
         status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
         var strvalue = Value( typeof(string) );
         var intvalue = Value( typeof(int) );
@@ -1140,7 +1150,9 @@ public class AtNetworkGetStatus : NetworkGetStatus
             intvalue = csq.signal;
             status.insert( "strength", intvalue );
         }
-
+#if 0
+        bool overrideProviderWithSimIssuer = false;
+#endif
         // query telephony registration status and lac/cid
         var creg = theModem.createAtCommand<PlusCREG>( "+CREG" );
         var cregResult = yield theModem.processAtCommandAsync( creg, creg.query() );
@@ -1155,6 +1167,9 @@ public class AtNetworkGetStatus : NetworkGetStatus
                 status.insert( "lac", strvalue );
                 strvalue = creg.cid;
                 status.insert( "cid", strvalue );
+#if 0
+                overrideProviderWithSimIssuer = ( theModem.data().simIssuer != null && creg.status == 1 /* home */ );
+#endif
             }
         }
 
@@ -1167,6 +1182,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
             status.insert( "mode", strvalue );
             strvalue = cops.oper;
             status.insert( "provider", strvalue );
+            status.insert( "network", strvalue ); // base value
             status.insert( "display", strvalue ); // base value
             strvalue = cops.act;
             status.insert( "act", strvalue );
@@ -1185,9 +1201,16 @@ public class AtNetworkGetStatus : NetworkGetStatus
             {
                 strvalue = cops.oper;
                 status.insert( "display", strvalue );
+                status.insert( "network", strvalue );
             }
         }
-
+#if 0
+        // check whether we want to override display name with SIM issuer
+        if ( overrideProviderWithSimIssuer )
+        {
+            status.insert( "display", theModem.data().simIssuer );
+        }
+#endif
         // query operator code
         var copsResult3 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
         if ( cops.validate( copsResult3 ) == Constants.AtResponse.VALID )
@@ -1454,6 +1477,25 @@ public class AtMonitorGetNeighbourCellInformation : MonitorGetNeighbourCellInfor
 }
 
 /**
+ * Voice Mailbox Mediators
+ **/
+public class AtVoiceMailboxGetNumber : VoiceMailboxGetNumber
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
+    }
+}
+
+public class AtVoiceMailboxSetNumber : VoiceMailboxSetNumber
+{
+    public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
+    }
+}
+
+/**
  * Register all mediators
  **/
 public void registerGenericAtMediators( HashMap<Type,Type> table )
@@ -1528,6 +1570,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(MonitorGetServingCellInformation) ] = typeof( AtMonitorGetServingCellInformation );
     table[ typeof(MonitorGetNeighbourCellInformation) ] = typeof( AtMonitorGetNeighbourCellInformation );
 
+    table[ typeof(VoiceMailboxGetNumber) ]        = typeof( AtVoiceMailboxGetNumber );
+    table[ typeof(VoiceMailboxSetNumber) ]        = typeof( AtVoiceMailboxSetNumber );
 }
 
 } // namespace FsoGsm

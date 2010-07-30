@@ -134,6 +134,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
         // Contents of SIM elementary files
         public GLib.HashTable<string,string> simOperatorbook;
+        public string simIssuer;
 
         // PDP
         public string pppCommand;
