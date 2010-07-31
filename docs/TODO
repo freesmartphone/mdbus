@@ -9,8 +9,12 @@
 * More unit tests, add a MockTransport
 * Find out how to make sure that we always read what's available from a transport before attempting to write.
 
+==libfsoresource==
+* Add state information to dbus resource to prevent a resource being disabled/enabled/resumed/suspended
+  in certain conditions
+
 ==libgsm0710mux==
-* Consider a threading model
+* Consider a threading model (one thread per VC)
 
 ==fsotdld==
 ===alarm===
@@ -31,6 +35,8 @@
 * Remember certain parameters (i.e. GSM timezone) and augment GSM.Network.Status() signal and method
 * Open/Close logic is suboptimal; it would be better to remove channels on shutdown and install them
   on startup, i.e. _not_ in the object constructor
+===Init Phase===
+* Inquire more parameters, e.g. value of EFspn to use later in implementation of get network status
 ===Error Handling===
 * Retry commands upon certain (well-defined) error results, i.e.
   +CMS ERROR 314 (SIM busy)
