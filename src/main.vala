@@ -156,7 +156,7 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
 
 static string formatSimpleType( string signature, DBus.RawMessageIter iter )
 {
-    if (iter.get_arg_type() == DBus.RawType.INVALID)
+    if( iter.get_arg_type() == DBus.RawType.INVALID )
 	    return "";
 
     switch ( signature )
