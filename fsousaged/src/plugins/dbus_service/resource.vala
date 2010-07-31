@@ -23,20 +23,6 @@ using GLib;
 using Gee;
 
 namespace Usage {
-/**
- * Enum for resource status
- **/
-public enum ResourceStatus
-{
-    UNKNOWN,
-    ENABLING,
-    ENABLED,
-    SUSPENDING,
-    SUSPENDED,
-    RESUMING,
-    DISABLING,
-    DISABLED
-}
 
 /**
  * @interface IResource
@@ -58,7 +44,7 @@ public class Resource : IResource, Object
     public string name { get; set; }
     public DBus.BusName busname { get; set; }
     public DBus.ObjectPath? objectpath { get; set; }
-    public ResourceStatus status { get; set; }
+    public FsoFramework.ResourceStatus status { get; set; }
     public FreeSmartphone.UsageResourcePolicy policy { get; set; }
     public ArrayList<string> users { get; set; }
 
@@ -75,7 +61,7 @@ public class Resource : IResource, Object
         this.name = name;
         this.busname = busname;
         this.objectpath = objectpath;
-        this.status = ResourceStatus.UNKNOWN;
+        this.status = FsoFramework.ResourceStatus.UNKNOWN;
         this.policy = FreeSmartphone.UsageResourcePolicy.AUTO;
 
         if ( objectpath != null )
@@ -117,7 +103,7 @@ public class Resource : IResource, Object
 
     public bool isEnabled()
     {
-        return ( status == ResourceStatus.ENABLED );
+        return ( status == FsoFramework.ResourceStatus.ENABLED );
     }
 
     public bool hasUser( string user )
@@ -273,9 +259,13 @@ public class Resource : IResource, Object
     {
         if ( objectpath == null )
         {
+#if DEBUG
             message( "enableShadowResource" );
+#endif
             yield enableShadowResource();
+#if DEBUG
             message( "shadowResourceEnabled" );
+#endif
         }
 
         assert( proxy != null );
@@ -283,7 +273,7 @@ public class Resource : IResource, Object
         try
         {
             yield proxy.enable();
-            status = ResourceStatus.ENABLED;
+            status = FsoFramework.ResourceStatus.ENABLED;
             updateStatus();
         }
         catch ( GLib.Error e )
@@ -303,25 +293,25 @@ public class Resource : IResource, Object
         try
         {
             yield proxy.disable();
-            status = ResourceStatus.DISABLED;
+            status = FsoFramework.ResourceStatus.DISABLED;
             updateStatus();
         }
         catch ( DBus.Error e )
         {
             instance.logger.error( @"Resource $name can't be disabled: $(e.message). Setting status to UNKNOWN" );
-            status = ResourceStatus.UNKNOWN;
+            status = FsoFramework.ResourceStatus.UNKNOWN;
             throw e;
         }
     }
 
     public virtual async void suspend() throws FreeSmartphone.ResourceError, DBus.Error
     {
-        if ( status == ResourceStatus.ENABLED )
+        if ( status == FsoFramework.ResourceStatus.ENABLED )
         {
             try
             {
                 yield proxy.suspend();
-                status = ResourceStatus.SUSPENDED;
+                status = FsoFramework.ResourceStatus.SUSPENDED;
                 updateStatus();
             }
             catch ( DBus.Error e )
@@ -339,12 +329,12 @@ public class Resource : IResource, Object
 
     public virtual async void resume() throws FreeSmartphone.ResourceError, DBus.Error
     {
-        if ( status == ResourceStatus.SUSPENDED )
+        if ( status == FsoFramework.ResourceStatus.SUSPENDED )
         {
             try
             {
                 yield proxy.resume();
-                status = ResourceStatus.ENABLED;
+                status = FsoFramework.ResourceStatus.ENABLED;
                 updateStatus();
             }
             catch ( DBus.Error e )

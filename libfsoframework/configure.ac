@@ -1,4 +1,4 @@
-AC_INIT([libfsoframework], [0.8.1], [smartphones-userland@linuxtogo.org], [libfsoframework])
+AC_INIT([libfsoframework], [0.8.2], [smartphones-userland@linuxtogo.org], [libfsoframework])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])

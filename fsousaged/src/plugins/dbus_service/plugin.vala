@@ -283,7 +283,7 @@ public class Controller : FsoFramework.AbstractObject
         var resourcesAlive = 0;
         foreach ( var r in resources.values )
         {
-            if ( ( r.status != ResourceStatus.SUSPENDED ) && ( r.status != ResourceStatus.DISABLED ) )
+            if ( ( r.status != FsoFramework.ResourceStatus.SUSPENDED ) && ( r.status != FsoFramework.ResourceStatus.DISABLED ) )
             {
                 logger.warning( @"Resource $(r.name) is not suspended nor disabled" );
                 resourcesAlive++;
