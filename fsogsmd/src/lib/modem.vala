@@ -683,6 +683,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         advanceToState( Modem.Status.CLOSING );
 
+        // give channels a chance to perform their closing commands
+        GLib.Timeout.add_seconds( 3, close.callback );
+        yield;
+
         // close all channels
         var channels = this.channels.values;
         foreach( var channel in channels )
