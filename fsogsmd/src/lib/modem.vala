@@ -679,6 +679,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual async void close()
     {
+        if ( status() == Modem.Status.CLOSED )
+        {
+            return;
+        }
         assert( logger.debug( "Closing the modem device..." ) );
 
         advanceToState( Modem.Status.CLOSING );
