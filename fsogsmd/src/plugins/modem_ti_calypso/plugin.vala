@@ -109,6 +109,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
             """%CPI=3""",
             """%CPRI=1""",
+            """%CPVWI=1""", /* enable incoming voice mail URC */
             """%CNIV=1""",
             """%CSCN=1,2,1,2""",
             """%CSTAT=1""",
