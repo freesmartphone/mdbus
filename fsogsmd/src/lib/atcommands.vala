@@ -668,7 +668,7 @@ public class PlusCMGS : AbstractAtCommand
     {
         try
         {
-            re = new Regex( """\+CMGS: (?P<id>\d)(?:,"(?P<name>[0-9ABCDEF]*)")?""" );
+            re = new Regex( """\+CMGS: (?P<id>\d+)(?:,"(?P<name>[0-9ABCDEF]*)")?""" );
         }
         catch ( GLib.RegexError e )
         {
