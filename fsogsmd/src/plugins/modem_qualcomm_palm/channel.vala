@@ -69,11 +69,6 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
 
         // FIXME: Should send test alive command until first URC has been received
 
-        debug( "SENDING TEST ALIVE COMMAND" );
-
-        var cmd2 = new Msmcomm.Command.TestAlive();
-        response = yield enqueueAsync( (owned)cmd2 );
-
         debug( "OK; MSM CHANNEL OPENED" );
 
         return true;

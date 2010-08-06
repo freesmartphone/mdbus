@@ -89,7 +89,7 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         {
             bundle.response = response;
             transport.logger.info( @"SRC: $bundle" );
-            assert( bundle.callback != null );
+            
             bundle.callback();
         }
         else
@@ -112,6 +112,13 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         yield;
         return handler.response;
     }
+    
+    public void enqueueSync( owned Msmcomm.Message command, int retries = 0 )
+    {
+        command.index = nextValidMessageIndex();
+        var handler = new MsmCommandHandler( command, 0 );
+        enqueueCommand( handler );
+    }
 
     public void onMsmcommShouldRead( void* data, int len )
     {
@@ -123,6 +130,16 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         var bwritten = transport.write( data, len );
         assert( bwritten == len );
     }
+    
+    private async bool syncWithModem()
+    {
+                    
+        debug( "SENDING TEST ALIVE COMMAND" );
+        var cmd2 = new Msmcomm.Command.TestAlive();
+        unowned Msmcomm.Message response = yield enqueueAsync( (owned)cmd2 );
+        
+        return false;
+    }
 
     public void onMsmcommGotEvent( int event, Msmcomm.Message message )
     {
@@ -132,7 +149,9 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         if ( message.type == Msmcomm.EventType.RESET_RADIO_IND )
         {
             /* Modem was reseted, we should do the same */
+            debug( "Modem was reseted, we should do the same ..." );
             reset();
+            syncWithModem.begin();
         }
         else if ( message.message_type == Msmcomm.MessageType.RESPONSE )
         {
@@ -160,22 +179,10 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
 
     public override async bool open()
     {
-        // FIXME: yield base.open() does not work in Vala atm.
-
-        // open transport
-        assert( !transport.isOpen() );
-        var opened = yield transport.openAsync();
-
-        if ( opened /* yield base.open() */ )
-        {
-            context.registerEventHandler( onMsmcommGotEvent );
-            context.registerReadHandler( onMsmcommShouldRead );
-            context.registerWriteHandler( onMsmcommShouldWrite );
-
-            return true;
-        }
-
-        return false;
+        context.registerEventHandler( onMsmcommGotEvent );
+        context.registerReadHandler( onMsmcommShouldRead );
+        context.registerWriteHandler( onMsmcommShouldWrite );
+        return true;
     }
 }
 
