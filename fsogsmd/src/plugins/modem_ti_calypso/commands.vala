@@ -24,6 +24,38 @@ namespace TiCalypso
 {
 
 /**
+ * %CPMB: SIM voice mailbox number
+ **/
+public class PercentCPMB : AbstractAtCommand
+{
+    public string number;
+
+    public PercentCPMB()
+    {
+        try
+        {
+            re = new Regex( """%CPMB: (?P<id>\d),(?P<type>\d+),"(?P<number>[\+0-9*#w]*)",(?P<typ>\d+)(?:,"(?P<name>[^"]*)")?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail, if invalid
+        }
+        prefix = { "%CPMB: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        number = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
+    }
+
+    public string query()
+    {
+        return "%CPMB=1";
+    }
+}
+
+/**
  * %CPRI: GSM / PDP cipher indication
  **/
 public class PercentCPRI : AbstractAtCommand
@@ -278,16 +310,58 @@ public class PercentEM23 : AbstractAtCommand
 }
 
 /**
+ * %PVRF: SIM authentication counters
+ **/
+public class PercentPVRF : AbstractAtCommand
+{
+    public int pin;
+    public int pin2;
+    public int puk;
+    public int puk2;
+
+    public PercentPVRF()
+    {
+        try
+        {
+            re = new Regex( """%PVRF: (?P<pin>\d+), (?P<pin2>\d+), (?P<puk>\d+), (?P<puk2>\d+), (?P<locked>\d+), (?P<na4>-?\d+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail, if invalid
+        }
+        prefix = { "%PVRF: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        pin = to_int( "pin" );
+        pin2 = to_int( "pin2" );
+        puk = to_int( "puk" );
+        puk2 = to_int( "puk2" );
+    }
+
+    public string query()
+    {
+        return "%PVRF?";
+    }
+}
+
+/**
  * Register all custom commands
  **/
 public void registerCustomAtCommands( HashMap<string,AtCommand> table )
 {
+    table[ "%CPMB" ]              = new PercentCPMB();
+
     table[ "%CPRI" ]              = new PercentCPRI();
     table[ "%CSTAT" ]             = new PercentCSTAT();
     table[ "%CSQ" ]               = new PercentCSQ();
 
     table[ "%EM21" ]              = new PercentEM21();
     table[ "%EM23" ]              = new PercentEM23();
+
+    table[ "%PVRF" ]              = new PercentPVRF();
 }
 
 } /* namespace TiCalypso */

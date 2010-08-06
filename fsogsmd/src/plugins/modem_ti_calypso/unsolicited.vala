@@ -46,6 +46,7 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
         registerUrc( "AT-Command Interpreter ready", channelReady );
         registerUrc( "%CPI", percentCPI );
         registerUrc( "%CPRI", percentCPRI );
+        registerUrc( "%CSSN", percentCSSN );
         registerUrc( "%CSTAT", percentCSTAT );
         registerUrc( "%CSQ", percentCSQ );
     }
@@ -80,6 +81,11 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
             var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
             obj.cipher_status( (FreeSmartphone.GSM.CipherStatus) cpri.telcipher, (FreeSmartphone.GSM.CipherStatus) cpri.pdpcipher );
         }
+    }
+
+    public virtual void percentCSSN( string prefix, string rhs )
+    {
+        // FIXME: Implement
     }
 
     /**

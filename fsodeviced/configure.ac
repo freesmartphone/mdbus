@@ -145,6 +145,22 @@ fi
 AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
 
 ##############################################################################
+# optional feature: htcdream_powercontrol
+AC_ARG_ENABLE(htcdream_powercontrol,
+  AS_HELP_STRING([--enable-htcdream-powercontrol], [Enable building the htcdream powercontrol plugin (default=disabled)]),
+  [htcpowercontrol=$enableval],
+  [htcpowercontrol="no"])
+
+if test x$htcpowercontrol = "xyes"; then
+    # android-rpc
+    PKG_CHECK_MODULES(HTCDREAM_POWERCONTROL,
+      android-rpc-1.0 >= 0.0.0)
+    AC_SUBST(HTCDREAM_POWERCONTROL_CFLAGS)
+    AC_SUBST(HTCDREAM_POWERCONTROL_LIBS)
+fi
+AM_CONDITIONAL( [WANT_HTCDREAM_POWERCONTROL], [test x"$htcpowercontrol" = x"yes"])
+
+##############################################################################
 # check for debugging
 AC_ARG_ENABLE(debug,
   AS_HELP_STRING([--enable-debug],[Enable debug build (default=disabled)]),
@@ -193,6 +209,7 @@ AC_CONFIG_FILES([
   src/plugins/kernel_idle/Makefile
   src/plugins/kernel_info/Makefile
   src/plugins/kernel_input/Makefile
+  src/plugins/htcdream_powercontrol/Makefile
   src/plugins/openmoko_powercontrol/Makefile
   src/plugins/palmpre_powersupply/Makefile
   src/plugins/player_alsa/Makefile
@@ -227,6 +244,7 @@ echo
 echo "  kernel26_rfkill......................: $rfkill"
 echo "  player_canberra......................: $canberra"
 echo "  player_gstreamer.....................: $gstreamer"
+echo "  htcdream_powercontrol ...............: $htcpowercontrol"
 echo
 echo "  debug build..........................: $debug"
 echo

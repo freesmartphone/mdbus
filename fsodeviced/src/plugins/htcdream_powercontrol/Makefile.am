@@ -1,0 +1,58 @@
+include $(top_srcdir)/Makefile.decl
+
+NULL =
+
+AM_CPPFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	$(HTCDREAM_POWERCONTROL_CFLAGS) \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(DBUS_CFLAGS) \
+	$(NULL)
+
+noinst_PROGRAMS = $(TEST_PROGS)
+
+progs_ldadd = \
+	$(HTCDREAM_POWERCONTROL_LIBS) \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(DBUS_LIBS) \
+	$(top_srcdir)/src/lib/libfsodevice.la
+
+VALAC_ARGS = \
+	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/src/lib \
+	--pkg glib-2.0 \
+	--pkg dbus-glib-1 \
+	--pkg fso-glib-1.0 \
+	--pkg fsoframework-2.0 \
+	--pkg fsodevice-2.0
+
+if WANT_FSORESOURCE
+VALAC_ARGS += -D WANT_FSO_RESOURCE
+endif
+
+#
+# plugin
+#
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
+modlibexec_LTLIBRARIES = htcdream_powercontrol.la
+htcdream_powercontrol_la_SOURCES = plugin.c gps.c
+htcdream_powercontrol_la_VALASOURCES = plugin.vala
+$(htcdream_powercontrol_la_SOURCES): $(htcdream_powercontrol_la_VALASOURCES)
+	$(VALAC) -C $(VALAC_ARGS) $^
+	touch $@
+htcdream_powercontrol_la_LIBADD = $(progs_ldadd)
+htcdream_powercontrol_la_LDFLAGS = -no-undefined -module -avoid-version
+htcdream_powercontrol_la_LIBTOOLFLAGS = --tag=disable-static
+
+CLEANFILES = \
+    plugin.c \
+    *.h \
+    *.la \
+    *.lo \
+    $(NULL)
+
+MAINTAINERCLEANFILES = \
+  Makefile.in \
+  $(NULL)

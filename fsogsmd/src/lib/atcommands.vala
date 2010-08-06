@@ -668,7 +668,7 @@ public class PlusCMGS : AbstractAtCommand
     {
         try
         {
-            re = new Regex( """\+CMGS: (?P<id>\d)(?:,"(?P<name>[0-9ABCDEF]*)")?""" );
+            re = new Regex( """\+CMGS: (?P<id>\d+)(?:,"(?P<name>[0-9ABCDEF]*)")?""" );
         }
         catch ( GLib.RegexError e )
         {
@@ -1665,7 +1665,6 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 
     // misc
     table[ "+CMICKEY" ]          = new FsoGsm.PlusCMICKEY();
-    table[ "CUSTOM" ]            = new FsoGsm.CustomAtCommand();
 }
 
 } /* namespace FsoGsm */

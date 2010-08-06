@@ -44,12 +44,6 @@ public string formatSimpleContainerIter( DBus.RawMessageIter subiter, string sta
     debug( @"formatSimpleContainerIter: depth = $depth, subiter.has_next() = $(subiter.has_next())" );
 #endif
 
-    // check for invalid container
-    if ( depth == 0 && !subiter.has_next() )
-    {
-        return @"$start $stop";
-    }
-
     // check for empty container
     if ( depth > 1 && !subiter.has_next() )
     {
@@ -162,6 +156,11 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
 
 static string formatSimpleType( string signature, DBus.RawMessageIter iter )
 {
+    if ( iter.get_arg_type() == DBus.RawType.INVALID )
+    {
+        return "";
+    }
+
     switch ( signature )
     {
         case "y":

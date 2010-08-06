@@ -149,7 +149,7 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
         {
             logger.critical( @"Could not get handle on DBus object at system bus: $(e.message)" );
         }
-        obj.NameOwnerChanged += onNameOwnerChanged;
+        obj.NameOwnerChanged.connect( onNameOwnerChanged );
     }
 
     public override string repr()

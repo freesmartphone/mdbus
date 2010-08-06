@@ -12,8 +12,6 @@ AM_CFLAGS = \
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
-	--pkg posix \
-	--pkg linux \
 	--pkg glib-2.0 \
 	--pkg gmodule-2.0 \
 	--pkg gio-2.0 \
@@ -39,6 +37,7 @@ libfsoframework_la_VALASOURCES = \
 	interfaces.vala \
 	object.vala \
 	plugin.vala \
+	resource.vala \
 	subsystem.vala \
 	$(NULL)
 

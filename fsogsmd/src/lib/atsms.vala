@@ -22,6 +22,7 @@ using Gee;
 namespace FsoGsm
 {
     public const string SMS_STORAGE_DEFAULT_STORAGE_DIR = "/tmp/fsogsmd/sms";
+    public const string SMS_STORAGE_SENT_UNCONFIRMED = "sent-unconfirmed";
     public const int SMS_STORAGE_DIRECTORY_PERMISSIONS = (int)Posix.S_IRUSR|Posix.S_IWUSR|Posix.S_IXUSR|Posix.S_IRGRP|Posix.S_IXGRP|Posix.S_IROTH|Posix.S_IXOTH;
 } /* namespace FsoGsm */
 
@@ -272,6 +273,83 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
         }
         return mb;
     }
+
+    public uint16 lastReferenceNumber()
+    {
+        var filename = GLib.Path.build_filename( storagedir, "refnum" );
+        return (uint16) FsoFramework.FileHandling.readIfPresent( filename ).to_int();
+    }
+
+    public uint16 increasingReferenceNumber()
+    {
+        var filename = GLib.Path.build_filename( storagedir, "refnum" );
+        var number = FsoFramework.FileHandling.readIfPresent( filename );
+        uint16 num = (uint16) number.to_int() + 1;
+        FsoFramework.FileHandling.write( num.to_string(), filename, true ); // create, if not existing
+        return num;
+    }
+
+    public void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus )
+    {
+        var refnum = lastReferenceNumber().to_string();
+
+        var name = "";
+        foreach ( var hexpdu in hexpdus )
+        {
+            name += @":$(hexpdu.transaction_index)";
+        }
+
+        var dirname = GLib.Path.build_filename( storagedir, SMS_STORAGE_SENT_UNCONFIRMED, name );
+        if ( ! FsoFramework.FileHandling.isPresent( dirname ) )
+        {
+            GLib.DirUtils.create_with_parents( dirname, SMS_STORAGE_DIRECTORY_PERMISSIONS );
+        }
+        foreach ( var hexpdu in hexpdus )
+        {
+            var filename = GLib.Path.build_filename( dirname, hexpdu.transaction_index.to_string() );
+            FsoFramework.FileHandling.write( refnum, filename, true );
+        }
+    }
+
+    public int confirmReceivedMessage( int netreference )
+    {
+        var dirname = GLib.Path.build_filename( storagedir, SMS_STORAGE_SENT_UNCONFIRMED );
+        var listUnconfirmed = FsoFramework.FileHandling.listDirectory( dirname );
+        foreach ( var unconfirmed in listUnconfirmed )
+        {
+            var components = unconfirmed.split( ":" );
+            foreach ( var component in components )
+            {
+                if ( component.to_int() == netreference )
+                {
+#if DEBUG
+                    debug( @"Found reference ($netreference) of unconfirmed SMS:$component in $unconfirmed" );
+#endif
+                    var filedirname = GLib.Path.build_filename( dirname, unconfirmed );
+                    var filename = GLib.Path.build_filename( filedirname, component );
+                    var transaction_index = FsoFramework.FileHandling.read( filename ).to_int();
+                    GLib.FileUtils.unlink( filename );
+                    var ok = GLib.DirUtils.remove( filedirname );
+                    if ( ok != 0 )
+                    {
+#if DEBUG
+                        debug( @"$(strerror(errno)) (Not all fragments confirmed yet)" );
+#endif
+                        return -1;
+                    }
+                    else
+                    {
+#if DEBUG
+                        debug( @"All fragments confirmed & removed directory. Returning index $transaction_index" );
+#endif
+                        return transaction_index;
+                    }
+                }
+            }
+        }
+        logger.warning( @"Did not find unconfirmed SMS for reference $netreference" );
+        return -1;
+    }
 }
 
 /**
@@ -280,17 +358,18 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
 public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 {
     public SmsStorage storage { get; set; }
-    private uint16 increasingReferenceNumber;
 
     public AtSmsHandler()
     {
         //FIXME: Use random init or read from file, so that this is increasing even during relaunches
-        increasingReferenceNumber = 0;
         if ( theModem == null )
         {
             logger.warning( "SMS Handler created before modem" );
         }
-        theModem.signalStatusChanged.connect( onModemStatusChanged );
+        else
+        {
+            theModem.signalStatusChanged.connect( onModemStatusChanged );
+        }
     }
 
     private override string repr()
@@ -312,24 +391,27 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
 
     public uint16 lastReferenceNumber()
     {
-        return increasingReferenceNumber-1;
+        return storage.lastReferenceNumber();
     }
 
     public uint16 nextReferenceNumber()
     {
-        return ++increasingReferenceNumber;
+        return storage.increasingReferenceNumber();
     }
 
     public Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents, bool requestReport )
     {
         uint16 inref = nextReferenceNumber();
+#if DEBUG
+        debug( @"using reference number $inref" );
+#endif        
         int byteOffsetForRefnum;
 
         var hexpdus = new Gee.ArrayList<WrapHexPdu>();
 
         var smslist = Sms.text_prepare( contents, inref, true, out byteOffsetForRefnum );
 #if DEBUG
-        debug( "message prepared in %u smses", smslist.length() );
+        debug( @"message prepared in $(smslist.length()) smses" );
 #endif
 
         smslist.foreach ( (element) => {
@@ -451,8 +533,12 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         debug( @"sms report status: $status" );
         debug( @"sms report text: '$text'" );
 #endif
-        var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
-        obj.incoming_message_report( reference, status.to_string(), number, text );
+        var transaction_index = storage.confirmReceivedMessage( reference );
+        if ( transaction_index >= 0 )
+        {
+            var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
+            obj.incoming_message_report( transaction_index, status.to_string(), number, text );
+        }
     }
 
     public async void handleIncomingSmsReport( string hexpdu, int tpdulen )
@@ -467,7 +553,8 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         _handleIncomingSmsReport( (owned) sms );
     }
 
+    public void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus )
+    {
+        storage.storeTransactionIndizesForSentMessage( hexpdus );
+    }
 }
-
-
-

@@ -81,7 +81,8 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
             """^SIND="band",1""",
             """^SIND="simlocal",1""",
 
-            """+CMER=3,0,2,0"""         /* +CIND URC = enable */
+            """+CMER=3,0,0,2,0""" , /* +CIND URC = enable */
+            """+CFUN=1"""
 
         } ) );
 
@@ -125,6 +126,11 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
     protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
     {
         return new CinterionMc75.UnsolicitedResponseHandler();
+    }
+
+    protected override void registerCustomAtCommands( Gee.HashMap<string,FsoGsm.AtCommand> commands )
+    {
+        CinterionMc75.registerCustomAtCommands( commands );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

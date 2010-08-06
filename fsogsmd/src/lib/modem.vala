@@ -134,6 +134,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
         // Contents of SIM elementary files
         public GLib.HashTable<string,string> simOperatorbook;
+        public string simIssuer;
 
         // PDP
         public string pppCommand;
@@ -628,8 +629,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     //
     public virtual async bool open()
     {
-        assert( logger.debug( "Powering up the device..." ) );
-
+        assert( logger.debug( "Opening the modem device..." ) );
 
         if ( !lowlevel.poweron() )
         {
@@ -679,7 +679,17 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     public virtual async void close()
     {
+        if ( status() == Modem.Status.CLOSED )
+        {
+            return;
+        }
+        assert( logger.debug( "Closing the modem device..." ) );
+
         advanceToState( Modem.Status.CLOSING );
+
+        // give channels a chance to perform their closing commands
+        GLib.Timeout.add_seconds( 3, close.callback );
+        yield;
 
         // close all channels
         var channels = this.channels.values;
@@ -693,6 +703,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         powerOff();
 
         advanceToState( Modem.Status.CLOSED, true ); // force wraparound
+
+        initData();
     }
 
     public virtual async bool suspend()
@@ -899,9 +911,17 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     public void advanceToState( Modem.Status next, bool force = false )
     {
-        // do nothing, if we're already in the requested state or beyond
-        if ( !force && ( next <= modem_status ) )
+        // do nothing, if we are already in the requested state
+        if ( next == modem_status )
         {
+            logger.debug( @"Already in status $next, not advancing" );
+            return;
+        }
+
+        // unless forced, do nothing if we are beyond the requested state
+        if ( !force && ( next < modem_status ) )
+        {
+            logger.debug( @"Already beyond status $next, not advancing" );
             return;
         }
 

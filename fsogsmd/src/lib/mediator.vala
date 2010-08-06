@@ -180,6 +180,12 @@ public abstract class FsoGsm.SimGetServiceCenterNumber : FsoGsm.AbstractMediator
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.SimGetUnlockCounters : FsoGsm.AbstractMediator
+{
+    public GLib.HashTable<string,Value?> counters { get; set; }
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 public abstract class FsoGsm.SimRetrievePhonebook : FsoGsm.AbstractMediator
 {
     public FreeSmartphone.GSM.SIMEntry[] phonebook { get; set; }
@@ -399,4 +405,19 @@ public abstract class FsoGsm.MonitorGetNeighbourCellInformation : FsoGsm.Abstrac
     public GLib.HashTable<string,GLib.Value?>[] cells { get; set; }
 
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+//
+// org.freesmartphone.GSM.VoiceMail.*
+//
+public abstract class FsoGsm.VoiceMailboxGetNumber : FsoGsm.AbstractMediator
+{
+    public string number;
+
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.VoiceMailboxSetNumber : FsoGsm.AbstractMediator
+{
+    public abstract async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }

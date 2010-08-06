@@ -97,13 +97,41 @@ public class AtMonitorGetNeighbourCellInformation : MonitorGetNeighbourCellInfor
     }
 }
 
+public class AtSimGetUnlockCounters : SimGetUnlockCounters
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PercentPVRF>( "%PVRF" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        counters = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        counters.insert( "SIM PIN", cmd.pin );
+        counters.insert( "SIM PIN2", cmd.pin2 );
+        counters.insert( "SIM PUK", cmd.puk );
+        counters.insert( "SIM PUK2", cmd.puk2 );
+    }
+}
+
+public class AtVoiceMailboxGetNumber : VoiceMailboxGetNumber
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PercentCPMB>( "%CPMB" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        checkResponseValid( cmd, response );
+        number = cmd.number;
+    }
+}
+
 /**
  * Register all mediators
  **/
 public void registerCustomMediators( HashMap<Type,Type> table )
 {
-    table[ typeof(MonitorGetServingCellInformation) ] = typeof( AtMonitorGetServingCellInformation );
+    table[ typeof(MonitorGetServingCellInformation) ]   = typeof( AtMonitorGetServingCellInformation );
     table[ typeof(MonitorGetNeighbourCellInformation) ] = typeof( AtMonitorGetNeighbourCellInformation );
+    table[ typeof(SimGetUnlockCounters) ]               = typeof( TiCalypso.AtSimGetUnlockCounters );
+    table[ typeof(VoiceMailboxGetNumber) ]              = typeof( TiCalypso.AtVoiceMailboxGetNumber );
 }
 
 } /* namespace TiCalypso */

@@ -35,6 +35,8 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     private char[] muxbuffer;
     private int length;
 
+    private bool channelOpened;
+
     static construct
     {
         manager = new Gsm0710mux.Manager();
@@ -88,6 +90,11 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         assert_not_reached(); // this transport can only be opened async
     }
 
+    public override bool isOpen()
+    {
+        return channelOpened;
+    }
+
     public override async bool openAsync()
     {
         try
@@ -99,6 +106,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
             logger.error( @"Can't allocate channel #$(channelinfo.number) from MUX: $(e.message)" );
             return false;
         }
+        channelOpened = true;
         return true;
     }
 
@@ -145,6 +153,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
             try
             {
                 manager.releaseChannel( channelinfo.consumer );
+                channelOpened = false;
             }
             catch ( Gsm0710mux.MuxerError e )
             {

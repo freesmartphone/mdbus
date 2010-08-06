@@ -71,6 +71,8 @@ class Source.Ntp : FsoTime.AbstractSource
         assert( 48 == sizeof( NetworkTimeProtocol.Packet ) );
 
         Idle.add( () => { triggerQuery(); return false; } );
+
+        FsoFramework.BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.NEWROUTE, onNetlinkNewRoute );
     }
 
     public override string repr()
@@ -97,14 +99,15 @@ class Source.Ntp : FsoTime.AbstractSource
             assert( logger.debug( @"Resolved $servername to $serveraddr" ) );
 
             socket = new Socket( SocketFamily.IPV4, SocketType.DATAGRAM, SocketProtocol.UDP );
+
+            channel = new IOChannel.unix_new( socket.fd );
+            watch = channel.add_watch( IOCondition.IN | IOCondition.HUP, onIncomingSocketData );
         }
 
         var targetaddr = new InetSocketAddress( serveraddr, NetworkTimeProtocol.PORT );
 	    var sent = socket.send_to( targetaddr, (string)(&request), sizeof( NetworkTimeProtocol.Packet ), null );
 	    assert( logger.debug( @"Sent $sent bytes to socket to request NTP timestamp." ) );
 
-        channel = new IOChannel.unix_new( socket.fd );
-        watch = channel.add_watch( IOCondition.IN | IOCondition.HUP, onIncomingSocketData );
     }
 
     private bool onIncomingSocketData( IOChannel source, IOCondition condition )
@@ -154,6 +157,15 @@ class Source.Ntp : FsoTime.AbstractSource
         return false;
     }
 
+    private void onNetlinkNewRoute( HashTable<string,string> properties )
+    {
+        var scope = properties.lookup( "ROUTE_SCOPE" );
+        if ( scope != null )
+        {
+            assert( logger.debug( "Route has changed; triggering NTP sync" ) );
+            Idle.add( () => { triggerQuery(); return false; } );
+        }
+    }
 }
 
 /**

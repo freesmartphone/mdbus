@@ -37,6 +37,7 @@ class DBusService.Device :
     FreeSmartphone.GSM.CB,
     FreeSmartphone.GSM.HZ,
     FreeSmartphone.GSM.Monitor,
+    FreeSmartphone.GSM.VoiceMail,
     FsoFramework.AbstractObject
 {
     //FsoFramework.Subsystem subsystem;
@@ -457,6 +458,14 @@ class DBusService.Device :
         return m.info;
     }
 
+    public async GLib.HashTable<string,GLib.Value?> get_unlock_counters() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        var m = modem.createMediator<FsoGsm.SimGetUnlockCounters>();
+        yield m.run();
+        return m.counters;
+    }
+
     public async void retrieve_message( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
     {
         checkAvailability();
@@ -843,6 +852,32 @@ class DBusService.Device :
         var m = modem.createMediator<FsoGsm.MonitorGetNeighbourCellInformation>();
         yield m.run();
         return m.cells;
+    }
+
+    //
+    // DBUS (org.freesmartphone.GSM.VoiceMail.*)
+    //
+    public async string get_voice_mailbox_number() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        var m = modem.createMediator<FsoGsm.VoiceMailboxGetNumber>();
+        yield m.run();
+        return m.number;
+    }
+
+    public async void set_voice_mailbox_number( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        var m = modem.createMediator<FsoGsm.VoiceMailboxSetNumber>();
+        yield m.run( number );
+    }
+
+    public async string[] get_stored_voice_mails() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    {
+        checkAvailability();
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        //var m = modem.createMediator<FsoGsm.VoiceMailboxGetRecordings>();
+        //yield m.run( number );
     }
 }
 
