@@ -133,11 +133,9 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
     
     private async bool syncWithModem()
     {
-                    
         debug( "SENDING TEST ALIVE COMMAND" );
         var cmd2 = new Msmcomm.Command.TestAlive();
         unowned Msmcomm.Message response = yield enqueueAsync( (owned)cmd2 );
-        
         return false;
     }
 
@@ -153,7 +151,8 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
             reset();
             syncWithModem.begin();
         }
-        else if ( message.message_type == Msmcomm.MessageType.RESPONSE )
+        
+        if ( message.message_type == Msmcomm.MessageType.RESPONSE )
         {
             assert( current != null );
             onSolicitedResponse( (MsmCommandHandler)current, message );
