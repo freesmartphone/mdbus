@@ -52,6 +52,9 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     
     protected override UnsolicitedResponseHandler createUnsolicitedHandler()
     {
+        // NOTE: we define our base unsolicited handler in our commandqueue,
+        // as the base on is very AT command specific atm. Need to change 
+        // this somewhere in the future ...
         return null;
     }
     
@@ -67,7 +70,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     
     protected override PhonebookHandler createPhonebookHandler()
     {
-        return null;
+        return new MsmPhonebookHandler();
     }
     
     protected override WatchDog createWatchDog()

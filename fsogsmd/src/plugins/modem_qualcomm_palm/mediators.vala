@@ -101,7 +101,7 @@ public class MsmDeviceGetFeatures : DeviceGetFeatures
         features.insert( "cdma", data.supportsCDMA );
         features.insert( "csd", data.supportsCSD );
         features.insert( "fax", data.supportsFAX );    
-        features.insert( "pgp", data.supportsPDP );
+        features.insert( "pdp", data.supportsPDP );
     }
 }
 
@@ -249,6 +249,9 @@ public class MsmSimSendAuthCode : SimSendAuthCode
     {
         var cmd = new Msmcomm.Command.VerifyPin();
         cmd.pin = pin;
+        // FIXME select pin type acording to the current active pin
+        cmd.pin_type = Msmcomm.SimPinType.PIN_1;
+        
         var channel = theModem.channel( "main" ) as MsmChannel;
         unowned Msmcomm.Message response = yield channel.enqueueAsync( (owned) cmd );
         
@@ -301,20 +304,33 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
 {
     public override async void run( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cat = Constants.instance().simPhonebookStringToCode( category );
-        if ( cat == "" )
+        Msmcomm.PhonebookType phonebookType = Msmcomm.PhonebookType.NONE;
+        
+        // FIXME add more phonebook types !!!
+        switch ( category )
         {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
+            case "fixed":
+                phonebookType = Msmcomm.PhonebookType.FDN;
+                break;
+            case "abbreviated":
+                phonebookType = Msmcomm.PhonebookType.ADN;
+                break;
+            default:
+                throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
         }
-
-        var cmd = theModem.createAtCommand<PlusCPBW>( "+CPBW" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.test( cat ) );
-        checkTestResponseValid( cmd, response );
-        slots = cmd.max;
-        numberlength = cmd.nlength;
-        namelength = cmd.tlength;
-        #endif
+        
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        
+        var cmd = new Msmcomm.Command.GetPhonebookProperties();
+        unowned Msmcomm.Reply.GetPhonebookProperties response = 
+            (Msmcomm.Reply.GetPhonebookProperties) ( yield channel.enqueueAsync( (owned) cmd ) );
+            
+        if (response != null && response.result == Msmcomm.ResultType.OK)
+        {
+            slots = response.slot_count;
+            numberlength = response.max_chars_per_number;
+            namelength = response.max_chars_per_title;
+        }
     }
 }
 
@@ -322,12 +338,7 @@ public class MsmSimGetServiceCenterNumber : SimGetServiceCenterNumber
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
-        checkResponseValid( cmd, response );
-        number = cmd.number;
-        #endif
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
@@ -343,19 +354,7 @@ public class MsmSimRetrieveMessage : SimRetrieveMessage
 {
     public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        properties = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-
-        var cmgr = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
-        var response = yield theModem.processAtCommandAsync( cmgr, cmgr.issue( index ) );
-        checkMultiResponseValid( cmgr, response );
-
-        var sms = Sms.Message.newFromHexPdu( cmgr.hexpdu, cmgr.tpdulen );
-        status = Constants.instance().simMessagebookStatusToString( cmgr.status );
-        number = sms.number();
-        contents = sms.to_string();
-        properties = sms.properties();
-        #endif
+       throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
@@ -363,16 +362,12 @@ public class MsmSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cat = Constants.instance().simPhonebookStringToCode( category );
-        if ( cat == "" )
+        var cat = Msm.simPhonebookStringToPhonebookType( category );
+        if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid Category" );
         }
-
-        phonebook = theModem.pbhandler.storage.phonebook( cat, mindex, maxdex );
-        
-        #endif
+        phonebook = theModem.pbhandler.storage.phonebook( category, mindex, maxdex );
     }
 }
 
@@ -380,15 +375,7 @@ public class MsmSimSendStoredMessage : SimSendStoredMessage
 {
     public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCMSS>( "+CMSS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( index ) );
-        checkResponseValid( cmd, response );
-        transaction_index = cmd.refnum;
-
-        //FIXME: What should we do with that?
-        timestamp = "now";
-        #endif
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
@@ -396,12 +383,7 @@ public class MsmSimSetServiceCenterNumber : SimSetServiceCenterNumber
 {
     public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        validatePhoneNumber( number );
-        var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( number ) );
-        checkResponseOk( cmd, response );
-        #endif
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
@@ -409,26 +391,7 @@ public class MsmSimStoreMessage : SimStoreMessage
 {
     public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        validatePhoneNumber( recipient_number );
-
-        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report );
-
-        if ( hexpdus.size != 1 )
-        {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Message does not fit in one slot, would rather take $(hexpdus.size) slots" );
-        }
-
-        // send the SMS one after another
-        foreach( var hexpdu in hexpdus )
-        {
-            var cmd = theModem.createAtCommand<PlusCMGW>( "+CMGW" );
-            var response = yield theModem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
-            checkResponseValid( cmd, response );
-            memory_index = cmd.memory_index;
-        }
-        
-        #endif
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
@@ -436,11 +399,7 @@ public class MsmSimUnlock : SimUnlock
 {
     public override async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( puk, newpin ) );
-        checkResponseOk( cmd, response );
-        #endif
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
@@ -448,17 +407,29 @@ public class MsmSimWriteEntry : SimWriteEntry
 {
     public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cat = Constants.instance().simPhonebookStringToCode( category );
-        if ( cat == "" )
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        
+        var cat = Msm.simPhonebookStringToPhonebookType( category );
+        if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
         }
 
-        var cmd = theModem.createAtCommand<PlusCPBW>( "+CPBW" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( cat, index, number, name ) );
-        checkResponseOk( cmd, response );
-        #endif
+        var cmd = new Msmcomm.Command.WritePhonebook();
+        cmd.number = number;
+        cmd.title = name;
+        unowned Msmcomm.Reply.Phonebook response = (Msmcomm.Reply.Phonebook) (yield channel.enqueueAsync( (owned) cmd ));
+        
+        yield channel.waitForUnsolicitedResponse( Msmcomm.EventType.PHONEBOOK_MODIFIED , ( urc ) => {
+            unowned Msmcomm.Unsolicited.PhonebookModified phonebookModifiedUrc = (Msmcomm.Unsolicited.PhonebookModified) ( urc );
+            if ( phonebookModifiedUrc == null || phonebookModifiedUrc.result != Msmcomm.ResultType.OK)
+            {
+                FsoFramework.theLogger.error( "Something went wrong while recieving URC_PHONEBOOK_MODIFIED !!!" );
+                throw new FreeSmartphone.Error.INTERNAL_ERROR( "Don't get any response from modem about a successfull write of the new phonebook entry" );
+            }
+        });
+        
+        // FIXME howto sync the phonebook now as we have a new entry?
     }
 }
 

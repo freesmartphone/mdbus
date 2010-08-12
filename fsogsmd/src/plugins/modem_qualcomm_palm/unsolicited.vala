@@ -34,7 +34,7 @@ class MsmUnsolicitedResponseHandlerFuncWrapper
 public class MsmBaseUnsolicitedResponseHandler : FsoFramework.AbstractObject
 {
     private HashMap<Msmcomm.EventType,MsmUnsolicitedResponseHandlerFuncWrapper> urcs;
-
+    
     public MsmBaseUnsolicitedResponseHandler()
     {
         urcs = new HashMap<Msmcomm.EventType,MsmUnsolicitedResponseHandlerFuncWrapper>();
@@ -55,6 +55,8 @@ public class MsmBaseUnsolicitedResponseHandler : FsoFramework.AbstractObject
     {
         assert( logger.debug( @"dispatching MSM unsolicited $(Msmcomm.eventTypeToString( urctype ))" ) );
 
+        notifyUrc( urc, urctype);
+        
         var urcwrapper = urcs[urctype];
         if ( urcwrapper != null )
         {
@@ -66,6 +68,8 @@ public class MsmBaseUnsolicitedResponseHandler : FsoFramework.AbstractObject
             return false;
         }
     }
+    
+    public signal void notifyUrc( Msmcomm.Message urc, Msmcomm.EventType urc_type );
 }
 
 public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
@@ -75,6 +79,7 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
     //
     public MsmUnsolicitedResponseHandler()
     {
+        
         registerUrc( Msmcomm.EventType.RESET_RADIO_IND, handleResetRadioInd );
         
         registerUrc( Msmcomm.EventType.SIM_NO_SIM, handleNoSimAvailable );

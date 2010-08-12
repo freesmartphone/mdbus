@@ -49,6 +49,13 @@ public class MsmCommandHandler : FsoFramework.AbstractCommandHandler
     }
 }
 
+public delegate void MsmWaitForUrcResponseHandlerFunc( Msmcomm.Message urc );
+
+class MsmWaitForUrcResponseHandlerFuncWrapper
+{
+    public MsmWaitForUrcResponseHandlerFunc func;
+}
+
 /**
  * @class MsmCommandQueue
  **/
@@ -118,6 +125,22 @@ public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
         command.index = nextValidMessageIndex();
         var handler = new MsmCommandHandler( command, 0 );
         enqueueCommand( handler );
+    }
+    
+    public async void waitForUnsolicitedResponse( Msmcomm.EventType urc_type, MsmWaitForUrcResponseHandlerFunc handler )
+    {
+        // Wtf??? Thats maybe something why people don't want to write software in vala ....
+        MsmWaitForUrcResponseHandlerFuncWrapper wrapper = new MsmWaitForUrcResponseHandlerFuncWrapper();
+        wrapper.func = handler;
+        
+        msmurchandler.notifyUrc.connect( ( urc, notifyUrcType ) => {
+            if (notifyUrcType == urc_type )
+            {
+                wrapper.func(urc);
+                waitForUnsolicitedResponse.callback();
+            }
+        });
+        yield;
     }
 
     public void onMsmcommShouldRead( void* data, int len )

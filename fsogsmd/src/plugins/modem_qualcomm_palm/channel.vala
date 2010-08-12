@@ -65,9 +65,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
 
         var cmd1 = new Msmcomm.Command.ChangeOperationMode();
         cmd1.setOperationMode( Msmcomm.OperationMode.RESET );
-        unowned Msmcomm.Message response = yield enqueueAsync( (owned)cmd1 );
-
-        // FIXME: Should send test alive command until first URC has been received
+        enqueueSync( (owned)cmd1 );
 
         debug( "OK; MSM CHANNEL OPENED" );
 
