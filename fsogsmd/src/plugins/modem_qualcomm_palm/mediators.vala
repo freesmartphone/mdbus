@@ -266,21 +266,28 @@ public class MsmSimDeleteEntry : SimDeleteEntry
 {
     public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cat = Constants.instance().simPhonebookStringToCode( category );
-        if ( cat == "" )
+        var cat = Msm.simPhonebookStringToPhonebookType( category );
+        if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
         }
-
-        var cmd = theModem.createAtCommand<PlusCPBW>( "+CPBW" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( cat, index ) );
-        checkResponseExpected( cmd, response, {
-            Constants.AtResponse.OK,
-            Constants.AtResponse.CME_ERROR_021_INVALID_INDEX
-        } );
-        //FIXME: theModem.pbhandler.resync();
-        #endif
+        
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        var cmd = new Msmcomm.Command.DeletePhonebook();
+        cmd.book_type = cat;
+        cmd.position = (uint8) index;
+        
+        unowned Msmcomm.Message response = (Msmcomm.Message) (yield channel.enqueueAsync( (owned) cmd ));
+        if ( response == null || response.result != Msmcomm.ResultType.OK ) 
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Got no valid response for DeletePhonebook command!" );
+        }
+            
+        // FIXME do we have to wait for a urc to get the verification that the 
+        // entry is deleted successfully?
+        
+        // FIXME implement resync method in phonebook handler
+        // theModem.pbhandler.resync();
     }
 }
 
