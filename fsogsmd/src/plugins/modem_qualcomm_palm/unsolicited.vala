@@ -199,5 +199,8 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
 
         var obj = FsoGsm.theModem.theDevice<FreeSmartphone.GSM.Network>();
         obj.status( status );
+    
+        Msmcomm.RuntimeData.signal_strength = (int) netinfo.rssi;
+        Msmcomm.RuntimeData.current_operator_name = netinfo.operator_name;
     }
 }

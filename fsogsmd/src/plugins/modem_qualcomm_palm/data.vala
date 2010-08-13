@@ -32,6 +32,8 @@ namespace Msmcomm
     {
         public static SimPinStatus pin1_status { get; set; default = SimPinStatus.ENABLED; }
         public static SimPinStatus pin2_status { get; set; default = SimPinStatus.ENABLED; }
+        public static string current_operator_name { get; set; default = ""; }
+        public static int signal_strength { get; set; default = 0; }
     }
 }
 

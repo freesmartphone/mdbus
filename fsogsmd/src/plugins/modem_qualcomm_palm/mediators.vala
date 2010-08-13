@@ -464,12 +464,7 @@ public class MsmNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
-        checkResponseValid( cmd, response );
-        signal = cmd.signal;
-        #endif
+        signal = Msmcomm.RuntimeData.signal_strength;
     }
 }
 
