@@ -266,7 +266,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
 {
     public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cat = Msm.simPhonebookStringToPhonebookType( category );
+        var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
         if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
@@ -369,7 +369,7 @@ public class MsmSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cat = Msm.simPhonebookStringToPhonebookType( category );
+        var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
         if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid Category" );
@@ -416,7 +416,7 @@ public class MsmSimWriteEntry : SimWriteEntry
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
         
-        var cat = Msm.simPhonebookStringToPhonebookType( category );
+        var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
         if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );

@@ -116,7 +116,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         
         foreach ( var pbcode in phonebooks )
         {
-            Msmcomm.PhonebookType phonebookType = Msm.simPhonebookStringToPhonebookType( pbcode );
+            Msmcomm.PhonebookType phonebookType = Msmcomm.simPhonebookStringToPhonebookType( pbcode );
             
             var cmd = new Msmcomm.Command.GetPhonebookProperties();
             cmd.book_type = phonebookType;
