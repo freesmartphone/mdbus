@@ -226,54 +226,110 @@ public class Argument : Object
 
     public bool appendToCall( string arg, DBus.RawMessage message )
     {
+        var iter = DBus.RawMessageIter();
+        message.iter_init_append( iter );
+        return appendTypeToCall( arg, iter, typ);
+    }
+
+    private bool appendTypeToCall( string arg, DBus.RawMessageIter iter, string typ )
+    {
 #if DEBUG
         debug( @"trying to parse argument $name of type $typ delivered as $arg" );
 #endif
-        switch ( typ )
+        switch ( typ.substring(0,1) )
         {
             case "y":
                 uint8 value = (uint8)arg.to_int();
-                assert( message.append_args( DBus.RawType.BYTE, ref value ) );
+                assert( iter.append_basic( DBus.RawType.BYTE, (void*)(&value) ) );
                 break;
             case "b":
                 bool value = ( arg == "true" || arg == "True" || arg == "1" );
-                assert( message.append_args( DBus.RawType.BOOLEAN, ref value ) );
+                assert( iter.append_basic( DBus.RawType.BOOLEAN, (void*)(&value) ) );
                 break;
             case "n":
                 int16 value = (int16)arg.to_int();
-                assert( message.append_args( DBus.RawType.INT16, ref value ) );
+                assert( iter.append_basic( DBus.RawType.INT16, (void*)(&value) ) );
                 break;
             case "i":
                 int value = arg.to_int();
-                assert( message.append_args( DBus.RawType.INT32, ref value ) );
+                assert( iter.append_basic( DBus.RawType.INT32, (void*)(&value) ) );
                 break;
             case "q":
                 uint16 value = (uint16)arg.to_int();
-                assert( message.append_args( DBus.RawType.UINT16, ref value ) );
+                assert( iter.append_basic( DBus.RawType.UINT16, (void*)(&value) ) );
                 break;
             case "u":
                 uint32 value = (uint32)arg.to_long();
-                assert( message.append_args( DBus.RawType.UINT32, ref value ) );
+                assert( iter.append_basic( DBus.RawType.UINT32, (void*)(&value) ) );
                 break;
             case "t":
                 uint64 value = (uint64)arg.to_long();
-                assert( message.append_args( DBus.RawType.UINT64, ref value ) );
+                assert( iter.append_basic( DBus.RawType.UINT64, (void*)(&value) ) );
                 break;
             case "d":
                 double value = arg.to_double();
-                assert( message.append_args( DBus.RawType.DOUBLE, ref value ) );
+                assert( iter.append_basic( DBus.RawType.DOUBLE, (void*)(&value) ) );
                 break;
             case "s":
-                assert( message.append_args( DBus.RawType.STRING, ref arg ) );
+                assert( iter.append_basic( DBus.RawType.STRING, (void*)(&arg) ) );
                 break;
             case "o":
-                assert( message.append_args( DBus.RawType.OBJECT_PATH, ref arg ) );
+                assert( iter.append_basic( DBus.RawType.OBJECT_PATH, (void*)(&arg) ) );
                 break;
+            case "a":
+                var subsig = getSubSignature (typ.substring( 1,-1 ));
+                return appendArrayTypeToCall(arg, iter, subsig);
             default:
                 stderr.printf( @"Unsupported type $typ\n" );
                 return false;
         }
         return true;
+    }
+
+    private bool appendArrayTypeToCall(string arg, DBus.RawMessageIter iter, string typ)
+    {
+        //remove []
+        var raw_arg = arg.substring( 1, arg.len() - 2 );
+        var subiter = DBus.RawMessageIter();
+#if DEBUG
+        debug( @"parsing array '$raw_arg' with subsignature '$typ'" );
+#endif
+        assert( iter.open_container( DBus.RawType.ARRAY, typ, subiter ) );
+        foreach( var sub_arg in raw_arg.split(",") )
+        {
+            if(appendTypeToCall( sub_arg, subiter, typ ) == false)
+                 return false;
+        }
+        assert( iter.close_container ( subiter ) );
+        return true;
+
+    }
+    const char[] start_chars = {'{', '[', '('};
+    const char[] end_chars = {'}', ']', ')'};
+
+    private string getSubSignature( string signature )
+    {
+        var result = "";
+        int depth = 0;
+        debug(@"parsing signature: $signature");
+        for(int i = 0; i < signature.len(); i++)
+        {
+            char c = (char)signature[i];
+            if( c == 'a')
+            {
+                 result += c.to_string();
+                 continue;
+            }
+            else if( c in start_chars )
+                 depth ++;
+            else if( c in end_chars )
+                 depth --;
+            result += c.to_string();
+            if (depth == 0)
+                 break;
+        }
+        assert( depth == 0 );
+        return result;
     }
 
     public string name;
