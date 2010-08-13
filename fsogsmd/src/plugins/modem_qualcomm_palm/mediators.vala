@@ -235,8 +235,8 @@ public class MsmSimGetAuthCodeRequired : SimGetAuthCodeRequired
     {
         required = true;
         
-        if (MsmData.instance.pin1_status == MsmData.SimPinStatus.DISABLED &&
-            MsmData.instance.pin2_status == MsmData.SimPinStatus.DISABLED)
+        if (Msmcomm.RuntimeData.pin1_status == Msmcomm.SimPinStatus.DISABLED &&
+            Msmcomm.RuntimeData.pin2_status == Msmcomm.SimPinStatus.DISABLED)
         {
             required = false;
         }

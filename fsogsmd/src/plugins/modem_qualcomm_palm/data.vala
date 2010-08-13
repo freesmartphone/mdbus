@@ -17,22 +17,8 @@
  *
  */
 
-public class MsmData
+namespace Msmcomm
 {
-    private static MsmData _instance = null;
-    
-    public static MsmData instance 
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = new MsmData();
-            }
-            return _instance;
-        }
-    }
-    
     public enum SimPinStatus
     {
         DISABLED,
@@ -42,12 +28,10 @@ public class MsmData
         CHANGED, // TODO: do we really need this state here?
     }
     
-    public SimPinStatus pin1_status { get; set; default = SimPinStatus.ENABLED; }
-    public SimPinStatus pin2_status { get; set; default = SimPinStatus.ENABLED; }
-    
-    private MsmData()
+    public static class RuntimeData
     {
-        
+        public static SimPinStatus pin1_status { get; set; default = SimPinStatus.ENABLED; }
+        public static SimPinStatus pin2_status { get; set; default = SimPinStatus.ENABLED; }
     }
 }
 
