@@ -289,13 +289,12 @@ public class Argument : Object
     private bool appendArrayTypeToCall(string arg, DBus.RawMessageIter iter, string typ)
     {
         //remove []
-        var raw_arg = arg.substring( 1, arg.len() - 2 );
         var subiter = DBus.RawMessageIter();
 #if DEBUG
-        debug( @"parsing array '$raw_arg' with subsignature '$typ'" );
+        debug( @"parsing array '$arg' with subsignature '$typ'" );
 #endif
         assert( iter.open_container( DBus.RawType.ARRAY, typ, subiter ) );
-        foreach( var sub_arg in raw_arg.split(",") )
+        foreach( var sub_arg in getSubArgs( arg ) )
         {
             if(appendTypeToCall( sub_arg, subiter, typ ) == false)
                  return false;
@@ -306,12 +305,12 @@ public class Argument : Object
     }
     const char[] start_chars = {'{', '[', '('};
     const char[] end_chars = {'}', ']', ')'};
+    const char arg_separator = ',';
 
     private string getSubSignature( string signature )
     {
         var result = "";
         int depth = 0;
-        debug(@"parsing signature: $signature");
         for(int i = 0; i < signature.len(); i++)
         {
             char c = (char)signature[i];
@@ -329,6 +328,32 @@ public class Argument : Object
                  break;
         }
         assert( depth == 0 );
+        return result;
+    }
+
+    string[] getSubArgs(string arg, char separator = arg_separator)
+    {
+        var raw_arg = arg.substring(1, arg.len() - 2);
+        var result = new string[0];
+        var part = "";
+        int depth = 0;
+        for( int i = 0; i < raw_arg.len(); i ++ )
+        {
+            char c = (char)raw_arg[i];
+            if( c in start_chars )
+                 depth ++;
+            else if( c in end_chars )
+                 depth --;
+            part += c.to_string();
+            if (depth == 0 && c == separator)
+            {
+                debug(@"adding part '$part'");
+                result += part.substring(0, part.len() - 1 );
+                part = "";
+            }
+        }
+        assert(depth == 0);
+        result += part;
         return result;
     }
 
