@@ -18,7 +18,7 @@
  */
 
 
-namespace Msm
+namespace Msmcomm
 {
     public Msmcomm.PhonebookType simPhonebookStringToPhonebookType( string category )
     {

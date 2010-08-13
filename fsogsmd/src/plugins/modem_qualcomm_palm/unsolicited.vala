@@ -127,12 +127,12 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
         // with the SIM card - nothing more!
         // updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
         
-        MsmData.instance.pin1_status = MsmData.SimPinStatus.ENABLED;
+        Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.ENABLED;
     }
     
     public virtual void handleSimPin2Enabled( Msmcomm.Message urc )
     {
-        MsmData.instance.pin2_status = MsmData.SimPinStatus.ENABLED;
+        Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.ENABLED;
     }
 
     public virtual void handleSimPin1Verified( Msmcomm.Message urc )
@@ -147,35 +147,34 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
     
     public virtual void handleSimPin1Disabled( Msmcomm.Message urc )
     {
-        MsmData.instance.pin1_status = MsmData.SimPinStatus.DISABLED;
+        Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.DISABLED;
     }
     
     public virtual void handleSimPin2Disabled( Msmcomm.Message urc )
     {
-        MsmData.instance.pin2_status = MsmData.SimPinStatus.DISABLED;
+        Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.DISABLED;
     }
     
     public virtual void handleSimPin1PermBlocked( Msmcomm.Message urc )
     {
-        MsmData.instance.pin1_status = MsmData.SimPinStatus.PERM_BLOCKED;
+        Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.PERM_BLOCKED;
     }
     
     public virtual void handleSimPin2PermBlocked( Msmcomm.Message urc )
     {
-        MsmData.instance.pin2_status = MsmData.SimPinStatus.PERM_BLOCKED;
+        Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.PERM_BLOCKED;
     }
     
     public virtual void handleSimPin1Blocked( Msmcomm.Message urc )
     {
-        MsmData.instance.pin1_status = MsmData.SimPinStatus.BLOCKED;
+        Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.BLOCKED;
     }
     
     public virtual void handleSimPin2Blocked( Msmcomm.Message urc )
     {
-        MsmData.instance.pin2_status = MsmData.SimPinStatus.BLOCKED;
+        Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.BLOCKED;
     }
-    
-    
+        
     //
     // Network
     //
@@ -200,5 +199,8 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
 
         var obj = FsoGsm.theModem.theDevice<FreeSmartphone.GSM.Network>();
         obj.status( status );
+    
+        Msmcomm.RuntimeData.signal_strength = (int) netinfo.rssi;
+        Msmcomm.RuntimeData.current_operator_name = netinfo.operator_name;
     }
 }

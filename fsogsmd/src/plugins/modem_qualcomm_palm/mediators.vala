@@ -235,8 +235,8 @@ public class MsmSimGetAuthCodeRequired : SimGetAuthCodeRequired
     {
         required = true;
         
-        if (MsmData.instance.pin1_status == MsmData.SimPinStatus.DISABLED &&
-            MsmData.instance.pin2_status == MsmData.SimPinStatus.DISABLED)
+        if (Msmcomm.RuntimeData.pin1_status == Msmcomm.SimPinStatus.DISABLED &&
+            Msmcomm.RuntimeData.pin2_status == Msmcomm.SimPinStatus.DISABLED)
         {
             required = false;
         }
@@ -266,7 +266,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
 {
     public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cat = Msm.simPhonebookStringToPhonebookType( category );
+        var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
         if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
@@ -369,7 +369,7 @@ public class MsmSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cat = Msm.simPhonebookStringToPhonebookType( category );
+        var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
         if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid Category" );
@@ -416,7 +416,7 @@ public class MsmSimWriteEntry : SimWriteEntry
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
         
-        var cat = Msm.simPhonebookStringToPhonebookType( category );
+        var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
         if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
@@ -464,12 +464,7 @@ public class MsmNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
-        checkResponseValid( cmd, response );
-        signal = cmd.signal;
-        #endif
+        signal = Msmcomm.RuntimeData.signal_strength;
     }
 }
 
