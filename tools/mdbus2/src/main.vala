@@ -277,8 +277,11 @@ public class Argument : Object
                 assert( iter.append_basic( DBus.RawType.OBJECT_PATH, (void*)(&arg) ) );
                 break;
             case "a":
-                var subsig = getSubSignature (typ.substring( 1,-1 ));
+                var subsig = getSubSignature( typ.substring( 1, typ.len() - 1 ) );
                 return appendArrayTypeToCall(arg, iter, subsig);
+            case "(":
+                //var subsig = getSubSignature( typ.substring(1, typ.len() - 2 ) );
+                return appendStructTypeToCall(arg, iter, typ);
             default:
                 stderr.printf( @"Unsupported type $typ\n" );
                 return false;
@@ -302,6 +305,26 @@ public class Argument : Object
         assert( iter.close_container ( subiter ) );
         return true;
 
+    }
+
+    private bool appendStructTypeToCall(string arg, DBus.RawMessageIter iter, string typ)
+    {
+#if DEBUG
+        debug(@"Sending Struct with signature '$typ' with arg: '$arg'" );
+#endif
+        int sigpos = 0;
+        var subtyp = typ.substring(1, typ.len() - 2);
+        var subiter = DBus.RawMessageIter();
+        assert( iter.open_container( DBus.RawType.STRUCT, null, subiter ) );
+        foreach(var s in getSubArgs( arg ) )
+        {
+            var sig = getSubSignature( subtyp.offset( sigpos ) );
+            sigpos += (int)sig.len();
+            if( appendTypeToCall(s, subiter, sig) == false)
+                 return false;
+        }
+        assert( iter.close_container( subiter ) );
+        return true;
     }
     const char[] start_chars = {'{', '[', '('};
     const char[] end_chars = {'}', ']', ')'};
@@ -347,7 +370,6 @@ public class Argument : Object
             part += c.to_string();
             if (depth == 0 && c == separator)
             {
-                debug(@"adding part '$part'");
                 result += part.substring(0, part.len() - 1 );
                 part = "";
             }
