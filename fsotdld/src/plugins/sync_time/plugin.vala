@@ -36,6 +36,7 @@ class SyncTime.Service : FsoFramework.AbstractObject
     private string timezone_file;
     private string localtime_file;
     private string zoneinfo_dir;
+    private bool try_adjtime;
 
     public Service( FsoFramework.Subsystem subsystem )
     {
@@ -48,7 +49,9 @@ class SyncTime.Service : FsoFramework.AbstractObject
         timezone_file = config.stringValue( MODULE_NAME, "timezone_file", TIMEZONE_FILE_DEFAULT );
         localtime_file = config.stringValue( MODULE_NAME, "localtime_file", LOCALTIME_FILE_DEFAULT );
         zoneinfo_dir = config.stringValue( MODULE_NAME, "zoneinfo_dir", ZONEINFO_DIR_DEFAULT );
-        logger.info( @"Ready. Configured for $(sources.size) sources" );
+        try_adjtime = config.boolValue( MODULE_NAME, "try_adjtime_before_settime", false );
+        logger.debug( @"try_adjtime_before_settime = $try_adjtime" );
+        logger.info( @"Ready. Configured for $(sources.size) sources." );
     }
 
     public void addSource( string name )
@@ -100,14 +103,24 @@ class SyncTime.Service : FsoFramework.AbstractObject
 
         var tvdiff = Posix.timeval() { tv_sec = (time_t)offset };
 
-        // first try adjtime to get a gradual shift
-        var res = Linux.adjtime( tvdiff );
-        if ( res != 0 )
+        bool setHard = true;
+
+        if ( try_adjtime ) // try adjtime to get a gradual shift
         {
-            logger.warning( @"Can't adjtime(2): $(strerror(errno)); setting it hard" );
-            // if that fails, resort to brute force
+            var res = Linux.adjtime( tvdiff );
+            if ( res != 0 )
+            {
+                logger.warning( @"Can't adjtime(2): $(strerror(errno)); setting it hard" );
+            }
+            else
+            {
+                setHard = false;
+            }
+        }
+        if ( setHard ) // set the time hard
+        {
             var tvreal = Posix.timeval() { tv_sec = since_epoch };
-            res = tvreal.set_time_of_day();
+            var res = tvreal.set_time_of_day();
             if ( res != 0 )
             {
                 logger.warning( @"Can't settimeofday(2): $(strerror(errno))" );
