@@ -280,8 +280,10 @@ public class Argument : Object
                 var subsig = getSubSignature( typ.substring( 1, typ.len() - 1 ) );
                 return appendArrayTypeToCall(arg, iter, subsig);
             case "(":
-                //var subsig = getSubSignature( typ.substring(1, typ.len() - 2 ) );
                 return appendStructTypeToCall(arg, iter, typ);
+            case "{":
+                return appendDictEntryTypeToCall(arg, iter, typ);
+
             default:
                 stderr.printf( @"Unsupported type $typ\n" );
                 return false;
@@ -297,7 +299,7 @@ public class Argument : Object
         debug( @"parsing array '$arg' with subsignature '$typ'" );
 #endif
         assert( iter.open_container( DBus.RawType.ARRAY, typ, subiter ) );
-        foreach( var sub_arg in getSubArgs( arg ) )
+        foreach( var sub_arg in getSubArgs( arg.substring( 1, arg.len() - 2 ) ) )
         {
             if(appendTypeToCall( sub_arg, subiter, typ ) == false)
                  return false;
@@ -316,13 +318,38 @@ public class Argument : Object
         var subtyp = typ.substring(1, typ.len() - 2);
         var subiter = DBus.RawMessageIter();
         assert( iter.open_container( DBus.RawType.STRUCT, null, subiter ) );
-        foreach(var s in getSubArgs( arg ) )
+        foreach(var s in getSubArgs( arg.substring( 1, arg.len() - 2 )  ) )
         {
             var sig = getSubSignature( subtyp.offset( sigpos ) );
             sigpos += (int)sig.len();
             if( appendTypeToCall(s, subiter, sig) == false)
                  return false;
         }
+        assert( iter.close_container( subiter ) );
+        return true;
+    }
+
+    public bool appendDictEntryTypeToCall( string arg, DBus.RawMessageIter iter, string typ )
+    {
+#if DEBUG
+        debug(@"Sending DictEntry with signature '$typ' and arg '$arg'");
+#endif
+        var subtyp = typ.substring(1, typ.len() - 2 );
+        var keytyp = getSubSignature(subtyp);
+        var valuetyp = subtyp.offset( keytyp.len() );
+
+        var values = getSubArgs( arg, ':' );
+        var key = values[0];
+        var value = values[1];
+
+        var subiter = DBus.RawMessageIter();
+        assert( iter.open_container( DBus.RawType.DICT_ENTRY, null, subiter ) );
+
+        if( appendTypeToCall( key, subiter, keytyp ) == false)
+             return false;
+        if( appendTypeToCall( value, subiter, valuetyp ) == false)
+             return false;
+
         assert( iter.close_container( subiter ) );
         return true;
     }
@@ -356,13 +383,12 @@ public class Argument : Object
 
     string[] getSubArgs(string arg, char separator = arg_separator)
     {
-        var raw_arg = arg.substring(1, arg.len() - 2);
         var result = new string[0];
         var part = "";
         int depth = 0;
-        for( int i = 0; i < raw_arg.len(); i ++ )
+        for( int i = 0; i < arg.len(); i ++ )
         {
-            char c = (char)raw_arg[i];
+            char c = (char)arg[i];
             if( c in start_chars )
                  depth ++;
             else if( c in end_chars )
