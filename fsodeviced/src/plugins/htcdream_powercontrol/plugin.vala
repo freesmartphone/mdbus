@@ -62,6 +62,8 @@ class GpsPowerControl : FsoDevice.BasePowerControl
 
     public override void setPower( bool on )
     {
+        logger.debug( @"setPower: $on" );
+
         var running = timeoutWatch > 0;
 
         if ( running == on )
@@ -71,18 +73,21 @@ class GpsPowerControl : FsoDevice.BasePowerControl
 
         if ( on )
         {
+            logger.debug( @"gps_query_setup()" );
             gps_query_setup();
             timeoutWatch = GLib.Timeout.add_seconds( 5, onTimeout );
         }
         else
         {
             GLib.Source.remove( timeoutWatch );
+            logger.debug( @"gps_query_shutdown()" );
             gps_query_shutdown();
         }
     }
 
     private bool onTimeout()
     {
+        logger.debug( @"gps_query_setup()" );
         gps_query_iteration();
 
         return true; // call me again
