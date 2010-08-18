@@ -523,14 +523,16 @@ namespace FsoFramework { namespace Async {
         private GLib.IOChannel channel;
         private ActionFunc actionfunc;
         private char[] buffer;
+        private bool rewind;
 
-        public ReactorChannel( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
+        public ReactorChannel( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512, bool rewind = false )
         {
             assert( fd > -1 );
             channel = new GLib.IOChannel.unix_new( fd );
-            watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.HUP, onActionFromChannel );
+            watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.PRI | GLib.IOCondition.HUP, onActionFromChannel );
             this.fd = fd;
             this.actionfunc = actionfunc;
+            this.rewind = rewind;
             buffer = new char[ bufferlength ];
         }
 
@@ -559,10 +561,12 @@ namespace FsoFramework { namespace Async {
                 return false;
             }
 
-            if ( ( condition & IOCondition.IN ) == IOCondition.IN )
+            if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) ||
+                 ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) )
             {
                 assert( fd != -1 );
                 assert( buffer != null );
+                if( rewind ) Posix.lseek(fd, 0, Posix.SEEK_SET);
                 ssize_t bytesread = Posix.read( fd, buffer, buffer.length );
                 actionfunc( buffer, bytesread );
                 return true;
