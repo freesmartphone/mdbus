@@ -525,14 +525,25 @@ namespace FsoFramework { namespace Async {
         private char[] buffer;
         private bool rewind;
 
-        public ReactorChannel( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512, bool rewind = false )
+        public ReactorChannel( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
+        {
+            assert( fd > -1 );
+            channel = new GLib.IOChannel.unix_new( fd );
+            watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.HUP, onActionFromChannel );
+            this.fd = fd;
+            this.actionfunc = actionfunc;
+            this.rewind = false;
+            buffer = new char[ bufferlength ];
+        }
+
+        public ReactorChannel.rewind( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
         {
             assert( fd > -1 );
             channel = new GLib.IOChannel.unix_new( fd );
             watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.PRI | GLib.IOCondition.HUP, onActionFromChannel );
             this.fd = fd;
             this.actionfunc = actionfunc;
-            this.rewind = rewind;
+            this.rewind = true;
             buffer = new char[ bufferlength ];
         }
 
