@@ -401,7 +401,8 @@ public class Argument : Object
             }
         }
         assert(depth == 0);
-        result += part;
+        if( part.length != 0)
+            result += part;
         return result;
     }
 
