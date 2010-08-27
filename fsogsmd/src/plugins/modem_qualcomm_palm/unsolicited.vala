@@ -20,86 +20,45 @@
 using Gee;
 using FsoGsm;
 
-public delegate void MsmUnsolicitedResponseHandlerFunc( Msmcomm.Message urc );
-
-class MsmUnsolicitedResponseHandlerFuncWrapper
-{
-    public MsmUnsolicitedResponseHandlerFunc func;
-}
-
 /**
  * MSM Unsolicited Base Class and Handler
  **/
 
-public class MsmBaseUnsolicitedResponseHandler : FsoFramework.AbstractObject
+public class MsmUnsolicitedResponseHandler
 {
-    private HashMap<Msmcomm.EventType,MsmUnsolicitedResponseHandlerFuncWrapper> urcs;
     
-    public MsmBaseUnsolicitedResponseHandler()
-    {
-        urcs = new HashMap<Msmcomm.EventType,MsmUnsolicitedResponseHandlerFuncWrapper>();
-    }
-
-    public override string repr()
-    {
-        return "";
-    }
-
-    protected void registerUrc( Msmcomm.EventType urctype, MsmUnsolicitedResponseHandlerFunc func )
-    {
-        assert( logger.debug( @"registering URC '$urctype'" ) );
-        urcs[urctype] = new MsmUnsolicitedResponseHandlerFuncWrapper() { func=func };
-    }
-
-    public bool dispatch( Msmcomm.EventType urctype, Msmcomm.Message urc )
-    {
-        assert( logger.debug( @"dispatching MSM unsolicited $(Msmcomm.eventTypeToString( urctype ))" ) );
-
-        notifyUrc( urc, urctype);
-        
-        var urcwrapper = urcs[urctype];
-        if ( urcwrapper != null )
-        {
-            urcwrapper.func( urc );
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    private MsmModemAgent _modemAgent { get; set; }
     
-    public signal void notifyUrc( Msmcomm.Message urc, Msmcomm.EventType urc_type );
-}
-
-public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
-{
     //
     // public API
     //
-    public MsmUnsolicitedResponseHandler()
+    
+    public MsmUnsolicitedResponseHandler(MsmModemAgent agent)
     {
-        
-        registerUrc( Msmcomm.EventType.RESET_RADIO_IND, handleResetRadioInd );
-        
-        registerUrc( Msmcomm.EventType.SIM_NO_SIM, handleNoSimAvailable );
-        registerUrc( Msmcomm.EventType.SIM_REMOVED, handleSimRemoved );
-        
-        registerUrc( Msmcomm.EventType.SIM_PIN1_ENABLED, handleSimPin1Enabled );
-        registerUrc( Msmcomm.EventType.SIM_PIN2_ENABLED, handleSimPin1Enabled );
-        registerUrc( Msmcomm.EventType.SIM_PIN1_VERIFIED, handleSimPin1Verified );
-        registerUrc( Msmcomm.EventType.SIM_PIN2_VERIFIED, handleSimPin2Verified );
-        registerUrc( Msmcomm.EventType.SIM_PIN1_DISABLED, handleSimPin1Disabled );
-        registerUrc( Msmcomm.EventType.SIM_PIN2_DISABLED, handleSimPin2Disabled );
-        registerUrc( Msmcomm.EventType.SIM_PIN1_PERM_BLOCKED, handleSimPin1PermBlocked );
-        registerUrc( Msmcomm.EventType.SIM_PIN2_PERM_BLOCKED, handleSimPin2PermBlocked );
-        registerUrc( Msmcomm.EventType.SIM_PIN1_BLOCKED, handleSimPin1Blocked );
-        registerUrc( Msmcomm.EventType.SIM_PIN2_BLOCKED, handleSimPin2Blocked );
-        
-        registerUrc( Msmcomm.EventType.NETWORK_STATE_INFO, handleNetworkStateInfo );
+        this._modemAgent = agent;
     }
     
-    public virtual void handleResetRadioInd( Msmcomm.Message urc )
+    public void setup()
+    {
+        _modemAgent.unsolicited.sim_not_available.connect(handleNoSimAvailable);
+        _modemAgent.unsolicited.sim_removed.connect(handleSimRemoved);
+        _modemAgent.unsolicited.pin1_verified.connect(handleSimPin1Verified);
+        _modemAgent.unsolicited.pin1_enabled.connect(handleSimPin1Enabled);
+        _modemAgent.unsolicited.pin1_disabled.connect(handleSimPin1Disabled);
+        _modemAgent.unsolicited.pin1_blocked.connect(handleSimPin1Blocked);
+        _modemAgent.unsolicited.pin1_unblocked.connect(handleSimPin1Unblocked);
+        _modemAgent.unsolicited.pin2_verified.connect(handleSimPin2Verified);
+        _modemAgent.unsolicited.pin2_enabled.connect(handleSimPin2Enabled);
+        _modemAgent.unsolicited.pin2_disabled.connect(handleSimPin2Disabled);
+        _modemAgent.unsolicited.pin2_blocked.connect(handleSimPin2Blocked);
+        _modemAgent.unsolicited.pin2_unblocked.connect(handleSimPin2Unblocked);
+        
+        _modemAgent.unsolicited.network_state_info.connect(handleNetworkStateInfo);
+        
+        _modemAgent.unsolicited.reset_radio_ind.connect(handleResetRadioInd);
+    }
+    
+    public virtual void handleResetRadioInd()
     {
         // the modem was reseted by ourself or somebody else. We should 
         // handle this and go into the initial state
@@ -110,17 +69,17 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
     // SIM
     // 
     
-    public virtual void handleNoSimAvailable( Msmcomm.Message urc )
+    public virtual void handleNoSimAvailable()
     {
         theModem.advanceToState( Modem.Status.ALIVE_NO_SIM );
     }
     
-    public virtual void handleSimRemoved( Msmcomm.Message urc )
+    public virtual void handleSimRemoved()
     {
         // FIXME
     }
 
-    public virtual void handleSimPin1Enabled( Msmcomm.Message urc )
+    public virtual void handleSimPin1Enabled()
     {
         // a SIM_PIN1_ENABLED does not mean that the PIN1 is required to come
         // into SIM_READY state, it means that you can use PIN1 to authenticate
@@ -130,77 +89,85 @@ public class MsmUnsolicitedResponseHandler : MsmBaseUnsolicitedResponseHandler
         Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.ENABLED;
     }
     
-    public virtual void handleSimPin2Enabled( Msmcomm.Message urc )
+    public virtual void handleSimPin2Enabled()
     {
         Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.ENABLED;
     }
 
-    public virtual void handleSimPin1Verified( Msmcomm.Message urc )
+    public virtual void handleSimPin1Verified()
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
     }
     
-    public virtual void handleSimPin2Verified( Msmcomm.Message urc )
+    public virtual void handleSimPin2Verified()
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
     }
     
-    public virtual void handleSimPin1Disabled( Msmcomm.Message urc )
+    public virtual void handleSimPin1Disabled()
     {
         Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.DISABLED;
     }
     
-    public virtual void handleSimPin2Disabled( Msmcomm.Message urc )
+    public virtual void handleSimPin2Disabled()
     {
         Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.DISABLED;
     }
     
-    public virtual void handleSimPin1PermBlocked( Msmcomm.Message urc )
+    public virtual void handleSimPin1PermBlocked()
     {
-        Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.PERM_BLOCKED;
+        Msmcomm.RuntimeData.pin1_block_status = Msmcomm.SimPinStatus.PERM_BLOCKED;
     }
     
-    public virtual void handleSimPin2PermBlocked( Msmcomm.Message urc )
+    public virtual void handleSimPin2PermBlocked()
     {
-        Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.PERM_BLOCKED;
+        Msmcomm.RuntimeData.pin2_block_status = Msmcomm.SimPinStatus.PERM_BLOCKED;
     }
     
-    public virtual void handleSimPin1Blocked( Msmcomm.Message urc )
+    public virtual void handleSimPin1Blocked()
     {
-        Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.BLOCKED;
+        Msmcomm.RuntimeData.pin1_block_status = Msmcomm.SimPinStatus.BLOCKED;
     }
     
-    public virtual void handleSimPin2Blocked( Msmcomm.Message urc )
+    public virtual void handleSimPin2Blocked()
     {
-        Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.BLOCKED;
+        Msmcomm.RuntimeData.pin2_block_status = Msmcomm.SimPinStatus.BLOCKED;
+    }
+    
+    public virtual void handleSimPin1Unblocked()
+    {
+        Msmcomm.RuntimeData.pin1_block_status = Msmcomm.SimPinStatus.UNBLOCKED;
+    }
+    
+    public virtual void handleSimPin2Unblocked()
+    {
+        Msmcomm.RuntimeData.pin2_block_status = Msmcomm.SimPinStatus.UNBLOCKED;
     }
         
     //
     // Network
     //
 
-    public virtual void handleNetworkStateInfo( Msmcomm.Message urc )
+    public virtual void handleNetworkStateInfo( bool only_rssi_update, uint change_field, uint new_value, string operator_name, uint rssi, uint ecio, uint service_domain, uint service_capability, bool gprs_attached, uint roam )
     {
         var status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
 
-        unowned Msmcomm.Unsolicited.NetworkStateInfo netinfo = (Msmcomm.Unsolicited.NetworkStateInfo) urc;
-
         status.insert( "mode", "automatic" );
-        status.insert( "strength", (int)netinfo.rssi );
+        status.insert( "strength", (int)rssi );
         status.insert( "registration", "home" );
         status.insert( "lac", "unknown" );
         status.insert( "cid", "unknown" );
-        status.insert( "provider", netinfo.operator_name );
-        status.insert( "display", netinfo.operator_name );
+        status.insert( "provider", operator_name );
+        status.insert( "display", operator_name );
         status.insert( "code", "unknown" );
-        status.insert( "pdp.registration", netinfo.gprs_attached.to_string() );
+        status.insert( "pdp.registration", gprs_attached.to_string() );
         status.insert( "pdp.lac", "unknown" );
         status.insert( "pdp.cid", "unknown" );
 
         var obj = FsoGsm.theModem.theDevice<FreeSmartphone.GSM.Network>();
         obj.status( status );
     
-        Msmcomm.RuntimeData.signal_strength = (int) netinfo.rssi;
-        Msmcomm.RuntimeData.current_operator_name = netinfo.operator_name;
+        Msmcomm.RuntimeData.signal_strength = (int) rssi;
+        Msmcomm.RuntimeData.current_operator_name = operator_name;
     }
 }

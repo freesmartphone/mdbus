@@ -33,7 +33,8 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsogsm-2.0 \
-	--pkg msmcomm-1.0
+	--pkg msmcommd-1.0 \
+	$(NULL)
 
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG
@@ -45,8 +46,33 @@ endif
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_qualcomm_palm.la
-modem_qualcomm_palm_la_SOURCES = commandqueue.c channel.c mediators.c unsolicited.c plugin.c call.c data.c phonebook.c consts.c
-modem_qualcomm_palm_la_VALASOURCES = commandqueue.vala channel.vala mediators.vala unsolicited.vala plugin.vala call.vala data.vala phonebook.vala consts.vala
+
+modem_qualcomm_palm_la_SOURCES = \
+ channel.c \
+ mediators.c \
+ unsolicited.c \
+ plugin.c \
+ call.c \
+ data.c \
+ phonebook.c \
+ consts.c \
+ commandqueue.c \
+ modemagent.c \
+ $(NULL)
+ 
+modem_qualcomm_palm_la_VALASOURCES = \
+ channel.vala \
+ mediators.vala \
+ unsolicited.vala \
+ plugin.vala \
+ call.vala \
+ data.vala \
+ phonebook.vala \
+ consts.vala \
+ commandqueue.vala \
+ modemagent.vala \
+ $(NULL)
+ 
 $(modem_qualcomm_palm_la_SOURCES): $(modem_qualcomm_palm_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@

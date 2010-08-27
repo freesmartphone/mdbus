@@ -22,17 +22,105 @@ using FsoGsm;
 
 public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
 {
+    public FsoFramework.Transport transport { get; set; }
     public string name;
-    private bool atChannelOpened;
+    
+    public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
-    public MsmChannel( string name, FsoFramework.Transport transport )
+    private MsmUnsolicitedResponseHandler _urcHandler { get; set; }
+    
+    private Msmcomm.ModemControlStatus modemControlStatusOld { get; set; default = Msmcomm.ModemControlStatus.INACTIVE; }
+    private bool restartRequested { get; set; default = false; }
+    
+    private MsmModemAgent _modemAgent;
+    
+    //
+    // private API
+    //
+    
+    private void onModemControlStatusUpdate(Msmcomm.ModemControlStatus status)
     {
-        base( transport );
+        if ( status == Msmcomm.ModemControlStatus.ACTIVE )
+        {
+            Posix.sleep(2);
+            syncWithModem();
+            if ( restartRequested )
+            {
+                resetModem();
+                restartRequested = false;
+            }
+        }
+        
+        modemControlStatusOld = status;
+    }
+    
+    private async void syncWithModem()
+    {
+        theModem.logger.debug("sending test alive ...");
+        yield _modemAgent.commands.test_alive();
+    }
+    
+    private async void resetModem()
+    {
+        theModem.logger.debug("sending reset command ...");
+        yield _modemAgent.commands.reset_modem();
+    }
+        
+    //
+    // public API
+    //
+    
+    public MsmChannel( string name )
+    {
+        base( new FsoFramework.NullTransport() );
         this.name = name;
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
+        
+        restartRequested = true;
+        
+        _modemAgent = MsmModemAgent.instance();
+        _urcHandler = new MsmUnsolicitedResponseHandler( _modemAgent );
     }
 
+    public override async bool open()
+    {
+        theModem.logger.debug("MSMCHANNEL: open ...");
+        
+        // Let the modem agent initialise itself
+        _modemAgent.setup();
+        
+        // Wait for modem agent to become ready 
+        // FIXME maybe there is some better way to do this?
+        Timeout.add_seconds( 5, () => {
+            if (_modemAgent.ready) {
+                open.callback();
+                return false;
+            }
+            theModem.logger.debug("Modem agent is not ready yet ... waiting 5 seconds.");
+            return true;
+        });
+        yield;
+        
+        // Connect to modem link layer status updates and reset the modem
+        // to come in a well known state
+        _modemAgent.management.status_update.connect(onModemControlStatusUpdate);
+        _modemAgent.management.reset();
+        
+        // Setup up necessary handlers
+        _urcHandler.setup();
+        
+        return true;
+    }
+  
+    public override async void close()
+    {
+    }
+    
+    public void registerUnsolicitedHandler( UnsolicitedHandler urchandler )
+    {
+    }   
+    
     public void injectResponse( string response )
     {
         assert_not_reached();
@@ -40,6 +128,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
 
     public async bool suspend()
     {
+        // FIXME Release resource?
         return true;
     }
 
@@ -48,32 +137,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         return true;
     }
 
-    public override async bool open()
-    {
-        // open transport
-        assert( !transport.isOpen() );
-        var opened = yield transport.openAsync();
-
-        if ( !yield base.open() )
-            return false;
-
-        context.registerEventHandler( onMsmcommGotEvent );
-        context.registerReadHandler( onMsmcommShouldRead );
-        context.registerWriteHandler( onMsmcommShouldWrite );
-
-        debug( "SENDING RESET COMMAND" );
-
-        var cmd1 = new Msmcomm.Command.ChangeOperationMode();
-        cmd1.setOperationMode( Msmcomm.OperationMode.RESET );
-        enqueueSync( (owned)cmd1 );
-
-        debug( "OK; MSM CHANNEL OPENED" );
-
-        return true;
-    }
-
     public void onModemStatusChanged( Modem modem, Modem.Status status )
     {
     }
 }
-

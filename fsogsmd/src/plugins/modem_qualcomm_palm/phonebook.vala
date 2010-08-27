@@ -63,11 +63,12 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         return result;
     }
     
-    private async FreeSmartphone.GSM.SIMEntry[] readPhonebook( Msmcomm.PhonebookType type, int slot_count, int slots_used )
+    private async FreeSmartphone.GSM.SIMEntry[] readPhonebook( string book_type, int slot_count, int slots_used )
     {
         FreeSmartphone.GSM.SIMEntry[] phonebook = new FreeSmartphone.GSM.SIMEntry[] { };
         var channel = theModem.channel( "main" ) as MsmChannel;
         
+        #if 0
         // We read as much phonebook entries as we have stored in the phonebook. The
         // entries in the phonebook are always in the right order as the modem firmware
         // fills the gap between the entries already stored in the phonebook by itself.
@@ -87,12 +88,16 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
             }
         }
         
+        #endif
+        
         return phonebook;
     }
 
     public async void syncWithSim()
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
+        
+        #if 0
         
         // gather IMSI
         var cmd1 = new Msmcomm.Command.SimInfo();
@@ -137,6 +142,8 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
                 assert( logger.debug( @"Can't parse PB $pbcode" ) );
             }
         }
+        
+        #endif
     }
 }
     

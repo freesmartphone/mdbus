@@ -61,9 +61,8 @@ public class MsmDebugPing : DebugPing
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = new Msmcomm.Command.TestAlive();
-        var channel = theModem.channel( "main" ) as MsmChannel;
-        yield channel.enqueueAsync( (owned) cmd );
+        var cmds = MsmModemAgent.instance().commands;
+        yield cmds.test_alive();
     }
 }
 
@@ -109,19 +108,20 @@ public class MsmDeviceGetInformation : DeviceGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as MsmChannel;
+        var cmds = MsmModemAgent.instance().commands;
+        
         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
 
         info.insert( "model", "Palm Pre (Plus)" );
         info.insert( "manufacturer", "Palm, Inc." );
+        
+        GLib.HashTable<string,Value?> firmware_info;
+        firmware_info = yield cmds.get_firmware_info();
 
-        var cmd = new Msmcomm.Command.GetFirmwareInfo();
-        unowned Msmcomm.Reply.GetFirmwareInfo response = (Msmcomm.Reply.GetFirmwareInfo) ( yield channel.enqueueAsync( (owned) cmd ) );
-        info.insert( "revision", response.info );
+        info.insert( "revision", firmware_info.lookup( "info" ) );
 
-        var cmd2 = new Msmcomm.Command.GetImei();
-        unowned Msmcomm.Reply.GetImei response2 = (Msmcomm.Reply.GetImei) ( yield channel.enqueueAsync( (owned) cmd2 ) );
-        info.insert( "imei", response2.imei );
+        string imei = yield cmds.get_imei();
+        info.insert( "imei", imei );
     }
 }
 
@@ -137,26 +137,28 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var operation_mode = Msmcomm.OperationMode.OFFLINE;
+        var operation_mode = "offline";
         
         switch ( level )
         {
             case "minimal":
             case "full":
-                operation_mode = Msmcomm.OperationMode.ONLINE;
+                operation_mode = "online";
                 break;
             case "airplane":
-                operation_mode = Msmcomm.OperationMode.OFFLINE;
+                operation_mode = "offline";
                 break;
             default:
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
         }
 
-        var cmd = new Msmcomm.Command.ChangeOperationMode();
-        cmd.setOperationMode( operation_mode );
-        var channel = theModem.channel( "main" ) as MsmChannel;
-
-        unowned Msmcomm.Message response = yield channel.enqueueAsync( (owned)cmd );
+        try {
+            var cmds = MsmModemAgent.instance().commands;
+            yield cmds.change_operation_mode( operation_mode ); 
+        }
+        catch ( Msmcomm.Error err )
+        {
+        }
         
         // FIXME update modem status!
     }
@@ -180,51 +182,34 @@ public class MsmSimGetAuthStatus : SimGetAuthStatus
 
 public class MsmSimGetInformation : SimGetInformation
 {
+    private void checkAndAddInfo(string name, string value)
+    {
+        if (value == null)
+        {
+            info.insert( name, "unknown" );
+        }
+        else
+        {
+            info.insert( name, @"$(value)" );
+        }
+    }
+    
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
         var value = Value( typeof(string) );
         
-        var channel = theModem.channel( "main" ) as MsmChannel;
+        var cmds = MsmModemAgent.instance().commands;
         
-        // FIXME: need some more work as msmcommd reports:
-        // 2010-08-06T19:14:17.432180Z [ERROR] msmcommd : processIncommingData: Could not unpack valid frame! crc error?
-        // when recieving the SimInfo response and no result is returned via dbus
-        
-        // 
-        // Gather MSISDN from modem
-        //
-        
-        var cmd = new Msmcomm.Command.SimInfo();
-        cmd.field_type = Msmcomm.SimInfoFieldType.MSISDN;
-        unowned Msmcomm.Reply.Sim response = (Msmcomm.Reply.Sim) (yield channel.enqueueAsync( (owned)cmd ));
-    
-        if ( response.field_data != null )
-        {
-            value = @"$( response.field_data )";
-            info.insert( "msisdn", value );
+        try {
+            string msisdn = yield cmds.sim_info( "msisdn" );
+            checkAndAddInfo( "msisdn", msisdn );
+
+            string imsi = yield cmds.sim_info( "imsi" );
+            checkAndAddInfo( "imsi", imsi );
         }
-        else
-        {
-            info.insert( "msisdn", "unknown" );
-        }
-        
-        // 
-        // Gather IMSI from modem
-        //
-        
-        var cmd1 = new Msmcomm.Command.SimInfo();
-        cmd1.field_type = Msmcomm.SimInfoFieldType.IMSI;
-        response = (Msmcomm.Reply.Sim) (yield channel.enqueueAsync( (owned)cmd1 ));
-    
-        if ( response.field_data != null)
-        { 
-            value = @"$(response.field_data)";
-            info.insert( "imsi", value ); 
-        }
-        else
-        {
-            info.insert( "imsi", "unknown" );
+        catch (Msmcomm.Error err) {
+            // FIXME
         }
     }
 }
@@ -247,17 +232,14 @@ public class MsmSimSendAuthCode : SimSendAuthCode
 {
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = new Msmcomm.Command.VerifyPin();
-        cmd.pin = pin;
-        // FIXME select pin type acording to the current active pin
-        cmd.pin_type = Msmcomm.SimPinType.PIN_1;
+        var cmds = MsmModemAgent.instance().commands;
         
-        var channel = theModem.channel( "main" ) as MsmChannel;
-        unowned Msmcomm.Message response = yield channel.enqueueAsync( (owned) cmd );
-        
-        if (response.result != Msmcomm.ResultType.OK)
-        {
-            throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"PIN $pin not accepted" );
+        try {
+            // FIXME select pin type acording to the current active pin
+            yield cmds.verify_pin( "pin1", pin );
+        }
+        catch ( Msmcomm.Error err ) {
+            // FIXME handle errors
         }
     }
 }
@@ -266,6 +248,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
 {
     public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        #if 0
         var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
         if ( cat == Msmcomm.PhonebookType.NONE )
         {
@@ -288,6 +271,8 @@ public class MsmSimDeleteEntry : SimDeleteEntry
         
         // FIXME implement resync method in phonebook handler
         // theModem.pbhandler.resync();
+        
+        #endif
     }
 }
 
@@ -311,6 +296,7 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
 {
     public override async void run( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        #if 0
         Msmcomm.PhonebookType phonebookType = Msmcomm.PhonebookType.NONE;
         
         // FIXME add more phonebook types !!!
@@ -338,6 +324,8 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
             numberlength = response.max_chars_per_number;
             namelength = response.max_chars_per_title;
         }
+        
+        #endif
     }
 }
 
@@ -369,12 +357,14 @@ public class MsmSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        #if 0
         var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
         if ( cat == Msmcomm.PhonebookType.NONE )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid Category" );
         }
         phonebook = theModem.pbhandler.storage.phonebook( category, mindex, maxdex );
+        #endif
     }
 }
 
@@ -414,6 +404,7 @@ public class MsmSimWriteEntry : SimWriteEntry
 {
     public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        #if 0
         var channel = theModem.channel( "main" ) as MsmChannel;
         
         var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
@@ -437,6 +428,8 @@ public class MsmSimWriteEntry : SimWriteEntry
         });
         
         // FIXME howto sync the phonebook now as we have a new entry?
+        // theModem.pbhandler.resync();
+        #endif
     }
 }
 
@@ -453,10 +446,12 @@ public class MsmNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        #if 0
         var cmd = new Msmcomm.Command.ChangeOperationMode();
         cmd.setOperationMode( Msmcomm.OperationMode.ONLINE );
         var channel = theModem.channel( "main" ) as MsmChannel;
         unowned Msmcomm.Message response = yield channel.enqueueAsync( (owned) cmd );
+        #endif
     }
 }
 

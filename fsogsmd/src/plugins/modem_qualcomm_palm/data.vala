@@ -26,12 +26,15 @@ namespace Msmcomm
         BLOCKED,
         PERM_BLOCKED,
         CHANGED, // TODO: do we really need this state here?
+        UNBLOCKED,
     }
     
     public static class RuntimeData
     {
         public static SimPinStatus pin1_status { get; set; default = SimPinStatus.ENABLED; }
         public static SimPinStatus pin2_status { get; set; default = SimPinStatus.ENABLED; }
+        public static SimPinStatus pin1_block_status { get; set; default = SimPinStatus.UNBLOCKED; }
+        public static SimPinStatus pin2_block_status { get; set; default = SimPinStatus.UNBLOCKED; }
         public static string current_operator_name { get; set; default = ""; }
         public static int signal_strength { get; set; default = 0; }
     }

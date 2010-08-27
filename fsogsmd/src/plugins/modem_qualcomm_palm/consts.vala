@@ -20,21 +20,5 @@
 
 namespace Msmcomm
 {
-    public Msmcomm.PhonebookType simPhonebookStringToPhonebookType( string category )
-    {
-        Msmcomm.PhonebookType result = Msmcomm.PhonebookType.NONE;
-    
-        switch ( category )
-        {
-            case "fixed":
-                result= Msmcomm.PhonebookType.FDN;
-                break;
-            case "abbreviated":
-                result = Msmcomm.PhonebookType.ADN;
-                break;
-        }
-        
-        return result;
-    }
     
 } // namespace Msm

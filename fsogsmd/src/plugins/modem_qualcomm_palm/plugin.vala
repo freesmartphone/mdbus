@@ -70,7 +70,8 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     
     protected override PhonebookHandler createPhonebookHandler()
     {
-        return new MsmPhonebookHandler();
+        return null;
+        //return new MsmPhonebookHandler();
     }
     
     protected override WatchDog createWatchDog()
@@ -81,9 +82,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     protected override void createChannels()
     {
         // create MAIN channel
-        var maintransport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
-        if (maintransport != null)
-            new MsmChannel( MSM_CHANNEL_NAME, maintransport );
+        new MsmChannel( MSM_CHANNEL_NAME );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
