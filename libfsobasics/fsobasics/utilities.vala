@@ -523,15 +523,30 @@ namespace FsoFramework { namespace Async {
         private GLib.IOChannel channel;
         private ActionFunc actionfunc;
         private char[] buffer;
+        private bool rewind;
 
-        public ReactorChannel( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
+        private init( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
         {
             assert( fd > -1 );
-            channel = new GLib.IOChannel.unix_new( fd );
-            watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.HUP, onActionFromChannel );
             this.fd = fd;
             this.actionfunc = actionfunc;
             buffer = new char[ bufferlength ];
+        }
+
+        public ReactorChannel( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
+        {
+            init( fd, actionfunc, bufferlength );
+            watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.HUP, onActionFromChannel );
+            channel = new GLib.IOChannel.unix_new( fd );
+            this.rewind = false;
+        }
+
+        public ReactorChannel.rewind( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
+        {
+            init( fd, actionfunc, bufferlength );
+            watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.PRI | GLib.IOCondition.HUP, onActionFromChannel );
+            channel = new GLib.IOChannel.unix_new( fd );
+            this.rewind = true;
         }
 
         public int fileno()
@@ -559,10 +574,12 @@ namespace FsoFramework { namespace Async {
                 return false;
             }
 
-            if ( ( condition & IOCondition.IN ) == IOCondition.IN )
+            if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) ||
+                 ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) )
             {
                 assert( fd != -1 );
                 assert( buffer != null );
+                if( rewind ) Posix.lseek(fd, 0, Posix.SEEK_SET);
                 ssize_t bytesread = Posix.read( fd, buffer, buffer.length );
                 actionfunc( buffer, bytesread );
                 return true;

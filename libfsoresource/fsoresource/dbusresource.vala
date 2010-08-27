@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -93,6 +93,15 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
 
     public abstract async void resumeResource();
 
+    /**
+     * This method has a default implementation for backwards compatibility,
+     * subclasses need to override this.
+     **/
+    public virtual async GLib.HashTable<string,GLib.Value?> dependencies()
+    {
+        return new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+    }
+
     //
     // DBUS API
     //
@@ -118,6 +127,13 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
     {
         assert( logger.debug( @"Suspending resource $classname..." ) );
         yield suspendResource();
+    }
+
+    public async GLib.HashTable<string,GLib.Value?> get_dependencies() throws DBus.Error
+    {
+        assert( logger.debug( @"Inquiring dependencies for $classname..." ) );
+        var result = yield dependencies();
+        return result;
     }
 }
 
