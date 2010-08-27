@@ -91,6 +91,7 @@ AC_CONFIG_FILES([
   conf/Makefile
   conf/default/Makefile
   conf/openmoko_gta/Makefile
+  conf/htc_qualcomm_dream/Makefile
   data/Makefile
   data/org.freesmartphone.otdld.service
   src/Makefile
