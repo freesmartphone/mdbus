@@ -523,9 +523,9 @@ namespace FsoFramework { namespace Async {
         private GLib.IOChannel channel;
         private ActionFunc actionfunc;
         private char[] buffer;
-        private bool rewind;
+        private bool rewind_flag;
 
-        private init( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
+        private void init( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
         {
             assert( fd > -1 );
             this.fd = fd;
@@ -538,7 +538,7 @@ namespace FsoFramework { namespace Async {
             init( fd, actionfunc, bufferlength );
             watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.HUP, onActionFromChannel );
             channel = new GLib.IOChannel.unix_new( fd );
-            this.rewind = false;
+            this.rewind_flag = false;
         }
 
         public ReactorChannel.rewind( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
@@ -546,7 +546,7 @@ namespace FsoFramework { namespace Async {
             init( fd, actionfunc, bufferlength );
             watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.PRI | GLib.IOCondition.HUP, onActionFromChannel );
             channel = new GLib.IOChannel.unix_new( fd );
-            this.rewind = true;
+            this.rewind_flag = true;
         }
 
         public int fileno()
@@ -579,7 +579,7 @@ namespace FsoFramework { namespace Async {
             {
                 assert( fd != -1 );
                 assert( buffer != null );
-                if( rewind ) Posix.lseek(fd, 0, Posix.SEEK_SET);
+                if( rewind_flag ) Posix.lseek(fd, 0, Posix.SEEK_SET);
                 ssize_t bytesread = Posix.read( fd, buffer, buffer.length );
                 actionfunc( buffer, bytesread );
                 return true;
