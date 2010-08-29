@@ -19,7 +19,7 @@ AC_SUBST(LDFLAGS)
 # pkg-config requirements
 PKG_PROG_PKG_CONFIG
 
-VALA_REQUIRED=0.7.9
+VALA_REQUIRED=0.9.6.1
 GLIB_REQUIRED=2.18.0
 GEE_REQUIRED=0.5.0
 XML_REQUIRED=2.7.3
@@ -37,7 +37,7 @@ FSO_RESOURCE_REQUIRED=0.1.0
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 PKG_CHECK_MODULES(VALA,
-  vala-1.0 >= $VALA_REQUIRED)
+  vala-0.10 >= $VALA_REQUIRED)
 
 ##############################################################################
 # glib and friends

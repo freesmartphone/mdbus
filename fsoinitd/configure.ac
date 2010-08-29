@@ -17,7 +17,7 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-VALA_REQUIRED=0.8.1.1
+VALA_REQUIRED=0.9.6.1
 GLIB_REQUIRED=2.18.0
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
@@ -26,7 +26,7 @@ GEE_REQUIRED=0.5.0
 
 # vala
 PKG_CHECK_MODULES(VALA,
-  vala-1.0 >= $VALA_REQUIRED)
+  vala-0.10 >= $VALA_REQUIRED)
 
 ##############################################################################
 # glib and friends
