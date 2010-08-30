@@ -95,55 +95,43 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
 
     public async void syncWithSim()
     {
-        var channel = theModem.channel( "main" ) as MsmChannel;
-        
         #if 0
-        
+        var cmds = MsmModemAgent.instance().commands;
+    
         // gather IMSI
-        var cmd1 = new Msmcomm.Command.SimInfo();
-        cmd1.field_type = Msmcomm.SimInfoFieldType.IMSI;
-        unowned Msmcomm.Reply.Sim simInfoResponse = (Msmcomm.Reply.Sim) (yield channel.enqueueAsync( (owned)cmd1 ));
-        
-        if ( simInfoResponse == null || 
-             simInfoResponse.result != Msmcomm.ResultType.OK || 
-             simInfoResponse.field_data == null)
+        string imsi = cmds.sim_info( "imsi" );
+        if ( imsi.length == 0 )
         {
             logger.warning( "Can't synchronize PB storage with SIM" );
             return;
         }
         
         // create Storage for current IMSI
-        storage = new FsoGsm.PhonebookStorage( simInfoResponse.field_data );
+        storage = new FsoGsm.PhonebookStorage( imsi );
         
         // FIXME we can't retrieve phonebooks, so we have to build a 
         // static list of available phonebooks
-        string[] phonebooks = { "fixed", "abbreviated" };
+        string[] phonebooks = { "fdn", "adn", "sdn" };
         
-        foreach ( var pbcode in phonebooks )
-        {
-            Msmcomm.PhonebookType phonebookType = Msmcomm.simPhonebookStringToPhonebookType( pbcode );
-            
-            var cmd = new Msmcomm.Command.GetPhonebookProperties();
-            cmd.book_type = phonebookType;
-            
-            unowned Msmcomm.Reply.GetPhonebookProperties response = 
-                (Msmcomm.Reply.GetPhonebookProperties) (yield channel.enqueueAsync( (owned) cmd ));
+        foreach ( var pbcode in phonebooks ) {
+            var pbprop = cmds.get_phonebook_properties( pbcode );
                 
-            if ( response == null ||
-                 response.result != Msmcomm.ResultType.OK )
-            {
+            if (pbprop.size() != 0) {
+                var slot_count = pbprop.lookup("slot_count");
+                var slots_used = pbprop.lookup("slots_used");
+                
                 // FIXME what about the min index?
-                assert( logger.debug( @"Found  phonebook '$pbcode' w/ indices 0-$(response.slot_count)" ) );
-                var phonebook = yield readPhonebook( phonebookType, response.slot_count, response.slots_used );
+                assert( logger.debug( @"Found  phonebook '$pbcode' w/ indices 0-$(slot_count)" ) );
+                var phonebook = yield readPhonebook( phonebookType, slot_count.to_int(), response.slots_used );
                 storage.addPhonebook( pbcode, 0, response.slot_count, phonebook );
+
             }
             else
             {
                 assert( logger.debug( @"Can't parse PB $pbcode" ) );
             }
         }
-        
-        #endif
+        #endif 
     }
 }
     

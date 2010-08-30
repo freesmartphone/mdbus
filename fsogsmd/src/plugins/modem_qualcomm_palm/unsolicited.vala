@@ -148,26 +148,26 @@ public class MsmUnsolicitedResponseHandler
     // Network
     //
 
-    public virtual void handleNetworkStateInfo( bool only_rssi_update, uint change_field, uint new_value, string operator_name, uint rssi, uint ecio, uint service_domain, uint service_capability, bool gprs_attached, uint roam )
+    public virtual void handleNetworkStateInfo(  Msmcomm.NetworkStateInfo nsinfo )
     {
         var status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
 
         status.insert( "mode", "automatic" );
-        status.insert( "strength", (int)rssi );
+        status.insert( "strength", (int)nsinfo.rssi );
         status.insert( "registration", "home" );
         status.insert( "lac", "unknown" );
         status.insert( "cid", "unknown" );
-        status.insert( "provider", operator_name );
-        status.insert( "display", operator_name );
+        status.insert( "provider", nsinfo.operator_name );
+        status.insert( "display", nsinfo.operator_name );
         status.insert( "code", "unknown" );
-        status.insert( "pdp.registration", gprs_attached.to_string() );
+        status.insert( "pdp.registration", nsinfo.gprs_attached.to_string() );
         status.insert( "pdp.lac", "unknown" );
         status.insert( "pdp.cid", "unknown" );
 
         var obj = FsoGsm.theModem.theDevice<FreeSmartphone.GSM.Network>();
         obj.status( status );
     
-        Msmcomm.RuntimeData.signal_strength = (int) rssi;
-        Msmcomm.RuntimeData.current_operator_name = operator_name;
+        Msmcomm.RuntimeData.signal_strength = (int) nsinfo.rssi;
+        Msmcomm.RuntimeData.current_operator_name = nsinfo.operator_name;
     }
 }

@@ -61,8 +61,16 @@ public class MsmDebugPing : DebugPing
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmds = MsmModemAgent.instance().commands;
-        yield cmds.test_alive();
+        try
+        {
+            var cmds = MsmModemAgent.instance().commands;
+            yield cmds.test_alive();
+        }
+        catch ( Msmcomm.Error err )
+        {
+            var msg = @"Could not process test_alive command, got: $(err.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
     }
 }
 
@@ -110,18 +118,26 @@ public class MsmDeviceGetInformation : DeviceGetInformation
     {
         var cmds = MsmModemAgent.instance().commands;
         
-        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        try
+        {
+            info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
 
-        info.insert( "model", "Palm Pre (Plus)" );
-        info.insert( "manufacturer", "Palm, Inc." );
-        
-        GLib.HashTable<string,Value?> firmware_info;
-        firmware_info = yield cmds.get_firmware_info();
+            info.insert( "model", "Palm Pre (Plus)" );
+            info.insert( "manufacturer", "Palm, Inc." );
+            
+            Msmcomm.FirmwareInfo firmware_info;
+            firmware_info = yield cmds.get_firmware_info();
+            
+            info.insert( "revision", firmware_info.version_string );
 
-        info.insert( "revision", firmware_info.lookup( "info" ) );
-
-        string imei = yield cmds.get_imei();
-        info.insert( "imei", imei );
+            string imei = yield cmds.get_imei();
+            info.insert( "imei", imei );
+        }
+        catch ( Msmcomm.Error err )
+        {
+            var msg = @"Could not process get_firmware_info/get_imei command, got: $(err.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
     }
 }
 
@@ -152,12 +168,15 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
         }
 
-        try {
+        try 
+        {
             var cmds = MsmModemAgent.instance().commands;
             yield cmds.change_operation_mode( operation_mode ); 
         }
         catch ( Msmcomm.Error err )
         {
+            var msg = @"Could not process change_operation_mode command, got: $(err.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
         
         // FIXME update modem status!
@@ -201,15 +220,18 @@ public class MsmSimGetInformation : SimGetInformation
         
         var cmds = MsmModemAgent.instance().commands;
         
-        try {
+        try 
+        {
             string msisdn = yield cmds.sim_info( "msisdn" );
             checkAndAddInfo( "msisdn", msisdn );
 
             string imsi = yield cmds.sim_info( "imsi" );
             checkAndAddInfo( "imsi", imsi );
         }
-        catch (Msmcomm.Error err) {
-            // FIXME
+        catch (Msmcomm.Error err) 
+        {
+            var msg = @"Could not process verify_pin command, got: $(err.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
     }
 }
@@ -234,12 +256,15 @@ public class MsmSimSendAuthCode : SimSendAuthCode
     {
         var cmds = MsmModemAgent.instance().commands;
         
-        try {
+        try 
+        {
             // FIXME select pin type acording to the current active pin
             yield cmds.verify_pin( "pin1", pin );
         }
-        catch ( Msmcomm.Error err ) {
-            // FIXME handle errors
+        catch ( Msmcomm.Error err ) 
+        {
+            var msg = @"Could not process verify_pin command, got: $(err.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
     }
 }
