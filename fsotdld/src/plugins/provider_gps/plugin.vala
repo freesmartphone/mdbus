@@ -24,7 +24,7 @@ class DBusService.Device : FsoFramework.AbstractObject
     const string MODULE_NAME = "fsotdl.provider_gps";
 
     FsoFramework.Subsystem subsystem;
-    private static FsoGps.Receiver receiver;
+    private static FsoGps.AbstractReceiver receiver;
     public static Type receiverclass;
 
     public Device( FsoFramework.Subsystem subsystem )
@@ -57,7 +57,7 @@ class DBusService.Device : FsoFramework.AbstractObject
         subsystem.registerServiceName( FsoFramework.GPS.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.GPS.ServiceDBusName, FsoFramework.GPS.DeviceServicePath, this );
 
-        receiver = (FsoGps.Receiver) Object.new( receiverclass );
+        receiver = (FsoGps.AbstractReceiver) Object.new( receiverclass );
         receiver.parent = this;
 
         logger.info( "Ready. Configured for receiver '%s'".printf( locationtype ) );

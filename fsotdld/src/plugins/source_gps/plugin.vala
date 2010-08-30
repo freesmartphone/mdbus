@@ -21,13 +21,15 @@ using GLib;
 
 using FsoTime;
 
-class Source.Gps : FsoTime.AbstractSource
+class Source.Gps /* :  FsoTime.AbstractSource */
 {
     public const string MODULE_NAME = "source_gps";
 
     FreeSmartphone.GSM.Network ogpsd_device;
     FreeSmartphone.Data.World odatad_world;
     DBus.IDBus dbus_dbus;
+
+    /*
 
     construct
     {
@@ -107,43 +109,16 @@ class Source.Gps : FsoTime.AbstractSource
         triggerQueryAsync();
     }
 
-    private async void onGsmNetworkStatusSignal( GLib.HashTable<string,GLib.Value?> status )
+    private async void onGpsLocationStatusSignal( GLib.HashTable<string,GLib.Value?> status )
     {
-        logger.info( "Received GSM network status signal" );
+        logger.info( "Received GPS location status signal" );
 
-        var codev = status.lookup( "code" );
-        if ( codev == null )
-        {
-            logger.info( "No provider code contained, ignoring." );
-            return;
-        }
-        var code = codev.get_string();
+        // ...
 
-        string countrycode = "";
-        GLib.HashTable<string,string> timezones = null;
-
-        try
-        {
-            countrycode = yield odatad_world.get_country_code_for_mcc_mnc( code );
-            timezones = yield odatad_world.get_timezones_for_country_code( countrycode );
-        }
-        catch ( DBus.Error e )
-        {
-            logger.warning( @"Could not query odatad: $(e.message)" );
-            return;
-        }
-
-        var zonecount = timezones.size();
-
-        logger.info( @"Resolved provider $code to country '$countrycode' w/ $zonecount timezone(s)" );
-        if ( zonecount > 1 )
-        {
-            logger.info( @"Country has more than one timezone; not reporting change." );
-            return;
-        }
-
-        this.reportZone( (string)timezones.get_values().nth_data(0), this ); // SIGNAL
+        //this.reportZone( (string)timezones.get_values().nth_data(0), this ); // SIGNAL
     }
+    *
+    */
 }
 
 /**

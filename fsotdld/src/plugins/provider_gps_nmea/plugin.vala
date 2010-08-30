@@ -41,7 +41,7 @@ class Nmea.Receiver : FsoGps.AbstractReceiver
         var parser = new FsoFramework.LineByLineParser();
         var chan = new FsoGps.Channel( CHANNEL_NAME, transport, parser );
 
-        protocol = new Nmea.Protocol();
+        protocol = new Nmea.Protocol( this );
     }
 
     public override void processUnsolicitedResponse( string prefix, string righthandside, string? pdu = null )
@@ -71,6 +71,7 @@ class Nmea.Protocol : Object
 {
     private Gee.HashMap<string,Nmea.DelegateAndRegex> delegates;
     private GLib.MatchInfo mi;
+    private FsoGps.AbstractReceiver receiver;
 
     private bool match( GLib.Regex re, string str )
     {
@@ -128,14 +129,17 @@ class Nmea.Protocol : Object
         string lon = to<string>( "lon" ) + to<string>( "lonsign" );
 
         debug( @"GPRMC reports location $lat + $lon" );
+
+        receiver.location( receiver, new GLib.HashTable<string,Value?>( str_hash, str_equal ) );
     }
 
     //
     // public API
     //
 
-    public Protocol()
+    public Protocol( FsoGps.AbstractReceiver receiver )
     {
+        this.receiver = receiver;
         delegates = new Gee.HashMap<string,Nmea.DelegateAndRegex>();
 
         // $GPZDA,204629.00,30,11,2009,00,00*65
@@ -147,7 +151,6 @@ class Nmea.Protocol : Object
 
         var reGprmc = /\$GPRMC,(?P<hour>[0-9][0-9])(?P<minute>[0-9][0-9])(?P<second>[0-9][0-9])(?:.00)?,(?P<valid>[AV]),(?P<lat>[0-9.]*),(?P<latsign>[NS])?,(?P<lon>[0-9.]*),(?P<lonsign>[WE])?,(?P<velocity>[0-9.]*),(?P<angle>[0-9.]*),(?P<day>[0-3][0-9])?(?P<month>[01][0-9])?(?P<year>[0-9][0-9])?,(?P<misangle>[0-9.]*),(?P<misanglesign>[WE]?)?,(?P<type>[ADENS])/;
         delegates["GPRMC"] = new Nmea.DelegateAndRegex( onGprmc, (owned) reGprmc );
-
     }
 
     public void feed( string datum )

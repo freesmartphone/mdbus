@@ -19,7 +19,7 @@
 
 using GLib;
 
-class Location.Service : FsoFramework.AbstractObject
+class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
 {
     internal const string MODULE_NAME = "fsotdl.location";
 
@@ -33,19 +33,22 @@ class Location.Service : FsoFramework.AbstractObject
 
     public Service( FsoFramework.Subsystem subsystem )
     {
-        var t = Type.from_name( "FsoTdlAbstractLocationProvider" );
-        var tchildren = t.children();
+        var tproviders = config.stringListValue( MODULE_NAME, "providers", {} );
+        logger.debug( @"Will attempt to instantiate $(tproviders.length) location providers" );
 
-        logger.debug( @"$(tchildren.length) location providers found" );
-
-        if ( tchildren.length == 0 )
+        foreach ( var typename in tproviders )
         {
-            logger.warning( "No location providers loaded." );
-            return;
-        }
-
-        foreach ( var typ in tchildren )
-        {
+            var typ = Type.from_name( typename );
+            if ( typ == Type.INVALID )
+            {
+                logger.error( @"Type $typename is invalid" );
+                continue;
+            }
+            if ( !typ.is_a( typeof( FsoTdl.AbstractLocationProvider ) ) )
+            {
+                logger.error( @"Type $typename is not an FsoTdlAbstractLocationProvider" );
+                continue;
+            }
             var obj = Object.new( typ ) as FsoTdl.AbstractLocationProvider;
             obj.location.connect( onLocationUpdate );
             providers[ typ.name() ] = obj;

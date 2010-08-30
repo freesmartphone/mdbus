@@ -36,7 +36,7 @@ public class FsoGps.Channel : FsoFramework.AbstractCommandQueue
         this.parser = parser;
         parser.setDelegates( haveCommand, isExpectedPrefix, onParserCompletedSolicited, onParserCompletedUnsolicited );
         theReceiver.registerChannel( name, this );
-        theReceiver.signalStatusChanged += onModemStatusChanged;
+        theReceiver.signalStatusChanged.connect( onModemStatusChanged );
     }
 
     protected override void onReadFromTransport( FsoFramework.Transport t )
@@ -77,9 +77,9 @@ public class FsoGps.Channel : FsoFramework.AbstractCommandQueue
         urchandler( "", response[0], null );
     }
 
-    public void onModemStatusChanged( FsoGps.Receiver receiver, int status )
+    public void onModemStatusChanged( FsoGps.AbstractReceiver receiver, int status )
     {
-        if ( status == FsoGps.Receiver.Status.INITIALIZING )
+        if ( status == FsoGps.AbstractReceiver.Status.INITIALIZING )
         {
             /*
             var cmds = modem.commandSequence( "init" );

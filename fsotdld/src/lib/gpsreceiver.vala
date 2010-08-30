@@ -19,12 +19,9 @@
 
 using Gee;
 
-namespace FsoGps { public FsoGps.Receiver theReceiver; }
+namespace FsoGps { public FsoGps.AbstractReceiver theReceiver; }
 
-/**
- * @interface FsoGps.Receiver
- **/
-public abstract interface FsoGps.Receiver : FsoFramework.AbstractObject
+public abstract class FsoGps.AbstractReceiver : FsoTdl.AbstractLocationProvider
 {
     public class Data : GLib.Object
     {
@@ -53,22 +50,8 @@ public abstract interface FsoGps.Receiver : FsoFramework.AbstractObject
         /* ALIVE */
     }
 
-    // called by the channel upon creation
-    public abstract void registerChannel( string name, FsoGps.Channel channel );
-    public abstract async bool open();
-    public abstract void close();
-    //FIXME: Should be FsoGps.Receiver.Status with Vala >= 0.7
-    public abstract int status();
-
     public signal void signalStatusChanged( /* FsoGps.Receiver.Status */ int status );
 
-    public abstract Data data();
-    public abstract T theDevice<T>();
-    public abstract Object parent { get; set; } // the DBus object
-}
-
-public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.AbstractObject
-{
     protected string receiver_type;
     protected string receiver_transport;
     protected string receiver_port;
@@ -76,8 +59,8 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
 
     protected HashMap<string,FsoGps.Channel> channels;
 
-    protected Receiver.Status receiver_status;
-    protected Receiver.Data receiver_data;
+    protected AbstractReceiver.Status receiver_status;
+    protected AbstractReceiver.Data receiver_data;
     public Object parent { get; set; } // the DBus object
 
     construct
@@ -118,7 +101,7 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
     private void initData()
     {
         advanceStatus( receiver_status, Status.CLOSED );
-        receiver_data = new FsoGps.Receiver.Data();
+        receiver_data = new FsoGps.AbstractReceiver.Data();
 
         configureData();
     }
@@ -136,7 +119,7 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
     public void advanceStatus( int current, int next )
     {
         assert( receiver_status == current );
-        receiver_status = (Receiver.Status)next;
+        receiver_status = (AbstractReceiver.Status)next;
         signalStatusChanged( next );
     }
 
@@ -162,9 +145,16 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
     }
 
     /**
-     * Implement this to implement processing unsolicited responses.
+     * Implement this to process unsolicited responses.
      **/
     public abstract void processUnsolicitedResponse( string prefix, string righthandside, string? pdu = null );
+
+    /**
+     * Override this, if your receiver supports an explicit location update trigger
+     **/
+    public override void trigger()
+    {
+    }
 
     //
     // public API
@@ -214,7 +204,7 @@ public abstract class FsoGps.AbstractReceiver : FsoGps.Receiver, FsoFramework.Ab
         return receiver_status;
     }
 
-    public FsoGps.Receiver.Data data()
+    public FsoGps.AbstractReceiver.Data data()
     {
         return receiver_data;
     }
