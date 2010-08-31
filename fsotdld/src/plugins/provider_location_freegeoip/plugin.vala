@@ -96,8 +96,8 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
         map.insert( "region", components[4] );
         map.insert( "city", components[5] );
         map.insert( "zip", components[6] );
-        map.insert( "lat", components[7] );
-        map.insert( "lon", components[8] );
+        map.insert( "lat", components[7].to_double() );
+        map.insert( "lon", components[8].to_double() );
         map.insert( "gmt", components[9] );
         map.insert( "dst", components[10] );
         this.location( this, map );
