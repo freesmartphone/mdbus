@@ -54,6 +54,10 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
             providers[ typ.name() ] = obj;
         }
 
+        subsystem.registerServiceName( FsoFramework.Time.ServiceDBusName );
+        subsystem.registerServiceObject( FsoFramework.Time.ServiceDBusName,
+                                         FsoFramework.Time.LocationServicePath, this );
+
         logger.info( "Ready." );
 
         Timeout.add_seconds( 2, () => {
@@ -75,7 +79,7 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
     //
     private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Value?> location )
     {
-        debug( "got location update from %s", provider.repr() );
+        logger.debug( @"Got location update from $(provider.get_type().name())" );
     }
 }
 

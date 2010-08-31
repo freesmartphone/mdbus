@@ -47,6 +47,8 @@ public class Resource : IResource, Object
     public FsoFramework.ResourceStatus status { get; set; }
     public FreeSmartphone.UsageResourcePolicy policy { get; set; }
     public ArrayList<string> users { get; set; }
+    public ArrayList<string> processDependencies { get; set; }
+    public ArrayList<string> busDependencies { get; set; }
 
     public FreeSmartphone.Resource proxy;
 
