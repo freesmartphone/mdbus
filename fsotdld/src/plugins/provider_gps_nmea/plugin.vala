@@ -93,6 +93,12 @@ class Nmea.Protocol : Object
         {
             return ( res == null ) ? "" : res;
         }
+        /* not possible due to bug in vala
+        else if ( typeof(T) == typeof(double) )
+        {
+            return ( res == null ) ? 0.0 : res.to_double();
+        }
+        */
         else
         {
             assert_not_reached();
@@ -113,8 +119,9 @@ class Nmea.Protocol : Object
         var zonem = to<int>( "zonem" );
 
         var epoch = Linux.timegm( t );
-
+#if DEBUG
         debug( "GPZDA reports %d".printf( (int)epoch ) );
+#endif
     }
 
     public void onGpgsv( string datum )
@@ -130,12 +137,17 @@ class Nmea.Protocol : Object
         {
             return;
         }
+
+        var report = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+#if DEBUG
         string lat = to<string>( "lat" ) + to<string>( "latsign" );
         string lon = to<string>( "lon" ) + to<string>( "lonsign" );
-
         debug( @"GPRMC reports location $lat + $lon" );
+#endif
+        report.insert( "lat", to<string>( "lat" ) );
+        report.insert( "lon", to<string>( "lon" ) );
 
-        receiver.location( receiver, new GLib.HashTable<string,Value?>( str_hash, str_equal ) );
+        receiver.location( receiver, report );
     }
 
     //
