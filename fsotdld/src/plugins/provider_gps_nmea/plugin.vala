@@ -125,6 +125,11 @@ class Nmea.Protocol : Object
 
     public void onGprmc( string datum )
     {
+        bool valid = ( to<string>( "valid" ) == "A" );
+        if ( !valid )
+        {
+            return;
+        }
         string lat = to<string>( "lat" ) + to<string>( "latsign" );
         string lon = to<string>( "lon" ) + to<string>( "lonsign" );
 
