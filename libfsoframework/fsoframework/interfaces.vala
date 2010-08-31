@@ -142,6 +142,9 @@ namespace FsoFramework
 
         public const string AlarmServiceFace = ServiceFacePrefix + ".Alarm";
         public const string AlarmServicePath = ServicePathPrefix + "/Alarm";
+
+        public const string LocationServiceFace = ServiceFacePrefix + ".Location";
+        public const string LocationServicePath = ServicePathPrefix + "/Location";
     }
 
     namespace Usage
@@ -156,32 +159,32 @@ namespace FsoFramework
     {
         public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".opreferencesd";
 
-	public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Preferences";
-	public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Preferences";
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Preferences";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Preferences";
     }
 
     namespace PIM
     {
         public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".opimd";
 
-	public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".PIM";
-	public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/PIM";
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".PIM";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/PIM";
 
-	public const string MessagesServiceFace = ServiceFacePrefix + ".Messages";
-	public const string MessagesServicePath = ServicePathPrefix + "/Messages";
+        public const string MessagesServiceFace = ServiceFacePrefix + ".Messages";
+        public const string MessagesServicePath = ServicePathPrefix + "/Messages";
 
-	public const string ContactsServiceFace = ServiceFacePrefix + ".Contacts";
-	public const string ContactsServicePath = ServicePathPrefix + "/Contacts";
-	public const string ContactServiceFace = ServiceFacePrefix + ".Contact";
+        public const string ContactsServiceFace = ServiceFacePrefix + ".Contacts";
+        public const string ContactsServicePath = ServicePathPrefix + "/Contacts";
+        public const string ContactServiceFace = ServiceFacePrefix + ".Contact";
 
-	public const string CallsServiceFace = ServiceFacePrefix + ".Calls";
-	public const string CallsServicePath = ServicePathPrefix + "/Calls";
+        public const string CallsServiceFace = ServiceFacePrefix + ".Calls";
+        public const string CallsServicePath = ServicePathPrefix + "/Calls";
 
-	public const string TasksServiceFace = ServiceFacePrefix + ".Tasks";
-	public const string TasksServicePath = ServicePathPrefix + "/Tasks";
+        public const string TasksServiceFace = ServiceFacePrefix + ".Tasks";
+        public const string TasksServicePath = ServicePathPrefix + "/Tasks";
 
-	public const string NotesServiceFace = ServiceFacePrefix + ".Notes";
-	public const string NotesServicePath = ServicePathPrefix + "/Notes";
+        public const string NotesServiceFace = ServiceFacePrefix + ".Notes";
+        public const string NotesServicePath = ServicePathPrefix + "/Notes";
     }
 
 }
