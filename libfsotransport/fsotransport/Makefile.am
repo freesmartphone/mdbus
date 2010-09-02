@@ -46,13 +46,12 @@ libfsotransport_la_VALASOURCES = \
 	socket.vala \
 	transport.vala \
 	$(NULL)
-	
-if WANT_MACHINE_PALMPRE
-VALAC_ARGS += --pkg hsuart
-libfsotransport_la_VALASOURCES += hsuart.vala
-AM_CPPFLAGS += $(PALMPRE_SYSTEM_DEPS_CFLAGS)
-endif
 
+if WANT_PALMPRE_HSUART
+VALAC_ARGS += --pkg hsuart
+AM_CPPFLAGS += -I$(top_srcdir)/3rdparty
+libfsotransport_la_VALASOURCES += hsuart.vala
+endif
 
 libfsotransport_la_SOURCES = \
 	$(BUILT_SOURCES) \

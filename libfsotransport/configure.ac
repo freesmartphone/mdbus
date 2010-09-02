@@ -1,4 +1,4 @@
-AC_INIT([libfsotransport], [0.9.6], [smartphones-userland@linuxtogo.org], [libfsotransport])
+AC_INIT([libfsotransport], [0.9.7], [smartphones-userland@linuxtogo.org], [libfsotransport])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -55,23 +55,12 @@ AC_ARG_ENABLE(fast-baud,
   ]])],fastbaud="yes",fastbaud="no") )
 AM_CONDITIONAL( [FAST_BAUD], [test x"$fastbaud" = x"yes"])
 
-# check for machine configuration
-AC_ARG_WITH(machine,
-[  --with-machine=BANE              specify the machine],
-[
-  v=$withval;
-  machine=$v
-  echo "NOTE: Machine set to "$machine;
-],[
-  machine="default"
-])
-AM_CONDITIONAL( [WANT_MACHINE_PALMPRE], [test x"$machine" = x"palmpre"])
-AM_CONDITIONAL( [WANT_MACHINE_DEFAULT], [test x"$machine" = x"default"])
-
-if test x"$machine" = x"palmpre" ; then
-    PKG_CHECK_MODULES(PALMPRE_SYSTEM_DEPS, palmpre-system-deps-1.0 >= $PALMPRE_SYSTEM_DEPS )
-    AC_SUBST(PALMPRE_SYSTEM_DEPS_CFLAGS)
-fi
+# check for enabling palm pre hsuart support
+AC_ARG_ENABLE(palmpre-hsuart,
+  AS_HELP_STRING([--enable-palmpre-hsuart], [Enable Palm Pre HSUART support (default=no)]),
+  [palmprehsuart="$enableval"],
+  [palmprehsuart="no"])
+AM_CONDITIONAL( [WANT_PALMPRE_HSUART], [test x"$palmprehsuart" = x"yes"])
 
 # git version
 GITV=`cat ../.git/refs/heads/master || echo "unknown"`
@@ -98,10 +87,9 @@ echo
 echo "  debug build.............: $debug"
 echo
 echo "  fast baud rates.........: $fastbaud"
+echo "  palm pre hsuart support.: $palmprehsuart"
 echo
 echo "  prefix..................: $prefix"
-echo
-echo "  machine.................: $machine"
 echo
 echo "------------------------------------------------------------------------"
 echo

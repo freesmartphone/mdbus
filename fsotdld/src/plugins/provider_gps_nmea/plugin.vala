@@ -93,6 +93,12 @@ class Nmea.Protocol : Object
         {
             return ( res == null ) ? "" : res;
         }
+        /* not possible due to bug in vala
+        else if ( typeof(T) == typeof(double) )
+        {
+            return ( res == null ) ? 0.0 : res.to_double();
+        }
+        */
         else
         {
             assert_not_reached();
@@ -113,8 +119,9 @@ class Nmea.Protocol : Object
         var zonem = to<int>( "zonem" );
 
         var epoch = Linux.timegm( t );
-
+#if DEBUG
         debug( "GPZDA reports %d".printf( (int)epoch ) );
+#endif
     }
 
     public void onGpgsv( string datum )
@@ -125,12 +132,23 @@ class Nmea.Protocol : Object
 
     public void onGprmc( string datum )
     {
-        string lat = to<string>( "lat" ) + to<string>( "latsign" );
-        string lon = to<string>( "lon" ) + to<string>( "lonsign" );
+        bool valid = ( to<string>( "valid" ) == "A" );
+        if ( !valid )
+        {
+            return;
+        }
 
-        debug( @"GPRMC reports location $lat + $lon" );
+        var report = new GLib.HashTable<string,Value?>( str_hash, str_equal );
 
-        receiver.location( receiver, new GLib.HashTable<string,Value?>( str_hash, str_equal ) );
+        double lat = to<int>( "latdd" ) + to<string>( "lat" ).to_double() / 60;
+        double lon = to<int>( "londd" ) + to<string>( "lon" ).to_double() / 60;
+
+        debug( @"GPRMC reports location %.6f N + %.6f E".printf( lat, lon ) );
+
+        report.insert( "lat", lat );
+        report.insert( "lon", lon );
+
+        receiver.location( receiver, report );
     }
 
     //
@@ -149,7 +167,7 @@ class Nmea.Protocol : Object
         var reGpgsv = /\$GPGSV,(?P<seqtotal>[0-9]),(?P<seqthis>[0-9]),(?P<numsats>[0-9]*),(?P<sat1id>[0-9]*),(?P<sat1ev>[-0-9]*),(?P<sat1az>[0-9]*),(?P<sat1qual>[0-9]*)(?:,(?P<sat2id>[0-9]*),(?P<sat2ev>[-0-9]*),(?P<sat2az>[0-9]*),(?P<sat2qual>[0-9]*),(?:(?P<sat3id>[0-9]*),(?P<sat3ev>[-0-9]*),(?P<sat3az>[0-9]*),(?P<sat3qual>[0-9]*),(?P<sat4id>[0-9]*),(?P<sat4ev>[-0-9]*)(?:,(?P<sat4az>[0-9]*),(?P<sat4qual>[0-9]*))?)?)?/;
         delegates["GPGSV"] = new Nmea.DelegateAndRegex( onGpgsv, (owned) reGpgsv );
 
-        var reGprmc = /\$GPRMC,(?P<hour>[0-9][0-9])(?P<minute>[0-9][0-9])(?P<second>[0-9][0-9])(?:.00)?,(?P<valid>[AV]),(?P<lat>[0-9.]*),(?P<latsign>[NS])?,(?P<lon>[0-9.]*),(?P<lonsign>[WE])?,(?P<velocity>[0-9.]*),(?P<angle>[0-9.]*),(?P<day>[0-3][0-9])?(?P<month>[01][0-9])?(?P<year>[0-9][0-9])?,(?P<misangle>[0-9.]*),(?P<misanglesign>[WE]?)?,(?P<type>[ADENS])/;
+        var reGprmc = /\$GPRMC,(?P<hour>[0-9][0-9])(?P<minute>[0-9][0-9])(?P<second>[0-9][0-9])(?:.00)?,(?P<valid>[AV]),(?P<latdd>[0-9][0-9])(?P<lat>[0-9.]*),(?P<latsign>[NS])?,(?P<londd>[0-9][0-9][0-9])(?P<lon>[0-9.]*),(?P<lonsign>[WE])?,(?P<velocity>[0-9.]*),(?P<angle>[0-9.]*),(?P<day>[0-3][0-9])?(?P<month>[01][0-9])?(?P<year>[0-9][0-9])?,(?P<misangle>[0-9.]*),(?P<misanglesign>[WE]?)?,(?P<type>[ADENS])/;
         delegates["GPRMC"] = new Nmea.DelegateAndRegex( onGprmc, (owned) reGprmc );
     }
 

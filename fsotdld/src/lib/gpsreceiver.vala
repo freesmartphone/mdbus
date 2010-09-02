@@ -154,6 +154,7 @@ public abstract class FsoGps.AbstractReceiver : FsoTdl.AbstractLocationProvider
      **/
     public override void trigger()
     {
+        open();
     }
 
     //
