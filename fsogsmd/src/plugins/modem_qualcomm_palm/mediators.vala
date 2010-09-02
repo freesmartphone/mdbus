@@ -78,14 +78,13 @@ public class MsmDeviceGetFunctionality : DeviceGetFunctionality
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var response = yield theModem.processAtCommandAsync( cfun, cfun.query() );
-        checkResponseValid( cfun, response );
-        level = Constants.instance().deviceFunctionalityStatusToString( cfun.value );
+        // NOTE: We currently cannot get the functionality status directly
+        // from the modem, so we have to save it statically and switch it
+        // whenever we need
+        level = Msmcomm.deviceFunctionalityStatusToString( Msmcomm.RuntimeData.functionality_status );
+        
         autoregister = theModem.data().keepRegistration;
         pin = theModem.data().simPin;
-        #endif
     }
 }
 
@@ -145,7 +144,36 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented on MSM" );
+        try
+        {
+            var cmds = MsmModemAgent.instance().commands;
+            Msmcomm.ChargerStatus charger_status = yield cmds.get_charger_status();
+                
+            switch (charger_status.mode)
+            {
+                case Msmcomm.ChargerStatusMode.USB:
+                    status = FreeSmartphone.Device.PowerStatus.AC;
+                    break;
+                case Msmcomm.ChargerStatusMode.INDUCTIVE:
+                    status = FreeSmartphone.Device.PowerStatus.CHARGING;
+                    break;
+                default:                                                
+                    status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+                    break;
+            }
+            
+            // FIXME How can we find about current charging level? need
+            // to fix this in msmcomm! As long as we don't know how to
+            // retrieve the right value, we report a very low level to 
+            // indicate that the user should have a charging status very
+            // close as current level is unknown ...
+            level = 10;
+        }
+        catch ( Msmcomm.Error err )
+        {
+            var msg = @"Could not process get_charger_status command, got: $(err.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
     }
 }
 
@@ -159,10 +187,10 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
         {
             case "minimal":
             case "full":
-                operation_mode = "online";
+                Msmcomm.RuntimeData.functionality_status = Msmcomm.ModemOperationMode.ONLINE;
                 break;
             case "airplane":
-                operation_mode = "offline";
+                Msmcomm.RuntimeData.functionality_status = Msmcomm.ModemOperationMode.OFFLINE;
                 break;
             default:
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
@@ -171,7 +199,7 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
         try 
         {
             var cmds = MsmModemAgent.instance().commands;
-            yield cmds.change_operation_mode( operation_mode ); 
+            yield cmds.change_operation_mode( Msmcomm.RuntimeData.functionality_status ); 
         }
         catch ( Msmcomm.Error err )
         {

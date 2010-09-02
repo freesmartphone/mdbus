@@ -20,5 +20,16 @@
 
 namespace Msmcomm
 {
-    
+    public string deviceFunctionalityStatusToString( ModemOperationMode status )
+    {
+        switch ( status )
+        {
+            case ModemOperationMode.OFFLINE:
+                return "airplane";
+            case ModemOperationMode.ONLINE:
+                return "full";
+            default:
+                return "unknown";
+        }
+    }
 } // namespace Msm

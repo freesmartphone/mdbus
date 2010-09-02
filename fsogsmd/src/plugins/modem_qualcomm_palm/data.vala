@@ -37,6 +37,7 @@ namespace Msmcomm
         public static SimPinStatus pin2_block_status { get; set; default = SimPinStatus.UNBLOCKED; }
         public static string current_operator_name { get; set; default = ""; }
         public static int signal_strength { get; set; default = 0; }
+        public static Msmcomm.ModemOperationMode functionality_status { get; set; default = ModemOperationMode.UNKNOWN; }
     }
 }
 
