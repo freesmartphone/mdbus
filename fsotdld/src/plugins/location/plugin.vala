@@ -84,6 +84,16 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
     private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Value?> location )
     {
         logger.debug( @"Got location update from $(provider.get_type().name())" );
+        status = location;
+        this.location_update( status ); // DBUS SIGNAL
+    }
+
+    private void mergeStatusAndSendSignal( HashTable<string,Value?> location )
+    {
+        location.get_keys().foreach( (key) => {
+            status.insert( (string)key, location.lookup( (string)key ) );
+        } );
+        this.location_update( status ); // DBUS SIGNAL
     }
 
     //
