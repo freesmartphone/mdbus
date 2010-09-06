@@ -26,6 +26,8 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
     FsoFramework.Subsystem subsystem;
     private Gee.HashMap<string,FsoTdl.ILocationProvider> providers;
 
+    private GLib.HashTable<string,GLib.Value?> status;
+
     construct
     {
         providers = new Gee.HashMap<string,FsoTdl.ILocationProvider>();
@@ -54,6 +56,8 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
             providers[ typ.name() ] = obj;
         }
 
+        status = new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal );
+
         subsystem.registerServiceName( FsoFramework.Time.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Time.ServiceDBusName,
                                          FsoFramework.Time.LocationServicePath, this );
@@ -80,6 +84,14 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
     private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Value?> location )
     {
         logger.debug( @"Got location update from $(provider.get_type().name())" );
+    }
+
+    //
+    // org.freesmartphone.Location (DBus API)
+    //
+    public async GLib.HashTable<string,GLib.Value?> get_location() throws FreeSmartphone.Error, DBus.Error
+    {
+        return status;
     }
 }
 
