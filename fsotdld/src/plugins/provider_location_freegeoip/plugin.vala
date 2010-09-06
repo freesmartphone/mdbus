@@ -91,11 +91,6 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
 
         var components = result[1].split( "," );
 
-
-
-
-
-
         var map = new HashTable<string,Value?>( str_hash, str_equal );
         map.insert( "code", components[2] );
         map.insert( "country", components[3] );
@@ -116,6 +111,11 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
     public override void trigger()
     {
         asyncTrigger();
+    }
+
+    public override uint accuracy()
+    {
+        return 100 * 1000;
     }
 }
 

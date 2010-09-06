@@ -157,6 +157,14 @@ public abstract class FsoGps.AbstractReceiver : FsoTdl.AbstractLocationProvider
         open();
     }
 
+    /**
+     * Override this, if your receiver supports better accuracy
+     **/
+    public override uint accuracy()
+    {
+        return 10;
+    }
+
     //
     // public API
     //
