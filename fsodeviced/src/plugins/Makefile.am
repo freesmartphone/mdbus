@@ -14,7 +14,7 @@ SUBDIRS = \
 	audio \
 	router_alsa \
 	router_qdsp5 \
-    router_palmpre \
+	router_palmpre \
 	player_alsa \
 	\
 	backlight_omappanel \
@@ -35,9 +35,11 @@ SUBDIRS = \
 	vibrator_ledclass \
 	vibrator_omapvibe \
 	vibrator_timedoutputclass \
-    \
-    palmpre_powersupply \
-    proximity_palmpre \
+	\
+	palmpre_powersupply \
+	\
+	proximity_palmpre \
+	proximity_n900 \
 	\
 	$(NULL)
 
