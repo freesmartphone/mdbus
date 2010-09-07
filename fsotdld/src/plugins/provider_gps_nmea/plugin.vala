@@ -145,8 +145,8 @@ class Nmea.Protocol : Object
 
         debug( @"GPRMC reports location %.6f N + %.6f E".printf( lat, lon ) );
 
-        report.insert( "lat", lat );
-        report.insert( "lon", lon );
+        report.insert( "latitude", lat );
+        report.insert( "longitude", lon );
 
         receiver.location( receiver, report );
     }
