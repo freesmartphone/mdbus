@@ -92,14 +92,14 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
         var components = result[1].split( "," );
 
         var map = new HashTable<string,Value?>( str_hash, str_equal );
-        map.insert( "code", components[2] );
-        map.insert( "country", components[3] );
-        map.insert( "wtf", components[4] );
-        map.insert( "region", components[5] );
+        map.insert( "countrycode", components[2] );
+        map.insert( "countryname", components[3] );
+        map.insert( "regioncode", components[4] );
+        map.insert( "regionname", components[5] );
         map.insert( "city", components[6] );
-        map.insert( "zip", components[7] );
-        map.insert( "lat", components[8].to_double() );
-        map.insert( "lon", components[9].to_double() );
+        map.insert( "zipcode", components[7] );
+        map.insert( "latitude", components[8].to_double() );
+        map.insert( "longitude", components[9].to_double() );
         map.insert( "gmt", components[10] );
         map.insert( "dst", components[11] );
         this.location( this, map );
