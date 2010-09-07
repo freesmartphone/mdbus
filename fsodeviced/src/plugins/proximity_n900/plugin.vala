@@ -53,7 +53,7 @@ class N900 : FreeSmartphone.Device.Proximity,
             return;
         }
 
-        input = new FsoFramework.Async.ReactorChannel.rewind( fd, onInputEvent, sizeof( Linux.Input.Event ) );
+        input = new FsoFramework.Async.ReactorChannel.rewind( fd, onInputEvent );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObjectWithPrefix(
@@ -81,6 +81,8 @@ class N900 : FreeSmartphone.Device.Proximity,
 
         var event = (string) data;
 
+        logger.debug( @"got data from sysfs node: $event" );
+
         // send dbus signal
         this.proximity( event == "closed" ? 100 : 0 );
     }
@@ -107,7 +109,7 @@ class N900 : FreeSmartphone.Device.Proximity,
     public async void set_power( bool on ) throws DBus.Error
     {
         //var contents = on ? "1" : "0"; # TODO
-        //FsoFramework.FileHandling.write( contents, powernode );
+        //FsoFramework.FileHandling.write( contents, powernode ); // TODO
     }
 
 }
