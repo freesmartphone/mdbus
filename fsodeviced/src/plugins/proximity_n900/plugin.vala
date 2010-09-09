@@ -22,16 +22,16 @@ using GLib;
 
 namespace Proximity
 {
-    internal const string NEAR = "closed";
-    internal const string FAR = "open";
 
 class N900 : FreeSmartphone.Device.Proximity,
-                FreeSmartphone.Device.PowerControl,
                 FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
     private string node;
+
+    private int lastvalue;
+    private int lasttimestamp;
 
     FsoFramework.Async.ReactorChannel input;
 
@@ -39,6 +39,8 @@ class N900 : FreeSmartphone.Device.Proximity,
     {
         this.subsystem = subsystem;
         this.node = node;
+        this.lastvalue = -1;
+        this.lasttimestamp = 0;
 
         if ( !FsoFramework.FileHandling.isPresent( this.node ) )
         {
@@ -46,12 +48,16 @@ class N900 : FreeSmartphone.Device.Proximity,
             return;
         }
 
-        var fd = Posix.open( GLib.Path.build_filename( this.node, "state" ) , Posix.O_RDONLY );
+        this.node = GLib.Path.build_filename( this.node, "state" );
+
+        var fd = Posix.open( this.node , Posix.O_RDONLY );
         if ( fd == -1 )
         {
             logger.error( @"Can't open $(this.node): $(Posix.strerror(Posix.errno))" );
             return;
         }
+
+        logger.debug( @"Trying to read from $(this.node)..." );
 
         input = new FsoFramework.Async.ReactorChannel.rewind( fd, onInputEvent );
 
@@ -72,19 +78,14 @@ class N900 : FreeSmartphone.Device.Proximity,
 
     private void onInputEvent( void* data, ssize_t length )
     {
-        //var event = (Linux.Input.Event*) data;
-        //if ( event->type != 4 || event->code != 1 )
-        //{
-        //    assert( logger.debug( @"Unknown event w/ type $(event->type) and code $(event->code); ignoring" ) );
-        //    return;
-        //}
-
         var event = (string) data;
 
         logger.debug( @"got data from sysfs node: $event" );
 
         // send dbus signal
-        this.proximity( event == "closed" ? 100 : 0 );
+        this.lastvalue = event == "closed" ? 100 : 0;
+        this.proximity( this.lastvalue );
+        // TODO: store timestamp
     }
 
     //
@@ -92,26 +93,9 @@ class N900 : FreeSmartphone.Device.Proximity,
     //
     public async void get_proximity( out int proximity, out int timestamp ) throws FreeSmartphone.Error, DBus.Error
     {
-        proximity = -1;
-        timestamp = 0;
+        proximity = this.lastvalue;
+        timestamp = this.lasttimestamp;
     }
-
-    //
-    // FreeSmartphone.Device.PowerControl (DBUS API)
-    //
-    public async bool get_power() throws DBus.Error
-    {
-        //var contents = FsoFramework.FileHandling.read( powernode ) ?? "";
-        //return contents.strip() == "1";
-	return true; // TODO
-    }
-
-    public async void set_power( bool on ) throws DBus.Error
-    {
-        //var contents = on ? "1" : "0"; # TODO
-        //FsoFramework.FileHandling.write( contents, powernode ); // TODO
-    }
-
 }
 
 } /* namespace */
