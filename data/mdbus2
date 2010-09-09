@@ -1,0 +1,45 @@
+function __mdbus_param_used () {
+    for p in ${COMP_WORDS[@]} ; do
+        if [[ "$p" = "$1" ]] ; then
+             return 0
+        fi
+        done
+        return 1
+}
+_mdbus2() {
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    opts="-h --help -a --show-anonymous -p --show-pids -l --listen -s --system -i --interactive"
+    if [[ ${cur} == -* ]] ; then
+         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+         return 0
+    else
+        local params
+        if __mdbus_param_used "-s" || __mdbus_param_used "--system"  ; then
+             params="-s"
+        fi
+        if __mdbus_param_used "-a" || __mdbus_param_used "--show-anonymous" ; then
+             params="$params -a"
+        fi
+
+        local dbus_params=( $(echo ${COMP_WORDS[@]} | tr ' ' '\n' | grep -v '^-' | tr '\n' ' ') )
+        local i=0
+        if [[ ( ${#dbus_params[@]} -ge 2 ) && ( "${dbus_params[1]}" != "$cur" ) ]] ; then
+             params="$params ${dbus_params[1]}"
+        fi 
+
+        if [[ ( ${#dbus_params[@]} -ge 3 ) && ( "${dbus_params[2]}" != "$cur" ) ]] ; then
+             params="$params ${dbus_params[2]}"
+        fi 
+
+        local result
+        result=$(mdbus2 $params | tr '\n' ' ')
+        if [[ -z "$cur" ]] ; then
+             result="$result $opts"
+        fi
+        COMPREPLY=( $(compgen -W "$result" -- "$cur") )
+        return 0
+    fi
+}
+complete -F _mdbus2 mdbus2
