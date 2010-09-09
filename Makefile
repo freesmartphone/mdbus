@@ -3,13 +3,13 @@ SUBDIRS = \
 	libfsotransport \
 	libfsoframework \
 	libfsoresource \
-	fsodatad \
-	fsodeviced \
-	fsogsmd \
-	fsonetworkd \
-	fsomusicd \
-	fsousaged \
-	fsotdld
+#	fsodatad \
+#	fsodeviced \
+	fsogsmd
+#	fsonetworkd \
+#	fsomusicd \
+#	fsousaged \
+#	fsotdld
 
 all:
 	for i in $(SUBDIRS); do $(MAKE) -C $$i; done
@@ -31,10 +31,10 @@ rebuild:
 	pushd libfsotransport; make uninstall; ./autogen.sh; make install; popd
 	pushd libgsm0710mux; make uninstall; ./autogen.sh; make install; popd
 	pushd libfsoframework; make uninstall; ./autogen.sh; make install; popd
-	pushd libresource; make uninstall; ./autogen.sh; make install; popd
-	pushd fsodatad; make uninstall; ./autogen.sh; make install; popd
-	pushd fsodeviced; make uninstall; ./autogen.sh; make install; popd
+	pushd libfsoresource; make uninstall; ./autogen.sh; make install; popd
+#	pushd fsodatad; make uninstall; ./autogen.sh; make install; popd
+#	pushd fsodeviced; make uninstall; ./autogen.sh; make install; popd
 	pushd fsogsmd; make uninstall; ./autogen.sh --enable-modem-qualcomm-palm --enable-libgsm0710mux; make install; popd
-	pushd fsonetworkd; make uninstall; ./autogen.sh; make install; popd
-	pushd fsousaged; make uninstall; ./autogen.sh; make install; popd
-	pushd fsotdld; make uninstall; ./autogen.sh; make install; popd
+#	pushd fsonetworkd; make uninstall; ./autogen.sh; make install; popd
+#	pushd fsousaged; make uninstall; ./autogen.sh; make install; popd
+#	pushd fsotdld; make uninstall; ./autogen.sh; make install; popd
