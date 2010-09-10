@@ -665,7 +665,7 @@ class Commands : Object
     {
 #if ALWAYS_INTROSPECT
         var allpaths = new List<string>();
-        _listObjects( busname, "/", ref allpaths );
+        _listObjects( busname.strip(), "/", ref allpaths );
         foreach ( var p in allpaths )
         {
             if ( path == p )
@@ -757,7 +757,7 @@ class Commands : Object
                 //message ( "node = '%s'", node );
                 var nextnode = ( path == "/" ) ? "/%s".printf( node ) : "%s/%s".printf( path, node );
                 //message( "nextnode = '%s'", nextnode );
-                _listObjects( busname, nextnode, ref result, prefix );
+                _listObjects( busname.strip(), nextnode.strip(), ref result, prefix );
             }
         }
         catch ( DBus.Error e )
@@ -1046,13 +1046,13 @@ class Commands : Object
                 stderr.printf( @"Oops!" );
                 break;
             case 1:
-                listObjects( args[0] );
+                listObjects( args[0].strip() );
                 break;
             case 2:
-                listInterfaces( args[0], args[1] );
+                listInterfaces( args[0].strip(), args[1].strip() );
                 break;
             default:
-                commands.callMethod( args[0], args[1], args[2], args[3:args.length] );
+                commands.callMethod( args[0].strip(), args[1].strip(), args[2].strip(), args[3:args.length] );
                 break;
         }
     }
@@ -1092,14 +1092,14 @@ class Commands : Object
             {
                 case 0:
                 case 1: /* bus name */
-                    completions = commands._listBusNames( prefix );
+                    completions = commands._listBusNames( prefix.strip() );
                     break;
                 case 2: /* object path */
                     completions = new List<string>();
-                    commands._listObjects( parts[0], "/", ref completions, prefix );
+                    commands._listObjects( parts[0].strip(), "/", ref completions, prefix );
                     break;
                 case 3: /* interfaces (minus signals or properties) */
-                    completions = commands._listInterfaces( parts[0], parts[1], prefix, true );
+                    completions = commands._listInterfaces( parts[0].strip(), parts[1].strip(), prefix, true );
                     break;
                 default:
                     return null;
@@ -1229,16 +1229,16 @@ mdbus2: DBus has never been that much fun!""" );
 
         case 2:
             if ( !listenerMode )
-                commands.listObjects( args[1] );
+                commands.listObjects( args[1].strip() );
             else
-                commands.listenForSignals( args[1] );
+                commands.listenForSignals( args[1].strip() );
             break;
 
         case 3:
             if ( !listenerMode )
-                commands.listInterfaces( args[1], args[2] );
+                commands.listInterfaces( args[1].strip(), args[2].strip() );
             else
-                commands.listenForSignals( args[1], args[2] );
+                commands.listenForSignals( args[1].strip(), args[2].strip() );
             break;
 
         default:
@@ -1255,7 +1255,7 @@ mdbus2: DBus has never been that much fun!""" );
             {
                 restargs += args[i];
             }
-            var ok = commands.callMethod( args[1], args[2], args[3], restargs );
+            var ok = commands.callMethod( args[1].strip(), args[2].strip(), args[3].strip(), restargs );
             return ok ? 0 : -1;
     }
 
