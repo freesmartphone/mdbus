@@ -54,8 +54,8 @@ _mdbus2() {
         fi 
 
         local result
-        if [[ ${#dbus_params[@]} -le 3 ]] ; then
-            result=$(mdbus2 $params | sed -e 's/^\[[[:alpha:]]*\]\s*//' -e 's/(.*)$//' | tr '\n' ' ')
+        if [[ ${#dbus_params[@]} -le 4 ]] ; then
+            result=$(mdbus2 $params | grep -v '^\[PROPERTY\]' | sed -e 's/^\[[[:alpha:]]*\]\s*//' -e 's/(.*)$//' | grep -v '^\s*$' | tr '\n' ' ')
         fi
         if [[ -z "$cur" ]] ; then
              result="$result $opts"
