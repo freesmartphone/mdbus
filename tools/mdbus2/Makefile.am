@@ -4,6 +4,7 @@ NULL =
 
 SUBDIRS = \
 	src \
+	data \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \

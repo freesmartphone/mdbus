@@ -1,0 +1,67 @@
+function __mdbus2_param_used () {
+    for p in ${COMP_WORDS[@]} ; do
+        if [[ "$p" = "$1" ]] ; then
+             return 0
+        fi
+        done
+        return 1
+}
+function __mdbus2_remove_opts () {
+    tmpopts=""
+    for p in $opts ; do 
+         if [[ ! ( "$p" = "$1" || "$p" = "$2" ) ]] ; then
+              tmpopts="$tmpopts $p"
+         fi
+    done
+    opts="$tmpopts"
+}
+function __mdbus2_remove_opts_fi_used () {
+    if ( __mdbus2_param_used "$1" || __mdbus2_param_used "$2" ) && [[ ! ( "$cur" = "$1" || "$cur" = "$2" ) ]] ; then
+         __mdbus2_remove_opts "$1" "$2"
+    fi
+}
+_mdbus2() {
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    opts="-h --help -a --show-anonymous -p --show-pids -l --listen -s --system -i --interactive"
+    __mdbus2_remove_opts_fi_used "-s" "--system"
+    __mdbus2_remove_opts_fi_used "-i" "--interactive"
+    __mdbus2_remove_opts_fi_used "-p" "--show-pids"
+    __mdbus2_remove_opts_fi_used "-l" "--listen"
+    __mdbus2_remove_opts_fi_used "-a" "--show-anonymous"
+    __mdbus2_remove_opts_fi_used "-h" "--help"
+    if [[ ${cur} == -* ]] ; then
+         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+         return 0
+    else
+        local params
+        if __mdbus2_param_used "-s" || __mdbus2_param_used "--system"  ; then
+             params="-s"
+        fi
+        if __mdbus2_param_used "-a" || __mdbus2_param_used "--show-anonymous" ; then
+             params="$params -a"
+        fi
+
+        local dbus_params=( $(echo ${COMP_WORDS[@]} | tr ' ' '\n' | grep -v '^-' | tr '\n' ' ') )
+        local i=0
+        if [[ ( ${#dbus_params[@]} -ge 2 ) && ( "${dbus_params[1]}" != "$cur" ) ]] ; then
+             params="$params ${dbus_params[1]}"
+        fi 
+
+        if [[ ( ${#dbus_params[@]} -ge 3 ) && ( "${dbus_params[2]}" != "$cur" ) ]] ; then
+             params="$params ${dbus_params[2]}"
+        fi 
+
+        local result
+        if [[ ${#dbus_params[@]} -le 4 ]] ; then
+            result=$(mdbus2 $params | grep -v '^\[PROPERTY\]' | sed -e 's/^\[[[:alpha:]]*\]\s*//' -e 's/(.*)$//' | grep -v '^\s*$' | tr '\n' ' ')
+        fi
+        if [[ -z "$cur" ]] ; then
+             result="$result $opts"
+        fi
+        COMPREPLY=( $(compgen -W "$result" -- "$cur") )
+        return 0
+    fi
+}
+complete -F _mdbus2 mdbus2
