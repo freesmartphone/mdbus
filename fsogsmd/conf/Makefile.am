@@ -9,6 +9,7 @@ SUBDIRS = \
 	motorola_ezx \
 	openmoko_gta \
 	palm_pre \
+	nokia_n900 \
 	$(NULL)
 
 MAINTAINERCLEANFILES = Makefile.in
