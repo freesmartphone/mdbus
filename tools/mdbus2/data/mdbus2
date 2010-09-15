@@ -24,12 +24,14 @@ _mdbus2() {
     local cur prev opts
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
-    opts="-h --help -a --show-anonymous -p --show-pids -l --listen -s --system -i --interactive"
+    opts="-h --help -a --show-anonymous -p --show-pids -l --listen -s --system -i --interactive --pretty-print -n --indent-string="
     __mdbus2_remove_opts_fi_used "-s" "--system"
     __mdbus2_remove_opts_fi_used "-i" "--interactive"
     __mdbus2_remove_opts_fi_used "-p" "--show-pids"
     __mdbus2_remove_opts_fi_used "-l" "--listen"
     __mdbus2_remove_opts_fi_used "-a" "--show-anonymous"
+    __mdbus2_remove_opts_fi_used "-n" "--pretty-print"
+    __mdbus2_remove_opts_fi_used "" "--indent-string"
     __mdbus2_remove_opts_fi_used "-h" "--help"
     if [[ ${cur} == -* ]] ; then
          COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
