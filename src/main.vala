@@ -38,6 +38,20 @@ Commands commands;
 List<string> completions;
 //=========================================================================//
 
+string getIndentString( string prefix = "\n")
+{
+        if( ! prettyPrint )
+                return "";
+#if DEBUG
+        debug( @"adding $indentLevel indentation");
+#endif
+        string s = "";
+        for( int i = 0; i < indentLevel; i ++)
+                s += indentString;
+        return prefix + s;
+}
+int indentLevel = 0;
+
 public string formatSimpleContainerIter( DBus.RawMessageIter subiter, string start, string trenner, string stop, int depth = 0 )
 {
 #if DEBUG
@@ -47,23 +61,26 @@ public string formatSimpleContainerIter( DBus.RawMessageIter subiter, string sta
     // check for empty container
     if ( depth > 1 && !subiter.has_next() )
     {
-        var result = formatResult( subiter, depth+1 );
+        var result = formatResult( subiter, depth );
         return @"$start $result $stop";
     }
 
     var result = "";
-    result += start + " ";
+    indentLevel ++;
+    result += start + getIndentString();
     var next = true;
     while ( next )
     {
-        result += formatResult( subiter, depth+1 );
+        result += formatResult( subiter, depth);
         if ( subiter.has_next() )
         {
-            result += ", ";
+            result += trenner + getIndentString();
+;
         }
         next = subiter.next();
     }
-    result += " " + stop;
+    indentLevel --;
+    result += getIndentString() + stop;
     return result;
 }
 
@@ -83,7 +100,6 @@ public string formatMessage( DBus.RawMessage msg )
         return "()";
     }
 }
-
 public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
 {
     var signature = iter.get_signature();
@@ -1162,6 +1178,8 @@ bool listenerMode;
 bool showPIDs;
 bool useSystemBus;
 bool interactive;
+bool prettyPrint = false;
+string indentString;
 
 const OptionEntry[] options =
 {
@@ -1170,12 +1188,15 @@ const OptionEntry[] options =
     { "listen", 'l', 0, OptionArg.NONE, ref listenerMode, "Listen for signals", null },
     { "system", 's', 0, OptionArg.NONE, ref useSystemBus, "Use System Bus", null },
     { "interactive", 'i', 0, OptionArg.NONE, ref interactive, "Enter interactive shell", null },
+    { "pretty-print", 'n', 0, OptionArg.NONE, ref prettyPrint, "Enable pretty print", null },
+    { "indent-string", '\0', 0, OptionArg.STRING, ref indentString, "Indentation string for pretty print", "A string to indent parameters (default 4 spaces)" },
     { null }
 };
 
 //=========================================================================//
 int main( string[] args )
 {
+    indentString = "    ";
     try
     {
         var opt_context = new OptionContext( "[ busname [ objectpath [ method [ params... ] ] ] ]" );
