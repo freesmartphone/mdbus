@@ -178,6 +178,7 @@ AC_CONFIG_FILES([
   conf/motorola_ezx/Makefile
   conf/openmoko_gta/Makefile
   conf/palm_pre/Makefile
+  conf/nokia_n900/Makefile
   data/Makefile
   data/org.freesmartphone.ogsmd.service
   src/Makefile

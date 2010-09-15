@@ -59,7 +59,7 @@ class N900 : FreeSmartphone.Device.Proximity,
 
         logger.debug( @"Trying to read from $(this.node)..." );
 
-        input = new FsoFramework.Async.ReactorChannel( fd, onInputEvent );
+        input = new FsoFramework.Async.ReactorChannel.rewind( fd, onInputEvent );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObjectWithPrefix(
