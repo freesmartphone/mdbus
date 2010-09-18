@@ -33,8 +33,6 @@ class N900 : FreeSmartphone.Device.Proximity,
     private int lastvalue;
     private int lasttimestamp;
 
-    FsoFramework.Async.ReactorChannel input;
-
     public N900( FsoFramework.Subsystem subsystem, string node )
     {
         this.subsystem = subsystem;
@@ -64,7 +62,9 @@ class N900 : FreeSmartphone.Device.Proximity,
         channel.read_to_end(out value, out c);
         channel.seek_position(0, SeekType.SET);
 
-        this.lastvalue = value == "closed" ? 100 : 0;
+        this.lastvalue = (value == "closed") ? 100 : 0;
+        this.lasttimestamp = (int) TimeVal().tv_sec;
+
         this.proximity( this.lastvalue );
 
         channel.add_watch( IOCondition.IN | IOCondition.PRI | IOCondition.ERR, onInputEvent );
@@ -83,12 +83,13 @@ class N900 : FreeSmartphone.Device.Proximity,
       if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) || ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) ) {
         string value = "";
         size_t c = 0;
-        var ret = source.read_line (out value, out c, null);
+        source.read_line (out value, out c, null);
         logger.debug( @"got data from sysfs node: $value" );
         // send dbus signal
-        this.lastvalue = value == "closed" ? 100 : 0;
+        this.lastvalue = (value == "closed") ? 100 : 0;
+        this.lasttimestamp = (int) TimeVal().tv_sec;
         this.proximity( this.lastvalue );
-        // TODO: store timestamp
+
         source.seek_position(0, SeekType.SET);
         return true;
       }
