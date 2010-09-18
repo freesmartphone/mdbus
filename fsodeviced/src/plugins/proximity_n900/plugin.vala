@@ -50,22 +50,24 @@ class N900 : FreeSmartphone.Device.Proximity,
 
         this.node = GLib.Path.build_filename( this.node, "state" );
 
-        var fd = Posix.open( this.node , Posix.O_RDONLY );
-        if ( fd == -1 )
-        {
-            logger.error( @"Can't open $(this.node): $(Posix.strerror(Posix.errno))" );
-            return;
-        }
-
         logger.debug( @"Trying to read from $(this.node)..." );
-
-        input = new FsoFramework.Async.ReactorChannel.rewind( fd, onInputEvent );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObjectWithPrefix(
             FsoFramework.Device.ServiceDBusName,
             FsoFramework.Device.ProximityServicePath,
             this );
+
+        var channel = new IOChannel.file( this.node, "r" );
+        string value = "";
+        size_t c = 0;
+        channel.read_to_end(out value, out c);
+        channel.seek_position(0, SeekType.SET);
+
+        this.lastvalue = value == "closed" ? 100 : 0;
+        this.proximity( this.lastvalue );
+
+        channel.add_watch( IOCondition.IN | IOCondition.PRI | IOCondition.ERR, onInputEvent );
 
         logger.info( "Created" );
 
@@ -76,16 +78,24 @@ class N900 : FreeSmartphone.Device.Proximity,
         return @"<$node>";
     }
 
-    private void onInputEvent( void* data, ssize_t length )
+    public bool onInputEvent( IOChannel source, IOCondition condition )
     {
-        var event = (string) data;
-
-        logger.debug( @"got data from sysfs node: $event" );
-
+      if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) || ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) ) {
+        string value = "";
+        size_t c = 0;
+        var ret = source.read_line (out value, out c, null);
+        logger.debug( @"got data from sysfs node: $value" );
         // send dbus signal
-        this.lastvalue = event == "closed" ? 100 : 0;
+        this.lastvalue = value == "closed" ? 100 : 0;
         this.proximity( this.lastvalue );
         // TODO: store timestamp
+        source.seek_position(0, SeekType.SET);
+        return true;
+      }
+      else {
+        logger.error("onInputEvent error");
+        return false;
+      }
     }
 
     //
@@ -115,6 +125,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     var dirname = GLib.Path.build_filename( sysfs_root, "devices", "platform", "gpio-switch", "proximity" );
+
     if ( FsoFramework.FileHandling.isPresent( dirname ) )
     {
         instance = new Proximity.N900( subsystem, dirname );
