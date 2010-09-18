@@ -62,7 +62,7 @@ class N900 : FreeSmartphone.Device.Proximity,
         channel.read_to_end(out value, out c);
         channel.seek_position(0, SeekType.SET);
 
-        this.lastvalue = (value == "closed") ? 100 : 0;
+        this.lastvalue = (value[0] == 'c') ? 100 : 0;
         this.lasttimestamp = (int) TimeVal().tv_sec;
 
         this.proximity( this.lastvalue );
@@ -86,7 +86,7 @@ class N900 : FreeSmartphone.Device.Proximity,
         source.read_line (out value, out c, null);
         logger.debug( @"got data from sysfs node: $value" );
         // send dbus signal
-        this.lastvalue = (value == "closed") ? 100 : 0;
+        this.lastvalue = (value[0] == 'c') ? 100 : 0;
         this.lasttimestamp = (int) TimeVal().tv_sec;
         this.proximity( this.lastvalue );
 
