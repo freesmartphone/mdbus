@@ -107,8 +107,15 @@ class N900 : FreeSmartphone.Device.Proximity,
     //
     public async void get_proximity( out int proximity, out int timestamp ) throws FreeSmartphone.Error, DBus.Error
     {
-        proximity = this.lastvalue;
-        timestamp = this.lasttimestamp;
+        try {
+            var value = FsoFramework.FileHandling.read( node ) ?? "";
+            this.lastvalue = (value.strip() == "closed") ? 100 : 0;
+            this.lasttimestamp = (int) TimeVal().tv_sec;
+        }
+        finally {
+            proximity = this.lastvalue;
+            timestamp = this.lasttimestamp;
+	}
     }
 
     //
