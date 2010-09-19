@@ -24,11 +24,13 @@ namespace Proximity
 {
 
 class N900 : FreeSmartphone.Device.Proximity,
-                FsoFramework.AbstractObject
+             FreeSmartphone.Device.PowerControl,
+             FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
 
     private string node;
+    private string powernode;
 
     private int lastvalue;
     private int lasttimestamp;
@@ -47,6 +49,7 @@ class N900 : FreeSmartphone.Device.Proximity,
         }
 
         this.node = GLib.Path.build_filename( this.node, "state" );
+        this.powernode = GLib.Path.build_filename( this.node, "disable" );
 
         logger.debug( @"Trying to read from $(this.node)..." );
 
@@ -62,7 +65,7 @@ class N900 : FreeSmartphone.Device.Proximity,
         channel.read_to_end(out value, out c);
         channel.seek_position(0, SeekType.SET);
 
-        this.lastvalue = (value[0] == 'c') ? 100 : 0;
+        this.lastvalue = (value.strip() == "closed") ? 100 : 0;
         this.lasttimestamp = (int) TimeVal().tv_sec;
 
         this.proximity( this.lastvalue );
@@ -86,7 +89,7 @@ class N900 : FreeSmartphone.Device.Proximity,
         source.read_line (out value, out c, null);
         logger.debug( @"got data from sysfs node: $value" );
         // send dbus signal
-        this.lastvalue = (value[0] == 'c') ? 100 : 0;
+        this.lastvalue = (value.strip() == "closed") ? 100 : 0;
         this.lasttimestamp = (int) TimeVal().tv_sec;
         this.proximity( this.lastvalue );
 
@@ -106,6 +109,61 @@ class N900 : FreeSmartphone.Device.Proximity,
     {
         proximity = this.lastvalue;
         timestamp = this.lasttimestamp;
+    }
+
+    //
+    // FreeSmartphone.Device.PowerControl (DBUS API)
+    //
+    public async bool get_power() throws DBus.Error
+    {
+        var contents = FsoFramework.FileHandling.read( powernode ) ?? "";
+        return contents.strip() == "0";
+    }
+
+    public async void set_power( bool on ) throws DBus.Error
+    {
+        var contents = on ? "0" : "1";
+        FsoFramework.FileHandling.write( contents, powernode );
+    }
+
+}
+
+/**
+ * Implementation of org.freesmartphone.Resource for the Proximity Resource
+ **/
+class ProximityResource : FsoFramework.AbstractDBusResource
+{
+    internal bool on;
+
+    public ProximityResource( FsoFramework.Subsystem subsystem )
+    {
+        base( "Proximity", subsystem );
+    }
+
+    public override async void enableResource()
+    {
+        if (on)
+            return;
+        assert( logger.debug( "Enabling..." ) );
+        instance.set_power( true );
+        on = true;
+    }
+
+    public override async void disableResource()
+    {
+        if (!on)
+            return;
+        assert( logger.debug( "Disabling..." ) );
+        instance.set_power( false );
+        on = false;
+    }
+
+    public override async void suspendResource()
+    {
+    }
+
+    public override async void resumeResource()
+    {
     }
 }
 

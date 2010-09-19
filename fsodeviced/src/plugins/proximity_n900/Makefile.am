@@ -18,6 +18,7 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg fso-glib-1.0 \
+	--pkg fsoresource-2.0 \
 	--pkg fsoframework-2.0
 
 #
