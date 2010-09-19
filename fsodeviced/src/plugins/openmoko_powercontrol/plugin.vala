@@ -61,7 +61,7 @@ class UsbHostModeControl : FsoDevice.BasePowerControl
 
     public UsbHostModeControl( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
-        base( Path.build_filename( sysfsnode, "hostmode" ) );
+        base( Path.build_filename( sysfsnode, "power_on" ) );
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
         this.umodenode = Path.build_filename( sysfs_root, "devices", "platform", "s3c2410-ohci", "usb_mode" );
