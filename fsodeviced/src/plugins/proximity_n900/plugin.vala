@@ -48,8 +48,8 @@ class N900 : FreeSmartphone.Device.Proximity,
             return;
         }
 
-        this.node = GLib.Path.build_filename( this.node, "state" );
         this.powernode = GLib.Path.build_filename( this.node, "disable" );
+        this.node = GLib.Path.build_filename( this.node, "state" );
 
         logger.debug( @"Trying to read from $(this.node)..." );
 
@@ -188,6 +188,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     if ( FsoFramework.FileHandling.isPresent( dirname ) )
     {
         instance = new Proximity.N900( subsystem, dirname );
+        resource = new Proximity.ProximityResource( subsystem );
     }
     else
     {
