@@ -171,6 +171,7 @@ class ProximityResource : FsoFramework.AbstractDBusResource
 
 static string sysfs_root;
 Proximity.N900 instance;
+Proximity.ProximityResource resource;
 
 /**
  * This function gets called on plugin initialization time.
