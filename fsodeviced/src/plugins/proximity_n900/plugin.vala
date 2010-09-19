@@ -68,7 +68,7 @@ class N900 : FreeSmartphone.Device.Proximity,
         this.lastvalue = (value.strip() == "closed") ? 100 : 0;
         this.lasttimestamp = (int) TimeVal().tv_sec;
 
-        this.proximity( this.lastvalue );
+        this.set_power( false );
 
         channel.add_watch( IOCondition.IN | IOCondition.PRI | IOCondition.ERR, onInputEvent );
 
