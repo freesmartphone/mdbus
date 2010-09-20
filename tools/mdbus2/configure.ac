@@ -78,7 +78,7 @@ AC_ARG_ENABLE(debug,
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
 AC_ARG_ENABLE(bash_completion,
-  [  --want-bash-completion    Install bash completion skript (default=disabled)],
+  [  --enable-bash-completion    Install bash completion skript (default=disabled)],
   [bash_completion=$enableval],
   [bash_completion="no"])
 AM_CONDITIONAL( [WANT_BC], [test x"$bash_completion" = x"yes"])
