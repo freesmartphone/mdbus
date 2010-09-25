@@ -32,6 +32,8 @@ SUBDIRS = \
 	openmoko_powercontrol \
 	thinkpad_powercontrol \
 	\
+	powercontrol_ifconfig \
+	\
 	vibrator_ledclass \
 	vibrator_omapvibe \
 	vibrator_timedoutputclass \
