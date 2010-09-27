@@ -76,7 +76,7 @@ class Ifconfig : FsoDevice.ISimplePowerControl,
             out error_fd);
         }
         catch (Error e) {
-            FsoFramework.theLogger.error ("Could not call ifconfig!");
+            FsoFramework.theLogger.error ( @"Could not call $app $iface $arg!" );
         }
     }
 
