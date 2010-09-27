@@ -5,6 +5,7 @@ NULL=
 SUBDIRS = \
 	alsa-2.6.29 \
 	alsa-2.6.31 \
+	alsa-2.6.34 \
 	$(NULL)
 
 THISDIR = `basename $$PWD`
