@@ -10,15 +10,16 @@ AC_GNU_SOURCE
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
+VALA_REQUIRED=0.9.7
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
+m4_ifdef([AM_PROG_VALAC], [AM_PROG_VALAC([$VALA_REQUIRED])])
 
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
 # requirements
-VALA_REQUIRED=0.9.6.1
 GLIB_REQUIRED=2.18.0
 DBUS_REQUIRED=1.2.1
 DBUS_GLIB_REQUIRED=0.76
@@ -52,10 +53,6 @@ AC_SUBST(LIBHISTORY)
 if test -z "$LIBHISTORY" && test -z "$LIBREADLINE"; then
     AC_ERROR( [Can not find readline support. Please install the development package for readline.] )
 fi
-
-# vala
-PKG_CHECK_MODULES(VALA,
-  vala-0.10 >= $VALA_REQUIRED)
 
 # glib and friends
 PKG_CHECK_MODULES(GLIB,

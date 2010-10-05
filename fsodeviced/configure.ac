@@ -10,8 +10,10 @@ AC_GNU_SOURCE
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
+VALA_REQUIRED=0.9.7
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
+m4_ifdef([AM_PROG_VALAC], [AM_PROG_VALAC([$VALA_REQUIRED])])
 
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
@@ -19,7 +21,6 @@ AC_SUBST(LDFLAGS)
 
 ##############################################################################
 # required versions
-VALA_REQUIRED=0.9.6.1
 GLIB_REQUIRED=2.18.0
 GEE_REQUIRED=0.5.0
 DBUS_REQUIRED=1.2.1
@@ -30,11 +31,6 @@ FSO_RESOURCE_REQUIRED=0.1.0
 ALSA_REQUIRED=0.20
 CANBERRA_REQUIRED=0.17
 GSTREAMER_REQUIRED=0.10.20
-
-##############################################################################
-# vala
-PKG_CHECK_MODULES(VALA,
-  vala-0.10 >= $VALA_REQUIRED)
 
 ##############################################################################
 # glib and friends + gee
