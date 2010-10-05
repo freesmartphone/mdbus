@@ -21,7 +21,7 @@ using GLib;
 
 class DBusService.Device : FsoFramework.AbstractObject
 {
-    const string MODULE_NAME = "fsotdl.provider_gps";
+    public const string MODULE_NAME = "fsotdl.provider_gps";
 
     FsoFramework.Subsystem subsystem;
     private static FsoGps.AbstractReceiver receiver;

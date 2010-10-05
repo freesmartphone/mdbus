@@ -51,7 +51,7 @@ namespace NetworkTimeProtocol
 
 class Source.Ntp : FsoTime.AbstractSource
 {
-    const string MODULE_NAME = "fsotdl.source_ntp";
+    public const string MODULE_NAME = "fsotdl.source_ntp";
 
     private string servername;
     private InetAddress serveraddr;
