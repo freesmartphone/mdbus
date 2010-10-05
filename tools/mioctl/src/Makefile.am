@@ -5,6 +5,7 @@ NULL =
 VALAC_ARGS = \
 	-C --vapidir vapi \
         --pkg posix \
+        --pkg linux \
         --save-temps \
         --basedir $(top_srcdir)
 
