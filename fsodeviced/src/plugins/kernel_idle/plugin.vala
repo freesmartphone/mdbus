@@ -372,6 +372,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     public async void set_timeout( FreeSmartphone.Device.IdleState status, int timeout ) throws DBus.Error
     {
+        config.write( KERNEL_IDLE_PLUGIN_NAME, states[status], timeout );
         idlestatus.timeouts[status] = timeout;
     }
 
