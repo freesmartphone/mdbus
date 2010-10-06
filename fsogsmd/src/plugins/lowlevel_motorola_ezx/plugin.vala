@@ -22,7 +22,7 @@ using FsoGsm;
 
 class LowLevel.MotorolaEZX : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
-    private const string MODULE_NAME = "fsogsm.lowlevel_motorola_ezx";
+    public const string MODULE_NAME = "fsogsm.lowlevel_motorola_ezx";
     private FsoGsm.AbstractModem modem; // for access to modem properties
     private static bool initDone = false;
     private int muxfds[16];

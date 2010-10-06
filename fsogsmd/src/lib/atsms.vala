@@ -372,7 +372,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         }
     }
 
-    private override string repr()
+    public override string repr()
     {
         return storage != null ? storage.repr() : "<None>";
     }

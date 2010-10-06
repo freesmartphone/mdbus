@@ -193,7 +193,7 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
         theModem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
-    private override string repr()
+    public override string repr()
     {
         return storage != null ? storage.repr() : "<None>";
     }
