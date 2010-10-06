@@ -437,7 +437,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         buffered = on;
     }
 
-    public override int writeAndRead( void* wdata, int wlength, void* rdata, int rlength, int maxWait = 5000 )
+    public override int writeAndRead( uchar* wdata, int wlength, uchar* rdata, int rlength, int maxWait = 5000 )
     {
 #if DEBUG
         debug( @"writeAndRead: writing $((string)wdata) ($wlength)" );
