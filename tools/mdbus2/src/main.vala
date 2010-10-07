@@ -1088,13 +1088,9 @@ class Commands : Object
             message( "Readline.line_buffer = '%s'", Readline.line_buffer );
 #endif
             var parts = Readline.line_buffer.split( " " );
-            if ( parts.length == 0 )
+            if ( parts.length == 0 || parts[0].strip() == "")
             {
-                return null;
-            }
-            if ( parts[0].strip() == "" )
-            {
-                return null;
+                prefix = "";
             }
 #if DEBUG
             message( "'%s' length = %d", prefix, parts.length );
