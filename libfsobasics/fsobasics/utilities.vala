@@ -528,6 +528,8 @@ namespace FsoFramework { namespace Async {
         private void init( int fd, owned ActionFunc actionfunc, size_t bufferlength = 512 )
         {
             assert( fd > -1 );
+            channel = new GLib.IOChannel.unix_new( fd );
+            assert( channel != null );
             this.fd = fd;
             this.actionfunc = actionfunc;
             buffer = new char[ bufferlength ];
@@ -537,7 +539,6 @@ namespace FsoFramework { namespace Async {
         {
             init( fd, actionfunc, bufferlength );
             watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.HUP, onActionFromChannel );
-            channel = new GLib.IOChannel.unix_new( fd );
             this.rewind_flag = false;
         }
 
@@ -545,7 +546,6 @@ namespace FsoFramework { namespace Async {
         {
             init( fd, actionfunc, bufferlength );
             watch = channel.add_watch( GLib.IOCondition.IN | GLib.IOCondition.PRI | GLib.IOCondition.HUP, onActionFromChannel );
-            channel = new GLib.IOChannel.unix_new( fd );
             this.rewind_flag = true;
         }
 
