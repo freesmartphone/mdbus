@@ -23,7 +23,7 @@ namespace Proximity
 {
     internal const string DEFAULT_INPUT_NODE = "input/event3";
     internal const int NEAR = 0;
-    internal const int FAR = 1000;
+    internal const int FAR = 100;
 
 class PalmPre : FreeSmartphone.Device.Proximity,
                 FreeSmartphone.Device.PowerControl,
@@ -36,6 +36,22 @@ class PalmPre : FreeSmartphone.Device.Proximity,
 
     private int maxvalue;
     private int minvalue;
+    private long start_timestamp;
+    private int _current_proximity = -1;
+    private int _value_timestamp = -1;
+    private int current_proximity {
+        get {return _current_proximity; }
+        set {
+            if( value != _current_proximity)
+            {
+                _current_proximity = value;
+                proximity(value);
+                TimeVal tv = TimeVal();
+                tv.get_current_time();
+                _value_timestamp = (int)(tv.tv_sec - start_timestamp);
+            }
+        }
+    }
 
     FsoFramework.Async.ReactorChannel input;
 
@@ -69,9 +85,13 @@ class PalmPre : FreeSmartphone.Device.Proximity,
             FsoFramework.Device.ServiceDBusName,
             FsoFramework.Device.ProximityServicePath,
             this );
+        TimeVal tv = TimeVal();
+        tv.get_current_time();
+        start_timestamp = tv.tv_sec;
+        //disable by default
+        set_power( false );
 
         logger.info( "Created" );
-
     }
 
     public override string repr()
@@ -84,12 +104,11 @@ class PalmPre : FreeSmartphone.Device.Proximity,
         var event = (Linux.Input.Event*) data;
         if ( event->type != 4 || event->code != 1 )
         {
-            assert( logger.debug( @"Unknown event w/ type $(event->type) and code $(event->code); ignoring" ) );
+            assert( logger.debug( @"Unknown event w/ type $(event->type), code $(event->code) and value $(event->value); ignoring" ) );
             return;
         }
-
-        // send dbus signal
-        this.proximity( event->value > 0 ? 100 : 0 );
+        assert( logger.debug ( @"Using Proximity event with value $(event->value)"));
+        current_proximity = _valueToPercent( event->value );
     }
 
     private int _valueToPercent( int value )
@@ -103,8 +122,8 @@ class PalmPre : FreeSmartphone.Device.Proximity,
     //
     public async void get_proximity( out int proximity, out int timestamp ) throws FreeSmartphone.Error, DBus.Error
     {
-        proximity = -1;
-        timestamp = 0;
+        proximity = current_proximity;
+        timestamp = _value_timestamp;
     }
 
     //
@@ -142,7 +161,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var config = FsoFramework.theConfig;
     devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
-    var dirname = GLib.Path.build_filename( sysfs_root, "class", "input", "input3" );
+    var dirname = GLib.Path.build_filename( sysfs_root, "devices", "platform", "hsdl9100_proximity", "input", "input3" );
     if ( FsoFramework.FileHandling.isPresent( dirname ) )
     {
         instance = new Proximity.PalmPre( subsystem, dirname );
