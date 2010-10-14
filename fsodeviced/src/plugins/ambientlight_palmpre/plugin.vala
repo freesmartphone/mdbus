@@ -36,6 +36,21 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
 
     private int maxvalue;
     private int minvalue;
+    private long start_timestamp;
+    private int brightness_timestamp = -1;
+    private int _brightness = -1;
+    private int brightness {
+        get {return _brightness; }
+        set {
+            if(brightness != value) {
+                _brightness = value;
+                ambient_light_brightness(brightness);
+            }
+            TimeVal tv = TimeVal();
+            tv.get_current_time();
+            brightness_timestamp = (int)(tv.tv_sec - start_timestamp);
+        }
+    }
 
     FsoFramework.Async.ReactorChannel input;
 
@@ -86,12 +101,10 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
         var event = (Linux.Input.Event*) data;
         if ( event->type != 3 || event->code != 40 )
         {
-            assert( logger.debug( @"Unknown event w/ type $(event->type) and code $(event->code); ignoring" ) );
+            assert( logger.debug( @"Unknown event w/ type $(event->type) code $(event->code) and value $(event->value); ignoring" ) );
             return;
         }
-
-        // send dbus signal
-        this.ambient_light_brightness( _valueToPercent( (int)event->value ) );
+        brightness = _valueToPercent( event->value);
     }
 
     private int _valueToPercent( int value )
@@ -105,8 +118,8 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
     //
     public async void get_ambient_light_brightness( out int brightness, out int timestamp ) throws FreeSmartphone.Error, DBus.Error
     {
-        brightness = -1;
-        timestamp = 0;
+        brightness = this.brightness;
+        timestamp = brightness_timestamp;
     }
 }
 
@@ -128,7 +141,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
-    var dirname = GLib.Path.build_filename( sysfs_root, "class", "input", "input4" );
+    var dirname = GLib.Path.build_filename( sysfs_root, "devices", "platform", "temt6200_light", "input", "input4" );
     if ( FsoFramework.FileHandling.isPresent( dirname ) )
     {
         instance = new AmbientLight.PalmPre( subsystem, dirname );
