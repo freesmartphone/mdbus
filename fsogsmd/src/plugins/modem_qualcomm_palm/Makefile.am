@@ -52,12 +52,18 @@ modem_qualcomm_palm_la_SOURCES = \
  mediators.c \
  unsolicited.c \
  plugin.c \
- call.c \
+ callhandler.c \
  data.c \
- phonebook.c \
+ phonebookhandler.c \
  consts.c \
  commandqueue.c \
  modemagent.c \
+ mediators_debug.c \
+ mediators_device.c \
+ mediators_sim.c \
+ mediators_sms.c \
+ mediators_network.c \
+ mediators_call.c \
  $(NULL)
  
 modem_qualcomm_palm_la_VALASOURCES = \
@@ -65,18 +71,18 @@ modem_qualcomm_palm_la_VALASOURCES = \
  mediators.vala \
  unsolicited.vala \
  plugin.vala \
- call.vala \
+ callhandler.vala \
  data.vala \
- phonebook.vala \
+ phonebookhandler.vala \
  consts.vala \
  commandqueue.vala \
  modemagent.vala \
- mediators/debug.vala \
- mediators/device.vala \
- mediators/sim.vala \
- mediators/sms.vala \
- mediators/network.vala \
- mediators/call.vala \
+ mediators_debug.vala \
+ mediators_device.vala \
+ mediators_sim.vala \
+ mediators_sms.vala \
+ mediators_network.vala \
+ mediators_call.vala \
  $(NULL)
  
 $(modem_qualcomm_palm_la_SOURCES): $(modem_qualcomm_palm_la_VALASOURCES)
