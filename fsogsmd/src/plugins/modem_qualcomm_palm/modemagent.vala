@@ -74,6 +74,11 @@ public class MsmModemAgent : FsoFramework.AbstractObject
     {
         return "<>";
     }
+
+    public void notifyUnsolicitedResponse( string urcName )
+    {
+
+    }
     
     //
     // private API
@@ -125,8 +130,8 @@ public class MsmModemAgent : FsoFramework.AbstractObject
     
     private async void registerObjects()
     {
-		management = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Management" ) as Msmcomm.Management;
-		commands = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Commands" ) as Msmcomm.Commands;
-		unsolicited = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Unsolicited" ) as Msmcomm.ResponseUnsolicited;
+        management = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Management" ) as Msmcomm.Management;
+        commands = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Commands" ) as Msmcomm.Commands;
+        unsolicited = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Unsolicited" ) as Msmcomm.ResponseUnsolicited;
     }
 }

@@ -66,13 +66,20 @@ public class MsmDebugPing : DebugPing
             var cmds = MsmModemAgent.instance().commands;
             yield cmds.test_alive();
         }
-        catch ( Msmcomm.Error err )
+        catch ( Msmcomm.Error err0 )
         {
-            var msg = @"Could not process test_alive command, got: $(err.message)";
+            var msg = @"Could not process test_alive command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( DBus.Error err1 )
+        {
         }
     }
 }
+
+/**
+ * Device mediators
+ **/
 
 public class MsmDeviceGetFunctionality : DeviceGetFunctionality
 {
@@ -132,10 +139,13 @@ public class MsmDeviceGetInformation : DeviceGetInformation
             string imei = yield cmds.get_imei();
             info.insert( "imei", imei );
         }
-        catch ( Msmcomm.Error err )
+        catch ( Msmcomm.Error err0 )
         {
-            var msg = @"Could not process get_firmware_info/get_imei command, got: $(err.message)";
+            var msg = @"Could not process get_firmware_info/get_imei command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( DBus.Error err1 )
+        {
         }
     }
 }
@@ -169,10 +179,13 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
             // close as current level is unknown ...
             level = 10;
         }
-        catch ( Msmcomm.Error err )
+        catch ( Msmcomm.Error err0 )
         {
-            var msg = @"Could not process get_charger_status command, got: $(err.message)";
+            var msg = @"Could not process get_charger_status command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( DBus.Error err1 )
+        {
         }
     }
 }
@@ -201,12 +214,14 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
             var cmds = MsmModemAgent.instance().commands;
             yield cmds.change_operation_mode( Msmcomm.RuntimeData.functionality_status ); 
         }
-        catch ( Msmcomm.Error err )
+        catch ( Msmcomm.Error err0 )
         {
-            var msg = @"Could not process change_operation_mode command, got: $(err.message)";
+            var msg = @"Could not process change_operation_mode command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        
+        catch ( DBus.Error err1 )
+        {
+        }
         // FIXME update modem status!
     }
 }
@@ -256,10 +271,13 @@ public class MsmSimGetInformation : SimGetInformation
             string imsi = yield cmds.sim_info( "imsi" );
             checkAndAddInfo( "imsi", imsi );
         }
-        catch (Msmcomm.Error err) 
+        catch ( Msmcomm.Error err0 ) 
         {
-            var msg = @"Could not process verify_pin command, got: $(err.message)";
+            var msg = @"Could not process verify_pin command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( DBus.Error err1 )
+        {
         }
     }
 }
@@ -289,10 +307,13 @@ public class MsmSimSendAuthCode : SimSendAuthCode
             // FIXME select pin type acording to the current active pin
             yield cmds.verify_pin( "pin1", pin );
         }
-        catch ( Msmcomm.Error err ) 
+        catch ( Msmcomm.Error err0 ) 
         {
-            var msg = @"Could not process verify_pin command, got: $(err.message)";
+            var msg = @"Could not process verify_pin command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( DBus.Error err1 )
+        {
         }
     }
 }
@@ -301,31 +322,21 @@ public class MsmSimDeleteEntry : SimDeleteEntry
 {
     public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
-        if ( cat == Msmcomm.PhonebookType.NONE )
+        try
         {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
-        }
-        
-        var channel = theModem.channel( "main" ) as MsmChannel;
-        var cmd = new Msmcomm.Command.DeletePhonebook();
-        cmd.book_type = cat;
-        cmd.position = (uint8) index;
-        
-        unowned Msmcomm.Message response = (Msmcomm.Message) (yield channel.enqueueAsync( (owned) cmd ));
-        if ( response == null || response.result != Msmcomm.ResultType.OK ) 
-        {
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Got no valid response for DeletePhonebook command!" );
-        }
+            var cmds = MsmModemAgent.instance().commands;
+            var bookType = Msmcomm.stringToPhonebookBookType( category );
             
-        // FIXME do we have to wait for a urc to get the verification that the 
-        // entry is deleted successfully?
-        
-        // FIXME implement resync method in phonebook handler
-        // theModem.pbhandler.resync();
-        
-        #endif
+            cmds.delete_phonebook( bookType, (uint) index );
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+            var msg = @"Could not process the delete_phonebook command, got: $(err0.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( DBus.Error err1 )
+        {
+        }
     }
 }
 
@@ -333,15 +344,7 @@ public class MsmSimDeleteMessage : SimDeleteMessage
 {
     public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCMGD>( "+CMGD" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( index ) );
-        checkResponseExpected( cmd, response, {
-            Constants.AtResponse.OK,
-            Constants.AtResponse.CMS_ERROR_321_INVALID_MEMORY_INDEX
-        } );
-        //FIXME: theModem.smshandler.resync();
-        #endif
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
@@ -349,36 +352,25 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
 {
     public override async void run( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        Msmcomm.PhonebookType phonebookType = Msmcomm.PhonebookType.NONE;
-        
-        // FIXME add more phonebook types !!!
-        switch ( category )
+        try
         {
-            case "fixed":
-                phonebookType = Msmcomm.PhonebookType.FDN;
-                break;
-            case "abbreviated":
-                phonebookType = Msmcomm.PhonebookType.ADN;
-                break;
-            default:
-                throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
+            var bookType = Msmcomm.stringToPhonebookBookType( category );
+            var cmds = MsmModemAgent.instance().commands;
+
+            Msmcomm.PhonebookProperties pbprops = yield cmds.get_phonebook_properties( bookType );
+            slots = pbprops.slot_count;
+            numberlength = pbprops.max_chars_per_number;
+            namelength = pbprops.max_chars_per_title;
         }
-        
-        var channel = theModem.channel( "main" ) as MsmChannel;
-        
-        var cmd = new Msmcomm.Command.GetPhonebookProperties();
-        unowned Msmcomm.Reply.GetPhonebookProperties response = 
-            (Msmcomm.Reply.GetPhonebookProperties) ( yield channel.enqueueAsync( (owned) cmd ) );
-            
-        if (response != null && response.result == Msmcomm.ResultType.OK)
+        catch ( Msmcomm.Error err0 )
         {
-            slots = response.slot_count;
-            numberlength = response.max_chars_per_number;
-            namelength = response.max_chars_per_title;
+            var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        
-        #endif
+        catch ( DBus.Error err1 )
+        {
+        }
+
     }
 }
 
@@ -386,7 +378,27 @@ public class MsmSimGetServiceCenterNumber : SimGetServiceCenterNumber
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        #if 0
+        // FIXME have to implement this when libmsmcomm fully supports the
+        // get_service_center_number command which currently does not
+        try 
+        {
+            var cmds = MsmModemAgent.instance().commands;
+            
+            // We first send the command to get the sms center number and afterwards we
+            // have to wait for the right urc which supplies the number of the service
+            // center
+            yield cmds.get_sms_center_number();
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+            var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( DBus.Error err1 )
+        {
+        }
+        #endif
     }
 }
 
@@ -457,32 +469,25 @@ public class MsmSimWriteEntry : SimWriteEntry
 {
     public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var channel = theModem.channel( "main" ) as MsmChannel;
-        
-        var cat = Msmcomm.simPhonebookStringToPhonebookType( category );
-        if ( cat == Msmcomm.PhonebookType.NONE )
+        try
         {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
+            var bookType = Msmcomm.stringToPhonebookBookType( category );
+            var cmds = MsmModemAgent.instance().commands;
+            
+            // NOTE Here we can't set the index of the entry to write to the sim card - we
+            // get the index of the new entry by the write operation to the sim card.
+            // Maybe the API has to be fixed to support index of new entries supplied by
+            // the SIM/modem itself and not by the user.
+            var new_index = yield cmds.write_phonebook( bookType, number, name );
         }
-
-        var cmd = new Msmcomm.Command.WritePhonebook();
-        cmd.number = number;
-        cmd.title = name;
-        unowned Msmcomm.Reply.Phonebook response = (Msmcomm.Reply.Phonebook) (yield channel.enqueueAsync( (owned) cmd ));
-        
-        yield channel.waitForUnsolicitedResponse( Msmcomm.EventType.PHONEBOOK_MODIFIED , ( urc ) => {
-            unowned Msmcomm.Unsolicited.PhonebookModified phonebookModifiedUrc = (Msmcomm.Unsolicited.PhonebookModified) ( urc );
-            if ( phonebookModifiedUrc == null || phonebookModifiedUrc.result != Msmcomm.ResultType.OK)
-            {
-                FsoFramework.theLogger.error( "Something went wrong while recieving URC_PHONEBOOK_MODIFIED !!!" );
-                throw new FreeSmartphone.Error.INTERNAL_ERROR( "Don't get any response from modem about a successfull write of the new phonebook entry" );
-            }
-        });
-        
-        // FIXME howto sync the phonebook now as we have a new entry?
-        // theModem.pbhandler.resync();
-        #endif
+        catch ( Msmcomm.Error err0 )
+        {
+            var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( DBus.Error err1 )
+        {
+        }
     }
 }
 

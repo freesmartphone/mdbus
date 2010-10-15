@@ -63,43 +63,52 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         return result;
     }
     
-    private async FreeSmartphone.GSM.SIMEntry[] readPhonebook( string book_type, int slot_count, int slots_used )
+    private async FreeSmartphone.GSM.SIMEntry[] readPhonebook( Msmcomm.PhonebookBookType book_type, int slot_count, int slots_used )
     {
         FreeSmartphone.GSM.SIMEntry[] phonebook = new FreeSmartphone.GSM.SIMEntry[] { };
-        var channel = theModem.channel( "main" ) as MsmChannel;
+        var cmds = MsmModemAgent.instance().commands;
         
-        #if 0
         // We read as much phonebook entries as we have stored in the phonebook. The
         // entries in the phonebook are always in the right order as the modem firmware
         // fills the gap between the entries already stored in the phonebook by itself.
         
         for ( var i = 0; i < slots_used; i++ )
         {
-            var cmd = new Msmcomm.Command.ReadPhonebook();
-            cmd.book_type = type;
-            cmd.position = i;
-            unowned Msmcomm.Reply.Phonebook response = 
-                (Msmcomm.Reply.Phonebook) (yield channel.enqueueAsync( (owned) cmd ));
-                
-            if (response != null && response.result == Msmcomm.ResultType.OK)
+            try 
             {
-                var entry = new FreeSmartphone.GSM.SIMEntry( i, response.title, response.number );
+                var phonebookEntry = yield cmds.read_phonebook( book_type, i );
+                var entry = FreeSmartphone.GSM.SIMEntry( i, phonebookEntry.title, phonebookEntry.number );
                 phonebook += entry;
             }
+            catch ( DBus.Error err0 )
+            {
+            }
+            catch ( Msmcomm.Error err1 )
+            {
+            }
+
         }
-        
-        #endif
         
         return phonebook;
     }
 
     public async void syncWithSim()
     {
-        #if 0
         var cmds = MsmModemAgent.instance().commands;
     
         // gather IMSI
-        string imsi = cmds.sim_info( "imsi" );
+        string imsi = "";
+        try 
+        {
+            imsi = yield cmds.sim_info( "imsi" );
+        }
+        catch ( DBus.Error err0 )
+        {
+        }
+        catch ( Msmcomm.Error err1 )
+        {
+        }
+        
         if ( imsi.length == 0 )
         {
             logger.warning( "Can't synchronize PB storage with SIM" );
@@ -111,27 +120,28 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         
         // FIXME we can't retrieve phonebooks, so we have to build a 
         // static list of available phonebooks
-        string[] phonebooks = { "fdn", "adn", "sdn" };
-        
-        foreach ( var pbcode in phonebooks ) {
-            var pbprop = cmds.get_phonebook_properties( pbcode );
-                
-            if (pbprop.size() != 0) {
-                var slot_count = pbprop.lookup("slot_count");
-                var slots_used = pbprop.lookup("slots_used");
-                
-                // FIXME what about the min index?
-                assert( logger.debug( @"Found  phonebook '$pbcode' w/ indices 0-$(slot_count)" ) );
-                var phonebook = yield readPhonebook( phonebookType, slot_count.to_int(), response.slots_used );
-                storage.addPhonebook( pbcode, 0, response.slot_count, phonebook );
+        Msmcomm.PhonebookBookType[] phonebooks = { Msmcomm.PhonebookBookType.FDN, 
+                                                   Msmcomm.PhonebookBookType.ADN,
+                                                   Msmcomm.PhonebookBookType.SDN };
 
-            }
-            else
+        foreach ( var pb in phonebooks )
+        {
+            try 
             {
-                assert( logger.debug( @"Can't parse PB $pbcode" ) );
+                var pbprops = yield cmds.get_phonebook_properties( pb );
+                
+                // assert( logger.debug( @"Found  phonebook '$(Msmcomm.phonebookBookTypeToString(pb))' w/ indices 0-$(pbprops.slot_count)" ) );
+
+                var phonebook = yield readPhonebook( pb, pbprops.slot_count, pbprops.slots_used );
+                storage.addPhonebook( Msmcomm.phonebookBookTypeToString(pb), 0, pbprops.slot_count, phonebook );
+            }
+            catch ( DBus.Error err2 )
+            {
+            }
+            catch ( Msmcomm.Error err3 )
+            {
             }
         }
-        #endif 
     }
 }
     

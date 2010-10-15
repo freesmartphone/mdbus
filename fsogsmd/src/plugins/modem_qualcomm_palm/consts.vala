@@ -17,7 +17,6 @@
  *
  */
 
-
 namespace Msmcomm
 {
     public string deviceFunctionalityStatusToString( ModemOperationMode status )
@@ -32,4 +31,48 @@ namespace Msmcomm
                 return "unknown";
         }
     }
+    
+    public void checkPhonebookBookType(PhonebookBookType bookType) throws FreeSmartphone.Error
+    {
+        if ( bookType == Msmcomm.PhonebookBookType.UNKNOWN )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
+        }
+    }
+
+    public PhonebookBookType stringToPhonebookBookType( string bookType )
+    {
+        var result = Msmcomm.PhonebookBookType.UNKNOWN;
+
+        // FIXME add more phonebook types !!!
+        switch ( bookType )
+        {
+            case "fixed":
+                result = Msmcomm.PhonebookBookType.FDN;
+                break;
+            case "abbreviated":
+                result = Msmcomm.PhonebookBookType.ADN;
+                break;
+        }
+    
+        return result;
+    }
+    
+    public string phonebookBookTypeToString( PhonebookBookType bookType )
+    {
+        var result = "unknown";
+        
+        switch ( bookType )
+        {
+            case Msmcomm.PhonebookBookType.FDN:
+                result = "fixed";
+                break;
+            case Msmcomm.PhonebookBookType.ADN:
+                result = "abbreviated";
+                break;
+        }
+        
+        return result;
+    }
+    
 } // namespace Msm

@@ -18,12 +18,14 @@
  */
 
 using Gee;
+using FsoGsm;
+
+internal const int CALL_STATUS_REFRESH_TIMEOUT = 3; // in seconds
 
 /**
  * @class FsoGsm.GenericAtCallHandler
  */
 
-#if 0
 public class MsmCallHandler : FsoGsm.AbstractCallHandler
 {
     private bool inSyncCallStatus;
@@ -31,7 +33,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     protected FsoGsm.Call[] calls;
 
     protected FsoFramework.Pair<string,string> supplementary;
-
+    
     construct
     {
         calls = new FsoGsm.Call[Constants.CALL_INDEX_MAX+1] {};
@@ -90,6 +92,8 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
+        
+        #if 0
         var cmd = theModem.data().atCommandCancelOutgoing;
         if ( cmd != null )
         {
@@ -103,11 +107,14 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             var r2 = yield theModem.processAtCommandAsync( c2, c2.execute() );
             checkResponseOk( c2, r2 );
         }
+        #endif
     }
 
     protected override async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Rejecting incoming call with ID $id" ) );
+        
+        #if 0
         var cmd = theModem.data().atCommandRejectIncoming;
         if ( cmd != null )
         {
@@ -121,6 +128,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             var r2 = yield theModem.processAtCommandAsync( c2, c2.execute() );
             checkResponseOk( c2, r2 );
         }
+        #endif
     }
 
     protected override void startTimeoutIfNecessary()
@@ -210,13 +218,15 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
                         FreeSmartphone.GSM.CallStatus.RELEASE,
                         new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal )
                     );
-
+                    
+                    #if 0
                     var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
                     var result = yield theModem.processAtCommandAsync( ceer, ceer.execute() );
                     if ( ceer.validate( result ) == Constants.AtResponse.VALID )
                     {
                         detail.properties.insert( "cause", ceer.reason );
                     }
+                    #endif
 
                     calls[i].update( detail );
                 }
@@ -239,23 +249,28 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
         }
-        if ( calls[id].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING && calls[id].detail.status != FreeSmartphone.GSM.CallStatus.HELD )
+        if ( calls[id].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING && 
+             calls[id].detail.status != FreeSmartphone.GSM.CallStatus.HELD )
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to activate found" );
         }
 
         if ( numberOfBusyCalls() == 0 ) // simple case
         {
+            #if 0
             var cmd = theModem.createAtCommand<V250D>( "A" );
             var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
             checkResponseOk( cmd, response );
+            #endif
         }
         else
         {
+            #if 0
             // call is present and incoming or held
             var cmd2 = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
             var response2 = yield theModem.processAtCommandAsync( cmd2, cmd2.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
             checkResponseOk( cmd2, response2 );
+            #endif
         }
     }
 
@@ -267,10 +282,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "System busy" );
         }
 
+        #if 0
         var cmd = theModem.createAtCommand<V250D>( "D" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
         checkResponseOk( cmd, response );
-
+        #endif
+    
         startTimeoutIfNecessary();
 
         return num;
@@ -286,9 +303,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating" );
         }
+        
+        #if 0
         var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
         checkResponseOk( cmd, response );
+        #endif
     }
 
     public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -306,26 +326,29 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             yield cancelOutgoingWithId( id );
             return;
         }
-        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.INCOMING ) == 1 && calls[id].detail.status == FreeSmartphone.GSM.CallStatus.INCOMING )
+        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.INCOMING ) == 1 && 
+             calls[id].detail.status == FreeSmartphone.GSM.CallStatus.INCOMING )
         {
             yield rejectIncomingWithId( id );
             return;
         }
         else
         {
+            #if 0
             var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
             var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id ) );
             checkResponseOk( cmd, response );
+            #endif
         }
     }
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        #if 0 
         var cmd = theModem.createAtCommand<V250H>( "H" );
         yield theModem.processAtCommandAsync( cmd, cmd.execute() );
         // no checkResponseOk, this call will always succeed
+        #endif
     }
 }
-#endif
-
 

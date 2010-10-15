@@ -37,7 +37,10 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
     //
     // private API
     //
-    
+
+    /**
+     * Handling the status updates from the low-lovel modem control layer
+     **/
     private void onModemControlStatusUpdate(Msmcomm.ModemControlStatus status)
     {
         if ( status == Msmcomm.ModemControlStatus.ACTIVE )
@@ -53,17 +56,42 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         
         modemControlStatusOld = status;
     }
-    
+   
+    /**
+     * Synchronize with the modem to have a common base for further commands (e.g. we can
+     * recieve commands/responses from the modem)
+     **/
     private async void syncWithModem()
     {
         theModem.logger.debug("sending test alive ...");
-        yield _modemAgent.commands.test_alive();
+        try 
+        {
+            yield _modemAgent.commands.test_alive();
+        }
+        catch ( DBus.Error err0 )
+        {
+        }
+        catch ( Msmcomm.Error err1 )
+        {
+        }
     }
-    
+   
+    /**
+     * Send the reset command to the modem
+     **/
     private async void resetModem()
     {
         theModem.logger.debug("sending reset command ...");
-        yield _modemAgent.commands.reset_modem();
+        try
+        {
+            yield _modemAgent.commands.reset_modem();
+        }
+        catch ( DBus.Error err0 )
+        {
+        }
+        catch ( Msmcomm.Error err1 )
+        {
+        }
     }
         
     //

@@ -18,6 +18,7 @@
  */
 
 using Gee;
+using GLib;
 using FsoGsm;
 
 /**
@@ -26,7 +27,6 @@ using FsoGsm;
 
 public class MsmUnsolicitedResponseHandler
 {
-    
     private MsmModemAgent _modemAgent { get; set; }
     
     //
@@ -52,10 +52,9 @@ public class MsmUnsolicitedResponseHandler
         _modemAgent.unsolicited.pin2_disabled.connect(handleSimPin2Disabled);
         _modemAgent.unsolicited.pin2_blocked.connect(handleSimPin2Blocked);
         _modemAgent.unsolicited.pin2_unblocked.connect(handleSimPin2Unblocked);
-        
         _modemAgent.unsolicited.network_state_info.connect(handleNetworkStateInfo);
-        
         _modemAgent.unsolicited.reset_radio_ind.connect(handleResetRadioInd);
+        _modemAgent.unsolicited.phonebook_modified.connect(handlePhonebookModified);
     }
     
     public virtual void handleResetRadioInd()
@@ -142,6 +141,12 @@ public class MsmUnsolicitedResponseHandler
     public virtual void handleSimPin2Unblocked()
     {
         Msmcomm.RuntimeData.pin2_block_status = Msmcomm.SimPinStatus.UNBLOCKED;
+    }
+
+    public virtual void handlePhonebookModified( Msmcomm.PhonebookBookType bookType, uint position )
+    {
+        // NOTE phonebook content has changed; we resync our phonebook here completly!
+        // theModem.pbhandler.resync();
     }
         
     //
