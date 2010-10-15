@@ -41,15 +41,48 @@ class TokenLib
     }
 }
 
-class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObject
+public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObject
 {
+    public static const string MODULE_NAME = "fsodevice.palmpre_powersupply";
+
     FsoFramework.Subsystem subsystem;
     private string master_node;
     private string slave_node;
 
-    internal string name;
-    internal string typ;
-    internal FreeSmartphone.Device.PowerStatus status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+    private int _current_capacity = -1;
+    private int current_capacity {
+        get{return _current_capacity; }
+        set{
+            if( _current_capacity != value)
+            {
+                if (_current_capacity < value)
+                    current_power_status = FreeSmartphone.Device.PowerStatus.CHARGING;
+                else if (_current_capacity > value)
+                    current_power_status = FreeSmartphone.Device.PowerStatus.DISCHARGING;
+                if (value == 0)
+                     current_power_status = FreeSmartphone.Device.PowerStatus.EMPTY;
+                else if (value < critical_capacity)
+                     current_power_status = FreeSmartphone.Device.PowerStatus.CRITICAL;
+                _current_capacity = value;
+                capacity( value );
+            }
+        }
+    }
+
+    private int critical_capacity = -1;
+
+    private FreeSmartphone.Device.PowerStatus _current_power_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+    private FreeSmartphone.Device.PowerStatus current_power_status {
+        get {return _current_power_status;}
+        set {
+            if(_current_power_status != value)
+            {
+                _current_power_status = value;
+                power_status( value );
+            }
+        }
+    }
+
     internal bool present;
 
     public BatteryPowerSupply( FsoFramework.Subsystem subsystem)
@@ -82,6 +115,12 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
         subsystem.registerServiceObject(FsoFramework.Device.ServiceDBusName,
                                         "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 0),
                                         this);
+        critical_capacity = FsoFramework.theConfig.intValue(MODULE_NAME, "critical", 10);
+        current_capacity = getCapacity();
+
+        var poll_timout = FsoFramework.theConfig.intValue(MODULE_NAME, "poll_timeout", 10);
+
+        GLib.Timeout.add (poll_timout, ()=> {current_capacity = getCapacity(); return true;});
 
         logger.info( "created new PowerSupply object." );
     }
@@ -161,7 +200,7 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
 
     public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
     {
-        return status;
+        return current_power_status;
     }
 
     public async int get_capacity() throws DBus.Error
@@ -189,7 +228,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 
     palmpre_battery = new PalmPre.BatteryPowerSupply( subsystem );
 
-    return "fsodevice.palmpre_powersupply";
+    return PalmPre.BatteryPowerSupply.MODULE_NAME;
 }
 
 [ModuleInit]
