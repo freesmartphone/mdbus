@@ -142,12 +142,47 @@ class PalmPre : FreeSmartphone.Device.Proximity,
     }
 
 }
+/**
+ * Implementation of org.freesmartphone.Resource for the Palmpre Proximity Resource
+ **/
+public class PalmPreResource : FsoFramework.AbstractDBusResource
+{
+    bool on = false;
+    public PalmPreResource( FsoFramework.Subsystem subsystem )
+    {
+        base( "Proximity", subsystem );
+    }
+    public override async void enableResource()
+    {
+        if (on)
+            return;
+        yield instance.set_power( true );
+        on = true;
+    }
+
+    public override async void disableResource()
+    {
+        if (!on)
+            return;
+        yield instance.set_power( false );
+        on = false;
+    }
+
+    public override async void suspendResource()
+    {
+    }
+
+    public override async void resumeResource()
+    {
+    }
+}
 
 } /* namespace */
 
 static string sysfs_root;
 static string devfs_root;
 Proximity.PalmPre instance;
+Proximity.PalmPreResource resource;
 
 /**
  * This function gets called on plugin initialization time.
@@ -165,6 +200,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     if ( FsoFramework.FileHandling.isPresent( dirname ) )
     {
         instance = new Proximity.PalmPre( subsystem, dirname );
+        resource = new Proximity.PalmPreResource( subsystem );
     }
     else
     {
