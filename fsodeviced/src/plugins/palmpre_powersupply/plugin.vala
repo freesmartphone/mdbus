@@ -127,9 +127,7 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
         if ( !isPresent() )
             return -1;
 
-        /* FIXME should we use the 'getpercent' sysfs node ? */
-
-        return -1;
+        return FsoFramework.FileHandling.read(Path.build_filename(slave_node, "getpercent")).to_int();
     }
 
     //
