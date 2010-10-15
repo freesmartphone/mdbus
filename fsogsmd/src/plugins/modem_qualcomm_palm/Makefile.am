@@ -71,6 +71,12 @@ modem_qualcomm_palm_la_VALASOURCES = \
  consts.vala \
  commandqueue.vala \
  modemagent.vala \
+ mediators/debug.vala \
+ mediators/device.vala \
+ mediators/sim.vala \
+ mediators/sms.vala \
+ mediators/network.vala \
+ mediators/call.vala \
  $(NULL)
  
 $(modem_qualcomm_palm_la_SOURCES): $(modem_qualcomm_palm_la_VALASOURCES)
