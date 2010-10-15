@@ -31,7 +31,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         theModem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
-    private override string repr()
+    public override string repr()
     {
         return storage != null ? storage.repr() : "<None>";
     }

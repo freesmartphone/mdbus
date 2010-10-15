@@ -56,7 +56,7 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
     {
         this.subsystem = subsystem;
 
-        master_node = "%s/devices/w1_bus_master".printf(sysfs_root);
+        master_node = "%s/devices/w1_bus_master1".printf(sysfs_root);
 
         var slave_count =
             FsoFramework.FileHandling.read("%s/w1_master_slave_count".printf(master_node));
