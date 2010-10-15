@@ -30,14 +30,14 @@ class TokenLib
 
         if (!FsoFramework.FileHandling.isPresent(tokens_file)) {
             FsoFramework.theLogger.error("!!! File with necessary tokens is not found !!!");
-            return "";
+            return def;
         }
 
         FsoFramework.SmartKeyFile tf =
             new FsoFramework.SmartKeyFile();
         if (tf.loadFromFile(tokens_file))
-            tf.stringValue("tokens", key, def);
-        return "";
+            return tf.stringValue("tokens", key, def);
+        return def;
     }
 }
 
@@ -58,17 +58,19 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
 
         master_node = "%s/devices/w1_bus_master1".printf(sysfs_root);
 
-        var slave_count =
-            FsoFramework.FileHandling.read("%s/w1_master_slave_count".printf(master_node));
+        var slave_count_path = Path.build_filename(master_node, "w1_master_slave_count");
+        var slave_count = FsoFramework.FileHandling.read(slave_count_path);
+        assert( logger.debug (@"Using $(slave_count_path) as slave count: '$(slave_count)'") );
         if (slave_count == "0") {
             present = false;
             logger.error("there is no battery available ... skipping");
             return;
         }
 
-        var slave_name =
-            FsoFramework.FileHandling.read("%s/w1_master_slaves".printf(master_node));
-        slave_node = "%s/%s".printf(master_node, slave_node);
+        var slave_name_path = Path.build_filename(master_node, "w1_master_slaves");
+        var slave_name = FsoFramework.FileHandling.read(slave_name_path);
+        assert( logger.debug (@"Using $(slave_name_path) as slave name: '$(slave_name)'") );
+        slave_node = Path.build_filename(master_node, slave_name);
 
         logger.info(@"w1 slave '$(slave_node)' is our battery");
 
@@ -89,9 +91,9 @@ class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abstr
         string battToCh = TokenLib.tokenValue("BATToCH", "");
         string battToResp = TokenLib.tokenValue("BATToRSP", "");
 
-        logger.info(@"BATToCH = '@battToCh', BATToRSP = '@battToResp'");
+        logger.info(@"BATToCH = '$battToCh', BATToRSP = '$battToResp'");
 
-        var mac_node = @"$(slave_node)/mac";
+        var mac_node = Path.build_filename(slave_node, "mac");
         FsoFramework.FileHandling.write(battToCh, mac_node);
 
         string response = FsoFramework.FileHandling.read(mac_node);
