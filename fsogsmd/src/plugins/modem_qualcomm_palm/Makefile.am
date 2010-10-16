@@ -64,6 +64,7 @@ modem_qualcomm_palm_la_SOURCES = \
  mediators_sms.c \
  mediators_network.c \
  mediators_call.c \
+ utils.c \
  $(NULL)
  
 modem_qualcomm_palm_la_VALASOURCES = \
@@ -83,6 +84,7 @@ modem_qualcomm_palm_la_VALASOURCES = \
  mediators_sms.vala \
  mediators_network.vala \
  mediators_call.vala \
+ utils.vala \
  $(NULL)
  
 $(modem_qualcomm_palm_la_SOURCES): $(modem_qualcomm_palm_la_VALASOURCES)
