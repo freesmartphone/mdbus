@@ -130,7 +130,7 @@ public void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response
     }
 }
 
-internal void validatePhoneNumber( string number ) throws FreeSmartphone.Error
+public void validatePhoneNumber( string number ) throws FreeSmartphone.Error
 {
     if ( number == "" )
     {
