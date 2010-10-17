@@ -60,7 +60,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     
     protected override CallHandler createCallHandler()
     {
-        return null;
+        return new MsmCallHandler();
     }
     
     protected override SmsHandler createSmsHandler()
@@ -70,8 +70,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     
     protected override PhonebookHandler createPhonebookHandler()
     {
-        return null;
-        //return new MsmPhonebookHandler();
+        return new MsmPhonebookHandler();
     }
     
     protected override WatchDog createWatchDog()
