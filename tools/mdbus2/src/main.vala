@@ -282,6 +282,10 @@ public class Argument : Object
                 uint64 value = (uint64)arg.to_long();
                 assert( iter.append_basic( DBus.RawType.UINT64, (void*)(&value) ) );
                 break;
+            case "x":
+                uint64 value = (uint64)arg.to_long();
+                assert( iter.append_basic( DBus.RawType.INT64, (void*)(&value)) );
+                break;
             case "d":
                 double value = arg.to_double();
                 assert( iter.append_basic( DBus.RawType.DOUBLE, (void*)(&value) ) );
