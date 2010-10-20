@@ -251,9 +251,11 @@ class PalmPre : FsoDevice.BaseAudioRouter
     private Gee.HashMap<AudioStateType,Gee.ArrayList<AudioTransition>> transitions;
     private AudioStateType current_state;
     private string[] available_events = {};
+    private uint8 current_volume;
 
     construct
     {
+        current_volume = 10; // FIXME maybe use some lower volume at startup
         current_state = AudioStateType.MEDIA_BACKSPEAKER;
 
         /*
@@ -326,6 +328,8 @@ class PalmPre : FsoDevice.BaseAudioRouter
 
     private void handleEvent( AudioEventType event )
     {
+        // First handle the transition for the incomming event and switch into the next
+        // state
         foreach ( var transition in transitions[current_state] )
         {
             if ( transition.event == event )
@@ -337,16 +341,19 @@ class PalmPre : FsoDevice.BaseAudioRouter
                 current_state = transition.next_state;
                 break;
             }
-
-            if ( transition.event == AudioEventType.CALL_STARTED )
-            {
-                KernelScriptInterface.runScript( "call_started" );
-            }
-            else if ( transition.event == AudioEventType.CALL_ENDED )
-            {
-                KernelScriptInterface.runScript( "call_ended" );
-            }
         }
+
+        // Secondly we have to take of incomming call_started and call_ended events. This
+        // two requires an additional script to be executed.
+        if ( event == AudioEventType.CALL_STARTED )
+        {
+            KernelScriptInterface.runScript( "call_started" );
+        }
+        else if ( event == AudioEventType.CALL_ENDED )
+        {
+            KernelScriptInterface.runScript( "call_ended" );
+        }
+
     }
 
     private void initState( AudioStateType state )
@@ -398,7 +405,7 @@ class PalmPre : FsoDevice.BaseAudioRouter
     public override void setScenario( string scenario )
     {
         FsoFramework.theLogger.debug("got a $(scenario) audio event");
-        // For now we treat the scenario give as event. API need to be
+        // For now we treat the scenario given as event. API need to be
         // reworked for a audio state machine ...
         handleEvent( stringToAudioEventType( scenario.up() ) );
     }
@@ -413,6 +420,36 @@ class PalmPre : FsoDevice.BaseAudioRouter
         return available_events;
     }
 
+    public override uint8 currentVolume() throws FreeSmartphone.Error
+    {
+        return current_volume;
+    }
+
+    public override void setVolume( uint8 volume ) throws FreeSmartphone.Error
+    {
+        if ( current_state == AudioStateType.PHONE_BACKSPEAKER ||
+             current_state == AudioStateType.PHONE_FRONTSPEAKER ||
+             current_state == AudioStateType.PHONE_HEADSET )
+        {
+            if (volume < 0 || volume > 10) 
+            {
+                // FIXME throw some exception?
+                FsoFramework.theLogger.error( @"Invalid volume supplied: $(volume); Only numbers from 0 - 10 are valid" );
+                return;
+            }
+
+            string volume_script_name = audioStateTypeToString(current_state).down() + @"_volume_$(volume)";
+            KernelScriptInterface.runScript( volume_script_name );
+            current_volume = volume;
+        }
+        else 
+        {
+            // FIXME we need alsa here to set the volume if we are not in a state which
+            // has its own volume scripts
+        }
+    }
+
+
     /*
      * NOTE: The following methods are not used by this plugin as we
      *       don't implement audio routing in the way the other plugins
@@ -423,6 +460,7 @@ class PalmPre : FsoDevice.BaseAudioRouter
     {
         return "";
     }
+
 
     public override string pullScenario() throws FreeSmartphone.Device.AudioError
     {
@@ -436,17 +474,7 @@ class PalmPre : FsoDevice.BaseAudioRouter
     public override void saveScenario( string scenario )
     {
     }
-
-    public override uint8 currentVolume() throws FreeSmartphone.Error
-    {
-        return 0;
-    }
-
-    public override void setVolume( uint8 volume ) throws FreeSmartphone.Error
-    {
-    }
 }
-
 } /* namespace Router */
 
 /**
