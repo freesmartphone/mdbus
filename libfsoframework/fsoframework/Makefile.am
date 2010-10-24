@@ -5,7 +5,6 @@ NULL =
 AM_CFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
-	$(DBUS_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
 	$(NULL)
 
@@ -15,7 +14,6 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg gmodule-2.0 \
 	--pkg gio-2.0 \
-	--pkg dbus-glib-1 \
 	--pkg fsobasics-2.0 \
 	--pkg config \
 	--header fsoframework.h \
@@ -55,7 +53,6 @@ fsoframework-2.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
 
 libfsoframework_la_LIBADD = \
 	$(GLIB_LIBS) \
-	$(DBUS_LIBS) \
 	$(FSOBASICS_LIBS) \
 	$(NULL)
 
