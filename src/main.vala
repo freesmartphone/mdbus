@@ -144,6 +144,9 @@ public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
         DBus.RawMessageIter subiter = DBus.RawMessageIter();
         iter.recurse( subiter );
 
+        if (iter.get_arg_type() == DBus.RawType.INVALID)
+             return "";
+
         var result = "";
         result += formatResult( subiter, depth+1 );
         result += ":";
