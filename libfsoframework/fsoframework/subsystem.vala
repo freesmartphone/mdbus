@@ -49,20 +49,15 @@ public interface FsoFramework.Subsystem : Object
      **/
     public abstract List<FsoFramework.PluginInfo?> pluginsInfo();
     /**
-     * Claim a service name with the IPC mechanism.
-     * @return true, if name could be claimed. false, otherwise.
+     * Register an object with the IPC mechanism.
+     * If the service name is not claimed yet, attempt to claim it.
      **/
-    public abstract bool registerServiceName( string servicename );
+    public abstract void registerObjectForService<T>( string servicename, string objectpath, T obj );
     /**
-     * Export an object via the IPC mechanims.
-     * @return true, if object has been exported. false, otherwise.
+     * Register an object with the IPC mechanism.
+     * If the service name is not claimed yet, attempt to claim it.
      **/
-    public abstract bool registerServiceObject( string servicename, string objectname, Object obj );
-    /**
-     * Export an object via the IPC mechanims.
-     * @return true, if object has been exported. false, otherwise.
-     **/
-    public abstract bool registerServiceObjectWithPrefix( string servicename, string prefix, Object obj );
+    public abstract void registerObjectForServiceWithPrefix<T>( string servicename, string prefixpath, T obj );
     /**
      * Query registered plugins with a certain path prefix
      **/
@@ -162,12 +157,12 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         return list;
     }
 
-    public virtual bool registerServiceName( string servicename )
+    public virtual void registerObjectForService<T>( string servicename, string objectpath, T obj )
     {
         assert_not_reached();
     }
 
-    public virtual bool registerServiceObject( string servicename, string objectname, Object obj )
+    public virtual void registerObjectForServiceWithPrefix<T>( string servicename, string prefixpath, T obj )
     {
         assert_not_reached();
     }
@@ -210,7 +205,7 @@ public class FsoFramework.BaseSubsystem : FsoFramework.AbstractSubsystem
 [DBus (name = "org.freesmartphone.DBus.Objects")]
 public abstract interface DBusObjects
 {
-    public abstract void getNodes() throws DBus.Error;
+    public abstract void getNodes() throws DBusError;
 }
 */
 
@@ -219,19 +214,21 @@ public abstract interface DBusObjects
  */
 public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
 {
-    DBus.Connection _dbusconn;
-    dynamic DBus.Object _dbusobj;
+    DBusConnection _dbusconn;
+    DBusExtensions.IDBusSync _dbusobj;
 
-    HashTable<string, DBus.Connection> _dbusconnections;
+    HashTable<string, DBusConnection> _dbusconnections;
     HashTable<string, Object> _dbusobjects;
-
     HashTable<string, int> _counters;
+
+    string[] _busnames;
 
     public DBusSubsystem( string name )
     {
         base( name );
-        _dbusconnections = new HashTable<string, DBus.Connection>( str_hash, str_equal );
+        _dbusconnections = new HashTable<string, DBusConnection>( str_hash, str_equal );
         _dbusobjects = new HashTable<string, Object>( str_hash, str_equal );
+        _busnames = new string[] {};
         _counters = new HashTable<string, int>( str_hash, str_equal );
     }
 
@@ -240,81 +237,53 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         // FIXME: do we need to unregister the objects?
         foreach ( var name in _dbusconnections.get_keys() )
         {
-            uint res = _dbusobj.release_name( name );
+            uint res = _dbusobj.ReleaseName( name );
         }
     }
 
-    public override bool registerServiceName( string servicename )
+    public override void registerObjectForService<T>( string servicename, string objectpath, T obj )
     {
+        // export objects on connection
         var connection = _dbusconnections.lookup( servicename );
-        if ( connection != null )
+        if ( connection == null )
         {
-            assert( logger.debug( @"Connection for $servicename found; ok." ) );
-            return true;
+            assert( logger.debug( @"Connection not present yet; creating." ) );
+            connection = Bus.get_sync( BusType.SYSTEM );
+            assert( connection != null );
+            _dbusconnections.insert( servicename, connection );
         }
 
-        assert( logger.debug( @"Connection for $servicename not present yet; creating." ) );
+        var cleanedname = objectpath.replace( "-", "_" ).replace( ":", "_" );
+        connection.register_object<T>( cleanedname, obj );
+        _dbusobjects.insert( cleanedname, (Object) obj );
 
-        // get bus connection
-        if ( _dbusconn == null )
-        {
-            try
-            {
-                _dbusconn = DBus.Bus.get( DBus.BusType.SYSTEM );
-                _dbusobj = _dbusconn.get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
-            }
-            catch ( DBus.Error e )
-            {
-                logger.critical( @"Could not get handle for DBus service object at system bus: $(e.message)" );
-                return false;
-            }
-        }
-        //uint res = _dbusobj.request_name( servicename, (uint) 0 );
-        uint res = _dbusobj.RequestName( servicename, (uint) 0 );
+        assert( logger.debug( @"Registered $(typeof(T).name()) at $objectpath" ) );
 
-        if ( res == DBus.RequestNameReply.PRIMARY_OWNER )
+        if ( servicename in _busnames )
         {
-            _dbusconnections.insert( servicename, _dbusconn );
-            return true;
+            return;
         }
-        else
-        {
-            logger.critical( @"Can't acquire service name $servicename; service already running or not allowed in dbus configuration." );
-            return false;
-        }
+
+        // claim bus name
+        var err = Bus.own_name_on_connection( connection, servicename, 0,
+        ( conn, name ) => {
+            logger.debug( @"Successfully claimed $name" );
+            _busnames += servicename;
+        }, () => {
+            logger.critical( @"Can't claim busname $servicename" );
+            Posix.exit( -1 );
+        } );
     }
 
-    public override bool registerServiceObject( string servicename, string objectname, Object obj )
-    {
-        var conn = _dbusconnections.lookup( servicename );
-        if ( conn == null )
-        {
-            logger.warning( @"Can't register service object $objectname; service name $servicename could not be acquired." );
-            return false;
-        }
-
-        // clean objectname
-        var cleanedname = objectname.replace( "-", "_" ).replace( ":", "_" );
-
-        conn.register_object( cleanedname, obj );
-        _dbusobjects.insert( cleanedname, obj );
-        return true;
-    }
-
-    public override bool registerServiceObjectWithPrefix( string servicename, string prefix, Object obj )
+    public override void registerObjectForServiceWithPrefix<T>( string servicename, string prefix, T obj )
     {
         var hash = @"$servicename:$prefix";
         int counter = _counters.lookup( hash );
-        var ok = registerServiceObject( servicename, @"$prefix/$counter", obj );
-        if ( ok )
-        {
-            _counters.insert( hash, ++counter );
-        }
-        return ok;
+        registerObjectForService<T>( servicename, @"$prefix/$counter", obj );
+        _counters.insert( hash, ++counter );
     }
 
-
-    public DBus.Connection dbusConnection()
+    public DBusConnection dbusConnection()
     {
         assert( _dbusconn != null );
         return _dbusconn;
@@ -332,6 +301,4 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         }
         return result;
     }
-
-
 }
