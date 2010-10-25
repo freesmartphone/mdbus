@@ -300,7 +300,7 @@ public class Argument : Object
                 assert( iter.append_basic( DBus.RawType.OBJECT_PATH, (void*)(&arg) ) );
                 break;
             case "a":
-                var subsig = getSubSignature( typ.substring( 1, typ.len() - 1 ) );
+                var subsig = getSubSignature( typ.substring( 1, typ.length - 1 ) );
                 return appendArrayTypeToCall(arg, iter, subsig);
             case "(":
                 return appendStructTypeToCall(arg, iter, typ);
@@ -322,7 +322,7 @@ public class Argument : Object
         debug( @"parsing array '$arg' with subsignature '$typ'" );
 #endif
         assert( iter.open_container( DBus.RawType.ARRAY, typ, subiter ) );
-        foreach( var sub_arg in getSubArgs( arg.substring( 1, arg.len() - 2 ) ) )
+        foreach( var sub_arg in getSubArgs( arg.substring( 1, arg.length - 2 ) ) )
         {
             if(appendTypeToCall( sub_arg, subiter, typ ) == false)
                  return false;
@@ -338,13 +338,13 @@ public class Argument : Object
         debug(@"Sending Struct with signature '$typ' with arg: '$arg'" );
 #endif
         int sigpos = 0;
-        var subtyp = typ.substring(1, typ.len() - 2);
+        var subtyp = typ.substring(1, typ.length - 2);
         var subiter = DBus.RawMessageIter();
         assert( iter.open_container( DBus.RawType.STRUCT, null, subiter ) );
-        foreach(var s in getSubArgs( arg.substring( 1, arg.len() - 2 )  ) )
+        foreach(var s in getSubArgs( arg.substring( 1, arg.length - 2 )  ) )
         {
             var sig = getSubSignature( subtyp.offset( sigpos ) );
-            sigpos += (int)sig.len();
+            sigpos += (int)sig.length;
             if( appendTypeToCall(s, subiter, sig) == false)
                  return false;
         }
@@ -357,9 +357,9 @@ public class Argument : Object
 #if DEBUG
         debug(@"Sending DictEntry with signature '$typ' and arg '$arg'");
 #endif
-        var subtyp = typ.substring(1, typ.len() - 2 );
+        var subtyp = typ.substring(1, typ.length - 2 );
         var keytyp = getSubSignature(subtyp);
-        var valuetyp = subtyp.offset( keytyp.len() );
+        var valuetyp = subtyp.offset( keytyp.length );
 
         var values = getSubArgs( arg, ':' );
         var key = values[0];
@@ -384,7 +384,7 @@ public class Argument : Object
     {
         var result = "";
         int depth = 0;
-        for(int i = 0; i < signature.len(); i++)
+        for(int i = 0; i < signature.length; i++)
         {
             char c = (char)signature[i];
             if( c == 'a')
@@ -409,7 +409,7 @@ public class Argument : Object
         var result = new string[0];
         var part = "";
         int depth = 0;
-        for( int i = 0; i < arg.len(); i ++ )
+        for( int i = 0; i < arg.length; i ++ )
         {
             char c = (char)arg[i];
             if( c in start_chars )
@@ -419,7 +419,7 @@ public class Argument : Object
             part += c.to_string();
             if (depth == 0 && c == separator)
             {
-                result += part.substring(0, part.len() - 1 );
+                result += part.substring(0, part.length - 1 );
                 part = "";
             }
         }
