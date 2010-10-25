@@ -30,10 +30,7 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
     public Info( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-
-        subsystem.registerServiceName( FsoFramework.Data.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath, this );
-
+        subsystem.registerObjectForService<FreeSmartphone.Data.World>( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath, this );
         logger.info( @"Created" );
     }
 
