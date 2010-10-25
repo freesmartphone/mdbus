@@ -24,7 +24,6 @@ $(BUILT_SOURCES): $(fsodatad_VALASOURCES)
 	$(VALAC) -C --vapidir vapi \
 				--pkg posix \
 				--pkg gio-2.0 \
-				--pkg dbus-glib-1 \
 				--pkg fsoframework-2.0 \
 				--save-temps \
 				--basedir $(top_srcdir) $^
