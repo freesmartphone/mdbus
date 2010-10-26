@@ -362,12 +362,12 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     //
     // FreeSnmartphone.Device.IdleNotifier (DBUS API)
     //
-    public async FreeSmartphone.Device.IdleState get_state() throws DBus.Error
+    public async FreeSmartphone.Device.IdleState get_state() throws DBusError, IOError
     {
         return 0;
     }
 
-    public async GLib.HashTable<string,int> get_timeouts() throws DBus.Error
+    public async GLib.HashTable<string,int> get_timeouts() throws DBusError, IOError
     {
         var dict = new GLib.HashTable<string,int>( str_hash, str_equal );
 
@@ -378,12 +378,12 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         return dict;
     }
 
-    public async void set_state( FreeSmartphone.Device.IdleState status ) throws DBus.Error
+    public async void set_state( FreeSmartphone.Device.IdleState status ) throws DBusError, IOError
     {
         idlestatus.onState( status );
     }
 
-    public async void set_timeout( FreeSmartphone.Device.IdleState status, int timeout ) throws DBus.Error
+    public async void set_timeout( FreeSmartphone.Device.IdleState status, int timeout ) throws DBusError, IOError
     {
         config.write( KERNEL_IDLE_PLUGIN_NAME, states[status], timeout );
         idlestatus.timeouts[status] = timeout;

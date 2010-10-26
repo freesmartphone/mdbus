@@ -128,12 +128,12 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
     //
     // FreeSmartphone.Device.LED (DBUS API)
     //
-    public async string get_name() throws DBus.Error
+    public async string get_name() throws DBusError, IOError
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public async void set_brightness( int brightness ) throws DBus.Error
+    public async void set_brightness( int brightness ) throws DBusError, IOError
     {
         var percent = _percentToValue( brightness );
 
@@ -143,7 +143,7 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( percent.to_string(), this.brightness );
     }
 
-    public async void set_blinking( int delay_on, int delay_off ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_blinking( int delay_on, int delay_off ) throws FreeSmartphone.Error, DBusError, IOError
     {
         initTriggers();
 
@@ -157,7 +157,7 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( delay_off.to_string(), this.sysfsnode + "/delay_off" );
     }
 
-    public async void blink_seconds( int seconds, int delay_on, int delay_off ) throws FreeSmartphone.Error, DBus.Error
+    public async void blink_seconds( int seconds, int delay_on, int delay_off ) throws FreeSmartphone.Error, DBusError, IOError
     {
         if ( seconds < 1 )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Blinking timeout needs to be at least 1 second." );
@@ -167,7 +167,7 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
         setTimeout( seconds );
     }
 
-    public async void set_networking( string iface, string mode ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_networking( string iface, string mode ) throws FreeSmartphone.Error, DBusError, IOError
     {
         initTriggers();
 

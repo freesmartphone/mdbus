@@ -7,7 +7,6 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
-	$(DBUS_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -19,7 +18,6 @@ VALAC_ARGS = \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
-	--pkg dbus-glib-1 \
 	--pkg linux \
 	--pkg fso-glib-1.0 \
 	--pkg fsoresource-2.0 \

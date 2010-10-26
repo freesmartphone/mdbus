@@ -116,7 +116,7 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
     //
     // FreeSmartphone.Device.AmbientLight (DBUS API)
     //
-    public async void get_ambient_light_brightness( out int brightness, out int timestamp ) throws FreeSmartphone.Error, DBus.Error
+    public async void get_ambient_light_brightness( out int brightness, out int timestamp ) throws FreeSmartphone.Error, DBusError, IOError
     {
         brightness = this.brightness;
         timestamp = brightness_timestamp;
