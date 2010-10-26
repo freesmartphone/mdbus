@@ -99,12 +99,12 @@ class Ifconfig : FsoDevice.ISimplePowerControl,
     //
     // DBUS API (org.freesmartphone.Device.PowerControl)
     //
-    public async bool get_power() throws DBus.Error
+    public async bool get_power() throws DBusError, IOError
     {
         return getPower();
     }
 
-    public async void set_power( bool on ) throws DBus.Error
+    public async void set_power( bool on ) throws DBusError, IOError
     {
         setPower( on );
     }

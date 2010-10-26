@@ -173,7 +173,7 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
     // FreeSmartphone.Device.PowerStatus (DBUS API)
     //
 
-    public async HashTable<string,Value?> get_info() throws DBus.Error
+    public async HashTable<string,Value?> get_info() throws DBusError, IOError
     {
         var res = new HashTable<string,Value?>( str_hash, str_equal );
         /*
@@ -198,12 +198,12 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
         return res;
     }
 
-    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
+    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
     {
         return current_power_status;
     }
 
-    public async int get_capacity() throws DBus.Error
+    public async int get_capacity() throws DBusError, IOError
     {
         return getCapacity();
     }
