@@ -143,7 +143,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         // The call waiting parameters are irrelevant, as we're going to pull them
         // immediately via +CLCC anyways. Note that we force type to be
         // 'VOICE' since call waiting does only apply to voice calls.
-        theModem.callhandler.handleIncomingCall( "VOICE" );
+        theModem.callhandler.handleIncomingCall( new FsoGsm.CallInfo.with_ctype( "VOICE" ) );
     }
 
     public virtual void plusCGEV( string prefix, string rhs )
@@ -193,7 +193,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCRING( string prefix, string rhs )
     {
-        theModem.callhandler.handleIncomingCall( rhs );
+        theModem.callhandler.handleIncomingCall( new FsoGsm.CallInfo.with_ctype( rhs ) );
     }
 
     public virtual void plusCSSI( string prefix, string rhs )

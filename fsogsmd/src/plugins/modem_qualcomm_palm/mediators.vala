@@ -54,6 +54,144 @@ public void updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
 }
 
 /**
+ * Modem facilities helpers
+ **/
+public async void gatherSimOperators() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+{
+    /*
+    var data = theModem.data();
+    if ( data.simOperatorbook == null );
+    {
+        var copn = theModem.createAtCommand<PlusCOPN>( "+COPN" );
+        var response = yield theModem.processAtCommandAsync( copn, copn.execute() );
+        if ( copn.validateMulti( response ) == Constants.AtResponse.VALID )
+        {
+            data.simOperatorbook = copn.operators;
+        }
+        else
+        {
+            data.simOperatorbook = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
+        }
+    }
+    */
+}
+
+static bool inGatherSimStatusAndUpdate;
+static bool inTriggerUpdateNetworkStatus;
+
+public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+{
+    if ( inGatherSimStatusAndUpdate )
+    {
+        assert( theModem.logger.debug( "already gathering sim status... ignoring additional trigger" ) );
+        return;
+    }
+    inGatherSimStatusAndUpdate = true;
+
+    yield gatherSimOperators();
+
+    var data = theModem.data();
+
+#if 0
+    var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
+    var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+    var rcode = cmd.validate( response );
+    if ( rcode == Constants.AtResponse.VALID )
+    {
+        theModem.logger.info( @"SIM Auth status $(cmd.status)" );
+        // send the dbus signal
+        var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
+        obj.auth_status( cmd.status );
+
+        // check whether we need to advance the modem state
+        if ( cmd.status != data.simAuthStatus )
+        {
+            data.simAuthStatus = cmd.status;
+
+            // advance global modem state
+            var modemStatus = theModem.status();
+            if ( modemStatus >= Modem.Status.INITIALIZING && modemStatus <= Modem.Status.ALIVE_REGISTERED )
+            {
+                if ( cmd.status == FreeSmartphone.GSM.SIMAuthStatus.READY )
+                {
+                    theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED, true );
+                }
+                else
+                {
+                    theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED, true );
+                }
+            }
+        }
+    }
+    else if ( rcode == Constants.AtResponse.CME_ERROR_010_SIM_NOT_INSERTED ||
+              rcode == Constants.AtResponse.CME_ERROR_013_SIM_FAILURE )
+    {
+        theModem.logger.info( "SIM not inserted or broken" );
+        theModem.advanceToState( Modem.Status.ALIVE_NO_SIM );
+    }
+    else
+    {
+        theModem.logger.warning( "Unhandled error while querying SIM PIN status" );
+    }
+    
+#endif
+
+    inGatherSimStatusAndUpdate = false;
+}
+
+public async void triggerUpdateNetworkStatus()
+{
+    if ( inTriggerUpdateNetworkStatus )
+    {
+        assert( theModem.logger.debug( "already gathering network status... ignoring additional trigger" ) );
+        return;
+    }
+    inTriggerUpdateNetworkStatus = true;
+
+    var mstat = theModem.status();
+
+    // ignore, if we don't have proper status to issue networking commands yet
+    if ( mstat != Modem.Status.ALIVE_SIM_READY && mstat != Modem.Status.ALIVE_REGISTERED )
+    {
+        assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() ignored while modem is in status $mstat" ) );
+        inTriggerUpdateNetworkStatus = false;
+        return;
+    }
+
+    // gather info
+    var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
+    try
+    {
+        yield m.run();
+    }
+    catch ( GLib.Error e )
+    {
+        theModem.logger.warning( @"Can't query networking status: $(e.message)" );
+        inTriggerUpdateNetworkStatus = false;
+        return;
+    }
+
+    // advance modem status, if necessary
+    var status = m.status.lookup( "registration" ).get_string();
+    assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
+
+    if ( status == "home" || status == "roaming" )
+    {
+        theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
+    }
+    else
+    {
+        theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
+    }
+
+    // send dbus signal
+    var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+    obj.status( m.status );
+
+    inTriggerUpdateNetworkStatus = false;
+}
+
+/**
  * Register all mediators
  **/
 public void registerMsmMediators( HashMap<Type,Type> table )
@@ -81,6 +219,7 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( MsmSimSetServiceCenterNumber );
     table[ typeof(SimStoreMessage) ]              = typeof( MsmSimStoreMessage );
     table[ typeof(SimWriteEntry) ]                = typeof( MsmSimWriteEntry );
+    table[ typeof(SimUnlock) ]                    = typeof( MsmSimUnlock );
 
     table[ typeof(NetworkRegister) ]              = typeof( MsmNetworkRegister );
     table[ typeof(NetworkUnregister) ]            = typeof( MsmNetworkUnregister );

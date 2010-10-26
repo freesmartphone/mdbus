@@ -55,6 +55,7 @@ public class MsmUnsolicitedResponseHandler
         _modemAgent.unsolicited.network_state_info.connect(handleNetworkStateInfo);
         _modemAgent.unsolicited.reset_radio_ind.connect(handleResetRadioInd);
         _modemAgent.unsolicited.phonebook_modified.connect(handlePhonebookModified);
+        _modemAgent.unsolicited.call_origination.connect(handleCallOrigination);
     }
     
     public virtual void handleResetRadioInd()
@@ -115,38 +116,38 @@ public class MsmUnsolicitedResponseHandler
     
     public virtual void handleSimPin1PermBlocked()
     {
-        Msmcomm.RuntimeData.pin1_block_status = Msmcomm.SimPinStatus.PERM_BLOCKED;
+        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN );
     }
     
     public virtual void handleSimPin2PermBlocked()
     {
-        Msmcomm.RuntimeData.pin2_block_status = Msmcomm.SimPinStatus.PERM_BLOCKED;
+        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN );
     }
     
     public virtual void handleSimPin1Blocked()
     {
-        Msmcomm.RuntimeData.pin1_block_status = Msmcomm.SimPinStatus.BLOCKED;
+        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
     }
     
     public virtual void handleSimPin2Blocked()
     {
-        Msmcomm.RuntimeData.pin2_block_status = Msmcomm.SimPinStatus.BLOCKED;
+        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK2_REQUIRED );
     }
     
     public virtual void handleSimPin1Unblocked()
     {
-        Msmcomm.RuntimeData.pin1_block_status = Msmcomm.SimPinStatus.UNBLOCKED;
+        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
     }
     
     public virtual void handleSimPin2Unblocked()
     {
-        Msmcomm.RuntimeData.pin2_block_status = Msmcomm.SimPinStatus.UNBLOCKED;
+        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN2_REQUIRED );
     }
 
     public virtual void handlePhonebookModified( Msmcomm.PhonebookBookType bookType, uint position )
     {
         // NOTE phonebook content has changed; we resync our phonebook here completly!
-        // theModem.pbhandler.resync();
+        // theModem.pbhandler.syncWithSim();
     }
         
     //
@@ -174,5 +175,47 @@ public class MsmUnsolicitedResponseHandler
     
         Msmcomm.RuntimeData.signal_strength = (int) nsinfo.rssi;
         Msmcomm.RuntimeData.current_operator_name = nsinfo.operator_name;
+    }
+
+    //
+    // Call
+    //
+
+    public virtual void handleCallOrigination( Msmcomm.CallInfo call_info )
+    {
+        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_ORIGINATION, call_info.to_variant() );
+    }
+    
+    public virtual void handleCallIncomming( Msmcomm.CallInfo call_info )
+    {
+        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_INCOMMING, call_info.to_variant() );
+        
+        theModem.callhandler.handleIncomingCall( convertCallInfo( call_info) );
+    }
+    
+    public virtual void handleCallConnect( Msmcomm.CallInfo call_info )
+    {
+        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_CONNECT, call_info.to_variant() );
+        
+        theModem.callhandler.handleConnectingCall( convertCallInfo( call_info ) );
+    }
+    
+    public virtual void handleCallEnd( Msmcomm.CallInfo call_info )
+    {
+        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_END, call_info.to_variant() );
+        
+        theModem.callhandler.handleEndingCall( convertCallInfo( call_info ) );
+    }
+    
+    //
+    // private API
+    //
+    
+    private FsoGsm.CallInfo convertCallInfo( Msmcomm.CallInfo call_info )
+    {
+        var result = new FsoGsm.CallInfo();
+        result.ctype = "VOICE"; // FIXME we have DATA calls too!
+        result.id = (int) call_info.id;
+        return result;
     }
 }

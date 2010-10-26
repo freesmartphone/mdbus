@@ -89,7 +89,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
      **/
     public void plusCLIN( string prefix, string rhs )
     {
-        theModem.callhandler.handleIncomingCall( "VOICE" );
+        theModem.callhandler.handleIncomingCall( new FsoGsm.CallInfo.with_ctype( "VOICE" ) );
     }
 
     /**

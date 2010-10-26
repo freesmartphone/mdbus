@@ -23,6 +23,19 @@ public class MsmNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        try 
+        {
+            var cmds = MsmModemAgent.instance().commands;
+            cmds.change_operation_mode( Msmcomm.ModemOperationMode.ONLINE );
+        }
+        catch ( Msmcomm.Error err0 ) 
+        {
+            MsmUtil.handleMsmcommErrorMessage( err0 );
+        }
+        catch ( DBus.Error err1 )
+        {
+        }
+        
         #if 0
         var cmd = new Msmcomm.Command.ChangeOperationMode();
         cmd.setOperationMode( Msmcomm.OperationMode.ONLINE );
@@ -165,11 +178,18 @@ public class MsmNetworkUnregister : NetworkUnregister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.UNREGISTER ) );
-        checkResponseOk( cmd, response );
-        #endif
+        try 
+        {
+            var cmds = MsmModemAgent.instance().commands;
+            cmds.change_operation_mode( Msmcomm.ModemOperationMode.OFFLINE );
+        }
+        catch ( Msmcomm.Error err0 ) 
+        {
+            MsmUtil.handleMsmcommErrorMessage( err0 );
+        }
+        catch ( DBus.Error err1 )
+        {
+        }
     }
 }
 

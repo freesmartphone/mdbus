@@ -72,12 +72,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
             if ( numberOfBusyCalls() == 0 ) // simple case
             {
-                cmds.answer_call( id );
+                yield cmds.answer_call( id );
             }
             else
             {
                 // call is present and incoming or held
-                cmds.manage_calls( Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
+                yield cmds.manage_calls( Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -100,7 +100,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             // Initiate call to the selected number
             var cmds = MsmModemAgent.instance().commands;
-            cmds.dial_call(number, Msmcomm.RuntimeData.block_number);
+            yield cmds.dial_call(number, Msmcomm.RuntimeData.block_number);
+
+            // Wait until the modem reports the origination of our new call
+            var ma = MsmModemAgent.instance();
+            GLib.Variant response = yield ma.waitForUnsolicitedResponse( Msmcomm.UrcType.CALL_ORIGINATION );
+            var call_info = Msmcomm.CallInfo.from_variant( response );
         
             startTimeoutIfNecessary();
         }
@@ -132,7 +137,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             }
             
             var cmds = MsmModemAgent.instance().commands;
-            cmds.manage_calls(Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0);
+            yield cmds.manage_calls(Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0);
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -179,7 +184,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             else
             {
                 var cmds = MsmModemAgent.instance().commands;
-                cmds.manage_calls( Msmcomm.CallCommandType.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id );
+                yield cmds.manage_calls( Msmcomm.CallCommandType.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -191,13 +196,67 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         }
     }
 
+    /**
+     * Release all calls
+     **/
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0 
-        var cmd = theModem.createAtCommand<V250H>( "H" );
-        yield theModem.processAtCommandAsync( cmd, cmd.execute() );
-        // no checkResponseOk, this call will always succeed
-        #endif
+    }
+    
+    /**
+     * Handle an incomming call 
+     **/
+    public override void handleIncomingCall( FsoGsm.CallInfo call_info )
+    {
+        // Create a new call with status == RELEASE with the supplied id
+        var new_call = new FsoGsm.Call.newFromId( call_info.id );
+        
+        // Update the created call so it is now an incomming one
+        var empty_properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        var call_detail = new FreeSmartphone.GSM.CallDetail( call_info.id, 
+                                                             FreeSmartphone.GSM.CallStatus.INCOMING, 
+                                                             empty_properties );
+        new_call.update( call_detail );
+        
+        // Save call for later processing
+        calls.set( call_info.id, new_call );
+    }
+    
+    /**
+     * Handle an connecting call
+     **/
+    public override void handleConnectingCall( FsoGsm.CallInfo call_info )
+    {
+        // Do we have an call with the supplied id?
+        if ( calls.has_key( call_info.id ) )
+        {
+            // Call is connecting, so it's next state is ACTIVE
+            var call = calls.get( call_info.id );
+            call.update_status( FreeSmartphone.GSM.CallStatus.ACTIVE );
+        }
+        else
+        {
+            logger.warning( "callhandler got connecting call which is not known as incomming before!" );
+        }
+    }
+    
+    /**
+     * Handle an ending call
+     **/
+    public override void handleEndingCall( FsoGsm.CallInfo call_info )
+    {
+        // Do we have an call with the supplied id?
+        if ( calls.has_key( call_info.id ) )
+        {
+            // Call is connecting, so it's next state is ACTIVE
+            var call = calls.get( call_info.id );
+            call.update_status( FreeSmartphone.GSM.CallStatus.RELEASE );
+            calls.remove( call_info.id );
+        }
+        else
+        {
+            logger.warning( "callhandler got ending call which is not known as active before!" );
+        }
     }
 
     //
@@ -211,43 +270,41 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
-        
-        #if 0
-        var cmd = theModem.data().atCommandCancelOutgoing;
-        if ( cmd != null )
+
+        try
         {
-            var c1 = new CustomAtCommand();
-            var r1 = yield theModem.processAtCommandAsync( c1, cmd );
-            checkResponseOk( c1, r1 );
+            var cmds = MsmModemAgent.instance().commands;
+            yield cmds.end_call( id );
         }
-        else
+        catch ( Msmcomm.Error err0 )
         {
-            var c2 = theModem.createAtCommand<V250H>( "H" );
-            var r2 = yield theModem.processAtCommandAsync( c2, c2.execute() );
-            checkResponseOk( c2, r2 );
+            MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        #endif
+        catch ( DBus.Error err1 )
+        {
+        }
     }
 
     protected override async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Rejecting incoming call with ID $id" ) );
         
-        #if 0
-        var cmd = theModem.data().atCommandRejectIncoming;
-        if ( cmd != null )
+        try
         {
-            var c1 = new CustomAtCommand();
-            var r1 = yield theModem.processAtCommandAsync( c1, cmd );
-            checkResponseOk( c1, r1 );
+            // NOTE currently we reject an incomming call by dropping all calls or send a busy
+            // signal when we have no active calls. Maybe there is another way in msmcomm
+            // to do reject an incomming call but we currently don't know about.
+            var cmds = MsmModemAgent.instance().commands;
+            var cmd_type = Msmcomm.CallCommandType.DROP_ALL_OR_SEND_BUSY;
+            yield cmds.manage_calls( cmd_type, 0 );
         }
-        else
+        catch ( Msmcomm.Error err0 )
         {
-            var c2 = theModem.createAtCommand<V250H>( "H" );
-            var r2 = yield theModem.processAtCommandAsync( c2, c2.execute() );
-            checkResponseOk( c2, r2 );
+            MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        #endif
+        catch ( DBus.Error err1 )
+        {
+        }
     }
     
     // 
