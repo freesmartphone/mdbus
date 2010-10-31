@@ -64,10 +64,8 @@ class Display : FreeSmartphone.Device.Display,
 
         debug( @"smoothup = $smoothup, smoothdown = $smoothdown" );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                        "%s/%u".printf( FsoFramework.Device.DisplayServicePath, counter++ ),
-                        this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Display>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.DisplayServicePath, counter ), this );
+        subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.DisplayServicePath, counter++ ), this );
 
         logger.info( @"Created w/ max brightness = $max_brightness, smooth up = $smoothup, smooth down = $smoothdown" );
     }

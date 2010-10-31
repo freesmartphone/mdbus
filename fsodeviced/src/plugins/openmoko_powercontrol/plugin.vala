@@ -38,12 +38,7 @@ class BluetoothPowerControl : FsoDevice.BasePowerControl
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
 
-
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
-                                         this );
-
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
 
         logger.info( "created." );
     }
@@ -67,10 +62,7 @@ class UsbHostModeControl : FsoDevice.BasePowerControl
         this.umodenode = Path.build_filename( sysfs_root, "devices", "platform", "s3c2410-ohci", "usb_mode" );
         this.name = Path.get_basename( sysfsnode );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
-                                                 this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
 
         logger.info( "created." );
     }
@@ -101,10 +93,7 @@ class WiFiPowerControl : FsoDevice.BasePowerControl
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
-                                                 this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
 
         logger.info( "created." );
     }

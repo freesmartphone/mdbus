@@ -80,11 +80,9 @@ class PalmPre : FreeSmartphone.Device.Proximity,
 
         input = new FsoFramework.Async.ReactorChannel( fd, onInputEvent, sizeof( Linux.Input.Event ) );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix(
-            FsoFramework.Device.ServiceDBusName,
-            FsoFramework.Device.ProximityServicePath,
-            this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Proximity>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.ProximityServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.ProximityServicePath, this );
+
         TimeVal tv = TimeVal();
         tv.get_current_time();
         start_timestamp = tv.tv_sec;

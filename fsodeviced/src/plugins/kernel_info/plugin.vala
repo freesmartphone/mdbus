@@ -33,13 +33,9 @@ class Info : FreeSmartphone.Device.Info, FsoFramework.AbstractObject
     public Info( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                        FsoFramework.Device.InfoServicePath,
-                                        this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.InfoServicePath, this );
         logger.info( "Created new Info Object" );
     }
-
 
     public override string repr()
     {

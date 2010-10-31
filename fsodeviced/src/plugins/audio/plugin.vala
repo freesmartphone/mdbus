@@ -40,11 +40,8 @@ class AudioManager : FreeSmartphone.Device.Audio,
     public AudioManager( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         FsoFramework.Device.AudioServicePath,
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Audio>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.AudioServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.AudioServicePath, this );
 
         // gather requested player types and instanciate object
         players = new Gee.HashMap<string,FsoDevice.AudioPlayer>();
