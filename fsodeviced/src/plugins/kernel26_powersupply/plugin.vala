@@ -137,9 +137,9 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply,
     //
     // FreeSmartphone.Info (DBUS API)
     //
-    public async HashTable<string,Value?> get_info() throws DBusError, IOError
+    public async HashTable<string,Variant> get_info() throws DBusError, IOError
     {
-        var res = new HashTable<string,Value?>( str_hash, str_equal );
+        var res = new HashTable<string,Variant>( str_hash, str_equal );
         res.insert( "name", name );
 
         var dir = Dir.open( sysfsnode );
@@ -451,13 +451,11 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
         return Path.get_basename( sysfsnode );
     }
 
-    public async HashTable<string,Value?> get_info() throws DBusError, IOError
+    public async HashTable<string,Variant> get_info() throws DBusError, IOError
     {
+        var res = new HashTable<string,Variant>( str_hash, str_equal );
         //FIXME: add more infos
-        var value = Value( typeof(string) );
-        var res = new HashTable<string,Value?>( str_hash, str_equal );
-        value.take_string( "aggregate" );
-        res.insert( "type", value );
+        res.insert( "type", "aggregate" );
         return res;
     }
 
