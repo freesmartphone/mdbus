@@ -27,21 +27,24 @@ namespace FsoFramework {
 public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramework.AbstractObject
 {
     private FsoFramework.DBusSubsystem subsystem;
-    private dynamic DBus.Object usage; /* needs to be dynamic for async */
+    private FreeSmartphone.Usage usage;
     private string name;
-    private DBus.ObjectPath path;
+    private ObjectPath path;
 
     public AbstractDBusResource( string name, FsoFramework.Subsystem subsystem )
     {
         this.name = name;
         this.subsystem = subsystem as FsoFramework.DBusSubsystem;
-        this.path = new DBus.ObjectPath( "%s/%s".printf( FsoFramework.Resource.ServicePathPrefix, name ) );
+        this.path = new ObjectPath( "%s/%s".printf( FsoFramework.Resource.ServicePathPrefix, name ) );
 
         var conn = this.subsystem.dbusConnection();
         //FIXME: try/catch
-        conn.register_object( this.path, this );
+        //FIXME: Why is this not using the subsystem API?
+        conn.register_object<FreeSmartphone.Resource>( this.path, this );
 
-        Idle.add( registerWithUsage );
+        Idle.add( () => {
+            registerWithUsage();
+        } );
     }
 
     public override string repr()
@@ -49,37 +52,33 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
         return @"<$name>";
     }
 
-    public bool registerWithUsage()
+    public async void registerWithUsage()
     {
 #if DEBUG
         message( "registering..." );
 #endif
-        if (usage == null)
+        if ( usage == null )
         {
             var conn = subsystem.dbusConnection();
-            usage = conn.get_object( FsoFramework.Usage.ServiceDBusName,
-                                     FsoFramework.Usage.ServicePathPrefix,
-                                     FsoFramework.Usage.ServiceFacePrefix ); /* dynamic for async */
-            usage.register_resource( name, path, onRegisterResourceReply );
+            // sync not working here !?
+            usage = conn.get_proxy_sync<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
+
+            //usage = yield conn.get_proxy<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
+
+            try
+            {
+                yield usage.register_resource( name, path );
+                logger.info( "Ok. Registered with org.freesmartphone.ousaged" );
+            }
+            catch ( GLib.Error e )
+            {
+                logger.error( @"$(e.message): Can't register resource with fsousaged, enabling unconditionally..." );
+                enableResource();
+            }
         }
 #if DEBUG
         message( "...OK" );
 #endif
-        return false; // MainLoop: don't call me again
-    }
-
-    public void onRegisterResourceReply( GLib.Error e )
-    {
-        if ( e != null )
-        {
-            logger.error( @"$(e.message): Can't register resource with fsousaged, enabling unconditionally..." );
-            enableResource();
-            return;
-        }
-        else
-        {
-            logger.info( "Ok. Registered with org.freesmartphone.ousaged" );
-        }
     }
 
     /**
@@ -105,31 +104,31 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
     //
     // DBUS API
     //
-    public async void disable() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void disable() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         assert( logger.debug( @"Disabling resource $classname..." ) );
         yield disableResource();
     }
 
-    public async void enable() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void enable() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         assert( logger.debug( @"Enabling resource $classname..." ) );
         yield enableResource();
     }
 
-    public async void resume() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void resume() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         assert( logger.debug( @"Resuming resource $classname..." ) );
         yield resumeResource();
     }
 
-    public async void suspend() throws FreeSmartphone.ResourceError, DBus.Error
+    public async void suspend() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         assert( logger.debug( @"Suspending resource $classname..." ) );
         yield suspendResource();
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_dependencies() throws DBus.Error
+    public async GLib.HashTable<string,GLib.Value?> get_dependencies() throws DBusError, IOError
     {
         assert( logger.debug( @"Inquiring dependencies for $classname..." ) );
         var result = yield dependencies();
