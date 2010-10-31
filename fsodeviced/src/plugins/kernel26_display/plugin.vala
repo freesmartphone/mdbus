@@ -112,6 +112,11 @@ class Display : FreeSmartphone.Device.Display,
 
     private async void _setBrightnessSoft( int brightness )
     {
+        if ( current_brightness == 0 ) // previously we were off
+        {
+            _setBacklightPower( true );
+        }
+
         smoothInProgress = true;
 
         double current = current_brightness;
@@ -121,7 +126,7 @@ class Display : FreeSmartphone.Device.Display,
         {
             double x = dt/DISPLAY_SMOOTH_PERIOD;
             double fx = ( interval > 0 ) ? x * x * x : (1-x) * (1-x) * (1-x);
-            double val = ( interval > 0 ) ? ( current + ( fx * interval ) ) : ( current + ( (1-fx) * interval ) ); // may want to shit 7+current...
+            double val = ( interval > 0 ) ? ( current + ( fx * interval ) ) : ( current + ( (1-fx) * interval ) ); // may want to shift 7+current...
 #if DEBUG
             message( "x = %.2f, fx = %.2f (val = %.2f)", x, fx, val );
 #endif
@@ -140,6 +145,10 @@ class Display : FreeSmartphone.Device.Display,
         current_brightness = brightness;
         assert( logger.debug( @"Brightness set to $brightness [soft]" ) );
 
+        if ( brightness == 0 ) // now we are off
+        {
+            _setBacklightPower( false );
+        }
         smoothInProgress = false;
     }
 
