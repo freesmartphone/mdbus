@@ -60,13 +60,11 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
         if ( usage == null )
         {
             var conn = subsystem.dbusConnection();
-            // sync not working here !?
-            usage = conn.get_proxy_sync<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
-
-            //usage = yield conn.get_proxy<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
 
             try
             {
+                //usage = conn.get_proxy_sync<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
+                usage = yield conn.get_proxy<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
                 yield usage.register_resource( name, path );
                 logger.info( "Ok. Registered with org.freesmartphone.ousaged" );
             }
