@@ -85,11 +85,8 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
     public Accelerometer( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         FsoFramework.Device.OrientationServicePath,
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Orientation>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
         logger.info( "Created new Orientation object." );
 
         history = new AccelerometerValue[kHistorySize];
