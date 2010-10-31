@@ -46,7 +46,7 @@ class Info : FreeSmartphone.Device.Info, FsoFramework.AbstractObject
     //
     // FreeSmartphone.Device.Info (DBUS API)
     //
-    public async HashTable<string, Variant> get_cpu_info() throws DBusError, IOError
+    public async HashTable<string,Variant> get_cpu_info() throws DBusError, IOError
     {
         File node_file = File.new_for_path( PROC_NODE );
         string line;

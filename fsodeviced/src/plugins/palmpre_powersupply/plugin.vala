@@ -170,9 +170,9 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
     // FreeSmartphone.Device.PowerStatus (DBUS API)
     //
 
-    public async HashTable<string,Value?> get_info() throws DBusError, IOError
+    public async HashTable<string,Variant> get_info() throws DBusError, IOError
     {
-        var res = new HashTable<string,Value?>( str_hash, str_equal );
+        var res = new HashTable<string,Variant>( str_hash, str_equal );
         /*
         res.insert( "name", name );
 

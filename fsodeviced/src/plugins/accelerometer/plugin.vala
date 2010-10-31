@@ -268,10 +268,10 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
     //
     // FreeSmartphone.Info (DBUS)
     //
-    public async HashTable<string,Value?> get_info()
+    public async HashTable<string,Variant> get_info() throws DBusError, IOError
     {
         //FIXME: implement
-        var dict = new HashTable<string,Value?>( str_hash, str_equal );
+        var dict = new HashTable<string,Variant>( str_hash, str_equal );
         return dict;
     }
 
