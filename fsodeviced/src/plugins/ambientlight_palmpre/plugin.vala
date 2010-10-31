@@ -81,14 +81,9 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
 
         input = new FsoFramework.Async.ReactorChannel( fd, onInputEvent, sizeof( Linux.Input.Event ) );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix(
-            FsoFramework.Device.ServiceDBusName,
-            FsoFramework.Device.AmbientLightServicePath,
-            this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.AmbientLight>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.AmbientLightServicePath, this );
 
         logger.info( "Created" );
-
     }
 
     public override string repr()

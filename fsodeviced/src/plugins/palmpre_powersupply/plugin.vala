@@ -111,10 +111,7 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
         if (authenticateBattery())
             return;
 
-        subsystem.registerServiceName(FsoFramework.Device.ServiceDBusName);
-        subsystem.registerServiceObject(FsoFramework.Device.ServiceDBusName,
-                                        "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 0),
-                                        this);
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 0), this );
         critical_capacity = FsoFramework.theConfig.intValue(MODULE_NAME, "critical", 10);
         current_capacity = getCapacity();
 

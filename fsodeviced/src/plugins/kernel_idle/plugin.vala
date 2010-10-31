@@ -127,10 +127,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         Idle.add( onIdle );
 
         // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                        "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ),
-                                        this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.IdleNotifier>( FsoFramework.Device.ServiceDBusName, "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ), this );
 
         var display_resource_allows_dim = config.boolValue( KERNEL_IDLE_PLUGIN_NAME, "display_resource_allows_dim", false );
         displayResourcePreventState = display_resource_allows_dim ? FreeSmartphone.Device.IdleState.IDLE_PRELOCK : FreeSmartphone.Device.IdleState.IDLE_DIM;

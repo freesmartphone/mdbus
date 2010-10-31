@@ -69,10 +69,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
 
         if ( !_inquireAndCheckForIgnore() )
         {
-            subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-            subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                             "%s/%u".printf( FsoFramework.Device.InputServicePath, counter++ ),
-                                                     this );
+            subsystem.registerObjectForService<FreeSmartphone.Device.Input>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.InputServicePath, counter++ ), this );
             logger.info( @"Created new InputDevice object: $product @ $phys w/ $caps" );
         }
     }
@@ -347,13 +344,10 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
 
         _parseConfig();
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         FsoFramework.Device.InputServicePath,
-                                         this );
-        logger.info( "Created" );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Input>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.InputServicePath, this );
 
         Idle.add( onIdle );
+        logger.info( "Created" );
     }
 
     private void _registerInputWatches()

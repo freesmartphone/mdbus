@@ -53,11 +53,7 @@ class N900 : FreeSmartphone.Device.Proximity,
 
         logger.debug( @"Trying to read from $(this.node)..." );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix(
-            FsoFramework.Device.ServiceDBusName,
-            FsoFramework.Device.ProximityServicePath,
-            this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.Proximity>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.ProximityServicePath, this );
 
         var channel = new IOChannel.file( this.node, "r" );
         string value = "";

@@ -64,10 +64,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         this.softoff = softoff;
         this.hardoff = hardoff;
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
 
 #if WANT_FSO_RESOURCE
         Idle.add( () => {

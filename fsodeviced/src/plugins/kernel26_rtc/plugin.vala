@@ -50,10 +50,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         this.sysfsnode = sysfsnode;
         this.devnode = sysfsnode.replace( "/sys/class/rtc/", "/dev/" );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.RtcServicePath, counter++ ),
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.RealtimeClock>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.RtcServicePath, counter++ ), this );
 
         rtc_fd = -1;
         logger.info( "Created new Rtc object." );

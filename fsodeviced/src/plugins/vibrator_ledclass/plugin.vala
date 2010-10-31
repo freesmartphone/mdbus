@@ -56,11 +56,7 @@ class LedClass : FreeSmartphone.Device.Vibrator, FsoFramework.AbstractObject
             return;
         }
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix(
-            FsoFramework.Device.ServiceDBusName,
-            FsoFramework.Device.VibratorServicePath,
-            this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.Vibrator>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.VibratorServicePath, this );
         logger.info( "Created" );
     }
 

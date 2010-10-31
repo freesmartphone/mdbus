@@ -24,8 +24,8 @@ namespace PowerControl
 {
 
 class Ifconfig : FsoDevice.ISimplePowerControl,
-             FreeSmartphone.Device.PowerControl,
-             FsoFramework.AbstractObject
+                 FreeSmartphone.Device.PowerControl,
+                 FsoFramework.AbstractObject
 {
     FsoFramework.Subsystem subsystem;
     string iface;
@@ -35,16 +35,11 @@ class Ifconfig : FsoDevice.ISimplePowerControl,
     {
         this.subsystem = subsystem;
         this.iface = iface;
-	this.power = false;
+        this.power = false;
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix(
-            FsoFramework.Device.ServiceDBusName,
-            FsoFramework.Device.ProximityServicePath,
-            this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.ProximityServicePath, this );
 
         logger.info( "Created" );
-
     }
 
     public override string repr()
@@ -93,7 +88,7 @@ class Ifconfig : FsoDevice.ISimplePowerControl,
             arg = "up";
         else
             arg = "down";
-        exec("ifconfig", iface, arg);      
+        exec("ifconfig", iface, arg);
     }
 
     //
