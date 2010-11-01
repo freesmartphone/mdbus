@@ -30,26 +30,34 @@ class Source.Gsm : FsoTime.AbstractSource
 {
     FreeSmartphone.GSM.Network ogsmd_device;
     FreeSmartphone.Data.World odatad_world;
+    DBusService.IDBus dbus_dbus;
 
     construct
     {
-        DBusConnection conn = Bus.get_sync( DBus.BusType.SYSTEM );
+        DBusConnection conn = Bus.get_sync( BusType.SYSTEM );
 
         ogsmd_device = conn.get_proxy_sync<FreeSmartphone.GSM.Network>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath );
         odatad_world = conn.get_proxy_sync<FreeSmartphone.Data.World>( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath );
 
-        dbus_dbus = null; /*conn.get_proxy_sync( DBus.DBUS_SERVICE_DBUS,
-                                DBus.DBUS_PATH_DBUS,
-                                DBus.DBUS_INTERFACE_DBUS ) as DBus.IDBus; */
+        dbus_dbus = conn.get_proxy_sync<DBusService.IDBus>( DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
 
         //FIXME: Work around bug in Vala (signal handlers can't be async yet)
         ogsmd_device.status.connect( (status) => { onGsmNetworkStatusSignal( status ); } );
         ogsmd_device.time_report.connect( (time, zone) => { onGsmNetworkTimeReportSignal( time, zone ); } );
 
-        Idle.add( () => { triggerQuery(); return false; } );
+        //FIXME: Lambda functions in construct are broken atm.
+        //Idle.add( () => { triggerQuery(); return false; } );
+
+        Idle.add( foo );
 
         //NOTE: For debugging only
         //Idle.add( () => { testing(); return false; } );
+    }
+
+    private bool foo()
+    {
+        triggerQueryAsync();
+        return false; // don't call me again
     }
 
     private void testing()
