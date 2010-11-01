@@ -252,6 +252,16 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         */
     }
 
+    private void ensureConnection()
+    {
+        if ( connection == null )
+        {
+            assert( logger.debug( @"Connection not present yet; creating." ) );
+            connection = Bus.get_sync( BusType.SYSTEM );
+            assert( connection != null );
+        }
+    }
+
     public void exportBusnames()
     {
         foreach ( var servicename in busnames )
@@ -269,12 +279,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
 
     public override void registerObjectForService<T>( string servicename, string objectpath, T obj )
     {
-        if ( connection == null )
-        {
-            assert( logger.debug( @"Connection not present yet; creating." ) );
-            connection = Bus.get_sync( BusType.SYSTEM );
-            assert( connection != null );
-        }
+        ensureConnection();
 
         var cleanedname = objectpath.replace( "-", "" ).replace( ":", "" );
         uint refid = connection.register_object<T>( cleanedname, obj );
@@ -310,7 +315,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
 
     public DBusConnection dbusConnection()
     {
-        assert( connection != null );
+        ensureConnection();
         return connection;
     }
 
