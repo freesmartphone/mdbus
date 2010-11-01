@@ -27,9 +27,10 @@ class Source.Gps /* :  FsoTime.AbstractSource */
 
     FreeSmartphone.GSM.Network ogpsd_device;
     FreeSmartphone.Data.World odatad_world;
+    /*
+
     DBus.IDBus dbus_dbus;
 
-    /*
 
     construct
     {

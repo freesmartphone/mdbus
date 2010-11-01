@@ -7,7 +7,6 @@ AM_CPPFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
-	$(DBUS_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -16,7 +15,6 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(DBUS_LIBS) \
 	$(top_srcdir)/src/lib/libfsotdl.la
 
 VALAC_ARGS = \
@@ -24,8 +22,8 @@ VALAC_ARGS = \
 	--vapidir ../../lib \
 	--pkg posix \
 	--pkg glib-2.0 \
+	--pkg gio-2.0 \
 	--pkg gee-1.0 \
-	--pkg dbus-glib-1 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \

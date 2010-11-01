@@ -91,7 +91,7 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
 
         var components = result[1].split( "," );
 
-        var map = new HashTable<string,Value?>( str_hash, str_equal );
+        var map = new HashTable<string,Variant>( str_hash, str_equal );
         map.insert( "countrycode", components[2] );
         map.insert( "countryname", components[3] );
         map.insert( "regioncode", components[4] );

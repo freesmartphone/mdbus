@@ -26,7 +26,7 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
     FsoFramework.Subsystem subsystem;
     private Gee.HashMap<string,FsoTdl.ILocationProvider> providers;
 
-    private GLib.HashTable<string,GLib.Value?> status;
+    private GLib.HashTable<string,GLib.Variant> status;
 
     construct
     {
@@ -56,11 +56,9 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
             providers[ typ.name() ] = obj;
         }
 
-        status = new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal );
+        status = new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal );
 
-        subsystem.registerServiceName( FsoFramework.Time.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Time.ServiceDBusName,
-                                         FsoFramework.Time.LocationServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Location>( FsoFramework.Time.ServiceDBusName, FsoFramework.Time.LocationServicePath, this );
 
         logger.info( "Ready." );
 
@@ -81,14 +79,14 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
     //
     // private API
     //
-    private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Value?> location )
+    private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Variant> location )
     {
         logger.debug( @"Got location update from $(provider.get_type().name())" );
         status = location;
         this.location_update( status ); // DBUS SIGNAL
     }
 
-    private void mergeStatusAndSendSignal( HashTable<string,Value?> location )
+    private void mergeStatusAndSendSignal( HashTable<string,Variant> location )
     {
         location.get_keys().foreach( (key) => {
             status.insert( (string)key, location.lookup( (string)key ) );
@@ -99,7 +97,7 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
     //
     // org.freesmartphone.Location (DBus API)
     //
-    public async GLib.HashTable<string,GLib.Value?> get_location() throws FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Variant> get_location() throws FreeSmartphone.Error, DBusError, IOError
     {
         return status;
     }
