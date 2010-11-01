@@ -138,7 +138,7 @@ class Nmea.Protocol : Object
             return;
         }
 
-        var report = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        var report = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         double lat = to<int>( "latdd" ) + to<string>( "lat" ).to_double() / 60;
         double lon = to<int>( "londd" ) + to<string>( "lon" ).to_double() / 60;

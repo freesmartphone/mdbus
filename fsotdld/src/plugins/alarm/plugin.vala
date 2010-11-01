@@ -21,7 +21,6 @@
  */
 
 using Gee;
-using DBus;
 
 internal const int COMPENSATE_SECONDS = 5;
 
@@ -29,7 +28,7 @@ public class WakeupAlarm
 {
     public string busname;
     public int timestamp;
-    public DBus.ObjectPath path;
+    public ObjectPath path;
 
     public WakeupAlarm( string busname, int timestamp )
     {
@@ -50,7 +49,7 @@ public class WakeupAlarm
 public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractObject
 {
     private FsoFramework.DBusSubsystem subsystem;
-    private dynamic DBus.Object rtc;
+    private FreeSmartphone.Device.RealtimeClockSync rtc;
     private TreeSet<WakeupAlarm> alarms;
     private uint timer;
 
@@ -58,16 +57,12 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
     {
         this.subsystem = subsystem;
 
-        subsystem.registerServiceName( FsoFramework.Time.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Time.ServiceDBusName,
-                                        FsoFramework.Time.AlarmServicePath,
-                                        this );
+        subsystem.registerObjectForService<FreeSmartphone.Time.Alarm>( FsoFramework.Time.ServiceDBusName, FsoFramework.Time.AlarmServicePath, this );
 
-        DBus.Connection conn = this.subsystem.dbusConnection();
+        DBusConnection conn = this.subsystem.dbusConnection();
 
-        rtc = conn.get_object( "org.freesmartphone.odeviced",
-                               "/org/freesmartphone/Device/RTC/0",
-                               "org.freesmartphone.Device.RealtimeClock" );
+        rtc = conn.get_proxy_sync<FreeSmartphone.Device.RealtimeClockSync>( "org.freesmartphone.odeviced", "/org/freesmartphone/Device/RTC/0" );
+
         logger.info( "created" );
 
         alarms = new TreeSet<WakeupAlarm>( WakeupAlarm.compare );
@@ -135,9 +130,13 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
     {
         try
         {
-            rtc.SetWakeupTime( t );
+            rtc.set_wakeup_time( t );
         }
-        catch ( DBus.Error e )
+        catch ( DBusError e )
+        {
+            logger.error( @"Can't program RTC wakeup time: $(e.message)" );
+        }
+        catch ( IOError e )
         {
             logger.error( @"Can't program RTC wakeup time: $(e.message)" );
         }
@@ -145,16 +144,16 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
 
     private void alarmNotificationViaDbus( string busname )
     {
-        var proxy = subsystem.dbusConnection().get_object(
-            busname,
-            "/",
-            "org.freesmartphone.Notification" ) as FreeSmartphone.Notification;
+        var proxy = subsystem.dbusConnection().get_proxy_sync<FreeSmartphone.Notification>( busname, "/" );
         // this is a no-reply call
         try
         {
             proxy.alarm();
         }
-        catch ( DBus.Error e )
+        catch ( DBusError e )
+        {
+        }
+        catch ( IOError e )
         {
         }
     }
@@ -196,7 +195,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
     //
     // FreeSmartphone.Time.Alarm (DBUS API)
     //
-    public async FreeSmartphone.Time.WakeupAlarm[] list_alarms() throws DBus.Error
+    public async FreeSmartphone.Time.WakeupAlarm[] list_alarms() throws DBusError, IOError
     {
         var list = new FreeSmartphone.Time.WakeupAlarm[] {};
         foreach ( var alarm in alarms )
@@ -207,12 +206,12 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         return list;
     }
 
-    public async void clear_alarms( string busname ) throws DBus.Error
+    public async void clear_alarms( string busname ) throws DBusError, IOError
     {
         clearAlarms( busname );
     }
 
-    public async void add_alarm( string busname, int timestamp ) throws FreeSmartphone.Error, DBus.Error
+    public async void add_alarm( string busname, int timestamp ) throws FreeSmartphone.Error, DBusError, IOError
     {
         if ( ! ( FsoFramework.isValidDBusName( busname ) ) )
         {
@@ -227,7 +226,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         Idle.add( schedule );
     }
 
-    public async void remove_alarm( string busname, int timestamp ) throws DBus.Error
+    public async void remove_alarm( string busname, int timestamp ) throws DBusError, IOError
     {
         removeAlarm( busname, timestamp );
     }
@@ -235,7 +234,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
 
 AlarmController instance;
 
-public static string fso_factory_function( FsoFramework.DBusSubsystem subsystem ) throws DBus.Error
+public static string fso_factory_function( FsoFramework.DBusSubsystem subsystem ) throws DBusError, IOError
 {
     instance = new AlarmController( subsystem );
     return "fsotdl.alarm";
