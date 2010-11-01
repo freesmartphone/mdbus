@@ -17,8 +17,7 @@
  *
  */
 
-// inject useful things into the DBus namespace until they are in dbus-glib-1.vapi
-namespace DBusExtensions
+namespace DBusService
 {
     public const string DBUS_SERVICE_DBUS             = "org.freedesktop.DBus";
     public const string DBUS_PATH_DBUS                = "/org/freedesktop/DBus";
