@@ -64,6 +64,10 @@ public interface FsoFramework.Subsystem : Object
      **/
     public abstract bool registerServiceObjectWithPrefix( string servicename, string prefix, Object obj );
     /**
+     * Query registered plugins with a certain path prefix
+     **/
+    public abstract Object[] allObjectsWithPrefix( string? prefix = null );
+    /**
      * Shutdown the subsystem. This will call shutdown on all plugins.
      **/
     public abstract void shutdown();
@@ -160,17 +164,22 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
 
     public virtual bool registerServiceName( string servicename )
     {
-        return false;
+        assert_not_reached();
     }
 
     public virtual bool registerServiceObject( string servicename, string objectname, Object obj )
     {
-        return false;
+        assert_not_reached();
     }
 
     public virtual bool registerServiceObjectWithPrefix( string servicename, string prefix, Object obj )
     {
-        return false;
+        assert_not_reached();
+    }
+
+    public virtual Object[] allObjectsWithPrefix( string? prefix = "null" )
+    {
+        assert_not_reached();
     }
 
     public void shutdown()
@@ -310,5 +319,19 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         assert( _dbusconn != null );
         return _dbusconn;
     }
+
+    public override Object[] allObjectsWithPrefix( string? prefix = null )
+    {
+        var result = new Object[] {};
+        foreach ( var objectname in _dbusobjects.get_keys() )
+        {
+            if ( prefix == null || objectname.has_prefix( prefix ) )
+            {
+                result += _dbusobjects.lookup( objectname );
+            }
+        }
+        return result;
+    }
+
 
 }
