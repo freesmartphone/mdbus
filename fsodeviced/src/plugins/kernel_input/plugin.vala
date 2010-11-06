@@ -339,6 +339,7 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         this.sysfsnode = sysfsnode;
 
         _registerInputWatches();
+        _hookToExternalModules();
 
         keys = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
         switches = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
@@ -365,6 +366,18 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
                 var channel = new IOChannel.unix_new( input.fd );
                 channel.add_watch( IOCondition.IN, onInputEvent );
                 channels += channel;
+            }
+        }
+    }
+
+    private void _hookToExternalModules()
+    {
+        foreach ( var object in subsystem.allObjectsWithPrefix( "/org/freesmartphone/Device/Input/" ) )
+        {
+            if ( object is FsoDevice.SignallingInputDevice )
+            {
+                logger.debug( "Found an auxilliary input object, connecting to signal" );
+                ((FsoDevice.SignallingInputDevice) object ).receivedEvent.connect( _handleInputEvent );
             }
         }
     }
