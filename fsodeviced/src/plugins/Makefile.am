@@ -43,6 +43,8 @@ SUBDIRS = \
 	proximity_palmpre \
 	proximity_n900 \
 	\
+	dummy_input \
+	\
 	$(NULL)
 
 if WANT_CANBERRA
