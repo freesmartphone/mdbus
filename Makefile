@@ -5,7 +5,7 @@ SUBDIRS = \
 	libfsoresource \
 	fsodatad \
 	fsodeviced \
-	fsogsmd
+	fsogsmd \
 	fsonetworkd \
 	fsomusicd \
 	fsousaged \
