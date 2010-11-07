@@ -36,7 +36,7 @@ public class NeptuneDeviceGetInformation : DeviceGetInformation
         /*
         var channel = theModem.channel( "main" ) as AtChannel;
         */
-        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         info.insert( "manufacturer", "Motorola" );
         info.insert( "model", "Neptune Freescale Modem" );

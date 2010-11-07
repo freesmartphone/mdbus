@@ -47,8 +47,8 @@ public class MsmSimGetInformation : SimGetInformation
     
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-        var value = Value( typeof(string) );
+        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+        var value = Variant( typeof(string) );
         
         var cmds = MsmModemAgent.instance().commands;
         
@@ -65,7 +65,7 @@ public class MsmSimGetInformation : SimGetInformation
             var msg = @"Could not process verify_pin command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -101,7 +101,7 @@ public class MsmSimSendAuthCode : SimSendAuthCode
             var msg = @"Could not process verify_pin command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -123,7 +123,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
             var msg = @"Could not process the delete_phonebook command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -156,7 +156,7 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
             var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
 
@@ -184,7 +184,7 @@ public class MsmSimGetServiceCenterNumber : SimGetServiceCenterNumber
             var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
         #endif
@@ -201,7 +201,7 @@ public class MsmSimGetUnlockCounters : SimGetUnlockCounters
 
 public class MsmSimRetrieveMessage : SimRetrieveMessage
 {
-    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
@@ -274,7 +274,7 @@ public class MsmSimWriteEntry : SimWriteEntry
             var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }

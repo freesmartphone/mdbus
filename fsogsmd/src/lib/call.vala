@@ -35,7 +35,7 @@ public class FsoGsm.Call
     {
         detail.id = id;
         detail.status = FreeSmartphone.GSM.CallStatus.RELEASE;
-        detail.properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        detail.properties = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
     }
     
     public bool update_status( FreeSmartphone.GSM.CallStatus new_status )
@@ -70,8 +70,8 @@ public class FsoGsm.Call
         }
         
         /*
-        var iter = GLib.HashTableIter<string,GLib.Value?>( this.detail.properties );
-        string key; Value? v;
+        var iter = GLib.HashTableIter<string,GLib.Variant>( this.detail.properties );
+        string key; Variant? v;
         while ( iter.next( out key, out v ) )
         {
             var v2 = detail.properties.lookup( key );
@@ -101,7 +101,7 @@ public class FsoGsm.CallInfo : GLib.Object
 {
     construct
     {
-        cinfo = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        cinfo = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
     }
     
     public CallInfo()
@@ -115,7 +115,7 @@ public class FsoGsm.CallInfo : GLib.Object
     
     public string ctype { get; set; default = ""; }
     public int id { get; set; default = 0; }
-    public GLib.HashTable<string, GLib.Value?> cinfo;
+    public GLib.HashTable<string, GLib.Variant?> cinfo;
 }
 
 /**

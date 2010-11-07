@@ -20,10 +20,9 @@
 using GLib;
 using FsoFramework;
 
-DBus.Connection dbus_conn;
 FreeSmartphone.GSM.PDP fsogsmd_pdp;
 
-static async void fsogsmd_report_status( HashTable<string,Value?> properties )
+static async void fsogsmd_report_status( HashTable<string,Variant> properties )
 {
     try
     {
@@ -37,16 +36,20 @@ static async void fsogsmd_report_status( HashTable<string,Value?> properties )
     {
         PPPD.error( @"Can't report status to fsogsmd: $(e1.message)" );
     }
-    catch ( DBus.Error e2 )
+    catch ( DBusError e2 )
     {
         PPPD.error( @"Can't report status to fsogsmd: $(e2.message)" );
+    }
+    catch ( IOError e3 )
+    {
+        PPPD.error( @"Can't report status to fsogsmd: $(e3.message)" );
     }
 }
 
 static void fsogsmd_on_phase_change( int arg )
 {
     PPPD.info( @"on_phase_change: $arg" );
-    fsogsmd_report_status( new HashTable<string,Value?>( str_hash, str_equal ) );
+    fsogsmd_report_status( new HashTable<string,Variant>( str_hash, str_equal ) );
 }
 
 static void fsogsmd_on_ip_up( int arg )
@@ -61,7 +64,7 @@ static void fsogsmd_on_ip_up( int arg )
 
     string iface = (string) PPPD.ifname;
 
-    var properties = new HashTable<string,Value?>( str_hash, str_equal );
+    var properties = new HashTable<string,Variant>( str_hash, str_equal );
     properties.insert( "iface", iface );
     properties.insert( "local", ouraddr );
 
@@ -152,16 +155,14 @@ static void plugin_init()
 
     try
     {
-
-        dbus_conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-
-        fsogsmd_pdp = dbus_conn.get_object(
-            FsoFramework.GSM.ServiceDBusName,
-            FsoFramework.GSM.DeviceServicePath,
-            FsoFramework.GSM.ServiceFacePrefix + ".PDP" ) as FreeSmartphone.GSM.PDP;
+        fsogsmd_pdp = Bus.get_proxy_sync<FreeSmartphone.GSM.PDP>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath );
     }
-    catch ( DBus.Error e )
+    catch ( DBusError e )
     {
-        PPPD.error( @"DBus Error while initializing plugin: $(e.message)" );
+        PPPD.error( @"DBusError while initializing plugin: $(e.message)" );
+    }
+    catch ( IOError e )
+    {
+        PPPD.error( @"IOError while initializing plugin: $(e.message)" );
     }
 }

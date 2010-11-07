@@ -439,9 +439,9 @@ public class AtDeviceGetInformation : DeviceGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-        var value = Value( typeof(string) );
+        Variant value;
 
         var cgmr = theModem.createAtCommand<PlusCGMR>( "+CGMR" );
         var response = yield theModem.processAtCommandAsync( cgmr, cgmr.execute() );
@@ -505,7 +505,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        features = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        features = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         // prefill results with what the modem claims
         var data = theModem.data();
@@ -803,9 +803,9 @@ public class AtSimGetInformation : SimGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-        var value = Value( typeof(string) );
+        Variant value;
 
         var cimi = theModem.createAtCommand<PlusCGMR>( "+CIMI" );
         var response = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
@@ -820,6 +820,8 @@ public class AtSimGetInformation : SimGetInformation
         }
 
         /* SIM Issuer */
+        value = "unknown";
+
         info.insert( "issuer", "unknown" );
         var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
         response = yield theModem.processAtCommandAsync( crsm, crsm.issue(
@@ -912,9 +914,9 @@ public class AtSimGetUnlockCounters : SimGetUnlockCounters
 
 public class AtSimRetrieveMessage : SimRetrieveMessage
 {
-    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        properties = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        properties = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         var cmgr = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
         var response = yield theModem.processAtCommandAsync( cmgr, cmgr.issue( index ) );
@@ -1138,9 +1140,9 @@ public class AtNetworkGetStatus : NetworkGetStatus
             yield mediator.run();
         }
 #endif
-        status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-        var strvalue = Value( typeof(string) );
-        var intvalue = Value( typeof(int) );
+        status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+        Variant strvalue;
+        Variant intvalue;
 
         // query field strength
         var csq = theModem.createAtCommand<PlusCSQ>( "+CSQ" );

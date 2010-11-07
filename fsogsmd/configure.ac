@@ -19,12 +19,10 @@ AC_SUBST(LDFLAGS)
 # pkg-config requirements
 PKG_PROG_PKG_CONFIG
 
-VALA_REQUIRED=0.9.7
-GLIB_REQUIRED=2.18.0
+VALA_REQUIRED=0.11.1
+GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 XML_REQUIRED=2.7.3
-DBUS_REQUIRED=1.2.1
-DBUS_GLIB_REQUIRED=0.76
 GSMMUX_REQUIRED=0.3.4
 MSMCOMMD_SPECS_REQUIRED=0.1.0
 FSO_GLIB_REQUIRED=2010.07.28.1
@@ -53,14 +51,6 @@ PKG_CHECK_MODULES(GEE,
   gee-1.0 >= $GEE_REQUIRED)
 AC_SUBST(GEE_CFLAGS)
 AC_SUBST(GEE_LIBS)
-
-##############################################################################
-# dbus and dbus-glib
-PKG_CHECK_MODULES(DBUS,
-  dbus-1 >= $DBUS_REQUIRED
-  dbus-glib-1 >= $DBUS_GLIB_REQUIRED)
-AC_SUBST(DBUS_CFLAGS)
-AC_SUBST(DBUS_LIBS)
 
 ##############################################################################
 # dbus conf directory

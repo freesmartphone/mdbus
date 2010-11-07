@@ -37,7 +37,7 @@ public class MsmDeviceGetFeatures : DeviceGetFeatures
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        features = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        features = new GLib.HashTable<string,Variant>( str_hash, str_equal );
         
         // NOTE there is actually no command to get all the features
         // from the modem itself; in some responses or urcs are some of
@@ -64,7 +64,7 @@ public class MsmDeviceGetInformation : DeviceGetInformation
         
         try
         {
-            info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+            info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
             info.insert( "model", "Palm Pre (Plus)" );
             info.insert( "manufacturer", "Palm, Inc." );
@@ -82,7 +82,7 @@ public class MsmDeviceGetInformation : DeviceGetInformation
             var msg = @"Could not process get_firmware_info/get_imei command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -122,7 +122,7 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
             var msg = @"Could not process get_charger_status command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -157,7 +157,7 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
             var msg = @"Could not process change_operation_mode command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
         // FIXME update modem status!

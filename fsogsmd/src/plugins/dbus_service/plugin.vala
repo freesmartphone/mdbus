@@ -84,8 +84,20 @@ class DBusService.Device :
             return;
         }
 
-        subsystem.registerServiceName( FsoFramework.GSM.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.RealtimeClock>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.Debug>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.Device>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.SIM>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.SMS>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.Network>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.Call>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.PDP>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.CB>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.HZ>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.Monitor>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.VoiceMail>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
 
         modem = (FsoGsm.Modem) Object.new( modemclass );
         modem.parent = this;
@@ -192,7 +204,7 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.Info)
     //
-    public async GLib.HashTable<string,GLib.Value?> get_info() throws FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Variant> get_info() throws FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetInformation>();
@@ -210,7 +222,7 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.Device.RealtimeClock)
     //
-    public async int get_current_time() throws FreeSmartphone.Error, DBus.Error
+    public async int get_current_time() throws FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetCurrentTime>();
@@ -225,7 +237,7 @@ class DBusService.Device :
         return m.since_epoch;
     }
 
-    public async void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceSetCurrentTime>();
@@ -239,7 +251,7 @@ class DBusService.Device :
         }
     }
 
-    public async int get_wakeup_time() throws FreeSmartphone.Error, DBus.Error
+    public async int get_wakeup_time() throws FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetAlarmTime>();
@@ -254,7 +266,7 @@ class DBusService.Device :
         return m.since_epoch;
     }
 
-    public async void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceSetAlarmTime>();
@@ -272,7 +284,7 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.Device.PowerSupply)
     //
-    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
+    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetPowerStatus>();
@@ -287,7 +299,7 @@ class DBusService.Device :
         }
     }
 
-    public async int get_capacity() throws DBus.Error
+    public async int get_capacity() throws DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetPowerStatus>();
@@ -305,7 +317,7 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.Debug.*)
     //
-    public async string debug_command( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string debug_command( string command, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DebugCommand>();
@@ -313,14 +325,14 @@ class DBusService.Device :
         return m.response;
     }
 
-    public async void debug_inject_response( string response, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void debug_inject_response( string response, string channel ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DebugInjectResponse>();
         yield m.run( response, channel );
     }
 
-    public async void debug_ping() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void debug_ping() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DebugPing>();
@@ -330,7 +342,7 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.Device.*)
     //
-    public async void get_functionality( out string level, out bool autoregister, out string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void get_functionality( out string level, out bool autoregister, out string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetFunctionality>();
@@ -340,7 +352,7 @@ class DBusService.Device :
         pin = m.pin;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_features() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Variant> get_features() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetFeatures>();
@@ -348,7 +360,7 @@ class DBusService.Device :
         return m.features;
     }
 
-    public async bool get_microphone_muted() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async bool get_microphone_muted() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetMicrophoneMuted>();
@@ -356,7 +368,7 @@ class DBusService.Device :
         return m.muted;
     }
 
-    public async int get_speaker_volume() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async int get_speaker_volume() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetSpeakerVolume>();
@@ -364,27 +376,27 @@ class DBusService.Device :
         return m.volume;
     }
 
-    public async void set_functionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_functionality( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         yield modem.setFunctionality( level, autoregister, pin );
     }
 
-    public async void set_microphone_muted( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_microphone_muted( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceSetMicrophoneMuted>();
         yield m.run( muted );
     }
 
-    public async void set_speaker_volume( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_speaker_volume( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceSetSpeakerVolume>();
         yield m.run( volume );
     }
 
-    public async FreeSmartphone.GSM.DeviceStatus get_device_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.DeviceStatus get_device_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         return modem.externalStatus();
     }
@@ -392,28 +404,28 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.SIM.*)
     //
-    public async void change_auth_code( string old_pin, string new_pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void change_auth_code( string old_pin, string new_pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimChangeAuthCode>();
         yield m.run( old_pin, new_pin );
     }
 
-    public async void delete_entry( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void delete_entry( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimDeleteEntry>();
         yield m.run( category, index );
     }
 
-    public async void delete_message( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void delete_message( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimDeleteMessage>();
         yield m.run( index );
     }
 
-    public async bool get_auth_code_required() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async bool get_auth_code_required() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimGetAuthCodeRequired>();
@@ -421,7 +433,7 @@ class DBusService.Device :
         return m.required;
     }
 
-    public async FreeSmartphone.GSM.SIMAuthStatus get_auth_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.SIMAuthStatus get_auth_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimGetAuthStatus>();
@@ -429,20 +441,20 @@ class DBusService.Device :
         return m.status;
     }
 
-    public async FreeSmartphone.GSM.SIMHomeZone[] get_home_zone_parameters() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.SIMHomeZone[] get_home_zone_parameters() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async void get_phonebook_info( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void get_phonebook_info( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimGetPhonebookInfo>();
         yield m.run( category, out slots, out numberlength, out namelength );
     }
 
-    public async string get_service_center_number() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string get_service_center_number() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimGetServiceCenterNumber>();
@@ -450,7 +462,7 @@ class DBusService.Device :
         return m.number;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_sim_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Variant> get_sim_info() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimGetInformation>();
@@ -458,7 +470,7 @@ class DBusService.Device :
         return m.info;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_unlock_counters() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Variant> get_unlock_counters() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimGetUnlockCounters>();
@@ -466,14 +478,14 @@ class DBusService.Device :
         return m.counters;
     }
 
-    public async void retrieve_message( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void retrieve_message( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimRetrieveMessage>();
         yield m.run( index, out status, out number, out contents, out properties );
     }
 
-    public async FreeSmartphone.GSM.SIMEntry[] retrieve_phonebook( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.SIMEntry[] retrieve_phonebook( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimRetrievePhonebook>();
@@ -481,26 +493,26 @@ class DBusService.Device :
         return m.phonebook;
     }
 
-    public async void send_auth_code( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void send_auth_code( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimSendAuthCode>();
         yield m.run( pin );
     }
 
-    public async string send_generic_sim_command( string command ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string send_generic_sim_command( string command ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async string send_restricted_sim_command( int command, int fileid, int p1, int p2, int p3, string data ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string send_restricted_sim_command( int command, int fileid, int p1, int p2, int p3, string data ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async void send_stored_message( int index, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void send_stored_message( int index, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimSendStoredMessage>();
@@ -509,28 +521,28 @@ class DBusService.Device :
         timestamp = m.timestamp;
     }
 
-    public async void set_auth_code_required( bool check, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_auth_code_required( bool check, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimSetAuthCodeRequired>();
         yield m.run( check, pin );
     }
 
-    public async void set_service_center_number( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_service_center_number( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimSetServiceCenterNumber>();
         yield m.run( number );
     }
 
-    public async void store_entry( string category, int index, string name, string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void store_entry( string category, int index, string name, string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimWriteEntry>();
         yield m.run( category, index, number, name );
     }
 
-    public async int store_message( string recipient_number, string contents, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async int store_message( string recipient_number, string contents, GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimStoreMessage>();
@@ -538,7 +550,7 @@ class DBusService.Device :
         return m.memory_index;
     }
 
-    public async void unlock( string puk, string new_pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void unlock( string puk, string new_pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SimUnlock>();
@@ -549,7 +561,7 @@ class DBusService.Device :
     // DBUS (org.freesmartphone.GSM.SMS.*)
     //
 
-    public async uint get_size_for_text_message( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async uint get_size_for_text_message( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SmsGetSizeForTextMessage>();
@@ -557,7 +569,7 @@ class DBusService.Device :
         return m.size;
     }
 
-    public async FreeSmartphone.GSM.SIMMessage[] retrieve_text_messages() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.SIMMessage[] retrieve_text_messages() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SmsRetrieveTextMessages>();
@@ -565,7 +577,7 @@ class DBusService.Device :
         return m.messagebook;
     }
 
-    public async void send_text_message( string recipient_number, string contents, bool want_report, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void send_text_message( string recipient_number, string contents, bool want_report, out int transaction_index, out string timestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.SmsSendTextMessage>();
@@ -577,25 +589,25 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.Network.*)
     //
-    public async void disable_call_forwarding( string reason, string class_ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void disable_call_forwarding( string reason, string class_ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async void enable_call_forwarding( string reason, string class_, string number, int timeout ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void enable_call_forwarding( string reason, string class_, string number, int timeout ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_call_forwarding( string reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Variant> get_call_forwarding( string reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async FreeSmartphone.GSM.CallingIdentificationStatus get_calling_identification() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.CallingIdentificationStatus get_calling_identification() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.NetworkGetCallingId>();
@@ -603,7 +615,7 @@ class DBusService.Device :
         return m.status;
     }
 
-    public async void get_time_report( out int time, out int timestamp, out int zone, out int zonestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void get_time_report( out int time, out int timestamp, out int zone, out int zonestamp ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var ltr = modem.data().networkTimeReport;
@@ -613,7 +625,7 @@ class DBusService.Device :
         zonestamp = ltr.zonestamp;
     }
 
-    public async int get_signal_strength() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async int get_signal_strength() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.NetworkGetSignalStrength>();
@@ -621,7 +633,7 @@ class DBusService.Device :
         return m.signal;
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Variant> get_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.NetworkGetStatus>();
@@ -629,7 +641,7 @@ class DBusService.Device :
         return m.status;
     }
 
-    public async FreeSmartphone.GSM.NetworkProvider[] list_providers() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.NetworkProvider[] list_providers() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.NetworkListProviders>();
@@ -637,34 +649,34 @@ class DBusService.Device :
         return m.providers;
     }
 
-    public async void register_() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void register_() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.NetworkRegister>();
         yield m.run();
     }
 
-    public async void register_with_provider( string operator_code ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void register_with_provider( string operator_code ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async void send_ussd_request( string request ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void send_ussd_request( string request ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.NetworkSendUssdRequest>();
         yield m.run( request );
     }
 
-    public async void set_calling_identification( FreeSmartphone.GSM.CallingIdentificationStatus status ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_calling_identification( FreeSmartphone.GSM.CallingIdentificationStatus status ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.NetworkSetCallingId>();
         yield m.run( status );
     }
 
-    public async void unregister() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void unregister() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.NetworkUnregister>();
@@ -674,33 +686,33 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.Call.*)
     //
-    public async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CallActivate>();
         yield m.run( id );
     }
 
-    public async void activate_conference( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void activate_conference( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async void emergency( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void emergency( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async void hold_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void hold_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CallHoldActive>();
         yield m.run();
     }
 
-    public async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CallInitiate>();
@@ -708,13 +720,13 @@ class DBusService.Device :
         return m.id;
     }
 
-    public async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async FreeSmartphone.GSM.CallDetail[] list_calls() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async FreeSmartphone.GSM.CallDetail[] list_calls() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CallListCalls>();
@@ -722,34 +734,34 @@ class DBusService.Device :
         return m.calls;
     }
 
-    public async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CallRelease>();
         yield m.run( id );
     }
 
-    public async void release_all() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void release_all() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CallReleaseAll>();
         yield m.run();
     }
 
-    public async void release_held() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void release_held() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async void send_dtmf( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void send_dtmf( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CallSendDtmf>();
         yield m.run( tones );
     }
 
-    public async void transfer( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void transfer( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
@@ -758,28 +770,28 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.PDP.*)
     //
-    public async void activate_context() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void activate_context() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.PdpActivateContext>();
         yield m.run();
     }
 
-    public async void deactivate_context() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void deactivate_context() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.PdpDeactivateContext>();
         yield m.run();
     }
 
-    public async void get_context_status( out FreeSmartphone.GSM.ContextStatus status, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void get_context_status( out FreeSmartphone.GSM.ContextStatus status, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         status = modem.pdphandler.status;
         properties = modem.pdphandler.properties;
     }
 
-    public async void get_credentials( out string apn, out string username, out string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void get_credentials( out string apn, out string username, out string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.PdpGetCredentials>();
@@ -789,13 +801,13 @@ class DBusService.Device :
         password = m.password;
     }
 
-    public async void internal_status_update( string status, GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void internal_status_update( string status, GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         yield modem.pdphandler.statusUpdate( status, properties );
     }
 
-    public async void set_credentials( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_credentials( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.PdpSetCredentials>();
@@ -805,7 +817,7 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.CB.*)
     //
-    public async string get_cell_broadcast_subscriptions() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string get_cell_broadcast_subscriptions() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CbGetCellBroadcastSubscriptions>();
@@ -813,7 +825,7 @@ class DBusService.Device :
         return m.subscriptions;
     }
 
-    public async void set_cell_broadcast_subscriptions( string subscriptions ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_cell_broadcast_subscriptions( string subscriptions ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.CbSetCellBroadcastSubscriptions>();
@@ -823,13 +835,13 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.HZ.*)
     //
-    public async string get_home_zone_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string get_home_zone_status() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public async string[] get_known_home_zones() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string[] get_known_home_zones() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
@@ -838,7 +850,7 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.Monitor.*)
     //
-    public async GLib.HashTable<string,GLib.Value?> get_serving_cell_information() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Variant> get_serving_cell_information() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.MonitorGetServingCellInformation>();
@@ -846,7 +858,7 @@ class DBusService.Device :
         return m.cell;
     }
 
-    public async GLib.HashTable<string,GLib.Value?>[] get_neighbour_cell_information() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,GLib.Variant>[] get_neighbour_cell_information() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.MonitorGetNeighbourCellInformation>();
@@ -857,7 +869,7 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.VoiceMail.*)
     //
-    public async string get_voice_mailbox_number() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string get_voice_mailbox_number() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.VoiceMailboxGetNumber>();
@@ -865,14 +877,14 @@ class DBusService.Device :
         return m.number;
     }
 
-    public async void set_voice_mailbox_number( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async void set_voice_mailbox_number( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.VoiceMailboxSetNumber>();
         yield m.run( number );
     }
 
-    public async string[] get_stored_voice_mails() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBus.Error
+    public async string[] get_stored_voice_mails() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );

@@ -32,7 +32,7 @@ public class MsmNetworkRegister : NetworkRegister
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
         
@@ -63,9 +63,9 @@ public class MsmNetworkGetStatus : NetworkGetStatus
             var mediator = new AtSimGetInformation();
             yield mediator.run();
         }
-        status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-        var strvalue = Value( typeof(string) );
-        var intvalue = Value( typeof(int) );
+        status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+        var strvalue = Variant( typeof(string) );
+        var intvalue = Variant( typeof(int) );
 
         // query field strength
         var csq = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
@@ -187,7 +187,7 @@ public class MsmNetworkUnregister : NetworkUnregister
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }

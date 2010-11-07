@@ -68,7 +68,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         {
             yield _modemAgent.commands.test_alive();
         }
-        catch ( DBus.Error err0 )
+        catch ( DBusError, IOError err0 )
         {
         }
         catch ( Msmcomm.Error err1 )
@@ -86,7 +86,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         {
             yield _modemAgent.commands.reset_modem();
         }
-        catch ( DBus.Error err0 )
+        catch ( DBusError, IOError err0 )
         {
         }
         catch ( Msmcomm.Error err1 )
