@@ -172,7 +172,7 @@ public class FsoGsm.SmsStorage : FsoFramework.AbstractObject
             "unknown",
             "unknown",
             "unknown",
-            new GLib.HashTable<string,Value?>( str_hash, str_equal )
+            new GLib.HashTable<string,Variant>( str_hash, str_equal )
         );
 
         if ( ! ( key in keys() ) )

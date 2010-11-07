@@ -120,7 +120,7 @@ class Pdp.Qmi : FsoGsm.PdpHandler
         Posix.write( fd, "down", 5 );
     }
 
-    public async override void statusUpdate( string status, GLib.HashTable<string,Value?> properties )
+    public async override void statusUpdate( string status, GLib.HashTable<string,Variant> properties )
     {
         assert_not_reached();
     }

@@ -22,7 +22,7 @@ using FsoGsm;
 public class MsmSimGetAuthStatus : SimGetAuthStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    { 
+    {
         // NOTE: there is no command to gather the actual SIM auth status
         // we have to remember the last state and set it to the right value
         // whenever a command/response needs a modified sim auth state
@@ -44,16 +44,16 @@ public class MsmSimGetInformation : SimGetInformation
             info.insert( name, @"$(value)" );
         }
     }
-    
+
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         #if 0
-        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-        var value = Value( typeof(string) );
-        
+        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+        var value = Variant( typeof(string) );
+
         var cmds = MsmModemAgent.instance().commands;
-        
-        try 
+
+        try
         {
             string msisdn = yield cmds.sim_info( "msisdn" );
             checkAndAddInfo( "msisdn", msisdn );
@@ -61,12 +61,12 @@ public class MsmSimGetInformation : SimGetInformation
             string imsi = yield cmds.sim_info( "imsi" );
             checkAndAddInfo( "imsi", imsi );
         }
-        catch ( Msmcomm.Error err0 ) 
+        catch ( Msmcomm.Error err0 )
         {
             var msg = @"Could not process verify_pin command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
         #endif
@@ -78,7 +78,7 @@ public class MsmSimGetAuthCodeRequired : SimGetAuthCodeRequired
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         required = true;
-        
+
         if (Msmcomm.RuntimeData.pin1_status == Msmcomm.SimPinStatus.DISABLED &&
             Msmcomm.RuntimeData.pin2_status == Msmcomm.SimPinStatus.DISABLED)
         {
@@ -92,18 +92,18 @@ public class MsmSimSendAuthCode : SimSendAuthCode
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmds = MsmModemAgent.instance().commands;
-        
-        try 
+
+        try
         {
             // FIXME select pin type acording to the current active pin
             yield cmds.verify_pin( "pin1", pin );
         }
-        catch ( Msmcomm.Error err0 ) 
+        catch ( Msmcomm.Error err0 )
         {
             var msg = @"Could not process verify_pin command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -117,7 +117,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
         {
             var cmds = MsmModemAgent.instance().commands;
             var bookType = Msmcomm.stringToPhonebookBookType( category );
-            
+
             cmds.delete_phonebook( bookType, (uint) index );
         }
         catch ( Msmcomm.Error err0 )
@@ -125,7 +125,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
             var msg = @"Could not process the delete_phonebook command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -158,7 +158,7 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
             var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
 
@@ -172,10 +172,10 @@ public class MsmSimGetServiceCenterNumber : SimGetServiceCenterNumber
         #if 0
         // FIXME have to implement this when libmsmcomm fully supports the
         // get_service_center_number command which currently does not
-        try 
+        try
         {
             var cmds = MsmModemAgent.instance().commands;
-            
+
             // We first send the command to get the sms center number and afterwards we
             // have to wait for the right urc which supplies the number of the service
             // center
@@ -186,7 +186,7 @@ public class MsmSimGetServiceCenterNumber : SimGetServiceCenterNumber
             var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
         #endif
@@ -203,7 +203,7 @@ public class MsmSimGetUnlockCounters : SimGetUnlockCounters
 
 public class MsmSimRetrieveMessage : SimRetrieveMessage
 {
-    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
@@ -264,7 +264,7 @@ public class MsmSimWriteEntry : SimWriteEntry
         {
             var bookType = Msmcomm.stringToPhonebookBookType( category );
             var cmds = MsmModemAgent.instance().commands;
-            
+
             // NOTE Here we can't set the index of the entry to write to the sim card - we
             // get the index of the new entry by the write operation to the sim card.
             // Maybe the API has to be fixed to support index of new entries supplied by
@@ -276,7 +276,7 @@ public class MsmSimWriteEntry : SimWriteEntry
             var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }

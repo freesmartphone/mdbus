@@ -89,7 +89,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -118,7 +118,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
         
@@ -148,7 +148,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -196,7 +196,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -217,7 +217,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         var new_call = new FsoGsm.Call.newFromId( call_info.id );
         
         // Update the created call so it is now an incomming one
-        var empty_properties = new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal );
+        var empty_properties = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
         var call_detail = new FreeSmartphone.GSM.CallDetail( call_info.id, 
                                                              FreeSmartphone.GSM.CallStatus.INCOMING, 
                                                              empty_properties );
@@ -285,7 +285,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -307,7 +307,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }

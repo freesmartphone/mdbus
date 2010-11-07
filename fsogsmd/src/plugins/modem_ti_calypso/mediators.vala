@@ -34,7 +34,7 @@ public class AtMonitorGetServingCellInformation : MonitorGetServingCellInformati
         var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
 
-        cell = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        cell = new GLib.HashTable<string,GLib.Variant>( GLib.str_hash, GLib.str_equal );
 
         cell.insert( "arfcn", cmd.arfcn );
         cell.insert( "c1", cmd.c1 );
@@ -67,12 +67,12 @@ public class AtMonitorGetNeighbourCellInformation : MonitorGetNeighbourCellInfor
         var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         checkMultiResponseValid( cmd, response );
 
-        //cells = new GLib.HashTable<string,GLib.Value?>[] {};
-        cells = new GLib.HashTable<string,GLib.Value?>[cmd.valid] {};
+        //cells = new GLib.HashTable<string,GLib.Variant>[] {};
+        cells = new GLib.HashTable<string,GLib.Variant>[cmd.valid] {};
 
         for ( int i = 0; i < cmd.valid; ++i )
         {
-            var cell = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+            var cell = new GLib.HashTable<string,GLib.Variant>( GLib.str_hash, GLib.str_equal );
 
             cell.insert( "arfcn", cmd.arfcn[i] );
             cell.insert( "c1", cmd.c1[i] );
@@ -104,7 +104,7 @@ public class AtSimGetUnlockCounters : SimGetUnlockCounters
         var cmd = theModem.createAtCommand<PercentPVRF>( "%PVRF" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
-        counters = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        counters = new GLib.HashTable<string,GLib.Variant>( GLib.str_hash, GLib.str_equal );
         counters.insert( "SIM PIN", cmd.pin );
         counters.insert( "SIM PIN2", cmd.pin2 );
         counters.insert( "SIM PUK", cmd.puk );

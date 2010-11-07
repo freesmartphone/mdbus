@@ -458,10 +458,10 @@ public class PlusCLCC : AbstractAtCommand
             var entry = FreeSmartphone.GSM.CallDetail(
                 to_int( "id" ),
                 Constants.instance().callStatusToEnum( to_int( "stat" ) ),
-                new GLib.HashTable<string,Value?>( str_hash, str_equal )
+                new GLib.HashTable<string,Variant>( str_hash, str_equal )
             );
 
-            var strvalue = GLib.Value( typeof(string) );
+            Variant strvalue;
             strvalue = Constants.instance().callDirectionToString( to_int( "dir" ) );
             entry.properties.insert( "direction", strvalue );
 

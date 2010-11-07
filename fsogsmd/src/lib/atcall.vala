@@ -208,7 +208,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
                     var detail = FreeSmartphone.GSM.CallDetail(
                         i,
                         FreeSmartphone.GSM.CallStatus.RELEASE,
-                        new GLib.HashTable<string,GLib.Value?>( str_hash, str_equal )
+                        new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal )
                     );
 
                     var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );

@@ -33,7 +33,7 @@ public class MsmNetworkRegister : NetworkRegister
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }
@@ -51,9 +51,15 @@ public class MsmNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
-        var strvalue = Value( typeof(string) );
-        var intvalue = Value( typeof(int) );
+        #if 0
+        if ( theModem.data().simIssuer == null )
+        {
+            var mediator = new AtSimGetInformation();
+            yield mediator.run();
+        }
+        status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+        var strvalue = Variant( typeof(string) );
+        var intvalue = Variant( typeof(int) );
 
         // FIXME should we really provide here the plain rssi value? We need
         // the percentage here!
@@ -63,7 +69,7 @@ public class MsmNetworkGetStatus : NetworkGetStatus
         // - mode (network registration status: automatic, manual, unregister, unknown)
         // - registration (network registration mode: unregistered, home, searching, denied, roaming, unknown)
         // - lac - location area code
-        // - cid  - cell id 
+        // - cid  - cell id
         // - act (Compact GSM, UMTS, EDGE, HSDPA, HSUPA, HSDPA/HSUPA, GSM)
 
         if ( Msmcomm.RuntimeData.functionality_status == Msmcomm.ModemOperationMode.ONLINE )
@@ -71,7 +77,7 @@ public class MsmNetworkGetStatus : NetworkGetStatus
             status.insert( "provider", Msmcomm.RuntimeData.current_operator_name );
             status.insert( "network", Msmcomm.RuntimeData.current_operator_name );
             status.insert( "display", Msmcomm.RuntimeData.current_operator_name );
-            status.insert( "registration", 
+            status.insert( "registration",
                            MsmUtil.networkRegistrationStatusToString( Msmcomm.RuntimeData.network_reg_status ) );
             status.insert( "mode", "automatic" );
             status.insert( "lac", "" );
@@ -82,7 +88,7 @@ public class MsmNetworkGetStatus : NetworkGetStatus
         {
             status.insert( "registration", "unregistered" );
         }
-
+        #endif
     }
 }
 
@@ -137,7 +143,7 @@ public class MsmNetworkUnregister : NetworkUnregister
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBus.Error err1 )
+        catch ( DBusError, IOError err1 )
         {
         }
     }

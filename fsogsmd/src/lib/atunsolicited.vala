@@ -294,7 +294,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
                 var text = cb.decode_all( out lang );
 
                 var obj = theModem.theDevice<FreeSmartphone.GSM.CB>();
-                obj.incoming_cell_broadcast( text, lang, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+                obj.incoming_cell_broadcast( text, lang, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
             }
         }
         else

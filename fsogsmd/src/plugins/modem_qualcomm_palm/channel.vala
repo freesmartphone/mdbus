@@ -86,7 +86,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
             yield _modemAgent.commands.test_alive();
             theModem.logger.debug("Synchronization is done; we should now recieve a lot of unsolicited responses");
         }
-        catch ( DBus.Error err0 )
+        catch ( DBusError, IOError err0 )
         {
         }
         catch ( Msmcomm.Error err1 )
@@ -107,7 +107,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
             yield _modemAgent.waitForUnsolicitedResponse( Msmcomm.UrcType.RESET_RADIO_IND );
             theModem.logger.debug("Modem is back, we can proceed with initialization");
         }
-        catch ( DBus.Error err0 )
+        catch ( DBusError, IOError err0 )
         {
         }
         catch ( Msmcomm.Error err1 )

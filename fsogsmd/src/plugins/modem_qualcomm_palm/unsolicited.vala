@@ -171,7 +171,7 @@ public class MsmUnsolicitedResponseHandler
 
     public virtual void handleNetworkStateInfo(  Msmcomm.NetworkStateInfo nsinfo )
     {
-        var status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         status.insert( "mode", "automatic" );
         status.insert( "strength", (int)nsinfo.rssi );
