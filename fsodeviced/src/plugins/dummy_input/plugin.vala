@@ -36,8 +36,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     {
         this.subsystem = subsystem;
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName, "%s/99".printf( FsoFramework.Device.InputServicePath ), this );
+        subsystem.registerObjectForService( FsoFramework.Device.ServiceDBusName, "%s/99".printf( FsoFramework.Device.InputServicePath ), this );
 
         val = 1;
         Timeout.add_seconds( 2, emitDummyEvent );
@@ -63,12 +62,12 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     //
     // FsoFramework.Device.Input (DBUS)
     //
-    public async string get_id() throws DBus.Error
+    public async string get_id() throws DBusError, IOError
     {
         return "42";
     }
 
-    public async string get_capabilities() throws DBus.Error
+    public async string get_capabilities() throws DBusError, IOError
     {
         return "";
     }
