@@ -322,11 +322,11 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
     public override Object[] allObjectsWithPrefix( string? prefix = null )
     {
         var result = new Object[] {};
-        foreach ( var objectname in _dbusobjects.get_keys() )
+        foreach ( var objectname in dbusobjects.keys )
         {
             if ( prefix == null || objectname.has_prefix( prefix ) )
             {
-                result += _dbusobjects.lookup( objectname );
+                result += dbusobjects[objectname];
             }
         }
         return result;
