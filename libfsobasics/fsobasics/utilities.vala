@@ -152,7 +152,7 @@ public void write( string contents, string filename, bool create = false )
     }
     else
     {
-        var length = contents.len();
+        var length = contents.length;
         ssize_t written = Posix.write( fd, contents, length );
         if ( written != length )
         {
@@ -318,7 +318,7 @@ public string stringListToString( string[] list )
 public string enumToString( Type enum_type, int value )
 {
     EnumClass ec = (EnumClass) enum_type.class_ref();
-    unowned EnumValue ev = ec.get_value( value );
+    unowned EnumValue? ev = ec.get_value( value );
     return ev == null ? "Unknown Enum value for %s: %i".printf( enum_type.name(), value ) : ev.value_name;
 }
 
@@ -618,7 +618,7 @@ namespace FsoFramework { namespace Network {
         assert( FsoFramework.theLogger.debug( @"Connected to $serveraddr" ) );
 
         var message = @"GET $uri HTTP/1.1\r\nHost: $servername\r\nConnection: close\r\n\r\n";
-        yield conn.output_stream.write_async( message, message.size(), 1, null );
+        yield conn.output_stream.write_async( (uint8[]) message, (int)message.length );
         assert( FsoFramework.theLogger.debug( @"Wrote request" ) );
 
         conn.socket.set_blocking( true );

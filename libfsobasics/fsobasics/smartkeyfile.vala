@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -114,7 +114,6 @@ public class FsoFramework.SmartKeyFile : Object
         if ( loaded && filename != this.filename )
         {
             GLib.error( @"Can't load keyfile from different file after once loaded" );
-            return false;
         }
         this.filename = filename;
 

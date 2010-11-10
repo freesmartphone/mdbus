@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -297,7 +297,6 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
                 return "ERROR";
             default:
                 GLib.error( "logger: unknown log level value %d", level );
-                return "UNKNOWN";
         }
     }
 
@@ -350,7 +349,7 @@ public class FsoFramework.FileLogger : FsoFramework.AbstractLogger
     protected override void write( string message )
     {
         assert( file != -1 );
-        Posix.write( file, message, message.size() );
+        Posix.write( file, message, message.length );
     }
 
     public FileLogger( string domain )
@@ -437,7 +436,7 @@ public class FsoFramework.KmsgLogger : FsoFramework.AbstractLogger
 
     protected override void write(string message)
     {
-        Posix.write(kmsg_fd, message, message.size());
+        Posix.write( kmsg_fd, message, message.length );
     }
 
     protected override string format(string message, string level)
