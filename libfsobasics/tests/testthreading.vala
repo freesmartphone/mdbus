@@ -65,7 +65,7 @@ void test_threading_call_delegate_on_main_thread_async()
 //===========================================================================
 {
     loop = new MainLoop();
-    Thread.create( thread_func_async, false);
+    Thread.create<void*>( thread_func_async, false);
     loop.run();
 }
 
@@ -74,7 +74,7 @@ void test_threading_call_delegate_on_main_thread_sync()
 //===========================================================================
 {
     loop = new MainLoop();
-    Thread.create( thread_func_sync, false);
+    Thread.create<void*>( thread_func_sync, false);
     loop.run();
 }
 

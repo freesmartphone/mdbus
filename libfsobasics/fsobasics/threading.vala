@@ -42,7 +42,7 @@ internal class DummyThread
         this.pself = pself;
         try
         {
-            Thread.create( main, false );
+            Thread.create<void*>( main, false );
         }
         catch ( GLib.ThreadError e )
         {
