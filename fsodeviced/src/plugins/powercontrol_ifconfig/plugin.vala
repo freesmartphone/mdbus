@@ -52,12 +52,13 @@ class Ifconfig : FsoDevice.ISimplePowerControl,
         return @"<$iface>";
     }
 
-    public static void exec( string app, string iface, string arg )
+    public static void exec( string app, string iface, string arg, string arg2 = "" )
     {
-        string[] argv = new string[3];
+        string[] argv = new string[4];
         argv[0] = app;
         argv[1] = iface;
         argv[2] = arg;
+        argv[3] = arg2;
 
         Pid child_pid;
         int input_fd;
@@ -93,7 +94,8 @@ class Ifconfig : FsoDevice.ISimplePowerControl,
             arg = "up";
         else
             arg = "down";
-        exec("ifconfig", iface, arg);      
+        exec("ifconfig", iface, arg);
+        if (on) exec("ifconfig", iface, "power", "on"); // TODO: add config option for that
     }
 
     //
