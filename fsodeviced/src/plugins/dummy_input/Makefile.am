@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 AM_CFLAGS = \
-	-I$(top_srcdir) \
+	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(GLIB_CFLAGS) \
@@ -18,7 +18,8 @@ progs_ldadd = \
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/fsoframework \
+	--vapidir $(top_srcdir)/src/lib \
+	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
 	--pkg dbus-glib-1 \
