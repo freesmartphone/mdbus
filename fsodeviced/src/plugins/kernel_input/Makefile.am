@@ -3,7 +3,7 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 AM_CFLAGS = \
-	-I$(top_srcdir) \
+	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(GLIB_CFLAGS) \
