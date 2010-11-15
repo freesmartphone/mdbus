@@ -181,6 +181,7 @@ AC_CONFIG_FILES([
   src/plugins/ambientlight_palmpre/Makefile
   src/plugins/audio/Makefile
   src/plugins/backlight_omappanel/Makefile
+  src/plugins/gpio_input/Makefile
   src/plugins/dummy_input/Makefile
   src/plugins/kernel26_display/Makefile
   src/plugins/kernel26_firmwareloader/Makefile

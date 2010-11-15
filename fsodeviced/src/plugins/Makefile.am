@@ -43,6 +43,7 @@ SUBDIRS = \
 	proximity_palmpre \
 	proximity_n900 \
 	\
+	gpio_input \
 	dummy_input \
 	\
 	$(NULL)
