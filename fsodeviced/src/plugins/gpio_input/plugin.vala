@@ -67,7 +67,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
 	this.code = code;
 	
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName, "%s/98".printf( FsoFramework.Device.InputServicePath ), this );
+        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName, "%s/gpio%d".printf( FsoFramework.Device.InputServicePath, code ), this );
 
         if ( !FsoFramework.FileHandling.isPresent( path ) )
         {
@@ -96,7 +96,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
 
     public override string repr()
     {
-        return @"<43>";
+        return @"<$(this.path)>";
     }
 
 /*    private bool emitDummyEvent()
@@ -114,7 +114,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     //
     public async string get_id() throws DBus.Error
     {
-        return "43";
+        return this.path;
     }
 
     public async string get_capabilities() throws DBus.Error
@@ -163,7 +163,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         }
         else
         {
-            FsoFramework.theLogger.error( "Definied gpio-switch device is not available" );
+            FsoFramework.theLogger.error( "Definied gpio-switch - $(name) - device is not available" );
         }
 
     }
