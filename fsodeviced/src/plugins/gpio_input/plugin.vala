@@ -33,6 +33,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     FsoFramework.Subsystem subsystem;
     string path;
     string node;
+    string value;
     int code;
     
     public bool onInputEvent( IOChannel source, IOCondition condition )
@@ -43,7 +44,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
         source.read_line (out value, out c, null);
         logger.debug( @"got data from sysfs node: $value" );
 
-	int32 val = (value.strip() == "closed") ? 0 : 1;
+	int32 val = (value.strip() == this.value) ? 1 : 0;
 
 	var event = Linux.Input.Event() { type = Linux.Input.EV_SW, code = (uint16)this.code, value = val };
 
@@ -60,11 +61,12 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     }
 
     
-    public InputDevice( FsoFramework.Subsystem subsystem, string path, int code )
+    public InputDevice( FsoFramework.Subsystem subsystem, string path, int code, string value )
     {
         this.subsystem = subsystem;
         this.path = path;
 	this.code = code;
+	this.value = value;
 	
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName, "%s/gpio%d".printf( FsoFramework.Device.InputServicePath, code ), this );
@@ -147,19 +149,20 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         var value = config.stringValue( Gpio.GPIO_INPUT_PLUGIN_NAME, entry );
         //message( "got value '%s'", value );
         var values = value.split( "," );
-        if ( values.length != 2 )
+        if ( values.length != 3 )
         {
-            FsoFramework.theLogger.warning( @"Config option $entry has not 2 elements. Ignoring." );
+            FsoFramework.theLogger.warning( @"Config option $entry has not 3 elements. Ignoring." );
             continue;
         }
         var name = values[0];
         int code = values[1].to_int();
+	var value = values[2];
 
 	var dirname = GLib.Path.build_filename( sysfs_root, "devices", "platform", "gpio-switch", name);
 
 	if ( FsoFramework.FileHandling.isPresent( dirname ) )
         {
-            instance = new Gpio.InputDevice( subsystem, dirname, code );
+            instance = new Gpio.InputDevice( subsystem, dirname, code, value );
         }
         else
         {
