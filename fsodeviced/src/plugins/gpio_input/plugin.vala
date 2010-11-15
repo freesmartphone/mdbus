@@ -39,12 +39,12 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     public bool onInputEvent( IOChannel source, IOCondition condition )
     {
       if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) || ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) ) {
-        string value = "";
+        string readvalue = "";
         size_t c = 0;
-        source.read_line (out value, out c, null);
+        source.read_line (out readvalue, out c, null);
         logger.debug( @"got data from sysfs node: $value" );
 
-	int32 val = (value.strip() == this.value) ? 1 : 0;
+	int32 val = (readvalue.strip() == this.value) ? 1 : 0;
 
 	var event = Linux.Input.Event() { type = Linux.Input.EV_SW, code = (uint16)this.code, value = val };
 
@@ -86,9 +86,9 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
         logger.debug( @"Trying to read from $(node)..." );
 
         var channel = new IOChannel.file( node, "r" );
-        string value = "";
+        string readvalue = "";
         size_t c = 0;
-        channel.read_to_end(out value, out c);
+        channel.read_to_end(out readvalue, out c);
         channel.seek_position(0, SeekType.SET);
 
         channel.add_watch( IOCondition.IN | IOCondition.PRI | IOCondition.ERR, onInputEvent );
@@ -146,9 +146,9 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var entries = config.keysWithPrefix( Gpio.GPIO_INPUT_PLUGIN_NAME, "node" );
     foreach ( var entry in entries )
     {
-        var value = config.stringValue( Gpio.GPIO_INPUT_PLUGIN_NAME, entry );
+        var readvalue = config.stringValue( Gpio.GPIO_INPUT_PLUGIN_NAME, entry );
         //message( "got value '%s'", value );
-        var values = value.split( "," );
+        var values = readvalue.split( "," );
         if ( values.length != 3 )
         {
             FsoFramework.theLogger.warning( @"Config option $entry has not 3 elements. Ignoring." );
