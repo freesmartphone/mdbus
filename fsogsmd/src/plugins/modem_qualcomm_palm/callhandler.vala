@@ -77,7 +77,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             else
             {
                 // call is present and incoming or held
-                yield cmds.manage_calls( Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
+                yield cmds.execute_call_sups_command( Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -100,7 +100,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             // Initiate call to the selected number
             var cmds = MsmModemAgent.instance().commands;
-            yield cmds.dial_call(number, Msmcomm.RuntimeData.block_number);
+            yield cmds.originate_call(number, Msmcomm.RuntimeData.block_number);
 
             // Wait until the modem reports the origination of our new call
             var ma = MsmModemAgent.instance();
@@ -137,7 +137,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             }
             
             var cmds = MsmModemAgent.instance().commands;
-            yield cmds.manage_calls(Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0);
+            yield cmds.execute_call_sups_command(Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0);
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -184,7 +184,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             else
             {
                 var cmds = MsmModemAgent.instance().commands;
-                yield cmds.manage_calls( Msmcomm.CallCommandType.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id );
+                yield cmds.execute_call_sups_command( Msmcomm.CallCommandType.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -296,7 +296,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             // to do reject an incomming call but we currently don't know about.
             var cmds = MsmModemAgent.instance().commands;
             var cmd_type = Msmcomm.CallCommandType.DROP_ALL_OR_SEND_BUSY;
-            yield cmds.manage_calls( cmd_type, 0 );
+            yield cmds.execute_call_sups_command( cmd_type, 0 );
         }
         catch ( Msmcomm.Error err0 )
         {

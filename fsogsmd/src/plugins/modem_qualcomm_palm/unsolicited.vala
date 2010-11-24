@@ -56,6 +56,7 @@ public class MsmUnsolicitedResponseHandler
         _modemAgent.unsolicited.reset_radio_ind.connect(handleResetRadioInd);
         _modemAgent.unsolicited.phonebook_modified.connect(handlePhonebookModified);
         _modemAgent.unsolicited.call_origination.connect(handleCallOrigination);
+        _modemAgent.unsolicited.network_list.connect(handleNetworkList);
     }
     
     public virtual void handleResetRadioInd()
@@ -175,6 +176,13 @@ public class MsmUnsolicitedResponseHandler
     
         Msmcomm.RuntimeData.signal_strength = (int) nsinfo.rssi;
         Msmcomm.RuntimeData.current_operator_name = nsinfo.operator_name;
+        
+        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_STATE_INFO, nsinfo.to_variant() );
+    }
+   
+    public virtual void handleNetworkList( Msmcomm.NetworkProvider[] networks )
+    {
+    //    _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_LIST, networks.to_variant() );
     }
 
     //

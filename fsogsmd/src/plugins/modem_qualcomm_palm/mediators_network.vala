@@ -35,13 +35,6 @@ public class MsmNetworkRegister : NetworkRegister
         catch ( DBus.Error err1 )
         {
         }
-        
-        #if 0
-        var cmd = new Msmcomm.Command.ChangeOperationMode();
-        cmd.setOperationMode( Msmcomm.OperationMode.ONLINE );
-        var channel = theModem.channel( "main" ) as MsmChannel;
-        unowned Msmcomm.Message response = yield channel.enqueueAsync( (owned) cmd );
-        #endif
     }
 }
 
@@ -57,106 +50,35 @@ public class MsmNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        if ( theModem.data().simIssuer == null )
-        {
-            var mediator = new AtSimGetInformation();
-            yield mediator.run();
-        }
         status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
         var strvalue = Value( typeof(string) );
         var intvalue = Value( typeof(int) );
-
-        // query field strength
-        var csq = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
-        var response = yield theModem.processAtCommandAsync( csq, csq.execute() );
-        if ( csq.validate( response ) == Constants.AtResponse.VALID )
+        
+        
+        #if 0
+        intvalue = Msmcomm.RuntimeData.signal_strength;
+        status.insert( "strength", intvalue );
+        
+        // TODO:
+        // - registration (network registration status: automatic, manual, unregister, unknown)
+        // - mode (network registration mode: unregistered, home, searching, denied, roaming, unknown)
+        // - lac
+        // - cid (current call id?)
+        // - act (Compact GSM, UMTS, EDGE, HSDPA, HSUPA, HSDPA/HSUPA, GSM)
+        
+        if ( Msmcomm.RuntimeData.functionality_status == Msmcomm.ModemOperationMode.ONLINE )
         {
-            intvalue = csq.signal;
-            status.insert( "strength", intvalue );
-        }
-
-        bool overrideProviderWithSimIssuer = false;
-        // query telephony registration status and lac/cid
-        var creg = theModem.createAtCommand<PlusCREG>( "+CREG" );
-        var cregResult = yield theModem.processAtCommandAsync( creg, creg.query() );
-        if ( creg.validate( cregResult ) == Constants.AtResponse.VALID )
-        {
-            var cregResult2 = yield theModem.processAtCommandAsync( creg, creg.queryFull( creg.mode ) );
-            if ( creg.validate( cregResult2 ) == Constants.AtResponse.VALID )
-            {
-                strvalue = Constants.instance().networkRegistrationStatusToString( creg.status );
-                status.insert( "registration", strvalue );
-                strvalue = creg.lac;
-                status.insert( "lac", strvalue );
-                strvalue = creg.cid;
-                status.insert( "cid", strvalue );
-                overrideProviderWithSimIssuer = ( theModem.data().simIssuer != null && creg.status == 1 /* home */ );
-            }
-        }
-
-        // query registration mode, operator name, access technology
-        var cops = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var copsResult = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC ) );
-        if ( cops.validate( copsResult ) == Constants.AtResponse.VALID )
-        {
-            strvalue = Constants.instance().networkRegistrationModeToString( cops.mode );
-            status.insert( "mode", strvalue );
-            strvalue = cops.oper;
+            strvalue = Msmcomm.RuntimeData.current_operator_name;
+            
             status.insert( "provider", strvalue );
             status.insert( "network", strvalue ); // base value
             status.insert( "display", strvalue ); // base value
-            strvalue = cops.act;
-            status.insert( "act", strvalue );
         }
-        else if ( cops.validate( copsResult ) == Constants.AtResponse.CME_ERROR_030_NO_NETWORK_SERVICE )
+        else 
         {
             status.insert( "registration", "unregistered" );
         }
-
-        // query operator display name
-        var copsResult2 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC_SHORT ) );
-        if ( cops.validate( copsResult2 ) == Constants.AtResponse.VALID )
-        {
-            // only override default, if set
-            if ( cops.oper != "" )
-            {
-                strvalue = cops.oper;
-                status.insert( "display", strvalue );
-                status.insert( "network", strvalue );
-            }
-        }
-
-        // check whether we want to override display name with SIM issuer
-        if ( overrideProviderWithSimIssuer )
-        {
-            status.insert( "display", theModem.data().simIssuer );
-        }
-
-        // query operator code
-        var copsResult3 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
-        if ( cops.validate( copsResult3 ) == Constants.AtResponse.VALID )
-        {
-            strvalue = cops.oper;
-            status.insert( "code", strvalue );
-        }
-
-        // query pdp registration status and lac/cid
-        var cgreg = theModem.createAtCommand<PlusCGREG>( "+CGREG" );
-        var cgregResult = yield theModem.processAtCommandAsync( cgreg, cgreg.query() );
-        if ( cgreg.validate( cgregResult ) == Constants.AtResponse.VALID )
-        {
-            var cgregResult2 = yield theModem.processAtCommandAsync( cgreg, cgreg.queryFull( cgreg.mode ) );
-            if ( cgreg.validate( cgregResult2 ) == Constants.AtResponse.VALID )
-            {
-                strvalue = Constants.instance().networkRegistrationStatusToString( cgreg.status );
-                status.insert( "pdp.registration", strvalue );
-                strvalue = cgreg.lac;
-                status.insert( "pdp.lac", strvalue );
-                strvalue = cgreg.cid;
-                status.insert( "pdp.cid", strvalue );
-            }
-        }
+        
         #endif
     }
 }
@@ -166,10 +88,34 @@ public class MsmNetworkListProviders : NetworkListProviders
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         #if 0
-        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
-        checkTestResponseValid( cmd, response );
-        providers = cmd.providers;
+        try
+        {
+            var ma = MsmModemAgent.instance();
+            yield ma.commands.get_network_list();
+            
+            // NOTE: the following code block will handling the waiting for the 
+            // unsolicited response NETWORK_LIST which transmits all available 
+            // networks
+            
+            GLib.Variant v = yield ma.waitForUnsolicitedResponse( Msmcomm.UrcType.NETWORK_LIST );
+            Msmcomm.NetworkProviderList nplist = Msmcomm.NetworkProviderList.from_variant( v );
+            
+            FreeSmartphone.GSM.NetworkProvider[] tmp = { };
+            foreach( var provider in nplist.providers )
+            {
+                var p = FreeSmartphone.GSM.NetworkProvider("", "", provider.operator_name, "", "");
+                tmp += p;
+            }
+            
+            providers = tmp;
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+            MsmUtil.handleMsmcommErrorMessage( err0 );
+        }
+        catch ( DBus.Error err1 )
+        {
+        }
         #endif
     }
 }
