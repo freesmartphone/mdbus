@@ -131,6 +131,7 @@ public class MsmModemAgent : FsoFramework.AbstractObject
         _watch = 0;
         ready = false;
         _withoutUsageDaemon = false;
+        _urc_waiters = new Gee.ArrayList<WaitForUnsolicitedResponseData>();
     }
 
     private Gee.ArrayList<WaitForUnsolicitedResponseData> retriveUrcWaiters( Msmcomm.UrcType type )

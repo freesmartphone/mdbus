@@ -55,7 +55,6 @@ public class MsmNetworkGetStatus : NetworkGetStatus
         var intvalue = Value( typeof(int) );
         
         
-        #if 0
         intvalue = Msmcomm.RuntimeData.signal_strength;
         status.insert( "strength", intvalue );
         
@@ -79,7 +78,6 @@ public class MsmNetworkGetStatus : NetworkGetStatus
             status.insert( "registration", "unregistered" );
         }
         
-        #endif
     }
 }
 

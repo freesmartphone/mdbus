@@ -56,6 +56,9 @@ public class MsmUnsolicitedResponseHandler
         _modemAgent.unsolicited.reset_radio_ind.connect(handleResetRadioInd);
         _modemAgent.unsolicited.phonebook_modified.connect(handlePhonebookModified);
         _modemAgent.unsolicited.call_origination.connect(handleCallOrigination);
+        _modemAgent.unsolicited.call_incomming.connect(handleCallIncomming);
+        _modemAgent.unsolicited.call_connect.connect(handleCallConnect);
+        _modemAgent.unsolicited.call_end.connect(handleCallEnd);
         _modemAgent.unsolicited.network_list.connect(handleNetworkList);
     }
     

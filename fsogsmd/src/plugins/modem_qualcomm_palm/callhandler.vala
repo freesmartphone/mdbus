@@ -35,6 +35,11 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     // public API
     //
     
+    public MsmCallHandler()
+    {
+        calls = new HashMap<int, FsoGsm.Call>();
+    }
+    
     public override string repr()
     {
         return "<>";
