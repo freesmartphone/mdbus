@@ -164,7 +164,7 @@ public class MsmUnsolicitedResponseHandler
 
         status.insert( "mode", "automatic" );
         status.insert( "strength", (int)nsinfo.rssi );
-        status.insert( "registration", "home" );
+        status.insert( "registration", Msmcomm.networkRegistrationStatusToString( nsinfo.registration_status ) );
         status.insert( "lac", "unknown" );
         status.insert( "cid", "unknown" );
         status.insert( "provider", nsinfo.operator_name );
@@ -179,6 +179,7 @@ public class MsmUnsolicitedResponseHandler
     
         Msmcomm.RuntimeData.signal_strength = (int) nsinfo.rssi;
         Msmcomm.RuntimeData.current_operator_name = nsinfo.operator_name;
+        Msmcomm.RuntimeData.network_reg_status = nsinfo.registration_status;
         
         _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_STATE_INFO, nsinfo.to_variant() );
     }

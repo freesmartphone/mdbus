@@ -72,6 +72,7 @@ public class MsmNetworkGetStatus : NetworkGetStatus
             status.insert( "provider", strvalue );
             status.insert( "network", strvalue ); // base value
             status.insert( "display", strvalue ); // base value
+            status.insert( "registration", Msmcomm.networkRegistrationStatusToString( Msmcomm.RuntimeData.network_reg_status ) );
         }
         else 
         {

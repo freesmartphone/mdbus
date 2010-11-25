@@ -75,4 +75,33 @@ namespace Msmcomm
         return result;
     }
     
+    public string networkRegistrationStatusToString(Msmcomm.NetworkRegistrationStatus reg_status)
+    {
+        string result = "";
+        
+        switch (reg_status)
+        {
+            case Msmcomm.NetworkRegistrationStatus.NO_SERVICE:
+                result = "no service";
+                break;
+            case Msmcomm.NetworkRegistrationStatus.HOME:
+                result = "home";
+                break;
+            case Msmcomm.NetworkRegistrationStatus.SEARCHING:
+                result = "searching";
+                break;
+            case Msmcomm.NetworkRegistrationStatus.DENIED:
+                result = "denied";
+                break;
+            case Msmcomm.NetworkRegistrationStatus.ROAMING:
+                result = "roaming";
+                break;
+            case Msmcomm.NetworkRegistrationStatus.UNKNOWN:
+                result = "unknown";
+                break;
+        }
+        
+        return result;
+    }
+    
 } // namespace Msm
