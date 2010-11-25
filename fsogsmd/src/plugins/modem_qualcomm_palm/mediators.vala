@@ -50,6 +50,13 @@ public void updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
                 theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
             }
         }
+        else if ( modemStatus == Modem.Status.ALIVE_SIM_LOCKED )
+        {
+            if ( status == FreeSmartphone.GSM.SIMAuthStatus.READY )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+            }
+        }
     }
 }
 
