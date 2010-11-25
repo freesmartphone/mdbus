@@ -75,7 +75,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     
     protected override WatchDog createWatchDog()
     {
-        return null;
+        return new FsoGsm.GenericWatchDog();
     }
 
     protected override void createChannels()
