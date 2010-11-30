@@ -34,5 +34,4 @@ endif
 
 if WANT_PALM
 SUBDIRS += modem_qualcomm_palm
-SUBDIRS += lowlevel_palmpre
 endif
