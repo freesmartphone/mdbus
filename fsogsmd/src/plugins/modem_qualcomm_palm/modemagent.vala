@@ -32,7 +32,7 @@ public class MsmModemAgent : FsoFramework.AbstractObject
     private FreeSmartphone.Usage _usage;
     private uint _watch;
     private static MsmModemAgent _instance;
-    private bool _withoutUsageDaemon;
+    private bool _withUsageIntegration;
     private Gee.ArrayList<WaitForUnsolicitedResponseData> _urc_waiters;
     
     public bool ready { get; private set; }
@@ -69,17 +69,15 @@ public class MsmModemAgent : FsoFramework.AbstractObject
             Posix.exit(1);
         }
         
-        // FIXME Skip usage daemon for now ...
-        #if 0
-        _usage = _dbusconn.get_object( "org.freesmartphone.ousaged", 
-                                       "/org/freesmartphone/Usage", 
-                                       "org.freesmartphone.Usage" ) as FreeSmartphone.Usage;
-                                       
+        _withUsageIntegration = ( GLib.Environment.get_variable( "FSOGSMD_PALM_SKIP_USAGE" ) == null );
+
+        _usage = _dbusconn.get_object( "org.freesmartphone.ousaged", "/org/freesmartphone/Usage", "org.freesmartphone.Usage" ) as FreeSmartphone.Usage;
         Idle.add( () => { lookForObjects(); return false; } );
-        #endif
-        
+
+#if 0
         registerObjects();
         ready = true;
+#endif
     }
     
     public override string repr()
@@ -130,7 +128,7 @@ public class MsmModemAgent : FsoFramework.AbstractObject
     {
         _watch = 0;
         ready = false;
-        _withoutUsageDaemon = false;
+        _withUsageIntegration = false;
         _urc_waiters = new Gee.ArrayList<WaitForUnsolicitedResponseData>();
     }
 
@@ -152,39 +150,61 @@ public class MsmModemAgent : FsoFramework.AbstractObject
     
     private async void lookForObjects()
     {
-        if ( _watch > 0 ) {
+        if ( _watch > 0 ) 
+        {
             Source.remove( _watch );
         }
         
-        try {
-            if (!_withoutUsageDaemon) {
-                var resources = yield _usage.list_resources();
-                if ( "Modem" in resources ) {
-                    yield _usage.request_resource( "Modem" );
-                    registerObjects();
-                    ready = true;
-                }
-                else {
-                    logger.info( @"Usage daemon is present w/ $(resources.length) resoures. No Modem yet, waiting for resource" );
-                    _usage.resource_available.connect( onUsageResourceAvailable );
-                }
-            }
-            else {
+        try 
+        {
+            if (!_withUsageIntegration) 
+            {
                 registerObjects();
+                yield onModemAvailable();
+                return;
+            }
+            
+            var resources = yield _usage.list_resources();
+            if ( "Modem" in resources ) 
+            {
+                yield _usage.request_resource( "Modem" );
+                registerObjects();
+                yield onModemAvailable();
+            }
+            else 
+            {
+                logger.info( @"Usage daemon is present w/ $(resources.length) resoures. No Modem yet, waiting for resource" );
+                _usage.resource_available.connect( onUsageResourceAvailable );
             }
         }
-        catch ( GLib.Error err ) {
+        catch ( GLib.Error err ) 
+        {
             logger.error( @"Error: $(err.message); trying again in 5 seconds" );
             _watch = Timeout.add_seconds( 5, () => { lookForObjects(); return false; } );
+        }
+    }
+
+    private async void onModemAvailable()
+    {
+        logger.info( "Modem available now, trying to get it's state" );
+        if ( _watch > 0 )
+        {
+            Source.remove( _watch );
+        }
+        try
+        {
+            yield management.get_active();
+        }
+        catch ( GLib.Error e )
+        {
+            logger.error( @"Error: $(e.message)" );
         }
     }
     
     private void onUsageResourceAvailable( string resource, bool availability )
     {
         logger.info( @"Resource $resource is now %s".printf( availability ? "available" : "gone" ) );
-        if ( resource == "Modem" ) {
-            lookForObjects();
-        }
+        lookForObjects();
     }
     
     private async void registerObjects()
