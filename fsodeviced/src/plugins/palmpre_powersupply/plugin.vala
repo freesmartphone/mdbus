@@ -28,15 +28,18 @@ class TokenLib
     {
         var tokens_file = "/etc/tokens";
 
-        if (!FsoFramework.FileHandling.isPresent(tokens_file)) {
+        if (!FsoFramework.FileHandling.isPresent(tokens_file))
+        {
             FsoFramework.theLogger.error("!!! File with necessary tokens is not found !!!");
             return def;
         }
 
-        FsoFramework.SmartKeyFile tf =
-            new FsoFramework.SmartKeyFile();
+        FsoFramework.SmartKeyFile tf = new FsoFramework.SmartKeyFile();
         if (tf.loadFromFile(tokens_file))
+        {
             return tf.stringValue("tokens", key, def);
+        }
+
         return def;
     }
 }
@@ -48,33 +51,61 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
     FsoFramework.Subsystem subsystem;
     private string master_node;
     private string slave_node;
-
     private int _current_capacity = -1;
-    private int current_capacity {
-        get{return _current_capacity; }
-        set{
-            if( _current_capacity != value)
+    private int critical_capacity = -1;
+    private FreeSmartphone.Device.PowerStatus _current_power_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+    internal bool present;
+
+    //
+    // Properties
+    //
+
+    private int current_capacity
+    {
+        get
+        {
+            return _current_capacity;
+        }
+        set
+        {
+            if ( _current_capacity != value )
             {
-                if (_current_capacity < value)
-                    current_power_status = FreeSmartphone.Device.PowerStatus.CHARGING;
-                else if (_current_capacity > value)
-                    current_power_status = FreeSmartphone.Device.PowerStatus.DISCHARGING;
-                if (value == 0)
-                     current_power_status = FreeSmartphone.Device.PowerStatus.EMPTY;
-                else if (value < critical_capacity)
-                     current_power_status = FreeSmartphone.Device.PowerStatus.CRITICAL;
+                updateCurrentPowerStatus(value);
                 _current_capacity = value;
                 capacity( value );
             }
         }
     }
 
-    private int critical_capacity = -1;
+    private void updateCurrentPowerStatus(int new_capacity)
+    {
+        if ( _current_capacity < new_capacity )
+        {
+            current_power_status = FreeSmartphone.Device.PowerStatus.CHARGING;
+        }
+        else if ( _current_capacity > new_capacity )
+        {
+            current_power_status = FreeSmartphone.Device.PowerStatus.DISCHARGING;
+        }
+        if ( new_capacity == 0 )
+        {
+            current_power_status = FreeSmartphone.Device.PowerStatus.EMPTY;
+        }
+        else if ( new_capacity < critical_capacity )
+        {
+            current_power_status = FreeSmartphone.Device.PowerStatus.CRITICAL;
+        }
+    }
 
-    private FreeSmartphone.Device.PowerStatus _current_power_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
-    private FreeSmartphone.Device.PowerStatus current_power_status {
-        get {return _current_power_status;}
-        set {
+
+    private FreeSmartphone.Device.PowerStatus current_power_status
+    {
+        get
+        {
+            return _current_power_status;
+        }
+        set
+        {
             if(_current_power_status != value)
             {
                 _current_power_status = value;
@@ -83,7 +114,33 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
         }
     }
 
-    internal bool present;
+    //
+    // private methods
+    //
+
+    private bool authenticateBattery()
+    {
+        string battToCh = TokenLib.tokenValue("BATToCH", "");
+        string battToResp = TokenLib.tokenValue("BATToRSP", "");
+
+        logger.info(@"BATToCH = '$battToCh', BATToRSP = '$battToResp'");
+
+        var mac_node = Path.build_filename(slave_node, "mac");
+        FsoFramework.FileHandling.write(battToCh, mac_node);
+
+        string response = FsoFramework.FileHandling.read(mac_node);
+        if (response.down() != battToResp.down())
+        {
+            logger.error( @"Battery does not answer with the right response: $(response) (response) != $battToResp (expected response)" );
+            return false;
+        }
+
+        return true;
+    }
+
+    //
+    // public methods
+    //
 
     public BatteryPowerSupply( FsoFramework.Subsystem subsystem)
     {
@@ -94,7 +151,8 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
         var slave_count_path = Path.build_filename(master_node, "w1_master_slave_count");
         var slave_count = FsoFramework.FileHandling.read(slave_count_path);
         assert( logger.debug (@"Using $(slave_count_path) as slave count: '$(slave_count)'") );
-        if (slave_count == "0") {
+        if (slave_count == "0")
+        {
             present = false;
             logger.error("there is no battery available ... skipping");
             return;
@@ -107,7 +165,7 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
 
         logger.info(@"w1 slave '$(slave_node)' is our battery");
 
-        /* check that we only use a valid battery */
+        // check if we only use a valid battery
         if (authenticateBattery())
             return;
 
@@ -125,24 +183,7 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
         logger.info( "created new PowerSupply object." );
     }
 
-    private bool authenticateBattery()
-    {
-        string battToCh = TokenLib.tokenValue("BATToCH", "");
-        string battToResp = TokenLib.tokenValue("BATToRSP", "");
 
-        logger.info(@"BATToCH = '$battToCh', BATToRSP = '$battToResp'");
-
-        var mac_node = Path.build_filename(slave_node, "mac");
-        FsoFramework.FileHandling.write(battToCh, mac_node);
-
-        string response = FsoFramework.FileHandling.read(mac_node);
-        if (response != battToResp) {
-            logger.error("battery does not answer with the right response!");
-            return false;
-        }
-
-        return true;
-    }
 
     public override string repr()
     {
@@ -249,3 +290,4 @@ public static void fso_register_function( TypeModule module )
     return (!ok);
 }
 */
+
