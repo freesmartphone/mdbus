@@ -39,6 +39,7 @@ SUBDIRS = \
 	vibrator_timedoutputclass \
 	\
 	palmpre_powersupply \
+	palmpre_touchscreen \
 	\
 	proximity_palmpre \
 	proximity_n900 \
