@@ -194,6 +194,9 @@ public class MsmModemAgent : FsoFramework.AbstractObject
         try
         {
             yield management.get_active();
+
+            // We have an active modem resource now!
+            ready = true;
         }
         catch ( GLib.Error e )
         {
@@ -204,7 +207,10 @@ public class MsmModemAgent : FsoFramework.AbstractObject
     private void onUsageResourceAvailable( string resource, bool availability )
     {
         logger.info( @"Resource $resource is now %s".printf( availability ? "available" : "gone" ) );
-        lookForObjects();
+        if ( resource == "Modem")
+        {
+            lookForObjects();
+        }
     }
     
     private async void registerObjects()
