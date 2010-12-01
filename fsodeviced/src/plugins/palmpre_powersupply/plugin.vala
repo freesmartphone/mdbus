@@ -22,6 +22,11 @@ using GLib;
 namespace PalmPre
 {
 
+/**
+ * @class TokenLib
+ *
+ * Helper class for reading tokens from the global configuration file /etc/tokens
+ **/
 class TokenLib
 {
     public static string tokenValue(string key, string def)
@@ -44,6 +49,11 @@ class TokenLib
     }
 }
 
+/**
+ * @class BatteryPowerSupply
+ *
+ * Managemeon of the battery power supply on the Palm Pre devices
+ **/
 public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObject
 {
     public static const string MODULE_NAME = "fsodevice.palmpre_powersupply";
@@ -55,6 +65,7 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
     private int critical_capacity = -1;
     private FreeSmartphone.Device.PowerStatus _current_power_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
     internal bool present;
+    private bool _skip_authentication = false;
 
     //
     // Properties
@@ -96,7 +107,6 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
             current_power_status = FreeSmartphone.Device.PowerStatus.CRITICAL;
         }
     }
-
 
     private FreeSmartphone.Device.PowerStatus current_power_status
     {
@@ -142,12 +152,13 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
     // public methods
     //
 
-    public BatteryPowerSupply( FsoFramework.Subsystem subsystem)
+    public BatteryPowerSupply( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
 
-        master_node = "%s/devices/w1_bus_master1".printf(sysfs_root);
+        _skip_authentication = FsoFramework.theConfig.boolValue( MODULE_NAME, "skip_authentication", false );
 
+        master_node = "%s/devices/w1_bus_master1".printf(sysfs_root);
         var slave_count_path = Path.build_filename(master_node, "w1_master_slave_count");
         var slave_count = FsoFramework.FileHandling.read(slave_count_path);
         assert( logger.debug (@"Using $(slave_count_path) as slave count: '$(slave_count)'") );
@@ -165,10 +176,14 @@ public class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramewor
 
         logger.info(@"w1 slave '$(slave_node)' is our battery");
 
-        // check if we only use a valid battery
-        if (authenticateBattery())
+        // We now try to authenticate our battery but only if the user wants this
+        bool authenticated = authenticateBattery();
+        if (!_skip_authentication && authenticated)
+        {
             return;
+        }
 
+        // Register our provided dbus service on the bus
         subsystem.registerServiceName(FsoFramework.Device.ServiceDBusName);
         subsystem.registerServiceObject(FsoFramework.Device.ServiceDBusName,
                                         "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 0),
