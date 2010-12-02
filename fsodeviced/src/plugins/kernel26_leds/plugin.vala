@@ -45,7 +45,7 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
         this.max_brightness = FsoFramework.FileHandling.read( this.sysfsnode + "/max_brightness" ).to_int();
         if ( max_brightness == 0 )
         {
-            max_brightness = 255;
+            max_brightness = FsoFramework.theConfig.intValue(MODULE_NAME, "max_brightness", 255);
         }
 
         this.brightness = sysfsnode + "/brightness";
