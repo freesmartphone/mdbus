@@ -68,8 +68,11 @@ public class MsmModemAgent : FsoFramework.AbstractObject
             // theModem.die();
             Posix.exit(1);
         }
-        
+
+#if 0
         _withUsageIntegration = ( GLib.Environment.get_variable( "FSOGSMD_PALM_SKIP_USAGE" ) == null );
+#endif
+        _withUsageIntegration = false;
 
         _usage = _dbusconn.get_object( "org.freesmartphone.ousaged", "/org/freesmartphone/Usage", "org.freesmartphone.Usage" ) as FreeSmartphone.Usage;
         Idle.add( () => { lookForObjects(); return false; } );
