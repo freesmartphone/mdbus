@@ -10,6 +10,7 @@ SUBDIRS = \
 	\
 	lowlevel_openmoko \
 	lowlevel_motorola_ezx \
+	lowlevel_nokia900 \
 	\
 	modem_dummy \
 	modem_singleline \

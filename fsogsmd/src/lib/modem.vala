@@ -352,6 +352,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             case "palmpre":
                 typename = "LowLevelPalmPre";
                 break;
+            case "nokia900":
+                typename = "LowLevelNokia900";
+                break;
             default:
                 logger.warning( @"Invalid lowlevel_type $lowleveltype; vendor specifics will NOT be available" );
                 lowlevel = new FsoGsm.NullLowLevel();
