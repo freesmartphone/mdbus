@@ -17,7 +17,7 @@
  *
  */
 
-internal class WaitForUnsolicitedResponseData 
+internal class WaitForUnsolicitedResponseData
 {
     public GLib.SourceFunc callback { get; set; }
     public Msmcomm.UrcType urc_type { get; set; }
@@ -34,16 +34,16 @@ public class MsmModemAgent : FsoFramework.AbstractObject
     private static MsmModemAgent _instance;
     private bool _withUsageIntegration;
     private Gee.ArrayList<WaitForUnsolicitedResponseData> _urc_waiters;
-    
+
     public bool ready { get; private set; }
     public Msmcomm.Management management { get; set; }
     public Msmcomm.Commands commands { get; set; }
     public Msmcomm.ResponseUnsolicited unsolicited { get; set; }
-    
+
     //
     // public API
     //
-    
+
     public static MsmModemAgent instance()
     {
         if ( _instance == null )
@@ -52,11 +52,22 @@ public class MsmModemAgent : FsoFramework.AbstractObject
         }
         return _instance;
     }
-   
+
+    public async void shutdown()
+    {
+        if (ready)
+        {
+            if (_withUsageIntegration)
+            {
+                yield _usage.release_resource("Modem");
+            }
+        }
+    }
+
     /**
-     * Setup all necessary stuff
+     * Initialize all necessary stuff
      **/
-    public void setup()
+    public void initialize()
     {
         // setup up dbus ...
         try {
@@ -69,20 +80,12 @@ public class MsmModemAgent : FsoFramework.AbstractObject
             Posix.exit(1);
         }
 
-#if 0
         _withUsageIntegration = ( GLib.Environment.get_variable( "FSOGSMD_PALM_SKIP_USAGE" ) == null );
-#endif
-        _withUsageIntegration = false;
 
         _usage = _dbusconn.get_object( "org.freesmartphone.ousaged", "/org/freesmartphone/Usage", "org.freesmartphone.Usage" ) as FreeSmartphone.Usage;
         Idle.add( () => { lookForObjects(); return false; } );
-
-#if 0
-        registerObjects();
-        ready = true;
-#endif
     }
-    
+
     public override string repr()
     {
         return "<>";
@@ -122,11 +125,11 @@ public class MsmModemAgent : FsoFramework.AbstractObject
             waiter.callback();
         }
     }
-    
+
     //
     // private API
     //
-    
+
     private MsmModemAgent()
     {
         _watch = 0;
@@ -150,37 +153,37 @@ public class MsmModemAgent : FsoFramework.AbstractObject
         return result;
     }
 
-    
+
     private async void lookForObjects()
     {
-        if ( _watch > 0 ) 
+        if ( _watch > 0 )
         {
             Source.remove( _watch );
         }
-        
-        try 
+
+        try
         {
-            if (!_withUsageIntegration) 
+            if (!_withUsageIntegration)
             {
                 registerObjects();
                 yield onModemAvailable();
                 return;
             }
-            
+
             var resources = yield _usage.list_resources();
-            if ( "Modem" in resources ) 
+            if ( "Modem" in resources )
             {
                 yield _usage.request_resource( "Modem" );
                 registerObjects();
                 yield onModemAvailable();
             }
-            else 
+            else
             {
                 logger.info( @"Usage daemon is present w/ $(resources.length) resoures. No Modem yet, waiting for resource" );
                 _usage.resource_available.connect( onUsageResourceAvailable );
             }
         }
-        catch ( GLib.Error err ) 
+        catch ( GLib.Error err )
         {
             logger.error( @"Error: $(err.message); trying again in 5 seconds" );
             _watch = Timeout.add_seconds( 5, () => { lookForObjects(); return false; } );
@@ -200,13 +203,14 @@ public class MsmModemAgent : FsoFramework.AbstractObject
 
             // We have an active modem resource now!
             ready = true;
+            logger.debug("Modem resource is now acquired and ready to use");
         }
         catch ( GLib.Error e )
         {
             logger.error( @"Error: $(e.message)" );
         }
     }
-    
+
     private void onUsageResourceAvailable( string resource, bool availability )
     {
         logger.info( @"Resource $resource is now %s".printf( availability ? "available" : "gone" ) );
@@ -215,7 +219,7 @@ public class MsmModemAgent : FsoFramework.AbstractObject
             lookForObjects();
         }
     }
-    
+
     private async void registerObjects()
     {
         management = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Management" ) as Msmcomm.Management;
@@ -223,3 +227,4 @@ public class MsmModemAgent : FsoFramework.AbstractObject
         unsolicited = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Unsolicited" ) as Msmcomm.ResponseUnsolicited;
     }
 }
+
