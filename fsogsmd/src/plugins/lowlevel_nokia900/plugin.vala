@@ -18,6 +18,9 @@
  *
  */
 
+using GLib;
+using FsoGsm;
+
 extern int gpio_probe();
 extern int gpio_enable();
 extern int gpio_disable();
