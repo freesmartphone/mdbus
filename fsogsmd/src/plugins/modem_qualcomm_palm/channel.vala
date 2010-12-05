@@ -34,7 +34,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
 
     private MsmModemAgent _modemAgent;
     private bool _is_initialized;
-
+    private bool _inHandleModemResetRequest = false;
     //
     // private API
     //
@@ -44,19 +44,35 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
      **/
     private void onModemControlStatusUpdate(Msmcomm.ModemControlStatus status)
     {
-        if ( status == Msmcomm.ModemControlStatus.ACTIVE )
+        if ( _is_initialized && status == Msmcomm.ModemControlStatus.ACTIVE )
         {
-            theModem.logger.debug("Got ACTIVE state from msmcomm daemon");
-            Posix.sleep(2);
-            syncWithModem();
-            if ( restartRequested )
+            theModem.logger.debug("Msmcomm daemon is in ACTIVE state; synchronize with the modem ...");
+
+            if (!_inHandleModemResetRequest)
             {
-                resetModem();
-                restartRequested = false;
+                handleModemResetRequest();
             }
         }
 
         modemControlStatusOld = status;
+    }
+
+    private async void handleModemResetRequest()
+    {
+        _inHandleModemResetRequest = true;
+        if ( restartRequested )
+        {
+            theModem.logger.debug("A reset of the modem before synchronization is requested");
+            yield resetModem();
+            theModem.logger.debug("Modem is reseted, start synchronization with the modem");
+            yield syncWithModem();
+            restartRequested = false;
+        }
+        else
+        {
+            yield syncWithModem();
+        }
+        _inHandleModemResetRequest = false;
     }
 
     /**
@@ -65,17 +81,17 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
      **/
     private async void syncWithModem()
     {
-        theModem.logger.debug("Trying to synchronize with the modem");
-
         try
         {
             yield _modemAgent.commands.test_alive();
+            theModem.logger.debug("Synchronization is done; we should now recieve a lot of unsolicited responses");
         }
         catch ( DBus.Error err0 )
         {
         }
         catch ( Msmcomm.Error err1 )
         {
+            theModem.logger.error("Can not synchronize with the modem; tried to synchronize without a reset before?");
         }
     }
 
@@ -84,16 +100,19 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
      **/
     private async void resetModem()
     {
-        theModem.logger.debug("Reseting the modem");
         try
         {
             yield _modemAgent.commands.reset_modem();
+            theModem.logger.debug("Reset command was send to the modem, now waiting for the modem to come back")
+            yield _modemAgent.waitForUnsolicitedResponse( Msmcomm.UrcType.RESET_RADIO_IND );
+            theModem.logger.debug("Modem is back, we can proceed with initialization")
         }
         catch ( DBus.Error err0 )
         {
         }
         catch ( Msmcomm.Error err1 )
         {
+            theModem.logger.debug(@"Could not reset the modem; it responds with '$(err1.message)'")
         }
     }
 
@@ -129,12 +148,17 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         _urcHandler = new MsmUnsolicitedResponseHandler( _modemAgent );
     }
 
+    /**
+     * Initialize all components we need to talk to the modem
+     **/
     public async void initialize()
     {
         theModem.logger.debug("MSMCHANNEL: initialize ...");
 
         // Let the modem agent initialise itself
         _modemAgent.initialize();
+
+        restartRequested = true;
 
         // Wait for modem agent to become ready
         // FIXME maybe there is some better way to do this?
@@ -151,7 +175,11 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
 
         // Connect to modem link layer status updates
         _modemAgent.management.status_update.connect(onModemControlStatusUpdate);
-        resetModem();
+
+        // initialize modem and send reset command afterwards to come to a well
+        // known state
+        restartRequested = true;
+        _modemAgent.management.initialize();
 
         // Setup up necessary handlers
         _urcHandler.setup();
@@ -161,6 +189,9 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         theModem.logger.debug("MSMCHANNEL: modem initialization is finished!");
     }
 
+    /**
+     * Shutdown all components we don't need anymore
+     **/
     public async void shutdown()
     {
         if ( _is_initialized )

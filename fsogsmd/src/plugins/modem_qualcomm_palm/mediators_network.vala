@@ -16,19 +16,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
  */
- 
+
 using FsoGsm;
 
 public class MsmNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        try 
+        try
         {
             var cmds = MsmModemAgent.instance().commands;
             cmds.change_operation_mode( Msmcomm.ModemOperationMode.ONLINE );
+            Msmcomm.RuntimeData.functionality_status = Msmcomm.ModemOperationMode.ONLINE;
         }
-        catch ( Msmcomm.Error err0 ) 
+        catch ( Msmcomm.Error err0 )
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
@@ -53,32 +54,32 @@ public class MsmNetworkGetStatus : NetworkGetStatus
         status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
         var strvalue = Value( typeof(string) );
         var intvalue = Value( typeof(int) );
-        
-        
+
+
         intvalue = Msmcomm.RuntimeData.signal_strength;
         status.insert( "strength", intvalue );
-        
+
         // TODO:
         // - registration (network registration status: automatic, manual, unregister, unknown)
         // - mode (network registration mode: unregistered, home, searching, denied, roaming, unknown)
         // - lac
         // - cid (current call id?)
         // - act (Compact GSM, UMTS, EDGE, HSDPA, HSUPA, HSDPA/HSUPA, GSM)
-        
+
         if ( Msmcomm.RuntimeData.functionality_status == Msmcomm.ModemOperationMode.ONLINE )
         {
             strvalue = Msmcomm.RuntimeData.current_operator_name;
-            
+
             status.insert( "provider", strvalue );
             status.insert( "network", strvalue ); // base value
             status.insert( "display", strvalue ); // base value
             status.insert( "registration", Msmcomm.networkRegistrationStatusToString( Msmcomm.RuntimeData.network_reg_status ) );
         }
-        else 
+        else
         {
             status.insert( "registration", "unregistered" );
         }
-        
+
     }
 }
 
@@ -91,21 +92,21 @@ public class MsmNetworkListProviders : NetworkListProviders
         {
             var ma = MsmModemAgent.instance();
             yield ma.commands.get_network_list();
-            
-            // NOTE: the following code block will handling the waiting for the 
-            // unsolicited response NETWORK_LIST which transmits all available 
+
+            // NOTE: the following code block will handling the waiting for the
+            // unsolicited response NETWORK_LIST which transmits all available
             // networks
-            
+
             GLib.Variant v = yield ma.waitForUnsolicitedResponse( Msmcomm.UrcType.NETWORK_LIST );
             Msmcomm.NetworkProviderList nplist = Msmcomm.NetworkProviderList.from_variant( v );
-            
+
             FreeSmartphone.GSM.NetworkProvider[] tmp = { };
             foreach( var provider in nplist.providers )
             {
                 var p = FreeSmartphone.GSM.NetworkProvider("", "", provider.operator_name, "", "");
                 tmp += p;
             }
-            
+
             providers = tmp;
         }
         catch ( Msmcomm.Error err0 )
@@ -123,12 +124,13 @@ public class MsmNetworkUnregister : NetworkUnregister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        try 
+        try
         {
             var cmds = MsmModemAgent.instance().commands;
             cmds.change_operation_mode( Msmcomm.ModemOperationMode.OFFLINE );
+            Msmcomm.RuntimeData.functionality_status = Msmcomm.ModemOperationMode.OFFLINE;
         }
-        catch ( Msmcomm.Error err0 ) 
+        catch ( Msmcomm.Error err0 )
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
@@ -174,3 +176,4 @@ public class MsmNetworkSetCallingId : NetworkSetCallingId
         #endif
     }
 }
+

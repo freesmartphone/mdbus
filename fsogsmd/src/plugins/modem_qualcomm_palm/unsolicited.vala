@@ -28,18 +28,19 @@ using FsoGsm;
 public class MsmUnsolicitedResponseHandler
 {
     private MsmModemAgent _modemAgent { get; set; }
-    
+
     //
     // public API
     //
-    
+
     public MsmUnsolicitedResponseHandler(MsmModemAgent agent)
     {
         this._modemAgent = agent;
     }
-    
+
     public void setup()
     {
+        _modemAgent.unsolicited.sim_inserted.connect(handleSimAvailable);
         _modemAgent.unsolicited.sim_not_available.connect(handleNoSimAvailable);
         _modemAgent.unsolicited.sim_removed.connect(handleSimRemoved);
         _modemAgent.unsolicited.pin1_verified.connect(handleSimPin1Verified);
@@ -60,24 +61,34 @@ public class MsmUnsolicitedResponseHandler
         _modemAgent.unsolicited.call_connect.connect(handleCallConnect);
         _modemAgent.unsolicited.call_end.connect(handleCallEnd);
         _modemAgent.unsolicited.network_list.connect(handleNetworkList);
+        _modemAgent.unsolicited.operation_mode.connect(handleOperationMode);
     }
-    
+
+
+    public virtual void handleOperationMode()
+    {
+        triggerUpdateNetworkStatus();
+    }
+
     public virtual void handleResetRadioInd()
     {
-        // the modem was reseted by ourself or somebody else. We should 
-        // handle this and go into the initial state
-        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.RESET_RADIO_IND, null );
     }
 
     //
     // SIM
-    // 
-    
+    //
+
+    public virtual void handleSimAvailable()
+    {
+        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+    }
+
     public virtual void handleNoSimAvailable()
     {
         theModem.advanceToState( Modem.Status.ALIVE_NO_SIM );
     }
-    
+
     public virtual void handleSimRemoved()
     {
         // FIXME
@@ -89,10 +100,10 @@ public class MsmUnsolicitedResponseHandler
         // into SIM_READY state, it means that you can use PIN1 to authenticate
         // with the SIM card - nothing more!
         // updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
-        
+
         Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.ENABLED;
     }
-    
+
     public virtual void handleSimPin2Enabled()
     {
         Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.ENABLED;
@@ -102,47 +113,47 @@ public class MsmUnsolicitedResponseHandler
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
     }
-    
+
     public virtual void handleSimPin2Verified()
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
     }
-    
+
     public virtual void handleSimPin1Disabled()
     {
         Msmcomm.RuntimeData.pin1_status = Msmcomm.SimPinStatus.DISABLED;
     }
-    
+
     public virtual void handleSimPin2Disabled()
     {
         Msmcomm.RuntimeData.pin2_status = Msmcomm.SimPinStatus.DISABLED;
     }
-    
+
     public virtual void handleSimPin1PermBlocked()
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN );
     }
-    
+
     public virtual void handleSimPin2PermBlocked()
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN );
     }
-    
+
     public virtual void handleSimPin1Blocked()
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
     }
-    
+
     public virtual void handleSimPin2Blocked()
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK2_REQUIRED );
     }
-    
+
     public virtual void handleSimPin1Unblocked()
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
     }
-    
+
     public virtual void handleSimPin2Unblocked()
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN2_REQUIRED );
@@ -153,7 +164,7 @@ public class MsmUnsolicitedResponseHandler
         // NOTE phonebook content has changed; we resync our phonebook here completly!
         // theModem.pbhandler.syncWithSim();
     }
-        
+
     //
     // Network
     //
@@ -176,14 +187,14 @@ public class MsmUnsolicitedResponseHandler
 
         var obj = FsoGsm.theModem.theDevice<FreeSmartphone.GSM.Network>();
         obj.status( status );
-    
+
         Msmcomm.RuntimeData.signal_strength = (int) nsinfo.rssi;
         Msmcomm.RuntimeData.current_operator_name = nsinfo.operator_name;
         Msmcomm.RuntimeData.network_reg_status = nsinfo.registration_status;
-        
+
         _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_STATE_INFO, nsinfo.to_variant() );
     }
-   
+
     public virtual void handleNetworkList( Msmcomm.NetworkProvider[] networks )
     {
     //    _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_LIST, networks.to_variant() );
@@ -197,32 +208,32 @@ public class MsmUnsolicitedResponseHandler
     {
         _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_ORIGINATION, call_info.to_variant() );
     }
-    
+
     public virtual void handleCallIncomming( Msmcomm.CallInfo call_info )
     {
         _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_INCOMMING, call_info.to_variant() );
-        
+
         theModem.callhandler.handleIncomingCall( convertCallInfo( call_info) );
     }
-    
+
     public virtual void handleCallConnect( Msmcomm.CallInfo call_info )
     {
         _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_CONNECT, call_info.to_variant() );
-        
+
         theModem.callhandler.handleConnectingCall( convertCallInfo( call_info ) );
     }
-    
+
     public virtual void handleCallEnd( Msmcomm.CallInfo call_info )
     {
         _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_END, call_info.to_variant() );
-        
+
         theModem.callhandler.handleEndingCall( convertCallInfo( call_info ) );
     }
-    
+
     //
     // private API
     //
-    
+
     private FsoGsm.CallInfo convertCallInfo( Msmcomm.CallInfo call_info )
     {
         var result = new FsoGsm.CallInfo();
@@ -231,3 +242,4 @@ public class MsmUnsolicitedResponseHandler
         return result;
     }
 }
+
