@@ -103,16 +103,16 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         try
         {
             yield _modemAgent.commands.reset_modem();
-            theModem.logger.debug("Reset command was send to the modem, now waiting for the modem to come back")
+            theModem.logger.debug("Reset command was send to the modem, now waiting for the modem to come back");
             yield _modemAgent.waitForUnsolicitedResponse( Msmcomm.UrcType.RESET_RADIO_IND );
-            theModem.logger.debug("Modem is back, we can proceed with initialization")
+            theModem.logger.debug("Modem is back, we can proceed with initialization");
         }
         catch ( DBus.Error err0 )
         {
         }
         catch ( Msmcomm.Error err1 )
         {
-            theModem.logger.debug(@"Could not reset the modem; it responds with '$(err1.message)'")
+            theModem.logger.debug(@"Could not reset the modem; it responds with '$(err1.message)'");
         }
     }
 
