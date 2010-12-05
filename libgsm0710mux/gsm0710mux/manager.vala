@@ -60,6 +60,7 @@ public class Manager : Object
     private uint session_speed = 115200;
     private bool session_mode = true;
     private uint session_framesize = 64;
+    private bool session_unclosable = false;
     public uint channel_ack_timeout = 10;
     private uint wakeup_threshold = 0;
     private uint wakeup_waitms = 0;
@@ -87,6 +88,7 @@ public class Manager : Object
 
         session_mode = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "device_mux_mode", session_mode );
         session_framesize = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_mux_framesize", (int)session_framesize );
+        session_unclosable = config.boolValue( LIBGSM0710MUX_CONFIG_SECTION, "device_close_broken", session_unclosable );
         channel_ack_timeout = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_ack_timeout", (int)channel_ack_timeout );
 
         wakeup_threshold = config.intValue( LIBGSM0710MUX_CONFIG_SECTION, "device_wakeup_threshold", (int)wakeup_threshold );
@@ -180,7 +182,14 @@ public class Manager : Object
         }
         else
         {
-            muxer.closeSession();
+            if ( session_unclosable )
+            {
+                logger.debug( "This device can't close the session [ignoring]" );
+            }
+            else
+            {
+                muxer.closeSession();
+            }
             //FIXME: This forcefully destroys the muxer and the transport and gives
             //them no chance to wait for the modem's reply
             muxer = null;
@@ -223,7 +232,15 @@ public class Manager : Object
         }
         else
         {
-            muxer.releaseChannel( name );
+            if ( session_unclosable )
+            {
+                logger.debug( "Not releasing channel due to session being unclosable (Ignoring)" );
+                return;
+            }
+            else
+            {
+                muxer.releaseChannel( name );
+            }
         }
     }
 
