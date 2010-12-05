@@ -18,29 +18,24 @@
  *
  */
 
+using GLib;
+using FsoGsm;
+
 extern int gpio_probe();
 extern int gpio_enable();
 extern int gpio_disable();
 extern int gpio_remove();
 
-using GLib;
-
-using FsoGsm;
-
 class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
     public const string MODULE_NAME = "fsogsm.lowlevel_nokia900";
-    //private FsoGsm.AbstractModem modem; // for access to modem properties
+    private int err;
 
     construct
     {
-		private int err;
-		// modem
-		//modem = FsoGsm.theModem as FsoGsm.AbstractModem;
-
 		logger.info( "Registering nokia900 low level poweron/poweroff handling" );
 		err = gpio_probe();
-		if (err)
+		if ( err != 0 )
 			debug("lowlevel_nokia900_construct: error %d",err);
     }
 
@@ -51,23 +46,21 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     public bool poweron()
     {
-		private int err;
         debug( "lowlevel_nokia900_poweron()" );
 
         // always turn off first
         poweroff();
 		err = gpio_enable();
-		if (err)
+		if (err != 0)
 			debug("lowlevel_nokia900_poweron: gpio_enable error %d",err);
         return true;
     }
 
     public bool poweroff()
     {
-		private int err;
         debug( "lowlevel_nokia900_poweroff()" );
 		err = gpio_disable();
-		if (err)
+		if (err !=0 )
 			debug("lowlevel_nokia900_poweroff: gpio_disable error %d",err);
         return true;
     }
