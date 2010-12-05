@@ -60,6 +60,9 @@ class DBusService.Device :
             case "freescale_neptune":
                 typename = "FreescaleNeptuneModem";
                 break;
+            case "nokia_isi":
+                typename = "NokiaIsiModem";
+                break;
             case "singleline":
                 typename = "SinglelineModem";
                 break;

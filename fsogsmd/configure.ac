@@ -191,6 +191,7 @@ AC_CONFIG_FILES([
   src/plugins/modem_cinterion_mc75/Makefile
   src/plugins/modem_dummy/Makefile
   src/plugins/modem_freescale_neptune/Makefile
+  src/plugins/modem_nokia_isi/Makefile
   src/plugins/modem_singleline/Makefile
   src/plugins/modem_ti_calypso/Makefile
   src/plugins/modem_qualcomm_htc/Makefile
