@@ -34,6 +34,8 @@ SUBDIRS = \
 	\
 	powercontrol_ifconfig \
 	\
+	powersupply_n900 \
+	\
 	vibrator_ledclass \
 	vibrator_omapvibe \
 	vibrator_timedoutputclass \
