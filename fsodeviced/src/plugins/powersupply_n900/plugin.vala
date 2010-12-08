@@ -22,6 +22,11 @@ using GLib;
 namespace PowerSupply
 {
 
+const string N900_CHARGER_I2C_FILE = "/dev/i2c-2";
+
+const uint8 N900_CHARGER_I2C_DEVICE = 0x55;
+const uint8 N900_CHARGER_READ_CAPACITY = 0x0b;
+
 /**
  * Implementation of org.freesmartphone.Device.PowerSupply for the Nokia N900 device
  **/
@@ -38,12 +43,24 @@ class N900 : FreeSmartphone.Device.PowerSupply,
     internal string typ;
     internal FreeSmartphone.Device.PowerStatus status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
     internal bool present;
+    internal int fd = -1;
 
-    public N900( FsoFramework.Subsystem subsystem )
+    internal int capacity = -1;
+
+    public N900( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         this.subsystem = subsystem;
+        this.sysfsnode = sysfsnode;
+
+        fd = Posix.open( N900_CHARGER_I2C_FILE, Posix.O_RDWR );
+        if ( fd == -1 )
+        {
+            logger.warning( @"Can't open $N900_CHARGER_I2C_FILE: $(strerror(errno)). Powersupply will not available." );
+            return;
+        }
 
         Idle.add( onIdle );
+        Timeout.add_seconds( 15, onTimeout );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObjectWithPrefix( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
@@ -54,6 +71,28 @@ class N900 : FreeSmartphone.Device.PowerSupply,
     public override string repr()
     {
         return @"<$sysfsnode>";
+    }
+
+    public bool onTimeout()
+    {
+        logger.debug( "Reading capacity from i2c..." );
+
+        var ok = Posix.ioctl( fd, Linux.I2C.SLAVE, N900_CHARGER_I2C_DEVICE );
+        if ( ok < 0 )
+        {
+            logger.warning( @"Can't change I2C SLAVE: $(strerror(errno))." );
+            return true;
+        }
+        
+        var res = Linux.I2C.SMBUS.read_byte_data( fd, N900_CHARGER_READ_CAPACITY );
+        if ( res < 0 )
+        {
+            logger.warning( @"Can't i2c read_byte_data: $(strerror(errno))." );
+            return true; // mainloop: don't call us again
+        }
+        logger.debug( @"i2c reports capacity as $(res)" );
+        capacity = res;
+        return true; // mainloop: call us again
     }
 
     public bool onIdle()
@@ -105,28 +144,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
 
     public int getCapacity()
     {
-        /*
-        if ( !isBattery() )
-            return -1;
-        if ( !isPresent() )
-            return -1;
-
-        // try the capacity node first, this one is not supported by all power class devices
-        var value = FsoFramework.FileHandling.readIfPresent( "%s/capacity".printf( sysfsnode ) );
-        if ( value != "" )
-            return value.to_int();
-
-#if DEBUG
-        message( "capacity node not available, using energy_full and energy_now" );
-#endif
-
-        // fall back to energy_full and energy_now
-        var energy_full = FsoFramework.FileHandling.read( "%s/energy_full".printf( sysfsnode ) );
-        var energy_now = FsoFramework.FileHandling.read( "%s/energy_now".printf( sysfsnode ) );
-        if ( energy_full != "" && energy_now != "" )
-            return (int) ( ( energy_now.to_double()  / energy_full.to_double() ) * 100.0 );
-        */
-        return -1;
+        return capacity;
     }
 
     //
@@ -174,7 +192,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
 } /* namespace */
 
 internal static string sysfs_root;
-internal static string sys_class_powersupplies;
+internal static string sys_devices_platform_msusb_hdrc;
 internal PowerSupply.N900 instance;
 
 /**
@@ -188,10 +206,9 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     // grab sysfs paths
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
-    sys_class_powersupplies = "%s/class/power_supply".printf( sysfs_root );
-
-    instance = new PowerSupply.N900( subsystem );
-
+    sys_devices_platform_msusb_hdrc = "%s/devices/platform/musb_hdrc".printf( sysfs_root );
+    
+    instance = new PowerSupply.N900( subsystem, sys_devices_platform_msusb_hdrc );
     return "fsodevice.powersupply_n900";
 }
 

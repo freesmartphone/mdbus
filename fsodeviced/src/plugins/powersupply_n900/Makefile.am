@@ -14,10 +14,12 @@ progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/vapi \
 	--vapidir $(top_srcdir)/fsoframework \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg linux \
+	--pkg i2c \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0
 

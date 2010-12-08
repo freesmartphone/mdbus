@@ -4,9 +4,11 @@
 
 namespace Linux
 {
-    [CCode (cprefix = "", lower_case_cprefix = "i2c_")]
+    [CCode (cprefix = "I2C_", lower_case_cprefix = "i2c_")]
     namespace I2C
     {
+        const int SLAVE;
+       
         [CCode (cprefix = "", lower_case_cprefix = "i2c_smbus_")]
         namespace SMBUS
         {
