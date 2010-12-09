@@ -19,6 +19,7 @@ SUBDIRS = \
 	\
 	backlight_omappanel \
 	\
+	kernel26_cpufreq \
 	kernel26_display \
 	kernel26_firmwareloader \
 	kernel26_leds \

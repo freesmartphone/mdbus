@@ -183,6 +183,7 @@ AC_CONFIG_FILES([
   src/plugins/backlight_omappanel/Makefile
   src/plugins/gpio_input/Makefile
   src/plugins/dummy_input/Makefile
+  src/plugins/kernel26_cpufreq/Makefile
   src/plugins/kernel26_display/Makefile
   src/plugins/kernel26_firmwareloader/Makefile
   src/plugins/kernel26_leds/Makefile
