@@ -107,7 +107,7 @@ internal class CpuFreq : FsoFramework.AbstractObject
         logger.debug( @"setting $node_name to $frequency" );
         foreach ( string node in sysfs_cpufreq_roots )
         {
-            FsoFramework.FileHandling.write( "%d".printf( frequency ), node + "/" + node_name );
+            FsoFramework.FileHandling.write( frequency.to_string(), node + "/" + node_name );
         }
     }
 
