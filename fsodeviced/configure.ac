@@ -141,6 +141,14 @@ fi
 AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
 
 ##############################################################################
+# i2c-tools
+AC_CHECK_HEADER(linux/i2c-dev.h, ,
+    [AC_MSG_ERROR([Could not find linux/i2c-dev.h...please install i2c-tools])])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <linux/i2c-dev.h>
+  void test() { int foo = i2c_smbus_read_byte_data( 0, 0 ); } ])],,
+  [AC_MSG_ERROR([Could not find i2c functions in linux/i2c-dev.h...please install i2c-tools])])
+
+##############################################################################
 # check for debugging
 AC_ARG_ENABLE(debug,
   AS_HELP_STRING([--enable-debug],[Enable debug build (default=disabled)]),
