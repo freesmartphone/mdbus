@@ -30,6 +30,23 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
 
     private bool _is_initialized;
 
+
+    private void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
+    {
+        switch ( status )
+        {
+            case FsoGsm.Modem.Status.INITIALIZING:
+                initialize();
+                break;
+            case FsoGsm.Modem.Status.CLOSING:
+                shutdown();
+                break;
+            default:
+                break;
+        }
+    }
+
+
     //
     // public API
     //
@@ -39,6 +56,8 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
         base( new FsoFramework.NullTransport() );
         this.name = name;
         theModem.registerChannel( name, this );
+        theModem.signalStatusChanged.connect( onModemStatusChanged );
+
     }
 
     public void initialize()
