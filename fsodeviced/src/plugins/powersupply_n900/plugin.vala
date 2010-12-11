@@ -27,6 +27,13 @@ const string N900_CHARGER_I2C_FILE = "/dev/i2c-2";
 const uint8 N900_CHARGER_I2C_DEVICE = 0x55;
 const uint8 N900_CHARGER_READ_CAPACITY = 0x0b;
 
+public errordomain I2C_ERROR
+{
+    SELECT_SLAVE_DEVICE,
+    READ_FROM_DEVICE,
+    WRITE_TO_DEVICE
+}
+
 /**
  * Implementation of org.freesmartphone.Device.PowerSupply for the Nokia N900 device
  **/
@@ -62,8 +69,8 @@ class N900 : FreeSmartphone.Device.PowerSupply,
         Idle.add( onIdle );
         Timeout.add_seconds( 15, onTimeout );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
+        //subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
+        //subsystem.registerServiceObjectWithPrefix( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
 
         logger.info( "Created" );
     }
@@ -73,8 +80,49 @@ class N900 : FreeSmartphone.Device.PowerSupply,
         return @"<$sysfsnode>";
     }
 
-    public bool onTimeout()
+    private void pushMaskedByteToI2C( int file, uint8 device, uint8 mask, uint8 command, uint8 value ) throws I2C_ERROR
     {
+        if ( Posix.ioctl( fd, Linux.I2C.SLAVE, device) == -1)
+        {
+            throw new I2C_ERROR.SELECT_SLAVE_DEVICE( "Could not select slave device 0x%02X".printf( device ) );
+        }
+        int32 result = Linux.I2C.SMBUS.write_byte_data_masked (file, mask, command, value);
+        if ( result == -1 )
+        {
+            throw new I2C_ERROR.WRITE_TO_DEVICE( "Could not write at 0x%02X:0x%02X".printf( device, command ) );
+        }        
+    }
+
+    private void pushByteToI2C( int file, uint8 device, uint8 command, uint8 value ) throws I2C_ERROR
+    {
+        if ( Posix.ioctl( fd, Linux.I2C.SLAVE, device) == -1)
+        {
+            throw new I2C_ERROR.SELECT_SLAVE_DEVICE( "Could not select i2c slave device 0x%02X".printf( device ) );
+        }
+        int32 result = Linux.I2C.SMBUS.write_byte_data (file, command, value);
+        if ( result == -1 )
+        {
+            throw new I2C_ERROR.WRITE_TO_DEVICE( "Could not write at 0x%02X:0x%02X".printf( device, command ) );
+        }        
+    }
+
+    private uint8 pullByteFromI2C( int file, uint8 device, uint8 command ) throws I2C_ERROR
+    {
+        if ( Posix.ioctl( fd, Linux.I2C.SLAVE, device) == -1)
+        {
+            throw new I2C_ERROR.SELECT_SLAVE_DEVICE( "Could not select i2c slave device 0x%02X".printf( device ) );
+        }
+        int32 result = Linux.I2C.SMBUS.read_byte_data (file, command);
+        if ( result == -1 )
+        {
+            throw new I2C_ERROR.READ_FROM_DEVICE( "Could not read at 0x%02X:0x%02X".printf( device, command ) );
+        }
+        return (uint8) result & 0xff;
+    }
+
+    private bool onTimeout()
+    {
+        /*
         logger.debug( "Reading capacity from i2c..." );
 
         var ok = Posix.ioctl( fd, Linux.I2C.SLAVE, N900_CHARGER_I2C_DEVICE );
@@ -92,6 +140,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
         }
         logger.debug( @"i2c reports capacity as $(res)" );
         capacity = res;
+        */
         return true; // mainloop: call us again
     }
 
