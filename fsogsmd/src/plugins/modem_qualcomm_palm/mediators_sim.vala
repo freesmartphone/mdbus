@@ -47,6 +47,7 @@ public class MsmSimGetInformation : SimGetInformation
     
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        #if 0
         info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
         var value = Value( typeof(string) );
         
@@ -68,6 +69,7 @@ public class MsmSimGetInformation : SimGetInformation
         catch ( DBus.Error err1 )
         {
         }
+        #endif
     }
 }
 
