@@ -55,25 +55,28 @@ public class MsmNetworkGetStatus : NetworkGetStatus
         var strvalue = Value( typeof(string) );
         var intvalue = Value( typeof(int) );
 
-
-        intvalue = Msmcomm.RuntimeData.signal_strength;
-        status.insert( "strength", intvalue );
+        // FIXME should we really provide here the plain rssi value? We need
+        // the percentage here!
+        status.insert( "strength", Msmcomm.RuntimeData.signal_strength );
 
         // TODO:
-        // - registration (network registration status: automatic, manual, unregister, unknown)
-        // - mode (network registration mode: unregistered, home, searching, denied, roaming, unknown)
-        // - lac
-        // - cid (current call id?)
+        // - mode (network registration status: automatic, manual, unregister, unknown)
+        // - registration (network registration mode: unregistered, home, searching, denied, roaming, unknown)
+        // - lac - location area code
+        // - cid  - cell id 
         // - act (Compact GSM, UMTS, EDGE, HSDPA, HSUPA, HSDPA/HSUPA, GSM)
 
         if ( Msmcomm.RuntimeData.functionality_status == Msmcomm.ModemOperationMode.ONLINE )
         {
-            strvalue = Msmcomm.RuntimeData.current_operator_name;
-
-            status.insert( "provider", strvalue );
-            status.insert( "network", strvalue ); // base value
-            status.insert( "display", strvalue ); // base value
-            status.insert( "registration", Msmcomm.networkRegistrationStatusToString( Msmcomm.RuntimeData.network_reg_status ) );
+            status.insert( "provider", Msmcomm.RuntimeData.current_operator_name );
+            status.insert( "network", Msmcomm.RuntimeData.current_operator_name );
+            status.insert( "display", Msmcomm.RuntimeData.current_operator_name );
+            status.insert( "registration", 
+                           MsmUtil.networkRegistrationStatusToString( Msmcomm.RuntimeData.network_reg_status ) );
+            status.insert( "mode", "automatic" );
+            status.insert( "lac", "" );
+            status.insert( "cid", "" );
+            status.insert( "act", "GSM" );
         }
         else
         {

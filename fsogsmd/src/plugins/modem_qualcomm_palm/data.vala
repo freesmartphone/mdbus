@@ -39,7 +39,8 @@ namespace Msmcomm
         public static int signal_strength { get; set; default = 0; }
         public static Msmcomm.ModemOperationMode functionality_status { get; set; default = ModemOperationMode.UNKNOWN; }
         public static bool block_number { get; set; default = false; }
-        public static NetworkRegistrationStatus network_reg_status { get; set; default = NetworkRegistrationStatus.UNKNOWN; }
+        public static NetworkRegistrationStatus network_reg_status { get; set; default = NetworkRegistrationStatus.NO_SERVICE; }
+        public static NetworkServiceStatus networkServiceStatus { get; set; default = NetworkServiceStatus.NO_SERVICE; }
     }
 }
 

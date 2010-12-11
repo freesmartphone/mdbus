@@ -67,7 +67,6 @@ public class MsmUnsolicitedResponseHandler
 
     public virtual void handleOperationMode()
     {
-        triggerUpdateNetworkStatus();
     }
 
     public virtual void handleResetRadioInd()
@@ -146,7 +145,8 @@ public class MsmUnsolicitedResponseHandler
 
     public virtual void handleSimPin2Blocked()
     {
-        updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK2_REQUIRED );
+        // FIXME we ony should do this when PIN1 is even blocked!
+        //  updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK2_REQUIRED );
     }
 
     public virtual void handleSimPin1Unblocked()
@@ -191,8 +191,11 @@ public class MsmUnsolicitedResponseHandler
         Msmcomm.RuntimeData.signal_strength = (int) nsinfo.rssi;
         Msmcomm.RuntimeData.current_operator_name = nsinfo.operator_name;
         Msmcomm.RuntimeData.network_reg_status = nsinfo.registration_status;
+        Msmcomm.RuntimeData.networkServiceStatus = nsinfo.service_status;
 
         _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_STATE_INFO, nsinfo.to_variant() );
+        
+        triggerUpdateNetworkStatus();
     }
 
     public virtual void handleNetworkList( Msmcomm.NetworkProvider[] networks )
