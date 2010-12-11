@@ -317,7 +317,8 @@ class PalmPre : FsoDevice.BaseAudioRouter
             "media_headset",
             "phone_back_speaker",
             "phone_front_speaker",
-            "phone_headset"
+            "phone_headset",
+            "default"
         };
 
         foreach ( var script in scripts_needed )
