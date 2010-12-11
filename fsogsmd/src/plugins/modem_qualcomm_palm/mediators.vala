@@ -182,11 +182,11 @@ public async void triggerUpdateNetworkStatus()
     var status = m.status.lookup( "registration" ).get_string();
     assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
 
-    if ( status == "home" || status == "roaming" )
+    if ( ( status == "home" || status == "roaming" ) && mstat != Modem.Status.ALIVE_REGISTERED )
     {
         theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
     }
-    else
+    else if ( mstat != Modem.Status.ALIVE_SIM_READY )
     {
         theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
     }
