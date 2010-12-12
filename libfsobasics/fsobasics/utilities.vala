@@ -515,7 +515,7 @@ namespace FsoFramework { namespace Async {
     /**
      * @class ReactorChannel
      **/
-    public class ReactorChannel
+    public class ReactorChannel : GLib.Object
     {
         public delegate void ActionFunc( void* data, ssize_t length );
         private int fd;
