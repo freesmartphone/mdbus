@@ -33,16 +33,16 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     private FsoFramework.Subsystem subsystem;
     private string path;
     private string node;
-    private string value;
+    private string onValue;
     private int code;
     private FsoFramework.Async.ReactorChannel channel;
 
-    public InputDevice( FsoFramework.Subsystem subsystem, string path, int code, string value )
+    public InputDevice( FsoFramework.Subsystem subsystem, string path, int code, string onValue )
     {
         this.subsystem = subsystem;
         this.path = path;
         this.code = code;
-        this.value = value;
+        this.onValue = onValue;
 	
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName, "%s/gpio%d".printf( FsoFramework.Device.InputServicePath, code ), this );
@@ -79,43 +79,11 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     {
         string str = (string)data;
         logger.debug( @"read $length bytes: $str" );
-    }
-
-    public bool onInputEvent( IOChannel source, IOCondition condition )
-    {
-        if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) || ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) )
-        {
-            string readvalue = "";
-            size_t c = 0;
-            source.read_line (out readvalue, out c, null);
-            logger.debug( @"got data from sysfs node: $value" );
-
-            int32 val = (readvalue.strip() == this.value) ? 1 : 0;
-
-            var event = Linux.Input.Event() { type = Linux.Input.EV_SW, code = (uint16)this.code, value = val };
-
-            // inject something to Aggregate Input Device
-            this.receivedEvent( ref event );
-
-            source.seek_position(0, SeekType.SET);
-            return true;
-        }
-        else
-        {
-            logger.error("onInputEvent error");
-            return false;
-        }
-    }
-
-/*    private bool emitDummyEvent()
-    {
-        var event = Linux.Input.Event() { type = Linux.Input.EV_KEY, code = (uint16)Linux.Input.KEY_ESC, value = val };
-        val = 1 - val;
-
-        // inject something to Aggregate Input Device
+        int32 eventValue = ( str.strip() == this.onValue ) ? 1 : 0;
+        var event = Linux.Input.Event() { type = Linux.Input.EV_SW, code = (uint16)this.code, value = eventValue };
+        // notify listeners
         this.receivedEvent( ref event );
-        return true;
-    }*/
+    }
 
     //
     // FsoFramework.Device.Input (DBUS)
@@ -162,17 +130,17 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         }
         var name = values[0];
         int code = values[1].to_int();
-        var value = values[2];
+        var onValue = values[2];
 
         var dirname = GLib.Path.build_filename( sysfs_root, "devices", "platform", "gpio-switch", name);
 
         if ( FsoFramework.FileHandling.isPresent( dirname ) )
         {
-            instance = new Gpio.InputDevice( subsystem, dirname, code, value );
+            instance = new Gpio.InputDevice( subsystem, dirname, code, onValue );
         }
         else
         {
-            FsoFramework.theLogger.error( "Definied gpio-switch - $(name) - device is not available" );
+            FsoFramework.theLogger.error( @"Ignoring defined gpio-switch $(name) which is not available" );
         }
     }
     
