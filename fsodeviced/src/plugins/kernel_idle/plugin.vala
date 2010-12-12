@@ -124,6 +124,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
 
+        _hookToExternalModules();
         Idle.add( onIdle );
 
         // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
@@ -139,6 +140,18 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     public override string repr()
     {
         return @"<$sysfsnode>";
+    }
+
+    private void _hookToExternalModules()
+    {
+        foreach ( var object in subsystem.allObjectsWithPrefix( "/org/freesmartphone/Device/Input/" ) )
+        {
+            if ( object is FsoDevice.SignallingInputDevice )
+            {
+                logger.debug( "Found an auxilliary input object, connecting to signal" );
+                ((FsoDevice.SignallingInputDevice) object ).receivedEvent.connect( _handleInputEvent );
+            }
+        }
     }
 
     private string _cleanBuffer( int length )
