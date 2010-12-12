@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -67,7 +67,6 @@ class N900 : FreeSmartphone.Device.PowerSupply,
         }
 
         Idle.add( onIdle );
-        Timeout.add_seconds( 15, onTimeout );
 
         //subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         //subsystem.registerServiceObjectWithPrefix( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
@@ -80,48 +79,60 @@ class N900 : FreeSmartphone.Device.PowerSupply,
         return @"<$sysfsnode>";
     }
 
-    private void pushMaskedByteToI2C( int file, uint8 device, uint8 mask, uint8 command, uint8 value ) throws I2C_ERROR
+    private void pushMaskedByteToI2C( int file, uint8 mask, uint8 device, uint8 command, uint8 value ) throws I2C_ERROR
     {
-        if ( Posix.ioctl( fd, Linux.I2C.SLAVE, device) == -1)
+        if ( Posix.ioctl( fd, Linux.I2C.SLAVE, device ) == -1)
         {
-            throw new I2C_ERROR.SELECT_SLAVE_DEVICE( "Could not select slave device 0x%02X".printf( device ) );
+            throw new I2C_ERROR.SELECT_SLAVE_DEVICE( "Could not select slave device 0x%02X (%s)".printf( device, strerror(errno) ) );
         }
-        int32 result = Linux.I2C.SMBUS.write_byte_data_masked (file, mask, command, value);
+        int32 result = Linux.I2C.SMBUS.write_byte_data_masked( file, mask, command, value );
         if ( result == -1 )
         {
-            throw new I2C_ERROR.WRITE_TO_DEVICE( "Could not write at 0x%02X:0x%02X".printf( device, command ) );
+            throw new I2C_ERROR.WRITE_TO_DEVICE( "Could not write at 0x%02X:0x%02X (%s)".printf( device, command, strerror(errno) ) );
         }        
     }
 
     private void pushByteToI2C( int file, uint8 device, uint8 command, uint8 value ) throws I2C_ERROR
     {
-        if ( Posix.ioctl( fd, Linux.I2C.SLAVE, device) == -1)
+        if ( Posix.ioctl( fd, Linux.I2C.SLAVE, device ) == -1)
         {
-            throw new I2C_ERROR.SELECT_SLAVE_DEVICE( "Could not select i2c slave device 0x%02X".printf( device ) );
+            throw new I2C_ERROR.SELECT_SLAVE_DEVICE( "Could not select i2c slave device 0x%02X (%s)".printf( device, strerror(errno) ) );
         }
-        int32 result = Linux.I2C.SMBUS.write_byte_data (file, command, value);
+        int32 result = Linux.I2C.SMBUS.write_byte_data( file, command, value );
         if ( result == -1 )
         {
-            throw new I2C_ERROR.WRITE_TO_DEVICE( "Could not write at 0x%02X:0x%02X".printf( device, command ) );
+            throw new I2C_ERROR.WRITE_TO_DEVICE( "Could not write at 0x%02X:0x%02X (%s)".printf( device, command, strerror(errno) ) );
         }        
     }
 
     private uint8 pullByteFromI2C( int file, uint8 device, uint8 command ) throws I2C_ERROR
     {
-        if ( Posix.ioctl( fd, Linux.I2C.SLAVE, device) == -1)
+        if ( Posix.ioctl( fd, Linux.I2C.SLAVE, device ) == -1)
         {
-            throw new I2C_ERROR.SELECT_SLAVE_DEVICE( "Could not select i2c slave device 0x%02X".printf( device ) );
+            throw new I2C_ERROR.SELECT_SLAVE_DEVICE( "Could not select i2c slave device 0x%02X (%s)".printf( device, strerror(errno) ) );
         }
-        int32 result = Linux.I2C.SMBUS.read_byte_data (file, command);
+        int32 result = Linux.I2C.SMBUS.read_byte_data( file, command );
         if ( result == -1 )
         {
-            throw new I2C_ERROR.READ_FROM_DEVICE( "Could not read at 0x%02X:0x%02X".printf( device, command ) );
+            throw new I2C_ERROR.READ_FROM_DEVICE( "Could not read at 0x%02X:0x%02X (%s)".printf( device, command, strerror(errno) ) );
         }
         return (uint8) result & 0xff;
     }
 
     private bool onTimeout()
     {
+        logger.info( "Triggering charger" );
+        try
+        {
+            pushByteToI2C( fd, 0x6b, 0x00, 0x00 );
+        }
+        catch ( Error e )
+        {
+            logger.error( @"Error: $(e.message), abandoning charging" );
+            return false;
+        }
+        return true;
+
         /*
         logger.debug( "Reading capacity from i2c..." );
 
@@ -146,33 +157,93 @@ class N900 : FreeSmartphone.Device.PowerSupply,
 
     public bool onIdle()
     {
-        /*
-        // trigger initial coldplug change notification, if we are on a real sysfs
-        if ( sysfsnode.has_prefix( "/sys" ) )
+        logger.info( "Disabling charger for configuration" );
+
+        try
         {
-            assert( logger.debug( "Triggering initial coldplug change notification" ) );
-            FsoFramework.FileHandling.write( "change", "%s/uevent".printf( sysfsnode ) );
+            //i2cset -y 2 0x6b 0x01 0xcc # No limit, 3.4V weak threshold, enable term, charger disable
+            pushByteToI2C( fd, 0x6b, 0x01, 0xcc );
+
+            /*
+            # Register 0x04
+            # 8: reset
+            # 4: 27.2mV  # charge current
+            # 2: 13.6mV
+            # 1: 6.8mV
+            # 8: N/A
+            # 4: 13.6mV # termination current
+            # 2: 6.8mV
+            # 1: 3.4mV
+            # 7-1250 6-1150 5-1050 4-950 3-850 2-750 1-650 0-550
+            # 7-400 6-350 5-300 4-250 3-200 2-150 1-100 0-50
+            i2cset -y -m 0xFF 2 0x6b 0x04 0x50;
+            */
+            pushMaskedByteToI2C( fd, 0xff, 0x6b, 0x04, 0x50 );
+
+            /*
+            # Register 0x02
+            # 8: .640 V
+            # 4: .320 V
+            # 2: .160 V
+            # 1: .080
+            # 8: .040
+            # 4: .020 (+ 3.5)
+            # 2: otg pin active at high (default 1)
+            # 1: enable otg pin
+            i2cset -y -m 0xfc 2 0x6b 0x02 0x8c; 
+            # 4.2 = 3.5 + .640 + .040 + .02 = 8c
+            # 4.16 = 3.5 + .640V + .020 = 84
+            # 4.1 = 3.5 + .320 + .160 + .08 + .04 = 78
+            # 4.0 = 3.5 + .320 + .160 + .02 = 64
+            # 3.9 = 3.5 + .320 + .080 = 50
+            */
+            pushMaskedByteToI2C( fd, 0xfc, 0x6b, 0x02, 0x8c );
+
+            /*
+            # Register 0x1
+            # 8: 00 = 100, 01 = 500, 10 = 800mA
+            # 4: 11 = no limit
+            # 2: 200mV weak threshold default 1
+            # 1: 100mV weak treshold defsult 1 (3.4 - 3.7)
+            # 8: enable termination
+            # 4: charger disable
+            # 2: high imp mode
+            # 1: boost
+            i2cset -y 2 0x6b 0x01 0xc8;
+            */
+            pushByteToI2C( fd, 0x6b, 0x01, 0xc8 );
+
+            /*
+            # Register 0x00
+            # 8: Read:  OTG Pin Status
+            #    Write: Timer Reset
+            # 4: Enable Stat Pin
+            # 2: Stat : 00 Ready 01 In Progress
+            # 1:      : 10 Done  11 Fault
+            # 8: Boost Mode
+            # 4: Fault: 000 Normal 001 VBUS OVP 010 Sleep Mode 
+            # 2:        011 Poor input or Vbus < UVLO 
+            # 1:        100 Battery OVP 101 Thermal Shutdown
+            #           110 Timer Fault 111 NA
+            i2cset -y 2 0x6b 0x00 0x00;
+            */
+            pushByteToI2C( fd, 0x6b, 0x00, 0x00 );
+
+            logger.info( "Charger programmed... sleeping 1 second" );
         }
-        else
+        catch ( Error e )
         {
-            assert( logger.debug( "Synthesizing initial coldplug change notification" ) );
-            var uevent = FsoFramework.FileHandling.read( "%s/uevent".printf( sysfsnode ) );
-            var parts = uevent.split( "\n" );
-            var properties = new HashTable<string, string>( str_hash, str_equal );
-            foreach ( var part in parts )
-            {
-#if DEBUG
-                message( "%s", part );
-#endif
-                var elements = part.split( "=" );
-                if ( elements.length == 2 )
-                {
-                    properties.insert( elements[0], elements[1] );
-                }
-            }
-            aggregate.onPowerSupplyChangeNotification( properties );
+            logger.error( @"Error: $(e.message), aborting" );
+            return false;
         }
-        */
+
+        Timeout.add_seconds( 1, () => {
+            onTimeout();
+            return false;
+        } );
+
+        Timeout.add_seconds( 15, onTimeout );
+        
         return false; // mainloop: don't call again
     }
 

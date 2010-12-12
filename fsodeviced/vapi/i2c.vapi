@@ -8,10 +8,21 @@ namespace Linux
     namespace I2C
     {
         const int SLAVE;
-       
+        
         [CCode (cprefix = "", lower_case_cprefix = "i2c_smbus_")]
         namespace SMBUS
         {
+            int32 write_byte_data_masked (int file, uint8 mask, uint8 command, uint8 value)
+            {
+                int32 result = read_byte_data (file, command);
+                if (result == -1)
+                {
+                    return -1;
+                }
+                uint8 oldvalue = (uint8) result & 0xff;
+                return write_byte_data (file, command, oldvalue | (value & mask) );
+            }
+            
             //[CCode (cheader_filename = "linux/i2c-dev.h")]
             //int32 access(int file, char read_write, uint8 command, int size, union data *data);
             [CCode (cheader_filename = "linux/i2c-dev.h")]
