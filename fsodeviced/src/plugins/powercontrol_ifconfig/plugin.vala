@@ -95,7 +95,7 @@ class Ifconfig : FsoDevice.ISimplePowerControl,
         else
             arg = "down";
         exec("ifconfig", iface, arg);
-        if (on) exec("ifconfig", iface, "power", "on"); // TODO: add config option for that
+        if (on) exec("iwconfig", iface, "power", "on"); // TODO: add config option for that
     }
 
     //
