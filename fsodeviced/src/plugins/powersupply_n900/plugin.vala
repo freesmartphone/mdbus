@@ -121,10 +121,11 @@ class N900 : FreeSmartphone.Device.PowerSupply,
 
     private bool onTimeout()
     {
-        logger.info( "Triggering charger" );
         try
         {
-            pushByteToI2C( fd, 0x6b, 0x00, 0x00 );
+            var status = pullByteFromI2C( fd, 0x6b, 0x00 );
+            logger.info( "Triggering charger while status is 0x%02X".printf( status ) );
+            pushByteToI2C( fd, 0x6b, 0x00, 0x80 );
         }
         catch ( Error e )
         {
