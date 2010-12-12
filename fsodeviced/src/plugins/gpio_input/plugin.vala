@@ -30,12 +30,13 @@ namespace Gpio
  **/
 class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice, FsoFramework.AbstractObject
 {
-    FsoFramework.Subsystem subsystem;
-    string path;
-    string node;
-    string value;
-    int code;
-        
+    private FsoFramework.Subsystem subsystem;
+    private string path;
+    private string node;
+    private string value;
+    private int code;
+    private FsoFramework.Async.ReactorChannel channel;
+
     public InputDevice( FsoFramework.Subsystem subsystem, string path, int code, string value )
     {
         this.subsystem = subsystem;
@@ -57,23 +58,27 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
         this.node = node;
 	
         FsoFramework.FileHandling.write( "0", powernode );
-	
-        logger.debug( @"Trying to read from $(node)..." );
 
-        var channel = new IOChannel.file( node, "r" );
-        string readvalue = "";
-        size_t c = 0;
-        channel.read_to_end(out readvalue, out c);
-        channel.seek_position(0, SeekType.SET);
+        var fd = Posix.open( node, Posix.O_RDONLY );
+        if ( fd == -1 )
+        {
+            logger.warning( @"Can't open $node ($(strerror(errno)); object will not be functional" );
+            return;
+        }
 
-        channel.add_watch( IOCondition.IN | IOCondition.PRI | IOCondition.ERR, onInputEvent );
-
+        channel = new FsoFramework.Async.ReactorChannel.rewind( fd, onActionFromChannel );
         logger.info( @"Created new GpioInputDevice" );
     }
 
     public override string repr()
     {
         return @"<$(this.path)>";
+    }
+
+    private void onActionFromChannel( void* data, ssize_t length )
+    {
+        string str = (string)data;
+        logger.debug( @"read $length bytes: $str" );
     }
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
