@@ -35,34 +35,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     string node;
     string value;
     int code;
-    
-    public bool onInputEvent( IOChannel source, IOCondition condition )
-    {
-        if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) || ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) )
-        {
-            string readvalue = "";
-            size_t c = 0;
-            source.read_line (out readvalue, out c, null);
-            logger.debug( @"got data from sysfs node: $value" );
-
-            int32 val = (readvalue.strip() == this.value) ? 1 : 0;
-
-            var event = Linux.Input.Event() { type = Linux.Input.EV_SW, code = (uint16)this.code, value = val };
-
-            // inject something to Aggregate Input Device
-            this.receivedEvent( ref event );
-
-            source.seek_position(0, SeekType.SET);
-            return true;
-        }
-        else
-        {
-            logger.error("onInputEvent error");
-            return false;
-        }
-    }
-
-    
+        
     public InputDevice( FsoFramework.Subsystem subsystem, string path, int code, string value )
     {
         this.subsystem = subsystem;
@@ -101,6 +74,32 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     public override string repr()
     {
         return @"<$(this.path)>";
+    }
+
+    public bool onInputEvent( IOChannel source, IOCondition condition )
+    {
+        if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) || ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) )
+        {
+            string readvalue = "";
+            size_t c = 0;
+            source.read_line (out readvalue, out c, null);
+            logger.debug( @"got data from sysfs node: $value" );
+
+            int32 val = (readvalue.strip() == this.value) ? 1 : 0;
+
+            var event = Linux.Input.Event() { type = Linux.Input.EV_SW, code = (uint16)this.code, value = val };
+
+            // inject something to Aggregate Input Device
+            this.receivedEvent( ref event );
+
+            source.seek_position(0, SeekType.SET);
+            return true;
+        }
+        else
+        {
+            logger.error("onInputEvent error");
+            return false;
+        }
     }
 
 /*    private bool emitDummyEvent()
