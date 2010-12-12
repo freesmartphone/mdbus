@@ -38,26 +38,28 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     
     public bool onInputEvent( IOChannel source, IOCondition condition )
     {
-      if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) || ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) ) {
-        string readvalue = "";
-        size_t c = 0;
-        source.read_line (out readvalue, out c, null);
-        logger.debug( @"got data from sysfs node: $value" );
+        if ( ( ( condition & IOCondition.IN  ) == IOCondition.IN  ) || ( ( condition & IOCondition.PRI ) == IOCondition.PRI ) )
+        {
+            string readvalue = "";
+            size_t c = 0;
+            source.read_line (out readvalue, out c, null);
+            logger.debug( @"got data from sysfs node: $value" );
 
-	int32 val = (readvalue.strip() == this.value) ? 1 : 0;
+            int32 val = (readvalue.strip() == this.value) ? 1 : 0;
 
-	var event = Linux.Input.Event() { type = Linux.Input.EV_SW, code = (uint16)this.code, value = val };
+            var event = Linux.Input.Event() { type = Linux.Input.EV_SW, code = (uint16)this.code, value = val };
 
-        // inject something to Aggregate Input Device
-        this.receivedEvent( ref event );
-	
-        source.seek_position(0, SeekType.SET);
-        return true;
-      }
-      else {
-        logger.error("onInputEvent error");
-        return false;
-      }
+            // inject something to Aggregate Input Device
+            this.receivedEvent( ref event );
+
+            source.seek_position(0, SeekType.SET);
+            return true;
+        }
+        else
+        {
+            logger.error("onInputEvent error");
+            return false;
+        }
     }
 
     
@@ -65,8 +67,8 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     {
         this.subsystem = subsystem;
         this.path = path;
-	this.code = code;
-	this.value = value;
+        this.code = code;
+        this.value = value;
 	
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
         subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName, "%s/gpio%d".printf( FsoFramework.Device.InputServicePath, code ), this );
@@ -81,7 +83,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
         string node = GLib.Path.build_filename( path, "state" );
         this.node = node;
 	
-	FsoFramework.FileHandling.write( "0", powernode );
+        FsoFramework.FileHandling.write( "0", powernode );
 	
         logger.debug( @"Trying to read from $(node)..." );
 
@@ -156,11 +158,11 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         }
         var name = values[0];
         int code = values[1].to_int();
-	var value = values[2];
+        var value = values[2];
 
-	var dirname = GLib.Path.build_filename( sysfs_root, "devices", "platform", "gpio-switch", name);
+        var dirname = GLib.Path.build_filename( sysfs_root, "devices", "platform", "gpio-switch", name);
 
-	if ( FsoFramework.FileHandling.isPresent( dirname ) )
+        if ( FsoFramework.FileHandling.isPresent( dirname ) )
         {
             instance = new Gpio.InputDevice( subsystem, dirname, code, value );
         }
@@ -168,7 +170,6 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         {
             FsoFramework.theLogger.error( "Definied gpio-switch - $(name) - device is not available" );
         }
-
     }
     
     return Gpio.GPIO_INPUT_PLUGIN_NAME;
