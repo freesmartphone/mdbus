@@ -28,10 +28,9 @@ namespace PalmPre
     {
         public static const string MODULE_NAME = "fsodevice.palmpre_touchscreen";
         private FsoFramework.Subsystem subsystem;
-        private int target_fd;
-        private int source_fd;
-
-        private string[] _uinputDevNodes = { "/dev/uinput", "/dev/input/uinput" };
+        private FsoFramework.GProcessGuard process;
+        private string tsmd_path;
+        private string tsmd_args;
 
         //
         // public methods
@@ -39,37 +38,26 @@ namespace PalmPre
 
         public TouchscreenManager( FsoFramework.Subsystem subsystem )
         {
+            string cmdline = "";
+
             this.subsystem = subsystem;
-        }
+            this.process = new FsoFramework.GProcessGuard();
 
-        private bool openTargetInputDevice()
-        {
-            string devnode = "";
+            tsmd_path = config.stringValue(MODULE_NAME, "tsmd_path", "/usr/bin/tsmd");
+            tsmd_args = config.stringValue(MODULE_NAME, "tsmd_args", "-n /dev/modemuart");
 
-            // Try to find the correct uinput dev node
-            foreach ( var node in _uinputDevNodes )
+            if (!FsoFramework.FileHandling.isPresent(tsmd_path))
             {
-                if ( FsoFramework.FileHandling.isPresent( node ) )
-                {
-                    devnode = node;
-                    break;
-                }
+                logger.critical(@"tsmd binary is not available on path '$(tsmd_path)'. Not installed?");
+                return;
             }
 
-            if ( devnode.length == 0 )
-            {
-                logger.critical("Found no uinput dev node!");
-                return false;
-            }
+            process.setAutoRelaunch(true);
+            cmdline = @"$(tsmd_path) $(tsmd_args)";
+            process.launch(cmdline.split(" "));
 
-
-
-            return true;
-        }
-
-        private void resetSourceInputDevice()
-        {
-
+            /* setup our dbus signal handlers we need to react when the display goes off */
+            /* FIXME we need some dbus signal in our API to listen for this */
         }
 
         public override string repr()
@@ -79,7 +67,6 @@ namespace PalmPre
     }
 } /* namespace */
 
-internal static string sysfs_root;
 internal static PalmPre.TouchscreenManager touchscreen_manager;
 
 /**
@@ -91,7 +78,6 @@ internal static PalmPre.TouchscreenManager touchscreen_manager;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     var config = FsoFramework.theConfig;
-    sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
 
     touchscreen_manager = new PalmPre.TouchscreenManager( subsystem );
 
@@ -101,7 +87,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsodevice.palmpre_powersupply fso_register_function()" );
+    FsoFramework.theLogger.debug( "fsodevice.palmpre_touchscreen fso_register_function()" );
 }
 
 /**
