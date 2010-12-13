@@ -46,7 +46,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         }
     }
 
-    private void addScenario( string scenario, File file )
+    private void addScenario( string scenario, File file, int idxMainVolume )
     {
         FsoDevice.MixerControl[] controls = {};
 
@@ -68,7 +68,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 #if DEBUG
             debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
 #endif
-            var bunch = new FsoDevice.BunchOfMixerControls( controls );
+            var bunch = new FsoDevice.BunchOfMixerControls( controls, idxMainVolume );
             allscenarios[scenario] = bunch;
         }
         catch ( IOError e )
@@ -109,7 +109,8 @@ class LibAlsa : FsoDevice.BaseAudioRouter
                 var scenario = section.split( "." )[1];
                 if ( scenario != "" )
                 {
-                    FsoFramework.theLogger.debug( "Found scenario '%s'".printf( scenario ) );
+                    var idxMainVolume = alsaconf.intValue( section, "main_volume", 0 );
+                    FsoFramework.theLogger.debug( "Found scenario '%s' - main volume = %d".printf( scenario, idxMainVolume ) );
 
                     var file = File.new_for_path( Path.build_filename( dataPath, scenario ) );
                     if ( !file.query_exists(null) )
@@ -118,7 +119,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
                     }
                     else
                     {
-                        addScenario( scenario, file );
+                        addScenario( scenario, file, idxMainVolume );
                     }
                 }
             }
@@ -178,6 +179,8 @@ class LibAlsa : FsoDevice.BaseAudioRouter
             return;
         }
 
+        var idxMainVolume = allscenarios[name].idxMainVolume;
+
         if ( name == currentscenario )
         {
             FsoFramework.theLogger.info( @"Scenario $name has been changed (being also the current scenario); invalidating cache and reloading" );
@@ -188,7 +191,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
             }
             else
             {
-                addScenario( name, file );
+                addScenario( name, file, idxMainVolume );
                 device.setAllMixerControls( allscenarios[name].controls );
             }
         }
@@ -205,7 +208,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
             }
             else
             {
-                addScenario( name, file );
+                addScenario( name, file, idxMainVolume );
             }
             // restore saved one
             device.setAllMixerControls( scene.controls );
