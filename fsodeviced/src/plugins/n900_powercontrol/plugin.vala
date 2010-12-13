@@ -19,6 +19,8 @@
 
 using GLib;
 
+static const string MODULE_NAME = "fsodevice.n900_powercontrol";
+
 namespace N900
 {
 
@@ -40,39 +42,9 @@ class BluetoothPowerControl : FsoDevice.BasePowerControl
 
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
-                                         this );
+        subsystem.registerServiceObjectWithPrefix( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
-
-        logger.info( "created." );
-    }
-}
-
-/**
- * UsbHost mode control for N900 GTA02
- **/
-class UsbHostModeControl : FsoDevice.BasePowerControl
-{
-    private FsoFramework.Subsystem subsystem;
-    private string sysfsnode;
-    private string umodenode;
-    private string name;
-
-    public UsbHostModeControl( FsoFramework.Subsystem subsystem, string sysfsnode )
-    {
-        base( Path.build_filename( sysfsnode, "power_on" ) );
-        this.subsystem = subsystem;
-        this.sysfsnode = sysfsnode;
-        this.umodenode = Path.build_filename( sysfs_root, "devices", "platform", "s3c2410-ohci", "usb_mode" );
-        this.name = Path.get_basename( sysfsnode );
-
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
-                                                 this );
-
-        logger.info( "created." );
+        logger.info( "Created." );
     }
 
     public override bool getPower()
@@ -82,6 +54,19 @@ class UsbHostModeControl : FsoDevice.BasePowerControl
 
     public override void setPower( bool on )
     {
+        if ( !on )
+        {
+            Posix.system( "killall bluetoothd; killall -9 bluetoothd" );
+            Posix.system( "modprobe -r hci_h4p" );
+            FsoFramework.FileHandling.write( "0", Path.build_filename( wl12xx, "bt_coex_mode" ) );
+            return;
+        }
+        
+        Posix.system( "modprobe hci_h4p" );
+        FsoFramework.FileHandling.write( "00:11:22:33:44:55", Path.build_filename( sysfsnode, "bdaddr" ) );
+        Posix.system( "modprobe -r hci_h4p" );
+        Posix.system( "modprobe hci_h4p" );
+        FsoFramework.FileHandling.write( "1", Path.build_filename( wl12xx, "bt_coex_mode" ) );
     }
 }
 
@@ -102,11 +87,9 @@ class WiFiPowerControl : FsoDevice.BasePowerControl
         this.name = Path.get_basename( sysfsnode );
 
         subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
-                                                 this );
+        subsystem.registerServiceObjectWithPrefix( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
-        logger.info( "created." );
+        logger.info( "Created." );
     }
 
     public override bool getPower()
@@ -124,6 +107,8 @@ class WiFiPowerControl : FsoDevice.BasePowerControl
 internal List<FsoDevice.BasePowerControlResource> resources;
 internal List<FsoDevice.BasePowerControl> instances;
 internal static string sysfs_root;
+internal static string hci_h4p;
+internal static string wl12xx;
 
 /**
  * This function gets called on plugin initialization time.
@@ -136,24 +121,26 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     // grab sysfs paths
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
-    var devices = Path.build_filename( sysfs_root, "bus", "platform", "devices" );
-    var drivers = Path.build_filename( sysfs_root, "bus", "platform", "drivers" );
+    hci_h4p = Path.build_filename( sysfs_root, "devices", "platform", "hci_h4p" );
+    wl12xx = Path.build_filename( sysfs_root, "devices", "platform", "wl12xx" );
 
-    var bto = new N900.BluetoothPowerControl( subsystem, "/" );
+    var bto = new N900.BluetoothPowerControl( subsystem, hci_h4p );
     instances.append( bto );
 #if WANT_FSO_RESOURCE
     resources.append( new FsoDevice.BasePowerControlResource( bto, "Bluetooth", subsystem ) );
 #endif
 
-    var wifio = new N900.WiFiPowerControl( subsystem, "/" );
+    /*
+    var wifio = new N900.WiFiPowerControl( subsystem, wl12xx );
     instances.append( wifio );
 #if WANT_FSO_RESOURCE
     resources.append( new FsoDevice.BasePowerControlResource( wifio, "WiFi", subsystem ) );
 #endif
+    */
 
     //TODO: add other devices
 
-    return "fsodevice.n900_powercontrol";
+    return MODULE_NAME;
 }
 
 [ModuleInit]
