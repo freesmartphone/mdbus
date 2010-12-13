@@ -46,7 +46,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         }
     }
 
-    private void addScenario( string scenario, File file, int idxMainVolume )
+    private void addScenario( string scenario, File file, uint idxMainVolume )
     {
         FsoDevice.MixerControl[] controls = {};
 
