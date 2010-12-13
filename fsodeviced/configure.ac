@@ -201,6 +201,7 @@ AC_CONFIG_FILES([
   src/plugins/kernel_idle/Makefile
   src/plugins/kernel_info/Makefile
   src/plugins/kernel_input/Makefile
+  src/plugins/n900_powercontrol/Makefile
   src/plugins/openmoko_powercontrol/Makefile
   src/plugins/palmpre_powersupply/Makefile
   src/plugins/palmpre_touchscreen/Makefile
@@ -239,7 +240,6 @@ echo
 echo "  kernel26_rfkill......................: $rfkill"
 echo "  player_canberra......................: $canberra"
 echo "  player_gstreamer.....................: $gstreamer"
-echo "  htcdream_powercontrol ...............: $htcpowercontrol"
 echo
 echo "  debug build..........................: $debug"
 echo

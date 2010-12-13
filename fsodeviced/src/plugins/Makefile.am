@@ -30,6 +30,7 @@ SUBDIRS = \
 	kernel_info \
 	kernel_input \
 	\
+	n900_powercontrol \
 	openmoko_powercontrol \
 	thinkpad_powercontrol \
 	\
