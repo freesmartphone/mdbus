@@ -238,6 +238,7 @@ class OmapPanel : FreeSmartphone.Device.Display,
     {
         var value = power ? "0" : "1";
         FsoFramework.FileHandling.write( value, this.state );
+        backlight_power( power ); // DBUS SIGNAL 
     }
 }
 
