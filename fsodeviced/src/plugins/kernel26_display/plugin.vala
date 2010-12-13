@@ -80,7 +80,10 @@ class Display : FreeSmartphone.Device.Display,
     private void _setBacklightPower( bool on )
     {
         if ( fb_fd != -1 )
+        {
             Linux.ioctl( fb_fd, FBIOBLANK, on ? FB_BLANK_UNBLANK : FB_BLANK_POWERDOWN );
+        }
+        this.backlight_power( on ); // DBUS SIGNAL
     }
 
     private int _valueToPercent( int value )
@@ -239,6 +242,7 @@ class Display : FreeSmartphone.Device.Display,
     {
         var value = power ? "0" : "1";
         FsoFramework.FileHandling.write( value, this.sysfsnode + "/bl_power" );
+        this.backlight_power( power ); // DBUS SIGNAL
     }
 }
 
