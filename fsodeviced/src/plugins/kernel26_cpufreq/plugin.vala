@@ -21,7 +21,6 @@ using GLib;
 
 namespace Kernel26
 {
-	internal const string MODULE_NAME = "fsodevice.kernel26_cpufreq";
     internal const string NODE_NAME_GOVERNOR = "scaling_governor";
     internal const string NODE_NAME_MIN_FREQUENCY = "scaling_min_freq";
     internal const string NODE_NAME_MAX_FREQUENCY = "scaling_max_freq";
@@ -33,47 +32,17 @@ namespace Kernel26
  **/
 internal class CpuFreq : FsoFramework.AbstractObject
 {
-	private List< string > sysfs_cpufreq_roots;
-	private string default_governor;
-	private int min_frequency;
-	private int max_frequency;
-
-	private FsoFramework.Subsystem subsystem;
+    private FsoFramework.Subsystem subsystem;
 
     public CpuFreq( FsoFramework.Subsystem subsystem )
     {
-        var config = FsoFramework.theConfig;
-
         this.subsystem = subsystem;
 
-        string sys_devices_cpu = "%s/devices/system/cpu".printf( sysfs_root );
-        default_governor = config.stringValue( MODULE_NAME, "default_governor", "ondemand" ).down();
-        min_frequency = config.intValue( MODULE_NAME, "min_frequency", 0 );
-        max_frequency = config.intValue( MODULE_NAME, "max_frequency", 0 );
-
-        try
-        {
-            var dir = Dir.open( sys_devices_cpu, 0 );
-            string entry = dir.read_name();
-            while ( entry != null )
-            {
-                logger.debug( @"examining $entry" );
-                if ( /cpu[0-9]/i.match( entry ) )
-                    _checkAndAddCpu( Path.build_filename( sys_devices_cpu, entry ) );
-                entry = dir.read_name();
-            }
-        }
-        catch ( FileError e )
-        {
-            logger.error( @"Failed collecting sysfs nodes for cpufreq: $(e.message)" );
-            return;
-        }
-
         _setGovernor( default_governor );
-        if ( min_frequency > 0 )
-            _setFrequency( NODE_NAME_MIN_FREQUENCY, min_frequency );
         if ( max_frequency > 0 )
             _setFrequency( NODE_NAME_MAX_FREQUENCY, max_frequency );
+        if ( min_frequency > 0 )
+            _setFrequency( NODE_NAME_MIN_FREQUENCY, min_frequency );
 
         logger.info( "Created" );
     }
@@ -85,12 +54,6 @@ internal class CpuFreq : FsoFramework.AbstractObject
 
     private void _checkAndAddCpu( string path )
     {
-        string node = Path.build_filename( path, "cpufreq" );
-        if ( FileUtils.test( node, FileTest.IS_DIR ) )
-        {
-            logger.debug( @"adding node $node" );
-            sysfs_cpufreq_roots.append( node );
-        }
     }
 
     private void _setGovernor( string governor )
@@ -115,8 +78,13 @@ internal class CpuFreq : FsoFramework.AbstractObject
 } /* namespace */
 
 
+internal static const string MODULE_NAME = "fsodevice.kernel26_cpufreq";
 internal Kernel26.CpuFreq instance;
 internal static string sysfs_root;
+internal static List< string > sysfs_cpufreq_roots;
+internal static string default_governor;
+internal static int min_frequency;
+internal static int max_frequency;
 
 /**
  * This function gets called on plugin initialization time.
@@ -129,6 +97,39 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var config = FsoFramework.theConfig;
 
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+
+    string sys_devices_cpu = "%s/devices/system/cpu".printf( sysfs_root );
+
+    try
+    {
+        var dir = Dir.open( sys_devices_cpu, 0 );
+        string entry = dir.read_name();
+        while ( entry != null )
+        {
+            if ( /cpu[0-9]/i.match( entry ) )
+            {
+                string node = Path.build_filename( sys_devices_cpu, entry ) + "/cpufreq";
+                if ( FileUtils.test( node, FileTest.IS_DIR ) )
+                    sysfs_cpufreq_roots.append( node );
+            }
+            entry = dir.read_name();
+        }
+    }
+    catch ( FileError e )
+    {
+        FsoFramework.theLogger.error( @"Failed collecting sysfs nodes for cpufreq: $(e.message)" );
+        return "";
+    }
+
+    if ( sysfs_cpufreq_roots.length() == 0 )
+    {
+        FsoFramework.theLogger.info( "No cpufreq sysfs nodes found" );
+        return "";
+    }
+
+    default_governor = config.stringValue( MODULE_NAME, "default_governor", "ondemand" ).down();
+    min_frequency = config.intValue( MODULE_NAME, "min_frequency", 0 );
+    max_frequency = config.intValue( MODULE_NAME, "max_frequency", 0 );
 
     instance = new Kernel26.CpuFreq( subsystem );
 
