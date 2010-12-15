@@ -42,7 +42,7 @@
 42:'3D Switch':1:0
 43:'Capture 6dB Attenuate':1:0
 44:'Playback 6dB Attenuate':1:0
-45:De-emphasis:1:0
+45:'De-emphasis':1:0
 46:'Playback Mono Mix':1:0
 47:'Playback Phase':1:0
 48:'Mic2 Capture Volume':1:2
@@ -50,44 +50,44 @@
 50:'DAI Mode':1:2
 51:'ADC Data Select':1:0
 52:'ROUT2 Phase':1:1
-53:'Mic Selection Mux':1:0
-54:'Rx Mixer':1:0
-55:'Line Mixer':1:0
-56:'Line Mono Mux':1:0
-57:'Line Right Mux':1:1
-58:'Line Left Mux':1:1
-59:'ALC Mixer Line Capture Switch':1:0
-60:'ALC Mixer Mic2 Capture Switch':1:0
-61:'ALC Mixer Mic1 Capture Switch':1:0
-62:'ALC Mixer Rx Capture Switch':1:0
-63:'Mic Sidetone Mux':1:0
-64:'Capture Right Mux':1:0
-65:'Capture Left Mux':1:0
-66:'Capture Right Mixer':1:2
-67:'Capture Left Mixer':1:2
-68:'Playback Mixer Voice Capture Switch':1:0
-69:'Playback Mixer Left Capture Switch':1:0
-70:'Playback Mixer Right Capture Switch':1:0
-71:'Out4 Mux':1:0
-72:'Out3 Mux':1:0
-73:'Mono 2 Mux':1:0
-74:'Mono Mixer Left Playback Switch':1:0
-75:'Mono Mixer Right Playback Switch':1:0
-76:'Mono Mixer Voice Playback Switch':1:0
-77:'Mono Mixer Sidetone Playback Switch':1:0
-78:'Mono Mixer Bypass Playback Switch':1:0
-79:'Right Mixer Voice Playback Switch':1:0
-80:'Right Mixer Sidetone Playback Switch':1:0
-81:'Right Mixer Right Playback Switch':1:1
-82:'Right Mixer Bypass Playback Switch':1:0
-83:'Left Mixer Voice Playback Switch':1:0
-84:'Left Mixer Sidetone Playback Switch':1:0
-85:'Left Mixer Left Playback Switch':1:1
-86:'Left Mixer Bypass Playback Switch':1:0
-87:'Stereo Out Switch':1:0
-88:'GSM Line Out Switch':1:0
-89:'GSM Line In Switch':1:0
-90:'Headset Mic Switch':1:0
-91:'Handset Mic Switch':1:1
-92:'Handset Spk Switch':1:1
-93:'Amp Spk Switch':1:1
+53:'Stereo Out Switch':1:0
+54:'GSM Line Out Switch':1:0
+55:'GSM Line In Switch':1:0
+56:'Headset Mic Switch':1:0
+57:'Handset Mic Switch':1:1
+58:'Handset Spk Switch':1:1
+59:'Amp Spk Switch':1:1
+60:'Mic Selection Mux':1:0
+61:'Rx Mixer':1:0
+62:'Line Mixer':1:0
+63:'Line Mono Mux':1:0
+64:'Line Right Mux':1:1
+65:'Line Left Mux':1:1
+66:'ALC Mixer Line Capture Switch':1:0
+67:'ALC Mixer Mic2 Capture Switch':1:0
+68:'ALC Mixer Mic1 Capture Switch':1:0
+69:'ALC Mixer Rx Capture Switch':1:0
+70:'Mic Sidetone Mux':1:0
+71:'Capture Right Mux':1:0
+72:'Capture Left Mux':1:0
+73:'Capture Right Mixer':1:2
+74:'Capture Left Mixer':1:2
+75:'Playback Mixer Voice Capture Switch':1:0
+76:'Playback Mixer Left Capture Switch':1:0
+77:'Playback Mixer Right Capture Switch':1:0
+78:'Out4 Mux':1:0
+79:'Out3 Mux':1:0
+80:'Mono 2 Mux':1:0
+81:'Mono Mixer Left Playback Switch':1:0
+82:'Mono Mixer Right Playback Switch':1:0
+83:'Mono Mixer Voice Playback Switch':1:0
+84:'Mono Mixer Sidetone Playback Switch':1:0
+85:'Mono Mixer Bypass Playback Switch':1:0
+86:'Right Mixer Voice Playback Switch':1:0
+87:'Right Mixer Sidetone Playback Switch':1:0
+88:'Right Mixer Right Playback Switch':1:1
+89:'Right Mixer Bypass Playback Switch':1:0
+90:'Left Mixer Voice Playback Switch':1:0
+91:'Left Mixer Sidetone Playback Switch':1:0
+92:'Left Mixer Left Playback Switch':1:1
+93:'Left Mixer Bypass Playback Switch':1:0

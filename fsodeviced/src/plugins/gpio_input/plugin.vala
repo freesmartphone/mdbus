@@ -77,9 +77,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
 
     private void onActionFromChannel( void* data, ssize_t length )
     {
-        string str = (string)data;
-        logger.debug( @"read $length bytes: $str" );
-        int32 eventValue = ( str.strip() == this.onValue ) ? 1 : 0;
+        int32 eventValue = ( this.onValue.ascii_ncasecmp( (string)data, length - 1 ) == 0 ) ? 1 : 0;
         var event = Linux.Input.Event() { type = Linux.Input.EV_SW, code = (uint16)this.code, value = eventValue };
         // notify listeners
         this.receivedEvent( ref event );
