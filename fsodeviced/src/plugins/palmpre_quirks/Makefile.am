@@ -27,15 +27,18 @@ VALAC_ARGS = \
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = palmpre_touchscreen.la
-palmpre_touchscreen_la_SOURCES = plugin.c
-palmpre_touchscreen_la_VALASOURCES = plugin.vala
-$(palmpre_touchscreen_la_SOURCES): $(palmpre_touchscreen_la_VALASOURCES)
+modlibexec_LTLIBRARIES = palmpre_quirks.la
+palmpre_quirks_la_VALASOURCES = \
+	plugin.vala \
+	touchscreenmanager.vala \
+	$(NULL)
+palmpre_quirks_la_SOURCES = $(palmpre_quirks_la_VALASOURCES:.vala=.c)
+$(palmpre_quirks_la_SOURCES): $(palmpre_quirks_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-palmpre_touchscreen_la_LIBADD = $(progs_ldadd)
-palmpre_touchscreen_la_LDFLAGS = -no-undefined -module -avoid-version
-palmpre_touchscreen_la_LIBTOOLFLAGS = --tag=disable-static
+palmpre_quirks_la_LIBADD = $(progs_ldadd)
+palmpre_quirks_la_LDFLAGS = -no-undefined -module -avoid-version
+palmpre_quirks_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

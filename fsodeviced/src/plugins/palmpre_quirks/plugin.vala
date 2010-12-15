@@ -21,51 +21,8 @@ using GLib;
 
 namespace PalmPre
 {
-    /**
-     * @class TouchscreenManager
-     **/
-    public class TouchscreenManager : FsoFramework.AbstractObject
-    {
-        public static const string MODULE_NAME = "fsodevice.palmpre_touchscreen";
-        private FsoFramework.Subsystem subsystem;
-        private FsoFramework.GProcessGuard process;
-        private string tsmd_path;
-        private string tsmd_args;
-
-        //
-        // public methods
-        //
-
-        public TouchscreenManager( FsoFramework.Subsystem subsystem )
-        {
-            string cmdline = "";
-
-            this.subsystem = subsystem;
-            this.process = new FsoFramework.GProcessGuard();
-
-            tsmd_path = config.stringValue(MODULE_NAME, "tsmd_path", "/usr/bin/tsmd");
-            tsmd_args = config.stringValue(MODULE_NAME, "tsmd_args", "-n /dev/modemuart");
-
-            if (!FsoFramework.FileHandling.isPresent(tsmd_path))
-            {
-                logger.critical(@"tsmd binary is not available on path '$(tsmd_path)'. Not installed?");
-                return;
-            }
-
-            process.setAutoRelaunch(true);
-            cmdline = @"$(tsmd_path) $(tsmd_args)";
-            process.launch(cmdline.split(" "));
-
-            /* setup our dbus signal handlers we need to react when the display goes off */
-            /* FIXME we need some dbus signal in our API to listen for this */
-        }
-
-        public override string repr()
-        {
-            return "<FsoFramework.Device.TouchscreenManager @ >";
-        }
-    }
-} /* namespace */
+    const string MODULE_NAME = "palmpre_quirks";
+}
 
 internal static PalmPre.TouchscreenManager touchscreen_manager;
 
@@ -79,15 +36,19 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 {
     var config = FsoFramework.theConfig;
 
-    touchscreen_manager = new PalmPre.TouchscreenManager( subsystem );
+    /* Initialize all different parts of this module but only when the config requires them */
+    if ( config.hasSection( @"$(PalmPre.MODULE_NAME).touchscreen)") )
+    {
+        touchscreen_manager = new PalmPre.TouchscreenManager( subsystem );
+    }
 
-    return PalmPre.TouchscreenManager.MODULE_NAME;
+    return PalmPre.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsodevice.palmpre_touchscreen fso_register_function()" );
+    FsoFramework.theLogger.debug( "fsodevice.palmpre_quirks fso_register_function()" );
 }
 
 /**

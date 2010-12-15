@@ -204,7 +204,7 @@ AC_CONFIG_FILES([
   src/plugins/n900_powercontrol/Makefile
   src/plugins/openmoko_powercontrol/Makefile
   src/plugins/palmpre_powersupply/Makefile
-  src/plugins/palmpre_touchscreen/Makefile
+  src/plugins/palmpre_quirks/Makefile
   src/plugins/powercontrol_ifconfig/Makefile
   src/plugins/player_alsa/Makefile
   src/plugins/player_canberra/Makefile
