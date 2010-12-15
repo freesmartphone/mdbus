@@ -42,7 +42,6 @@ SUBDIRS = \
 	vibrator_omapvibe \
 	vibrator_timedoutputclass \
 	\
-	palmpre_powersupply \
 	palmpre_quirks \
 	\
 	proximity_palmpre \

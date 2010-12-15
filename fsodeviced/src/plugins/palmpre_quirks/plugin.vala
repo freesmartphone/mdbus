@@ -21,10 +21,12 @@ using GLib;
 
 namespace PalmPre
 {
-    const string MODULE_NAME = "palmpre_quirks";
+    public const string MODULE_NAME = "palmpre_quirks";
+    public string sysfs_root;
 }
 
 internal static PalmPre.TouchscreenManager touchscreen_manager;
+internal static PalmPre.PowerSupply power_supply;
 
 /**
  * This function gets called on plugin initialization time.
@@ -36,10 +38,18 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 {
     var config = FsoFramework.theConfig;
 
+    PalmPre.sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+
+
     /* Initialize all different parts of this module but only when the config requires them */
-    if ( config.hasSection( @"$(PalmPre.MODULE_NAME).touchscreen)") )
+    if ( config.hasSection( @"$(PalmPre.MODULE_NAME).touchscreen") )
     {
         touchscreen_manager = new PalmPre.TouchscreenManager( subsystem );
+    }
+
+    if ( config.hasSection( @"$(PalmPre.MODULE_NAME).powersupply") )
+    {
+        power_supply = new PalmPre.PowerSupply( subsystem );
     }
 
     return PalmPre.MODULE_NAME;

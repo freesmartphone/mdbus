@@ -31,6 +31,7 @@ modlibexec_LTLIBRARIES = palmpre_quirks.la
 palmpre_quirks_la_VALASOURCES = \
 	plugin.vala \
 	touchscreenmanager.vala \
+	powersupply.vala \
 	$(NULL)
 palmpre_quirks_la_SOURCES = $(palmpre_quirks_la_VALASOURCES:.vala=.c)
 $(palmpre_quirks_la_SOURCES): $(palmpre_quirks_la_VALASOURCES)
