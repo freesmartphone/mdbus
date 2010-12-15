@@ -3,25 +3,34 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 AM_CPPFLAGS = \
+	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(DBUS_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
+progs_ldadd = \
+	$(FSO_LIBS) \
+	$(DBUS_LIBS) \
+	$(GLIB_LIBS) \
+	$(top_srcdir)/src/lib/libfsodevice.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsoframework \
 	--vapidir $(top_srcdir)/vapi \
+	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \
 	--pkg dbus-glib-1 \
 	--pkg linux \
 	--pkg uinput \
+	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \
-	--pkg fsoframework-2.0
+	--pkg fsoframework-2.0 \
+	--pkg fsodevice-2.0
 
 #
 # plugin
@@ -32,6 +41,7 @@ palmpre_quirks_la_VALASOURCES = \
 	plugin.vala \
 	touchscreenmanager.vala \
 	powersupply.vala \
+	router.vala \
 	$(NULL)
 palmpre_quirks_la_SOURCES = $(palmpre_quirks_la_VALASOURCES:.vala=.c)
 $(palmpre_quirks_la_SOURCES): $(palmpre_quirks_la_VALASOURCES)

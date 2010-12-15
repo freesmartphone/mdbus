@@ -14,7 +14,6 @@ SUBDIRS = \
 	audio \
 	router_alsa \
 	router_qdsp5 \
-	router_palmpre \
 	player_alsa \
 	\
 	backlight_omappanel \
