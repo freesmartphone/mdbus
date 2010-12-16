@@ -45,6 +45,8 @@ namespace PalmPre
             tsmd_path = config.stringValue(@"$(MODULE_NAME).touchscreen", "tsmd_path", "/usr/bin/tsmd");
             tsmd_args = config.stringValue(@"$(MODULE_NAME).touchscreen", "tsmd_args", "-n /dev/touchscreen");
 
+            logger.debug(@"Starting tsmd with: '$(tsmd_path) $(tsmd_args)'");
+
             if (!FsoFramework.FileHandling.isPresent(tsmd_path))
             {
                 logger.critical(@"tsmd binary is not available on path '$(tsmd_path)'. Not installed?");
@@ -55,8 +57,16 @@ namespace PalmPre
             cmdline = @"$(tsmd_path) $(tsmd_args)";
             process.launch(cmdline.split(" "));
 
+            if (!process.isRunning())
+            {
+                logger.critical("Could not launch tsmd binary. You will have to stay without touchscreen support ...");
+                return;
+            }
+
             /* setup our dbus signal handlers we need to react when the display goes off */
             /* FIXME we need some dbus signal in our API to listen for this */
+
+            logger.info("Successfully launched touchscreen manager");
         }
 
         public override string repr()
