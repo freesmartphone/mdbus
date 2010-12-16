@@ -27,7 +27,8 @@ namespace PalmPre
     public class TouchscreenManager : FsoFramework.AbstractObject
     {
         private FsoFramework.Subsystem subsystem;
-        private FsoFramework.GProcessGuard process;
+        private FsoFramework.GProcessGuard tsmd_process;
+        private FreeSmartphone.Device.Display odeviced_display;
         private string tsmd_path;
         private string tsmd_args;
 
@@ -40,7 +41,7 @@ namespace PalmPre
             string cmdline = "";
 
             this.subsystem = subsystem;
-            this.process = new FsoFramework.GProcessGuard();
+            this.tsmd_process = new FsoFramework.GProcessGuard();
 
             tsmd_path = config.stringValue(@"$(MODULE_NAME).touchscreen", "tsmd_path", "/usr/bin/tsmd");
             tsmd_args = config.stringValue(@"$(MODULE_NAME).touchscreen", "tsmd_args", "-n /dev/touchscreen");
@@ -53,18 +54,33 @@ namespace PalmPre
                 return;
             }
 
-            process.setAutoRelaunch(true);
+            tsmd_process.setAutoRelaunch(true);
             cmdline = @"$(tsmd_path) $(tsmd_args)";
-            process.launch(cmdline.split(" "));
+            tsmd_process.launch(cmdline.split(" "));
 
-            if (!process.isRunning())
+            if (!tsmd_process.isRunning())
             {
                 logger.critical("Could not launch tsmd binary. You will have to stay without touchscreen support ...");
                 return;
             }
 
-            /* setup our dbus signal handlers we need to react when the display goes off */
-            /* FIXME we need some dbus signal in our API to listen for this */
+            try
+            {
+                /* setup our dbus signal handler we need to react when the display goes on or off */
+                DBus.Connection conn = DBus.Bus.get( DBus.BusType.SYSTEM );
+
+                odeviced_display = conn.get_object( FsoFramework.Device.ServiceDBusName,
+                                                    FsoFramework.Device.DisplayServicePath,
+                                                    FsoFramework.Device.DisplayServiceFace ) as FreeSmartphone.Device.Display;
+
+                odeviced_display.backlight_power.connect( onBacklightPowerChanged );
+            }
+            catch ( DBus.Error e )
+            {
+                logger.error( "Could not connect to odeviced's display resource; Touchscreen functionality will be very unstable ..." );
+                return;
+            }
+
 
             logger.info("Successfully launched touchscreen manager");
         }
@@ -73,6 +89,27 @@ namespace PalmPre
         {
             return "<FsoFramework.Device.TouchscreenManager @ >";
         }
+
+        //
+        // private methods
+        //
+
+        private void onBacklightPowerChanged( bool power )
+        {
+            // NOTE: we have to tell the tsm daemon that the touchscreen powers down as
+            // then it have to close the touchscreen interface and have to reopen it when
+            // display is powered again. If we don't do that the touchscreen reports after
+            // the display is powered again value which are unusable for reporting good
+            // input events.
+            if ( power )
+            {
+                tsmd_process.sendSignal( Posix.SIGUSR1 );
+            }
+            else
+            {
+                tsmd_process.sendSignal( Posix.SIGUSR2 );
+            }
+        }
     }
-} /* namespace */
+}
 
