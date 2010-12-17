@@ -44,6 +44,7 @@ libfsobasics_la_VALASOURCES = \
 	threading.vala \
 	types.vala \
 	utilities.vala \
+	kernel.vala \
 	$(NULL)
 
 libfsobasics_la_SOURCES = \
