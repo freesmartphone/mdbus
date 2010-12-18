@@ -19,8 +19,6 @@
 
 using GLib;
 
-static const string MODULE_NAME = "fsodevice.n900_powercontrol";
-
 namespace PalmPre
 {
     /**
