@@ -301,6 +301,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         {
             watch = Idle.add( () => {
                 exportBusnames();
+                return false; // mainloop: don't call again
             } );
         }
     }
