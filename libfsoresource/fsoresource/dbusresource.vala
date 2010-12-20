@@ -44,6 +44,7 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
 
         Idle.add( () => {
             registerWithUsage();
+            return false; // mainloop: don't call again
         } );
     }
 
