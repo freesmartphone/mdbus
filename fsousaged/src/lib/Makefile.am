@@ -13,7 +13,6 @@ VALAC_ARGS = \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg posix \
 	--pkg glib-2.0 \
-	--pkg dbus-glib-1 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--header fsousage.h \

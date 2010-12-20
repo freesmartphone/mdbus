@@ -181,7 +181,7 @@ public class Controller : FsoFramework.AbstractObject
                             }
                             else
                             {
-                                var r = new Resource( resource, new DBus.BusName( name.replace( ".service", "" ) ), null ); // register as shadow resource
+                                var r = new Resource( resource, new GLib.BusName( name.replace( ".service", "" ) ), null ); // register as shadow resource
                                 resources[resource] = r;
                             }
                         }
@@ -210,9 +210,13 @@ public class Controller : FsoFramework.AbstractObject
             {
                 logger.warning( @"Error while trying to (initially) enable resource $(r.name): $(e.message)" );
             }
-            catch ( DBus.Error e )
+            catch ( DBusError e )
             {
                 logger.warning( @"Error while trying to (initially) enable resource $(r.name): $(e.message)" );
+            }
+            catch ( IOError e2 )
+            {
+                logger.warning( @"Error while trying to (initially) enable resource $(r.name): $(e2.message)" );
             }
         }
 
@@ -227,9 +231,13 @@ public class Controller : FsoFramework.AbstractObject
             {
                 logger.warning( @"Error while trying to (initially) disable resource $(r.name): $(e.message)" );
             }
-            catch ( DBus.Error e )
+            catch ( DBusError e )
             {
                 logger.warning( @"Error while trying to (initially) disable resource $(r.name): $(e.message)" );
+            }
+            catch ( IOError e2 )
+            {
+                logger.warning( @"Error while trying to (initially) disable resource $(r.name): $(e2.message)" );
             }
         }
     }
@@ -318,9 +326,13 @@ public class Controller : FsoFramework.AbstractObject
         {
             idlenotifier.SetState( idlestate );
         }
-        catch ( DBus.Error e )
+        catch ( DBusError e )
         {
             logger.error( @"DBus Error while talking to IdleNotifier: $(e.message)" );
+        }
+        catch ( IOError e2 )
+        {
+            logger.error( @"DBus Error while talking to IdleNotifier: $(e2.message)" );
         }
 
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.ALIVE );
@@ -359,9 +371,13 @@ public class Controller : FsoFramework.AbstractObject
             {
                 logger.warning( @"Error while trying to disable resource $(r.name): $(e1.message)" );
             }
-            catch ( DBus.Error e2 )
+            catch ( DBusError e2 )
             {
                 logger.warning( @"Error while trying to disable resource $(r.name): $(e2.message)" );
+            }
+            catch ( IOError e3 )
+            {
+                logger.warning( @"Error while trying to disable resource $(r.name): $(e3.message)" );
             }
         }
         assert( logger.debug( "... done" ) );
@@ -380,9 +396,13 @@ public class Controller : FsoFramework.AbstractObject
             {
                 logger.warning( @"Error while trying to suspend resource $(r.name): $(e1.message)" );
             }
-            catch ( DBus.Error e2 )
+            catch ( DBusError e2 )
             {
                 logger.warning( @"Error while trying to suspend resource $(r.name): $(e2.message)" );
+            }
+            catch ( IOError e3 )
+            {
+                logger.warning( @"Error while trying to suspend resource $(r.name): $(e3.message)" );
             }
         }
         assert( logger.debug( "... done disabling." ) );
@@ -401,9 +421,13 @@ public class Controller : FsoFramework.AbstractObject
             {
                 logger.warning( @"Error while trying to resume resource $(r.name): $(e1.message)" );
             }
-            catch ( DBus.Error e2 )
+            catch ( DBusError e2 )
             {
                 logger.warning( @"Error while trying to resume resource $(r.name): $(e2.message)" );
+            }
+            catch ( IOError e3 )
+            {
+                logger.warning( @"Error while trying to resume resource $(r.name): $(e3.message)" );
             }
         }
         assert( logger.debug( "... done resuming." ) );
@@ -412,7 +436,7 @@ public class Controller : FsoFramework.AbstractObject
     //
     // DBUS API (for providers)
     //
-    public void register_resource( DBus.BusName sender, string name, DBus.ObjectPath path ) throws FreeSmartphone.UsageError, DBus.Error
+    public void register_resource( GLib.BusName sender, string name, GLib.ObjectPath path ) throws FreeSmartphone.UsageError, DBusError, IOError
     {
 #if DEBUG
         debug( "register_resource called with parameters: %s %s %s", sender, name, path );
@@ -443,7 +467,7 @@ public class Controller : FsoFramework.AbstractObject
         onResourceAppearing( r );
     }
 
-    public void unregister_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public void unregister_resource( GLib.BusName sender, string name ) throws FreeSmartphone.UsageError, DBusError, IOError
     {
         var r = getResource( name );
 
@@ -477,7 +501,7 @@ public class Controller : FsoFramework.AbstractObject
     //
     // DBUS API (for consumers)
     //
-    public async string get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async string get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         switch ( getResource( name ).policy )
         {
@@ -494,8 +518,8 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
-    //public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
-    public async void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    //public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
+    public async void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         logger.debug( @"Set resource policy for $name to $policy" );
         var resource = getResource( name );
@@ -517,17 +541,17 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
-    public async bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public async bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBusError, IOError
     {
         return getResource( name ).isEnabled();
     }
 
-    public async string[] get_resource_users( string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public async string[] get_resource_users( string name ) throws FreeSmartphone.UsageError, DBusError, IOError
     {
         return getResource( name ).allUsers();
     }
 
-    public async string[] list_resources() throws DBus.Error
+    public async string[] list_resources() throws DBusError, IOError
     {
         string[] res = {};
         foreach ( var key in resources.keys )
@@ -535,37 +559,37 @@ public class Controller : FsoFramework.AbstractObject
         return res;
     }
 
-    public async void request_resource( DBus.BusName sender, string name ) throws FreeSmartphone.ResourceError, FreeSmartphone.UsageError, DBus.Error
+    public async void request_resource( GLib.BusName sender, string name ) throws FreeSmartphone.ResourceError, FreeSmartphone.UsageError, DBusError, IOError
     {
         var cmd = new RequestResource( getResource( name ) );
         yield cmd.run( sender );
     }
 
-    public async void release_resource( DBus.BusName sender, string name ) throws FreeSmartphone.UsageError, DBus.Error
+    public async void release_resource( GLib.BusName sender, string name ) throws FreeSmartphone.UsageError, DBusError, IOError
     {
         var cmd = new ReleaseResource( getResource( name ) );
         yield cmd.run( sender );
     }
 
-    public async void shutdown() throws DBus.Error
+    public async void shutdown() throws DBusError, IOError
     {
         var cmd = new Shutdown();
         yield cmd.run();
     }
 
-    public async void reboot() throws DBus.Error
+    public async void reboot() throws DBusError, IOError
     {
         var cmd = new Reboot();
         yield cmd.run();
     }
 
-    public async void suspend() throws DBus.Error
+    public async void suspend() throws DBusError, IOError
     {
         var cmd = new Suspend();
         yield cmd.run();
     }
 
-    public async void resume() throws DBus.Error
+    public async void resume() throws DBusError, IOError
     {
         var cmd = new Resume();
         yield cmd.run();

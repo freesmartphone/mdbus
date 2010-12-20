@@ -25,7 +25,6 @@ $(BUILT_SOURCES): $(fsousaged_VALASOURCES)
 				--pkg posix \
 				--pkg config \
 				--pkg gio-2.0 \
-				--pkg dbus-glib-1 \
 				--pkg fsoframework-2.0 \
 				--save-temps \
 				--basedir $(top_srcdir) $^

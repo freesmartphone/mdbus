@@ -29,11 +29,11 @@ namespace Usage {
  **/
 public interface IResource : Object
 {
-    public abstract async void setPolicy( FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.ResourceError, DBus.Error;
-    public abstract async void enable() throws FreeSmartphone.ResourceError, DBus.Error;
-    public abstract async void disable() throws FreeSmartphone.ResourceError, DBus.Error;
-    public abstract async void suspend() throws FreeSmartphone.ResourceError, DBus.Error;
-    public abstract async void resume() throws FreeSmartphone.ResourceError, DBus.Error;
+    public abstract async void setPolicy( FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.ResourceError, DBusError, IOError;
+    public abstract async void enable() throws FreeSmartphone.ResourceError, DBusError, IOError;
+    public abstract async void disable() throws FreeSmartphone.ResourceError, DBusError, IOError;
+    public abstract async void suspend() throws FreeSmartphone.ResourceError, DBusError, IOError;
+    public abstract async void resume() throws FreeSmartphone.ResourceError, DBusError, IOError;
 }
 
 /**
@@ -42,8 +42,8 @@ public interface IResource : Object
 public class Resource : IResource, Object
 {
     public string name { get; set; }
-    public DBus.BusName busname { get; set; }
-    public DBus.ObjectPath? objectpath { get; set; }
+    public GLib.BusName busname { get; set; }
+    public GLib.ObjectPath? objectpath { get; set; }
     public FsoFramework.ResourceStatus status { get; set; }
     public FreeSmartphone.UsageResourcePolicy policy { get; set; }
     public ArrayList<string> users { get; set; }
@@ -55,7 +55,7 @@ public class Resource : IResource, Object
     // every resource has a command queue
     public LinkedList<unowned ResourceCommand> q;
 
-    public Resource( string name, DBus.BusName busname, DBus.ObjectPath? objectpath = null )
+    public Resource( string name, GLib.BusName busname, GLib.ObjectPath? objectpath = null )
     {
         this.users = new ArrayList<string>();
         this.q = new LinkedList<unowned ResourceCommand>();
@@ -113,7 +113,7 @@ public class Resource : IResource, Object
         return ( user in users );
     }
 
-    public virtual async void setPolicy( FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.ResourceError, DBus.Error
+    public virtual async void setPolicy( FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         if ( policy == this.policy )
             return;
@@ -235,14 +235,19 @@ public class Resource : IResource, Object
             peer.Ping();
             return true;
         }
-        catch ( DBus.Error e )
+        catch ( DBusError e )
+        {
+            instance.logger.warning( @"Resource $name incommunicado: $(e.message)" );
+            return false;
+        }
+        catch ( IOError e )
         {
             instance.logger.warning( @"Resource $name incommunicado: $(e.message)" );
             return false;
         }
     }
 
-    public virtual async void enableShadowResource() throws FreeSmartphone.ResourceError, DBus.Error
+    public virtual async void enableShadowResource() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         assert( instance.logger.debug( @"Resource $name is shadow resource; pinging..." ) );
         DBus.IPeer service = dbusconn.get_object( busname, "/", DBus.DBUS_INTERFACE_PEER ) as DBus.IPeer;
@@ -257,7 +262,7 @@ public class Resource : IResource, Object
 #endif
     }
 
-    public virtual async void enable() throws FreeSmartphone.ResourceError, DBus.Error
+    public virtual async void enable() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         if ( objectpath == null )
         {
@@ -286,7 +291,7 @@ public class Resource : IResource, Object
         }
     }
 
-    public virtual async void disable() throws FreeSmartphone.ResourceError, DBus.Error
+    public virtual async void disable() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         // no need to disable a shadow resource
         if ( objectpath == null )
@@ -298,15 +303,21 @@ public class Resource : IResource, Object
             status = FsoFramework.ResourceStatus.DISABLED;
             updateStatus();
         }
-        catch ( DBus.Error e )
+        catch ( DBusError e )
         {
             instance.logger.error( @"Resource $name can't be disabled: $(e.message). Setting status to UNKNOWN" );
             status = FsoFramework.ResourceStatus.UNKNOWN;
             throw e;
         }
+        catch ( IOError e2 )
+        {
+            instance.logger.error( @"Resource $name can't be disabled: $(e2.message). Setting status to UNKNOWN" );
+            status = FsoFramework.ResourceStatus.UNKNOWN;
+            throw e2;
+        }
     }
 
-    public virtual async void suspend() throws FreeSmartphone.ResourceError, DBus.Error
+    public virtual async void suspend() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         if ( status == FsoFramework.ResourceStatus.ENABLED )
         {
@@ -316,11 +327,17 @@ public class Resource : IResource, Object
                 status = FsoFramework.ResourceStatus.SUSPENDED;
                 updateStatus();
             }
-            catch ( DBus.Error e )
+            catch ( DBusError e )
             {
                 instance.logger.error( @"Resource $name can't be suspended: $(e.message). Trying to disable instead" );
                 yield proxy.disable();
                 throw e;
+            }
+            catch ( IOError e2 )
+            {
+                instance.logger.error( @"Resource $name can't be suspended: $(e2.message). Trying to disable instead" );
+                yield proxy.disable();
+                throw e2;
             }
         }
         else
@@ -329,7 +346,7 @@ public class Resource : IResource, Object
         }
     }
 
-    public virtual async void resume() throws FreeSmartphone.ResourceError, DBus.Error
+    public virtual async void resume() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         if ( status == FsoFramework.ResourceStatus.SUSPENDED )
         {
@@ -339,11 +356,17 @@ public class Resource : IResource, Object
                 status = FsoFramework.ResourceStatus.ENABLED;
                 updateStatus();
             }
-            catch ( DBus.Error e )
+            catch ( DBusError e )
             {
                 instance.logger.error( @"Resource $name can't be resumed: $(e.message). Trying to disable instead" );
                 yield proxy.disable();
                 throw e;
+            }
+            catch ( IOError e2 )
+            {
+                instance.logger.error( @"Resource $name can't be resumed: $(e2.message). Trying to disable instead" );
+                yield proxy.disable();
+                throw e2;
             }
         }
         else
