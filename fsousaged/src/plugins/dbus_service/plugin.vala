@@ -54,20 +54,16 @@ public class Controller : FsoFramework.AbstractObject
 
     private HashMap<string,Resource> resources;
 
-    dynamic DBus.Object dbus;
-    dynamic DBus.Object idlenotifier;
+    //dynamic DBus.Object dbus;
+    //dynamic DBus.Object idlenotifier;
 
     private FreeSmartphone.UsageSystemAction system_status;
 
     public Controller( FsoFramework.Subsystem subsystem )
     {
         this.system_status = (FreeSmartphone.UsageSystemAction) 12345; // UNKNOWN
-
         this.subsystem = subsystem;
-
-        this.subsystem.registerServiceName( FsoFramework.Usage.ServiceDBusName );
-        this.subsystem.registerServiceObject( FsoFramework.Usage.ServiceDBusName,
-                                              FsoFramework.Usage.ServicePathPrefix, this );
+        this.subsystem.registerObjectForService<Controller>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix, this );
 
         // debug option: should we really suspend?
         debug_do_not_suspend = config.boolValue( CONFIG_SECTION, "debug_do_not_suspend", false );
@@ -78,13 +74,15 @@ public class Controller : FsoFramework.AbstractObject
         disable_on_startup = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "startup" );
         disable_on_shutdown = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "shutdown" );
 
+        /*
         // start listening for name owner changes
         dbusconn = ( (FsoFramework.DBusSubsystem)subsystem ).dbusConnection();
         dbus = dbusconn.get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
         dbus.NameOwnerChanged += onNameOwnerChanged;
+        */
 
         // get handle to IdleNotifier
-        idlenotifier = dbusconn.get_object( FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH, FSO_IDLENOTIFIER_IFACE );
+        //idlenotifier = dbusconn.get_object( FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH, FSO_IDLENOTIFIER_IFACE );
 
         // init resources and low level helpers
         initResources();
@@ -248,6 +246,7 @@ public class Controller : FsoFramework.AbstractObject
         this.resource_available( r.name, false ); // DBUS SIGNAL
     }
 
+    /*
     private void onNameOwnerChanged( dynamic DBus.Object obj, string name, string oldowner, string newowner )
     {
 #if DEBUG
@@ -285,6 +284,7 @@ public class Controller : FsoFramework.AbstractObject
             resources.remove( r.name );
         }
     }
+    */
 
     internal bool onIdleForSuspend()
     {
@@ -324,7 +324,7 @@ public class Controller : FsoFramework.AbstractObject
         var idlestate = lowlevel.isUserInitiated( reason ) ? "busy" : "idle";
         try
         {
-            idlenotifier.SetState( idlestate );
+            //idlenotifier.SetState( idlestate );
         }
         catch ( DBusError e )
         {
@@ -455,7 +455,7 @@ public class Controller : FsoFramework.AbstractObject
                 debug( @"shadow $name will now be substituted with the real thing..." );
 #endif
                 resources[name].objectpath = path;
-                resources[name].proxy = dbusconn.get_object( sender, path, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
+                resources[name].proxy = Bus.get_proxy_sync<FreeSmartphone.Resource>( BusType.SYSTEM, sender, path );
 
                 return;
             }
@@ -597,14 +597,13 @@ public class Controller : FsoFramework.AbstractObject
 
     // DBUS SIGNALS
     public signal void resource_available( string name, bool availability );
-    public signal void resource_changed( string name, bool state, GLib.HashTable<string,GLib.Value?> attributes );
+    public signal void resource_changed( string name, bool state, GLib.HashTable<string,Variant> attributes );
     public signal void system_action( FreeSmartphone.UsageSystemAction action );
 }
 
 } /* end namespace */
 
 namespace Usage { public Usage.Controller instance; }
-internal DBus.Connection dbusconn;
 
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {

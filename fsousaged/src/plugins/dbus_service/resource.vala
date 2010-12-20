@@ -68,7 +68,7 @@ public class Resource : IResource, Object
 
         if ( objectpath != null )
         {
-            proxy = dbusconn.get_object( busname, objectpath, RESOURCE_INTERFACE ) as FreeSmartphone.Resource;
+            proxy = Bus.get_proxy_sync<FreeSmartphone.Resource>( BusType.SYSTEM, busname, objectpath );
             assert( FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) created" ) );
         }
         else
@@ -93,13 +93,9 @@ public class Resource : IResource, Object
             FsoFramework.theLogger.warning( @"Resource $name already destroyed." );
             return;
         }
-        var info = new HashTable<string,Value?>( str_hash, str_equal );
-        var p = Value( typeof(int) );
-        p.set_int( policy );
-        info.insert( "policy", p );
-        var u = Value( typeof(int) );
-        u.set_int( users.size );
-        info.insert( "refcount", u );
+        var info = new HashTable<string,Variant>( str_hash, str_equal );
+        info.insert( "policy", policy );
+        info.insert( "refcount", users.size );
         instance.resource_changed( name, isEnabled(), info ); // DBUS SIGNAL
     }
 
@@ -195,7 +191,7 @@ public class Resource : IResource, Object
 
     public void syncUsers()
     {
-        dynamic DBus.Object busobj = dbusconn.get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
+        DBusService.IDBusSync busobj = Bus.get_proxy_sync<DBusService.IDBusSync>( BusType.SYSTEM, DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
         string[] busnames = busobj.ListNames();
 
         var usersToRemove = new ArrayList<string>();
@@ -229,7 +225,7 @@ public class Resource : IResource, Object
 
     public bool isPresent()
     {
-        dynamic DBus.Object peer = dbusconn.get_object( busname, objectpath, DBus.DBUS_INTERFACE_PEER );
+        DBusService.IPeer peer = Bus.get_proxy_sync<DBusService.IPeer>( BusType.SYSTEM, busname, objectpath );
         try
         {
             peer.Ping();
@@ -250,7 +246,7 @@ public class Resource : IResource, Object
     public virtual async void enableShadowResource() throws FreeSmartphone.ResourceError, DBusError, IOError
     {
         assert( instance.logger.debug( @"Resource $name is shadow resource; pinging..." ) );
-        DBus.IPeer service = dbusconn.get_object( busname, "/", DBus.DBUS_INTERFACE_PEER ) as DBus.IPeer;
+        DBusService.IPeer service = Bus.get_proxy_sync<DBusService.IPeer>( BusType.SYSTEM, busname, "/" );
 #if DEBUG
         message( "PING" );
 #endif
