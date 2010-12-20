@@ -43,8 +43,8 @@ namespace PalmPre
             this.subsystem = subsystem;
             this.tsmd_process = new FsoFramework.GProcessGuard();
 
-            tsmd_path = config.stringValue(@"$(MODULE_NAME).touchscreen", "tsmd_path", "/usr/bin/tsmd");
-            tsmd_args = config.stringValue(@"$(MODULE_NAME).touchscreen", "tsmd_args", "-n /dev/touchscreen");
+            tsmd_path = config.stringValue(@"$(MODULE_NAME)/touchscreen", "tsmd_path", "/usr/bin/tsmd");
+            tsmd_args = config.stringValue(@"$(MODULE_NAME)/touchscreen", "tsmd_args", "-n /dev/touchscreen");
 
             logger.debug(@"Starting tsmd with: '$(tsmd_path) $(tsmd_args)'");
 
@@ -87,7 +87,7 @@ namespace PalmPre
 
         public override string repr()
         {
-            return "<FsoFramework.Device.TouchscreenManager @ >";
+            return "<PalmPre.TouchscreenManager @ >";
         }
 
         //

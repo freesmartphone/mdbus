@@ -21,7 +21,7 @@ using GLib;
 
 namespace PalmPre
 {
-    public const string MODULE_NAME = "palmpre_quirks";
+    public const string MODULE_NAME = "fsodevice.palmpre_quirks";
     public string sysfs_root;
 }
 
@@ -43,17 +43,17 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 
 
     /* Initialize all different parts of this module but only when the config requires them */
-    if ( config.hasSection( @"$(PalmPre.MODULE_NAME).touchscreen" ) )
+    if ( config.hasSection( @"$(PalmPre.MODULE_NAME)/touchscreen" ) )
     {
         touchscreen_manager = new PalmPre.TouchscreenManager( subsystem );
     }
 
-    if ( config.hasSection( @"$(PalmPre.MODULE_NAME).powersupply" ) )
+    if ( config.hasSection( @"$(PalmPre.MODULE_NAME)/powersupply" ) )
     {
         power_supply = new PalmPre.PowerSupply( subsystem );
     }
 
-    if ( config.hasSection( @"$(PalmPre.MODULE_NAME).powercontrol" ) )
+    if ( config.hasSection( @"$(PalmPre.MODULE_NAME)/powercontrol" ) )
     {
         power_control = new PalmPre.PowerControl( subsystem );
     }

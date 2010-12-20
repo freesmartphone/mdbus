@@ -21,6 +21,8 @@ using GLib;
 
 namespace PalmPre
 {
+    public static const string POWERCONTROL_MODULE_NAME = @"fsodevice.palmpre_quirks/powercontrol";
+
     /**
      * @class WifiPowerControl
      **/
@@ -33,17 +35,32 @@ namespace PalmPre
         private FsoFramework.Subsystem subsystem;
         private bool is_active;
         private bool debug;
+        private string firmware_name;
+        private string firmware_helper_name;
 
         public WifiPowerControl( FsoFramework.Subsystem subsystem )
         {
-            this.subsystem = subsystem;
+            var config = FsoFramework.theConfig;
 
-            is_active = false;
-            debug = false;
+            this.subsystem = subsystem;
+            this.is_active = false;
+
+            debug = config.boolValue( @"$(POWERCONTROL_MODULE_NAME)/wifi", "debug", false );
+            firmware_name = config.stringValue( @"$(POWERCONTROL_MODULE_NAME)/wifi", "firmware_name", "sd8686.bin" );
+            firmware_helper_name = config.stringValue( @"$(POWERCONTROL_MODULE_NAME)/wifi", "firmware_helper_name", "sd8686_helper.bin" );
 
             sirloin_wifi_mod = new FsoFramework.Kernel26Module( "sirloin_wifi" );
             libertas_mod = new FsoFramework.Kernel26Module( "libertas" );
             libertas_sdio_mod = new FsoFramework.Kernel26Module( "libertas_sdio" );
+
+            /* build arguments string for libertas_sdio module */
+            libertas_sdio_mod.arguments = @"fw_name=$(firmware_name) helper_name=$(firmware_helper_name)";
+
+            /* if we are in debug mode than we have to adjust libertas module params */
+            if ( debug )
+            {
+                libertas_mod.arguments = "libertas_debug=0xffffffff";
+            }
 
             modules = new Gee.ArrayList<FsoFramework.Kernel26Module>();
             modules.add(sirloin_wifi_mod);
@@ -69,15 +86,6 @@ namespace PalmPre
                 {
                     logger.info( "Wifi is already powered; not powering it again." );
                     return;
-                }
-
-                if ( debug )
-                {
-                    libertas_mod.arguments = "libertas_debug=0xffffffff";
-                }
-                else
-                {
-                    libertas_mod.arguments = "";
                 }
 
                 foreach ( FsoFramework.Kernel26Module mod in modules )
@@ -113,7 +121,7 @@ namespace PalmPre
     /**
      * @class PowerControl
      **/
-    public class PowerControl
+    public class PowerControl : FsoFramework.AbstractObject
     {
         private List<FsoDevice.BasePowerControlResource> resources;
         private List<FsoDevice.BasePowerControl> instances;
@@ -123,12 +131,19 @@ namespace PalmPre
             instances = new List<FsoDevice.BasePowerControl>();
             resources = new List<FsoDevice.BasePowerControlResource>();
 
-            var wifi = new WifiPowerControl( subsystem );
-            instances.append( wifi );
+            if ( config.hasSection( @"$(POWERCONTROL_MODULE_NAME)/wifi" ) )
+            {
+                var wifi = new WifiPowerControl( subsystem );
+                instances.append( wifi );
 #if WANT_FSO_RESOURCE
-            resources.append( new FsoDevice.BasePowerControlResource( wifi, "WiFi", subsystem ) );
+                resources.append( new FsoDevice.BasePowerControlResource( wifi, "WiFi", subsystem ) );
 #endif
+            }
+        }
+
+        public override string repr()
+        {
+            return "<PalmPre.PowerControl @ >";
         }
     }
 }
-

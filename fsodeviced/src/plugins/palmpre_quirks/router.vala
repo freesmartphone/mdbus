@@ -246,10 +246,10 @@ namespace Router
     **/
     class PalmPre : FsoDevice.BaseAudioRouter
     {
-        private const string ROUTER_MODULE_NAME = "palmpre_quirks.router";
+        private const string ROUTER_MODULE_NAME = "fsodevice.palmpre_quirks/audio";
         private Gee.HashMap<AudioStateType,Gee.ArrayList<AudioTransition>> transitions;
         private AudioStateType current_state;
-        private string[] available_events = {};
+        private string[] available_events;
         private uint8 current_volume;
 
         construct
@@ -297,6 +297,7 @@ namespace Router
             * All available events
             */
 
+            available_events = { };
             available_events += audioEventTypeToString(AudioEventType.CALL_STARTED);
             available_events += audioEventTypeToString(AudioEventType.CALL_ENDED);
             available_events += audioEventTypeToString(AudioEventType.HEADSET_IN);

@@ -21,7 +21,7 @@ using GLib;
 
 namespace PalmPre
 {
-    private static const string POWERSUPPLY_MODULE_NAME = @"$(MODULE_NAME).powersupply";
+    public static const string POWERSUPPLY_MODULE_NAME = @"fsodevice.palmpre_quirks/powersupply";
 
     /**
      * @class TokenLib
@@ -65,8 +65,6 @@ namespace PalmPre
         private FreeSmartphone.Device.PowerStatus _current_power_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
         private bool present;
         private bool _skip_authentication = false;
-
-        private static const string BATTERY_POWERSUPPLY_MODULE_NAME = @"$(POWERSUPPLY_MODULE_NAME).battery";
 
         //
         // Properties
@@ -157,7 +155,7 @@ namespace PalmPre
         {
             this.subsystem = subsystem;
 
-            _skip_authentication = FsoFramework.theConfig.boolValue( BATTERY_POWERSUPPLY_MODULE_NAME, "skip_authentication", false );
+            _skip_authentication = FsoFramework.theConfig.boolValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "skip_authentication", false );
 
             master_node = "%s/devices/w1_bus_master1".printf(sysfs_root);
             var slave_count_path = Path.build_filename(master_node, "w1_master_slave_count");
@@ -189,10 +187,10 @@ namespace PalmPre
             subsystem.registerServiceObject(FsoFramework.Device.ServiceDBusName,
                                             "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 0),
                                             this);
-            critical_capacity = FsoFramework.theConfig.intValue( BATTERY_POWERSUPPLY_MODULE_NAME, "critical", 10);
+            critical_capacity = FsoFramework.theConfig.intValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "critical", 10);
             current_capacity = getCapacity();
 
-            var poll_timout = FsoFramework.theConfig.intValue( BATTERY_POWERSUPPLY_MODULE_NAME, "poll_timeout", 10);
+            var poll_timout = FsoFramework.theConfig.intValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "poll_timeout", 10);
 
             GLib.Timeout.add (poll_timout, ()=> {current_capacity = getCapacity(); return true;});
 
@@ -230,31 +228,6 @@ namespace PalmPre
         // FreeSmartphone.Device.PowerStatus (DBUS API)
         //
 
-        public async HashTable<string,Value?> get_info() throws DBus.Error
-        {
-            var res = new HashTable<string,Value?>( str_hash, str_equal );
-            /*
-            res.insert( "name", name );
-
-            var dir = Dir.open( sysfsnode );
-            var entry = dir.read_name();
-            while ( entry != null )
-            {
-                if ( entry != "uevent" )
-                {
-                    var filename = Path.build_filename( sysfsnode, entry );
-                    var contents = FsoFramework.FileHandling.read( filename );
-                    if ( contents != "" )
-                    {
-                        res.insert( entry, contents );
-                    }
-                }
-                entry = dir.read_name();
-            }
-            */
-            return res;
-        }
-
         public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
         {
             return current_power_status;
@@ -276,7 +249,10 @@ namespace PalmPre
         public PowerSupply( FsoFramework.Subsystem subsystem )
         {
             /* Create all necessary sub-modules */
-            battery_powersupply = new BatteryPowerSupply( subsystem );
+            if ( config.hasSection( @"$(POWERSUPPLY_MODULE_NAME)/battery" ) )
+            {
+                battery_powersupply = new BatteryPowerSupply( subsystem );
+            }
         }
 
         public override string repr()
