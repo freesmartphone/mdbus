@@ -89,7 +89,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
         if ( result == -1 )
         {
             throw new I2C_ERROR.WRITE_TO_DEVICE( "Could not write at 0x%02X:0x%02X (%s)".printf( device, command, strerror(errno) ) );
-        }        
+        }
     }
 
     private void pushByteToI2C( int file, uint8 device, uint8 command, uint8 value ) throws I2C_ERROR
@@ -102,7 +102,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
         if ( result == -1 )
         {
             throw new I2C_ERROR.WRITE_TO_DEVICE( "Could not write at 0x%02X:0x%02X (%s)".printf( device, command, strerror(errno) ) );
-        }        
+        }
     }
 
     private uint8 pullByteFromI2C( int file, uint8 device, uint8 command ) throws I2C_ERROR
@@ -143,7 +143,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
             logger.warning( @"Can't change I2C SLAVE: $(strerror(errno))." );
             return true;
         }
-        
+
         var res = Linux.I2C.SMBUS.read_byte_data( fd, N900_CHARGER_READ_CAPACITY );
         if ( res < 0 )
         {
@@ -191,7 +191,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
             # 4: .020 (+ 3.5)
             # 2: otg pin active at high (default 1)
             # 1: enable otg pin
-            i2cset -y -m 0xfc 2 0x6b 0x02 0x8c; 
+            i2cset -y -m 0xfc 2 0x6b 0x02 0x8c;
             # 4.2 = 3.5 + .640 + .040 + .02 = 8c
             # 4.16 = 3.5 + .640V + .020 = 84
             # 4.1 = 3.5 + .320 + .160 + .08 + .04 = 78
@@ -222,8 +222,8 @@ class N900 : FreeSmartphone.Device.PowerSupply,
             # 2: Stat : 00 Ready 01 In Progress
             # 1:      : 10 Done  11 Fault
             # 8: Boost Mode
-            # 4: Fault: 000 Normal 001 VBUS OVP 010 Sleep Mode 
-            # 2:        011 Poor input or Vbus < UVLO 
+            # 4: Fault: 000 Normal 001 VBUS OVP 010 Sleep Mode
+            # 2:        011 Poor input or Vbus < UVLO
             # 1:        100 Battery OVP 101 Thermal Shutdown
             #           110 Timer Fault 111 NA
             i2cset -y 2 0x6b 0x00 0x00;
@@ -244,7 +244,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
         } );
 
         Timeout.add_seconds( 15, onTimeout );
-        
+
         return false; // mainloop: don't call again
     }
 
@@ -271,7 +271,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
     //
     // FreeSmartphone.Info (DBUS API)
     //
-    public async HashTable<string,Value?> get_info() throws DBus.Error
+    public async HashTable<string,Value?> get_info() throws DBusError, IOError
     {
         var res = new HashTable<string,Value?>( str_hash, str_equal );
         /*
@@ -299,12 +299,12 @@ class N900 : FreeSmartphone.Device.PowerSupply,
     //
     // FreeSmartphone.Device.PowerStatus (DBUS API)
     //
-    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
+    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
     {
         return status;
     }
 
-    public async int get_capacity() throws DBus.Error
+    public async int get_capacity() throws DBusError, IOError
     {
         return getCapacity();
     }
@@ -328,7 +328,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     sys_devices_platform_msusb_hdrc = "%s/devices/platform/musb_hdrc".printf( sysfs_root );
-    
+
     instance = new PowerSupply.N900( subsystem, sys_devices_platform_msusb_hdrc );
     return "fsodevice.powersupply_n900";
 }
