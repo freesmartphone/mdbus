@@ -50,7 +50,6 @@ public class MsmSimGetInformation : SimGetInformation
         #if 0
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
         var value = Variant( typeof(string) );
-
         var cmds = MsmModemAgent.instance().commands;
 
         try
