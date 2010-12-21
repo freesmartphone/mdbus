@@ -177,7 +177,7 @@ namespace PalmPre
 
             // We now try to authenticate our battery but only if the user wants this
             bool authenticated = authenticateBattery();
-            if (!_skip_authentication && authenticated)
+            if (!_skip_authentication && !authenticated)
             {
                 logger.error( "Battery authentication failed!" );
                 return;
