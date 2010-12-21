@@ -36,9 +36,9 @@ namespace DBusService
     [DBus (name = "org.freedesktop.DBus.Properties")]
     public interface IProperties : GLib.Object
     {
-        //public abstract async GLib.Value? Get (string iface, string prop) throws DBusError, IOError;
-        //public abstract async void  Set (string iface, string prop, Value? val) throws DBusError, IOError;
-        //public abstract async GLib.HashTable<string,Value?> GetAll (string iface) throws DBusError, IOError;
+        public abstract async GLib.Variant                   Get (string iface, string prop) throws DBusError, IOError;
+        public abstract async void                           Set (string iface, string prop, Variant val) throws DBusError, IOError;
+        public abstract async GLib.HashTable<string,Variant> GetAll (string iface) throws DBusError, IOError;
     }
 
     [DBus (name = "org.freedesktop.DBus.Peer")]
@@ -77,31 +77,29 @@ namespace DBusService
     [DBus (name = "org.freedesktop.DBus")]
     public interface IDBusSync : GLib.Object
     {
-        public abstract void   AddMatch( string match ) throws DBusError, IOError;
-        public abstract uint8[] GetAdtAuditSessionData( string type ) throws DBusError, IOError;
-        public abstract uint8[] GetConnectionSELinuxSecurityContext( string type ) throws DBusError, IOError;
-        public abstract uint32  GetConnectionUnixProcessID( string conn ) throws DBusError, IOError;
-        public abstract uint32  GetConnectionUnixUser( string conn ) throws DBusError, IOError;
-        public abstract string  GetId() throws DBusError, IOError;
-        public abstract string  GetNameOwner( string name ) throws DBusError, IOError;
-        public abstract string  Hello() throws DBusError, IOError;
-        public abstract string[] ListActivatableNames() throws DBusError, IOError;
-        public abstract string[] ListNames() throws DBusError, IOError;
-        public abstract string[] ListQueuedOwners( string None ) throws DBusError, IOError;
-        public abstract bool   NameHasOwner( string name ) throws DBusError, IOError;
-        public abstract uint32  ReleaseName( string name ) throws DBusError, IOError;
-        public abstract void   ReloadConfig() throws DBusError, IOError;
-        public abstract void   RemoveMatch( string match ) throws DBusError, IOError;
-        public abstract uint32  RequestName( string name, uint32 flags ) throws DBusError, IOError;
-        public abstract uint32  StartServiceByName( string name, uint32 flags ) throws DBusError, IOError;
-        public abstract void   UpdateActivationEnvironment( GLib.HashTable<string,string> environment ) throws DBusError, IOError;
+        public abstract void           AddMatch( string match ) throws DBusError, IOError;
+        public abstract uint8[]        GetAdtAuditSessionData( string type ) throws DBusError, IOError;
+        public abstract uint8[]        GetConnectionSELinuxSecurityContext( string type ) throws DBusError, IOError;
+        public abstract uint32         GetConnectionUnixProcessID( string conn ) throws DBusError, IOError;
+        public abstract uint32         GetConnectionUnixUser( string conn ) throws DBusError, IOError;
+        public abstract string         GetId() throws DBusError, IOError;
+        public abstract string         GetNameOwner( string name ) throws DBusError, IOError;
+        public abstract string         Hello() throws DBusError, IOError;
+        public abstract string[]       ListActivatableNames() throws DBusError, IOError;
+        public abstract string[]       ListNames() throws DBusError, IOError;
+        public abstract string[]       ListQueuedOwners( string None ) throws DBusError, IOError;
+        public abstract bool           NameHasOwner( string name ) throws DBusError, IOError;
+        public abstract uint32         ReleaseName( string name ) throws DBusError, IOError;
+        public abstract void           ReloadConfig() throws DBusError, IOError;
+        public abstract void           RemoveMatch( string match ) throws DBusError, IOError;
+        public abstract uint32         RequestName( string name, uint32 flags ) throws DBusError, IOError;
+        public abstract uint32         StartServiceByName( string name, uint32 flags ) throws DBusError, IOError;
+        public abstract void           UpdateActivationEnvironment( GLib.HashTable<string,string> environment ) throws DBusError, IOError;
 
         public signal void             NameAcquired( string name );
         public signal void             NameLost( string name );
         public signal void             NameOwnerChanged( string name, string oldowner, string newowner );
     }
-
-
 }
 
 // misc helper classes and functions
@@ -171,17 +169,19 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
 
         assert_not_reached();
 
-        /*
         try
         {
-            obj = DBus.Bus.get( DBus.BusType.SYSTEM ).get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
+            obj = Bus.get_proxy_sync<DBusService.IDBus>( BusType.SYSTEM, DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
         }
-        catch ( DBusError, IOError e )
+        catch ( DBusError e )
+        {
+            logger.critical( @"Could not get handle on DBus object at system bus: $(e.message)" );
+        }
+        catch ( IOError e )
         {
             logger.critical( @"Could not get handle on DBus object at system bus: $(e.message)" );
         }
         obj.NameOwnerChanged.connect( onNameOwnerChanged );
-        */
     }
 
     public override string repr()
