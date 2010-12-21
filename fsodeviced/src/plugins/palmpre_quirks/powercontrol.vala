@@ -40,7 +40,7 @@ namespace PalmPre
 
         public WifiPowerControl( FsoFramework.Subsystem subsystem )
         {
-            var config = FsoFramework.theConfig;
+            base( "WiFi" );
 
             this.subsystem = subsystem;
             this.is_active = false;
@@ -48,6 +48,8 @@ namespace PalmPre
             debug = config.boolValue( @"$(POWERCONTROL_MODULE_NAME)/wifi", "debug", false );
             firmware_name = config.stringValue( @"$(POWERCONTROL_MODULE_NAME)/wifi", "firmware_name", "sd8686.bin" );
             firmware_helper_name = config.stringValue( @"$(POWERCONTROL_MODULE_NAME)/wifi", "firmware_helper_name", "sd8686_helper.bin" );
+
+            logger.debug( @"configuration: debug = $(debug) firmware_name = $(firmware_name) firmware_helper_name = $(firmware_helper_name)" );
 
             sirloin_wifi_mod = new FsoFramework.Kernel26Module( "sirloin_wifi" );
             libertas_mod = new FsoFramework.Kernel26Module( "libertas" );
@@ -90,6 +92,8 @@ namespace PalmPre
 
                 foreach ( FsoFramework.Kernel26Module mod in modules )
                 {
+                    logger.debug( @"Loading module $(mod.name) with arguments '$(mod.arguments)" );
+
                     if ( !mod.load() )
                     {
                         logger.error( @"Could not load module '$(mod.name)'; aborting WiFi powering process ..." );
@@ -108,6 +112,9 @@ namespace PalmPre
                 for ( var n = modules.size - 1; n >= 0; n-- )
                 {
                     var mod = modules.get( n );
+
+                    logger.debug( @"Unloading module $(mod.name)" );
+
                     if ( !mod.load() )
                     {
                         logger.error( @"Could not load module '$(mod.name)'; aborting WiFi powering process ..." );

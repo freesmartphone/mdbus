@@ -41,7 +41,6 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 
     PalmPre.sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
 
-
     /* Initialize all different parts of this module but only when the config requires them */
     if ( config.hasSection( @"$(PalmPre.MODULE_NAME)/touchscreen" ) )
     {

@@ -179,6 +179,7 @@ namespace PalmPre
             bool authenticated = authenticateBattery();
             if (!_skip_authentication && authenticated)
             {
+                logger.error( "Battery authentication failed!" );
                 return;
             }
 
@@ -187,6 +188,7 @@ namespace PalmPre
             subsystem.registerServiceObject(FsoFramework.Device.ServiceDBusName,
                                             "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 0),
                                             this);
+
             critical_capacity = FsoFramework.theConfig.intValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "critical", 10);
             current_capacity = getCapacity();
 
