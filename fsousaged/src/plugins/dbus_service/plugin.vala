@@ -54,7 +54,9 @@ public class Controller : FsoFramework.AbstractObject
 
     private HashMap<string,Resource> resources;
 
-    //dynamic DBus.Object dbus;
+    DBusService.IDBus dbus;
+    FreeSmartphone.Device.IdleNotifier idlenotifier;
+
     //dynamic DBus.Object idlenotifier;
 
     private FreeSmartphone.UsageSystemAction system_status;
@@ -74,15 +76,12 @@ public class Controller : FsoFramework.AbstractObject
         disable_on_startup = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "startup" );
         disable_on_shutdown = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "shutdown" );
 
-        /*
         // start listening for name owner changes
-        dbusconn = ( (FsoFramework.DBusSubsystem)subsystem ).dbusConnection();
-        dbus = dbusconn.get_object( DBus.DBUS_SERVICE_DBUS, DBus.DBUS_PATH_DBUS, DBus.DBUS_INTERFACE_DBUS );
-        dbus.NameOwnerChanged += onNameOwnerChanged;
-        */
+        dbus = Bus.get_proxy_sync<DBusService.IDBus>( BusType.SYSTEM, DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
+        dbus.NameOwnerChanged.connect( onNameOwnerChanged );
 
         // get handle to IdleNotifier
-        //idlenotifier = dbusconn.get_object( FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH, FSO_IDLENOTIFIER_IFACE );
+        idlenotifier = Bus.get_proxy_sync<FreeSmartphone.Device.IdleNotifier>( BusType.SYSTEM, FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH );
 
         // init resources and low level helpers
         initResources();
@@ -246,8 +245,7 @@ public class Controller : FsoFramework.AbstractObject
         this.resource_available( r.name, false ); // DBUS SIGNAL
     }
 
-    /*
-    private void onNameOwnerChanged( dynamic DBus.Object obj, string name, string oldowner, string newowner )
+    private void onNameOwnerChanged( string name, string oldowner, string newowner )
     {
 #if DEBUG
         debug( "name owner changed: %s (%s => %s)", name, oldowner, newowner );
@@ -284,7 +282,6 @@ public class Controller : FsoFramework.AbstractObject
             resources.remove( r.name );
         }
     }
-    */
 
     internal bool onIdleForSuspend()
     {
@@ -321,10 +318,10 @@ public class Controller : FsoFramework.AbstractObject
 
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.RESUME );
 
-        var idlestate = lowlevel.isUserInitiated( reason ) ? "busy" : "idle";
+        var idlestate = lowlevel.isUserInitiated( reason ) ? FreeSmartphone.Device.IdleState.BUSY : FreeSmartphone.Device.IdleState.IDLE;
         try
         {
-            //idlenotifier.SetState( idlestate );
+            idlenotifier.set_state( idlestate );
         }
         catch ( DBusError e )
         {
