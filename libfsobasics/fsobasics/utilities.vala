@@ -420,6 +420,7 @@ namespace FsoFramework { namespace Utility {
     public string[] createBacktrace()
     {
         string[] result = new string[] { };
+#if HAVE_BACKTRACE
         void* buffer = malloc0( BACKTRACE_SIZE * sizeof(string) );
         var size = Linux.backtrace( buffer, BACKTRACE_SIZE );
         string[] symbols = Linux.backtrace_symbols( buffer, size );
@@ -429,6 +430,9 @@ namespace FsoFramework { namespace Utility {
             result += "%s\n".printf( symbols[i] );
         }
         result += "--- END BACKTRACE ---\n";
+#else
+        result += "BACKTRACE FACILITIES NOT AVAILABLE";
+#endif
         return result;
     }
 
