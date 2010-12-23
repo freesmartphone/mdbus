@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ class BluetoothPowerControl : FsoDevice.BasePowerControl
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
 
-        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
         logger.info( "created." );
     }
@@ -62,7 +62,7 @@ class UsbHostModeControl : FsoDevice.BasePowerControl
         this.umodenode = Path.build_filename( sysfs_root, "devices", "platform", "s3c2410-ohci", "usb_mode" );
         this.name = Path.get_basename( sysfsnode );
 
-        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
         logger.info( "created." );
     }
@@ -93,7 +93,7 @@ class WiFiPowerControl : FsoDevice.BasePowerControl
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
 
-        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
         logger.info( "created." );
     }

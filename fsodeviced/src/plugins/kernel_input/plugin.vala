@@ -39,7 +39,6 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
     FsoFramework.Subsystem subsystem;
 
     private string sysfsnode;
-    private static uint counter;
     private static uint typelength;
 
     // internal, so it can be accessable from aggregate input device
@@ -69,7 +68,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractObject
 
         if ( !_inquireAndCheckForIgnore() )
         {
-            subsystem.registerObjectForService<FreeSmartphone.Device.Input>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.InputServicePath, counter++ ), this );
+            subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.Input>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.InputServicePath, this );
             logger.info( @"Created new InputDevice object: $product @ $phys w/ $caps" );
         }
     }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -39,10 +39,9 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
 
     private string sysfsnode;
     private string devnode;
-    private int rtc_fd;
+    private int rtc_fd = -1;
     private IOChannel channel;
     private uint watch;
-    private static uint counter;
 
     public Rtc( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
@@ -50,15 +49,14 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         this.sysfsnode = sysfsnode;
         this.devnode = sysfsnode.replace( "/sys/class/rtc/", "/dev/" );
 
-        subsystem.registerObjectForService<FreeSmartphone.Device.RealtimeClock>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.RtcServicePath, counter++ ), this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.RealtimeClock>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.RtcServicePath, this );
 
-        rtc_fd = -1;
         logger.info( "Created new Rtc object." );
     }
 
     public override string repr()
     {
-        return "<FsoFramework.Device.Rtc @ %s : %s>".printf( sysfsnode, devnode );
+        return "<%s : %s>".printf( sysfsnode, devnode );
     }
 
     private void openRtc() throws FreeSmartphone.Error

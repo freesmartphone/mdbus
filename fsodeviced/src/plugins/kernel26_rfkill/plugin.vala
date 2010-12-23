@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -32,8 +32,6 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
     const string[] opValue = { "Add", "Del", "Change", "ChangeAll", "unknown:4", "unknown:5", "unknown:6" };
     const string[] typeValue = { "All", "WiFi", "Bluetooth", "UWB", "WiMax", "WWan", "unknown:6", "unknown:7" };
 
-    protected static uint counter;
-
     private uint id;
     private string type;
     private bool softoff;
@@ -64,7 +62,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         this.softoff = softoff;
         this.hardoff = hardoff;
 
-        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
 #if WANT_FSO_RESOURCE
         Idle.add( () => {
