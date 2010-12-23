@@ -41,9 +41,4 @@ namespace PosixExtra {
 
     [CCode (cheader_filename = "netdb.h")]
     public unowned HostEnt gethostbyname (string name);
-
-    [IntegerType]
-    [CCode (cname = "socklen_t", cheader_filename = "sys/socket.h", default_value = "0")]
-    public struct socklen_t {
-    }
 }
