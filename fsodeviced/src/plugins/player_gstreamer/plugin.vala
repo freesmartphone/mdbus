@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -227,7 +227,7 @@ class Player.Gstreamer : FsoDevice.BaseAudioPlayer
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    string[] args = {};
+    unowned string[] args = null;
     // instances will be created on demand by alsa_audio
     GLib.g_thread_init(); // from thread.vapi
     Gst.init( ref args );
