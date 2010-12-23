@@ -33,7 +33,7 @@ public class MsmDebugPing : DebugPing
             var msg = @"Could not process test_alive command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }

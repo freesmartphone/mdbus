@@ -33,7 +33,7 @@ public class MsmNetworkRegister : NetworkRegister
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
@@ -143,7 +143,7 @@ public class MsmNetworkUnregister : NetworkUnregister
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }

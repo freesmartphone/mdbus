@@ -82,7 +82,7 @@ public class MsmDeviceGetInformation : DeviceGetInformation
             var msg = @"Could not process get_firmware_info/get_imei command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
@@ -122,7 +122,7 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
             var msg = @"Could not process get_charger_status command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
@@ -157,7 +157,7 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
             var msg = @"Could not process change_operation_mode command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
         // FIXME update modem status!

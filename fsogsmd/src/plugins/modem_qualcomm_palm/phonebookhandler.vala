@@ -80,7 +80,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
                 var entry = FreeSmartphone.GSM.SIMEntry( i, phonebookEntry.title, phonebookEntry.number );
                 phonebook += entry;
             }
-            catch ( DBusError, IOError err0 )
+            catch ( Error err0 )
             {
             }
             catch ( Msmcomm.Error err1 )
@@ -102,7 +102,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         {
             imsi = yield cmds.sim_info( "imsi" );
         }
-        catch ( DBusError, IOError err0 )
+        catch ( Error err0 )
         {
         }
         catch ( Msmcomm.Error err1 )
@@ -135,7 +135,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
                 var phonebook = yield readPhonebook( pb, pbprops.slot_count, pbprops.slots_used );
                 storage.addPhonebook( Msmcomm.phonebookBookTypeToString(pb), 0, pbprops.slot_count, phonebook );
             }
-            catch ( DBusError, IOError err2 )
+            catch ( Error err2 )
             {
             }
             catch ( Msmcomm.Error err3 )

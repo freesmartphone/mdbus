@@ -86,10 +86,15 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
             yield _modemAgent.commands.test_alive();
             theModem.logger.debug("Synchronization is done; we should now recieve a lot of unsolicited responses");
         }
-        catch ( DBusError, IOError err0 )
+        catch ( DBusError err0 )
         {
+            theModem.logger.error( @"DBus Error: $(err0.message)" );
         }
-        catch ( Msmcomm.Error err1 )
+        catch ( IOError err1 )
+        {
+            theModem.logger.error( @"IO Error: $(err1.message)" );
+        }
+        catch ( Msmcomm.Error err2 )
         {
             theModem.logger.error("Can not synchronize with the modem; tried to synchronize without a reset before?");
         }
@@ -107,12 +112,17 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
             yield _modemAgent.waitForUnsolicitedResponse( Msmcomm.UrcType.RESET_RADIO_IND );
             theModem.logger.debug("Modem is back, we can proceed with initialization");
         }
-        catch ( DBusError, IOError err0 )
+        catch ( DBusError err0 )
         {
+            theModem.logger.error( @"DBus Error: $(err0.message)" );
         }
-        catch ( Msmcomm.Error err1 )
+        catch ( IOError err1 )
         {
-            theModem.logger.debug(@"Could not reset the modem; it responds with '$(err1.message)'");
+            theModem.logger.error( @"IO Error: $(err1.message)" );
+        }
+        catch ( Msmcomm.Error err2 )
+        {
+            theModem.logger.debug(@"Could not reset the modem; it responds with '$(err2.message)'");
         }
     }
 

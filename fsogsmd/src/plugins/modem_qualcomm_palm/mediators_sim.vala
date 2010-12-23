@@ -65,7 +65,7 @@ public class MsmSimGetInformation : SimGetInformation
             var msg = @"Could not process verify_pin command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
         #endif
@@ -102,7 +102,7 @@ public class MsmSimSendAuthCode : SimSendAuthCode
             var msg = @"Could not process verify_pin command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
@@ -124,7 +124,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
             var msg = @"Could not process the delete_phonebook command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
@@ -157,7 +157,7 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
             var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
 
@@ -185,7 +185,7 @@ public class MsmSimGetServiceCenterNumber : SimGetServiceCenterNumber
             var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
         #endif
@@ -275,7 +275,7 @@ public class MsmSimWriteEntry : SimWriteEntry
             var msg = @"Could not process get_phonebook_properties command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }

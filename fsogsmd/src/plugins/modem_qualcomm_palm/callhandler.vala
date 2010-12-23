@@ -89,7 +89,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
@@ -118,7 +118,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
         
@@ -148,7 +148,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
@@ -196,7 +196,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
@@ -285,7 +285,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
@@ -307,7 +307,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             MsmUtil.handleMsmcommErrorMessage( err0 );
         }
-        catch ( DBusError, IOError err1 )
+        catch ( Error err1 )
         {
         }
     }
