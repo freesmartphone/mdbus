@@ -43,9 +43,8 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
         this.path = path;
         this.code = code;
         this.onValue = onValue;
-	
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName, "%s/gpio%d".printf( FsoFramework.Device.InputServicePath, code ), this );
+
+        subsystem.registerObjectForService<FreeSmartphone.Device.Input>( FsoFramework.Device.ServiceDBusName, "%s/gpio%d".printf( FsoFramework.Device.InputServicePath, code ), this );
 
         if ( !FsoFramework.FileHandling.isPresent( path ) )
         {
@@ -56,7 +55,7 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
         string powernode = GLib.Path.build_filename( path, "disable" );
         string node = GLib.Path.build_filename( path, "state" );
         this.node = node;
-	
+
         FsoFramework.FileHandling.write( "0", powernode );
 
         var fd = Posix.open( node, Posix.O_RDONLY );
@@ -86,12 +85,12 @@ class InputDevice : FreeSmartphone.Device.Input, FsoDevice.SignallingInputDevice
     //
     // FsoFramework.Device.Input (DBUS)
     //
-    public async string get_id() throws DBus.Error
+    public async string get_id() throws DBusError, IOError
     {
         return this.path;
     }
 
-    public async string get_capabilities() throws DBus.Error
+    public async string get_capabilities() throws DBusError, IOError
     {
         return "";
     }
@@ -110,7 +109,7 @@ internal Gpio.InputDevice instance;
  * else your module will be unloaded immediately.
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
-{    
+{
     // grab sysfs paths
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
@@ -141,7 +140,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
             FsoFramework.theLogger.error( @"Ignoring defined gpio-switch $(name) which is not available" );
         }
     }
-    
+
     return Gpio.GPIO_INPUT_PLUGIN_NAME;
 }
 
