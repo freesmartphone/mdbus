@@ -69,8 +69,7 @@ namespace PalmPre
             modules.add(libertas_mod);
             modules.add(libertas_sdio_mod);
 
-            subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-            subsystem.registerServiceObjectWithPrefix( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
+            subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
             logger.info( "Created." );
         }

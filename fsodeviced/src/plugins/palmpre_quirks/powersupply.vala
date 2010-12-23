@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 Simon Busch <morphis@gravedo.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -184,10 +184,7 @@ namespace PalmPre
             }
 
             // Register our provided dbus service on the bus
-            subsystem.registerServiceName(FsoFramework.Device.ServiceDBusName);
-            subsystem.registerServiceObject(FsoFramework.Device.ServiceDBusName,
-                                            "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 0),
-                                            this);
+            subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
 
             critical_capacity = FsoFramework.theConfig.intValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "critical", 10);
             current_capacity = getCapacity();
@@ -196,14 +193,12 @@ namespace PalmPre
 
             GLib.Timeout.add (poll_timout, ()=> {current_capacity = getCapacity(); return true;});
 
-            logger.info( "created new PowerSupply object." );
+            logger.info( "Created new PowerSupply object." );
         }
-
-
 
         public override string repr()
         {
-            return "<PalmPre.BatteryPowerSupply @ >";
+            return "<>";
         }
 
         public bool isBattery()
@@ -230,12 +225,12 @@ namespace PalmPre
         // FreeSmartphone.Device.PowerStatus (DBUS API)
         //
 
-        public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
+        public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
         {
             return current_power_status;
         }
 
-        public async int get_capacity() throws DBus.Error
+        public async int get_capacity() throws DBusError, IOError
         {
             return getCapacity();
         }

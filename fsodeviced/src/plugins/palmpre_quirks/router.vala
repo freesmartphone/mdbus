@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 Simon Busch <morphis@gravedo.de>
  *
  * This library is free software; you can redistribute it and/or

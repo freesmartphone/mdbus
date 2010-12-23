@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010 Simon Busch <morphis@gravedo.de>
  *
  * This library is free software; you can redistribute it and/or
@@ -38,46 +38,44 @@ namespace PalmPre
 
         public TouchscreenManager( FsoFramework.Subsystem subsystem )
         {
-            string cmdline = "";
-
             this.subsystem = subsystem;
             this.tsmd_process = new FsoFramework.GProcessGuard();
 
             tsmd_path = config.stringValue(@"$(MODULE_NAME)/touchscreen", "tsmd_path", "/usr/bin/tsmd");
             tsmd_args = config.stringValue(@"$(MODULE_NAME)/touchscreen", "tsmd_args", "-n /dev/touchscreen");
 
-            logger.debug(@"Starting tsmd with: '$(tsmd_path) $(tsmd_args)'");
+            logger.debug( @"Starting tsmd with: '$(tsmd_path) $(tsmd_args)'" );
 
-            if (!FsoFramework.FileHandling.isPresent(tsmd_path))
+            if ( !FsoFramework.FileHandling.isPresent( tsmd_path ) )
             {
                 logger.critical(@"tsmd binary is not available on path '$(tsmd_path)'. Not installed?");
                 return;
             }
 
-            tsmd_process.setAutoRelaunch(true);
-            cmdline = @"$(tsmd_path) $(tsmd_args)";
-            tsmd_process.launch(cmdline.split(" "));
+            tsmd_process.setAutoRelaunch( true );
+            string cmdline = @"$(tsmd_path) $(tsmd_args)";
+            tsmd_process.launch( cmdline.split(" ") );
 
             if (!tsmd_process.isRunning())
             {
-                logger.critical("Could not launch tsmd binary. You will have to stay without touchscreen support ...");
+                logger.critical( "Could not launch tsmd binary. You will have to stay without touchscreen support ..." );
                 return;
             }
 
             try
             {
                 /* setup our dbus signal handler we need to react when the display goes on or off */
-                DBus.Connection conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-
-                odeviced_display = conn.get_object( FsoFramework.Device.ServiceDBusName,
-                                                    FsoFramework.Device.DisplayServicePath,
-                                                    FsoFramework.Device.DisplayServiceFace ) as FreeSmartphone.Device.Display;
-
+                odeviced_display = Bus.get_proxy_sync<FreeSmartphone.Device.Display>( BusType.SYSTEM, FsoFramework.Device.ServiceDBusName, FsoFramework.Device.DisplayServicePath );
                 odeviced_display.backlight_power.connect( onBacklightPowerChanged );
             }
-            catch ( DBus.Error e )
+            catch ( DBusError e )
             {
-                logger.error( "Could not connect to odeviced's display resource; Touchscreen functionality will be very unstable ..." );
+                logger.error( @"Could not connect to odeviced's display resource $(e.message); Touchscreen functionality will be very unstable ..." );
+                return;
+            }
+            catch ( IOError e )
+            {
+                logger.error( @"Could not connect to odeviced's display resource $(e.message); Touchscreen functionality will be very unstable ..." );
                 return;
             }
 
@@ -87,7 +85,7 @@ namespace PalmPre
 
         public override string repr()
         {
-            return "<PalmPre.TouchscreenManager @ >";
+            return "<>";
         }
 
         //
