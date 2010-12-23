@@ -25,7 +25,7 @@ public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
     public async abstract void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public async abstract void deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 
-    public async abstract void statusUpdate( string status, GLib.HashTable<string,Value?> properties );
+    public async abstract void statusUpdate( string status, GLib.HashTable<string,Variant> properties );
 
     public async abstract void connectedWithNewDefaultRoute( string iface, string ipv4addr, string ipv4mask, string ipv4gateway, string dns1, string dns2 );
 
@@ -38,12 +38,12 @@ public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
 public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObject
 {
     public FreeSmartphone.GSM.ContextStatus status { get; set; }
-    public GLib.HashTable<string,Value?> properties { get; set; }
+    public GLib.HashTable<string,Variant> properties { get; set; }
 
     construct
     {
         status = FreeSmartphone.GSM.ContextStatus.RELEASED;
-        properties = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        properties = new GLib.HashTable<string,Variant>( str_hash, str_equal );
     }
 
     //
@@ -57,7 +57,7 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
     {
     }
 
-    protected async void updateStatus( FreeSmartphone.GSM.ContextStatus status, GLib.HashTable<string,Value?> properties )
+    protected async void updateStatus( FreeSmartphone.GSM.ContextStatus status, GLib.HashTable<string,Variant> properties )
     {
         if ( status == this.status )
         {
@@ -82,7 +82,7 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
             throw new FreeSmartphone.Error.UNAVAILABLE( @"Can't activate context while in status $status" );
         }
 
-        updateStatus( FreeSmartphone.GSM.ContextStatus.OUTGOING, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+        updateStatus( FreeSmartphone.GSM.ContextStatus.OUTGOING, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
 
         try
         {
@@ -90,12 +90,12 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         }
         catch ( FreeSmartphone.GSM.Error e1 )
         {
-            updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+            updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
             throw e1;
         }
         catch ( FreeSmartphone.Error e2 )
         {
-            updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+            updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
             throw e2;
         }
     }
@@ -109,23 +109,19 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
 
         yield sc_deactivate();
 
-        updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+        updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
     }
 
-    public async abstract void statusUpdate( string status, GLib.HashTable<string,Value?> properties );
+    public async abstract void statusUpdate( string status, GLib.HashTable<string,Variant> properties );
 
     public async void connectedWithNewDefaultRoute( string iface, string ipv4addr, string ipv4mask, string ipv4gateway, string dns1, string dns2 )
     {
-        updateStatus( FreeSmartphone.GSM.ContextStatus.ACTIVE, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+        updateStatus( FreeSmartphone.GSM.ContextStatus.ACTIVE, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
 
         try
         {
-            var conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-            FreeSmartphone.Network network = conn.get_object(
-                FsoFramework.Network.ServiceDBusName,
-                FsoFramework.Network.ServicePathPrefix,
-                FsoFramework.Network.ServiceFacePrefix ) as FreeSmartphone.Network;
-
+            // FIXME: change to async
+            var network = Bus.get_proxy_sync<FreeSmartphone.Network>( BusType.SYSTEM, FsoFramework.Network.ServiceDBusName, FsoFramework.Network.ServicePathPrefix );
             yield network.offer_default_route( "cellular", iface, ipv4addr, ipv4mask, ipv4gateway, dns1, dns2 );
         }
         catch ( GLib.Error e )
@@ -137,6 +133,6 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
     // FIXME: reason?
     public void disconnected()
     {
-        updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Value?>( GLib.str_hash, GLib.str_equal ) );
+        updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
     }
 }

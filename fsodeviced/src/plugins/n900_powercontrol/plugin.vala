@@ -40,9 +40,7 @@ class BluetoothPowerControl : FsoDevice.BasePowerControl
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
 
-
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
         logger.info( "Created." );
     }
@@ -61,7 +59,7 @@ class BluetoothPowerControl : FsoDevice.BasePowerControl
             FsoFramework.FileHandling.write( "0", Path.build_filename( wl12xx, "bt_coex_mode" ) );
             return;
         }
-        
+
         Posix.system( "modprobe hci_h4p" );
         FsoFramework.FileHandling.write( "00:11:22:33:44:55", Path.build_filename( sysfsnode, "bdaddr" ) );
         Posix.system( "modprobe -r hci_h4p" );
@@ -86,8 +84,7 @@ class WiFiPowerControl : FsoDevice.BasePowerControl
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
         logger.info( "Created." );
     }

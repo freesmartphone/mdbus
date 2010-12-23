@@ -40,11 +40,8 @@ class AudioManager : FreeSmartphone.Device.Audio,
     public AudioManager( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         FsoFramework.Device.AudioServicePath,
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Audio>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.AudioServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.AudioServicePath, this );
 
         // gather requested player types and instanciate object
         players = new Gee.HashMap<string,FsoDevice.AudioPlayer>();
@@ -152,9 +149,9 @@ class AudioManager : FreeSmartphone.Device.Audio,
     //
     // FreeSmartphone.Info (DBUS API)
     //
-    public async HashTable<string,Value?> get_info() throws DBus.Error
+    public async HashTable<string,Variant> get_info() throws DBusError, IOError
     {
-        var dict = new HashTable<string,Value?>( str_hash, str_equal );
+        var dict = new HashTable<string,Variant>( str_hash, str_equal );
 
         //FIXME: implement
 
@@ -180,22 +177,22 @@ class AudioManager : FreeSmartphone.Device.Audio,
 
     //
     // Scenario
-    public async string[] get_available_scenarios() throws FreeSmartphone.Error, DBus.Error
+    public async string[] get_available_scenarios() throws FreeSmartphone.Error, DBusError, IOError
     {
         return router.availableScenarios();
     }
 
-    public async string get_scenario() throws FreeSmartphone.Error, DBus.Error
+    public async string get_scenario() throws FreeSmartphone.Error, DBusError, IOError
     {
         return router.currentScenario();
     }
 
-    public async string pull_scenario() throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error, DBus.Error
+    public async string pull_scenario() throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error, DBusError, IOError
     {
         return router.pullScenario();
     }
 
-    public async void push_scenario( string scenario ) throws FreeSmartphone.Error, DBus.Error
+    public async void push_scenario( string scenario ) throws FreeSmartphone.Error, DBusError, IOError
     {
         if ( !router.isScenarioAvailable( scenario ) )
         {
@@ -204,7 +201,7 @@ class AudioManager : FreeSmartphone.Device.Audio,
         router.pushScenario( scenario );
     }
 
-    public async void set_scenario( string scenario ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_scenario( string scenario ) throws FreeSmartphone.Error, DBusError, IOError
     {
         if ( !router.isScenarioAvailable( scenario ) )
         {
@@ -213,7 +210,7 @@ class AudioManager : FreeSmartphone.Device.Audio,
         router.setScenario( scenario );
     }
 
-    public async void save_scenario( string scenario ) throws FreeSmartphone.Error, DBus.Error
+    public async void save_scenario( string scenario ) throws FreeSmartphone.Error, DBusError, IOError
     {
         if ( !router.isScenarioAvailable( scenario ) )
         {
@@ -224,19 +221,19 @@ class AudioManager : FreeSmartphone.Device.Audio,
 
     //
     // Mixer
-    public async uint8 get_volume() throws FreeSmartphone.Error, DBus.Error
+    public async uint8 get_volume() throws FreeSmartphone.Error, DBusError, IOError
     {
         return router.currentVolume();
     }
 
-    public async void set_volume( uint8 volume ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_volume( uint8 volume ) throws FreeSmartphone.Error, DBusError, IOError
     {
         router.setVolume( volume );
     }
 
     //
     // Sound
-    public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error, DBus.Error
+    public async void play_sound( string name, int loop, int length ) throws FreeSmartphone.Device.AudioError, FreeSmartphone.Error, DBusError, IOError
     {
         var parts = name.split( "." );
         if ( parts.length == 0 )
@@ -252,7 +249,7 @@ class AudioManager : FreeSmartphone.Device.Audio,
         yield player.play_sound( name, loop, length );
     }
 
-    public async void stop_all_sounds() throws DBus.Error
+    public async void stop_all_sounds() throws DBusError, IOError
     {
         foreach ( var player in players.values )
         {
@@ -260,7 +257,7 @@ class AudioManager : FreeSmartphone.Device.Audio,
         }
     }
 
-    public async void stop_sound( string name ) throws FreeSmartphone.Error, DBus.Error
+    public async void stop_sound( string name ) throws FreeSmartphone.Error, DBusError, IOError
     {
         var parts = name.split( "." );
         if ( parts.length == 0 )

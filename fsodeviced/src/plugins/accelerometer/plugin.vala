@@ -85,11 +85,8 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
     public Accelerometer( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         FsoFramework.Device.OrientationServicePath,
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Orientation>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
         logger.info( "Created new Orientation object." );
 
         history = new AccelerometerValue[kHistorySize];
@@ -271,10 +268,10 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
     //
     // FreeSmartphone.Info (DBUS)
     //
-    public async HashTable<string,Value?> get_info()
+    public async HashTable<string,Variant> get_info() throws DBusError, IOError
     {
         //FIXME: implement
-        var dict = new HashTable<string,Value?>( str_hash, str_equal );
+        var dict = new HashTable<string,Variant>( str_hash, str_equal );
         return dict;
     }
 

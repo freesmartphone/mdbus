@@ -54,8 +54,7 @@ class DBusService.Device : FsoFramework.AbstractObject
             return;
         }
 
-        subsystem.registerServiceName( FsoFramework.GPS.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.GPS.ServiceDBusName, FsoFramework.GPS.DeviceServicePath, this );
+        //subsystem.registerObjectForService<FreeSmartphone.( FsoFramework.GPS.ServiceDBusName, FsoFramework.GPS.DeviceServicePath, this );
 
         receiver = (FsoGps.AbstractReceiver) Object.new( receiverclass );
         receiver.parent = this;

@@ -64,10 +64,8 @@ class Display : FreeSmartphone.Device.Display,
 
         debug( @"smoothup = $smoothup, smoothdown = $smoothdown" );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                        "%s/%u".printf( FsoFramework.Device.DisplayServicePath, counter++ ),
-                        this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Display>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.DisplayServicePath, counter ), this );
+        subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.DisplayServicePath, counter++ ), this );
 
         logger.info( @"Created w/ max brightness = $max_brightness, smooth up = $smoothup, smooth down = $smoothdown" );
     }
@@ -195,11 +193,11 @@ class Display : FreeSmartphone.Device.Display,
     //
     // FreeSmartphone.Info (DBUS API)
     //
-    public async HashTable<string, Value?> get_info()
+    public async HashTable<string,Variant> get_info() throws DBusError, IOError
     {
         string _leaf;
-        var val = Value( typeof(string) );
-        HashTable<string, Value?> info_table = new HashTable<string, Value?>( str_hash, str_equal );
+        Variant val;
+        HashTable<string,Variant> info_table = new HashTable<string,Variant>( str_hash, str_equal );
         /* Just read all the files in the sysfs path and return it as a{ss} */
         try
         {
@@ -208,7 +206,7 @@ class Display : FreeSmartphone.Device.Display,
             {
                 if( FileUtils.test (this.sysfsnode + "/" + _leaf, FileTest.IS_REGULAR) && _leaf != "uevent" )
                 {
-                    val.take_string( FsoFramework.FileHandling.read(this.sysfsnode + "/" + _leaf ).strip());
+                    val = FsoFramework.FileHandling.read(this.sysfsnode + "/" + _leaf ).strip();
                     info_table.insert( _leaf, val );
                 }
             }

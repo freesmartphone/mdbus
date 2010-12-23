@@ -46,9 +46,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
     public ConnectionSharing( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-        this.subsystem.registerServiceName( FsoFramework.Network.ServiceDBusName );
-        this.subsystem.registerServiceObject( FsoFramework.Network.ServiceDBusName,
-                                              FsoFramework.Network.ServicePathPrefix, this );
+        this.subsystem.registerObjectForService<FreeSmartphone.Network>( FsoFramework.Network.ServiceDBusName, FsoFramework.Network.ServicePathPrefix, this );
     }
 
     public override string repr()
@@ -91,7 +89,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
     //
     // FreeSmartphone.Network (DBUS API)
     //
-    public async void start_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBus.Error
+    public async void start_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBusError, IOError
     {
         if ( ! (FsoFramework.FileHandling.isPresent( Path.build_filename( sys_class_net, iface ) ) ) )
         {
@@ -139,7 +137,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         }
     }
 
-    public async void stop_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBus.Error
+    public async void stop_connection_sharing_with_interface( string iface ) throws FreeSmartphone.Error, DBusError, IOError
     {
         if ( ! (FsoFramework.FileHandling.isPresent( Path.build_filename( sys_class_net, iface ) ) ) )
         {
@@ -187,7 +185,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
                                            string ipv4mask,
                                            string ipv4gateway,
                                            string dns1,
-                                           string dns2 ) throws FreeSmartphone.Error, DBus.Error
+                                           string dns2 ) throws FreeSmartphone.Error, DBusError, IOError
     {
         logger.info( @"Setting new default as offered by $technology: $iface=$ipv4address/$ipv4mask via $ipv4gateway" );
         // Quick and dirty, this is really just for testing and demonstration purposes

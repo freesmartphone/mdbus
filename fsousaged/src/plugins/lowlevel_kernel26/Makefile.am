@@ -6,7 +6,7 @@ AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(GEE_CFLAGS) \
 	$(FSO_CFLAGS) \
-	$(DBUS_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -15,7 +15,7 @@ progs_ldadd = \
 	$(top_srcdir)/src/lib/libfsousage.la \
 	$(GEE_LIBS) \
 	$(FSO_LIBS) \
-	$(DBUS_LIBS) \
+	$(GLIB_LIBS) \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -23,8 +23,8 @@ VALAC_ARGS = \
 	--vapidir ./ \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \
+	--pkg gio-2.0 \
 	--pkg gee-1.0 \
-	--pkg dbus-glib-1 \
 	--pkg fsoframework-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsousage-2.0

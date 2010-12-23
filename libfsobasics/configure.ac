@@ -16,7 +16,7 @@ AC_SUBST(LDFLAGS)
 
 # pkg-config
 PKG_PROG_PKG_CONFIG
-VALA_REQUIRED=0.9.7
+VALA_REQUIRED=0.11.2
 GLIB_REQUIRED=2.18.0
 LIBNL_REQUIRED=2.0
 
@@ -39,6 +39,12 @@ PKG_CHECK_MODULES(LIBNL,
   libnl-2.0 >= $LIBNL_REQUIRED)
 AC_SUBST(LIBNL_CFLAGS)
 AC_SUBST(LIBNL_LIBS)
+
+# check for backtrace
+AC_MSG_NOTICE([Checking whether this C library has support for backtraces...])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <execinfo.h>
+  void test() { backtrace( 0, 0 ); } ])], [backtrace="yes"], [backtrace="no"] )
+AM_CONDITIONAL( [HAVE_BACKTRACE], [test x"$backtrace" = x"yes"])
 
 # check for debugging
 AC_ARG_ENABLE(debug,
@@ -67,6 +73,8 @@ echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
 echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
+echo
+echo "  backtrace support.......: $backtrace"
 echo
 echo "  debug build.............: $debug"
 echo

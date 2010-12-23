@@ -93,7 +93,7 @@ public class DummyAtDeviceGetInformation : DeviceGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
         info.insert( "model", "FSO2 Dummy Modem" );
         info.insert( "manufacturer", "freesmartphone.org" );
         info.insert( "revision", "V2" );
@@ -105,7 +105,7 @@ public class DummyAtDeviceGetFeatures : DeviceGetFeatures
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        features = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        features = new GLib.HashTable<string,Variant>( str_hash, str_equal );
         features.insert( "voice", true );
         features.insert( "csd", true );
         features.insert( "gsm", true );
@@ -226,7 +226,7 @@ public class DummyAtSimGetInformation : SimGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        info = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
         info.insert( "imsi", "262123456789" );
         info.insert( "issuer", "FSO TELEKOM" );
         info.insert( "slots", 30 );
@@ -253,12 +253,12 @@ public class DummyAtSimGetServiceCenterNumber : SimGetServiceCenterNumber
 
 public class DummyAtSimRetrieveMessage : SimRetrieveMessage
 {
-    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         status = "unknown";
         number = "unknown";
         contents = "unknown";
-        properties = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        properties = new GLib.HashTable<string,GLib.Variant>( GLib.str_hash, GLib.str_equal );
     }
 }
 
@@ -363,7 +363,7 @@ public class DummyAtSmsRetrieveTextMessages : SmsRetrieveTextMessages
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var mb = new FreeSmartphone.GSM.SIMMessage[] {};
-        var props = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        var props = new GLib.HashTable<string,GLib.Variant>( GLib.str_hash, GLib.str_equal );
 
         mb += FreeSmartphone.GSM.SIMMessage( 1, "single", "+123456789", "Yo, what's up in da house tonight?", "timestamp", props );
         mb += FreeSmartphone.GSM.SIMMessage( 2, "single", "+555456789", "It's going to be cold, don't forget your coat, sun!", "timestamp", props );
@@ -389,7 +389,7 @@ public class DummyAtNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        status = new GLib.HashTable<string,Value?>( str_hash, str_equal );
+        status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
         status.insert( "strength", 50 );
         status.insert( "registration", "home" );
         status.insert( "lac", "F71A" );

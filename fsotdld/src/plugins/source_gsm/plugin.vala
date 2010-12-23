@@ -30,32 +30,34 @@ class Source.Gsm : FsoTime.AbstractSource
 {
     FreeSmartphone.GSM.Network ogsmd_device;
     FreeSmartphone.Data.World odatad_world;
-    DBus.IDBus dbus_dbus;
+    DBusService.IDBus dbus_dbus;
 
     construct
     {
-        DBus.Connection conn = DBus.Bus.get( DBus.BusType.SYSTEM );
+        DBusConnection conn = Bus.get_sync( BusType.SYSTEM );
 
-        ogsmd_device = conn.get_object( FsoFramework.GSM.ServiceDBusName,
-                               FsoFramework.GSM.DeviceServicePath,
-                               FsoFramework.GSM.ServiceFacePrefix + ".Network" ) as FreeSmartphone.GSM.Network;
+        ogsmd_device = conn.get_proxy_sync<FreeSmartphone.GSM.Network>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath );
+        odatad_world = conn.get_proxy_sync<FreeSmartphone.Data.World>( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath );
 
-        odatad_world = conn.get_object( FsoFramework.Data.ServiceDBusName,
-                               FsoFramework.Data.WorldServicePath,
-                               FsoFramework.Data.WorldServiceFace ) as FreeSmartphone.Data.World;
-
-        dbus_dbus = conn.get_object( DBus.DBUS_SERVICE_DBUS,
-                                DBus.DBUS_PATH_DBUS,
-                                DBus.DBUS_INTERFACE_DBUS ) as DBus.IDBus;
+        dbus_dbus = conn.get_proxy_sync<DBusService.IDBus>( DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
 
         //FIXME: Work around bug in Vala (signal handlers can't be async yet)
         ogsmd_device.status.connect( (status) => { onGsmNetworkStatusSignal( status ); } );
         ogsmd_device.time_report.connect( (time, zone) => { onGsmNetworkTimeReportSignal( time, zone ); } );
 
-        Idle.add( () => { triggerQuery(); return false; } );
+        //FIXME: Lambda functions in construct are broken atm.
+        //Idle.add( () => { triggerQuery(); return false; } );
+
+        Idle.add( foo );
 
         //NOTE: For debugging only
         //Idle.add( () => { testing(); return false; } );
+    }
+
+    private bool foo()
+    {
+        triggerQueryAsync();
+        return false; // don't call me again
     }
 
     private void testing()
@@ -95,9 +97,13 @@ class Source.Gsm : FsoTime.AbstractSource
                 var status = yield ogsmd_device.get_status();
                 yield onGsmNetworkStatusSignal( status );
             }
-            catch ( DBus.Error e )
+            catch ( DBusError e )
             {
                 logger.warning( @"Could not query the status from ogsmd: $(e.message)" );
+            }
+            catch ( IOError e2 )
+            {
+                logger.warning( @"Could not query the status from ogsmd: $(e2.message)" );
             }
         }
         else
@@ -131,9 +137,14 @@ class Source.Gsm : FsoTime.AbstractSource
             countrycode = yield odatad_world.get_country_code_for_mcc_mnc( code );
             timezones = yield odatad_world.get_timezones_for_country_code( countrycode );
         }
-        catch ( DBus.Error e )
+        catch ( DBusError e )
         {
             logger.warning( @"Could not query odatad: $(e.message)" );
+            return;
+        }
+        catch ( IOError e2 )
+        {
+            logger.warning( @"Could not query odatad: $(e2.message)" );
             return;
         }
 

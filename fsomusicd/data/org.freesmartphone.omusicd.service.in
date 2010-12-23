@@ -1,4 +1,0 @@
-[D-BUS Service]
-Name=org.freesmartphone.omusicd
-Exec=@prefix@/sbin/fsomusicd
-User=root

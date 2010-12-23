@@ -81,14 +81,9 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
 
         input = new FsoFramework.Async.ReactorChannel( fd, onInputEvent, sizeof( Linux.Input.Event ) );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix(
-            FsoFramework.Device.ServiceDBusName,
-            FsoFramework.Device.AmbientLightServicePath,
-            this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.AmbientLight>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.AmbientLightServicePath, this );
 
         logger.info( "Created" );
-
     }
 
     public override string repr()
@@ -116,7 +111,7 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
     //
     // FreeSmartphone.Device.AmbientLight (DBUS API)
     //
-    public async void get_ambient_light_brightness( out int brightness, out int timestamp ) throws FreeSmartphone.Error, DBus.Error
+    public async void get_ambient_light_brightness( out int brightness, out int timestamp ) throws FreeSmartphone.Error, DBusError, IOError
     {
         brightness = this.brightness;
         timestamp = brightness_timestamp;

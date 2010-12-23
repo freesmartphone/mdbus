@@ -30,10 +30,7 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
     public Info( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-
-        subsystem.registerServiceName( FsoFramework.Data.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath, this );
-
+        subsystem.registerObjectForService<FreeSmartphone.Data.World>( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath, this );
         logger.info( @"Created" );
     }
 
@@ -45,7 +42,7 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
     //
     // DBus API (org.freesmartphone.Data.World)
     //
-    public async FreeSmartphone.Data.WorldCountry[] get_all_countries() throws DBus.Error
+    public async FreeSmartphone.Data.WorldCountry[] get_all_countries() throws DBusError, IOError
     {
         var countries = new FreeSmartphone.Data.WorldCountry[] {};
 
@@ -60,7 +57,7 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
         return countries;
     }
 
-    public async string get_country_code_for_mcc_mnc( string mcc_mnc ) throws FreeSmartphone.Error, DBus.Error
+    public async string get_country_code_for_mcc_mnc( string mcc_mnc ) throws FreeSmartphone.Error, DBusError, IOError
     {
         foreach ( var country in FsoData.MBPI.Database.instance().allCountries().values )
         {
@@ -93,7 +90,7 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
         return "";
     }
 
-    public async GLib.HashTable<string,string> get_timezones_for_country_code( string country_code ) throws FreeSmartphone.Error, DBus.Error
+    public async GLib.HashTable<string,string> get_timezones_for_country_code( string country_code ) throws FreeSmartphone.Error, DBusError, IOError
     {
         var country = FsoData.MBPI.Database.instance().allCountries()[country_code];
         if ( country == null )

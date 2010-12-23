@@ -177,14 +177,14 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
                                      ( address >> 24 ) & 0xff );
     }
 
-    public async override void statusUpdate( string status, GLib.HashTable<string,Value?> properties )
+    public async override void statusUpdate( string status, GLib.HashTable<string,Variant> properties )
     {
         assert( logger.debug( @"Status update from PPP helper: $status" ) );
-        Value? viface = properties.lookup( "iface" );
-        Value? vlocal = properties.lookup( "local" );
-        Value? vgateway = properties.lookup( "gateway" );
-        Value? vdns1 = properties.lookup( "dns1" );
-        Value? vdns2 = properties.lookup( "dns2" );
+        Variant? viface = properties.lookup( "iface" );
+        Variant? vlocal = properties.lookup( "local" );
+        Variant? vgateway = properties.lookup( "gateway" );
+        Variant? vdns1 = properties.lookup( "dns1" );
+        Variant? vdns2 = properties.lookup( "dns2" );
 
         string local = "unknown";
         string gateway = "unknown";
@@ -198,22 +198,22 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         }
         if ( vlocal != null )
         {
-            local = uintToIp4Address(vlocal.get_uint());
+            local = uintToIp4Address(vlocal.get_uint32());
             assert( logger.debug( @"IPCP: Interface addr is $local" ) );
         }
         if ( vgateway != null )
         {
-            gateway = uintToIp4Address(vgateway.get_uint());
+            gateway = uintToIp4Address(vgateway.get_uint32());
             assert( logger.debug( @"IPCP: Gateway   addr is $gateway" ) );
         }
         if ( vdns1 != null )
         {
-            dns1 = uintToIp4Address(vdns1.get_uint());
+            dns1 = uintToIp4Address(vdns1.get_uint32());
             assert( logger.debug( @"IPCP: DNS1      addr is $dns1" ) );
         }
         if ( vdns2 != null )
         {
-            dns2 = uintToIp4Address(vdns2.get_uint());
+            dns2 = uintToIp4Address(vdns2.get_uint32());
             assert( logger.debug( @"IPCP: DNS2      addr is $dns2" ) );
         }
 

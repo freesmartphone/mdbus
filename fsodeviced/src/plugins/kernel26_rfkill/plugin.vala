@@ -64,10 +64,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         this.softoff = softoff;
         this.hardoff = hardoff;
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
 
 #if WANT_FSO_RESOURCE
         Idle.add( () => {
@@ -193,12 +190,12 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
     //
     // DBUS API (org.freesmartphone.Device.PowerControl)
     //
-    public async bool get_power() throws DBus.Error
+    public async bool get_power() throws DBusError, IOError
     {
         return getPower();
     }
 
-    public async void set_power( bool on ) throws DBus.Error
+    public async void set_power( bool on ) throws DBusError, IOError
     {
         setPower( on );
     }

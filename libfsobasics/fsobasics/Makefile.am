@@ -18,6 +18,10 @@ VALAC_ARGS = \
 	--header fsobasics.h \
 	--library fsobasics-2.0
 
+if HAVE_BACKTRACE
+VALAC_ARGS += -D HAVE_BACKTRACE
+endif
+
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG
 AM_CFLAGS += -ggdb -O0

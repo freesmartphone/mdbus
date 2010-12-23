@@ -38,12 +38,7 @@ class BluetoothPowerControl : FsoDevice.BasePowerControl
         this.sysfsnode = sysfsnode;
         this.name = Path.get_basename( sysfsnode );
 
-
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ),
-                                         this );
-
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerControlServicePath, counter++ ), this );
 
         logger.info( "created." );
     }

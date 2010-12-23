@@ -149,7 +149,7 @@ public class RequestResource : ResourceCommand
         base( r );
     }
 
-    public async void run( DBus.BusName user ) throws FreeSmartphone.ResourceError, FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void run( GLib.BusName user ) throws FreeSmartphone.ResourceError, FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         yield enqueue();
         yield r.addUser( user );
@@ -166,7 +166,7 @@ public class ReleaseResource : ResourceCommand
         base( r );
     }
 
-    public async void run( DBus.BusName user ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void run( GLib.BusName user ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         yield enqueue();
         yield r.delUser( user );
@@ -183,7 +183,7 @@ public class SetResourcePolicy : ResourceCommand
         base( r );
     }
 
-    public async void run( string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void run( string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
     }
 }
@@ -198,7 +198,7 @@ public class GetResourcePolicy : ResourceCommand
         base( r );
     }
 
-    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
     }
 }
@@ -208,7 +208,7 @@ public class GetResourcePolicy : ResourceCommand
  **/
 public class Suspend : SystemCommand
 {
-    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         yield enqueue();
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.SUSPEND );
@@ -223,7 +223,7 @@ public class Suspend : SystemCommand
  **/
 public class Shutdown : SystemCommand
 {
-    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         yield enqueue();
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.SHUTDOWN );
@@ -240,7 +240,7 @@ public class Shutdown : SystemCommand
  **/
 public class Reboot : SystemCommand
 {
-    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         yield enqueue();
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.REBOOT );
@@ -257,7 +257,7 @@ public class Reboot : SystemCommand
  **/
 public class Resume : SystemCommand
 {
-    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBus.Error
+    public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         yield enqueue();
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.RESUME );

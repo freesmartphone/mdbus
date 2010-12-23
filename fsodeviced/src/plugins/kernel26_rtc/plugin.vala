@@ -50,10 +50,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         this.sysfsnode = sysfsnode;
         this.devnode = sysfsnode.replace( "/sys/class/rtc/", "/dev/" );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.RtcServicePath, counter++ ),
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.RealtimeClock>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.RtcServicePath, counter++ ), this );
 
         rtc_fd = -1;
         logger.info( "Created new Rtc object." );
@@ -127,17 +124,17 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
     //
     // FreeSmartphone.Device.RealtimeClock (DBUS API)
     //
-    public async string get_name() throws DBus.Error
+    public async string get_name() throws DBusError, IOError
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public async int get_current_time() throws FreeSmartphone.Error, DBus.Error
+    public async int get_current_time() throws FreeSmartphone.Error, DBusError, IOError
     {
         return _getCurrentTime();
     }
 
-    public async void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_current_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBusError, IOError
     {
         openRtc();
         var t = GLib.Time.gm( (time_t) seconds_since_epoch ); // VALABUG: cast is necessary here, otherwise things go havoc
@@ -146,7 +143,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         closeRtc( res == -1 );
     }
 
-    public async int get_wakeup_time() throws FreeSmartphone.Error, DBus.Error
+    public async int get_wakeup_time() throws FreeSmartphone.Error, DBusError, IOError
     {
         openRtc();
         Linux.Rtc.WakeAlarm alarm = {};
@@ -166,7 +163,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         return ( alarm.enabled == 1 ) ? (int) Linux.timegm( t ) : 0;
     }
 
-    public async void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBus.Error
+    public async void set_wakeup_time( int seconds_since_epoch ) throws FreeSmartphone.Error, DBusError, IOError
     {
         var rtctime = _getCurrentTime();
         if ( seconds_since_epoch > 0 && rtctime >= seconds_since_epoch )

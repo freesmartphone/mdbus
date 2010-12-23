@@ -80,11 +80,9 @@ class PalmPre : FreeSmartphone.Device.Proximity,
 
         input = new FsoFramework.Async.ReactorChannel( fd, onInputEvent, sizeof( Linux.Input.Event ) );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix(
-            FsoFramework.Device.ServiceDBusName,
-            FsoFramework.Device.ProximityServicePath,
-            this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Proximity>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.ProximityServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.ProximityServicePath, this );
+
         TimeVal tv = TimeVal();
         tv.get_current_time();
         start_timestamp = tv.tv_sec;
@@ -120,7 +118,7 @@ class PalmPre : FreeSmartphone.Device.Proximity,
     //
     // FreeSmartphone.Device.Proximity (DBUS API)
     //
-    public async void get_proximity( out int proximity, out int timestamp ) throws FreeSmartphone.Error, DBus.Error
+    public async void get_proximity( out int proximity, out int timestamp ) throws FreeSmartphone.Error, DBusError, IOError
     {
         proximity = current_proximity;
         timestamp = _value_timestamp;
@@ -129,13 +127,13 @@ class PalmPre : FreeSmartphone.Device.Proximity,
     //
     // FreeSmartphone.Device.PowerControl (DBUS API)
     //
-    public async bool get_power() throws DBus.Error
+    public async bool get_power() throws DBusError, IOError
     {
         var contents = FsoFramework.FileHandling.read( powernode ) ?? "";
         return contents.strip() == "1";
     }
 
-    public async void set_power( bool on ) throws DBus.Error
+    public async void set_power( bool on ) throws DBusError, IOError
     {
         var contents = on ? "1" : "0";
         FsoFramework.FileHandling.write( contents, powernode );

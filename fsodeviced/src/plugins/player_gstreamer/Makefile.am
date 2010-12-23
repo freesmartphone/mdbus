@@ -6,7 +6,6 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(GSTREAMER_CFLAGS) \
 	$(FSO_CFLAGS) \
-	$(DBUS_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(NULL)
 
@@ -16,7 +15,6 @@ progs_ldadd = \
 	$(top_srcdir)/src/lib/libfsodevice.la \
 	$(GSTREAMER_LIBS) \
 	$(FSO_LIBS) \
-	$(DBUS_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 
@@ -29,7 +27,6 @@ VALAC_ARGS = \
 	--pkg gstreamer-0.10 \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
-	--pkg dbus-glib-1 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsodevice-2.0

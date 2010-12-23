@@ -56,10 +56,8 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply,
 
         Idle.add( onIdle );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, counter++ ),
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, counter ), this );
+        subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, counter++ ), this );
 
         logger.info( "Created" );
     }
@@ -139,9 +137,9 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply,
     //
     // FreeSmartphone.Info (DBUS API)
     //
-    public async HashTable<string,Value?> get_info() throws DBus.Error
+    public async HashTable<string,Variant> get_info() throws DBusError, IOError
     {
-        var res = new HashTable<string,Value?>( str_hash, str_equal );
+        var res = new HashTable<string,Variant>( str_hash, str_equal );
         res.insert( "name", name );
 
         var dir = Dir.open( sysfsnode );
@@ -165,12 +163,12 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply,
     //
     // FreeSmartphone.Device.PowerStatus (DBUS API)
     //
-    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
+    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
     {
         return status;
     }
 
-    public async int get_capacity() throws DBus.Error
+    public async int get_capacity() throws DBusError, IOError
     {
         return getCapacity();
     }
@@ -196,10 +194,7 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                         FsoFramework.Device.PowerSupplyServicePath,
-                                         this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
 
         FsoFramework.BaseKObjectNotifier.addMatch( "change", "power_supply", onPowerSupplyChangeNotification );
 
@@ -451,27 +446,25 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
     //
     // FreeSmartphone.Device.PowerSupply (DBUS API)
     //
-    public async string get_name() throws DBus.Error
+    public async string get_name() throws DBusError, IOError
     {
         return Path.get_basename( sysfsnode );
     }
 
-    public async HashTable<string,Value?> get_info() throws DBus.Error
+    public async HashTable<string,Variant> get_info() throws DBusError, IOError
     {
+        var res = new HashTable<string,Variant>( str_hash, str_equal );
         //FIXME: add more infos
-        var value = Value( typeof(string) );
-        var res = new HashTable<string,Value?>( str_hash, str_equal );
-        value.take_string( "aggregate" );
-        res.insert( "type", value );
+        res.insert( "type", "aggregate" );
         return res;
     }
 
-    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBus.Error
+    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
     {
         return status;
     }
 
-    public async int get_capacity() throws DBus.Error
+    public async int get_capacity() throws DBusError, IOError
     {
         return getCapacity();
     }

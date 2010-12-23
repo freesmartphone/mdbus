@@ -53,11 +53,7 @@ class N900 : FreeSmartphone.Device.Proximity,
 
         logger.debug( @"Trying to read from $(this.node)..." );
 
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObjectWithPrefix(
-            FsoFramework.Device.ServiceDBusName,
-            FsoFramework.Device.ProximityServicePath,
-            this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.Proximity>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.ProximityServicePath, this );
 
         var channel = new IOChannel.file( this.node, "r" );
         string value = "";
@@ -105,7 +101,7 @@ class N900 : FreeSmartphone.Device.Proximity,
     //
     // FreeSmartphone.Device.Proximity (DBUS API)
     //
-    public async void get_proximity( out int proximity, out int timestamp ) throws FreeSmartphone.Error, DBus.Error
+    public async void get_proximity( out int proximity, out int timestamp ) throws FreeSmartphone.Error, DBusError, IOError
     {
         try {
             var value = FsoFramework.FileHandling.read( node ) ?? "";
@@ -121,13 +117,13 @@ class N900 : FreeSmartphone.Device.Proximity,
     //
     // FreeSmartphone.Device.PowerControl (DBUS API)
     //
-    public async bool get_power() throws DBus.Error
+    public async bool get_power() throws DBusError, IOError
     {
         var contents = FsoFramework.FileHandling.read( powernode ) ?? "";
         return contents.strip() == "0";
     }
 
-    public async void set_power( bool on ) throws DBus.Error
+    public async void set_power( bool on ) throws DBusError, IOError
     {
         var contents = on ? "0" : "1";
         FsoFramework.FileHandling.write( contents, powernode );

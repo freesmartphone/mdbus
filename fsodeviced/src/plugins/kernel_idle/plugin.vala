@@ -128,10 +128,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         Idle.add( onIdle );
 
         // FIXME: Reconsider using /org/freesmartphone/Device/Input instead of .../IdleNotifier
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                        "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ),
-                                        this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.IdleNotifier>( FsoFramework.Device.ServiceDBusName, "%s/0".printf( FsoFramework.Device.IdleNotifierServicePath ), this );
 
         var display_resource_allows_dim = config.boolValue( KERNEL_IDLE_PLUGIN_NAME, "display_resource_allows_dim", false );
         displayResourcePreventState = display_resource_allows_dim ? FreeSmartphone.Device.IdleState.IDLE_PRELOCK : FreeSmartphone.Device.IdleState.IDLE_DIM;
@@ -362,12 +359,12 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     //
     // FreeSnmartphone.Device.IdleNotifier (DBUS API)
     //
-    public async FreeSmartphone.Device.IdleState get_state() throws DBus.Error
+    public async FreeSmartphone.Device.IdleState get_state() throws DBusError, IOError
     {
         return 0;
     }
 
-    public async GLib.HashTable<string,int> get_timeouts() throws DBus.Error
+    public async GLib.HashTable<string,int> get_timeouts() throws DBusError, IOError
     {
         var dict = new GLib.HashTable<string,int>( str_hash, str_equal );
 
@@ -378,12 +375,12 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         return dict;
     }
 
-    public async void set_state( FreeSmartphone.Device.IdleState status ) throws DBus.Error
+    public async void set_state( FreeSmartphone.Device.IdleState status ) throws DBusError, IOError
     {
         idlestatus.onState( status );
     }
 
-    public async void set_timeout( FreeSmartphone.Device.IdleState status, int timeout ) throws DBus.Error
+    public async void set_timeout( FreeSmartphone.Device.IdleState status, int timeout ) throws DBusError, IOError
     {
         config.write( KERNEL_IDLE_PLUGIN_NAME, states[status], timeout );
         idlestatus.timeouts[status] = timeout;

@@ -23,14 +23,13 @@ VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--vapidir $(top_srcdir)/src/lib \
-	--pkg dbus-glib-1 \
 	--pkg glib-2.0 \
-	--pkg fsogsm3rdparty \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
+	--pkg fsogsm3rdparty \
 	--pkg config \
 	--header fsogsm.h \
 	--library fsogsm-2.0

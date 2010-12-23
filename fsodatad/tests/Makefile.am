@@ -6,7 +6,6 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
-	$(DBUS_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(NULL)
 
@@ -15,7 +14,6 @@ noinst_PROGRAMS = $(TEST_PROGS)
 progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(DBUS_LIBS) \
 	$(FSO_LIBS) \
 	../src/lib/libfsodata.la
 
@@ -26,7 +24,6 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
-	--pkg dbus-glib-1 \
 	--pkg fsoframework-2.0 \
 	--pkg fsodata-2.0
 
@@ -38,7 +35,6 @@ $(testworld_SOURCES): $(testworld_VALASOURCES)
 	touch $@
 testworld_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testworld_VALASOURCES)
-
 
 CLEANFILES = \
     $(TEST_PROGS) \

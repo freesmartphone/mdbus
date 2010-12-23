@@ -33,13 +33,9 @@ class Info : FreeSmartphone.Device.Info, FsoFramework.AbstractObject
     public Info( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-        subsystem.registerServiceName( FsoFramework.Device.ServiceDBusName );
-        subsystem.registerServiceObject( FsoFramework.Device.ServiceDBusName,
-                                        FsoFramework.Device.InfoServicePath,
-                                        this );
+        subsystem.registerObjectForService<FreeSmartphone.Device.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.InfoServicePath, this );
         logger.info( "Created new Info Object" );
     }
-
 
     public override string repr()
     {
@@ -50,13 +46,12 @@ class Info : FreeSmartphone.Device.Info, FsoFramework.AbstractObject
     //
     // FreeSmartphone.Device.Info (DBUS API)
     //
-    public async HashTable<string, Value?> get_cpu_info()
+    public async HashTable<string,Variant> get_cpu_info() throws DBusError, IOError
     {
         File node_file = File.new_for_path( PROC_NODE );
         string line;
-        var val = Value( typeof(string) );
-        HashTable<string, Value?> _ret = new HashTable<string, Value?> ( (HashFunc)str_hash,
-                                                                        (EqualFunc)str_equal );
+        HashTable<string, Variant> _ret = new HashTable<string, Variant>( str_hash, str_equal );
+        Variant val;
         DataInputStream stream = new DataInputStream( node_file.read(null) );
         try
         {
@@ -69,17 +64,17 @@ class Info : FreeSmartphone.Device.Info, FsoFramework.AbstractObject
                 string[] _list = line.split(":");
                 if ( (_list[1] != "") && (_list[0] != "") )
                 {
-                    val.take_string(_list[1].strip());
+                    val = _list[1].strip();
                     _ret.insert ( _list[0].strip(), val );
                 }
             }
         }
-        catch (GLib.Error error) {
+        catch (GLib.Error error)
+        {
             logger.warning( error.message );
         }
         return _ret;
     }
-
 }
 
 } /* namespace Kernel */
@@ -91,7 +86,6 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     instance = new Kernel.Info( subsystem );
     return "fsodevice.kernel_info";
 }
-
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )

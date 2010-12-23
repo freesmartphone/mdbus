@@ -61,7 +61,6 @@ public void dump( string typ )
     if ( typ != "kobject" )
     {
         BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.NEWLINK, (properties) => { onNetlinkEvent( "NEWLINK", properties ); } );
-        BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.NEWLINK, (properties) => { onNetlinkEvent( "NEWLINK", properties ); } );
         BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.DELLINK, (properties) => { onNetlinkEvent( "DELLINK", properties ); } );
         BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.GETLINK, (properties) => { onNetlinkEvent( "GETLINK", properties ); } );
         BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.SETLINK, (properties) => { onNetlinkEvent( "SETLINK", properties ); } );

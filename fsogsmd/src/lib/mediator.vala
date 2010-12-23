@@ -65,7 +65,7 @@ public abstract class FsoGsm.DeviceGetCurrentTime : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.DeviceGetFeatures : FsoGsm.AbstractMediator
 {
-    public GLib.HashTable<string,GLib.Value?> features { get; set; }
+    public GLib.HashTable<string,GLib.Variant> features { get; set; }
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
@@ -79,7 +79,7 @@ public abstract class FsoGsm.DeviceGetFunctionality : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.DeviceGetInformation : FsoGsm.AbstractMediator
 {
-    public GLib.HashTable<string,GLib.Value?> info { get; set; }
+    public GLib.HashTable<string,GLib.Variant> info { get; set; }
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
@@ -165,7 +165,7 @@ public abstract class FsoGsm.SimGetAuthStatus : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.SimGetInformation : FsoGsm.AbstractMediator
 {
-    public GLib.HashTable<string,Value?> info { get; set; }
+    public GLib.HashTable<string,Variant> info { get; set; }
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
@@ -182,7 +182,7 @@ public abstract class FsoGsm.SimGetServiceCenterNumber : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.SimGetUnlockCounters : FsoGsm.AbstractMediator
 {
-    public GLib.HashTable<string,Value?> counters { get; set; }
+    public GLib.HashTable<string,Variant> counters { get; set; }
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
@@ -194,7 +194,7 @@ public abstract class FsoGsm.SimRetrievePhonebook : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.SimRetrieveMessage : FsoGsm.AbstractMediator
 {
-    public abstract async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Value?> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.SimSendAuthCode : FsoGsm.AbstractMediator
@@ -268,7 +268,7 @@ public abstract class FsoGsm.NetworkGetSignalStrength : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.NetworkGetStatus : FsoGsm.AbstractMediator
 {
-    public GLib.HashTable<string,GLib.Value?> status { get; set; }
+    public GLib.HashTable<string,GLib.Variant> status { get; set; }
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
@@ -395,14 +395,14 @@ public abstract class FsoGsm.CbGetCellBroadcastSubscriptions : FsoGsm.AbstractMe
 //
 public abstract class FsoGsm.MonitorGetServingCellInformation : FsoGsm.AbstractMediator
 {
-    public GLib.HashTable<string,GLib.Value?> cell { get; set; }
+    public GLib.HashTable<string,GLib.Variant> cell { get; set; }
 
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.MonitorGetNeighbourCellInformation : FsoGsm.AbstractMediator
 {
-    public GLib.HashTable<string,GLib.Value?>[] cells { get; set; }
+    public GLib.HashTable<string,GLib.Variant>[] cells { get; set; }
 
     public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
