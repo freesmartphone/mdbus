@@ -50,7 +50,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         UP
     }
 
-    public enum PowerEvent 
+    public enum PowerEvent
     {
         NONE = 0,
         PHONET_LINK_UP = 1,
@@ -98,6 +98,11 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
     private int socket;
     private IOChannel chan;
 
+    struct NetlinkInfoMessage
+    {
+        Linux.Netlink.NlMsgHdr nlh;
+        Linux.Netlink.IfInfoMsg ifi;
+    }
 
     construct
     {
@@ -365,7 +370,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         }
         return TRUE;
         */
-             
+
         return false;
     }
 
@@ -525,7 +530,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
             case PowerEvent.OFF_IMMEDIATELY:
                 gpio_power_set_state( PowerState.OFF );
                 return;
-                
+
             case PowerEvent.OFF_TIMEOUT:
                 logger.debug( "Modem power off timed out" );
                 gpio_power_set_state( PowerState.OFF );
@@ -745,8 +750,8 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         option = SOCKET_BUF_SIZE;
         // FIXME: replace 1 with SOL_SOCKET
-        // FIXME: replace 8 with SO_RCVBUF 
-        if ( PosixExtra.setsockopt( socket, 1, 8, &option, (PosixExtra.socklen_t) sizeof( int ) ) != 0 )
+        // FIXME: replace 8 with SO_RCVBUF
+        if ( Posix.setsockopt( socket, 1, 8, &option, (Posix.socklen_t) sizeof( int ) ) != 0 )
         {
             logger.warning( "netlink_start: failed to socket options" );
             Posix.close( socket );
@@ -759,14 +764,14 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         option = Linux.Netlink.RTNLGRP_LINK;
         // FIXME: replace 270 with SOL_NETLINK
         // FIXME: replace 1 with NETLINK_ADD_MEMBERSHIP
-        PosixExtra.setsockopt( socket, 270, 1, &option, (PosixExtra.socklen_t) sizeof( int ) );
+        Posix.setsockopt( socket, 270, 1, &option, (Posix.socklen_t) sizeof( int ) );
 
         int fd = Posix.socket( 1, Posix.SOCK_DGRAM, 0 );
 
         /* try to bring up the interface */
         var ifreq = Linux.Network.IfReq();
         ifreq.ifr_ifindex = 1;
-        if ( Posix.ioctl( fd, Linux.Network.SIOCGIFNAME, &ifreq ) == 0 && 
+        if ( Posix.ioctl( fd, Linux.Network.SIOCGIFNAME, &ifreq ) == 0 &&
                 Posix.ioctl( fd, Linux.Network.SIOCGIFFLAGS, &ifreq ) == 0)
         {
             logger.debug( "netlink_start: flagging phonet interface as up and running" );
@@ -785,29 +790,20 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     private void netlink_getlink( int fd )
     {
-        /* FIXME: translate into vala ;)
-        struct {
-            struct nlmsghdr nlh;
-            struct ifinfomsg ifi;
-        } req = {
-            .nlh = {
-                .nlmsg_type = RTM_GETLINK,
-                .nlmsg_len = sizeof(req),
-                .nlmsg_flags = NLM_F_REQUEST | NLM_F_ROOT | NLM_F_MATCH,
-                .nlmsg_pid = getpid(),
-            },
-            .ifi = {
-                .ifi_family = AF_UNSPEC,
-                .ifi_type = ARPHRD_PHONET,
-                .ifi_change = 0xffFFffFF,
-            }
+        var req = NetlinkInfoMessage() {
+            nlh = Linux.Netlink.NlMsgHdr() {
+                nlmsg_type  = (uint16) Linux.Netlink.RtMessageType.GETLINK,
+                nlmsg_len   = (uint32) sizeof( NetlinkInfoMessage ),
+                nlmsg_flags = (uint16) Linux.Netlink.NLM_F_REQUEST | Linux.Netlink.NLM_F_ROOT | Linux.Netlink.NLM_F_MATCH,
+                nlmsg_pid   = Posix.getpid() },
+            ifi = Linux.Netlink.IfInfoMsg() {
+                ifi_family = (uchar) Linux.Socket.AF_UNSPEC,
+                ifi_type = (ushort) Linux.Network.IfArpHeaderType.PHONET,
+                ifi_change = (uint32) 0xffFFffFF }
         };
 
-        struct sockaddr_nl addr = { .nl_family = AF_NETLINK, };
-
-        return sendto(fd, &req, sizeof(req), 0,
-                  (struct sockaddr *)&addr, sizeof(addr));
-                  */
+        var addr = Linux.Netlink.SockAddrNl() { nl_family = Linux.Socket.AF_NETLINK };
+        Posix.sendto( fd, &req, sizeof( NetlinkInfoMessage ), 0, &addr, sizeof( Linux.Netlink.SockAddrNl ) );
     }
 
     private void netlink_addr()
