@@ -89,17 +89,18 @@ public class NullLowLevel : LowLevel, FsoFramework.AbstractObject
 {
     public override string repr()
     {
-        return "";
+        return "<>";
     }
 
     public void suspend()
     {
-        logger.warning( "NullLowlevel::suspend() - this is probably not what you want" );
+        logger.warning( "NullLowlevel::suspend() - this is probably not what you want. Sleeping 5 seconds..." );
+        Posix.sleep( 5 );
     }
 
     public ResumeReason resume()
     {
-        logger.warning( "NullLowlevel::resume() - this is probably not what you want" );
+        logger.warning( "NullLowlevel::resume() - this is probably not what you want. Resume reason will be unknown!" );
         return ResumeReason.Unknown;
     }
 }

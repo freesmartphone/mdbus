@@ -45,20 +45,16 @@ namespace Usage {
 public class Controller : FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
-
     private FsoUsage.LowLevel lowlevel;
-    private bool debug_do_not_suspend;
+
     private bool debug_enable_on_startup;
     private bool disable_on_startup;
     private bool disable_on_shutdown;
 
     private HashMap<string,Resource> resources;
 
-    DBusService.IDBus dbus;
-    FreeSmartphone.Device.IdleNotifier idlenotifier;
-
-    //dynamic DBus.Object idlenotifier;
-
+    private DBusService.IDBus dbus;
+    private FreeSmartphone.Device.IdleNotifier idlenotifier;
     private FreeSmartphone.UsageSystemAction system_status;
 
     public Controller( FsoFramework.Subsystem subsystem )
@@ -67,8 +63,6 @@ public class Controller : FsoFramework.AbstractObject
         this.subsystem = subsystem;
         this.subsystem.registerObjectForService<Controller>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix, this );
 
-        // debug option: should we really suspend?
-        debug_do_not_suspend = config.boolValue( CONFIG_SECTION, "debug_do_not_suspend", false );
         // debug option: should we enable on startup?
         debug_enable_on_startup = config.boolValue( CONFIG_SECTION, "debug_enable_on_startup", false );
 
@@ -80,8 +74,8 @@ public class Controller : FsoFramework.AbstractObject
         dbus = Bus.get_proxy_sync<DBusService.IDBus>( BusType.SYSTEM, DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
         dbus.NameOwnerChanged.connect( onNameOwnerChanged );
 
-        // get handle to IdleNotifier
-        idlenotifier = Bus.get_proxy_sync<FreeSmartphone.Device.IdleNotifier>( BusType.SYSTEM, FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH );
+        // get handle to IdleNotifier, don't autostart process
+        idlenotifier = Bus.get_proxy_sync<FreeSmartphone.Device.IdleNotifier>( BusType.SYSTEM, FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH, DBusProxyFlags.DO_NOT_AUTO_START );
 
         // init resources and low level helpers
         initResources();
@@ -299,18 +293,9 @@ public class Controller : FsoFramework.AbstractObject
             logger.error( @"$resourcesAlive resources still alive :( Aborting Suspend!" );
             return false;
         }
-        logger.info( ">>>>>>> KERNEL SUSPEND" );
-
-        if ( !debug_do_not_suspend )
-        {
-            lowlevel.suspend();
-        }
-        else
-        {
-            assert( logger.debug( "Not really suspending as instructed per debug_do_not_suspend. Sleeping 5 seconds instead..." ) );
-            Posix.sleep( 5 );
-        }
-        logger.info( "<<<<<<< KERNEL RESUME" );
+        logger.info( "Entering lowlevel suspend" );
+        lowlevel.suspend();
+        logger.info( "Leaving lowlevel suspend" );
 
         FsoUsage.ResumeReason reason = lowlevel.resume();
         logger.info( @"Resume reason seems to be $reason" );
