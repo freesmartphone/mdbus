@@ -1,7 +1,5 @@
-/**
- * This file is part of fso-term.
- *
- * (C) 2009 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+/*
+ * (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +15,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
- **/
+ */
 
 using GLib;
 using FsoFramework;
+
+const string HISTORY_PATH = "%s/.fso-term.history";
 
 public class Reader
 {
@@ -30,7 +30,7 @@ public class Reader
     public Reader( Transport transport )
     {
         this.transport = transport;
-        thread = GLib.Thread.create( run, true );
+        thread = GLib.Thread.create<void*>( run, true );
     }
 
     private void* run()
@@ -39,7 +39,7 @@ public class Reader
         Readline.readline_name = "fso-term";
         Readline.terminal_name = Environment.get_variable( "TERM" );
 
-        Readline.History.read( "%s/.fso-term.history".printf( Environment.get_variable( "HOME" ) ) );
+        Readline.History.read( HISTORY_PATH.printf( Environment.get_variable( "HOME" ) ) );
         Readline.History.max_entries = 512;
 
         while ( true )
@@ -48,19 +48,18 @@ public class Reader
             if ( line == null ) // ctrl-d
             {
                 quitWithMessage( ":::Offline." );
-                return null;
             }
             else
             {
                 Readline.History.add( line );
                 transport.write( line + "\r\n", (int)line.length + 2 );
             }
+            return null;
         }
-        return null;
     }
 
     ~Reader()
     {
-        Readline.History.write( "%s/.fso-term.history".printf( Environment.get_variable( "HOME" ) ) );
+        Readline.History.write( HISTORY_PATH.printf( Environment.get_variable( "HOME" ) ) );
     }
 }
