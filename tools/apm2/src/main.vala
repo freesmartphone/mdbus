@@ -1,5 +1,5 @@
-/**
- * -- Mickey's DBus Utility V2 --
+/*
+ * -- FSO APM Compatibility Utility --
  *
  * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
