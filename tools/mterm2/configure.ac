@@ -9,7 +9,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
-VALA_REQUIRED=0.9.7
+VALA_REQUIRED=0.11.1
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 m4_ifdef([AM_PROG_VALAC], [AM_PROG_VALAC([$VALA_REQUIRED])])
@@ -35,7 +35,7 @@ AC_CHECK_LIB(history, add_history,
                [Define to one if you have -lhistory])],
              [LIBHISTORY=])
 
-# If libhistory does not provide add_history check if libreadline has it.
+# If libhistory does not provide add_history, check if libreadline has it.
 if test -z "$LIBHISTORY" && test -n "$LIBREADLINE"; then
   AC_CHECK_LIB(readline, add_history,
                [LIBHISTORY=-lreadline
@@ -51,16 +51,16 @@ if test -z "$LIBHISTORY" && test -z "$LIBREADLINE"; then
 fi
 
 # dependencies
-GLIB_REQUIRED=2.12.0
+GLIB_REQUIRED=2.26.0
 FSO_TRANSPORT_REQUIRED=0.9
-DBUS_REQUIRED=0.76
+FSO_GLIB_REQUIRED=2010.12.13.1
 
 PKG_CHECK_MODULES(DEPS,
   glib-2.0 >= $GLIB_REQUIRED
   gobject-2.0 >= $GLIB_REQUIRED
   gthread-2.0 >= $GLIB_REQUIRED
-  dbus-glib-1 >= $DBUS_REQUIRED
-  fsotransport-2.0 >= $FSO_TRANSPORT_REQUIRED)
+  fsotransport-2.0 >= $FSO_TRANSPORT_REQUIRED
+  fso-glib-1.0 >= $FSO_GLIB_REQUIRED)
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 

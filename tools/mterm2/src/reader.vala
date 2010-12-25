@@ -20,7 +20,8 @@
 using GLib;
 using FsoFramework;
 
-const string HISTORY_PATH = "%s/.fso-term.history";
+const string HISTORY_PATH = "%s/.mterm2.history";
+const string PROGRAM_NAME = "mterm2";
 
 public class Reader
 {
@@ -36,7 +37,7 @@ public class Reader
     private void* run()
     {
         Readline.initialize();
-        Readline.readline_name = "fso-term";
+        Readline.readline_name = PROGRAM_NAME;
         Readline.terminal_name = Environment.get_variable( "TERM" );
 
         Readline.History.read( HISTORY_PATH.printf( Environment.get_variable( "HOME" ) ) );

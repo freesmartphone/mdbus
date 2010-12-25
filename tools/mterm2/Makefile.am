@@ -4,9 +4,10 @@ AUTOMAKE_OPTIONS = subdir-objects
 VALAC_ARGS = \
 	--vapidir vapi \
 	--pkg posix \
+	--pkg glib-2.0 \
 	--pkg gio-2.0 \
-	--pkg dbus-glib-1 \
 	--pkg fsotransport-2.0 \
+	--pkg fso-glib-1.0 \
 	--pkg readline \
 	--pkg config \
 	--thread \
