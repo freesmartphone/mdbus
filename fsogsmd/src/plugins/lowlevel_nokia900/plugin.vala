@@ -806,34 +806,31 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         Posix.sendto( fd, &req, sizeof( NetlinkInfoMessage ), 0, &addr, sizeof( Linux.Netlink.SockAddrNl ) );
     }
 
-    private void netlink_addr()
+    private void netlink_addr( ref Linux.Netlink.NlMsgHdr nlh )
     {
-#if 0
         int len;
-        uint8_t local = 0xff;
-        uint8_t remote = 0xff;
+        uint8 local = 0xff;
+        uint8 remote = 0xff;
 
-        const struct ifaddrmsg *ifa;
-        const struct rtattr *rta;
-
-        ifa = NLMSG_DATA(nlh);
-        len = IFA_PAYLOAD(nlh);
+        Linux.Network.IfAddrMsg* ifa = (Linux.Network.IfAddrMsg*) Linux.Netlink.NLMSG_DATA(nlh);
+        len = Linux.Network.IFA_PAYLOAD(nlh);
 
         /* If Phonet is absent, kernel transmits other families... */
-        if (ifa->ifa_family != AF_PHONET)
+        if (ifa->ifa_family != Linux.Socket.AF_PHONET)
             return;
 
+        /*
         if (ifa->ifa_index != self->interface)
             return;
+        */
 
-        for (rta = IFA_RTA(ifa); RTA_OK(rta, len); rta = RTA_NEXT(rta, len)) {
-
-            if (rta->rta_type == IFA_LOCAL)
-                local = *(uint8_t *)RTA_DATA(rta);
-            else if (rta->rta_type == IFA_ADDRESS)
-                remote = *(uint8_t *)RTA_DATA(rta);
+        for ( Linux.Netlink.RtAttr* rta = Linux.Network.IFA_RTA(ifa); Linux.Netlink.RTA_OK(rta, len); rta = Linux.Netlink.RTA_NEXT(rta, len))
+        {
+            if (rta->rta_type == Linux.Network.IfAddrType.LOCAL)
+                local = *(uint8 *)Linux.Netlink.RTA_DATA(rta);
+            else if (rta->rta_type == Linux.Network.IfAddrType.ADDRESS)
+                remote = *(uint8 *)Linux.Netlink.RTA_DATA(rta);
         }
-#endif
     }
 
     private void netlink_link()
