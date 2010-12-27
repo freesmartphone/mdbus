@@ -142,19 +142,18 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         }
     }
 
-    private void alarmNotificationViaDbus( string busname )
+    private async void alarmNotificationViaDbus( string busname )
     {
-        var proxy = subsystem.dbusConnection().get_proxy_sync<FreeSmartphone.Notification>( busname, "/" );
+        var conn = subsystem.dbusConnection();
+        var proxy = yield conn.get_proxy<FreeSmartphone.Notification>( busname, "/" );
         // this is a no-reply call
         try
         {
             proxy.alarm();
         }
-        catch ( DBusError e )
+        catch ( Error e )
         {
-        }
-        catch ( IOError e )
-        {
+            logger.warning( @"Could not wake up $busname: $(e.message)" );
         }
     }
 
