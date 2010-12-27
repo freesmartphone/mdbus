@@ -1,0 +1,13 @@
+libfsosystem is a glib-2.0-based library for low level
+system-related utilities.
+
+It is written in Vala and compiles to C.
+
+While being used primarily for the freesmartphone.org project,
+it is versatile enough to be of use for many 3rd party projects.
+
+If you feel there is something missing or want to report a bug,
+please mail to smartphones-userland@linuxtogo.org or create a
+ticket at http://trac.freesmartphone.org
+
+:M:
