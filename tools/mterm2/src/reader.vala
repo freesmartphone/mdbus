@@ -49,14 +49,15 @@ public class Reader
             if ( line == null ) // ctrl-d
             {
                 quitWithMessage( ":::Offline." );
+                return null;
             }
             else
             {
                 Readline.History.add( line );
                 transport.write( line + "\r\n", (int)line.length + 2 );
             }
-            return null;
         }
+        return null;
     }
 
     ~Reader()
