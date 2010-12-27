@@ -70,17 +70,9 @@ class Source.Ntp : FsoTime.AbstractSource
         packet = NetworkTimeProtocol.Packet();
         assert( 48 == sizeof( NetworkTimeProtocol.Packet ) );
 
-        //FIXME: broken in vala atm.
-        //Idle.add( () => { triggerQuery(); return false; } );
-        Idle.add( foo );
+        Idle.add( () => { triggerQuery(); return false; } );
 
         FsoFramework.BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.NEWROUTE, onNetlinkNewRoute );
-    }
-
-    private bool foo()
-    {
-        triggerQuery();
-        return false; // don't call me again
     }
 
     public override string repr()
