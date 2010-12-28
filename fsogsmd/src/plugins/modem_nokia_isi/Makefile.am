@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(ISI_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -16,6 +17,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
+	$(ISI_LIBS) \
 	$(top_srcdir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
@@ -28,7 +30,8 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
-	--pkg fsogsm-2.0
+	--pkg fsogsm-2.0 \
+	--pkg libisi
 
 #
 # plugin

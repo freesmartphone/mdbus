@@ -22,6 +22,7 @@ using GLib;
 using Gee;
 using FsoGsm;
 
+
 /**
  * @class NokiaIsi.Modem
  *

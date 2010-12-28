@@ -24,6 +24,7 @@ GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 XML_REQUIRED=2.7.3
 GSMMUX_REQUIRED=0.3.4
+ISI_REQUIRED=0.0.0
 MSMCOMMD_SPECS_REQUIRED=0.1.0
 FSO_GLIB_REQUIRED=2010.07.28.1
 FSO_FRAMEWORK_REQUIRED=0.2.3
@@ -110,7 +111,7 @@ fi
 AM_CONDITIONAL( [WANT_MUX], [test x"$mux" = x"yes"])
 
 ##############################################################################
-# optional feature: palm pre (plus) support
+# optional feature: Qualcomm modem support as found in Palm WebOS devices
 AC_ARG_ENABLE(modem-qualcomm-palm,
   [  --enable-modem-qualcomm-palm  Enable building the modem_qualcomm_palm plugin (default=disabled)],
   [palm=$enableval],
@@ -124,6 +125,22 @@ AC_SUBST(PALM_LIBS)
 
 fi
 AM_CONDITIONAL( [WANT_PALM], [test x"$palm" = x"yes"])
+
+##############################################################################
+# optional feature: Nokia ISI modem support as found in Nokia N900
+AC_ARG_ENABLE(modem-nokia-isi,
+  [  --enable-modem-nokia-isi  Enable building the nokia_isi plugin (default=disabled)],
+  [isi=$enableval],
+  [isi="no"])
+
+if test x$isi = "xyes"; then
+    PKG_CHECK_MODULES(ISI,
+      libisi >= $ISI_REQUIRED)
+AC_SUBST(ISI_CFLAGS)
+AC_SUBST(ISI_LIBS)
+
+fi
+AM_CONDITIONAL( [WANT_ISI], [test x"$isi" = x"yes"])
 
 ##############################################################################
 # datadir
@@ -211,6 +228,7 @@ echo "  pdp_mux.................: $mux"
 echo "  modem_ti_calypso........: $mux"
 echo "  modem_cinterion_mc75....: $mux"
 echo "  modem_qualcomm_palm.....: $palm"
+echo "  modem_nokia_isi.........: $isi"
 echo
 echo "  shared data directory...: $pkgdatadir"
 echo
