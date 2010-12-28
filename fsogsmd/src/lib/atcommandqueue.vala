@@ -55,9 +55,9 @@ public class FsoGsm.AtCommandHandler : FsoFramework.AbstractCommandHandler
         {
             transport.write( prefix, (int)prefix.length );
         }
-        if ( request.size() > 0 )
+        if ( request.length > 0 )
         {
-            transport.write( request, (int)request.size() );
+            transport.write( request, (int)request.length );
         }
         if ( postfix.length > 0 )
         {
