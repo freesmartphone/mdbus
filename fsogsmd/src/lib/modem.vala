@@ -201,7 +201,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public signal void signalStatusChanged( Modem.Status status );
 
     // Mediator API
-    public abstract T createMediator<T>();
+    public abstract T createMediator<T>() throws FreeSmartphone.Error;
     public abstract T createAtCommand<T>( string command );
     public abstract T theDevice<T>();
     public abstract Object parent { get; set; } // the DBus object
@@ -801,14 +801,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return null;
     }
 
-    public T createMediator<T>()
+    public T createMediator<T>() throws FreeSmartphone.Error
     {
         var typ = mediators[typeof(T)];
         assert( typ != typeof(T) ); // we do NOT want the interface, else things will go havoc
         if ( typ == Type.INVALID )
         {
-            logger.critical( @"Requested mediator $(typeof(T).name()) unknown" );
-            assert_not_reached();
+            logger.error( @"Requested mediator $(typeof(T).name()) not present for this modem" );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Not implemented (yet) for this modem (M:$(typeof(T).name()))" );
         }
         T obj = Object.new( typ );
         assert( obj != null );
