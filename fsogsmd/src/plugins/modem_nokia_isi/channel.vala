@@ -30,7 +30,6 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
 
     private bool _is_initialized;
 
-
     private void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
     {
         switch ( status )
@@ -46,7 +45,6 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
         }
     }
 
-
     //
     // public API
     //
@@ -57,7 +55,6 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
         this.name = name;
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
-
     }
 
     public void initialize()
@@ -67,6 +64,8 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
         _is_initialized = true;
 
         theModem.logger.debug("ISICHANNEL: modem initialization is finished!");
+
+        theModem.advanceToState( Modem.Status.ALIVE_NO_SIM );
     }
 
     public async void shutdown()

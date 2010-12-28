@@ -33,14 +33,36 @@ using FsoGsm;
 class NokiaIsi.Modem : FsoGsm.AbstractModem
 {
     private const string ISI_CHANNEL_NAME = "main";
+    private ISI.Modem isimodem = null;
+    private bool reachable = false;
 
     construct
     {
+        if ( modem_transport != "phonet" )
+        {
+            logger.critical( "This modem plugin only supports the PHONET transport" );
+            return;
+        }
+        if ( Linux.Network.if_nametoindex( modem_port ) == 0 )
+        {
+            logger.critical( @"Interface $modem_port not available" );
+        }
+        isimodem = new ISI.Modem( modem_port, (error) => {
+            if (error )
+            {
+                logger.error( "Modem not reachable" );
+            }
+            else
+            {
+                logger.info( "Modem is reachable" );
+            }
+            reachable = !error;
+        } );
     }
 
     public override string repr()
     {
-        return "<>";
+        return @"<$modem_transport:$modem_port>";
     }
 
     protected override UnsolicitedResponseHandler createUnsolicitedHandler()
@@ -73,8 +95,19 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        //mandatory
         new IsiChannel( ISI_CHANNEL_NAME );
+    }
+
+    protected override bool powerOn()
+    {
+        /*
+        logger.debug( "!" );
+        if ( isimodem == null || !reachable )
+        {
+            return false;
+        }
+        */
+        return true;
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
@@ -84,6 +117,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
     {
+        NokiaIsi.registerMediators( mediators );
     }
 }
 
