@@ -22,6 +22,7 @@ using GLib;
 using Gee;
 using FsoGsm;
 
+namespace NokiaIsi { NokiaIsi.Modem modem; }
 
 /**
  * @class NokiaIsi.Modem
@@ -33,7 +34,8 @@ using FsoGsm;
 class NokiaIsi.Modem : FsoGsm.AbstractModem
 {
     private const string ISI_CHANNEL_NAME = "main";
-    private ISI.Modem isimodem = null;
+    public ISI.Modem isimodem = null;
+    public ISI.DeviceInfo isidevice = null;
     private bool reachable = false;
 
     construct
@@ -55,9 +57,12 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
             else
             {
                 logger.info( "Modem is reachable" );
+                isidevice = new ISI.DeviceInfo( isimodem, (error) => {} );
             }
             reachable = !error;
         } );
+
+        NokiaIsi.modem = this;
     }
 
     public override string repr()

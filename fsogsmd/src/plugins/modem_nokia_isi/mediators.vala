@@ -25,12 +25,35 @@ namespace NokiaIsi
 
 public class IsiDeviceGetInformation : DeviceGetInformation
 {
+    /* revision, model, manufacturer, imei */
+
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        /* revision, model, manufacturer, imei */
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-        info.insert( "manufacturer", "NOKIA" );
+        NokiaIsi.modem.isidevice.query_manufacturer( ( error, msg ) => {
+            info.insert( "manufacturer", error ? "unknown" : msg );
+            run.callback();
+        } );
+        yield;
+
+        NokiaIsi.modem.isidevice.query_model( ( error, msg ) => {
+            info.insert( "model", error ? "unknown" : msg );
+            run.callback();
+        } );
+        yield;
+
+        NokiaIsi.modem.isidevice.query_revision( ( error, msg ) => {
+            info.insert( "revision", error ? "unknown" : msg );
+            run.callback();
+        } );
+        yield;
+
+        NokiaIsi.modem.isidevice.query_serial( ( error, msg ) => {
+            info.insert( "imei", error ? "unknown" : msg );
+            run.callback();
+        } );
+        yield;
     }
 }
 
