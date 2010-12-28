@@ -124,6 +124,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
     {
+        mediators.clear(); // we don't need the default AT mediators
         NokiaIsi.registerMediators( mediators );
     }
 }
