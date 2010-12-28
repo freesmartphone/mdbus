@@ -23,6 +23,9 @@ using FsoGsm;
 namespace NokiaIsi
 {
 
+/*
+ * org.freesmartphone.Info
+ */
 public class IsiDeviceGetInformation : DeviceGetInformation
 {
     /* revision, model, manufacturer, imei */
@@ -57,9 +60,50 @@ public class IsiDeviceGetInformation : DeviceGetInformation
     }
 }
 
+/*
+ * org.freesmartphone.GSM.SIM
+ */
+public class IsiSimGetAuthStatus : SimGetAuthStatus
+{
+    // public FreeSmartphone.GSM.SIMAuthStatus status;
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        ISI.SIMAuth.status isicode = 0;
+
+        NokiaIsi.modem.isisimauth.request_status( ( code ) => {
+            isicode = code;
+            run.callback();
+        } );
+        yield;
+
+        switch ( isicode )
+        {
+			case ISI.SIMAuth.status.NO_SIM:
+                throw new FreeSmartphone.GSM.Error.SIM_NOT_PRESENT( "No SIM" );
+                break;
+			case ISI.SIMAuth.status.NEED_NONE:
+                status = FreeSmartphone.GSM.SIMAuthStatus.READY;
+                break;
+			case ISI.SIMAuth.status.NEED_PIN:
+                status = FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED;
+                break;
+			case ISI.SIMAuth.status.NEED_PUK:
+                status = FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED;
+                break;
+            default:
+                status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
+                break;
+        }
+    }
+}
+
+/*
+ * Register Mediators
+ */
 static void registerMediators( HashMap<Type,Type> mediators )
 {
     mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
+    mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
 }

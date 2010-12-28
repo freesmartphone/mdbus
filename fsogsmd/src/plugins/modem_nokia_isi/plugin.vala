@@ -36,6 +36,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
     private const string ISI_CHANNEL_NAME = "main";
     public ISI.Modem isimodem = null;
     public ISI.DeviceInfo isidevice = null;
+    public ISI.SIMAuth isisimauth = null;
     private bool reachable = false;
 
     construct
@@ -58,6 +59,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
             {
                 logger.info( "Modem is reachable" );
                 isidevice = new ISI.DeviceInfo( isimodem, (error) => {} );
+                isisimauth = new ISI.SIMAuth( isimodem );
             }
             reachable = !error;
         } );
