@@ -140,7 +140,11 @@ public class IsiNetworkListProviders : NetworkListProviders
             {
                 for ( int i = 0; i < operators.length; ++i )
                 {
-                    p += FreeSmartphone.GSM.NetworkProvider( "unknown", operators[i].name, operators[i].name, operators[i].mcc + operators[i].mnc, "GSM" );
+                    p += FreeSmartphone.GSM.NetworkProvider( Constants.instance().networkProviderStatusToString( operators[i].status ),
+                                                             operators[i].name,
+                                                             operators[i].name,
+                                                             operators[i].mcc + operators[i].mnc,
+                                                             "GSM" );
                 }
             }
             run.callback();
