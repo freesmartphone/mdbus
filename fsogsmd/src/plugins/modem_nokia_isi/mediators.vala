@@ -135,37 +135,43 @@ public class IsiNetworkGetStatus : NetworkGetStatus
     {
         status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
+        var istatus = ISI.Network.Status();
+
         NokiaIsi.modem.isinetwork.request_status( ( error, isistatus ) => {
             if ( !error )
             {
-                status.insert( "lac", "%04X".printf( isistatus.lac ) );
-                status.insert( "cid", "%04X".printf( isistatus.cid ) );
-                var regstatus = "unknown";
-                switch ( isistatus.status )
-                {
-                    case ISI.Network.RegistrationStatus.HOME:
-                        regstatus = "home";
-                        break;
-                    case ISI.Network.RegistrationStatus.ROAM:
-                    case ISI.Network.RegistrationStatus.ROAM_BLINK:
-                        regstatus = "roaming";
-                        break;
-                    case ISI.Network.RegistrationStatus.NOSERV:
-                    case ISI.Network.RegistrationStatus.NOSERV_NOTSEARCHING:
-                        regstatus = "unregistered";
-                        break;
-                    case ISI.Network.RegistrationStatus.NOSERV_SEARCHING:
-                        regstatus = "searching";
-                        break;
-                    case ISI.Network.RegistrationStatus.NOSERV_NOSIM:
-                    case ISI.Network.RegistrationStatus.NOSERV_SIM_REJECTED_BY_NW:
-                        regstatus = "denied";
-                        break;
-                }
-                status.insert( "registration", regstatus );
-                status.insert( "act", Constants.instance().networkProviderActToString( isistatus.technology ) );
+                istatus = isistatus;
             }
+            run.callback();
         } );
+        yield;
+
+        status.insert( "lac", "%04X".printf( istatus.lac ) );
+        status.insert( "cid", "%04X".printf( istatus.cid ) );
+        var regstatus = "unknown";
+        switch ( istatus.status )
+        {
+            case ISI.Network.RegistrationStatus.HOME:
+                regstatus = "home";
+                break;
+            case ISI.Network.RegistrationStatus.ROAM:
+            case ISI.Network.RegistrationStatus.ROAM_BLINK:
+                regstatus = "roaming";
+                break;
+            case ISI.Network.RegistrationStatus.NOSERV:
+            case ISI.Network.RegistrationStatus.NOSERV_NOTSEARCHING:
+                regstatus = "unregistered";
+                break;
+            case ISI.Network.RegistrationStatus.NOSERV_SEARCHING:
+                regstatus = "searching";
+                break;
+            case ISI.Network.RegistrationStatus.NOSERV_NOSIM:
+            case ISI.Network.RegistrationStatus.NOSERV_SIM_REJECTED_BY_NW:
+                regstatus = "denied";
+                break;
+        }
+        status.insert( "registration", regstatus );
+        status.insert( "act", Constants.instance().networkProviderActToString( istatus.technology ) );
 
         NokiaIsi.modem.isinetwork.current_operator( ( error, operator ) => {
             if ( !error )
@@ -173,15 +179,19 @@ public class IsiNetworkGetStatus : NetworkGetStatus
                 status.insert( "display", operator.name );
                 status.insert( "provider", operator.name );
                 status.insert( "code", operator.mcc + operator.mnc );
+                run.callback();
             }
         } );
+        yield;
 
         NokiaIsi.modem.isinetwork.request_strength( ( error, strength ) => {
             if ( !error )
             {
                 status.insert( "strength", strength );
+                run.callback();
             }
         } );
+        yield;
     }
 }
 
