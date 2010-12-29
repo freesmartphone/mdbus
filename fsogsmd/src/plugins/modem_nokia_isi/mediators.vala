@@ -129,6 +129,62 @@ public class IsiSimSendAuthCode : SimSendAuthCode
     }
 }
 
+public class IsiNetworkGetStatus : NetworkGetStatus
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+
+        NokiaIsi.modem.isinetwork.request_status( ( error, isistatus ) => {
+            if ( !error )
+            {
+                status.insert( "lac", "%04X".printf( isistatus.lac ) );
+                status.insert( "cid", "%04X".printf( isistatus.cid ) );
+                var regstatus = "unknown";
+                switch ( isistatus.status )
+                {
+                    case ISI.Network.RegistrationStatus.HOME:
+                        regstatus = "home";
+                        break;
+                    case ISI.Network.RegistrationStatus.ROAM:
+                    case ISI.Network.RegistrationStatus.ROAM_BLINK:
+                        regstatus = "roaming";
+                        break;
+                    case ISI.Network.RegistrationStatus.NOSERV:
+                    case ISI.Network.RegistrationStatus.NOSERV_NOTSEARCHING:
+                        regstatus = "unregistered";
+                        break;
+                    case ISI.Network.RegistrationStatus.NOSERV_SEARCHING:
+                        regstatus = "searching";
+                        break;
+                    case ISI.Network.RegistrationStatus.NOSERV_NOSIM:
+                    case ISI.Network.RegistrationStatus.NOSERV_SIM_REJECTED_BY_NW:
+                        regstatus = "denied";
+                        break;
+                }
+                status.insert( "registration", regstatus );
+                status.insert( "act", Constants.instance().networkProviderActToString( isistatus.technology ) );
+            }
+        } );
+
+        NokiaIsi.modem.isinetwork.current_operator( ( error, operator ) => {
+            if ( !error )
+            {
+                status.insert( "display", operator.name );
+                status.insert( "provider", operator.name );
+                status.insert( "code", operator.mcc + operator.mnc );
+            }
+        } );
+
+        NokiaIsi.modem.isinetwork.request_strength( ( error, strength ) => {
+            if ( !error )
+            {
+                status.insert( "strength", strength );
+            }
+        } );
+    }
+}
+
 public class IsiNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -161,8 +217,11 @@ public class IsiNetworkListProviders : NetworkListProviders
 static void registerMediators( HashMap<Type,Type> mediators )
 {
     mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
+
     mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
     mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
+
+    mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
     mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
