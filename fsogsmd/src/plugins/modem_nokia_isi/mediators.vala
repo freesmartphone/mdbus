@@ -129,6 +129,28 @@ public class IsiSimSendAuthCode : SimSendAuthCode
     }
 }
 
+public class IsiNetworkListProviders : NetworkListProviders
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var p = new FreeSmartphone.GSM.NetworkProvider[] {};
+
+        NokiaIsi.modem.isinetwork.list_operators( ( error, operators ) => {
+            if ( !error )
+            {
+                for ( int i = 0; i < operators.length; ++i )
+                {
+                    p += FreeSmartphone.GSM.NetworkProvider( "unknown", operators[i].name, operators[i].name, operators[i].mcc + operators[i].mnc, "GSM" );
+                }
+            }
+            run.callback();
+        } );
+        yield;
+
+        providers = p;
+    }
+}
+
 /*
  * Register Mediators
  */
@@ -137,6 +159,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
     mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
     mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
+    mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
 }
