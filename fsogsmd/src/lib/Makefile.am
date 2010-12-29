@@ -46,16 +46,27 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsogsm_la_VALASOURCES = \
-	atcall.vala \
-	atchannel.vala \
-	atcommand.vala \
-	atcommands.vala \
-	atcommandqueue.vala \
-	atmediators.vala \
-	atparser.vala \
-	atpdp.vala \
-	atsms.vala \
-	atunsolicited.vala \
+	at/atcall.vala \
+	at/atchannel.vala \
+	at/atcommand.vala \
+	at/atcommands.vala \
+	at/atcommandqueue.vala \
+	at/atcallmediators.vala \
+	at/atcbmediators.vala \
+	at/atdebugmediators.vala \
+	at/atdevicemediators.vala \
+	at/atmediatorhelpers.vala \
+	at/atmonitormediators.vala \
+	at/atnetworkmediators.vala \
+	at/atpdpmediators.vala \
+	at/atsimmediators.vala \
+	at/atsmsmediators.vala \
+	at/atvmmediators.vala \
+	at/atparser.vala \
+	at/atpdp.vala \
+	at/atsms.vala \
+	at/atunsolicited.vala \
+	\
 	call.vala \
 	codes.vala \
 	consts.vala \
