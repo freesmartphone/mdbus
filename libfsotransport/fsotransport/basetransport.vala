@@ -336,6 +336,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     public override bool open()
     {
         assert( fd != -1 ); // fail, if trying to open the 2nd time
+        assert( logger.debug( "Opening..." ) );
         // construct IO channel
         channel = new IOChannel.unix_new( fd );
         try
@@ -359,11 +360,16 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public override void close()
     {
+        assert( logger.debug( "Closing..." ) );
         if ( readwatch != 0 )
+        {
             Source.remove( readwatch );
+        }
         channel = null;
         if ( fd != -1 )
+        {
             Posix.close( fd );
+        }
         fd = -1; // mark closed
         assert( logger.debug( "Closed" ) );
     }
