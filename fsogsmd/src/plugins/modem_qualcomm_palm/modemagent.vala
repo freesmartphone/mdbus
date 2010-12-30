@@ -28,7 +28,7 @@ internal class WaitForUnsolicitedResponseData
 
 public class MsmModemAgent : FsoFramework.AbstractObject
 {
-    private DBus.Connection _dbusconn;
+    private GLib.DBusConnection _dbusconn;
     private FreeSmartphone.Usage _usage;
     private uint _watch;
     private static MsmModemAgent _instance;
@@ -78,13 +78,13 @@ public class MsmModemAgent : FsoFramework.AbstractObject
     /**
      * Initialize all necessary stuff
      **/
-    public void initialize()
+    public async void initialize()
     {
         if (!ready)
         {
             // setup up dbus ...
             try {
-                _dbusconn = DBus.Bus.get( DBus.BusType.SYSTEM );
+                _dbusconn = yield GLib.Bus.get( GLib.BusType.SYSTEM );
             }
             catch (GLib.Error err)
             {
@@ -94,7 +94,10 @@ public class MsmModemAgent : FsoFramework.AbstractObject
 
             _withUsageIntegration = ( GLib.Environment.get_variable( "FSOGSMD_PALM_SKIP_USAGE" ) == null );
 
-            _usage = _dbusconn.get_object( "org.freesmartphone.ousaged", "/org/freesmartphone/Usage", "org.freesmartphone.Usage" ) as FreeSmartphone.Usage;
+            _usage = yield _dbusconn.get_proxy<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName,
+                                                                      FsoFramework.Usage.ServicePathPrefix,
+                                                                      DBusProxyFlags.NONE );
+
             _usage.resource_available.connect( onUsageResourceAvailable );
 
             Idle.add( () => { lookForObjects(); return false; } );
@@ -282,9 +285,9 @@ public class MsmModemAgent : FsoFramework.AbstractObject
      **/
     private async void registerObjects()
     {
-        management = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Management" ) as Msmcomm.Management;
-        commands = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Commands" ) as Msmcomm.Commands;
-        unsolicited = _dbusconn.get_object( "org.msmcomm", "/org/msmcomm", "org.msmcomm.Unsolicited" ) as Msmcomm.ResponseUnsolicited;
+        management = yield _dbusconn.get_proxy<Msmcomm.Management>( "org.msmcomm", "/org/msmcomm", DBusProxyFlags.NONE );
+        commands = yield _dbusconn.get_proxy<Msmcomm.Commands>( "org.msmcomm", "/org/msmcomm", DBusProxyFlags.NONE );
+        unsolicited = yield _dbusconn.get_proxy<Msmcomm.ResponseUnsolicited>( "org.msmcomm", "/org/msmcomm", DBusProxyFlags.NONE );
     }
 }
 
