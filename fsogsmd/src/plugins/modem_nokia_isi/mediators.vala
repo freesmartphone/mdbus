@@ -31,7 +31,7 @@ public class IsiDeviceGetInformation : DeviceGetInformation
     /* revision, model, manufacturer, imei */
 
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
+     {
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         NokiaIsi.modem.isidevice.query_manufacturer( ( error, msg ) => {
@@ -129,6 +129,9 @@ public class IsiSimSendAuthCode : SimSendAuthCode
     }
 }
 
+/*
+ * org.freesmartphone.GSM.Network
+ */
 public class IsiNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -210,7 +213,7 @@ public class IsiNetworkListProviders : NetworkListProviders
                                                              operators[i].name,
                                                              operators[i].name,
                                                              operators[i].mcc + operators[i].mnc,
-                                                             "GSM" );
+                                                             Constants.instance().networkProviderActToString( operators[i].technology ) );
                 }
             }
             run.callback();

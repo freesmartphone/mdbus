@@ -59,8 +59,10 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
 
     public async void initialize()
     {
+        /*
         theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
         return;
+        */
 
 
         var getAuthStatus = new NokiaIsi.IsiSimGetAuthStatus();
