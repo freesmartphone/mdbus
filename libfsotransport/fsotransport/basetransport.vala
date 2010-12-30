@@ -97,9 +97,16 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     internal int _write( void* data, int len )
     {
-        assert( fd != -1 );
-        ssize_t byteswritten = Posix.write( fd, data, len );
-        return (int)byteswritten;
+        if ( fd != -1 )
+        {
+            ssize_t byteswritten = Posix.write( fd, data, len );
+            return (int)byteswritten;
+        }
+        else
+        {
+            logger.warning( @"Attempting to write $len bytes to an invalid transport; discarding data" );
+            return 0;
+        }
     }
 
     protected virtual void configure()
