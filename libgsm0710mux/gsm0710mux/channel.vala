@@ -108,7 +108,10 @@ internal class Channel
         if ( ackCallback != null )
         {
             assert( logger.debug( "AckCallback is set, calling" ) );
-            ackCallback();
+            Idle.add( () => {
+                ackCallback();
+                return false;
+            } );
         }
         else
         {
@@ -126,15 +129,21 @@ internal class Channel
 
         if ( oldstatus != Status.Requested )
         {
-            if (_multiplexer != null )
+            if ( _multiplexer != null )
+            {
                 _multiplexer.channel_closed( _number );
+            }
         }
-
         if ( transport != null )
         {
             transport.close();
             transport = null;
         }
+        if ( _multiplexer != null )
+        {
+            _multiplexer.remove_channel( _number );
+        }
+        // NOTE: NO CODE BELOW HERE, as channel has been destructed
     }
 
     public string name()
