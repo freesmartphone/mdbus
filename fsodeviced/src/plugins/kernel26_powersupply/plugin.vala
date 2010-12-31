@@ -244,10 +244,21 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
             logger.warning( "POWER_SUPPLY_NAME not present, ignoring power supply change notification" );
             return;
         }
+        var technology = properties.lookup( "POWER_SUPPLY_TECHNOLOGY" );
         var typ = properties.lookup( "POWER_SUPPLY_TYPE" );
         if ( typ == null )
         {
-            logger.warning( "POWER_SUPPLY_TYPE not present, ignoring power supply change notification" );
+            logger.warning( "POWER_SUPPLY_TYPE not present, checking for POWER_SUPPLY_TECHNOLOGY..." );
+            if ( technology != null )
+            {
+                logger.warning( "Present; treating it like a battery" );
+                typ = "battery";
+            }
+            else
+            {
+                logger.warning( "Not present; treating it like an AC adapter" );
+                typ = "ac";
+            }
             return;
         }
 
