@@ -174,8 +174,9 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public void delegateClose( FsoFramework.Transport t )
     {
+#if DEBUG
         message( "FROM MODEM CLOSE REQ" );
-
+#endif
         if ( hupfunc != null )
         {
             this.hupfunc( this ); // signalize that the modem has forced us to close the channel
@@ -227,18 +228,23 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 
     public void delegateHup( FsoFramework.Transport t )
     {
+#if DEBUG
         message( "FROM MODEM HUP" );
+#endif
     }
 
     public int delegateFreeze( FsoFramework.Transport t )
     {
+#if DEBUG
         message( "FROM MODEM FREEZE REQ" );
         return -1;
     }
 
     public void delegateThaw( FsoFramework.Transport t )
     {
+#if DEBUG
         message( "FROM MODEM THAW REQ" );
+#endif
     }
 
     //
