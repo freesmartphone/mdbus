@@ -153,12 +153,12 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
             try
             {
                 manager.releaseChannel( channelinfo.consumer );
-                channelOpened = false;
             }
             catch ( Gsm0710mux.MuxerError e )
             {
                 logger.warning( @"Can't release channel #$(channelinfo.number) from MUX: $(e.message)" );
             }
+            channelOpened = false;
         }
     }
     //
@@ -175,6 +175,15 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     public void delegateClose( FsoFramework.Transport t )
     {
         message( "FROM MODEM CLOSE REQ" );
+
+        if ( hupfunc != null )
+        {
+            this.hupfunc( this ); // signalize that the modem has forced us to close the channel
+        }
+        else
+        {
+            logger.error( "Unexpected CLOSE Request from modem received with no HUP func in place to notify upper layers" );
+        }
     }
 
     public int delegateWrite( void* data, int length, FsoFramework.Transport t )

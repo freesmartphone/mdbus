@@ -527,9 +527,16 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     private void onChannelHangup()
     {
-        logger.error( "Detected channel hangup; closing modem" );
-        close();
-        this.hangup();
+        if ( modem_status == Modem.Status.CLOSING )
+        {
+            logger.warning( "Ignoring additional channel hangup while already closing the modem..." );
+        }
+        else
+        {
+            logger.error( "Detected channel hangup; closing modem" );
+            close();
+            this.hangup();
+        }
     }
 
     //
