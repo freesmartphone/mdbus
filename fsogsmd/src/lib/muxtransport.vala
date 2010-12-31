@@ -237,8 +237,8 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
     {
 #if DEBUG
         message( "FROM MODEM FREEZE REQ" );
-        return -1;
 #endif
+        return -1;
     }
 
     public void delegateThaw( FsoFramework.Transport t )
