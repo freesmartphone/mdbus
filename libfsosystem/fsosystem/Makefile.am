@@ -28,7 +28,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsosystem_la_VALASOURCES = \
-	dummy.vala \
+	modules.vala \
 	$(NULL)
 
 libfsosystem_la_SOURCES = \
