@@ -17,15 +17,60 @@
  *
  */
 
+public errordomain SystemError
+{
+    ERROR
+}
+
 /* libc */
-extern int init_module( string name, void* data );
+extern long init_module( void* data, ulong length, string options );
+extern long delete_module( string name, uint flags );
 
 namespace FsoFramework { namespace Kernel {
 
-public bool loadModule( string name )
+/**
+ * Insert a module into the running kernel
+ **/
+public void insertModule( string filename, string? options = null ) throws Error
 {
-    message( "yo" );
-    return true;
+    uint8[] contents;
+    FileUtils.get_data( filename, out contents );
+
+    var ok = init_module( contents, contents.length, options );
+    if ( ok != 0 )
+    {
+        throw new SystemError.ERROR( @"Can't insert module: $(strerror(errno))" );
+    }
+}
+
+/**
+ * Remove a module out of the running kernel
+ **/
+public void removeModule( string filename, bool wait = false, bool force = false ) throws Error
+{
+    uint flags = Posix.O_EXCL | Posix.O_NONBLOCK;
+    if ( wait )
+    {
+        flags &= ~Posix.O_NONBLOCK;
+    }
+    if ( force )
+    {
+        flags |= Posix.O_TRUNC;
+    }
+
+    var ok = delete_module( filename, flags );
+    if ( ok != 0 )
+    {
+        throw new SystemError.ERROR( @"Can't insert module: $(strerror(errno))" );
+    }
+}
+
+/**
+ * Load a module and its dependencies into the running kernel
+ **/
+public void probeModule( string modulename, string? options = null )
+{
+    throw new SystemError.ERROR( @"Not yet implemented" );
 }
 
 } /* namespace Kernel */

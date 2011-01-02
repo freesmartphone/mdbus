@@ -20,11 +20,21 @@
 using GLib;
 
 //===========================================================================
-void test_modules_load()
-//===========================================================================
+void test_modules_insert()
 {
-    bool ok = FsoFramework.Kernel.loadModule( "/lib/modules/2.6.35-23-generic/kernel/drivers/block/floppy.ko" );
-    assert( ok );
+    FsoFramework.Kernel.insertModule( "/lib/modules/2.6.35-23-generic/kernel/drivers/block/floppy.ko" );
+}
+
+//===========================================================================
+void test_modules_remove()
+{
+    FsoFramework.Kernel.removeModule( "/lib/modules/2.6.35-23-generic/kernel/drivers/block/floppy.ko" );
+}
+
+//===========================================================================
+void test_modules_probe()
+{
+    FsoFramework.Kernel.probeModule( "mtdblock" );
 }
 
 //===========================================================================
@@ -33,7 +43,9 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/Modules/Load", test_modules_load );
+    Test.add_func( "/Modules/Insert", test_modules_insert );
+    Test.add_func( "/Modules/Remove", test_modules_remove );
+    Test.add_func( "/Modules/Probe", test_modules_probe );
 
     Test.run();
 }
