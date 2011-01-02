@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *                         Simon Busch <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,13 +29,12 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
     private MsmUnsolicitedResponseHandler _urcHandler { get; set; }
-
     private Msmcomm.ModemControlStatus modemControlStatusOld { get; set; default = Msmcomm.ModemControlStatus.INACTIVE; }
     private bool restartRequested { get; set; default = false; }
-
     private MsmModemAgent _modemAgent;
     private bool _is_initialized;
     private bool _inHandleModemResetRequest = false;
+    
     //
     // private API
     //
@@ -57,9 +57,15 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         modemControlStatusOld = status;
     }
 
+    /**
+     * A Modem reset was requested by someone we have to handle it here. There 
+     * are two ways how to reset the modem. The First one only resets the modem
+     * and the second one resets the modem and synchronizes afterwards.
+     **/
     private async void handleModemResetRequest()
     {
         _inHandleModemResetRequest = true;
+        
         if ( restartRequested )
         {
             theModem.logger.debug("A reset of the modem before synchronization is requested");
@@ -72,6 +78,7 @@ public class MsmChannel : MsmCommandQueue, FsoGsm.Channel
         {
             yield syncWithModem();
         }
+        
         _inHandleModemResetRequest = false;
     }
 
