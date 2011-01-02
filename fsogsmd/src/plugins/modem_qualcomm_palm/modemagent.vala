@@ -19,7 +19,7 @@
 
 internal class WaitForUnsolicitedResponseData
 {
-    public GLib.SourceFunc callback { get; set; }
+    public GLib.SourceFunc callback;
     public Msmcomm.UrcType urc_type { get; set; }
     public GLib.Variant? response { get; set; }
     public uint timeout { get; set; }
