@@ -204,7 +204,7 @@ public class MsmModemAgent : FsoFramework.AbstractObject
             {
                 yield _usage.request_resource( "Modem" );
                 _modemResourceIsReady = true;
-                registerObjects();
+                yield registerObjects();
                 yield onModemAvailable();
             }
             else
