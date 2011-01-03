@@ -23,18 +23,18 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
 {
     internal const string MODULE_NAME = "fsotdl.provider_location_cellidwifi";
 
-    // alternatively we could use http://ipdetect.dnspark.com/
-    private const string MYIP_SERVER_NAME = "checkip.dyndns.org";
-    // alternatively we could use http://ipinfodb.com/ip_query.php?timezone=true
-    private const string SERVER_NAME = "cellidwifi.net";
-    private const string QUERY_URI = "/csv/%s";
+    private const string SERVER_NAME = "https://www.google.com";
+    private const string QUERY_URI = "/loc/json";
 
-    FsoFramework.Subsystem subsystem;
-    string servername;
-    string queryuri;
+    private FsoFramework.Subsystem subsystem;
+    private string servername;
+    private string queryuri;
+
+    private FreeSmartphone.GSM.Network gsmnetwork;
 
     construct
     {
+        Idle.add( () => { onIdle(); return false; } );
         servername = SERVER_NAME;
         queryuri = QUERY_URI.printf( "85.180.141.230" );
         logger.info( "Ready." );
@@ -48,63 +48,90 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
     //
     // private API
     //
+    private async void onIdle()
+    {
+        gsmnetwork = yield Bus.get_proxy<FreeSmartphone.GSM.Network>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+    }
+
     private async void asyncTrigger()
     {
-#if 0
-        var myip = yield FsoFramework.Network.textForUri( MYIP_SERVER_NAME );
-        if ( myip == null )
-        {
-            logger.warning( @"Can't gather my IP from $MYIP_SERVER_NAME" );
-            return;
-        }
+        GLib.HashTable<string,Variant> hashtable = null;
 
-        Regex regex;
         try
         {
-            regex = new Regex( "Current IP Address: (?P<ip>[0-9][0-9]?[0-9]?[0-9]?.[0-9][0-9]?[0-9]?[0-9]?.[0-9][0-9]?[0-9]?[0-9]?.[0-9][0-9]?[0-9]?[0-9]?)" );
+            hashtable = yield gsmnetwork.get_status();
         }
-        catch ( RegexError e )
+        catch ( Error e1 )
         {
-            assert_not_reached();
-        }
-
-        MatchInfo mi;
-        regex.match( myip[0], 0, out mi );
-        if ( mi == null )
-        {
-            logger.warning( @"Can't parse $(myip[0])" );
-            return;
-        }
-        var ip = mi.fetch_named( "ip" );
-        assert( logger.debug( @"My IP seems to be $ip" ) );
-
-        var result = yield FsoFramework.Network.textForUri( servername, queryuri.printf( ip ) );
-        if ( result == null || result.length != 3 || result[2].has_prefix( "False" ) )
-        {
-            logger.warning( @"Could not get information for IP $ip from $servername" );
+            logger.error( @"Could not get status from GSM: $(e1.message)" );
             return;
         }
 
-        // Usual answer retrieved from this server is something like:
-        // 52
-        // True,85.180.141.230,DE,Germany,05,Hessen,Frankfurt Am Main,,50.1167,8.6833,1.0,2.0
-        // 0
+        string slac = (string) hashtable.lookup( "lac" ) ?? "unknown";
+        string scid = (string) hashtable.lookup( "cid" ) ?? "unknown";
+        int lac = 0;
+        int cid = 0;
+        slac.scanf( "%X", &lac );
+        scid.scanf( "%X", &cid );
+        string code = (string) hashtable.lookup( "code" ) ?? "000000";
+        string mcc = code[0:3];
+        string mnc = code[3:code.length];
 
-        var components = result[1].split( "," );
+        var jsonrequeststr = """{
+  "version": "1.1.0",
+  "host": "perdu.com",
+  "request_address": true,
+  "address_language": "en_GB",
+  "cell_towers": [{"location_area_code": "%d", "mobile_network_code": "%s", "cell_id": "%d", "mobile_country_code": "%s"}]
+}""".printf( lac, mnc, cid, mcc );
 
+        var jsonrequest = new uint8[jsonrequeststr.length];
+        Memory.copy( jsonrequest, jsonrequeststr, jsonrequeststr.length );
+
+        var session = new Soup.SessionSync();
+        var message = new Soup.Message( "POST", SERVER_NAME + QUERY_URI );
+        message.set_request( "application/json", Soup.MemoryUse.COPY, jsonrequest );
+        session.send_message( message );
+        logger.debug( "Response is %s".printf( (string)message.response_body.data ) );
+
+        var parser = new Json.Parser();
+        try
+        {
+            parser.load_from_data( (string)message.response_body.flatten().data, -1 );
+        }
+        catch ( Error e2 )
+        {
+            logger.error( @"Invalid format: $(e2.message)" );
+            return;
+        }
+
+        var root = parser.get_root().get_object();
+
+        if ( !root.has_member( "location" ) )
+        {
+            logger.error( "Invalid response: No 'location' in root object" );
+            return;
+        }
+
+        var location = root.get_object_member( "location" );
         var map = new HashTable<string,Variant>( str_hash, str_equal );
-        map.insert( "countrycode", components[2] );
-        map.insert( "countryname", components[3] );
-        map.insert( "regioncode", components[4] );
-        map.insert( "regionname", components[5] );
-        map.insert( "city", components[6] );
-        map.insert( "zipcode", components[7] );
-        map.insert( "latitude", components[8].to_double() );
-        map.insert( "longitude", components[9].to_double() );
-        map.insert( "gmt", components[10] );
-        map.insert( "dst", components[11] );
+        map.insert( "latitude", location.get_double_member( "latitude" ) );
+        map.insert( "longitude", location.get_double_member( "longitude" ) );
+
+        if ( location.has_member( "address" ) )
+        {
+            var address = location.get_object_member( "address" );
+            map.insert( "countryycode", address.get_string_member( "country_code" ) );
+            map.insert( "countryname", address.get_string_member( "country" ) );
+            map.insert( "regionname", address.get_string_member( "region" ) );
+            map.insert( "city", address.get_string_member( "city" ) );
+            map.insert( "zipcode", address.get_string_member( "postal_code" ) );
+            map.insert( "street", address.get_string_member( "street" ) );
+            map.insert( "streetnumber", address.get_string_member( "street_number" ) );
+        }
+        //FIXME: accuracy?
+
         this.location( this, map );
-#endif
     }
 
     //
