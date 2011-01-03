@@ -28,41 +28,36 @@ using FsoGsm;
 
 public class MsmUnsolicitedResponseHandler
 {
-    private MsmModemAgent _modemAgent { get; set; }
-
     //
     // public API
     //
 
-    public MsmUnsolicitedResponseHandler(MsmModemAgent agent)
-    {
-        this._modemAgent = agent;
-    }
-
     public void setup()
     {
-        _modemAgent.unsolicited.sim_inserted.connect(handleSimAvailable);
-        _modemAgent.unsolicited.sim_not_available.connect(handleNoSimAvailable);
-        _modemAgent.unsolicited.sim_removed.connect(handleSimRemoved);
-        _modemAgent.unsolicited.pin1_verified.connect(handleSimPin1Verified);
-        _modemAgent.unsolicited.pin1_enabled.connect(handleSimPin1Enabled);
-        _modemAgent.unsolicited.pin1_disabled.connect(handleSimPin1Disabled);
-        _modemAgent.unsolicited.pin1_blocked.connect(handleSimPin1Blocked);
-        _modemAgent.unsolicited.pin1_unblocked.connect(handleSimPin1Unblocked);
-        _modemAgent.unsolicited.pin2_verified.connect(handleSimPin2Verified);
-        _modemAgent.unsolicited.pin2_enabled.connect(handleSimPin2Enabled);
-        _modemAgent.unsolicited.pin2_disabled.connect(handleSimPin2Disabled);
-        _modemAgent.unsolicited.pin2_blocked.connect(handleSimPin2Blocked);
-        _modemAgent.unsolicited.pin2_unblocked.connect(handleSimPin2Unblocked);
-        _modemAgent.unsolicited.network_state_info.connect(handleNetworkStateInfo);
-        _modemAgent.unsolicited.reset_radio_ind.connect(handleResetRadioInd);
-        _modemAgent.unsolicited.phonebook_modified.connect(handlePhonebookModified);
-        _modemAgent.unsolicited.call_origination.connect(handleCallOrigination);
-        _modemAgent.unsolicited.call_incomming.connect(handleCallIncomming);
-        _modemAgent.unsolicited.call_connect.connect(handleCallConnect);
-        _modemAgent.unsolicited.call_end.connect(handleCallEnd);
-        _modemAgent.unsolicited.network_list.connect(handleNetworkList);
-        _modemAgent.unsolicited.operation_mode.connect(handleOperationMode);
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
+        channel.unsolicited.sim_inserted.connect(handleSimAvailable);
+        channel.unsolicited.sim_not_available.connect(handleNoSimAvailable);
+        channel.unsolicited.sim_removed.connect(handleSimRemoved);
+        channel.unsolicited.pin1_verified.connect(handleSimPin1Verified);
+        channel.unsolicited.pin1_enabled.connect(handleSimPin1Enabled);
+        channel.unsolicited.pin1_disabled.connect(handleSimPin1Disabled);
+        channel.unsolicited.pin1_blocked.connect(handleSimPin1Blocked);
+        channel.unsolicited.pin1_unblocked.connect(handleSimPin1Unblocked);
+        channel.unsolicited.pin2_verified.connect(handleSimPin2Verified);
+        channel.unsolicited.pin2_enabled.connect(handleSimPin2Enabled);
+        channel.unsolicited.pin2_disabled.connect(handleSimPin2Disabled);
+        channel.unsolicited.pin2_blocked.connect(handleSimPin2Blocked);
+        channel.unsolicited.pin2_unblocked.connect(handleSimPin2Unblocked);
+        channel.unsolicited.network_state_info.connect(handleNetworkStateInfo);
+        channel.unsolicited.reset_radio_ind.connect(handleResetRadioInd);
+        channel.unsolicited.phonebook_modified.connect(handlePhonebookModified);
+        channel.unsolicited.call_origination.connect(handleCallOrigination);
+        channel.unsolicited.call_incomming.connect(handleCallIncomming);
+        channel.unsolicited.call_connect.connect(handleCallConnect);
+        channel.unsolicited.call_end.connect(handleCallEnd);
+        channel.unsolicited.network_list.connect(handleNetworkList);
+        channel.unsolicited.operation_mode.connect(handleOperationMode);
     }
 
 
@@ -72,7 +67,8 @@ public class MsmUnsolicitedResponseHandler
 
     public virtual void handleResetRadioInd()
     {
-        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.RESET_RADIO_IND, null );
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        channel.notifyUnsolicitedResponse( Msmcomm.UrcType.RESET_RADIO_IND, null );
     }
 
     //
@@ -172,6 +168,7 @@ public class MsmUnsolicitedResponseHandler
 
     public virtual void handleNetworkStateInfo(  Msmcomm.NetworkStateInfo nsinfo )
     {
+        var channel = theModem.channel( "main" ) as MsmChannel;
         var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         status.insert( "mode", "automatic" );
@@ -194,14 +191,14 @@ public class MsmUnsolicitedResponseHandler
         Msmcomm.RuntimeData.network_reg_status = nsinfo.registration_status;
         Msmcomm.RuntimeData.networkServiceStatus = nsinfo.service_status;
 
-        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_STATE_INFO, nsinfo.to_variant() );
+        channel.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_STATE_INFO, nsinfo.to_variant() );
         
         triggerUpdateNetworkStatus();
     }
 
     public virtual void handleNetworkList( Msmcomm.NetworkProvider[] networks )
     {
-    //    _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_LIST, networks.to_variant() );
+    //    channel.notifyUnsolicitedResponse( Msmcomm.UrcType.NETWORK_LIST, networks.to_variant() );
     }
 
     //
@@ -210,26 +207,30 @@ public class MsmUnsolicitedResponseHandler
 
     public virtual void handleCallOrigination( Msmcomm.CallInfo call_info )
     {
-        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_ORIGINATION, call_info.to_variant() );
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        channel.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_ORIGINATION, call_info.to_variant() );
     }
 
     public virtual void handleCallIncomming( Msmcomm.CallInfo call_info )
     {
-        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_INCOMMING, call_info.to_variant() );
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        channel.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_INCOMMING, call_info.to_variant() );
 
         theModem.callhandler.handleIncomingCall( convertCallInfo( call_info) );
     }
 
     public virtual void handleCallConnect( Msmcomm.CallInfo call_info )
     {
-        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_CONNECT, call_info.to_variant() );
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        channel.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_CONNECT, call_info.to_variant() );
 
         theModem.callhandler.handleConnectingCall( convertCallInfo( call_info ) );
     }
 
     public virtual void handleCallEnd( Msmcomm.CallInfo call_info )
     {
-        _modemAgent.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_END, call_info.to_variant() );
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        channel.notifyUnsolicitedResponse( Msmcomm.UrcType.CALL_END, call_info.to_variant() );
 
         theModem.callhandler.handleEndingCall( convertCallInfo( call_info ) );
     }

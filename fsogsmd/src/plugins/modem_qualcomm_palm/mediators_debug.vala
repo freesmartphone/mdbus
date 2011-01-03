@@ -23,10 +23,11 @@ public class MsmDebugPing : DebugPing
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
-            var cmds = MsmModemAgent.instance().commands;
-            yield cmds.test_alive();
+            yield channel.commands.test_alive();
         }
         catch ( Msmcomm.Error err0 )
         {

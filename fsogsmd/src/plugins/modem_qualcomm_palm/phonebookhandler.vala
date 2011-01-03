@@ -66,7 +66,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
     private async FreeSmartphone.GSM.SIMEntry[] readPhonebook( Msmcomm.PhonebookBookType book_type, int slot_count, int slots_used )
     {
         FreeSmartphone.GSM.SIMEntry[] phonebook = new FreeSmartphone.GSM.SIMEntry[] { };
-        var cmds = MsmModemAgent.instance().commands;
+        var channel = theModem.channel( "main" ) as MsmChannel;
         
         // We read as much phonebook entries as we have stored in the phonebook. The
         // entries in the phonebook are always in the right order as the modem firmware
@@ -76,7 +76,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         {
             try 
             {
-                var phonebookEntry = yield cmds.read_phonebook( book_type, i );
+                var phonebookEntry = yield channel.commands.read_phonebook( book_type, i );
                 var entry = FreeSmartphone.GSM.SIMEntry( i, phonebookEntry.title, phonebookEntry.number );
                 phonebook += entry;
             }
@@ -94,13 +94,13 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
 
     public async void syncWithSim()
     {
-        var cmds = MsmModemAgent.instance().commands;
-    
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         // gather IMSI
         string imsi = "";
         try 
         {
-            imsi = yield cmds.sim_info( "imsi" );
+            imsi = yield channel.commands.sim_info( "imsi" );
         }
         catch ( Error err0 )
         {
@@ -128,7 +128,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         {
             try 
             {
-                var pbprops = yield cmds.get_phonebook_properties( pb );
+                var pbprops = yield channel.commands.get_phonebook_properties( pb );
                 
                 // assert( logger.debug( @"Found  phonebook '$(Msmcomm.phonebookBookTypeToString(pb))' w/ indices 0-$(pbprops.slot_count)" ) );
 

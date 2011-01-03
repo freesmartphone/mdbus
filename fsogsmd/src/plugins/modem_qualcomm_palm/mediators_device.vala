@@ -60,8 +60,8 @@ public class MsmDeviceGetInformation : DeviceGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmds = MsmModemAgent.instance().commands;
-        
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
             info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
@@ -70,11 +70,11 @@ public class MsmDeviceGetInformation : DeviceGetInformation
             info.insert( "manufacturer", "Palm, Inc." );
             
             Msmcomm.FirmwareInfo firmware_info;
-            firmware_info = yield cmds.get_firmware_info();
+            firmware_info = yield channel.commands.get_firmware_info();
             
             info.insert( "revision", firmware_info.version_string );
 
-            string imei = yield cmds.get_imei();
+            string imei = yield channel.commands.get_imei();
             info.insert( "imei", imei );
         }
         catch ( Msmcomm.Error err0 )
@@ -92,11 +92,12 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
-            var cmds = MsmModemAgent.instance().commands;
-            Msmcomm.ChargerStatus charger_status = yield cmds.get_charger_status();
-                
+            Msmcomm.ChargerStatus charger_status = yield channel.commands.get_charger_status();
+
             switch (charger_status.mode)
             {
                 case Msmcomm.ChargerStatusMode.USB:
@@ -105,11 +106,11 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
                 case Msmcomm.ChargerStatusMode.INDUCTIVE:
                     status = FreeSmartphone.Device.PowerStatus.CHARGING;
                     break;
-                default:                                                
+                default:
                     status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
                     break;
             }
-            
+
             // FIXME How can we find about current charging level? need
             // to fix this in msmcomm! As long as we don't know how to
             // retrieve the right value, we report a very low level to 
@@ -133,6 +134,7 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var operation_mode = "offline";
+        var channel = theModem.channel( "main" ) as MsmChannel;
         
         switch ( level )
         {
@@ -149,8 +151,7 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
 
         try 
         {
-            var cmds = MsmModemAgent.instance().commands;
-            yield cmds.change_operation_mode( Msmcomm.RuntimeData.functionality_status ); 
+            yield channel.commands.change_operation_mode( Msmcomm.RuntimeData.functionality_status ); 
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -160,6 +161,7 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
         catch ( Error err1 )
         {
         }
+
         // FIXME update modem status!
     }
 }
