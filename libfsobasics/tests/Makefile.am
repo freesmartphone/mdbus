@@ -181,6 +181,18 @@ testthreading_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testthreading_VALASOURCES)
 
 #
+# BinBuilder test
+#
+TEST_PROGS += testbinbuilder
+testbinbuilder_VALASOURCES = testbinbuilder.vala
+testbinbuilder_SOURCES = testbinbuilder.c
+$(testbinbuilder_SOURCES): $(testbinbuilder_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testbinbuilder_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testbinbuilder_VALASOURCES)
+
+#
 #
 #
 CLEANFILES = \
