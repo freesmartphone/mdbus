@@ -35,6 +35,7 @@ lib_LTLIBRARIES = \
 
 libfsobasics_la_VALASOURCES = \
 	asyncworker.vala \
+	binary.vala \
 	inotifier.vala \
 	kobjectnotifier.vala \
 	libinitexit.vala \
