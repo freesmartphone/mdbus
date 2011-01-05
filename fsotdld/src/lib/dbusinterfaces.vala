@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,30 +17,11 @@
  *
  */
 
-using Gee;
-
-namespace FsoTime { public FsoTime.Source theSource; }
-
-public interface FsoTime.Source : FsoFramework.AbstractObject
+[DBus (name = "fi.epitest.hostap.WPASupplicant.Interface")]
+public interface WpaDBusIface : GLib.Object
 {
-    public abstract void triggerQuery();
-
-    public signal void reportTime( int since_epoch, FsoTime.Source source );
-    public signal void reportZone( string zone, FsoTime.Source source );
-    public signal void reportLocation( double lat, double lon, int height, FsoTime.Source source );
+    [DBus (name = "scan")]
+    public abstract async uint scan() throws DBusError, IOError;
+    public abstract async GLib.ObjectPath[] scanResults() throws DBusError, IOError;
+    public signal void ScanResultsAvailable();
 }
-
-public abstract class FsoTime.AbstractSource : FsoTime.Source, FsoFramework.AbstractObject
-{
-    public abstract void triggerQuery();
-
-    construct
-    {
-    }
-
-    ~AbstractSource()
-    {
-    }
-
-}
-

@@ -31,6 +31,7 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
     private string queryuri;
 
     private FreeSmartphone.GSM.Network gsmnetwork;
+    private WpaDBusIface wpaiface;
 
     construct
     {
@@ -50,40 +51,136 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
     //
     private async void onIdle()
     {
-        gsmnetwork = yield Bus.get_proxy<FreeSmartphone.GSM.Network>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+        try
+        {
+            gsmnetwork = yield Bus.get_proxy<FreeSmartphone.GSM.Network>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+        }
+        catch ( Error e1 )
+        {
+        }
+
+        try
+        {
+            wpaiface = yield Bus.get_proxy<WpaDBusIface>( BusType.SYSTEM, "fi.epitest.hostap.WPASupplicant", "/fi/epitest/hostap/WPASupplicant/Interfaces/1", DBusProxyFlags.DO_NOT_AUTO_START );
+        }
+        catch ( Error e2 )
+        {
+        }
+    }
+
+    private async Gee.HashMap<string,int> gatherAccessPoints()
+    {
+        var aptable = new Gee.HashMap<string,int>( str_hash, str_equal );
+        ulong handle = 0;
+
+        try
+        {
+            handle = wpaiface.ScanResultsAvailable.connect( () => {
+                wpaiface.disconnect( handle );
+                logger.debug( @"Scan results available" );
+                gatherAccessPoints.callback();
+            } );
+            yield wpaiface.scan();
+
+            yield; // wait for signal to arrive
+
+            var aps = yield wpaiface.scanResults();
+            logger.debug( @"Got $(aps.length) scan results" );
+            foreach ( unowned GLib.ObjectPath path in aps )
+            {
+                var bssid = Path.get_basename( (string)path );
+                aptable[bssid] = 8;
+                logger.debug( @"Found AP with BSSID '%s'".printf( (string)path ) );
+            }
+        }
+        catch ( Error e )
+        {
+            logger.error( @"Could not gather access points: $(e.message)" );
+        }
+        return aptable;
     }
 
     private async void asyncTrigger()
     {
         GLib.HashTable<string,Variant> hashtable = null;
+        Gee.HashMap<string,int> aptable = null;
+        bool haveGsmData = false;
+        bool haveWifiData = false;
 
+        // gather current serving cell params
         try
         {
             hashtable = yield gsmnetwork.get_status();
+            haveGsmData = true;
         }
         catch ( Error e1 )
         {
-            logger.error( @"Could not get status from GSM: $(e1.message)" );
+            logger.info( @"Could not get status from GSM: $(e1.message)" );
+        }
+
+        // gather access points in vincinity
+        try
+        {
+            aptable = yield gatherAccessPoints();
+            haveWifiData = true;
+        }
+        catch ( Error e3 )
+        {
+            logger.info( @"Could not get status from WiFi: $(e3.message)" );
+        }
+
+        if ( !haveGsmData && !haveWifiData )
+        {
+            logger.error( "Neither GSM nor WiFi data available. Can't request location" );
             return;
         }
 
-        string slac = (string) hashtable.lookup( "lac" ) ?? "unknown";
-        string scid = (string) hashtable.lookup( "cid" ) ?? "unknown";
-        int lac = 0;
-        int cid = 0;
-        slac.scanf( "%X", &lac );
-        scid.scanf( "%X", &cid );
-        string code = (string) hashtable.lookup( "code" ) ?? "000000";
-        string mcc = code[0:3];
-        string mnc = code[3:code.length];
+        var jsonrequeststr = """
+{
+    "version": "1.1.0",
+    "host": "perdu.com",
+    "request_address": true,
+    "address_language": "en_GB"
+""";
 
-        var jsonrequeststr = """{
-  "version": "1.1.0",
-  "host": "perdu.com",
-  "request_address": true,
-  "address_language": "en_GB",
-  "cell_towers": [{"location_area_code": "%d", "mobile_network_code": "%s", "cell_id": "%d", "mobile_country_code": "%s"}]
-}""".printf( lac, mnc, cid, mcc );
+        if ( haveGsmData )
+        {
+            string slac = (string) hashtable.lookup( "lac" ) ?? "unknown";
+            string scid = (string) hashtable.lookup( "cid" ) ?? "unknown";
+            int lac = 0;
+            int cid = 0;
+            slac.scanf( "%X", &lac );
+            scid.scanf( "%X", &cid );
+            string code = (string) hashtable.lookup( "code" ) ?? "000000";
+            string mcc = code[0:3];
+            string mnc = code[3:code.length];
+
+            jsonrequeststr += """
+    , "cell_towers": [ {"location_area_code": "%d",
+                    "mobile_network_code": "%s",
+                    "cell_id": "%d",
+                    "mobile_country_code": "%s"}]
+""".printf( lac, mnc, cid, mcc );
+
+        }
+
+        if ( haveWifiData )
+        {
+            var wifitowers = "";
+            
+            foreach ( var bssid in aptable.keys )
+            {
+                wifitowers += """{ "mac_address": "%s", "signal_strength": %d, "age": 0 },""".printf( bssid, aptable[bssid] );
+            }
+
+            jsonrequeststr += """, "wifi_towers": [ %s ]""".printf( wifitowers[0:wifitowers.length-1] );
+        }
+
+        jsonrequeststr += "}";
+
+#if DEBUG
+        debug( "jsonrequest is '%s'", jsonrequeststr );
+#endif
 
         var jsonrequest = new uint8[jsonrequeststr.length];
         Memory.copy( jsonrequest, jsonrequeststr, jsonrequeststr.length );
