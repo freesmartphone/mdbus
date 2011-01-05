@@ -30,7 +30,6 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
 
     private bool _is_initialized;
 
-
     private void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
     {
         switch ( status )
@@ -46,7 +45,6 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
         }
     }
 
-
     //
     // public API
     //
@@ -57,16 +55,48 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
         this.name = name;
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
-
     }
 
-    public void initialize()
+    public async void initialize()
     {
-        theModem.logger.debug("ISICHANNEL: initialize ...");
+        /*
+        theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+        return;
+        */
 
-        _is_initialized = true;
 
-        theModem.logger.debug("ISICHANNEL: modem initialization is finished!");
+        var getAuthStatus = new NokiaIsi.IsiSimGetAuthStatus();
+        try
+        {
+            yield getAuthStatus.run();
+
+            if ( getAuthStatus.status == FreeSmartphone.GSM.SIMAuthStatus.READY )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+            }
+            else if ( getAuthStatus.status == FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED ||
+                      getAuthStatus.status == FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
+            }
+
+        }
+        catch ( FreeSmartphone.GSM.Error e1 )
+        {
+            if ( e1 is FreeSmartphone.GSM.Error.SIM_NOT_PRESENT )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_NO_SIM );
+            }
+            else
+            {
+                theModem.logger.error( @"Unexpected FSO error: $(e1.message) - what now?" );
+            }
+        }
+        catch ( Error e2 )
+        {
+            theModem.logger.error( @"Can't get SIM auth status: $(e2.message) - what now?" );
+            // FIXME: move to close status?
+        }
     }
 
     public async void shutdown()

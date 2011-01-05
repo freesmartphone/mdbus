@@ -125,7 +125,7 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
 
     protected void onHupFromTransport()
     {
-        transport.logger.warning( "HUP from transport." );
+        transport.logger.warning( "HUP from transport; signalling to upper layer" );
         this.hangup(); // emit HUP signal
     }
 

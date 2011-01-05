@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Simon Busch <morphis@gravedo.de>
+ * Copyright (C) 2010-2011 Simon Busch <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,10 +23,11 @@ public class MsmNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
-            var cmds = MsmModemAgent.instance().commands;
-            cmds.change_operation_mode( Msmcomm.ModemOperationMode.ONLINE );
+            channel.commands.change_operation_mode( Msmcomm.ModemOperationMode.ONLINE );
             Msmcomm.RuntimeData.functionality_status = Msmcomm.ModemOperationMode.ONLINE;
         }
         catch ( Msmcomm.Error err0 )
@@ -51,15 +52,10 @@ public class MsmNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        if ( theModem.data().simIssuer == null )
-        {
-            var mediator = new AtSimGetInformation();
-            yield mediator.run();
-        }
+#if 0
         status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
-        var strvalue = Variant( typeof(string) );
-        var intvalue = Variant( typeof(int) );
+        var strvalue = new GLib.Variant( typeof(string) );
+        var intvalue = new GLib.Variant( typeof(int) );
 
         // FIXME should we really provide here the plain rssi value? We need
         // the percentage here!
@@ -88,7 +84,7 @@ public class MsmNetworkGetStatus : NetworkGetStatus
         {
             status.insert( "registration", "unregistered" );
         }
-        #endif
+#endif
     }
 }
 
@@ -133,10 +129,11 @@ public class MsmNetworkUnregister : NetworkUnregister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
-            var cmds = MsmModemAgent.instance().commands;
-            cmds.change_operation_mode( Msmcomm.ModemOperationMode.OFFLINE );
+            yield channel.commands.change_operation_mode( Msmcomm.ModemOperationMode.OFFLINE );
             Msmcomm.RuntimeData.functionality_status = Msmcomm.ModemOperationMode.OFFLINE;
         }
         catch ( Msmcomm.Error err0 )

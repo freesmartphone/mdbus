@@ -34,30 +34,25 @@ class Source.Gsm : FsoTime.AbstractSource
 
     construct
     {
-        DBusConnection conn = Bus.get_sync( BusType.SYSTEM );
+        Idle.add( () => {
+            initFromMainloop();
+            return false;
+        } );
+    }
 
-        ogsmd_device = conn.get_proxy_sync<FreeSmartphone.GSM.Network>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath );
-        odatad_world = conn.get_proxy_sync<FreeSmartphone.Data.World>( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath );
+    private async void initFromMainloop()
+    {
+        DBusConnection conn = yield Bus.get( BusType.SYSTEM );
 
-        dbus_dbus = conn.get_proxy_sync<DBusService.IDBus>( DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
+        ogsmd_device = yield conn.get_proxy<FreeSmartphone.GSM.Network>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+        odatad_world = yield conn.get_proxy<FreeSmartphone.Data.World>( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+        dbus_dbus = yield conn.get_proxy<DBusService.IDBus>( DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
 
         //FIXME: Work around bug in Vala (signal handlers can't be async yet)
         ogsmd_device.status.connect( (status) => { onGsmNetworkStatusSignal( status ); } );
         ogsmd_device.time_report.connect( (time, zone) => { onGsmNetworkTimeReportSignal( time, zone ); } );
 
-        //FIXME: Lambda functions in construct are broken atm.
-        //Idle.add( () => { triggerQuery(); return false; } );
-
-        Idle.add( foo );
-
-        //NOTE: For debugging only
-        //Idle.add( () => { testing(); return false; } );
-    }
-
-    private bool foo()
-    {
-        triggerQueryAsync();
-        return false; // don't call me again
+        yield triggerQueryAsync();
     }
 
     private void testing()

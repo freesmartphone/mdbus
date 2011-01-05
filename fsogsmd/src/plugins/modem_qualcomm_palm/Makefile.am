@@ -54,8 +54,6 @@ modem_qualcomm_palm_la_SOURCES = \
  data.c \
  phonebookhandler.c \
  consts.c \
- commandqueue.c \
- modemagent.c \
  mediators_debug.c \
  mediators_device.c \
  mediators_sim.c \
@@ -74,8 +72,6 @@ modem_qualcomm_palm_la_VALASOURCES = \
  data.vala \
  phonebookhandler.vala \
  consts.vala \
- commandqueue.vala \
- modemagent.vala \
  mediators_debug.vala \
  mediators_device.vala \
  mediators_sim.vala \

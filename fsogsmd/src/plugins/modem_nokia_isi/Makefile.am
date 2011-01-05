@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(ISI_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -16,6 +17,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
+	$(ISI_LIBS) \
 	$(top_srcdir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
@@ -28,15 +30,16 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
-	--pkg fsogsm-2.0
+	--pkg fsogsm-2.0 \
+	--pkg libisi
 
 #
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_nokia_isi.la
-modem_nokia_isi_la_SOURCES = commandqueue.c channel.c plugin.c
-modem_nokia_isi_la_VALASOURCES = commandqueue.vala channel.vala plugin.vala
+modem_nokia_isi_la_SOURCES = commandqueue.c channel.c plugin.c mediators.c
+modem_nokia_isi_la_VALASOURCES = commandqueue.vala channel.vala plugin.vala mediators.vala
 $(modem_nokia_isi_la_SOURCES): $(modem_nokia_isi_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@

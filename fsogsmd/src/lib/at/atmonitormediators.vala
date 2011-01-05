@@ -18,26 +18,32 @@
  */
 
 /**
- * @class MsmCommandQueue
+ * This file contains Dbus/AT command mediators only using official 3GPP AT commands.
+ *
+ * Do _not_ add vendor-specific mediators here, instead add them to your modem plugin.
  **/
-public class MsmCommandQueue : FsoFramework.AbstractCommandQueue
-{
-    //
-    // public API
-    //
-    
-    public MsmCommandQueue( FsoFramework.Transport transport )
-    {
-        base( transport );
-    }
 
-    public override async bool open()
+using Gee;
+
+namespace FsoGsm {
+
+/**
+ * Monitor Mediators
+ **/
+public class AtMonitorGetServingCellInformation : MonitorGetServingCellInformation
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        return true;
-    }
-    
-    protected override void onReadFromTransport( FsoFramework.Transport t )
-    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
     }
 }
 
+public class AtMonitorGetNeighbourCellInformation : MonitorGetNeighbourCellInformation
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
+    }
+}
+
+} // namespace FsoGsm

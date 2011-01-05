@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Simon Busch <morphis@gravedo.de>
+ * Copyright (C) 2010-2011 Simon Busch <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,10 +23,11 @@ public class MsmDebugPing : DebugPing
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
-            var cmds = MsmModemAgent.instance().commands;
-            yield cmds.test_alive();
+            yield channel.commands.test_alive();
         }
         catch ( Msmcomm.Error err0 )
         {

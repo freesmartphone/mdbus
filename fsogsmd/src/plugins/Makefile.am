@@ -16,7 +16,6 @@ SUBDIRS = \
 	modem_singleline \
 	modem_qualcomm_htc \
 	modem_freescale_neptune \
-	modem_nokia_isi \
 	\
 	pdp_qmi \
 	$(NULL)
@@ -36,4 +35,8 @@ endif
 
 if WANT_PALM
 SUBDIRS += modem_qualcomm_palm
+endif
+
+if WANT_ISI
+SUBDIRS += modem_nokia_isi
 endif

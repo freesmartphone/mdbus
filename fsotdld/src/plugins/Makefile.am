@@ -11,6 +11,7 @@ SUBDIRS = \
 	provider_gps \
 	provider_gps_nmea \
 	\
+	provider_location_cellidwifi \
 	provider_location_freegeoip \
 	\
 	source_dummy \

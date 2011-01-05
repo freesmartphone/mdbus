@@ -97,9 +97,16 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     internal int _write( void* data, int len )
     {
-        assert( fd != -1 );
-        ssize_t byteswritten = Posix.write( fd, data, len );
-        return (int)byteswritten;
+        if ( fd != -1 )
+        {
+            ssize_t byteswritten = Posix.write( fd, data, len );
+            return (int)byteswritten;
+        }
+        else
+        {
+            logger.warning( @"Attempting to write $len bytes to an invalid transport; discarding data" );
+            return 0;
+        }
     }
 
     protected virtual void configure()
@@ -329,6 +336,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     public override bool open()
     {
         assert( fd != -1 ); // fail, if trying to open the 2nd time
+        assert( logger.debug( "Opening..." ) );
         // construct IO channel
         channel = new IOChannel.unix_new( fd );
         try
@@ -352,11 +360,16 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
 
     public override void close()
     {
+        assert( logger.debug( "Closing..." ) );
         if ( readwatch != 0 )
+        {
             Source.remove( readwatch );
+        }
         channel = null;
         if ( fd != -1 )
+        {
             Posix.close( fd );
+        }
         fd = -1; // mark closed
         assert( logger.debug( "Closed" ) );
     }

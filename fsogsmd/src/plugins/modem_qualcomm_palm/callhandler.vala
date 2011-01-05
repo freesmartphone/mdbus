@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Simon Busch <morphis@gravedo.de>
+ * Copyright (C) 2010-2011 Simon Busch <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,10 +55,10 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     //
     public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
-            var cmds = MsmModemAgent.instance().commands;
-            
             if ( id < 1 || id > Constants.CALL_INDEX_MAX )
             {
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
@@ -77,12 +77,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
             if ( numberOfBusyCalls() == 0 ) // simple case
             {
-                yield cmds.answer_call( id );
+                yield channel.commands.answer_call( id );
             }
             else
             {
                 // call is present and incoming or held
-                yield cmds.execute_call_sups_command( Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
+                yield channel.commands.execute_call_sups_command( Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -100,16 +100,15 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         int num = 0;
+        var channel = theModem.channel( "main" ) as MsmChannel;
         
         try 
         {
             // Initiate call to the selected number
-            var cmds = MsmModemAgent.instance().commands;
-            yield cmds.originate_call(number, Msmcomm.RuntimeData.block_number);
+            yield channel.commands.originate_call(number, Msmcomm.RuntimeData.block_number);
 
             // Wait until the modem reports the origination of our new call
-            var ma = MsmModemAgent.instance();
-            GLib.Variant response = yield ma.waitForUnsolicitedResponse( Msmcomm.UrcType.CALL_ORIGINATION );
+            GLib.Variant response = yield channel.waitForUnsolicitedResponse( Msmcomm.UrcType.CALL_ORIGINATION );
             var call_info = Msmcomm.CallInfo.from_variant( response );
         
             startTimeoutIfNecessary();
@@ -130,6 +129,8 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
      **/
     public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try 
         {
             if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.ACTIVE ) == 0 )
@@ -141,8 +142,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
                 throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating" );
             }
             
-            var cmds = MsmModemAgent.instance().commands;
-            yield cmds.execute_call_sups_command(Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0);
+            yield channel.commands.execute_call_sups_command(Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0);
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -158,6 +158,8 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
      **/
     public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
             if ( id < 1 || id > Constants.CALL_INDEX_MAX )
@@ -188,8 +190,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             }
             else
             {
-                var cmds = MsmModemAgent.instance().commands;
-                yield cmds.execute_call_sups_command( Msmcomm.CallCommandType.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id );
+                yield channel.commands.execute_call_sups_command( Msmcomm.CallCommandType.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -271,15 +272,16 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     protected override void startTimeoutIfNecessary()
     {
     }
-    
+
     protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
 
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
-            var cmds = MsmModemAgent.instance().commands;
-            yield cmds.end_call( id );
+            yield channel.commands.end_call( id );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -293,15 +295,16 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     protected override async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Rejecting incoming call with ID $id" ) );
+
+        var channel = theModem.channel( "main" ) as MsmChannel;
         
         try
         {
             // NOTE currently we reject an incomming call by dropping all calls or send a busy
             // signal when we have no active calls. Maybe there is another way in msmcomm
             // to do reject an incomming call but we currently don't know about.
-            var cmds = MsmModemAgent.instance().commands;
             var cmd_type = Msmcomm.CallCommandType.DROP_ALL_OR_SEND_BUSY;
-            yield cmds.execute_call_sups_command( cmd_type, 0 );
+            yield channel.commands.execute_call_sups_command( cmd_type, 0 );
         }
         catch ( Msmcomm.Error err0 )
         {

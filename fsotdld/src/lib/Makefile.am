@@ -26,6 +26,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsotdl_la_VALASOURCES = \
+	dbusinterfaces.vala \
 	gpsdata.vala \
 	gpsreceiver.vala \
 	gpschannel.vala \

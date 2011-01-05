@@ -455,7 +455,8 @@ internal class Multiplexer
 
     public void onHupFromTransport( FsoFramework.Transport transport )
     {
-        critical( "FOO" );
+        logger.error( "HUP from modem transport; closing session" );
+        closeSession();
     }
 
     //
@@ -472,6 +473,10 @@ internal class Multiplexer
     {
         wakeupIfNecessary();
         ctx.closeChannel( channel );
+    }
+
+    public void remove_channel( int channel )
+    {
         vc[channel] = null;
     }
 
