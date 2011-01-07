@@ -415,4 +415,155 @@ public class BinBuilder: Object {
         return _data.nth(position);
     }
 }
+
+public class BinReader : Object
+{
+        private uint8[] data;
+
+        public int alignment{get;set;default=0;}
+        public bool packed {get{return alignment == 0;}}
+        public GLib.DataStreamByteOrder endianess;
+
+        public BinReader( uint8[] d, int alignment = 0, GLib.DataStreamByteOrder e = GLib.DataStreamByteOrder.HOST_ENDIAN )
+        {
+            data = d;
+            this.alignment = alignment;
+            endianess = e;
+        }
+
+        public BinReader.void_pointer( void* d, uint len, int alignment = 0, GLib.DataStreamByteOrder e = GLib.DataStreamByteOrder.HOST_ENDIAN )
+        {
+            data = new uint8[len];
+            Posix.memcpy( data, d, len);
+            this.alignment = alignment;
+            endianess = e;
+        }
+
+        public uint8 get_uint8(int pos) throws BinReaderError
+        {
+            var off = offset( sizeof(uint8) );
+            pos = absolute_position( pos, off + (int)sizeof(uint8) );
+            return data[pos + off];
+        }
+
+        public uint16 get_uint16( int pos ) throws BinReaderError
+        {
+            uint16 result = 0;
+            var off = offset( sizeof(uint16) );
+            pos = absolute_position( pos, off + (int)sizeof(uint16) );
+            result = ((uint16)data[pos + off]) << 8;
+            result |= ((uint16)data[pos + off + 1]);
+
+            return uint16_convert(result);
+        }
+
+        public uint32 get_uint32( int pos ) throws BinReaderError
+        {
+            uint32 result = 0;
+            var off = offset( sizeof(uint32) );
+            pos = absolute_position( pos, off + (int)sizeof(uint32) );
+            result =  ((uint32)data[pos + off]) << 24;
+            result |= ((uint32)data[pos + off + 1]) << 16;
+            result |= ((uint32)data[pos + off + 2]) << 8;
+            result |= ((uint32)data[pos + off + 3]);
+
+            return uint32_convert(result);
+        }
+
+        public uint64 get_uint64( int pos ) throws BinReaderError
+        {
+            uint64 result = 0;
+            var off = offset( sizeof(uint64) );
+
+            pos = absolute_position( pos, off + (int)sizeof(uint64) );
+            result = ((uint64)data[pos + off]) << 56;
+            result |= ((uint64)data[pos + off + 1]) << 48;
+            result |= ((uint64)data[pos + off + 2]) << 40;
+            result |= ((uint64)data[pos + off + 3]) << 32;
+            result |= ((uint64)data[pos + off + 4]) << 24;
+            result |= ((uint64)data[pos + off + 5]) << 16;
+            result |= ((uint64)data[pos + off + 6]) << 8;
+            result |= ((uint64)data[pos + off + 7]);
+
+            return uint64_convert(result);
+        }
+
+        public string get_string(int pos, int length = -1) throws BinReaderError
+        {
+            pos = absolute_position(pos, 0);
+            unowned string result = ((string)data).offset(pos);
+            if(length >= 0)
+                 return result.ndup(length);
+            else
+                 return result.dup();
+        }
+
+        public new uint8[] get_data(int pos, int length) throws BinReaderError
+        {
+            pos = absolute_position(pos, length);
+            return data[pos:pos+length];
+        }
+
+        public uint16 uint16_convert( uint16 val )
+        {
+            if(endianess == GLib.DataStreamByteOrder.BIG_ENDIAN)
+                 return uint16.from_big_endian(val);
+            else if(endianess == GLib.DataStreamByteOrder.LITTLE_ENDIAN)
+                 return uint16.from_little_endian(val);
+            else
+                 return val;
+        }
+
+        public uint32 uint32_convert( uint32 val )
+        {
+            if(endianess == GLib.DataStreamByteOrder.BIG_ENDIAN)
+                 return uint32.from_big_endian(val);
+            else if(endianess == GLib.DataStreamByteOrder.LITTLE_ENDIAN)
+                 return uint32.from_little_endian(val);
+            else
+                 return val;
+        }
+
+        public uint64 uint64_convert(uint64 val)
+        {
+            if(endianess == GLib.DataStreamByteOrder.BIG_ENDIAN)
+                 return uint64.from_big_endian(val);
+            else if(endianess == GLib.DataStreamByteOrder.LITTLE_ENDIAN)
+                 return uint64.from_little_endian(val);
+            else
+                 return val;
+        }
+
+        private int absolute_position(int pos, int num_bytes = 0) throws BinReaderError
+        {
+            int result = pos;
+
+            if( result < 0 )
+                 result += data.length;
+
+            if(alignment != 0)
+            {
+                 result -= (result % alignment);
+            }
+
+            if( result < 0 || (result + num_bytes) > data.length )
+                 throw new BinReaderError.OUT_OF_RANGE(@"$pos with is out of range for $(data.length)");
+
+            return result;
+        }
+
+        private int offset( size_t type_size )
+        {
+            int result = 0;
+            if( endianess == DataStreamByteOrder.LITTLE_ENDIAN && ! packed )
+                 result = alignment - ((int)type_size) % alignment;
+
+            return result == alignment ? 0 : result;
+        }
+}
+
+public errordomain BinReaderError
+{
+    OUT_OF_RANGE
+}
 }
