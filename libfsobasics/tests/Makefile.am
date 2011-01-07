@@ -193,6 +193,18 @@ testbinbuilder_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testbinbuilder_VALASOURCES)
 
 #
+# BinReader test
+#
+TEST_PROGS += testbinreader
+testbinreader_VALASOURCES = testbinreader.vala
+testbinreader_SOURCES = testbinreader.c
+$(testbinreader_SOURCES): $(testbinreader_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testbinreader_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testbinreader_VALASOURCES)
+
+#
 #
 #
 CLEANFILES = \
