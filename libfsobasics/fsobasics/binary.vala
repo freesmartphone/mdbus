@@ -226,6 +226,11 @@ public class BinBuilder: Object {
         }
     }
 
+    public void append_crc16(int start = 0, int end = -1)
+    {
+        append_uint16(Checksum.crc16(data[start:end]));
+    }
+
     public void set_uint8(uint8 val, int position)
     {
         unowned List<uint8> l = null;
@@ -323,6 +328,11 @@ public class BinBuilder: Object {
         }
     }
 
+    public void set_crc16(int pos, int start = 0, int end = -1)
+    {
+        set_uint16(Checksum.crc16(data[start:end]), pos);
+    }
+
     public void insert_uint8(uint8 val, int position)
     {
         unowned List<uint16> l = get_at(position);
@@ -367,6 +377,11 @@ public class BinBuilder: Object {
         int i = 0;
         foreach(var d in data)
             l.insert(d, i++);
+    }
+
+    public void insert_crc16(int pos, int start = 0, int end = -1)
+    {
+        insert_uint16(Checksum.crc16(data[start:end]), pos);
     }
 
     public void reset() 
