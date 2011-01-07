@@ -547,6 +547,25 @@ public class BinReader : Object
             return Checksum.crc16_verify(data, sum);
         }
 
+        public uint64 get_bits(int position, int offset, int length) throws BinReaderError
+        {
+            uint64 result = 0;
+            int byte_offset = offset / 8;
+
+            if(length > 64)
+                 throw new BinReaderError.ILLEGAL_PARAMETER(@"length[$length] is > 64");
+
+            position = absolute_position(position, offset/8 + length/8);
+
+            for(int i = position * 8 + offset; i < position * 8 + offset + length; i ++)
+            {
+                result <<= 1;
+                result |= get_bit(data[i/8], i % 8);
+            }
+
+            return result;
+        }
+
         public uint16 uint16_convert( uint16 val )
         {
             if(endianess == GLib.DataStreamByteOrder.BIG_ENDIAN)
@@ -603,11 +622,18 @@ public class BinReader : Object
 
             return result == alignment ? 0 : result;
         }
+
+        internal static uint8 get_bit(uint8 data, int bit)
+        {
+            bit = 8 - bit - 1;
+            return (uint8)((data & (1 << bit)) >> bit) & 0x1;
+        }
 }
 
 public errordomain BinReaderError
 {
     OUT_OF_RANGE,
-    CHECKSUM_IN_DATA
+    CHECKSUM_IN_DATA,
+    ILLEGAL_PARAMETER
 }
 }

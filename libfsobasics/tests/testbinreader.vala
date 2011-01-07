@@ -422,6 +422,71 @@ void test_datas()
     test_data(tests);
 }
 
+struct bitfieldsTestData
+{
+    uint8[] data;
+    int alignment;
+    DataStreamByteOrder endianess;
+    uint64 expected;
+    bool expect_exception;
+    int position;
+    int offset;
+    int length;
+    string name;
+    bitfieldsTestData(uint8[] d, int a, DataStreamByteOrder e, uint64 exp, bool excp, int pos, int off, int l, string n)
+    {
+        data = d;
+        alignment = a;
+        endianess = e;
+        expected = exp;
+        expect_exception = excp;
+        position = pos;
+        offset = off;
+        length = l;
+        name = n;
+    }
+}
+
+void run_test_bitfields(bitfieldsTestData[] datas)
+{
+    foreach(var data in datas)
+    {
+        uint64 result = 0;
+        var reader = new FsoFramework.BinReader(data.data, data.alignment, data.endianess);
+        bool caught = false;
+        try
+        {
+            result = reader.get_bits(data.position, data.offset, data.length);
+        }
+        catch(FsoFramework.BinReaderError e)
+        {
+            if(!data.expect_exception)
+                 error(@"[$(data.name)] doesn't expect an exception: $(e.message)");
+            caught = true;
+        }
+        if(!data.expect_exception)
+            named_assert_uint64(data.name, result, data.expected);
+        else if( data.expect_exception && ! caught)
+            error(@"[$(data.name)] expected exception");
+    }
+}
+
+inline void named_assert_uint64(string name, uint64 result, uint64 expected)
+{
+        if(expected != result)
+             error(@"[$name] result [$result] != expected [$expected]");
+}
+
+void test_bitfields()
+{
+    bitfieldsTestData[] tests = {
+        bitfieldsTestData({ 0x01, 0x20 }, 4, DataStreamByteOrder.LITTLE_ENDIAN, 0x12, false, 0, 4, 8, "offset 0.4 length 8"),
+        bitfieldsTestData({ 0xFF, 0x11, 0x22, 0x33, 0xFF }, 0, DataStreamByteOrder.LITTLE_ENDIAN, 0x112233, false, 1, 0, 24, "offset 1.0 length 24"),
+        bitfieldsTestData({ 0xFF, 0x11, 0x22, 0x33, 0xFF }, 0, DataStreamByteOrder.LITTLE_ENDIAN, 0x12233, false, 1, 4, 20, "offset 1.4 length 20")
+    };
+
+    run_test_bitfields(tests);
+}
 
 void main(string[] args)
 {
@@ -438,6 +503,7 @@ void main(string[] args)
     Test.add_func("/FsoFramework.BinReader/Exception/uint8", test_exception_uint8);
     Test.add_func("/FsoFramework.BinReader/Exception/uint16", test_exception_uint16);
     Test.add_func("/FsoFramework.BinReader/Exception/uint32", test_exception_uint32);
+    Test.add_func("/FsoFramework.BinReader/Bitfields", test_bitfields);
 
     Test.run();
 }
