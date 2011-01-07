@@ -519,6 +519,34 @@ public class BinReader : Object
             return data[pos:pos+length];
         }
 
+        public bool crc16_verify(int crc_position, int start = 0, int end = -3) throws BinReaderError
+        {
+            uint16 sum = 0;
+            uint8[] data = new uint8[0];
+
+            if(crc_position > start && crc_position < end)
+                 throw new BinReaderError.CHECKSUM_IN_DATA(@"Checksum at $crc_position is within data range [$start:$end]");
+            try
+            {
+                sum = get_uint16(crc_position);
+            }
+            catch (GLib.Error e)
+            {
+                throw new BinReaderError.OUT_OF_RANGE(@"CRC position[$crc_position] is out of range $(data.length)" );
+            }
+
+            try
+            {
+                data = get_data(start, end - start);
+            }
+            catch (GLib.Error e)
+            {
+                throw new BinReaderError.OUT_OF_RANGE(@"Data out of range [$(data.length)]");
+            }
+
+            return Checksum.crc16_verify(data, sum);
+        }
+
         public uint16 uint16_convert( uint16 val )
         {
             if(endianess == GLib.DataStreamByteOrder.BIG_ENDIAN)
@@ -579,6 +607,7 @@ public class BinReader : Object
 
 public errordomain BinReaderError
 {
-    OUT_OF_RANGE
+    OUT_OF_RANGE,
+    CHECKSUM_IN_DATA
 }
 }
