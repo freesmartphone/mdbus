@@ -50,6 +50,7 @@ libfsobasics_la_VALASOURCES = \
 	types.vala \
 	utilities.vala \
 	kernel.vala \
+	checksum.vala \
 	$(NULL)
 
 libfsobasics_la_SOURCES = \
