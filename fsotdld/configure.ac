@@ -106,6 +106,7 @@ AC_CONFIG_FILES([
   src/plugins/provider_gps_nmea/Makefile
   src/plugins/provider_location_cellidwifi/Makefile
   src/plugins/provider_location_freegeoip/Makefile
+  src/plugins/provider_location_gpsd/Makefile
   src/plugins/source_dummy/Makefile
   src/plugins/source_gps/Makefile
   src/plugins/source_gsm/Makefile
