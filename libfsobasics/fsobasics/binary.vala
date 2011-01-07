@@ -28,7 +28,8 @@ namespace FsoFramework {
  * set pad
  * more tests
  */
-public class BinBuilder: Object {
+public class BinBuilder: Object
+{
     public static uint8 nth_byte(uint64 val, uint byte) 
     {
         if( byte > sizeof(uint64) ) 
