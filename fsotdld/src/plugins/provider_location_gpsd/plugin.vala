@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,14 +27,42 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
     string servername;
     string queryuri;
 
+    Gps.Device gps;
+
     construct
     {
+        if ( gps.open() == 0 )
+        {
+            logger.debug( "GPS opened" );
+        }
+        else
+        {
+            logger.critical( "Can't open GPS: %s".printf( Gps.errstr( errno ) ) );
+        }
+
+        Timeout.add_seconds( 3, onTimeout );
+
         logger.info( "Ready." );
     }
 
     public override string repr()
     {
         return "<>";
+    }
+
+    private bool onTimeout()
+    {
+        if ( gps.waiting() )
+        {
+            logger.debug( "GPS data waiting... reading" );
+            var bytesRead = gps.read();
+            logger.debug( @"Read $bytesRead from GPS" );
+        }
+        else
+        {
+            logger.debug( "No gps data waiting" );
+        }
+        return true;
     }
 
     //

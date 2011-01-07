@@ -29,6 +29,7 @@ FSO_FRAMEWORK_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.6
 FSO_RESOURCE_REQUIRED=0.1.0
 
+##############################################################################
 # glib and friends
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
@@ -37,24 +38,44 @@ PKG_CHECK_MODULES(GLIB,
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
+##############################################################################
 # gee
 PKG_CHECK_MODULES(GEE,
   gee-1.0 >= $GEE_REQUIRED)
 AC_SUBST(GEE_CFLAGS)
 AC_SUBST(GEE_LIBS)
 
+##############################################################################
 # soup
 PKG_CHECK_MODULES(SOUP,
   libsoup-2.4 >= $SOUP_REQUIRED)
 AC_SUBST(SOUP_CFLAGS)
 AC_SUBST(SOUP_LIBS)
 
+##############################################################################
 # json-glib
 PKG_CHECK_MODULES(JSON,
   json-glib-1.0 >= $JSON_REQUIRED)
 AC_SUBST(JSON_CFLAGS)
 AC_SUBST(JSON_LIBS)
 
+##############################################################################
+# optional feature: gpsd
+AC_ARG_ENABLE(provider-libgps,
+  AS_HELP_STRING([--enable-provider-libgps], [Enable building the libgps location provider (default=disabled)]),
+  [libgps=$enableval],
+  [libgps="no"])
+
+if test x$libgps = x"yes"; then
+    # libgps
+    PKG_CHECK_MODULES(GPS,
+      libgps >= 0.0)
+    AC_SUBST(GPS_CFLAGS)
+    AC_SUBST(GPS_LIBS)
+fi
+AM_CONDITIONAL( [WANT_LIBGPS], [test x"$libgps" = x"yes"])
+
+##############################################################################
 # dbus conf directory
 DBUS_DIR="`$PKG_CONFIG --variable=sysconfdir dbus-1`"
 if (test -z "{DBUS_DIR}"); then
@@ -64,6 +85,7 @@ else
 fi
 AC_SUBST(DBUS_DIR)
 
+##############################################################################
 # dbus service directory
 DBUS_SERVICE_DIR="`$PKG_CONFIG --variable=session_bus_services_dir dbus-1`"
 if (test -z "{DBUS_SERVICE_DIR}"); then
@@ -71,6 +93,7 @@ if (test -z "{DBUS_SERVICE_DIR}"); then
 fi
 AC_SUBST(DBUS_SERVICE_DIR)
 
+##############################################################################
 # framework
 PKG_CHECK_MODULES(FSO,
   fsobasics-2.0 >= $FSO_BASICS_REQUIRED
@@ -126,7 +149,9 @@ echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
 echo
-echo "  prefix..................: $prefix"
+echo "  provider_location_gpsd.......................................: $libgps"
+echo
+echo "  prefix.......................................................: $prefix"
 echo
 echo "------------------------------------------------------------------------"
 echo

@@ -13,7 +13,6 @@ SUBDIRS = \
 	\
 	provider_location_cellidwifi \
 	provider_location_freegeoip \
-	provider_location_gpsd \
 	\
 	source_dummy \
 	source_gps \
@@ -22,3 +21,8 @@ SUBDIRS = \
 	\
 	sync_time \
 	$(NULL)
+
+if WANT_LIBGPS
+SUBDIRS += provider_location_gpsd
+endif
+
