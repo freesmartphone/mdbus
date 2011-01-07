@@ -4,6 +4,7 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
+	-I$(top_srcdir)/3rdparty \
 	$(FSO_CFLAGS) \
 	$(NULL)
 

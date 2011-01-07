@@ -130,13 +130,14 @@ if test x$gstreamer = "xyes"; then
 fi
 AM_CONDITIONAL( [WANT_GSTREAMER], [test x"$gstreamer" = x"yes"])
 
+# No longer necessary, we ship our own copy of the header
 ##############################################################################
 # i2c-tools
-AC_CHECK_HEADER(linux/i2c-dev.h, ,
-    [AC_MSG_ERROR([Could not find linux/i2c-dev.h...please install i2c-tools])])
-AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <linux/i2c-dev.h>
-  void test() { int foo = i2c_smbus_read_byte_data( 0, 0 ); } ])],,
-  [AC_MSG_ERROR([Could not find i2c functions in linux/i2c-dev.h...please install i2c-tools])])
+#AC_CHECK_HEADER(linux/i2c-dev.h, ,
+#    [AC_MSG_ERROR([Could not find linux/i2c-dev.h...please install i2c-tools])])
+#AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <linux/i2c-dev.h>
+#  void test() { int foo = i2c_smbus_read_byte_data( 0, 0 ); } ])],,
+#  [AC_MSG_ERROR([Could not find i2c functions in linux/i2c-dev.h...please install i2c-tools, libi2c-dev, etc.])])
 
 ##############################################################################
 # check for debugging
