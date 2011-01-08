@@ -34,6 +34,7 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
         if ( gps.open() == 0 )
         {
             logger.debug( "GPS opened" );
+            gps.stream( Gps.StreamingPolicy.ENABLE );
         }
         else
         {
@@ -56,7 +57,15 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
         {
             logger.debug( "GPS data waiting... reading" );
             var bytesRead = gps.read();
-            logger.debug( @"Read $bytesRead from GPS" );
+            logger.debug( @"Read $bytesRead from GPS, fix status is $(gps.status)" );
+            if ( gps.status != Gps.FixStatus.NO_FIX )
+            {
+                var map = new HashTable<string,Variant>( str_hash, str_equal );
+                map.insert( "latitude", gps.fix.latitude );
+                map.insert( "longitude", gps.fix.longitude );
+                map.insert( "gmt", gps.fix.time.to_string() );
+                this.location( this, map );
+            }
         }
         else
         {

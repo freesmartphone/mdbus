@@ -26,7 +26,7 @@ namespace Gps {
     public delegate void RawHookFunc( Device device, uint8[] data );
 
     /* enums and constants */
-    [CCode (cname = "uint", cprefix = "WATCH_", cheader_filename = "gps.h")]
+    [CCode (cname = "uint", has_type_id = false, cprefix = "WATCH_", cheader_filename = "gps.h")]
     public enum StreamingPolicy
     {
         ENABLE,
@@ -56,7 +56,7 @@ namespace Gps {
     [CCode (cheader_filename = "gps.h")]
     public const uint MAXUSERDEVS;
 
-    [CCode (cname = "uint", cprefix = "", cheader_filename = "gps.h")]
+    [CCode (cname = "uint", has_type_id = false, cprefix = "", cheader_filename = "gps.h")]
     public enum ChangeMask
     {
         ONLINE_SET,
@@ -91,9 +91,12 @@ namespace Gps {
         PACKET_SET,
         SUBFRAME_SET,
         AUXDATA_SET
+
+        //[CCode (cname = "gps_maskdump", cheader_filename = "gps.h")]
+        //public unowned string dump();
     }
 
-    [CCode (cname = "uint", cprefix = "STATUS_", cheader_filename = "gps.h")]
+    [CCode (cname = "uint", has_type_id = false, cprefix = "STATUS_", cheader_filename = "gps.h")]
     public enum FixStatus
     {
         NO_FIX,
@@ -101,7 +104,7 @@ namespace Gps {
         DGPS_FIX,
     }
 
-    [CCode (cname = "uint", cprefix = "", cheader_filename = "gps.h")]
+    [CCode (cname = "uint", has_type_id = false, cprefix = "", cheader_filename = "gps.h")]
     public enum FixMode
     {
         MODE_NOT_SEEN,
@@ -111,10 +114,11 @@ namespace Gps {
     }
 
     /* static functions */
-    public static unowned string errstr(int errno);
+    public static unowned string errstr( int errno );
+    public void enable_debug( int fd, Posix.FILE file );
 
     /* fix */
-    [CCode (cname = "struct gps_fix_t", destroy_function = "", cprefix = "", cheader_filename = "gps.h")]
+    [CCode (cname = "struct gps_fix_t", destroy_function = "", cprefix = "gps_", cheader_filename = "gps.h")]
     public struct Fix
     {
         public double time;
@@ -132,6 +136,9 @@ namespace Gps {
         public double eps;
         public double climb;
         public double epc;
+
+        public void clear_fix();
+        public void merge_fix( ChangeMask mask, Fix otherFix );
     }
 
     /* dilution of precision */
@@ -179,16 +186,7 @@ namespace Gps {
     }
 }
 
-
 #if 0
-
-
-extern void gps_clear_fix(/*@ out @*/struct gps_fix_t *);
-extern void gps_merge_fix(/*@ out @*/struct gps_fix_t *,
-			  gps_mask_t,
-			  /*@ in @*/struct gps_fix_t *);
-extern void gps_enable_debug(int, FILE *);
-extern /*@observer@*/const char *gps_maskdump(gps_mask_t);
 
 extern time_t mkgmtime(register struct tm *);
 extern double timestamp(void);
@@ -201,7 +199,6 @@ extern double earth_distance_and_bearings(double, double, double, double,
 					  /*@null@*//*@out@*/double *,
 					  /*@null@*//*@out@*/double *);
 extern double wgs84_separation(double, double);
-
 
 #endif
 
