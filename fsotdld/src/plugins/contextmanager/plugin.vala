@@ -19,7 +19,21 @@
 
 using GLib;
 
-class Context.Service : FreeSmartphone.Context.Manager, FsoFramework.AbstractObject
+
+namespace MyFreeSmartphone { namespace Context {
+
+    [CCode (cheader_filename = "freesmartphone.h")]
+    [DBus (timeout = 120000, name = "org.freesmartphone.Context.Manager")]
+    public interface Manager : GLib.Object
+    {
+        public abstract async void subscribe_location_updates( BusName busname, FreeSmartphone.Context.LocationUpdateAccuracy desired_accuracy) throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError;
+        public abstract async void unsubscribe_location_updates( BusName busname ) throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError;
+    }
+} /* namespace Context */
+} /* namespace MyFreeSmartphone */
+
+
+class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractObject
 {
     internal const string MODULE_NAME = "fsotdl.contextmanager";
 
@@ -35,8 +49,9 @@ class Context.Service : FreeSmartphone.Context.Manager, FsoFramework.AbstractObj
 
     public Service( FsoFramework.Subsystem subsystem )
     {
+        // scan for location providers
         var tproviders = config.stringListValue( MODULE_NAME, "providers", {} );
-        logger.debug( @"Will attempt to instantiate $(tproviders.length) contextmanager providers" );
+        logger.debug( @"Will attempt to instantiate $(tproviders.length) location providers" );
 
         foreach ( var typename in tproviders )
         {
@@ -58,7 +73,7 @@ class Context.Service : FreeSmartphone.Context.Manager, FsoFramework.AbstractObj
 
         status = new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal );
 
-        subsystem.registerObjectForService<FreeSmartphone.Context.Manager>( FsoFramework.Context.ServiceDBusName, FsoFramework.Context.ManagerServicePath, this );
+        subsystem.registerObjectForService<MyFreeSmartphone.Context.Manager>( FsoFramework.Context.ServiceDBusName, FsoFramework.Context.ManagerServicePath, this );
 
         logger.info( "Ready." );
 
@@ -97,14 +112,20 @@ class Context.Service : FreeSmartphone.Context.Manager, FsoFramework.AbstractObj
     //
     // org.freesmartphone.Location (DBus API)
     //
-    public async void subscribe_location_updates (FreeSmartphone.Context.LocationUpdateAccuracy desired_accuracy) throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+    public async void subscribe_location_updates( BusName busname, FreeSmartphone.Context.LocationUpdateAccuracy desired_accuracy ) throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
     {
-        // FIXME
+        if ( desired_accuracy == 0 )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Please see documentation for allowed values" );
+        }
+        assert( logger.debug( @"$busname subscribes for location updates with desired accuracy $desired_accuracy" ) );
+        // ...
     }
 
-	public async void unsubscribe_location_updates () throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+	public async void unsubscribe_location_updates( BusName busname ) throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
     {
-        // FIXME
+        assert( logger.debug( @"$busname unsubscribes from location updates" ) );
+        // ...
     }
 }
 
