@@ -29,15 +29,15 @@ VALAC_ARGS = \
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsotdl
-modlibexec_LTLIBRARIES = location.la
-location_la_SOURCES = plugin.c
-location_la_VALASOURCES = plugin.vala
-$(location_la_SOURCES): $(location_la_VALASOURCES)
+modlibexec_LTLIBRARIES = contextmanager.la
+contextmanager_la_SOURCES = plugin.c
+contextmanager_la_VALASOURCES = plugin.vala
+$(contextmanager_la_SOURCES): $(contextmanager_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-location_la_LIBADD = $(progs_ldadd)
-location_la_LDFLAGS = -no-undefined -module -avoid-version
-location_la_LIBTOOLFLAGS = --tag=disable-static
+contextmanager_la_LIBADD = $(progs_ldadd)
+contextmanager_la_LDFLAGS = -no-undefined -module -avoid-version
+contextmanager_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

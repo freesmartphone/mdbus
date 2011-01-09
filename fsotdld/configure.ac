@@ -23,7 +23,7 @@ GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 SOUP_REQUIRED=2.29
 JSON_REQUIRED=0.10.2
-FSO_GLIB_REQUIRED=2010.09.06.1
+FSO_GLIB_REQUIRED=2011.01.09.1
 FSO_BASICS_REQUIRED=0.9.10
 FSO_FRAMEWORK_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.6
@@ -124,7 +124,7 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/alarm/Makefile
-  src/plugins/location/Makefile
+  src/plugins/contextmanager/Makefile
   src/plugins/provider_gps/Makefile
   src/plugins/provider_gps_nmea/Makefile
   src/plugins/provider_location_cellidwifi/Makefile

@@ -19,9 +19,9 @@
 
 using GLib;
 
-class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
+class Context.Service : FreeSmartphone.Context.Manager, FsoFramework.AbstractObject
 {
-    internal const string MODULE_NAME = "fsotdl.location";
+    internal const string MODULE_NAME = "fsotdl.contextmanager";
 
     FsoFramework.Subsystem subsystem;
     private Gee.HashMap<string,FsoTdl.ILocationProvider> providers;
@@ -36,7 +36,7 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
     public Service( FsoFramework.Subsystem subsystem )
     {
         var tproviders = config.stringListValue( MODULE_NAME, "providers", {} );
-        logger.debug( @"Will attempt to instantiate $(tproviders.length) location providers" );
+        logger.debug( @"Will attempt to instantiate $(tproviders.length) contextmanager providers" );
 
         foreach ( var typename in tproviders )
         {
@@ -58,7 +58,7 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
 
         status = new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal );
 
-        subsystem.registerObjectForService<FreeSmartphone.Location>( FsoFramework.Time.ServiceDBusName, FsoFramework.Time.LocationServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.Context.Manager>( FsoFramework.Context.ServiceDBusName, FsoFramework.Context.ManagerServicePath, this );
 
         logger.info( "Ready." );
 
@@ -83,7 +83,7 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
     {
         logger.debug( @"Got location update from $(provider.get_type().name())" );
         status = location;
-        this.location_update( status ); // DBUS SIGNAL
+        //this.location_update( status ); // DBUS SIGNAL
     }
 
     private void mergeStatusAndSendSignal( HashTable<string,Variant> location )
@@ -91,19 +91,24 @@ class Location.Service : FreeSmartphone.Location, FsoFramework.AbstractObject
         location.get_keys().foreach( (key) => {
             status.insert( (string)key, location.lookup( (string)key ) );
         } );
-        this.location_update( status ); // DBUS SIGNAL
+        //this.location_update( status ); // DBUS SIGNAL
     }
 
     //
     // org.freesmartphone.Location (DBus API)
     //
-    public async GLib.HashTable<string,GLib.Variant> get_location() throws FreeSmartphone.Error, DBusError, IOError
+    public async void subscribe_location_updates (FreeSmartphone.Context.LocationUpdateAccuracy desired_accuracy) throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
     {
-        return status;
+        // FIXME
+    }
+
+	public async void unsubscribe_location_updates () throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+    {
+        // FIXME
     }
 }
 
-Location.Service service;
+internal Context.Service service;
 
 /**
  * This function gets called on plugin initialization time.
@@ -113,14 +118,14 @@ Location.Service service;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    service = new Location.Service( subsystem );
-    return Location.Service.MODULE_NAME;
+    service = new Context.Service( subsystem );
+    return Context.Service.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsotdl.location fso_register_function" );
+    FsoFramework.theLogger.debug( "fsotdl.contextmanager fso_register_function" );
 }
 
 /**
