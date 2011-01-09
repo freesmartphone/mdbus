@@ -78,30 +78,38 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
         assert( logger.debug( @"My IP seems to be $ip" ) );
 
         var result = yield FsoFramework.Network.textForUri( servername, queryuri.printf( ip ) );
-        if ( result == null || result.length != 3 || result[2].has_prefix( "False" ) )
+        if ( ! ( result != null && result.length > 0 ) )
         {
             logger.warning( @"Could not get information for IP $ip from $servername" );
             return;
         }
 
         // Usual answer retrieved from this server is something like:
-        // 52
-        // True,85.180.141.230,DE,Germany,05,Hessen,Frankfurt Am Main,,50.1167,8.6833,1.0,2.0
-        // 0
+        // 85.180.141.230,DE,Germany,05,Hessen,Frankfurt Am Main,,50.1167,8.6833,
 
-        var components = result[1].split( "," );
+        var components = result[0].split( "," );
 
         var map = new HashTable<string,Variant>( str_hash, str_equal );
-        map.insert( "countrycode", components[2] );
-        map.insert( "countryname", components[3] );
-        map.insert( "regioncode", components[4] );
-        map.insert( "regionname", components[5] );
-        map.insert( "city", components[6] );
-        map.insert( "zipcode", components[7] );
-        map.insert( "latitude", components[8].to_double() );
-        map.insert( "longitude", components[9].to_double() );
-        map.insert( "gmt", components[10] );
-        map.insert( "dst", components[11] );
+        if ( components.length > 1 )
+            map.insert( "countrycode", components[1] );
+        if ( components.length > 2 )
+            map.insert( "countryname", components[2] );
+        if ( components.length > 3 )
+            map.insert( "regioncode", components[3] );
+        if ( components.length > 4 )
+            map.insert( "regionname", components[4] );
+        if ( components.length > 5 )
+            map.insert( "city", components[5] );
+        if ( components.length > 6 )
+            map.insert( "zipcode", components[6] );
+        if ( components.length > 7 )
+            map.insert( "latitude", components[7].to_double() );
+        if ( components.length > 8 )
+            map.insert( "longitude", components[8].to_double() );
+        if ( components.length > 9 )
+            map.insert( "gmt", components[9] );
+        if ( components.length > 10 )
+            map.insert( "dst", components[10] );
         this.location( this, map );
     }
 
