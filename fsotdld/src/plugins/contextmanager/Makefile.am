@@ -19,8 +19,10 @@ progs_ldadd = \
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
+	--pkg gio-hacks \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotdl-2.0

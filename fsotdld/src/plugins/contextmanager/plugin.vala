@@ -32,19 +32,65 @@ namespace MyFreeSmartphone { namespace Context {
 } /* namespace Context */
 } /* namespace MyFreeSmartphone */
 
+/**
+ * @class Subscription
+ *
+ * Helper class encapsulating one client request
+ **/
+class Subscription : FsoFramework.AbstractObject
+{
+    public BusName busname;
+    public FreeSmartphone.Context.LocationUpdateAccuracy accuracy;
 
+    uint busnameWatchRef;
+
+    public Subscription( BusName busname, FreeSmartphone.Context.LocationUpdateAccuracy accuracy )
+    {
+        this.busname = busname;
+        this.accuracy = accuracy;
+
+        busnameWatchRef = GLibHacks.Bus.watch_name( BusType.SYSTEM, busname, BusNameWatcherFlags.NONE, ( connection, name, owner ) => {}, ( connection, name ) => {
+            assert( name == this.busname );
+            service.handleDisappearingHandlerForSubscription( this );
+        } );
+
+        assert( logger.debug( "Created" ) );
+    }
+
+    public override string repr()
+    {
+        return @"<$busname>";
+    }
+
+    ~Subscription()
+    {
+        Bus.unwatch_name( busnameWatchRef );
+
+        assert( logger.debug( "Destroyed" ) );
+    }
+}
+
+/**
+ * @class Context.Service
+ *
+ * DBus interface to the Context Manager
+ **/
 class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractObject
 {
     internal const string MODULE_NAME = "fsotdl.contextmanager";
 
     FsoFramework.Subsystem subsystem;
     private Gee.HashMap<string,FsoTdl.ILocationProvider> providers;
-
     private GLib.HashTable<string,GLib.Variant> status;
+
+    private Gee.HashMap<string,Subscription> subscriptions;
 
     construct
     {
         providers = new Gee.HashMap<string,FsoTdl.ILocationProvider>();
+        subscriptions = new Gee.HashMap<string,Subscription>();
+
+        status = new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal );
     }
 
     public Service( FsoFramework.Subsystem subsystem )
@@ -71,12 +117,11 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
             providers[ typ.name() ] = obj;
         }
 
-        status = new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal );
-
         subsystem.registerObjectForService<MyFreeSmartphone.Context.Manager>( FsoFramework.Context.ServiceDBusName, FsoFramework.Context.ManagerServicePath, this );
 
         logger.info( "Ready." );
 
+        /*
         Timeout.add_seconds( 2, () => {
             foreach ( var obj in providers.values )
             {
@@ -84,6 +129,7 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
             }
             return false;
         } );
+        */
     }
 
     public override string repr()
@@ -91,12 +137,18 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
         return @"<$(providers.size)>";
     }
 
+    public void handleDisappearingHandlerForSubscription( Subscription s )
+    {
+        subscriptions.unset( s.busname.to_string() );
+        subscriptionsHaveBeenUpdated();
+    }
+
     //
     // private API
     //
     private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Variant> location )
     {
-        logger.debug( @"Got location update from $(provider.get_type().name())" );
+        assert( logger.debug( @"Got location update from $(provider.get_type().name())" ) );
         status = location;
         //this.location_update( status ); // DBUS SIGNAL
     }
@@ -109,6 +161,11 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
         //this.location_update( status ); // DBUS SIGNAL
     }
 
+    private void subscriptionsHaveBeenUpdated()
+    {
+        logger.debug( "..." );
+    }
+
     //
     // org.freesmartphone.Location (DBus API)
     //
@@ -119,6 +176,19 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Please see documentation for allowed values" );
         }
         assert( logger.debug( @"$busname subscribes for location updates with desired accuracy $desired_accuracy" ) );
+
+        var subscription = subscriptions[busname.to_string()];
+        if ( subscription != null )
+        {
+            assert( logger.debug( @"Subscription for $busname already existing with accuracy $(subscription.accuracy); updating to accuracy $desired_accuracy" ) );
+            subscription.accuracy = desired_accuracy;
+        }
+        else
+        {
+            subscriptions[busname.to_string()] = new Subscription( busname, desired_accuracy );
+        }
+        subscriptionsHaveBeenUpdated();
+
         // ...
     }
 
