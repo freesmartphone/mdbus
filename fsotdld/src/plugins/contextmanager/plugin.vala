@@ -85,6 +85,8 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
 
     private Gee.HashMap<string,Subscription> subscriptions;
 
+    uint maximumDesiredAccuracy = 0;
+
     construct
     {
         providers = new Gee.HashMap<string,FsoTdl.ILocationProvider>();
@@ -161,9 +163,65 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
         //this.location_update( status ); // DBUS SIGNAL
     }
 
+    private void syncProvidersWithDesiredAccuracy()
+    {
+        foreach ( var provider in providers.values )
+        {
+            bool stop = ( maximumDesiredAccuracy == 0 ) || ( provider.accuracy() < maximumDesiredAccuracy );
+            var text = stop ? "Stopping" : "Starting";
+            assert( logger.debug( @"$text location provider $(provider.get_type().name()) [acc.typ = $(provider.accuracy()) M]" ) );
+            if ( stop )
+            {
+                provider.stop();
+            }
+            else
+            {
+                provider.start();
+            }
+        }
+    }
+
+    private uint locationUpdateAccuracyToMeters( FreeSmartphone.Context.LocationUpdateAccuracy a )
+    {
+        switch ( a )
+        {
+            case FreeSmartphone.Context.LocationUpdateAccuracy.INVALID: return 0;
+            case FreeSmartphone.Context.LocationUpdateAccuracy.NAVI: return 3;
+            case FreeSmartphone.Context.LocationUpdateAccuracy.BEST: return 5;
+            case FreeSmartphone.Context.LocationUpdateAccuracy.10M: return 10;
+            case FreeSmartphone.Context.LocationUpdateAccuracy.100M: return 100;
+            case FreeSmartphone.Context.LocationUpdateAccuracy.1KM: return 1000;
+            case FreeSmartphone.Context.LocationUpdateAccuracy.3KM: return 3 * 1000;
+            case FreeSmartphone.Context.LocationUpdateAccuracy.100KM: return 100 * 1000;
+            default: assert_not_reached();
+        }
+    }
+
     private void subscriptionsHaveBeenUpdated()
     {
-        logger.debug( "..." );
+        FreeSmartphone.Context.LocationUpdateAccuracy accuracy = (FreeSmartphone.Context.LocationUpdateAccuracy) 999;
+        BusName busname = new BusName( "none" );
+
+        if ( subscriptions.size > 0 )
+        {
+            foreach ( var subscription in subscriptions.values )
+            {
+                if ( subscription.accuracy < accuracy )
+                {
+                    accuracy = subscription.accuracy;
+                    busname = subscription.busname;
+                }
+            }
+            maximumDesiredAccuracy = locationUpdateAccuracyToMeters( accuracy );
+            assert( logger.debug( @"Gathering highest requested accuracy... $accuracy requested by $busname" ) );
+        }
+        else
+        {
+            maximumDesiredAccuracy = locationUpdateAccuracyToMeters( FreeSmartphone.Context.LocationUpdateAccuracy.INVALID );
+            assert( logger.debug( "No subscriptions left. Stopping all providers" ) );
+        }
+
+        syncProvidersWithDesiredAccuracy();
     }
 
     //

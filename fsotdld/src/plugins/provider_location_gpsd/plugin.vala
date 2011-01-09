@@ -99,14 +99,19 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
     //
     // FsoTdl.AbstractLocationProvider
     //
-    public override void trigger()
+    public override void start()
     {
         asyncTrigger();
     }
 
+    public override void stop()
+    {
+        // ...
+    }
+
     public override uint accuracy()
     {
-        return 100 * 1000;
+        return 20;
     }
 }
 
