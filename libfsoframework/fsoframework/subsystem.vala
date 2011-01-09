@@ -263,7 +263,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
             }
             catch ( Error e )
             {
-                logger.critical( "Could not connect to DBus System bus. dbus-daemon started?" );
+                logger.critical( @"Could not connect to DBus System bus: $(e.message). dbus-daemon started?" );
                 Posix.exit( -1 );
             }
             assert( connection != null );
