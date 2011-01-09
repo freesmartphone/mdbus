@@ -257,7 +257,15 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         if ( connection == null )
         {
             assert( logger.debug( @"Connection not present yet; creating." ) );
-            connection = Bus.get_sync( BusType.SYSTEM );
+            try
+            {
+                connection = Bus.get_sync( BusType.SYSTEM );
+            }
+            catch ( Error e )
+            {
+                logger.critical( "Could not connect to DBus System bus. dbus-daemon started?" );
+                Posix.exit( -1 );
+            }
             assert( connection != null );
         }
     }
@@ -267,7 +275,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         foreach ( var servicename in busnames )
         {
             // claim bus name
-            var err = Bus.own_name_on_connection( connection, servicename, 0,
+            Bus.own_name_on_connection( connection, servicename, 0,
             ( conn, name ) => {
                 logger.debug( @"Successfully claimed $name" );
             }, () => {
@@ -282,16 +290,22 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         ensureConnection();
 
         var cleanedname = objectpath.replace( "-", "" ).replace( ":", "" );
-        uint refid = connection.register_object<T>( cleanedname, obj );
-
-        Gee.ArrayList<uint>? refidsForObject = refids[servicename];
-        if ( refidsForObject == null )
+        try
         {
-            refidsForObject = new Gee.ArrayList<uint>();
-            refids[servicename] = refidsForObject;
+            var refid = connection.register_object<T>( cleanedname, obj );
+            Gee.ArrayList<uint>? refidsForObject = refids[servicename];
+            if ( refidsForObject == null )
+            {
+                refidsForObject = new Gee.ArrayList<uint>();
+                refids[servicename] = refidsForObject;
+            }
+            refidsForObject.add( refid );
+            dbusobjects[cleanedname] = (Object) obj;
         }
-        refidsForObject.add( refid );
-        dbusobjects[cleanedname] = (Object) obj;
+        catch ( Error e )
+        {
+            logger.error( @"Could not register $(typeof(T).name()) at $objectpath: $(e.message)" );
+        }
 
         assert( logger.debug( @"Registered $(typeof(T).name()) at $objectpath" ) );
 
