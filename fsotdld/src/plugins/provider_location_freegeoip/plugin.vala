@@ -78,7 +78,7 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
         assert( logger.debug( @"My IP seems to be $ip" ) );
 
         var result = yield FsoFramework.Network.textForUri( servername, queryuri.printf( ip ) );
-        if ( ! ( result != null && result.length > 0 ) )
+        if ( ! ( result != null && result.length > 0 && !result[0].has_prefix( "<html>" ) ) )
         {
             logger.warning( @"Could not get information for IP $ip from $servername" );
             return;
@@ -103,13 +103,17 @@ class Location.FreeGeoIp : FsoTdl.AbstractLocationProvider
         if ( components.length > 6 )
             map.insert( "zipcode", components[6] );
         if ( components.length > 7 )
+        {
             map.insert( "latitude", components[7].to_double() );
+            map.insert( "accuracy", accuracy() );
+        }
         if ( components.length > 8 )
             map.insert( "longitude", components[8].to_double() );
         if ( components.length > 9 )
             map.insert( "gmt", components[9] );
         if ( components.length > 10 )
             map.insert( "dst", components[10] );
+
         this.location( this, map );
     }
 
