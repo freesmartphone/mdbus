@@ -122,7 +122,7 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
         try
         {
             aptable = yield gatherAccessPoints();
-            haveWifiData = true;
+            haveWifiData = ( aptable != null && aptable.size > 0 );
         }
         catch ( Error e3 )
         {
