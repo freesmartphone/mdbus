@@ -23,26 +23,12 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
 {
     internal const string MODULE_NAME = "fsotdl.provider_location_gpsd";
 
-    FsoFramework.Subsystem subsystem;
-    string servername;
-    string queryuri;
-
-    Gps.Device gps;
+    private FsoFramework.Subsystem subsystem;
+    private uint watch = 0;
+    private Gps.Device gps;
 
     construct
     {
-        if ( gps.open() == 0 )
-        {
-            logger.debug( "GPS opened" );
-            gps.stream( Gps.StreamingPolicy.ENABLE );
-        }
-        else
-        {
-            logger.critical( "Can't open GPS: %s".printf( Gps.errstr( errno ) ) );
-        }
-
-        Timeout.add_seconds( 3, onTimeout );
-
         logger.info( "Ready." );
     }
 
@@ -51,14 +37,20 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
         return "<>";
     }
 
+    //
+    // private API
+    //
     private bool onTimeout()
     {
         if ( gps.waiting() )
         {
-            logger.debug( "GPS data waiting... reading" );
+            assert( logger.debug( "GPS data waiting... reading" ) );
             var bytesRead = gps.read();
-            logger.debug( @"Read $bytesRead from GPS, fix status is $(gps.status)" );
-            if ( gps.status != Gps.FixStatus.NO_FIX )
+            var device = gps.dev.path;
+            var driver = gps.dev.driver;
+            var subtype = gps.dev.subtype;
+            assert( logger.debug( @"Read $bytesRead from GPS [$device:$driver:$subtype], LON:$(gps.fix.latitude), LAT:$(gps.fix.longitude)" ) );
+            if ( ! ( gps.fix.latitude.is_nan() || gps.fix.longitude.is_nan() ) )
             {
                 var map = new HashTable<string,Variant>( str_hash, str_equal );
                 map.insert( "latitude", gps.fix.latitude );
@@ -69,31 +61,9 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
         }
         else
         {
-            logger.debug( "No gps data waiting" );
+            assert( logger.debug( "No gps data waiting" ) );
         }
         return true;
-    }
-
-    //
-    // private API
-    //
-    private async void asyncTrigger()
-    {
-        /*
-
-        var map = new HashTable<string,Variant>( str_hash, str_equal );
-        map.insert( "countrycode", components[2] );
-        map.insert( "countryname", components[3] );
-        map.insert( "regioncode", components[4] );
-        map.insert( "regionname", components[5] );
-        map.insert( "city", components[6] );
-        map.insert( "zipcode", components[7] );
-        map.insert( "latitude", components[8].to_double() );
-        map.insert( "longitude", components[9].to_double() );
-        map.insert( "gmt", components[10] );
-        map.insert( "dst", components[11] );
-        this.location( this, map );
-        */
     }
 
     //
@@ -101,12 +71,25 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
     //
     public override void start()
     {
-        asyncTrigger();
+        if ( gps.open() == 0 )
+        {
+            assert( logger.debug( "GPS opened successfully" ) );
+            gps.stream( Gps.StreamingPolicy.ENABLE );
+            watch = Timeout.add_seconds( 3, onTimeout );
+        }
+        else
+        {
+            logger.error( "Can't open GPS: %s".printf( Gps.errstr( errno ) ) );
+        }
     }
 
     public override void stop()
     {
-        // ...
+        if ( watch > 0 )
+        {
+            Source.remove( watch );
+            gps.close();
+        }
     }
 
     public override uint accuracy()
