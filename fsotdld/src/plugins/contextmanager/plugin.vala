@@ -81,7 +81,8 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
 
     FsoFramework.Subsystem subsystem;
     private Gee.HashMap<string,FsoTdl.ILocationProvider> providers;
-    private GLib.HashTable<string,GLib.Variant> status;
+    private GLib.HashTable<string,GLib.Variant> previousLocation;
+    private GLib.HashTable<string,GLib.Variant> location;
 
     private Gee.HashMap<string,Subscription> subscriptions;
 
@@ -91,8 +92,6 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
     {
         providers = new Gee.HashMap<string,FsoTdl.ILocationProvider>();
         subscriptions = new Gee.HashMap<string,Subscription>();
-
-        status = new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal );
     }
 
     public Service( FsoFramework.Subsystem subsystem )
@@ -151,17 +150,40 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
     private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Variant> location )
     {
         assert( logger.debug( @"Got location update from $(provider.get_type().name())" ) );
-        status = location;
-        //this.location_update( status ); // DBUS SIGNAL
+        var accuracyV = location.lookup( "accuracy" );
+        uint accuracy;
+        if ( accuracyV != null )
+        {
+            accuracy = accuracyV.get_uint32();
+        }
+        else
+        {
+            accuracy = provider.accuracy();
+            location.insert( "accuracy", accuracy );
+        }
+
+        if ( this.location == null )
+        {
+            assert( logger.debug( "First location update we ever got... yay!" ) );
+            previousLocation = new HashTable<string,Variant>( str_hash, str_equal );
+            this.location = location;
+        }
+        else
+        {
+            // FIXME: Check whether the new accuracy we got is better than the last one
+        }
+
+        publishLocationUpdate();
     }
 
+    /*
     private void mergeStatusAndSendSignal( HashTable<string,Variant> location )
     {
         location.get_keys().foreach( (key) => {
-            status.insert( (string)key, location.lookup( (string)key ) );
+            this.location.insert( (string)key, location.lookup( (string)key ) );
         } );
-        //this.location_update( status ); // DBUS SIGNAL
     }
+    */
 
     private void syncProvidersWithDesiredAccuracy()
     {
@@ -224,6 +246,22 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
         syncProvidersWithDesiredAccuracy();
     }
 
+    private async void publishLocationUpdate()
+    {
+        foreach ( var busname in subscriptions.keys )
+        {
+            var client = yield Bus.get_proxy<FreeSmartphone.Context.Client>( BusType.SYSTEM, busname, FsoFramework.Context.ClientServicePath, 0 );
+            try
+            {
+                client.location_update( previousLocation, location );
+            }
+            catch ( Error e )
+            {
+                logger.error( @"Error while calling no-reply function!? $(e.message)" );
+            }
+        }
+    }
+
     //
     // org.freesmartphone.Location (DBus API)
     //
@@ -245,15 +283,22 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
         {
             subscriptions[busname.to_string()] = new Subscription( busname, desired_accuracy );
         }
-        subscriptionsHaveBeenUpdated();
 
-        // ...
+        subscriptionsHaveBeenUpdated();
     }
 
 	public async void unsubscribe_location_updates( BusName busname ) throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
     {
+        if ( ! ( busname in subscriptions ) )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Unsubscribing without ever subscribing is lame" );
+        }
+
         assert( logger.debug( @"$busname unsubscribes from location updates" ) );
-        // ...
+
+        subscriptions.unset( busname.to_string() );
+
+        subscriptionsHaveBeenUpdated();
     }
 }
 
