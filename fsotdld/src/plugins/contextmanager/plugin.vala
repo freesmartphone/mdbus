@@ -147,10 +147,13 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
     //
     // private API
     //
-    private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Variant> location )
+    private void onLocationUpdate( FsoTdl.ILocationProvider provider, HashTable<string,Variant> newLocation )
     {
         assert( logger.debug( @"Got location update from $(provider.get_type().name())" ) );
-        var accuracyV = location.lookup( "accuracy" );
+
+        // check whether we have accuracy or synthesize it
+
+        var accuracyV = newLocation.lookup( "accuracy" );
         uint accuracy;
         if ( accuracyV != null )
         {
@@ -159,18 +162,46 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
         else
         {
             accuracy = provider.accuracy();
-            location.insert( "accuracy", accuracy );
+            newLocation.insert( "accuracy", accuracy );
         }
 
-        if ( this.location == null )
+        // check whether we have a timestamp or synthesize it
+        var timestampV = newLocation.lookup( "timestamp" );
+        uint timestamp;
+        if ( timestampV != null )
         {
-            assert( logger.debug( "First location update we ever got... yay!" ) );
-            previousLocation = new HashTable<string,Variant>( str_hash, str_equal );
-            this.location = location;
+            timestamp = timestampV.get_uint32();
         }
         else
         {
-            // FIXME: Check whether the new accuracy we got is better than the last one
+            timestamp = (uint)time_t();
+            newLocation.insert( "timestamp", timestamp );
+        }
+
+        // check whether we have a previous location or not
+        if ( location == null )
+        {
+            assert( logger.debug( "First location update we ever got... yay!" ) );
+            previousLocation = new HashTable<string,Variant>( str_hash, str_equal );
+            location = newLocation;
+        }
+        else
+        {
+            var lastAccuracy = location.lookup( "accuracy" ).get_uint32();
+
+            assert( logger.debug( @"New accuracy = $accuracy, last accuracy = $lastAccuracy" ) );
+
+            if ( accuracy <= lastAccuracy )
+            {
+                assert( logger.debug( @"New location accuracy better or same than previous accuracy" ) );
+                previousLocation = location;
+                location = newLocation;
+            }
+            else
+            {
+                assert( logger.debug( @"New location accuracy worse than previous accuracy" ) );
+                return;
+            }
         }
 
         publishLocationUpdate();
