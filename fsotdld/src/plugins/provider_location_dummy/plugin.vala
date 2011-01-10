@@ -45,8 +45,8 @@ class Location.Dummy : FsoTdl.AbstractLocationProvider
     private async void asyncTrigger()
     {
         var map = new HashTable<string,Variant>( str_hash, str_equal );
-        map.insert( "latitude", 50.0 );
-        map.insert( "longitude", 8.0 );
+        map.insert( "latitude", config.doubleValue( MODULE_NAME, "latitude", 50.0 ) );
+        map.insert( "longitude", config.doubleValue( MODULE_NAME, "longitude", 8.0 ) );
         this.location( this, map );
     }
 
@@ -64,7 +64,7 @@ class Location.Dummy : FsoTdl.AbstractLocationProvider
 
     public override void stop()
     {
-        if ( watch )
+        if ( watch > 0 )
         {
             Source.remove( watch );
         }
@@ -83,7 +83,7 @@ class Location.Dummy : FsoTdl.AbstractLocationProvider
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    return Location.FreeGeoIp.MODULE_NAME;
+    return Location.Dummy.MODULE_NAME;
 }
 
 [ModuleInit]
