@@ -149,12 +149,14 @@ public abstract class FsoGps.AbstractReceiver : FsoTdl.AbstractLocationProvider
      **/
     public abstract void processUnsolicitedResponse( string prefix, string righthandside, string? pdu = null );
 
-    /**
-     * Override this, if your receiver supports an explicit location update trigger
-     **/
-    public override void trigger()
+    public override void start()
     {
         open();
+    }
+
+    public override void stop()
+    {
+        close();
     }
 
     /**

@@ -26,6 +26,20 @@ namespace FsoFramework
     public const string ServicePathPrefix = "/org/freesmartphone";
     public const string ServiceFacePrefix = "org.freesmartphone";
 
+    namespace Context
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ocontextd";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Context";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Context";
+
+        public const string ManagerServiceFace = ServiceFacePrefix + ".Manager";
+        public const string ManagerServicePath = ServicePathPrefix + "/Manager";
+
+        public const string ClientServiceFace = ServiceFacePrefix + ".Client";
+        public const string ClientServicePath = ServicePathPrefix + "/Client";
+    }
+
     namespace Data
     {
         public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".odatad";

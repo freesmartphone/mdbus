@@ -167,7 +167,7 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
         if ( haveWifiData )
         {
             var wifitowers = "";
-            
+
             foreach ( var bssid in aptable.keys )
             {
                 wifitowers += """{ "mac_address": "%s", "signal_strength": %d, "age": 0 },""".printf( bssid, aptable[bssid] );
@@ -234,14 +234,19 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
     //
     // FsoTdl.AbstractLocationProvider
     //
-    public override void trigger()
+    public override void start()
     {
         asyncTrigger();
     }
 
+    public override void stop()
+    {
+        // ...
+    }
+
     public override uint accuracy()
     {
-        return 10 * 1000;
+        return 1000;
     }
 }
 

@@ -21,12 +21,14 @@ using GLib;
 
 namespace Openmoko
 {
+    public static const string CONFIG_SECTION = "fsodevice.openmoko_powercontrol";
 
 /**
  * Bluetooth power control for Openmoko GTA01 and Openmoko GTA02
  **/
 class BluetoothPowerControl : FsoDevice.BasePowerControl
 {
+
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
     private string name;
@@ -131,40 +133,52 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var devices = Path.build_filename( sysfs_root, "bus", "platform", "devices" );
     var drivers = Path.build_filename( sysfs_root, "bus", "platform", "drivers" );
 
-    var bluetooth = Path.build_filename( devices, "neo1973-pm-bt.0" );
-    if ( FsoFramework.FileHandling.isPresent( bluetooth ) )
+    var ignore_bluetooth = config.boolValue( Openmoko.CONFIG_SECTION, "ignore_bluetooth", false );
+    var ignore_wifi = config.boolValue( Openmoko.CONFIG_SECTION, "ignore_wifi", false );
+    var ignore_usbhost = config.boolValue( Openmoko.CONFIG_SECTION, "ignore_usbhost", false );
+
+    if ( !ignore_bluetooth )
     {
-        var o = new Openmoko.BluetoothPowerControl( subsystem, bluetooth );
-        instances.append( o );
-#if WANT_FSO_RESOURCE
-        resources.append( new FsoDevice.BasePowerControlResource( o, "Bluetooth", subsystem ) );
-#endif
+        var bluetooth = Path.build_filename( devices, "neo1973-pm-bt.0" );
+        if ( FsoFramework.FileHandling.isPresent( bluetooth ) )
+        {
+            var o = new Openmoko.BluetoothPowerControl( subsystem, bluetooth );
+            instances.append( o );
+    #if WANT_FSO_RESOURCE
+            resources.append( new FsoDevice.BasePowerControlResource( o, "Bluetooth", subsystem ) );
+    #endif
+        }
     }
 
-    var usbhost = Path.build_filename( devices, "gta02-pm-usbhost.0" );
-    if ( FsoFramework.FileHandling.isPresent( usbhost ) )
+    if ( !ignore_usbhost )
     {
-        var o = new Openmoko.UsbHostModeControl( subsystem, usbhost );
-        instances.append( o );
-#if WANT_FSO_RESOURCE
-        resources.append( new FsoDevice.BasePowerControlResource( o, "UsbHost", subsystem ) );
-#endif
+        var usbhost = Path.build_filename( devices, "gta02-pm-usbhost.0" );
+        if ( FsoFramework.FileHandling.isPresent( usbhost ) )
+        {
+            var o = new Openmoko.UsbHostModeControl( subsystem, usbhost );
+            instances.append( o );
+    #if WANT_FSO_RESOURCE
+            resources.append( new FsoDevice.BasePowerControlResource( o, "UsbHost", subsystem ) );
+    #endif
+        }
     }
 
-
-    var wifi = Path.build_filename( drivers, "s3c2440-sdi" );
-    if ( FsoFramework.FileHandling.isPresent( wifi ) )
+    if ( !ignore_wifi )
     {
-        var o = new Openmoko.WiFiPowerControl( subsystem, wifi );
-        instances.append( o );
-#if WANT_FSO_RESOURCE
-        resources.append( new FsoDevice.BasePowerControlResource( o, "WiFi", subsystem ) );
-#endif
+        var wifi = Path.build_filename( drivers, "s3c2440-sdi" );
+        if ( FsoFramework.FileHandling.isPresent( wifi ) )
+        {
+            var o = new Openmoko.WiFiPowerControl( subsystem, wifi );
+            instances.append( o );
+    #if WANT_FSO_RESOURCE
+            resources.append( new FsoDevice.BasePowerControlResource( o, "WiFi", subsystem ) );
+    #endif
+        }
     }
 
     //TODO: add other devices
 
-    return "fsodevice.openmoko_powercontrol";
+    return Openmoko.CONFIG_SECTION;
 }
 
 [ModuleInit]

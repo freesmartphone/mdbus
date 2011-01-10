@@ -23,13 +23,15 @@ using GLib;
 public interface FsoTdl.ILocationProvider : FsoFramework.AbstractObject
 {
     public signal void location( FsoTdl.ILocationProvider provider, HashTable<string,Value?> location );
-    public abstract uint accuracy();
 
-    public abstract void trigger();
+    public abstract uint accuracy();
+    public abstract void start();
+    public abstract void stop();
 }
 
 public abstract class FsoTdl.AbstractLocationProvider : FsoTdl.ILocationProvider, FsoFramework.AbstractObject
 {
     public abstract uint accuracy();
-    public abstract void trigger();
+    public abstract void start();
+    public abstract void stop();
 }

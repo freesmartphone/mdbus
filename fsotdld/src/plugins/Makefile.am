@@ -6,7 +6,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = \
 	alarm \
 	\
-	location \
+	contextmanager \
 	\
 	provider_gps \
 	provider_gps_nmea \
@@ -21,3 +21,8 @@ SUBDIRS = \
 	\
 	sync_time \
 	$(NULL)
+
+if WANT_LIBGPS
+SUBDIRS += provider_location_gpsd
+endif
+
