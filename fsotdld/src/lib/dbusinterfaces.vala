@@ -20,6 +20,9 @@
 [DBus (name = "fi.epitest.hostap.WPASupplicant.Interface")]
 public interface WpaDBusIface : GLib.Object
 {
+    public const string BusName = "fi.epitest.hostap.WPASupplicant";
+    public const string ObjectPath = "/fi/epitest/hostap/WPASupplicant/Interfaces/0";
+
     [DBus (name = "scan")]
     public abstract async uint scan() throws DBusError, IOError;
     public abstract async GLib.ObjectPath[] scanResults() throws DBusError, IOError;

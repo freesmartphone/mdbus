@@ -31,7 +31,14 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
     private string queryuri;
 
     private FreeSmartphone.GSM.Network gsmnetwork;
+    private HashTable<string,Variant> gsmnetworkStatus;
+    private ulong gsmnetworkStatusWatch;
+
     private WpaDBusIface wpaiface;
+    private ObjectPath[] wpaScanResults;
+    private ulong wpaScanStatusWatch;
+
+    private bool running;
 
     construct
     {
@@ -49,85 +56,136 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
     //
     // private API
     //
-    private async void onIdle()
+    private void gsmHandleUpdatedNetworkStatus( HashTable<string,Variant> newStatus )
     {
-        try
-        {
-            gsmnetwork = yield Bus.get_proxy<FreeSmartphone.GSM.Network>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
-        }
-        catch ( Error e1 )
-        {
-        }
+        string oldslac = (string) gsmnetworkStatus.lookup( "lac" ) ?? "unknown";
+        string oldscid = (string) gsmnetworkStatus.lookup( "cid" ) ?? "unknown";
 
-        try
+        string newslac = (string) newStatus.lookup( "lac" ) ?? "unknown";
+        string newscid = (string) newStatus.lookup( "cid" ) ?? "unknown";
+
+        if ( oldslac != newslac || oldscid != newscid )
         {
-            wpaiface = yield Bus.get_proxy<WpaDBusIface>( BusType.SYSTEM, "fi.epitest.hostap.WPASupplicant", "/fi/epitest/hostap/WPASupplicant/Interfaces/1", DBusProxyFlags.DO_NOT_AUTO_START );
-        }
-        catch ( Error e2 )
-        {
+            assert( logger.debug( @"GSM network status has been updated: [ $oldslac $oldscid ] => [ $newslac $newscid ]" ) );
+            gsmnetworkStatus = newStatus;
+            triggerRequestingLocationAsync();
         }
     }
 
-    private async Gee.HashMap<string,int> gatherAccessPoints()
+    private async void gsmNowAvailable( bool available )
     {
-        var aptable = new Gee.HashMap<string,int>( str_hash, str_equal );
-        ulong handle = 0;
-
-        try
+        if ( available )
         {
-            handle = wpaiface.ScanResultsAvailable.connect( () => {
-                wpaiface.disconnect( handle );
-                logger.debug( @"Scan results available" );
-                gatherAccessPoints.callback();
-            } );
-            yield wpaiface.scan();
-
-            yield; // wait for signal to arrive
-
-            var aps = yield wpaiface.scanResults();
-            logger.debug( @"Got $(aps.length) scan results" );
-            foreach ( unowned GLib.ObjectPath path in aps )
+            try
             {
-                var bssid = Path.get_basename( (string)path );
-                aptable[bssid] = 8;
-                logger.debug( @"Found AP with BSSID '%s'".printf( (string)path ) );
+                gsmnetwork = yield Bus.get_proxy<FreeSmartphone.GSM.Network>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+                gsmnetworkStatus = yield gsmnetwork.get_status();
+                gsmnetworkStatusWatch = gsmnetwork.status.connect( ( status ) => {
+                    gsmHandleUpdatedNetworkStatus( status );
+                } );
+            }
+            catch ( Error e1 )
+            {
+                logger.warning( @"Can't get proxy for FreeSmartphone.GSM.Network: $(e1.message)" );
             }
         }
-        catch ( Error e )
+        else
         {
-            logger.error( @"Could not gather access points: $(e.message)" );
+            if ( gsmnetworkStatusWatch > 0 )
+            {
+                gsmnetwork.disconnect( gsmnetworkStatusWatch );
+                gsmnetwork = null;
+            }
         }
-        return aptable;
     }
 
-    private async void asyncTrigger()
+    private async void wpaHandleUpdatedScanResults()
     {
-        GLib.HashTable<string,Variant> hashtable = null;
-        Gee.HashMap<string,int> aptable = null;
-        bool haveGsmData = false;
-        bool haveWifiData = false;
-
-        // gather current serving cell params
         try
         {
-            hashtable = yield gsmnetwork.get_status();
-            haveGsmData = true;
+            var newScanResults = yield wpaiface.scanResults();
+            assert( logger.debug( @"$(wpaScanResults.length) APs scanned" ) );
+
+            bool same = true;
+
+            if ( ! ( wpaScanResults != null && newScanResults.length != wpaScanResults.length ) )
+            {
+                for ( int i = 0; i < wpaScanResults.length; ++i )
+                {
+                    if ( wpaScanResults[i] != newScanResults[i] )
+                    {
+                        same = false;
+                        break;
+                    }
+                }
+            }
+
+            if ( !same )
+            {
+                triggerRequestingLocationAsync();
+            }
         }
         catch ( Error e1 )
         {
-            logger.info( @"Could not get status from GSM: $(e1.message)" );
+            logger.warning( @"Can't get scan results: $(e1.message)" );
+        }
+    }
+
+    private async void wpaNowAvailable( bool available )
+    {
+        if ( available )
+        {
+            try
+            {
+                wpaiface = yield Bus.get_proxy<WpaDBusIface>( BusType.SYSTEM, WpaDBusIface.BusName, WpaDBusIface.ObjectPath, DBusProxyFlags.DO_NOT_AUTO_START );
+                wpaScanStatusWatch = wpaiface.ScanResultsAvailable.connect( () => {
+                    wpaHandleUpdatedScanResults();
+                } );
+                yield wpaiface.scan();
+            }
+            catch ( Error e1 )
+            {
+                logger.warning( @"Can't get proxy for $(WpaDBusIface.BusName): $(e1.message)" );
+            }
+        }
+        else
+        {
+            if ( wpaScanStatusWatch > 0 )
+            {
+                wpaiface.disconnect( wpaScanStatusWatch );
+                wpaiface = null;
+            }
+        }
+    }
+
+    private async void onIdle()
+    {
+        Bus.watch_name( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName, 0, ( connection, name, owner ) => {
+            assert( logger.debug( @"$name is now being owned by $owner" ) );
+            gsmNowAvailable( true );
+        }, ( connection, name ) => {
+            assert( logger.debug( @"$name is no longer being available" ) );
+            gsmNowAvailable( false );
+        } );
+
+        Bus.watch_name( BusType.SYSTEM, WpaDBusIface.BusName, 0, ( connection, name, owner ) => {
+            assert( logger.debug( @"$name is now being owned by $owner" ) );
+            wpaNowAvailable( true );
+        }, ( connection, name ) => {
+            assert( logger.debug( @"$name is no longer being available" ) );
+            wpaNowAvailable( false );
+        } );
+    }
+
+    private async void triggerRequestingLocationAsync()
+    {
+        if ( !running )
+        {
+            return;
         }
 
-        // gather access points in vincinity
-        try
-        {
-            aptable = yield gatherAccessPoints();
-            haveWifiData = ( aptable != null && aptable.size > 0 );
-        }
-        catch ( Error e3 )
-        {
-            logger.info( @"Could not get status from WiFi: $(e3.message)" );
-        }
+        bool haveGsmData = ( gsmnetworkStatus != null );
+        bool haveWifiData = ( wpaScanResults != null && wpaScanResults.length > 0 );
 
         if ( !haveGsmData && !haveWifiData )
         {
@@ -145,13 +203,13 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
 
         if ( haveGsmData )
         {
-            string slac = (string) hashtable.lookup( "lac" ) ?? "unknown";
-            string scid = (string) hashtable.lookup( "cid" ) ?? "unknown";
+            string slac = (string) gsmnetworkStatus.lookup( "lac" ) ?? "unknown";
+            string scid = (string) gsmnetworkStatus.lookup( "cid" ) ?? "unknown";
             int lac = 0;
             int cid = 0;
             slac.scanf( "%X", &lac );
             scid.scanf( "%X", &cid );
-            string code = (string) hashtable.lookup( "code" ) ?? "000000";
+            string code = (string) gsmnetworkStatus.lookup( "code" ) ?? "000000";
             string mcc = code[0:3];
             string mnc = code[3:code.length];
 
@@ -168,11 +226,15 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
         {
             var wifitowers = "";
 
-            foreach ( var bssid in aptable.keys )
+            foreach ( unowned GLib.ObjectPath path in wpaScanResults )
             {
-                wifitowers += """{ "mac_address": "%s", "signal_strength": %d, "age": 0 },""".printf( bssid, aptable[bssid] );
+                var bssid = Path.get_basename( (string)path );
+                //FIXME: Get proper strength
+                wifitowers += """{ "mac_address": "%s", "signal_strength": %d, "age": 0 },""".printf( bssid, 8 );
+#if DEBUG
+                debug( @"Found AP with BSSID '%s'".printf( (string)path ) );
+#endif
             }
-
             jsonrequeststr += """, "wifi_towers": [ %s ]""".printf( wifitowers[0:wifitowers.length-1] );
         }
 
@@ -226,7 +288,12 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
             map.insert( "street", address.get_string_member( "street" ) );
             map.insert( "streetnumber", address.get_string_member( "street_number" ) );
         }
-        //FIXME: accuracy?
+
+        if ( location.has_member( "accuracy" ) )
+        {
+            var accuracy = location.get_double_member( "accuracy" );
+            map.insert( "accuracy", (uint) accuracy );
+        }
 
         this.location( this, map );
     }
@@ -236,12 +303,13 @@ class Location.CellidWifi : FsoTdl.AbstractLocationProvider
     //
     public override void start()
     {
-        asyncTrigger();
+        running = true;
+        triggerRequestingLocationAsync();
     }
 
     public override void stop()
     {
-        // ...
+        running = false;
     }
 
     public override uint accuracy()

@@ -181,7 +181,7 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
         // check whether we have a previous location or not
         if ( location == null )
         {
-            assert( logger.debug( "First location update we ever got... yay!" ) );
+            assert( logger.debug( @"Received first location update with accuracy $accuracy" ) );
             previousLocation = new HashTable<string,Variant>( str_hash, str_equal );
             location = newLocation;
         }
@@ -266,7 +266,7 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
                 }
             }
             maximumDesiredAccuracy = locationUpdateAccuracyToMeters( accuracy );
-            assert( logger.debug( @"Gathering highest requested accuracy... $accuracy requested by $busname" ) );
+            assert( logger.debug( @"Gathering best requested accuracy... $accuracy requested by $busname" ) );
         }
         else
         {
@@ -279,7 +279,13 @@ class Context.Service : MyFreeSmartphone.Context.Manager, FsoFramework.AbstractO
 
     private async void publishLocationUpdate()
     {
-        foreach ( var busname in subscriptions.keys )
+        var busnames = new Gee.ArrayList<string>();
+        foreach ( var k in subscriptions.keys )
+        {
+            busnames.add( k );
+        }
+
+        foreach ( var busname in busnames )
         {
             var client = yield Bus.get_proxy<FreeSmartphone.Context.Client>( BusType.SYSTEM, busname, FsoFramework.Context.ClientServicePath, 0 );
             try
