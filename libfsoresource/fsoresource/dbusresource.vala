@@ -38,14 +38,19 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
         this.path = new ObjectPath( "%s/%s".printf( FsoFramework.Resource.ServicePathPrefix, name ) );
 
         var conn = this.subsystem.dbusConnection();
-        //FIXME: try/catch
         //FIXME: Why is this not using the subsystem API?
-        conn.register_object<FreeSmartphone.Resource>( this.path, this );
-
-        Idle.add( () => {
-            registerWithUsage();
-            return false; // mainloop: don't call again
-        } );
+        try
+        {
+            conn.register_object<FreeSmartphone.Resource>( this.path, this );
+            Idle.add( () => {
+                registerWithUsage();
+                return false; // mainloop: don't call again
+            } );
+        }
+        catch ( Error e )
+        {
+            logger.error( @"Could not register $name: $(e.message)" );
+        }
     }
 
     public override string repr()
