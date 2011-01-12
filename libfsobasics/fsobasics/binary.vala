@@ -232,6 +232,17 @@ public class BinBuilder: Object
         append_uint16(Checksum.crc16(data[start:end]));
     }
 
+    public void append_bitfield(int position, uint64 value, int offset = 0, int bit_length = 1, int byte_length = 1)
+    {
+        int x = 0;
+        unowned List<uint8> l = get_at(position, byte_length);
+        for(int i = offset; i < offset + length; i ++)
+        {
+            bool v = ((value & (1 << x)) == 0 ) ? true : false;
+            set_bit(ref l.nth(position + offset / 8).data, offset % 8, v);
+            x ++;
+        }
+    }
     public void set_uint8(uint8 val, int position)
     {
         unowned List<uint8> l = null;
@@ -429,6 +440,11 @@ public class BinBuilder: Object
             append_pad(position - _data.length() + assure_nth, alignment_byte);
         }
         return _data.nth(position);
+    }
+    internal static void set_bit(ref uint8 data, int bit, bool value)
+    {
+        bit = 8 - bit - 1;
+        data |= ((uint8)value << bit);
     }
 }
 
