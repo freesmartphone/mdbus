@@ -622,7 +622,7 @@ namespace FsoFramework { namespace Network {
         assert( FsoFramework.theLogger.debug( @"Connected to $serveraddr" ) );
 
         var message = @"GET $uri HTTP/1.1\r\nHost: $servername\r\nConnection: close\r\n\r\n";
-        yield conn.output_stream.write_async( message.data, message.length );
+        yield conn.output_stream.write_async( message.data );
         assert( FsoFramework.theLogger.debug( @"Wrote request" ) );
 
         conn.socket.set_blocking( true );
