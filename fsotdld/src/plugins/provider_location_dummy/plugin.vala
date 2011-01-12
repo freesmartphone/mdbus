@@ -19,13 +19,15 @@
 
 using GLib;
 
-class Location.Gpsd : FsoTdl.AbstractLocationProvider
+class Location.Dummy : FsoTdl.AbstractLocationProvider
 {
-    internal const string MODULE_NAME = "fsotdl.provider_location_gpsd";
+    internal const string MODULE_NAME = "fsotdl.provider_location_dummy";
 
-    private FsoFramework.Subsystem subsystem;
-    private uint watch = 0;
-    private Gps.Device gps;
+    FsoFramework.Subsystem subsystem;
+    string servername;
+    string queryuri;
+
+    uint watch = 0;
 
     construct
     {
@@ -34,36 +36,18 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
 
     public override string repr()
     {
-        return "<>";
+        return "<:)>";
     }
 
     //
     // private API
     //
-    private bool onTimeout()
+    private async void asyncTrigger()
     {
-        if ( gps.waiting() )
-        {
-            assert( logger.debug( "GPS data waiting... reading" ) );
-            var bytesRead = gps.read();
-            var device = gps.dev.path;
-            var driver = gps.dev.driver;
-            var subtype = gps.dev.subtype;
-            assert( logger.debug( @"Read $bytesRead from GPS [$device:$driver:$subtype], LON:$(gps.fix.latitude), LAT:$(gps.fix.longitude)" ) );
-            if ( ! ( gps.fix.latitude.is_nan() || gps.fix.longitude.is_nan() ) )
-            {
-                var map = new HashTable<string,Variant>( str_hash, str_equal );
-                map.insert( "latitude", gps.fix.latitude );
-                map.insert( "longitude", gps.fix.longitude );
-                map.insert( "gmt", gps.fix.time.to_string() );
-                this.location( this, map );
-            }
-        }
-        else
-        {
-            assert( logger.debug( "No gps data waiting" ) );
-        }
-        return true;
+        var map = new HashTable<string,Variant>( str_hash, str_equal );
+        map.insert( "latitude", config.doubleValue( MODULE_NAME, "latitude", 50.0 ) );
+        map.insert( "longitude", config.doubleValue( MODULE_NAME, "longitude", 8.0 ) );
+        this.location( this, map );
     }
 
     //
@@ -71,16 +55,11 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
     //
     public override void start()
     {
-        if ( gps.open() == 0 )
-        {
-            assert( logger.debug( "GPS opened successfully" ) );
-            gps.stream( Gps.StreamingPolicy.ENABLE );
-            watch = Timeout.add_seconds( 3, onTimeout );
-        }
-        else
-        {
-            logger.error( "Can't open GPS: %s".printf( Gps.errstr( errno ) ) );
-        }
+        var frequency = config.intValue( MODULE_NAME, "frequency", 5 );
+        watch = Timeout.add_seconds( frequency, () => {
+            asyncTrigger();
+            return true;
+        } );
     }
 
     public override void stop()
@@ -88,13 +67,11 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
         if ( watch > 0 )
         {
             Source.remove( watch );
-            gps.close();
         }
     }
-
     public override uint accuracy()
     {
-        return 20;
+        return config.intValue( MODULE_NAME, "accuracy", 100 );
     }
 }
 
@@ -106,13 +83,13 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    return Location.Gpsd.MODULE_NAME;
+    return Location.Dummy.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsotdl.provider_location_gpsd fso_register_function" );
+    FsoFramework.theLogger.debug( "fsotdl.provider_location_dummy fso_register_function" );
 }
 
 /**

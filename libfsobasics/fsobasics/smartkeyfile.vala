@@ -198,6 +198,21 @@ public class FsoFramework.SmartKeyFile : Object
         return value.strip();
     }
 
+    public double doubleValue( string section, string key, double defaultvalue = 0.0 )
+    {
+        double value;
+
+        try
+        {
+            value = kf.get_double( section, key );
+        }
+        catch ( KeyFileError e )
+        {
+            value = defaultvalue;
+        }
+        return value;
+    }
+
     public int intValue( string section, string key, int defaultvalue = 0 )
     {
         int value;

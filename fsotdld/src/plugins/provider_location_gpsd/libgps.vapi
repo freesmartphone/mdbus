@@ -96,6 +96,15 @@ namespace Gps {
         //public unowned string dump();
     }
 
+    [CCode (cname = "int", has_type_id = false, cprefix = "SEEN_", cheader_filename = "gps.h")]
+    public enum SeenFlags
+    {
+        GPS,
+        RTCM2,
+        RTCM3,
+        AIS
+    }
+
     [CCode (cname = "uint", has_type_id = false, cprefix = "STATUS_", cheader_filename = "gps.h")]
     public enum FixStatus
     {
@@ -154,6 +163,23 @@ namespace Gps {
         public double gdop;
     }
 
+    /* device configuration */
+    [CCode (cname = "struct devconfig_t", destroy_function = "", cprefix = "", cheader_filename = "gps.h")]
+    public struct DeviceConfig
+    {
+        public unowned string path;
+        public SeenFlags flags;
+        public unowned string driver;
+        public unowned string subtype;
+        public double activated;
+        uint baudrate;
+        uint stopbits;
+        char parity;
+        double cycle;
+        double mincycle;
+        int driver_mode;
+    }
+
     /* device */
     [CCode (cname = "struct gps_data_t", destroy_function = "gps_close", cprefix = "gps_", cheader_filename = "gps.h")]
     public struct Device
@@ -173,9 +199,13 @@ namespace Gps {
         public int elevation[];
         public int azimuth[];
         public double ss[];
+        public DeviceConfig dev;
+        public StreamingPolicy policy;
 
-        [CCode (cname = "gps_open", instance_pos = -1)]
+        [CCode (instance_pos = -1)]
         public int open( string server = "localhost", string port = "2947" );
+
+        public void close();
 
         [PrintfFormat]
         public size_t send( string format, ... );
