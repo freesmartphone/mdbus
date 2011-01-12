@@ -23,6 +23,8 @@ namespace FsoFramework
     public SmartKeyFile theConfig;
 }
 
+internal GLibLogger glib_logger;
+
 static void vala_library_init()
 {
     var bin = FsoFramework.Utility.programName();
@@ -30,12 +32,19 @@ static void vala_library_init()
     FsoFramework.theLogger = FsoFramework.Logger.createFromKeyFile( FsoFramework.theConfig, "logging", bin );
     var classname = Type.from_instance( FsoFramework.theLogger ).name();
     FsoFramework.theLogger.info( @"Binary launched successful ($classname created as theLogger)" );
+
+    glib_logger = new GLibLogger( FsoFramework.theLogger );
+    //register to glib domain
+    Log.set_handler( "GLib", LogLevelFlags.LEVEL_MASK | LogLevelFlags.FLAG_RECURSION | LogLevelFlags.FLAG_FATAL, glib_logger.log );
+    //register to all unknown as fallback
+    Log.set_default_handler( glib_logger.log );
 }
 
 static void vala_library_fini()
 {
     FsoFramework.theConfig = null;
     FsoFramework.theLogger = null;
+    glib_logger = null;
 }
 
 // only for Vala

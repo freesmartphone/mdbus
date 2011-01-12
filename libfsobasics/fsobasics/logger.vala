@@ -452,3 +452,43 @@ public class FsoFramework.KmsgLogger : FsoFramework.AbstractLogger
         kmsg_fd = Posix.open("/dev/kmsg", Posix.O_WRONLY | Posix.O_NOCTTY);
     }
 }
+
+/**
+ * @class GLibLogger
+ */
+public class GLibLogger : Object
+{
+    private FsoFramework.Logger to;
+    public GLibLogger(FsoFramework.Logger _to)
+    {
+        to = _to;
+    }
+
+    public void log(string? log_domain, LogLevelFlags log_level, string message)
+    {
+        string prefix = (log_domain == null) ? "[GLib]" : @"[GLib.$log_domain]";
+
+        switch(log_level)
+        {
+            case LogLevelFlags.LEVEL_ERROR:
+                to.error( prefix + " " + message );
+                break;
+            case LogLevelFlags.LEVEL_CRITICAL:
+                to.critical( prefix + " " + message );
+                break;
+            case LogLevelFlags.LEVEL_WARNING:
+                to.warning( prefix + " " + message );
+                break;
+            case LogLevelFlags.LEVEL_MESSAGE:
+            case LogLevelFlags.LEVEL_INFO:
+                to.info( prefix + " " + message );
+                break;
+            case LogLevelFlags.LEVEL_DEBUG:
+                to.debug( prefix + " " + message );
+                break;
+            default:
+                to.warning(prefix + @"unknown LogLevelFlags: $log_level with message:" + message);
+                break;
+        }
+    }
+}
