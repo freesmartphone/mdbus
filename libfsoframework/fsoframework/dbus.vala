@@ -138,6 +138,7 @@ internal class DBusFuncDelegateHolder
     }
 }
 
+#if 0
 /**
  * @class FsoFramework.DBusServiceNotifierDelegate
  */
@@ -239,5 +240,5 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
             list.append( new DBusFuncDelegateHolder( callback ) );
         }
     }
-
 }
+#endif

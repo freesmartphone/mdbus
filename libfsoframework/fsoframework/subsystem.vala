@@ -59,13 +59,17 @@ public interface FsoFramework.Subsystem : Object
      **/
     public abstract void registerObjectForServiceWithPrefix<T>( string servicename, string prefixpath, T obj );
     /**
-     * Query registered plugins with a certain path prefix
+     * Query registered plugins with a certain path prefix.
      **/
     public abstract Object[] allObjectsWithPrefix( string? prefix = null );
     /**
      * Shutdown the subsystem. This will call shutdown on all plugins.
      **/
     public abstract void shutdown();
+    /**
+     * Signal sent, when a servicename has been acquired.
+     **/
+    public signal void serviceNameAcquired( string servicename );
 }
 
 /**
@@ -277,7 +281,8 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
             // claim bus name
             Bus.own_name_on_connection( connection, servicename, 0,
             ( conn, name ) => {
-                logger.debug( @"Successfully claimed $name" );
+                assert( logger.debug( @"Successfully claimed $name" ) );
+                this.serviceNameAcquired( servicename ); /* SIGNAL */
             }, () => {
                 logger.critical( @"Can't claim busname $servicename" );
                 Posix.exit( -1 );
