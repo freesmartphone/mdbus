@@ -22,6 +22,17 @@
 using GLib;
 using FsoGsm;
 
+[CCode (cprefix = "PN_LINK_", cheader_filename = "netlink.h")]
+public enum GIsiPhonetLinkState {
+    REMOVED,
+    DOWN,
+    UP
+}
+
+public delegate void GIsiPhonetNetlinkFunc(GIsiPhonetLinkState st, string iface);
+ 
+extern bool netlink_start(GIsiPhonetNetlinkFunc cb);
+extern void netlink_stop();
 
 class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
@@ -96,17 +107,11 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
     private bool have_gpio[5];
 
     private int socket;
-    private IOChannel chan;
 
-    struct NetlinkInfoMessage
-    {
-        Linux.Netlink.NlMsgHdr nlh;
-        Linux.Netlink.IfInfoMsg ifi;
-    }
 
     construct
     {
-		logger.info( "Registering nokia900 low level poweron/poweroff handling" );
+        logger.info( "Registering nokia900 low level poweron/poweroff handling" );
 
         socket = -1;
         current = PhonetLink.NONE;
@@ -315,65 +320,28 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         return false;
     }
 
-    protected bool onNetlink(IOChannel chan, IOCondition cond)
+    protected void onNetlink(GIsiPhonetLinkState st, string iface)
     {
-        logger.debug( @"OnNetlink: $cond" );
-        /*
-        struct {
-            struct nlmsghdr nlh;
-            char buf[SIZE_NLMSG];
-        } resp;
-        struct iovec iov = { &resp, sizeof(resp), };
-        struct msghdr msg = { .msg_iov = &iov, .msg_iovlen = 1, };
-        ssize_t ret;
-        struct nlmsghdr *nlh;
-        int fd = g_io_channel_unix_get_fd(channel);
-        GPhonetNetlink *self = data;
+        logger.debug( @"OnNetlink: $iface --> $st" );
+        if ( st == GIsiPhonetLinkState.UP )
+        {
+            if ( current == PhonetLink.UP )
+                return;
 
-        if (cond & (G_IO_NVAL|G_IO_HUP))
-            return FALSE;
-
-        ret = recvmsg(fd, &msg, 0);
-        if (ret == -1)
-            return TRUE;
-
-        if (msg.msg_flags & MSG_TRUNC) {
-            g_printerr("Netlink message of %zu bytes truncated at %zu\n",
-                    ret, sizeof(resp));
-            return TRUE;
+            current = PhonetLink.UP;
+            /* link is up - we can lower cmt_rst_rq */
+            gpio_write( cmt_rst_rq, false );
+            gpio_power_state_machine( PowerEvent.PHONET_LINK_UP );
         }
+        else
+        {
+            if ( current == PhonetLink.DOWN )
+                return;
 
-        for (nlh = &resp.nlh; NLMSG_OK(nlh, (size_t)ret);
-                            nlh = NLMSG_NEXT(nlh, ret)) {
-            if (nlh->nlmsg_type == NLMSG_DONE)
-                break;
-
-            switch (nlh->nlmsg_type) {
-            case NLMSG_ERROR: {
-                struct nlmsgerr *err = NLMSG_DATA(nlh);
-                if (err->error)
-                    g_printerr("Netlink error: %s",
-                            strerror(-err->error));
-                return TRUE;
-            }
-            case RTM_NEWADDR:
-            case RTM_DELADDR:
-                g_pn_nl_addr(self, nlh);
-                break;
-            case RTM_NEWLINK:
-            case RTM_DELLINK:
-                g_pn_nl_link(self, nlh);
-                break;
-            default:
-                continue;
-            }
+            current = PhonetLink.DOWN;
+            gpio_power_state_machine( PowerEvent.PHONET_LINK_DOWN );
         }
-        return TRUE;
-        */
-
-        return false;
     }
-
 
 
     private void gpio_power_state_machine( PowerEvent event )
@@ -701,7 +669,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         logger.debug( @"gpio_probe: rapu is $rapu_type" );
 
-        netlink_start();
+        netlink_start(onNetlink);
     }
 
     private void gpio_remove()
@@ -727,165 +695,6 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         if ( state != PowerState.OFF && state != PowerState.ON_FAILED )
             gpio_power_state_machine( PowerEvent.OFF );
     }
-
-
-    public bool netlink_start()
-    {
-        int option;
-
-        logger.debug( "starting netlink" );
-
-        if ( socket > 0 )
-        {
-            logger.debug( "netlink socket for phonet already there" );
-            return true;
-        }
-
-        socket = Posix.socket( Linux.Socket.AF_NETLINK, Posix.SOCK_DGRAM, Linux.Netlink.NETLINK_ROUTE );
-        if ( socket == -1 )
-        {
-            logger.warning( "netlink_start: failed to open netlink socket" );
-            return false;
-        }
-
-        option = SOCKET_BUF_SIZE;
-        // FIXME: replace 1 with SOL_SOCKET
-        // FIXME: replace 8 with SO_RCVBUF
-        if ( Posix.setsockopt( socket, 1, 8, &option, (Posix.socklen_t) sizeof( int ) ) != 0 )
-        {
-            logger.warning( "netlink_start: failed to socket options" );
-            Posix.close( socket );
-            socket = -1;
-            return false;
-        }
-
-        Posix.fcntl( socket, Posix.F_SETFL, Posix.fcntl( socket, Posix.F_GETFL ) | Posix.O_NONBLOCK );
-
-        option = Linux.Netlink.RTNLGRP_LINK;
-        // FIXME: replace 270 with SOL_NETLINK
-        // FIXME: replace 1 with NETLINK_ADD_MEMBERSHIP
-        Posix.setsockopt( socket, 270, 1, &option, (Posix.socklen_t) sizeof( int ) );
-
-        int fd = Posix.socket( 1, Posix.SOCK_DGRAM, 0 );
-
-        /* try to bring up the interface */
-        var ifreq = Linux.Network.IfReq();
-        ifreq.ifr_ifindex = 1;
-        if ( Posix.ioctl( fd, Linux.Network.SIOCGIFNAME, &ifreq ) == 0 &&
-                Posix.ioctl( fd, Linux.Network.SIOCGIFFLAGS, &ifreq ) == 0)
-        {
-            logger.debug( "netlink_start: flagging phonet interface as up and running" );
-            ifreq.ifr_flags |= Linux.Network.IfFlag.UP | Linux.Network.IfFlag.RUNNING;
-            Posix.ioctl( fd, Linux.Network.SIOCSIFFLAGS, &ifreq );
-        }
-
-        netlink_getlink( fd );
-
-        chan = new IOChannel.unix_new( fd );
-        chan.set_buffered( false );
-        chan.add_watch( IOCondition.IN | IOCondition.ERR | IOCondition.HUP, onNetlink );
-
-        return true;
-    }
-
-    private void netlink_getlink( int fd )
-    {
-        var req = NetlinkInfoMessage() {
-            nlh = Linux.Netlink.NlMsgHdr() {
-                nlmsg_type  = (uint16) Linux.Netlink.RtMessageType.GETLINK,
-                nlmsg_len   = (uint32) sizeof( NetlinkInfoMessage ),
-                nlmsg_flags = (uint16) Linux.Netlink.NLM_F_REQUEST | Linux.Netlink.NLM_F_ROOT | Linux.Netlink.NLM_F_MATCH,
-                nlmsg_pid   = Posix.getpid() },
-            ifi = Linux.Netlink.IfInfoMsg() {
-                ifi_family = (uchar) Linux.Socket.AF_UNSPEC,
-                ifi_type = (ushort) Linux.Network.IfArpHeaderType.PHONET,
-                ifi_change = (uint32) 0xffFFffFF }
-        };
-
-        var addr = Linux.Netlink.SockAddrNl() { nl_family = Linux.Socket.AF_NETLINK };
-        Posix.sendto( fd, &req, sizeof( NetlinkInfoMessage ), 0, &addr, sizeof( Linux.Netlink.SockAddrNl ) );
-    }
-
-    private void netlink_addr( ref Linux.Netlink.NlMsgHdr nlh )
-    {
-        int len;
-        uint8 local = 0xff;
-        uint8 remote = 0xff;
-
-        Linux.Network.IfAddrMsg* ifa = (Linux.Network.IfAddrMsg*) Linux.Netlink.NLMSG_DATA(nlh);
-        len = Linux.Network.IFA_PAYLOAD(nlh);
-
-        /* If Phonet is absent, kernel transmits other families... */
-        if (ifa->ifa_family != Linux.Socket.AF_PHONET)
-            return;
-
-        /*
-        if (ifa->ifa_index != self->interface)
-            return;
-        */
-
-        for ( Linux.Netlink.RtAttr* rta = Linux.Network.IFA_RTA(ifa); Linux.Netlink.RTA_OK(rta, len); rta = Linux.Netlink.RTA_NEXT(rta, len))
-        {
-            if (rta->rta_type == Linux.Network.IfAddrType.LOCAL)
-                local = *(uint8 *)Linux.Netlink.RTA_DATA(rta);
-            else if (rta->rta_type == Linux.Network.IfAddrType.ADDRESS)
-                remote = *(uint8 *)Linux.Netlink.RTA_DATA(rta);
-        }
-    }
-
-    private void netlink_link()
-    {
-#if 0
-        const struct ifinfomsg *ifi;
-        const struct rtattr *rta;
-        int len;
-        const char *ifname = NULL;
-        GIsiModem *idx = NULL;
-        GPhonetLinkState st;
-
-        ifi = NLMSG_DATA(nlh);
-        len = IFA_PAYLOAD(nlh);
-
-        if (ifi->ifi_type != ARPHRD_PHONET)
-            return;
-
-        if (self->interface != 0 && self->interface != (unsigned)ifi->ifi_index)
-            return;
-
-        idx = make_modem(ifi->ifi_index);
-
-//#define UP (IFF_UP | IFF_LOWER_UP | IFF_RUNNING)
-
-        if (nlh->nlmsg_type == RTM_DELLINK)
-            st = PN_LINK_REMOVED;
-        else if ((ifi->ifi_flags & UP) != UP)
-            st = PN_LINK_DOWN;
-        else
-            st = PN_LINK_UP;
-
-        for (rta = IFLA_RTA(ifi); RTA_OK(rta, len);
-            rta = RTA_NEXT(rta, len)) {
-
-            if (rta->rta_type == IFLA_IFNAME)
-                ifname = RTA_DATA(rta);
-        }
-
-        if (ifname && idx)
-            self->callback(idx, st, ifname, self->opaque);
-
-//#undef UP
-#endif
-    }
-
-    private void netlink_stop()
-    {
-        if ( socket <= 0 )
-            return;
-
-        Posix.close( socket );
-        socket = -1;
-    }
-
 
     public override string repr()
     {

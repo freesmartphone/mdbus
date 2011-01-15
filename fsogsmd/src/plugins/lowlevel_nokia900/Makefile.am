@@ -27,7 +27,7 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = lowlevel_nokia900.la
-lowlevel_nokia900_la_SOURCES = plugin.c nokia-gpio.c
+lowlevel_nokia900_la_SOURCES = plugin.c netlink.c
 lowlevel_nokia900_la_VALASOURCES = plugin.vala
 $(lowlevel_nokia900_la_SOURCES): $(lowlevel_nokia900_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
