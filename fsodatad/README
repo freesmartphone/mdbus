@@ -1,5 +1,5 @@
 ====================================
-freesmartphone.org network daemon
+freesmartphone.org data daemon
 ====================================
 
-This daemon implements the freesmartphone.org Time API
+This daemon implements the freesmartphone.org Data API
