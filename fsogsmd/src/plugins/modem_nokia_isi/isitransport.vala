@@ -62,13 +62,11 @@ public class IsiTransport : FsoFramework.NullTransport
             {
                 logger.info( "Modem is reachable" );
                 NokiaIsi.modem.isidevice = new ISI.DeviceInfo( NokiaIsi.modem.isimodem, (err) => {
-                    logger.error( "Device subsystem not reachable" );
-                    reachable = false;
+                    logger.warning( "Device subsystem not reachable" );
                 } );
                 NokiaIsi.modem.isisimauth = new ISI.SIMAuth( NokiaIsi.modem.isimodem );
                 NokiaIsi.modem.isinetwork = new ISI.Network( NokiaIsi.modem.isimodem, (err) => {
-                    logger.error( "Network subsystem not reachable" );
-                    reachable = false;
+                    logger.warning( "Network subsystem not reachable" );
                 } );
             }
         } );
