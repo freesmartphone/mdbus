@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -36,21 +36,10 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
         this.name = name;
         this.subsystem = subsystem as FsoFramework.DBusSubsystem;
         this.path = new ObjectPath( "%s/%s".printf( FsoFramework.Resource.ServicePathPrefix, name ) );
-
-        var conn = this.subsystem.dbusConnection();
-        //FIXME: Why is this not using the subsystem API?
-        try
-        {
-            conn.register_object<FreeSmartphone.Resource>( this.path, this );
-            Idle.add( () => {
-                registerWithUsage();
-                return false; // mainloop: don't call again
-            } );
-        }
-        catch ( Error e )
-        {
-            logger.error( @"Could not register $name: $(e.message)" );
-        }
+        Idle.add( () => {
+            registerWithUsage();
+            return false;
+        } );
     }
 
     public override string repr()
@@ -60,29 +49,29 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
 
     public async void registerWithUsage()
     {
-#if DEBUG
-        message( "registering..." );
-#endif
-        if ( usage == null )
-        {
-            var conn = subsystem.dbusConnection();
+        var conn = subsystem.dbusConnection();
+        assert( conn != null );
 
-            try
-            {
-                //usage = conn.get_proxy_sync<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
-                usage = yield conn.get_proxy<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
-                yield usage.register_resource( name, path );
-                logger.info( "Ok. Registered with org.freesmartphone.ousaged" );
-            }
-            catch ( GLib.Error e )
-            {
-                logger.error( @"$(e.message): Can't register resource with fsousaged, enabling unconditionally..." );
-                enableResource();
-            }
+        try
+        {
+            conn.register_object<FreeSmartphone.Resource>( this.path, this );
+            usage = yield conn.get_proxy<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
+            yield usage.register_resource( name, path );
+            logger.info( "Ok. Registered with org.freesmartphone.ousaged" );
+            return;
         }
-#if DEBUG
-        message( "...OK" );
-#endif
+        catch ( Error e1 )
+        {
+            logger.error( @"Could not register $name with ousaged: $(e1.message); trying to enable the resource unconditionally" );
+        }
+        try
+        {
+            yield enableResource();
+        }
+        catch ( Error e2 )
+        {
+            logger.error( @"Can't enable the resource: $(e2.message)" );
+        }
     }
 
     /**
