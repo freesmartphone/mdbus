@@ -165,27 +165,27 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
     {
         if ( !have_gpio[line] )
         {
-            logger.debug( @"gpio_write: we don't have gpio $(gpio_idx2string( line )) - ignoring" );
+            assert( logger.debug( @"gpio_write: we don't have gpio $(gpio_idx2string( line )) - ignoring" ) );
             return;
         }
 
-        logger.debug( @"gpio_write: writing $( value_to_gpio_string( value )) to $( filename_for_gpio_line( line ))" );
+        assert( logger.debug( @"gpio_write: writing $( value_to_gpio_string( value )) to $( filename_for_gpio_line( line ))" ) );
         FsoFramework.FileHandling.write( value_to_gpio_string( value ), filename_for_gpio_line( line ) );
     }
 
     private bool gpio_line_probe( int line )
     {
-        logger.debug( @"probing for $(filename_for_gpio_line( line ))" );
+        assert( logger.debug( @"probing for $(filename_for_gpio_line( line ))" ) );
         return FsoFramework.FileHandling.isPresent( filename_for_gpio_line( line ) );
     }
 
     private void gpio_start_modem_power_on()
     {
-        logger.debug( "starting modem power on" );
+        assert( logger.debug( "starting modem power on" ) );
 
         if ( startup_in_progress )
         {
-            logger.debug( "startup is already progressing" );
+            assert( logger.debug( "startup is already progressing" ) );
             return;
         }
 
@@ -221,11 +221,11 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     private void gpio_finish_modem_power_on()
     {
-        logger.debug( "finishing modem power on" );
+        assert( logger.debug( "finishing modem power on" ) );
 
         if ( !startup_in_progress )
         {
-            logger.debug( "startup not in progress... can't finish power on" );
+            assert( logger.debug( "startup not in progress... can't finish power on" ) );
             return;
         }
 
@@ -244,11 +244,11 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     private void gpio_start_modem_reset()
     {
-        logger.debug( "starting modem reset" );
+        assert( logger.debug( "starting modem reset" ) );
 
         if ( reset_in_progress )
         {
-            logger.debug( "reset already in progress" );
+            assert( logger.debug( "reset already in progress" ) );
             return;
         }
 
@@ -265,10 +265,10 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     private void gpio_finish_modem_reset()
     {
-        logger.debug( "finishing modem reset" );
+        assert( logger.debug( "finishing modem reset" ) );
         if ( !reset_in_progress )
         {
-            logger.debug( "can't finish modem reset... it's not in progress" );
+            assert( logger.debug( "can't finish modem reset... it's not in progress" ) );
             return;
         }
 
@@ -278,17 +278,17 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     private void gpio_finish_modem_power_off()
     {
-        logger.debug( "finishing modem power off" );
+        assert( logger.debug( "finishing modem power off" ) );
 
         if ( reset_in_progress )
         {
-            logger.debug( "reset is in progress... finishing it before powering off the modem" );
+            assert( logger.debug( "reset is in progress... finishing it before powering off the modem" ) );
             gpio_finish_modem_reset();
         }
 
         if ( startup_in_progress )
         {
-            logger.debug( "startup is in progress... finishing it before powering off the modem" );
+            assert( logger.debug( "startup is in progress... finishing it before powering off the modem" ) );
             gpio_finish_modem_power_on();
         }
 
@@ -313,7 +313,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
     {
         timeout_source = 0;
 
-        logger.debug( @"onTimeout with $timeout_event" );
+        assert( logger.debug( @"onTimeout with $timeout_event" ) );
         if ( timeout_event != PowerEvent.NONE )
             gpio_power_state_machine( timeout_event );
 
@@ -322,7 +322,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     protected void onNetlink(GIsiPhonetLinkState st, string iface)
     {
-        logger.debug( @"OnNetlink: $iface --> $st" );
+        assert( logger.debug( @"OnNetlink: $iface --> $st" ) );
         if ( st == GIsiPhonetLinkState.UP )
         {
             if ( current == PhonetLink.UP )
@@ -348,7 +348,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
     {
         PowerState new_state;
 
-        logger.debug( @"handling $event" );
+        assert( logger.debug( @"handling $event" ) );
 
         switch ( event )
         {
@@ -456,7 +456,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
                     case PowerState.OFF_WAITING:
                     case PowerState.OFF:
                     case PowerState.ON_FAILED:
-                        logger.debug( "LINK_UP event while modem should be powered off" );
+                        assert( logger.debug( "LINK_UP event while modem should be powered off" ) );
                         /* should never come here */
                         break;
                 }
@@ -500,20 +500,20 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
                 return;
 
             case PowerEvent.OFF_TIMEOUT:
-                logger.debug( "Modem power off timed out" );
+                assert( logger.debug( "Modem power off timed out" ) );
                 gpio_power_set_state( PowerState.OFF );
                 return;
 
             case PowerEvent.OFF_COMPLETE:
                 if ( state == PowerState.OFF_WAITING )
                 {
-                    logger.debug( "Modem shutdown complete" );
+                    assert( logger.debug( "Modem shutdown complete" ) );
                     gpio_power_set_state( PowerState.OFF );
                 }
                 return;
         }
 
-        logger.debug( @"Event $event not handled" );
+        assert( logger.debug( @"Event $event not handled" ) );
     }
 
 
@@ -523,7 +523,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         uint timeout = 0;
         PowerEvent timer_event = PowerEvent.NONE;
 
-        logger.debug( @"new state ($new_state) / old state ($old_state)" );
+        assert( logger.debug( @"new state ($new_state) / old state ($old_state)" ) );
 
         switch ( old_state )
         {
@@ -541,7 +541,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         if ( timeout_source > 0 )
         {
-            logger.debug( "power_set_state: disabling timer" );
+            assert( logger.debug( "power_set_state: disabling timer" ) );
             Source.remove( timeout_source );
             timeout_source = 0;
             timeout_event = PowerEvent.NONE;
@@ -549,7 +549,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         if ( old_state == new_state && new_state != PowerState.ON_STARTED && new_state != PowerState.ON_RESET )
         {
-            logger.debug( @"power_set_state: nothing to do (old_state=$old_state new_state=$new_state)" );
+            assert( logger.debug( @"power_set_state: nothing to do (old_state=$old_state new_state=$new_state)" ) );
             return;
         }
 
@@ -563,7 +563,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
             case PowerState.ON_STARTED:
                 retry_count++;
 
-                logger.debug( @"power_set_state: state=$state retry_count=$retry_count" );
+                assert( logger.debug( @"power_set_state: state=$state retry_count=$retry_count" ) );
 
                 /* Maximum modem power on procedure on can take */
                 timeout = 5000;
@@ -572,7 +572,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
                 break;
 
             case PowerState.ON_RESET:
-                logger.debug( "power_set_state: Starting modem restart timeout" );
+                assert( logger.debug( "power_set_state: Starting modem restart timeout" ) );
 
                 /* Time allowed for modem to restart after crash */
                 timeout = 5000;
@@ -584,12 +584,12 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
                 break;
 
             case PowerState.ON:
-                logger.debug( "Power on" );
+                assert( logger.debug( "Power on" ) );
                 retry_count = 0;
                 break;
 
             case PowerState.OFF_STARTED:
-                logger.debug( "Starting power off" );
+                assert( logger.debug( "Starting power off" ) );
 
                 /* Maximum time modem power_off can take */
                 timeout = 6150;
@@ -598,7 +598,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
             case PowerState.OFF_WAITING:
                 gpio_finish_modem_power_off();
-                logger.debug( "Waiting for modem to settle down" );
+                assert( logger.debug( "Waiting for modem to settle down" ) );
 
                 /* Cooling time after power off */
                 timeout = 1000;
@@ -611,14 +611,14 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
                 break;
 
             case PowerState.ON_FAILED:
-                logger.debug( "Link to modem cannot be established, giving up" );
+                assert( logger.debug( "Link to modem cannot be established, giving up" ) );
                 gpio_finish_modem_power_off();
                 break;
         }
 
         if (timeout > 0)
         {
-            logger.debug( @"power_set_state: enabling timer (timeout=$timeout, event=$timer_event)" );
+            assert( logger.debug( @"power_set_state: enabling timer (timeout=$timeout, event=$timer_event)" ) );
             timeout_event = timer_event;
             timeout_source = Timeout.add( timeout, onTimeout );
         }
@@ -653,7 +653,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         for ( int f = 0; f < 5; f++ )
         {
             have_gpio[f] = gpio_line_probe( f );
-            logger.debug( @"   --> $(gpio_idx2string( f )): $(have_gpio[f])" );
+            assert( logger.debug( @"   --> $(gpio_idx2string( f )): $(have_gpio[f])" ) );
         }
 
         if ( !have_gpio[cmt_en] )
@@ -667,7 +667,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         else
             rapu_type = RapuType.TYPE_2;
 
-        logger.debug( @"gpio_probe: rapu is $rapu_type" );
+        assert( logger.debug( @"gpio_probe: rapu is $rapu_type" ) );
 
         g_isi_pn_netlink_start(onNetlink);
     }
@@ -703,7 +703,7 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     public bool poweron()
     {
-        logger.debug( "lowlevel_nokia900_poweron()" );
+        assert( logger.debug( "lowlevel_nokia900_poweron()" ) );
 
         // always turn off first
         poweroff();
@@ -713,20 +713,20 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     public bool poweroff()
     {
-        logger.debug( "lowlevel_nokia900_poweroff()" );
+        assert( logger.debug( "lowlevel_nokia900_poweroff()" ) );
 		gpio_disable();
         return true;
     }
 
     public bool suspend()
     {
-        logger.debug( "lowlevel_nokia900_suspend()" );
+        assert( logger.debug( "lowlevel_nokia900_suspend()" ) );
         return true;
     }
 
     public bool resume()
     {
-        logger.debug( "lowlevel_nokia900_resume()" );
+        assert( logger.debug( "lowlevel_nokia900_resume()" ) );
         return true;
     }
 
