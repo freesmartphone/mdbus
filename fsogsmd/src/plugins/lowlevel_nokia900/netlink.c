@@ -74,7 +74,7 @@
 struct _GIsiPhonetNetlink {
 	GIsiPhonetNetlinkFunc callback;
 	void *opaque;
-    unsigned index;
+	unsigned index;
 	guint watch;
 };
 
@@ -265,8 +265,8 @@ static int pn_netlink_getlink(int fd)
 
 gboolean g_isi_pn_netlink_is_busy(void)
 {
-    if (nllink)
-        return TRUE;
+	if (nllink)
+		return TRUE;
 	return FALSE;
 }
 
@@ -283,8 +283,8 @@ gboolean g_isi_pn_netlink_start(GIsiPhonetNetlinkFunc cb, void *data)
 	nllink = g_try_new0(GIsiPhonetNetlink, 1);
 	if (nllink == NULL)
 		goto error;
-    /* TODO: find out what's up with index */
-    nllink->index = 1;
+	/* TODO: find out what's up with index */
+	nllink->index = 1;
 
 	fcntl(fd, F_SETFL, O_NONBLOCK | fcntl(fd, F_GETFL));
 
@@ -292,7 +292,7 @@ gboolean g_isi_pn_netlink_start(GIsiPhonetNetlinkFunc cb, void *data)
 		       &group, sizeof(group)))
 		goto error;
 
-    bring_up(nllink->index);
+	bring_up(nllink->index);
 
 	pn_netlink_getlink(fd);
 
@@ -315,7 +315,7 @@ gboolean g_isi_pn_netlink_start(GIsiPhonetNetlinkFunc cb, void *data)
 error:
 	close(fd);
 	free(nllink);
-    nllink = NULL;
+	nllink = NULL;
 	return FALSE;
 }
 
@@ -326,7 +326,7 @@ void g_isi_pn_netlink_stop(void)
 
 	g_source_remove(nllink->watch);
 	g_free(nllink);
-    nllink = NULL;
+	nllink = NULL;
 }
 
 static int pn_netlink_getack(int fd)
