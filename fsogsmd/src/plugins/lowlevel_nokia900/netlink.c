@@ -283,8 +283,7 @@ gboolean g_isi_pn_netlink_start(GIsiPhonetNetlinkFunc cb, void *data)
 	nllink = g_try_new0(GIsiPhonetNetlink, 1);
 	if (nllink == NULL)
 		goto error;
-	/* TODO: find out what's up with index */
-	nllink->index = 1;
+	nllink->index = 0x5;
 
 	fcntl(fd, F_SETFL, O_NONBLOCK | fcntl(fd, F_GETFL));
 
