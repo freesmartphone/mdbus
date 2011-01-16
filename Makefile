@@ -7,7 +7,7 @@ SUBDIRS = \
 	fsodeviced \
 	fsogsmd \
 	fsonetworkd \
-	fsomusicd \
+	fsophoned \
 	fsousaged \
 	fsotdld
 
@@ -36,5 +36,6 @@ rebuild:
 	pushd fsodeviced; make uninstall; ./autogen.sh; make install; popd
 	pushd fsogsmd; make uninstall; ./autogen.sh --enable-modem-qualcomm-palm --enable-libgsm0710mux; make install; popd
 	pushd fsonetworkd; make uninstall; ./autogen.sh; make install; popd
+	pushd fsophoned; make uninstall; ./autogen.sh; make install; popd
 	pushd fsousaged; make uninstall; ./autogen.sh; make install; popd
 	pushd fsotdld; make uninstall; ./autogen.sh; make install; popd
