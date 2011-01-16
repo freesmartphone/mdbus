@@ -163,6 +163,7 @@ AC_CONFIG_FILES([
   conf/htc_qualcomm_msm/Makefile
   conf/motorola_ezx/Makefile
   conf/nokia_n900/Makefile
+  conf/nokia_n900/alsa-default/Makefile
   conf/openmoko_gta/Makefile
   conf/openmoko_gta/alsa-2.6.29/Makefile
   conf/openmoko_gta/alsa-2.6.31/Makefile
