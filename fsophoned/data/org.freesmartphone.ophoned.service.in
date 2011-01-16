@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.freesmartphone.ophoned
+Exec=@prefix@/sbin/fsophoned
+User=root
