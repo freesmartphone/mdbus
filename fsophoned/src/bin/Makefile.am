@@ -10,17 +10,17 @@ INCLUDES = \
 
 BUILT_SOURCES = .vala.stamp
 
-sbin_PROGRAMS = fsodatad
+sbin_PROGRAMS = fsophoned
 
-fsodatad_VALASOURCES = \
+fsophoned_VALASOURCES = \
 	main.vala \
 	$(NULL)
 
-fsodatad_SOURCES = \
-	$(fsodatad_VALASOURCES:.vala=.c) \
+fsophoned_SOURCES = \
+	$(fsophoned_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-$(BUILT_SOURCES): $(fsodatad_VALASOURCES)
+$(BUILT_SOURCES): $(fsophoned_VALASOURCES)
 	$(VALAC) -C --vapidir vapi \
 				--pkg posix \
 				--pkg gio-2.0 \
@@ -29,13 +29,13 @@ $(BUILT_SOURCES): $(fsodatad_VALASOURCES)
 				--basedir $(top_srcdir) $^
 	touch $@
 
-fsodatad_LDADD = \
+fsophoned_LDADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 
 EXTRA_DIST += \
-	$(fsodatad_VALASOURCES) \
+	$(fsophoned_VALASOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
 
