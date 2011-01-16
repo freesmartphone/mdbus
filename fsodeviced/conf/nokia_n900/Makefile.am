@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-# SUBDIRS = alsa-default
+SUBDIRS = alsa-default
 
 THISDIR = `basename $$PWD`
 
