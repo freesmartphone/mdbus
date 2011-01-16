@@ -628,7 +628,7 @@ namespace FsoFramework { namespace Network {
         conn.socket.set_blocking( true );
         var input = new DataInputStream( conn.input_stream );
 
-        var line = yield input.read_line_async( 0, null, null ).strip();
+        var line = ( yield input.read_line_async( 0, null, null ) ).strip();
         assert( FsoFramework.theLogger.debug( @"Received status line: $line" ) );
 
         if ( ! ( line.has_prefix( "HTTP/1.1 200 OK" ) ) )

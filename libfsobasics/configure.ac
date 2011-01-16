@@ -1,4 +1,4 @@
-AC_INIT([libfsobasics], [0.9.10], [smartphones-userland@linuxtogo.org], [libfsobasics])
+AC_INIT([libfsobasics], [0.9.99], [smartphones-userland@linuxtogo.org], [libfsobasics])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -16,7 +16,7 @@ AC_SUBST(LDFLAGS)
 
 # pkg-config
 PKG_PROG_PKG_CONFIG
-VALA_REQUIRED=0.11.2
+VALA_REQUIRED=0.11.4
 GLIB_REQUIRED=2.26.0
 LIBNL_REQUIRED=2.0
 
