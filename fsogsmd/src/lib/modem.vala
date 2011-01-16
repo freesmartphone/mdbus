@@ -291,6 +291,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             else
             {
                 logger.warning( @"Configuration string 'modem_access' invalid; expected 3 parameters, got $(params.length)" );
+                modem_transport = "invalid";
+                modem_port = "invalid";
+                modem_speed = -1;
             }
         }
 
