@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -128,45 +128,17 @@ namespace FsoFramework
         public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Network";
     }
 
-    namespace MusicPlayer
+    namespace Phone
     {
-        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".omusicd";
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ophoned";
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Phone";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Phone";
 
-        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".MusicPlayer";
-        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/MusicPlayer";
+        public const string ManagerServiceFace = ServiceFacePrefix + ".Manager";
+        public const string ManagerServicePath = ServicePathPrefix + "/Manager";
 
-        public const string PlaylistServiceFace = ServiceFacePrefix + ".Playlist";
-        public const string PlaylistServicePathPrefix = ServicePathPrefix + "/Playlists";
-    }
-
-    namespace Resource
-    {
-        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".oresourced"; // dummy
-
-        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Resource";
-        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Resource";
-    }
-
-    namespace Time
-    {
-        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".otimed";
-
-        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Time";
-        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Time";
-
-        public const string AlarmServiceFace = ServiceFacePrefix + ".Alarm";
-        public const string AlarmServicePath = ServicePathPrefix + "/Alarm";
-
-        public const string LocationServiceFace = ServiceFacePrefix + ".Location";
-        public const string LocationServicePath = ServicePathPrefix + "/Location";
-    }
-
-    namespace Usage
-    {
-        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ousaged";
-
-        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Usage";
-        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Usage";
+        public const string ClientServiceFace = ServiceFacePrefix + ".Client";
+        public const string ClientServicePath = ServicePathPrefix + "/Client";
     }
 
     namespace Preferences
@@ -201,4 +173,33 @@ namespace FsoFramework
         public const string NotesServicePath = ServicePathPrefix + "/Notes";
     }
 
+    namespace Resource
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".oresourced"; // dummy
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Resource";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Resource";
+    }
+
+    namespace Time
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".otimed";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Time";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Time";
+
+        public const string AlarmServiceFace = ServiceFacePrefix + ".Alarm";
+        public const string AlarmServicePath = ServicePathPrefix + "/Alarm";
+
+        public const string LocationServiceFace = ServiceFacePrefix + ".Location";
+        public const string LocationServicePath = ServicePathPrefix + "/Location";
+    }
+
+    namespace Usage
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".ousaged";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Usage";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Usage";
+    }
 }
