@@ -31,8 +31,8 @@ public enum GIsiPhonetLinkState {
 
 public delegate void GIsiPhonetNetlinkFunc(GIsiPhonetLinkState st, string iface);
  
-extern bool netlink_start(GIsiPhonetNetlinkFunc cb);
-extern void netlink_stop();
+extern bool g_isi_pn_netlink_start(GIsiPhonetNetlinkFunc cb);
+extern void g_isi_pn_netlink_stop();
 
 class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
@@ -669,12 +669,12 @@ class LowLevel.Nokia900 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         logger.debug( @"gpio_probe: rapu is $rapu_type" );
 
-        netlink_start(onNetlink);
+        g_isi_pn_netlink_start(onNetlink);
     }
 
     private void gpio_remove()
     {
-        netlink_stop();
+        g_isi_pn_netlink_stop();
 
         if ( timeout_source > 0 )
         {
