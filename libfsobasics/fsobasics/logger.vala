@@ -458,36 +458,40 @@ public class FsoFramework.KmsgLogger : FsoFramework.AbstractLogger
  */
 public class GLibLogger : Object
 {
-    private FsoFramework.Logger to;
-    public GLibLogger(FsoFramework.Logger _to)
+    private FsoFramework.Logger logger;
+
+    public GLibLogger( FsoFramework.Logger logger )
     {
-        to = _to;
+        this.logger = logger;
+        Log.set_handler( "GLib", LogLevelFlags.LEVEL_MASK | LogLevelFlags.FLAG_RECURSION | LogLevelFlags.FLAG_FATAL, log );
+        Log.set_default_handler( log );
     }
 
-    public void log(string? log_domain, LogLevelFlags log_level, string message)
+    public void log( string? log_domain, LogLevelFlags log_level, string message )
     {
-        string prefix = (log_domain == null) ? "GLib <>: " : @"GLib <$log_domain>: ";
+        var str = (log_domain == null) ? "GLib <>: " : @"GLib <$log_domain>: ";
+        str += message;
 
-        switch(log_level)
+        switch ( log_level & LogLevelFlags.LEVEL_MASK )
         {
             case LogLevelFlags.LEVEL_ERROR:
-                to.error( prefix + message );
+                logger.error( str );
                 break;
             case LogLevelFlags.LEVEL_CRITICAL:
-                to.critical( prefix + message );
+                logger.critical( str );
                 break;
             case LogLevelFlags.LEVEL_WARNING:
-                to.warning( prefix + message );
+                logger.warning( str );
                 break;
             case LogLevelFlags.LEVEL_MESSAGE:
             case LogLevelFlags.LEVEL_INFO:
-                to.info( prefix + message );
+                logger.info( str );
                 break;
             case LogLevelFlags.LEVEL_DEBUG:
-                to.debug( prefix + message );
+                logger.debug( str );
                 break;
             default:
-                to.warning(prefix + @"unknown LogLevelFlags: $log_level with message:" + message);
+                assert_not_reached();
                 break;
         }
     }

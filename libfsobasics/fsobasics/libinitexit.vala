@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,30 +21,30 @@ namespace FsoFramework
 {
     public Logger theLogger;
     public SmartKeyFile theConfig;
+    internal GLibLogger glibLogger;
 }
-
-internal GLibLogger glib_logger;
 
 static void vala_library_init()
 {
     var bin = FsoFramework.Utility.programName();
+
     FsoFramework.theConfig = FsoFramework.SmartKeyFile.createFromConfig( bin );
     FsoFramework.theLogger = FsoFramework.Logger.createFromKeyFile( FsoFramework.theConfig, "logging", bin );
     var classname = Type.from_instance( FsoFramework.theLogger ).name();
-    FsoFramework.theLogger.info( @"Binary launched successful ($classname created as theLogger)" );
 
-    glib_logger = new GLibLogger( FsoFramework.theLogger );
-    //register to glib domain
-    Log.set_handler( "GLib", LogLevelFlags.LEVEL_MASK | LogLevelFlags.FLAG_RECURSION | LogLevelFlags.FLAG_FATAL, glib_logger.log );
-    //register to all unknown as fallback
-    Log.set_default_handler( glib_logger.log );
+    if ( FsoFramework.theConfig.boolValue( "logging", "log_integrate_glib", true ) )
+    {
+        FsoFramework.glibLogger = new GLibLogger( FsoFramework.theLogger );
+    }
+
+    FsoFramework.theLogger.info( @"Binary launched successful ($classname created as theLogger)" );
 }
 
 static void vala_library_fini()
 {
     FsoFramework.theConfig = null;
     FsoFramework.theLogger = null;
-    glib_logger = null;
+    FsoFramework.glibLogger = null;
 }
 
 // only for Vala
