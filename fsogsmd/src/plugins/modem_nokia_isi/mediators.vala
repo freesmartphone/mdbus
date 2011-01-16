@@ -225,6 +225,25 @@ public class IsiNetworkListProviders : NetworkListProviders
     }
 }
 
+public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
+{
+    private int s;
+
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+	    NokiaIsi.modem.isinetwork.request_strength( ( error, strength ) => {
+		     if ( !error )
+			 {
+				 this.s = strength;
+				 run.callback();
+			 }
+		} );
+        yield;
+
+		signal = this.s;
+	}
+}
+
 /*
  * Register Mediators
  */
@@ -236,6 +255,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
 
     mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
+    mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
     mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
