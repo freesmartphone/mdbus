@@ -83,6 +83,7 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
                 throw new FreeSmartphone.GSM.Error.SIM_NOT_PRESENT( "No SIM" );
                 break;
 			case ISI.SIMAuth.Status.UNPROTECTED:
+			case ISI.SIMAuth.Status.AUTHORIZED:
                 status = FreeSmartphone.GSM.SIMAuthStatus.READY;
                 break;
 			case ISI.SIMAuth.Status.NEED_NONE:
