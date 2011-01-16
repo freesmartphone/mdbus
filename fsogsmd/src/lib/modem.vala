@@ -277,7 +277,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         channels = new HashMap<string,FsoGsm.Channel>();
 
         // gather modem access parameters
-        var modem_config = config.stringValue( CONFIG_SECTION, "modem_access", "" );
+        var modem_config = config.stringValue( CONFIG_SECTION, "modem_access", "invalid:invalid:-1" );
         if ( modem_config != "" )
         {
             var params = modem_config.split( ":" );
@@ -291,10 +291,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             else
             {
                 logger.warning( @"Configuration string 'modem_access' invalid; expected 3 parameters, got $(params.length)" );
-                modem_transport = "invalid";
-                modem_port = "invalid";
-                modem_speed = -1;
             }
+        }
+        else
+        {
+            logger.warning( @"Configuration string 'modem_access' missing. This might not be what you want." );
         }
 
         // gather modem data access parameters

@@ -47,7 +47,6 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
 
     public override async bool open()
     {
-        debug( "yo" );
         return yield transport.openAsync();
     }
 
