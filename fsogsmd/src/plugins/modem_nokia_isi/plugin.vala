@@ -34,37 +34,23 @@ namespace NokiaIsi { NokiaIsi.Modem modem; }
 class NokiaIsi.Modem : FsoGsm.AbstractModem
 {
     private const string ISI_CHANNEL_NAME = "main";
+
     public ISI.Modem isimodem = null;
     public ISI.DeviceInfo isidevice = null;
     public ISI.SIMAuth isisimauth = null;
     public ISI.Network isinetwork = null;
-    private bool reachable = false;
 
     construct
     {
         if ( modem_transport != "phonet" )
         {
-            logger.critical( "This modem plugin only supports the PHONET transport" );
+            logger.critical( "ISI: This modem plugin only supports the PHONET transport" );
             return;
         }
         if ( Linux.Network.if_nametoindex( modem_port ) == 0 )
         {
             logger.critical( @"Interface $modem_port not available" );
         }
-        isimodem = new ISI.Modem( modem_port, (error) => {
-            if (error )
-            {
-                logger.error( "Modem not reachable" );
-            }
-            else
-            {
-                logger.info( "Modem is reachable" );
-                isidevice = new ISI.DeviceInfo( isimodem, (error) => {} );
-                isisimauth = new ISI.SIMAuth( isimodem );
-                isinetwork = new ISI.Network( isimodem, (error) => { logger.error( "network not reachable" ); } );
-            }
-            reachable = !error;
-        } );
 
         NokiaIsi.modem = this;
     }
@@ -104,19 +90,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        new IsiChannel( ISI_CHANNEL_NAME );
-    }
-
-    protected override bool powerOn()
-    {
-        /*
-        logger.debug( "!" );
-        if ( isimodem == null || !reachable )
-        {
-            return false;
-        }
-        */
-        return true;
+        new IsiChannel( ISI_CHANNEL_NAME, new IsiTransport( modem_port ) );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

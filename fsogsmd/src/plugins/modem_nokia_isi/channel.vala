@@ -21,9 +21,9 @@
 using GLib;
 using FsoGsm;
 
-public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
+public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
 {
-    public FsoFramework.Transport transport { get; set; }
+    //public FsoFramework.Transport transport { get; set; }
     public string name;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
@@ -45,13 +45,23 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
         }
     }
 
+    public override async bool open()
+    {
+        debug( "yo" );
+        return yield transport.openAsync();
+    }
+
+    protected override void onReadFromTransport( FsoFramework.Transport t )
+    {
+        assert_not_reached();
+    }
+
     //
     // public API
     //
-
-    public IsiChannel( string name )
+    public IsiChannel( string name, IsiTransport transport )
     {
-        base( new FsoFramework.NullTransport() );
+        base( transport );
         this.name = name;
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
@@ -63,7 +73,6 @@ public class IsiChannel : IsiCommandQueue, FsoGsm.Channel
         theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
         return;
         */
-
 
         var getAuthStatus = new NokiaIsi.IsiSimGetAuthStatus();
         try
