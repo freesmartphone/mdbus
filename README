@@ -19,12 +19,13 @@ available from http://www.freesmartphone.org/sources.
 
 Build Order:
 
+0. specs (external repository)
 1. libfsobasics
 2. libfsotransport
 3. libfsoframework
-4. libgsm0710
+4. libgsm0710 (external repository)
 5. libgsm0710mux
-6. libfso-glib
+6. libfso-glib (external repository)
 7. libfsoresource
 
 NOTE: Although there is a top-level Makefile present, you rather want to build the individual
