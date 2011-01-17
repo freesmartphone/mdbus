@@ -79,20 +79,20 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
 
         switch ( isicode )
         {
-			case ISI.SIMAuth.Status.NO_SIM:
+            case ISI.SIMAuth.Status.NO_SIM:
                 throw new FreeSmartphone.GSM.Error.SIM_NOT_PRESENT( "No SIM" );
                 break;
-			case ISI.SIMAuth.Status.UNPROTECTED:
-			case ISI.SIMAuth.Status.AUTHORIZED:
+            case ISI.SIMAuth.Status.UNPROTECTED:
+            case ISI.SIMAuth.Status.AUTHORIZED:
                 status = FreeSmartphone.GSM.SIMAuthStatus.READY;
                 break;
-			case ISI.SIMAuth.Status.NEED_NONE:
+            case ISI.SIMAuth.Status.NEED_NONE:
                 status = FreeSmartphone.GSM.SIMAuthStatus.READY;
                 break;
-			case ISI.SIMAuth.Status.NEED_PIN:
+            case ISI.SIMAuth.Status.NEED_PIN:
                 status = FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED;
                 break;
-			case ISI.SIMAuth.Status.NEED_PUK:
+            case ISI.SIMAuth.Status.NEED_PUK:
                 status = FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED;
                 break;
             default:
@@ -117,7 +117,7 @@ public class IsiSimSendAuthCode : SimSendAuthCode
 
         switch ( isicode )
         {
-			case ISI.SIMAuth.Answer.OK:
+            case ISI.SIMAuth.Answer.OK:
                 theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_UNLOCKED );
                 break;
             case ISI.SIMAuth.Answer.ERR_NEED_PUK:
@@ -229,7 +229,7 @@ public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-	    NokiaIsi.modem.isinetwork.request_strength( ( error, strength ) => {
+        NokiaIsi.modem.isinetwork.request_strength( ( error, strength ) => {
             if ( !error )
             {
                 this.signal = strength;
@@ -239,9 +239,9 @@ public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
             {
                 throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
             }
-		} );
+        } );
         yield;
-	}
+    }
 }
 
 public class IsiNetworkRegister : NetworkRegister
