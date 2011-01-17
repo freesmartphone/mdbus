@@ -183,8 +183,8 @@ public class IsiNetworkGetStatus : NetworkGetStatus
                 status.insert( "display", operator.name );
                 status.insert( "provider", operator.name );
                 status.insert( "code", operator.mcc + operator.mnc );
-                run.callback();
             }
+            run.callback();
         } );
         yield;
 
@@ -192,8 +192,8 @@ public class IsiNetworkGetStatus : NetworkGetStatus
             if ( !error )
             {
                 status.insert( "strength", strength );
-                run.callback();
             }
+            run.callback();
         } );
         yield;
     }
@@ -227,35 +227,40 @@ public class IsiNetworkListProviders : NetworkListProviders
 
 public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
 {
-    private int s;
-
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
 	    NokiaIsi.modem.isinetwork.request_strength( ( error, strength ) => {
-		     if ( !error )
-			 {
-				 this.s = strength;
-				 run.callback();
-			 }
+            if ( !error )
+            {
+                this.signal = strength;
+                run.callback();
+            }
+            else
+            {
+                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
+            }
 		} );
         yield;
-
-		signal = this.s;
 	}
 }
 
 public class IsiNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-	{
-		NokiaIsi.modem.isinetwork.register_auto( (error) => {
-			if ( !error )
-			{
-				run.callback();
-			}
-		} );
-		yield;
-	}
+    {
+        NokiaIsi.modem.isinetwork.register_auto( (error) => {
+            if ( !error )
+            {
+                run.callback();
+            }
+            else
+            {
+                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
+            }
+
+        } );
+        yield;
+    }
 }
 
 /*
