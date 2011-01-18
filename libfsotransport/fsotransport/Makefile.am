@@ -19,9 +19,11 @@ VALAC_ARGS = \
 	--header fsotransport.h \
 	--library fsotransport-2.0
 
+AM_CFLAGS = -DG_LOG_DOMAIN=\"fsotransport\"
+
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS = -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 if FAST_BAUD
