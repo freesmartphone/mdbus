@@ -8,6 +8,7 @@ AM_CFLAGS = \
 	$(XML_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodata.lib\" \
 	$(NULL)
 
 VALAC_ARGS = \
