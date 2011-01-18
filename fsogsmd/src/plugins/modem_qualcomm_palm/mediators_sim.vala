@@ -78,8 +78,8 @@ public class MsmSimGetAuthCodeRequired : SimGetAuthCodeRequired
     {
         required = true;
 
-        if (Msmcomm.RuntimeData.pin1_status == Msmcomm.SimPinStatus.DISABLED &&
-            Msmcomm.RuntimeData.pin2_status == Msmcomm.SimPinStatus.DISABLED)
+        if (MsmData.pin1_status == MsmPinStatus.DISABLED &&
+            MsmData.pin2_status == MsmPinStatus.DISABLED)
         {
             required = false;
         }
@@ -95,7 +95,7 @@ public class MsmSimSendAuthCode : SimSendAuthCode
         try
         {
             // FIXME select pin type acording to the current active pin
-            yield channel.commands.verify_pin( "pin1", pin );
+            yield channel.sim_service.verify_pin( Msmcomm.SimPinType.PIN1, pin );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -114,6 +114,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
 
+#if 0
         try
         {
             var bookType = Msmcomm.stringToPhonebookBookType( category );
@@ -127,6 +128,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
         catch ( Error err1 )
         {
         }
+#endif
     }
 }
 
@@ -144,6 +146,7 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
 
+#if 0
         try
         {
             var bookType = Msmcomm.stringToPhonebookBookType( category );
@@ -161,7 +164,7 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
         catch ( Error err1 )
         {
         }
-
+#endif
     }
 }
 
@@ -261,7 +264,7 @@ public class MsmSimWriteEntry : SimWriteEntry
     public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
-
+#if 0
         try
         {
             var bookType = Msmcomm.stringToPhonebookBookType( category );
@@ -280,6 +283,7 @@ public class MsmSimWriteEntry : SimWriteEntry
         catch ( Error err1 )
         {
         }
+#endif
     }
 }
 

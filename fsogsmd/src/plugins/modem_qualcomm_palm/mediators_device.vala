@@ -26,7 +26,7 @@ public class MsmDeviceGetFunctionality : DeviceGetFunctionality
         // NOTE: We currently cannot get the functionality status directly
         // from the modem, so we have to save it statically and switch it
         // whenever we need
-        level = Msmcomm.deviceFunctionalityStatusToString( Msmcomm.RuntimeData.functionality_status );
+        // level = Msmcomm.deviceFunctionalityStatusToString( Msmcomm.RuntimeData.functionality_status );
         
         autoregister = theModem.data().keepRegistration;
         pin = theModem.data().simPin;
@@ -68,13 +68,14 @@ public class MsmDeviceGetInformation : DeviceGetInformation
 
             info.insert( "model", "Palm Pre (Plus)" );
             info.insert( "manufacturer", "Palm, Inc." );
-            
-            Msmcomm.FirmwareInfo firmware_info;
-            firmware_info = yield channel.commands.get_firmware_info();
-            
-            info.insert( "revision", firmware_info.version_string );
 
-            string imei = yield channel.commands.get_imei();
+            Msmcomm.RadioFirmwareVersionInfo firmware_info;
+            firmware_info = yield channel.misc_service.get_radio_firmware_version();
+
+            info.insert( "revision", firmware_info.firmware_version );
+            info.insert( "carrier-id", firmware_info.carrier_id );
+
+            string imei = yield channel.misc_service.get_imei();
             info.insert( "imei", imei );
         }
         catch ( Msmcomm.Error err0 )
@@ -94,6 +95,7 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
 
+#if 0
         try
         {
             Msmcomm.ChargerStatus charger_status = yield channel.commands.get_charger_status();
@@ -126,6 +128,7 @@ public class MsmDeviceGetPowerStatus : DeviceGetPowerStatus
         catch ( Error err1 )
         {
         }
+#endif
     }
 }
 
@@ -135,7 +138,8 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
     {
         var operation_mode = "offline";
         var channel = theModem.channel( "main" ) as MsmChannel;
-        
+
+#if 0
         switch ( level )
         {
             case "minimal":
@@ -161,6 +165,8 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
         catch ( Error err1 )
         {
         }
+
+#endif
 
         // FIXME update modem status!
     }

@@ -50,7 +50,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     protected override void powerOff()
     {
     }
-    
+
     protected override UnsolicitedResponseHandler createUnsolicitedHandler()
     {
         // NOTE: we define our base unsolicited handler in our commandqueue,
@@ -58,22 +58,24 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         // this somewhere in the future ...
         return null;
     }
-    
+
     protected override CallHandler createCallHandler()
     {
-        return new MsmCallHandler();
+        // return new MsmCallHandler();
+        return null;
     }
-    
+
     protected override SmsHandler createSmsHandler()
     {
         return null;
     }
-    
+
     protected override PhonebookHandler createPhonebookHandler()
     {
-        return new MsmPhonebookHandler();
+        // return new MsmPhonebookHandler();
+        return null;
     }
-    
+
     protected override WatchDog createWatchDog()
     {
         return new FsoGsm.GenericWatchDog();

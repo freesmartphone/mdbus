@@ -204,6 +204,7 @@ public async void triggerUpdateNetworkStatus()
  **/
 public void registerMsmMediators( HashMap<Type,Type> table )
 {
+#if 0
     table[ typeof(DebugPing) ]                    = typeof( MsmDebugPing );
 
     table[ typeof(DeviceGetFeatures) ]            = typeof( MsmDeviceGetFeatures );
@@ -244,4 +245,5 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(CallReleaseAll) ]               = typeof( MsmCallReleaseAll );
     table[ typeof(CallRelease) ]                  = typeof( MsmCallRelease );
     table[ typeof(CallSendDtmf) ]                 = typeof( MsmCallSendDtmf );
+#endif
 }

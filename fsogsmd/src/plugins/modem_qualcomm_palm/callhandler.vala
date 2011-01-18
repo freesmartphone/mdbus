@@ -30,21 +30,21 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 {
     protected HashMap<int, FsoGsm.Call> calls;
     protected FsoFramework.Pair<string,string> supplementary;
-    
+
     //
     // public API
     //
-    
+
     public MsmCallHandler()
     {
         calls = new HashMap<int, FsoGsm.Call>();
     }
-    
+
     public override string repr()
     {
         return "<>";
     }
-    
+
     public override void addSupplementaryInformation( string direction, string info )
     {
         supplementary = new FsoFramework.Pair<string,string>( direction, info );
@@ -63,12 +63,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             {
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
             }
-            
+
             if ( !calls.has_key( id ) )
             {
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call with specified id is not available" );
             }
-            
+
             if ( calls[id].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING && 
                  calls[id].detail.status != FreeSmartphone.GSM.CallStatus.HELD )
             {
@@ -77,12 +77,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
             if ( numberOfBusyCalls() == 0 ) // simple case
             {
-                yield channel.commands.answer_call( id );
+                yield channel.call_service.answer( id );
             }
             else
             {
                 // call is present and incoming or held
-                yield channel.commands.execute_call_sups_command( Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
+                yield channel.call_service.sups( Msmcomm.SupsAction.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -101,16 +101,16 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     {
         int num = 0;
         var channel = theModem.channel( "main" ) as MsmChannel;
-        
+
         try 
         {
             // Initiate call to the selected number
-            yield channel.commands.originate_call(number, Msmcomm.RuntimeData.block_number);
+            yield channel.call_service.originate(number, MsmData.block_number);
 
             // Wait until the modem reports the origination of our new call
-            GLib.Variant response = yield channel.waitForUnsolicitedResponse( Msmcomm.UrcType.CALL_ORIGINATION );
-            var call_info = Msmcomm.CallInfo.from_variant( response );
-        
+            GLib.Variant response = yield channel.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION );
+            // var call_info = Msmcomm.CallInfo.from_variant( response );
+
             startTimeoutIfNecessary();
         }
         catch ( Msmcomm.Error err0 )
@@ -120,7 +120,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         catch ( Error err1 )
         {
         }
-        
+
         return num;
     }
 
@@ -141,8 +141,8 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             {
                 throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating" );
             }
-            
-            yield channel.commands.execute_call_sups_command(Msmcomm.CallCommandType.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0);
+ 
+            yield channel.call_service.sups( 0, Msmcomm.SupsAction.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -166,12 +166,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             {
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
             }
-            
+
             if ( !calls.has_key( id ) )
             {
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call with specified id is not available" );
             }
-            
+
             if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.RELEASE )
             {
                 throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to release found" );
@@ -181,7 +181,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
                 yield cancelOutgoingWithId( id );
                 return;
             }
-            
+
             if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.INCOMING ) == 1 && 
                  calls[id].detail.status == FreeSmartphone.GSM.CallStatus.INCOMING )
             {
@@ -190,7 +190,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             }
             else
             {
-                yield channel.commands.execute_call_sups_command( Msmcomm.CallCommandType.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id );
+                yield channel.call_service.sups( id, Msmcomm.SupsAction.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -208,7 +208,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
     }
-    
+
     /**
      * Handle an incomming call 
      **/
@@ -216,18 +216,18 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     {
         // Create a new call with status == RELEASE with the supplied id
         var new_call = new FsoGsm.Call.newFromId( call_info.id );
-        
+
         // Update the created call so it is now an incomming one
         var empty_properties = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
         var call_detail = new FreeSmartphone.GSM.CallDetail( call_info.id, 
                                                              FreeSmartphone.GSM.CallStatus.INCOMING, 
                                                              empty_properties );
         new_call.update( call_detail );
-        
+
         // Save call for later processing
         calls.set( call_info.id, new_call );
     }
-    
+
     /**
      * Handle an connecting call
      **/
@@ -245,7 +245,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             logger.warning( "callhandler got connecting call which is not known as incomming before!" );
         }
     }
-    
+
     /**
      * Handle an ending call
      **/
@@ -281,7 +281,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
         try
         {
-            yield channel.commands.end_call( id );
+            // yield channel.call_service.end( id );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -297,14 +297,14 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         assert( logger.debug( @"Rejecting incoming call with ID $id" ) );
 
         var channel = theModem.channel( "main" ) as MsmChannel;
-        
+
         try
         {
             // NOTE currently we reject an incomming call by dropping all calls or send a busy
             // signal when we have no active calls. Maybe there is another way in msmcomm
             // to do reject an incomming call but we currently don't know about.
-            var cmd_type = Msmcomm.CallCommandType.DROP_ALL_OR_SEND_BUSY;
-            yield channel.commands.execute_call_sups_command( cmd_type, 0 );
+            var cmd_type = Msmcomm.SupsAction.DROP_ALL_OR_SEND_BUSY;
+            yield channel.call_service.sups( 0, cmd_type );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -314,15 +314,15 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
         }
     }
-    
+
     // 
     // private API
     //
-    
+
     private int numberOfBusyCalls()
     {
         var num = 0;
-        
+
         foreach (var call in calls.values)
         {
             if ( call.detail.status != FreeSmartphone.GSM.CallStatus.RELEASE &&
@@ -331,14 +331,14 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
                 num++;
             }
         }
-        
+
         return num;
     }
 
     private int numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus status )
     {
         var num = 0;
-        
+
         foreach (var call in calls.values)
         {
             if ( call.detail.status == status )
@@ -346,7 +346,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
                 num++;
             }
         }
-        
+
         return num;
     }
 }

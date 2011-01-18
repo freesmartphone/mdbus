@@ -24,27 +24,4 @@ public static class MsmUtil
         var msg = @"Could not process command, got: $(error.message)";
         throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
     }
-    
-    public static string networkRegistrationStatusToString( Msmcomm.NetworkRegistrationStatus reg_status)
-    {
-        string result = "unknown";
-        
-        switch ( reg_status )
-        {
-            case Msmcomm.NetworkRegistrationStatus.HOME:
-                result = "home";
-                break;
-            case Msmcomm.NetworkRegistrationStatus.ROAMING:
-                result = "roaming";
-                break;
-            case Msmcomm.NetworkRegistrationStatus.SEARCHING:
-                result = "searching";
-                break;
-            case Msmcomm.NetworkRegistrationStatus.DENIED:
-                result = "denied";
-                break;
-        }
-        
-        return result;
-    }
 }

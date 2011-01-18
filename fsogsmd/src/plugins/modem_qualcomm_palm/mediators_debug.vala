@@ -27,7 +27,7 @@ public class MsmDebugPing : DebugPing
 
         try
         {
-            yield channel.commands.test_alive();
+            yield channel.misc_service.test_alive();
         }
         catch ( Msmcomm.Error err0 )
         {

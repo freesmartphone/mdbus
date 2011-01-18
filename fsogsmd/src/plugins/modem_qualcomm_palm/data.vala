@@ -17,30 +17,27 @@
  *
  */
 
-namespace Msmcomm
+public enum MsmPinStatus
 {
-    public enum SimPinStatus
-    {
-        DISABLED,
-        ENABLED,
-        BLOCKED,
-        PERM_BLOCKED,
-        CHANGED, // TODO: do we really need this state here?
-        UNBLOCKED,
-    }
-    
-    public static class RuntimeData
-    {
-        public static SimPinStatus pin1_status { get; set; default = SimPinStatus.ENABLED; }
-        public static SimPinStatus pin2_status { get; set; default = SimPinStatus.ENABLED; }
-        public static SimPinStatus pin1_block_status { get; set; default = SimPinStatus.UNBLOCKED; }
-        public static SimPinStatus pin2_block_status { get; set; default = SimPinStatus.UNBLOCKED; }
-        public static string current_operator_name { get; set; default = ""; }
-        public static int signal_strength { get; set; default = 0; }
-        public static Msmcomm.ModemOperationMode functionality_status { get; set; default = ModemOperationMode.UNKNOWN; }
-        public static bool block_number { get; set; default = false; }
-        public static NetworkRegistrationStatus network_reg_status { get; set; default = NetworkRegistrationStatus.NO_SERVICE; }
-        public static NetworkServiceStatus networkServiceStatus { get; set; default = NetworkServiceStatus.NO_SERVICE; }
-    }
+    DISABLED,
+    ENABLED,
+    BLOCKED,
+    PERM_BLOCKED,
+    CHANGED, // TODO: do we really need this state here?
+    UNBLOCKED,
+}
+
+public static class MsmData
+{
+    public static MsmPinStatus pin1_status { get; set; default = MsmPinStatus.ENABLED; }
+    public static MsmPinStatus pin2_status { get; set; default = MsmPinStatus.ENABLED; }
+    public static MsmPinStatus pin1_block_status { get; set; default = MsmPinStatus.UNBLOCKED; }
+    public static MsmPinStatus pin2_block_status { get; set; default = MsmPinStatus.UNBLOCKED; }
+    public static string current_operator_name { get; set; default = ""; }
+    public static int signal_strength { get; set; default = 0; }
+    public static Msmcomm.OperationMode functionality_status { get; set; default = Msmcomm.OperationMode.OFFLINE; }
+    public static bool block_number { get; set; default = false; }
+    // public static NetworkRegistrationStatus network_reg_status { get; set; default = NetworkRegistrationStatus.NO_SERVICE; }
+    // public static NetworkServiceStatus networkServiceStatus { get; set; default = NetworkServiceStatus.NO_SERVICE; }
 }
 

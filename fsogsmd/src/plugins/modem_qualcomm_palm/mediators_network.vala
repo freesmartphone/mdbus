@@ -27,8 +27,8 @@ public class MsmNetworkRegister : NetworkRegister
 
         try
         {
-            channel.commands.change_operation_mode( Msmcomm.ModemOperationMode.ONLINE );
-            Msmcomm.RuntimeData.functionality_status = Msmcomm.ModemOperationMode.ONLINE;
+            channel.state_service.change_operation_mode( Msmcomm.OperationMode.ONLINE );
+            MsmData.functionality_status = Msmcomm.OperationMode.ONLINE;
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -44,7 +44,7 @@ public class MsmNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        signal = Msmcomm.RuntimeData.signal_strength;
+        signal = MsmData.signal_strength;
     }
 }
 
@@ -59,7 +59,7 @@ public class MsmNetworkGetStatus : NetworkGetStatus
 
         // FIXME should we really provide here the plain rssi value? We need
         // the percentage here!
-        status.insert( "strength", Msmcomm.RuntimeData.signal_strength );
+        status.insert( "strength", MsmData.signal_strength );
 
         // TODO:
         // - mode (network registration status: automatic, manual, unregister, unknown)
@@ -68,13 +68,13 @@ public class MsmNetworkGetStatus : NetworkGetStatus
         // - cid  - cell id
         // - act (Compact GSM, UMTS, EDGE, HSDPA, HSUPA, HSDPA/HSUPA, GSM)
 
-        if ( Msmcomm.RuntimeData.functionality_status == Msmcomm.ModemOperationMode.ONLINE )
+        if ( MsmData.functionality_status == Msmcomm.ModemOperationMode.ONLINE )
         {
-            status.insert( "provider", Msmcomm.RuntimeData.current_operator_name );
-            status.insert( "network", Msmcomm.RuntimeData.current_operator_name );
-            status.insert( "display", Msmcomm.RuntimeData.current_operator_name );
+            status.insert( "provider", MsmData.current_operator_name );
+            status.insert( "network", MsmData.current_operator_name );
+            status.insert( "display", MsmData.current_operator_name );
             status.insert( "registration",
-                           MsmUtil.networkRegistrationStatusToString( Msmcomm.RuntimeData.network_reg_status ) );
+                           MsmUtil.networkRegistrationStatusToString( MsmData.network_reg_status ) );
             status.insert( "mode", "automatic" );
             status.insert( "lac", "" );
             status.insert( "cid", "" );
@@ -133,8 +133,8 @@ public class MsmNetworkUnregister : NetworkUnregister
 
         try
         {
-            yield channel.commands.change_operation_mode( Msmcomm.ModemOperationMode.OFFLINE );
-            Msmcomm.RuntimeData.functionality_status = Msmcomm.ModemOperationMode.OFFLINE;
+            yield channel.state_service.change_operation_mode( Msmcomm.OperationMode.OFFLINE );
+            MsmData.functionality_status = Msmcomm.OperationMode.OFFLINE;
         }
         catch ( Msmcomm.Error err0 )
         {
