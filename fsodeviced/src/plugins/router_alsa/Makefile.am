@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.router_alsa\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

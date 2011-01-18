@@ -5,6 +5,7 @@ NULL =
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.kernel26_display\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

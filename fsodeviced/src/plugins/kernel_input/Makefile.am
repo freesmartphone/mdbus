@@ -6,6 +6,7 @@ AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.kernel_input\" \
 	$(NULL)
 
 progs_ldadd = \

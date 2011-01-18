@@ -5,6 +5,7 @@ NULL =
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.proximity_n900\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.accelerometer_lis302\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

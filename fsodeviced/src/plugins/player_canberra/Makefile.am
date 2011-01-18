@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	$(CANBERRA_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.player_canberra\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

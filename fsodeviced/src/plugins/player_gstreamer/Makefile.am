@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	$(GSTREAMER_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.player_gstreamer\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.palmpre_quirks\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

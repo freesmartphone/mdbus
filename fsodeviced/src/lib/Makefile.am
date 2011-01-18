@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	$(FSO_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.lib\" \
 	$(NULL)
 
 VALAC_ARGS = \

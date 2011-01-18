@@ -6,6 +6,7 @@ INCLUDES = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	-include $(CONFIG_HEADER) \
+	-DG_LOG_DOMAIN=\"fsodeviced\" \
 	$(NULL)
 
 BUILT_SOURCES = .vala.stamp

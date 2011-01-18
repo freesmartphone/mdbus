@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsodevice.n900_powercontrol\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
