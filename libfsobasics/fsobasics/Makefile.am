@@ -5,6 +5,7 @@ NULL =
 AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(LIBNL_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsobasics\" \
 	$(NULL)
 
 VALAC_ARGS = \
