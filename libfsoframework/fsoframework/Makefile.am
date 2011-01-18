@@ -6,6 +6,7 @@ AM_CFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
+	-D G_LOG_DOMAIN=\"fsoframework\" \
 	$(NULL)
 
 VALAC_ARGS = \
