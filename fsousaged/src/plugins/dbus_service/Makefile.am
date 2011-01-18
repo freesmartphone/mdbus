@@ -7,6 +7,7 @@ AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(FSO_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsousage.dbus_service\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

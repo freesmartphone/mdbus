@@ -7,6 +7,7 @@ AM_CFLAGS = \
 	$(GEE_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsousage.lowlevel_kernel26\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
