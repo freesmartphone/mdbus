@@ -12,9 +12,11 @@ VALAC_ARGS = \
 	--library=gsm0710mux-1.0 \
 	--save-temps --basedir $(top_srcdir)
 
+AM_CFLAGS = -DG_LOG_DOMAIN=\"gsm0710mux\"
+
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS = -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 pkgconfigdir = $(libdir)/pkgconfig
