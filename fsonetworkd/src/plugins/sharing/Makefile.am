@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsonetworkd.sharing\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

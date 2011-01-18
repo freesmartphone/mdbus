@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsonetworkd.lib\" \
 	$(NULL)
 
 BUILT_SOURCES = .vala.stamp fsonetwork-2.0.vapi
