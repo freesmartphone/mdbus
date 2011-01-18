@@ -17,6 +17,7 @@ AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(GSMMUX_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsogsm.lib\" \
 	$(NULL)
 
 VALAC_ARGS = \

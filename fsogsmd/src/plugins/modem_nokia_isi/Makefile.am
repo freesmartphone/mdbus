@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(ISI_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsogsm.modem_nokia_isi\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
 	$(FSO_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsogsm.lowlevel_nokia900\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

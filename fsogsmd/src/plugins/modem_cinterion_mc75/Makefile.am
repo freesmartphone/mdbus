@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsogsm.modem_cinterion_mc75\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
