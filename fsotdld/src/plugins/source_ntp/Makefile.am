@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsotdld.source_ntp\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

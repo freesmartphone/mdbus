@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsotdld.provider_location_dummy\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

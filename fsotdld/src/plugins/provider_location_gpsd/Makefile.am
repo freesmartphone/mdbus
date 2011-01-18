@@ -8,6 +8,7 @@ AM_CPPFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(GPS_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsotdld.provider_location_gpsd\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)

@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsotdld.lib\" \
 	$(NULL)
 
 VALAC_ARGS = \

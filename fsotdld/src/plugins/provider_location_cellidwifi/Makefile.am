@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
 	$(GEE_CFLAGS) \
 	$(SOUP_CFLAGS) \
 	$(JSON_CFLAGS) \
+	-DG_LOG_DOMAIN=\"fsotdld.provider_location_cellidwifi\" \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
