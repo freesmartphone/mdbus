@@ -18,9 +18,9 @@
  *
  */
 
-using Gee;
 using GLib;
 using FsoGsm;
+using FsoFramework;
 
 public enum MsmUrcType
 {
@@ -29,18 +29,93 @@ public enum MsmUrcType
     CALL_ORIGINATION,
 }
 
+internal class WaitForUnsolicitedResponseData
+{
+    public GLib.SourceFunc callback;
+    public MsmUrcType urc_type;
+    public GLib.Variant? response;
+    public uint timeout;
+}
+
 /**
  * MSM Unsolicited Base Class and Handler
  **/
 
-public class MsmUnsolicitedResponseHandler
+public class MsmUnsolicitedResponseHandler : AbstractObject
 {
+    private GLib.List<WaitForUnsolicitedResponseData> urc_waiters;
+
     //
     // public API
     //
 
+    public MsmUnsolicitedResponseHandler()
+    {
+        urc_waiters = new GLib.List<WaitForUnsolicitedResponseData>();
+    }
+
     public void setup()
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
+
+        channel.misc_service.radio_reset_ind.connect( () => {
+            notifyUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND, null );
+        });
+
+    }
+
+    public override string repr()
+    {
+        return "<>";
+    }
+
+    /**
+     * Lets wait for a specific unsolicited response to recieve and return it's payload
+     * after it finaly recieves.
+     **/
+    public async GLib.Variant waitForUnsolicitedResponse( MsmUrcType type )
+    {
+        // Create waiter and yield until urc occurs
+        var data = new WaitForUnsolicitedResponseData();
+        data.urc_type = type;
+        data.callback = waitForUnsolicitedResponse.callback;
+        urc_waiters.append( data );
+        yield;
+
+        // Urc occured so we can return the recieved message structure to the caller who
+        // has now not longer to wait for the urc
+        urc_waiters.remove( data );
+        return data.response;
+    }
+
+    /**
+     * Notify the occurence of a unsolicted response to the modem agent which informs all
+     * registered clients for this type of message.
+     **/
+    public async void notifyUnsolicitedResponse( MsmUrcType type, GLib.Variant? response )
+    {
+        var waiters = retriveUrcWaiters( type );
+
+        // awake all waiters for the notified urc type and supply them the message payload
+        foreach (var waiter in waiters )
+        {
+            waiter.response = response;
+            waiter.callback();
+        }
+    }
+
+    private GLib.List<WaitForUnsolicitedResponseData> retriveUrcWaiters( MsmUrcType type )
+    {
+        var result = new GLib.List<WaitForUnsolicitedResponseData>();
+
+        foreach ( var waiter in urc_waiters )
+        {
+            if ( waiter.urc_type == type )
+            {
+                result.append( waiter );
+            }
+        }
+
+        return result;
     }
 }

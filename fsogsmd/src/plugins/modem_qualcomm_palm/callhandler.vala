@@ -108,7 +108,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             yield channel.call_service.originate(number, MsmData.block_number);
 
             // Wait until the modem reports the origination of our new call
-            GLib.Variant response = yield channel.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION );
+            GLib.Variant response = yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION );
             // var call_info = Msmcomm.CallInfo.from_variant( response );
 
             startTimeoutIfNecessary();

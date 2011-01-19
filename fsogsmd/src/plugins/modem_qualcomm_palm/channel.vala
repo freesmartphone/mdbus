@@ -22,24 +22,16 @@ using GLib;
 using FsoGsm;
 using FsoFramework;
 
-internal class WaitForUnsolicitedResponseData
-{
-    public GLib.SourceFunc callback;
-    public MsmUrcType urc_type { get; set; }
-    public GLib.Variant? response { get; set; }
-    public uint timeout { get; set; }
-}
-
 public class MsmChannel : CommandQueue, Channel, AbstractObject
 {
     public Transport transport { get; set; }
     public string name;
 
     private FreeSmartphone.Usage usage;
-    private Gee.ArrayList<WaitForUnsolicitedResponseData> urcWaiters;
-    private MsmUnsolicitedResponseHandler urcHandler;
-    private bool isInitialized;
+    private bool is_initialized;
     private Msmcomm.ModemStatus currentModemStatus;
+
+    public MsmUnsolicitedResponseHandler urc_handler;
 
     public Msmcomm.Management management_service;
     public Msmcomm.State state_service;
@@ -68,7 +60,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         currentModemStatus = status;
 
         /* ignore status updates as long as we are not initialized */
-        if ( !isInitialized )
+        if ( !is_initialized )
             return;
 
         switch ( status )
@@ -91,10 +83,9 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
     public MsmChannel( string name )
     {
-        urcWaiters = new Gee.ArrayList<WaitForUnsolicitedResponseData>();
-        urcHandler = new MsmUnsolicitedResponseHandler();
+        urc_handler = new MsmUnsolicitedResponseHandler();
 
-        isInitialized = false;
+        is_initialized = false;
         currentModemStatus = Msmcomm.ModemStatus.UNKNOWN;
 
         this.name = name;
@@ -102,44 +93,62 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         theModem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
+    public bool is_ready()
+    {
+        return is_initialized;
+    }
+
     public async void initialize()
     {
-        /* initialize the modem controller itself */
-        logger.debug( "Initialize modem controller ..." );
-        management_service.initialize();
+        try
+        {
+            /* initialize the modem controller itself */
+            logger.debug( "Initialize modem controller ..." );
+            management_service.initialize();
 
-        /* wait as long as modem controller is not ready */
-        logger.debug( "Waiting for modem controller to be fully initialized ..." );
-        Timeout.add_seconds(2, () => {
-            if ( currentModemStatus == Msmcomm.ModemStatus.ACTIVE )
-            {
-                initialize.callback();
-                return false;
-            }
-            return true;
-        });
-        yield;
+            /* wait as long as modem controller is not ready */
+            logger.debug( "Waiting for modem controller to be fully initialized ..." );
+            Timeout.add_seconds(2, () => {
+                if ( currentModemStatus == Msmcomm.ModemStatus.ACTIVE )
+                {
+                    initialize.callback();
+                    return false;
+                }
+                return true;
+            });
+            yield;
 
-        urcHandler.setup();
+            urc_handler.setup();
 
-        /* reset the modem and wait for it to come back */
-        logger.debug( "Reseting modem and waiting for it to come back ..." );
-        yield state_service.change_operation_mode( Msmcomm.OperationMode.RESET );
-        yield waitForUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND );
+            /* We sent here a test alive command to the modem to retrieve the response of
+             * the change operation mode message after this. Never remove the delay! */
+            yield misc_service.test_alive();
+            Posix.sleep(2);
 
-        Posix.sleep(2);
+            /* reset the modem and wait for it to come back */
+            logger.debug( "Reseting modem and waiting for it to come back ..." );
+            yield state_service.change_operation_mode( Msmcomm.OperationMode.RESET );
+            yield urc_handler.waitForUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND );
+            Posix.sleep(2);
 
-        logger.debug( "Modem is back after reset now; Synchronizing ..." );
-        yield misc_service.test_alive();
+            logger.debug( "Modem is back after reset now; Synchronizing ..." );
+            yield misc_service.test_alive();
 
-        isInitialized = true;
+            is_initialized = true;
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+        }
+        catch ( GLib.Error err1 )
+        {
+        }
     }
 
     public async void shutdown()
     {
         logger.debug( "Shutdown modem controller ..." );
         yield management_service.shutdown();
-        isInitialized = false;
+        is_initialized = false;
     }
 
     public void injectResponse( string response )
@@ -176,6 +185,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     private void registerObjects()
     {
         management_service =  Bus.get_proxy_sync<Msmcomm.Management>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+        management_service.modem_status.connect( onModemControlStatusChanged );
         misc_service =  Bus.get_proxy_sync<Msmcomm.Misc>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
         state_service =  Bus.get_proxy_sync<Msmcomm.State>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
     }
@@ -222,56 +232,6 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     public override string repr()
     {
         return "<>";
-    }
-
-    /**
-     * Lets wait for a specific unsolicited response to recieve and return it's payload
-     * after it finaly recieves.
-     **/
-    public async GLib.Variant waitForUnsolicitedResponse( MsmUrcType type )
-    {
-        // Create waiter and yield until urc occurs
-        var data = new WaitForUnsolicitedResponseData();
-        data.urc_type = type;
-        data.callback = waitForUnsolicitedResponse.callback;
-        urcWaiters.add( data );
-        yield;
-
-        // Urc occured so we can return the recieved message structure to the caller who
-        // has now not longer to wait for the urc
-        urcWaiters.remove( data );
-        return data.response;
-    }
-
-    /**
-     * Notify the occurence of a unsolicted response to the modem agent which informs all
-     * registered clients for this type of message.
-     **/
-    public async void notifyUnsolicitedResponse( MsmUrcType type, GLib.Variant? response )
-    {
-        var waiters = retriveUrcWaiters( type );
-
-        // awake all waiters for the notified urc type and supply them the message payload
-        foreach (var waiter in waiters )
-        {
-            waiter.response = response;
-            waiter.callback();
-        }
-    }
-
-    private Gee.ArrayList<WaitForUnsolicitedResponseData> retriveUrcWaiters( MsmUrcType type )
-    {
-        var result = new Gee.ArrayList<WaitForUnsolicitedResponseData>();
-
-        foreach ( var waiter in urcWaiters )
-        {
-            if ( waiter.urc_type == type )
-            {
-                result.add( waiter );
-            }
-        }
-
-        return result;
     }
 }
 
