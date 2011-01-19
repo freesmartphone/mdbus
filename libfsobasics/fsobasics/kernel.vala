@@ -41,7 +41,7 @@ namespace FsoFramework
 
         private void checkAvailability()
         {
-            var rc = Posix.system( "/sbin/modinfo $(name)" );
+            var rc = Posix.system( @"/sbin/modinfo $(name)" );
             available = ( rc == 0 );
         }
 
