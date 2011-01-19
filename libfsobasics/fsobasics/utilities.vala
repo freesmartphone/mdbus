@@ -478,6 +478,17 @@ namespace FsoFramework { namespace Utility {
         //FIXME: Don't hardcode
         return @"/etc/freesmartphone/conf/$(hardware())";
     }
+    public string dataToString(uint8[] data, int limit = -1)
+    {
+        if (limit == -1 || data.length < limit)
+        {
+            limit = data.length;
+        }
+
+        unowned string str = (string)data;
+
+        return str.ndup(limit);
+    }
 } }
 
 namespace FsoFramework { namespace Async {
