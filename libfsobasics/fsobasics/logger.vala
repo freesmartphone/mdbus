@@ -52,6 +52,7 @@ public interface FsoFramework.Logger : Object
     public abstract bool warning( string message );
     public abstract bool error( string message );
     public abstract bool critical( string message );
+    public abstract bool data( uint8[] message, bool in = true, LogLevelFlags when = GLib.LogLevelFlags.LEVEL_DEBUG );
 
     public static Logger defaultLogger()
     {
@@ -281,6 +282,46 @@ public abstract class FsoFramework.AbstractLogger : FsoFramework.Logger, Object
         Posix.exit( Posix.EXIT_FAILURE );
         return true;
         //FIXME: Trigger dumping a backtrace, if possible
+    }
+
+    public bool data( uint8[] message, bool in, LogLevelFlags when = LogLevelFlags.LEVEL_DEBUG )
+    {
+        if ( level >= when )
+        {
+            string direction = in ? ">>>" : "<<<";
+            var prefix = @"[$(levelToString( when ))] $(direction)";
+            var hex = new StringBuilder();
+            var readable = new StringBuilder();
+            int i = 0;
+
+            for( i = 0; i < message.length; i++ )
+            {
+                if( ((char)message[i]).isprint() )
+                     hex.append_c( (char)message[i] );
+                else
+                     hex.append_c( '.' );
+
+                readable.append_printf( "%02X ", message[i] );
+
+                if( ( i % 16 ) == 15 )
+                {
+                    write( format( readable.str + " | " + hex.str, prefix ) );
+                    hex = new StringBuilder();
+                    readable = new StringBuilder();
+                }
+            }
+
+            if( ( i % 16 ) != 0 )
+            {
+                for( i = i % 16; i < 16; i ++ )
+                {
+                    readable.append( "   " );
+                }
+                write( format( readable.str + " | " + hex.str, prefix ) );
+            }
+        }
+
+        return true;
     }
 
     public static string levelToString( LogLevelFlags level )
