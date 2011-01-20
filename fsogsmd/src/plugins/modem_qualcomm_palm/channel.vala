@@ -188,6 +188,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         management_service.modem_status.connect( onModemControlStatusChanged );
         misc_service =  Bus.get_proxy_sync<Msmcomm.Misc>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
         state_service =  Bus.get_proxy_sync<Msmcomm.State>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+        sim_service = Bus.get_proxy_sync<Msmcomm.Sim>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
     }
 
     public async bool open()

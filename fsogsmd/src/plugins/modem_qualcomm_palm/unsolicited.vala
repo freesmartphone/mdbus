@@ -62,6 +62,70 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
             notifyUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND, null );
         });
 
+        channel.sim_service.sim_status.connect( ( urc_name ) => {
+            /* Check if the channel is already ready for processing */
+            if (!channel.is_ready())
+                return;
+
+            switch ( urc_name )
+            {
+                /* 
+                 * General sim events
+                 */
+                case "sim-inserted":
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+                    break;
+
+                /*
+                 * All pin status events
+                 */
+
+                case "pin1-enabled":
+                    MsmData.pin1_status = MsmPinStatus.ENABLED;
+                    break;
+
+                case "pin1-disabled":
+                    MsmData.pin1_status = MsmPinStatus.DISABLED;
+                    break;
+
+                case "pin1-blocked":
+                    MsmData.pin1_status = MsmPinStatus.BLOCKED;
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
+                    break;
+
+                case "pin1-verified":
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
+                    break;
+
+                case "pin1-perm-blocked":
+                    MsmData.pin1_status = MsmPinStatus.PERM_BLOCKED;
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN );
+                    break;
+
+                case "pin2-enabled":
+                    MsmData.pin2_status = MsmPinStatus.ENABLED;
+                    break;
+
+                case "pin2-disabled":
+                    MsmData.pin2_status = MsmPinStatus.DISABLED;
+                    break;
+
+                case "pin2-blocked":
+                    MsmData.pin2_status = MsmPinStatus.BLOCKED;
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
+                    break;
+
+                case "pin2-verified":
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
+                    break;
+
+                case "pin2-perm-blocked":
+                    MsmData.pin2_status = MsmPinStatus.PERM_BLOCKED;
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN );
+                    break;
+            }
+        });
+
     }
 
     public override string repr()

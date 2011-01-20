@@ -23,16 +23,12 @@ public enum MsmPinStatus
     ENABLED,
     BLOCKED,
     PERM_BLOCKED,
-    CHANGED, // TODO: do we really need this state here?
-    UNBLOCKED,
 }
 
 public static class MsmData
 {
     public static MsmPinStatus pin1_status { get; set; default = MsmPinStatus.ENABLED; }
     public static MsmPinStatus pin2_status { get; set; default = MsmPinStatus.ENABLED; }
-    public static MsmPinStatus pin1_block_status { get; set; default = MsmPinStatus.UNBLOCKED; }
-    public static MsmPinStatus pin2_block_status { get; set; default = MsmPinStatus.UNBLOCKED; }
     public static string current_operator_name { get; set; default = ""; }
     public static int signal_strength { get; set; default = 0; }
     public static Msmcomm.OperationMode functionality_status { get; set; default = Msmcomm.OperationMode.OFFLINE; }
