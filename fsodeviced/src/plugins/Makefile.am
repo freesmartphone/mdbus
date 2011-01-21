@@ -5,6 +5,7 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
+	ambientlight_n900 \
 	ambientlight_palmpre \
 	\
 	accelerometer \
