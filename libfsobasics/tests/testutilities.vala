@@ -71,10 +71,10 @@ public enum MyEnumType { FOO, BAR, BAZ }
 void test_utilities_stringhandling_enum()
 //===========================================================================
 {
-    assert ( StringHandling.enumToString( typeof( MyEnumType ), MyEnumType.FOO ) == "MY_ENUM_TYPE_FOO" );
-    assert ( StringHandling.enumToString( typeof( MyEnumType ), MyEnumType.BAR ) == "MY_ENUM_TYPE_BAR" );
-    assert ( StringHandling.enumToString( typeof( MyEnumType ), MyEnumType.BAZ ) == "MY_ENUM_TYPE_BAZ" );
-    assert ( StringHandling.enumToString( typeof( MyEnumType ), 1000 ).has_prefix( "Unknown" ) );
+    assert ( StringHandling.enumToString<MyEnumType>( MyEnumType.FOO ) == "MY_ENUM_TYPE_FOO" );
+    assert ( StringHandling.enumToString<MyEnumType>( MyEnumType.BAR ) == "MY_ENUM_TYPE_BAR" );
+    assert ( StringHandling.enumToString<MyEnumType>( MyEnumType.BAZ ) == "MY_ENUM_TYPE_BAZ" );
+    assert ( StringHandling.enumToString<MyEnumType>( (MyEnumType)1000 ).has_prefix( "Unknown" ) );
 }
 
 //===========================================================================

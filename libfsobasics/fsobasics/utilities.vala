@@ -315,18 +315,18 @@ public string stringListToString( string[] list )
     return res;
 }
 
-public string enumToString( Type enum_type, int value )
+public string enumToString<T>( T value )
 {
-    EnumClass ec = (EnumClass) enum_type.class_ref();
-    unowned EnumValue? ev = ec.get_value( value );
-    return ev == null ? "Unknown Enum value for %s: %i".printf( enum_type.name(), value ) : ev.value_name;
+    EnumClass ec = (EnumClass) typeof( T ).class_ref();
+    unowned EnumValue? ev = ec.get_value( (int)value );
+    return ev == null ? "Unknown Enum value for %s: %i".printf( typeof( T ).name(), (int)value ) : ev.value_name;
 }
 
-public string enumToNick<T>( int value )
+public string enumToNick<T>( T value )
 {
     var ec = (EnumClass) typeof(T).class_ref();
-    var ev = ec.get_value( value );
-    return ev == null ? "Unknown Enum value for %s: %i".printf( typeof( T ).name(), value ) : ev.value_nick;
+    var ev = ec.get_value( (int)value );
+    return ev == null ? "Unknown Enum value for %s: %i".printf( typeof( T ).name(), (int)value ) : ev.value_nick;
 }
 
 public T enumFromName<T>( string name )
