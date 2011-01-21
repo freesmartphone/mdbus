@@ -46,24 +46,6 @@ endif
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_qualcomm_palm.la
 
-modem_qualcomm_palm_la_SOURCES = \
- channel.c \
- mediators.c \
- unsolicited.c \
- plugin.c \
- callhandler.c \
- data.c \
- phonebookhandler.c \
- consts.c \
- mediators_debug.c \
- mediators_device.c \
- mediators_sim.c \
- mediators_sms.c \
- mediators_network.c \
- mediators_call.c \
- utils.c \
- $(NULL)
-
 modem_qualcomm_palm_la_VALASOURCES = \
  channel.vala \
  mediators.vala \
@@ -81,6 +63,8 @@ modem_qualcomm_palm_la_VALASOURCES = \
  mediators_call.vala \
  utils.vala \
  $(NULL)
+
+modem_qualcomm_palm_la_SOURCES = $(modem_qualcomm_palm_la_VALASOURCES:.vala=.c)
 
 $(modem_qualcomm_palm_la_SOURCES): $(modem_qualcomm_palm_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
