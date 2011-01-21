@@ -21,9 +21,9 @@ using GLib;
 
 namespace AmbientLight
 {
-    internal const string DEFAULT_NODE = "bus/i2c/drivers/tsl2563/2-0029";
+    internal const string DEFAULT_NODE = "class/i2c-adapter/i2c-2/2-0029/";
     internal const int DARKNESS = 0;
-    internal const int SUNLIGHT = 50000;
+    internal const int SUNLIGHT = 100;
 
 class N900 : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
 {
@@ -71,9 +71,11 @@ class N900 : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
     //
     public async void get_ambient_light_brightness( out int brightness, out int timestamp ) throws FreeSmartphone.Error, DBusError, IOError
     {
-        var lux = FsoFramework.FileHandling.read( this.luxnode );
-        brightness = _valueToPercent( lux.to_int() );
-        timestamp = (int) time_t();
+        var lux = FsoFramework.FileHandling.read( this.luxnode ).to_int();
+        //brightness = _valueToPercent( lux );
+        brightness = lux;
+        var t = (int) time_t();
+        timestamp = t;
     }
 }
 
@@ -94,6 +96,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var config = FsoFramework.theConfig;
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     var dirname = GLib.Path.build_filename( sysfs_root, AmbientLight.DEFAULT_NODE );
+    debug( @"looking in $dirname" );
     if ( FsoFramework.FileHandling.isPresent( dirname ) )
     {
         instance = new AmbientLight.N900( subsystem, dirname );
