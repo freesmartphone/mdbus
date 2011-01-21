@@ -322,6 +322,27 @@ public string enumToString( Type enum_type, int value )
     return ev == null ? "Unknown Enum value for %s: %i".printf( enum_type.name(), value ) : ev.value_name;
 }
 
+public string enumToNick<T>( int value )
+{
+    var ec = (EnumClass) typeof(T).class_ref();
+    var ev = ec.get_value( value );
+    return ev == null ? "Unknown Enum value for %s: %i".printf( typeof( T ).name(), value ) : ev.value_nick;
+}
+
+public T enumFromName<T>( string name )
+{
+    var ec = (EnumClass) typeof(T).class_ref();
+    var ev = ec.get_value_by_name( name );
+    return ev == null ? -1 : ev.value;
+}
+
+public T enumFromNick<T>( string nick )
+{
+    var ec = (EnumClass) typeof(T).class_ref();
+    var ev = ec.get_value_by_nick( nick );
+    return ev == null ? -1 : ev.value;
+}
+
 public GLib.HashTable<string,string> splitKeyValuePairs( string str )
 {
     var result = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
