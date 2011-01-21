@@ -120,7 +120,7 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
             s = "\\r";
         else
             s = "%c".printf( c );
-        debug( "state = %s, feeding '%s'", FsoFramework.StringHandling.enumToString( typeof(State), curstate ), s );
+        debug( "state = %s, feeding '%s'", FsoFramework.StringHandling.enumToString<State>( curstate ), s );
 #endif
         switch (curstate)
         {
