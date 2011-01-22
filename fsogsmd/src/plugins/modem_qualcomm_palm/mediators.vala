@@ -27,7 +27,7 @@ using FsoGsm;
 public void updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
 {
     theModem.logger.info( @"SIM Auth status now $status" );
-    
+
     // send the dbus signal
     var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
     obj.auth_status( status );
@@ -98,9 +98,8 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
 
     yield gatherSimOperators();
 
-    var data = theModem.data();
-
 #if 0
+    var data = theModem.data();
     var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
     var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
     var rcode = cmd.validate( response );
@@ -156,6 +155,7 @@ public async void triggerUpdateNetworkStatus()
     }
     inTriggerUpdateNetworkStatus = true;
 
+#if 0
     var mstat = theModem.status();
 
     // ignore, if we don't have proper status to issue networking commands yet
@@ -167,9 +167,9 @@ public async void triggerUpdateNetworkStatus()
     }
 
     // gather info
-    var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
     try
     {
+        var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
         yield m.run();
     }
     catch ( GLib.Error e )
@@ -195,8 +195,10 @@ public async void triggerUpdateNetworkStatus()
     // send dbus signal
     var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
     obj.status( m.status );
+#endif 
 
     inTriggerUpdateNetworkStatus = false;
+
 }
 
 /**
@@ -204,7 +206,13 @@ public async void triggerUpdateNetworkStatus()
  **/
 public void registerMsmMediators( HashMap<Type,Type> table )
 {
+    /* NOTE: add only mediators you tested !!! */
     table[ typeof(DebugPing) ]                    = typeof( MsmDebugPing );
+
+    table[ typeof(SimGetAuthCodeRequired) ]       = typeof( MsmSimGetAuthCodeRequired );
+    table[ typeof(SimGetAuthStatus) ]             = typeof( MsmSimGetAuthStatus );
+    table[ typeof(SimSendAuthCode) ]              = typeof( MsmSimSendAuthCode );
+    table[ typeof(SimGetInformation) ]            = typeof( MsmSimGetInformation );
 
     table[ typeof(DeviceGetFeatures) ]            = typeof( MsmDeviceGetFeatures );
     table[ typeof(DeviceGetInformation) ]         = typeof( MsmDeviceGetInformation );
@@ -212,10 +220,7 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetPowerStatus) ]         = typeof( MsmDeviceGetPowerStatus );
     table[ typeof(DeviceSetFunctionality) ]       = typeof( MsmDeviceSetFunctionality );
 
-    table[ typeof(SimGetAuthCodeRequired) ]       = typeof( MsmSimGetAuthCodeRequired );
-    table[ typeof(SimGetAuthStatus) ]             = typeof( MsmSimGetAuthStatus );
-    table[ typeof(SimGetInformation) ]            = typeof( MsmSimGetInformation );
-    table[ typeof(SimSendAuthCode) ]              = typeof( MsmSimSendAuthCode );
+#if 0
     table[ typeof(SimDeleteEntry) ]               = typeof( MsmSimDeleteEntry );
     table[ typeof(SimDeleteMessage) ]             = typeof( MsmSimDeleteMessage );
     table[ typeof(SimGetPhonebookInfo) ]          = typeof( MsmSimGetPhonebookInfo );
@@ -244,4 +249,5 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(CallReleaseAll) ]               = typeof( MsmCallReleaseAll );
     table[ typeof(CallRelease) ]                  = typeof( MsmCallRelease );
     table[ typeof(CallSendDtmf) ]                 = typeof( MsmCallSendDtmf );
+#endif
 }

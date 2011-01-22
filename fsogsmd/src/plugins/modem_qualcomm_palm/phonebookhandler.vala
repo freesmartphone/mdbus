@@ -18,6 +18,7 @@
  */
 
 using FsoGsm;
+using Msmcomm;
 
 // FIXME merge general code to base class PhonebookHandler and use it 
 // together with the AtPhonebookHandler
@@ -80,10 +81,10 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
                 var entry = FreeSmartphone.GSM.SIMEntry( i, phonebookEntry.title, phonebookEntry.number );
                 phonebook += entry;
             }
-            catch ( Error err0 )
+            catch ( Msmcomm.Error err0 )
             {
             }
-            catch ( Msmcomm.Error err1 )
+            catch ( GLib.Error err1 )
             {
             }
 
@@ -94,55 +95,45 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
 
     public async void syncWithSim()
     {
-        var channel = theModem.channel( "main" ) as MsmChannel;
+        try
+        {
+            var channel = theModem.channel( "main" ) as MsmChannel;
 
+            // Fetch and check imsi from sim
+            var fi = yield channel.sim_service.read( SimFieldType.IMSI );
+            string imsi = fi.data;
+            if ( imsi.length == 0 )
+            {
+                logger.warning( "Can't synchronize PB storage with SIM" );
+                return;
+            }
+
+            // create Storage for current IMSI
+            storage = new FsoGsm.PhonebookStorage( imsi );
+
+            // FIXME we can't retrieve phonebooks, so we have to build a 
+            // static list of available phonebooks
 #if 0
-        // gather IMSI
-        string imsi = "";
-        try 
-        {
-            imsi = yield channel.phonebook_service.sim_info( "imsi" );
-        }
-        catch ( Error err0 )
-        {
-        }
-        catch ( Msmcomm.Error err1 )
-        {
-        }
+            Msmcomm.PhonebookBookType[] phonebooks = { Msmcomm.PhonebookBookType.FDN, 
+                                                    Msmcomm.PhonebookBookType.ADN,
+                                                    Msmcomm.PhonebookBookType.SDN };
 
-        if ( imsi.length == 0 )
-        {
-            logger.warning( "Can't synchronize PB storage with SIM" );
-            return;
-        }
-
-        // create Storage for current IMSI
-        storage = new FsoGsm.PhonebookStorage( imsi );
-
-        // FIXME we can't retrieve phonebooks, so we have to build a 
-        // static list of available phonebooks
-        Msmcomm.PhonebookBookType[] phonebooks = { Msmcomm.PhonebookBookType.FDN, 
-                                                   Msmcomm.PhonebookBookType.ADN,
-                                                   Msmcomm.PhonebookBookType.SDN };
-
-        foreach ( var pb in phonebooks )
-        {
-            try 
+            foreach ( var pb in phonebooks )
             {
                 var pbprops = yield channel.phonebook_service.get_phonebook_properties( pb );
 
-                // assert( logger.debug( @"Found  phonebook '$(Msmcomm.phonebookBookTypeToString(pb))' w/ indices 0-$(pbprops.slot_count)" ) );
+                assert( logger.debug( @"Found  phonebook '$(Msmcomm.phonebookBookTypeToString(pb))' w/ indices 0-$(pbprops.slot_count)" ) );
 
                 var phonebook = yield readPhonebook( pb, pbprops.slot_count, pbprops.slots_used );
                 storage.addPhonebook( Msmcomm.phonebookBookTypeToString(pb), 0, pbprops.slot_count, phonebook );
             }
-            catch ( Error err2 )
-            {
-            }
-            catch ( Msmcomm.Error err3 )
-            {
-            }
-        }
 #endif
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+        }
+        catch ( GLib.Error err1 )
+        {
+        }
     }
 }

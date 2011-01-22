@@ -34,7 +34,6 @@ internal class WaitForUnsolicitedResponseData
     public GLib.SourceFunc callback;
     public MsmUrcType urc_type;
     public GLib.Variant? response;
-    public uint timeout;
 }
 
 /**

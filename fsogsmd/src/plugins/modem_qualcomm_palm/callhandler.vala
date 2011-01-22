@@ -87,7 +87,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         }
         catch ( Msmcomm.Error err0 )
         {
-            MsmUtil.handleMsmcommErrorMessage( err0 );
+            handleMsmcommErrorMessage( err0 );
         }
         catch ( Error err1 )
         {
@@ -105,17 +105,17 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         try 
         {
             // Initiate call to the selected number
-            yield channel.call_service.originate(number, MsmData.block_number);
+            yield channel.call_service.originate(number, false);
 
             // Wait until the modem reports the origination of our new call
-            GLib.Variant response = yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION );
+            yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION );
             // var call_info = Msmcomm.CallInfo.from_variant( response );
 
             startTimeoutIfNecessary();
         }
         catch ( Msmcomm.Error err0 )
         {
-            MsmUtil.handleMsmcommErrorMessage( err0 );
+            handleMsmcommErrorMessage( err0 );
         }
         catch ( Error err1 )
         {
@@ -146,7 +146,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         }
         catch ( Msmcomm.Error err0 )
         {
-            MsmUtil.handleMsmcommErrorMessage( err0 );
+            handleMsmcommErrorMessage( err0 );
         }
         catch ( Error err1 )
         {
@@ -195,7 +195,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         }
         catch ( Msmcomm.Error err0 )
         {
-            MsmUtil.handleMsmcommErrorMessage( err0 );
+            handleMsmcommErrorMessage( err0 );
         }
         catch ( Error err1 )
         {
@@ -219,7 +219,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
         // Update the created call so it is now an incomming one
         var empty_properties = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
-        var call_detail = new FreeSmartphone.GSM.CallDetail( call_info.id, 
+        var call_detail = FreeSmartphone.GSM.CallDetail( call_info.id, 
                                                              FreeSmartphone.GSM.CallStatus.INCOMING, 
                                                              empty_properties );
         new_call.update( call_detail );
@@ -257,7 +257,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             // Call is connecting, so it's next state is ACTIVE
             var call = calls.get( call_info.id );
             call.update_status( FreeSmartphone.GSM.CallStatus.RELEASE );
-            calls.remove( call_info.id );
+            calls.unset( call_info.id );
         }
         else
         {
@@ -277,19 +277,20 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
 
-        var channel = theModem.channel( "main" ) as MsmChannel;
-
+#if 0
         try
         {
+            // var channel = theModem.channel( "main" ) as MsmChannel;
             // yield channel.call_service.end( id );
         }
         catch ( Msmcomm.Error err0 )
         {
-            MsmUtil.handleMsmcommErrorMessage( err0 );
+            handleMsmcommErrorMessage( err0 );
         }
         catch ( Error err1 )
         {
         }
+#endif
     }
 
     protected override async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -308,7 +309,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         }
         catch ( Msmcomm.Error err0 )
         {
-            MsmUtil.handleMsmcommErrorMessage( err0 );
+            handleMsmcommErrorMessage( err0 );
         }
         catch ( Error err1 )
         {

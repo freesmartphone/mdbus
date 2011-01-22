@@ -27,12 +27,12 @@ public class MsmNetworkRegister : NetworkRegister
 
         try
         {
-            channel.state_service.change_operation_mode( Msmcomm.OperationMode.ONLINE );
-            MsmData.functionality_status = Msmcomm.OperationMode.ONLINE;
+            yield channel.state_service.change_operation_mode( Msmcomm.OperationMode.ONLINE );
+            MsmData.operation_mode = Msmcomm.OperationMode.ONLINE;
         }
         catch ( Msmcomm.Error err0 )
         {
-            MsmUtil.handleMsmcommErrorMessage( err0 );
+            handleMsmcommErrorMessage( err0 );
         }
         catch ( Error err1 )
         {
@@ -44,7 +44,7 @@ public class MsmNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        signal = MsmData.signal_strength;
+        // signal = MsmData.signal_strength;
     }
 }
 
@@ -74,7 +74,7 @@ public class MsmNetworkGetStatus : NetworkGetStatus
             status.insert( "network", MsmData.current_operator_name );
             status.insert( "display", MsmData.current_operator_name );
             status.insert( "registration",
-                           MsmUtil.networkRegistrationStatusToString( MsmData.network_reg_status ) );
+                           networkRegistrationStatusToString( MsmData.network_reg_status ) );
             status.insert( "mode", "automatic" );
             status.insert( "lac", "" );
             status.insert( "cid", "" );
@@ -116,7 +116,7 @@ public class MsmNetworkListProviders : NetworkListProviders
         }
         catch ( Msmcomm.Error err0 )
         {
-            MsmUtil.handleMsmcommErrorMessage( err0 );
+            handleMsmcommErrorMessage( err0 );
         }
         catch ( DBus.Error err1 )
         {
@@ -134,11 +134,11 @@ public class MsmNetworkUnregister : NetworkUnregister
         try
         {
             yield channel.state_service.change_operation_mode( Msmcomm.OperationMode.OFFLINE );
-            MsmData.functionality_status = Msmcomm.OperationMode.OFFLINE;
+            // MsmData.functionality_status = Msmcomm.OperationMode.OFFLINE;
         }
         catch ( Msmcomm.Error err0 )
         {
-            MsmUtil.handleMsmcommErrorMessage( err0 );
+            handleMsmcommErrorMessage( err0 );
         }
         catch ( Error err1 )
         {

@@ -18,6 +18,7 @@
  */
 
 using FsoGsm;
+using Msmcomm;
 
 public class MsmSimGetAuthStatus : SimGetAuthStatus
 {
@@ -33,42 +34,27 @@ public class MsmSimGetAuthStatus : SimGetAuthStatus
 
 public class MsmSimGetInformation : SimGetInformation
 {
-    private void checkAndAddInfo(string name, string value)
-    {
-        if (value == null)
-        {
-            info.insert( name, "unknown" );
-        }
-        else
-        {
-            info.insert( name, @"$(value)" );
-        }
-    }
-
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
-        var value = Variant( typeof(string) );
         var channel = theModem.channel( "main" ) as MsmChannel;
 
         try
         {
-            string msisdn = yield channel.commands.sim_info( "msisdn" );
-            checkAndAddInfo( "msisdn", msisdn );
+            SimFieldInfo fi = yield channel.sim_service.read( SimFieldType.MSISDN );
+            info.insert("msisdn", fi.data);
 
-            string imsi = yield channel.commands.sim_info( "imsi" );
-            checkAndAddInfo( "imsi", imsi );
+            fi = yield channel.sim_service.read( SimFieldType.IMSI );
+            info.insert("imsi", fi.data);
         }
         catch ( Msmcomm.Error err0 )
         {
-            var msg = @"Could not process verify_pin command, got: $(err0.message)";
+            var msg = @"Could not process SIM read command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( Error err1 )
+        catch ( GLib.Error err1 )
         {
         }
-        #endif
     }
 }
 
@@ -102,7 +88,7 @@ public class MsmSimSendAuthCode : SimSendAuthCode
             var msg = @"Could not process verify_pin command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
-        catch ( Error err1 )
+        catch ( GLib.Error err1 )
         {
         }
     }
@@ -112,9 +98,8 @@ public class MsmSimDeleteEntry : SimDeleteEntry
 {
     public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as MsmChannel;
-
 #if 0
+        var channel = theModem.channel( "main" ) as MsmChannel;
         try
         {
             var bookType = Msmcomm.stringToPhonebookBookType( category );
@@ -144,9 +129,8 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
 {
     public override async void run( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as MsmChannel;
-
 #if 0
+        var channel = theModem.channel( "main" ) as MsmChannel;
         try
         {
             var bookType = Msmcomm.stringToPhonebookBookType( category );
@@ -172,9 +156,8 @@ public class MsmSimGetServiceCenterNumber : SimGetServiceCenterNumber
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as MsmChannel;
-
         #if 0
+        var channel = theModem.channel( "main" ) as MsmChannel;
         // FIXME have to implement this when libmsmcomm fully supports the
         // get_service_center_number command which currently does not
         try
@@ -263,8 +246,8 @@ public class MsmSimWriteEntry : SimWriteEntry
 {
     public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as MsmChannel;
 #if 0
+        var channel = theModem.channel( "main" ) as MsmChannel;
         try
         {
             var bookType = Msmcomm.stringToPhonebookBookType( category );

@@ -56,24 +56,24 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         // NOTE: we define our base unsolicited handler in our commandqueue,
         // as the base on is very AT command specific atm. Need to change 
         // this somewhere in the future ...
-        return null;
+        return (UnsolicitedResponseHandler) null;
     }
 
     protected override CallHandler createCallHandler()
     {
         // return new MsmCallHandler();
-        return null;
+        return (CallHandler) null;
     }
 
     protected override SmsHandler createSmsHandler()
     {
-        return null;
+        return (SmsHandler) null;
     }
 
     protected override PhonebookHandler createPhonebookHandler()
     {
         // return new MsmPhonebookHandler();
-        return null;
+        return (PhonebookHandler) null;
     }
 
     protected override WatchDog createWatchDog()
@@ -89,7 +89,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        return null;
+        return (FsoGsm.Channel) null;
     }
 
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )

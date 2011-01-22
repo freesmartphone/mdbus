@@ -25,15 +25,22 @@ public enum MsmPinStatus
     PERM_BLOCKED,
 }
 
+/**
+ * Holds data comming from the modem through various urc messages. Most of this fields are
+ * only accessible through the incomming urc messages so we have the save it at some place
+ * for later access.
+ **/
 public static class MsmData
 {
-    public static MsmPinStatus pin1_status { get; set; default = MsmPinStatus.ENABLED; }
-    public static MsmPinStatus pin2_status { get; set; default = MsmPinStatus.ENABLED; }
-    public static string current_operator_name { get; set; default = ""; }
-    public static int signal_strength { get; set; default = 0; }
-    public static Msmcomm.OperationMode functionality_status { get; set; default = Msmcomm.OperationMode.OFFLINE; }
-    public static bool block_number { get; set; default = false; }
-    // public static NetworkRegistrationStatus network_reg_status { get; set; default = NetworkRegistrationStatus.NO_SERVICE; }
-    // public static NetworkServiceStatus networkServiceStatus { get; set; default = NetworkServiceStatus.NO_SERVICE; }
+    public static void reset()
+    {
+        pin1_status = MsmPinStatus.ENABLED;
+        pin2_status = MsmPinStatus.ENABLED;
+        operation_mode = Msmcomm.OperationMode.OFFLINE;
+    }
+
+    public static MsmPinStatus pin1_status;
+    public static MsmPinStatus pin2_status;
+    public static Msmcomm.OperationMode operation_mode;
 }
 

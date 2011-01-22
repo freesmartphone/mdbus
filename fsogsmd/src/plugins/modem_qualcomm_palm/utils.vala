@@ -16,12 +16,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
  */
- 
-public static class MsmUtil
+
+using FsoGsm;
+
+public static void handleMsmcommErrorMessage( Msmcomm.Error error ) throws FreeSmartphone.Error
 {
-    public static void handleMsmcommErrorMessage( Msmcomm.Error error ) throws FreeSmartphone.Error
+    var msg = @"Could not process command, got: $(error.message)";
+    throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+}
+
+public static string gatherFunctionalityLevel()
+{
+    var functionality_level = "minimal";
+
+    // Check if SIM access is possible, then we have basic functionality
+    if ( theModem.status() == Modem.Status.ALIVE_SIM_READY ||
+            theModem.status() == Modem.Status.ALIVE_REGISTERED )
     {
-        var msg = @"Could not process command, got: $(error.message)";
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        functionality_level = "airplane";
+
+        // If we are now registered with the network we have reached full 
+        // functionality level
+        if (theModem.status() == Modem.Status.ALIVE_REGISTERED &&
+            MsmData.operation_mode == Msmcomm.OperationMode.ONLINE)
+        {
+            functionality_level = "full";
+        }
     }
+
+    return functionality_level;
 }
