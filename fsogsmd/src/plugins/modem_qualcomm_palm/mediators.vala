@@ -206,7 +206,7 @@ public async void triggerUpdateNetworkStatus()
  **/
 public void registerMsmMediators( HashMap<Type,Type> table )
 {
-    /* NOTE: add only mediators you tested !!! */
+    /* NOTE: add only mediators you have tested !!! */
     table[ typeof(DebugPing) ]                    = typeof( MsmDebugPing );
 
     table[ typeof(SimGetAuthCodeRequired) ]       = typeof( MsmSimGetAuthCodeRequired );
@@ -219,6 +219,8 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetFunctionality) ]       = typeof( MsmDeviceGetFunctionality );
     table[ typeof(DeviceGetPowerStatus) ]         = typeof( MsmDeviceGetPowerStatus );
     table[ typeof(DeviceSetFunctionality) ]       = typeof( MsmDeviceSetFunctionality );
+    table[ typeof(DeviceGetCurrentTime) ]         = typeof( MsmDeviceGetCurrentTime );
+    table[ typeof(DeviceSetCurrentTime) ]         = typeof( MsmDeviceSetCurrentTime );
 
 #if 0
     table[ typeof(SimDeleteEntry) ]               = typeof( MsmSimDeleteEntry );

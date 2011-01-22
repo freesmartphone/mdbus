@@ -57,7 +57,7 @@ public class MsmDeviceGetInformation : DeviceGetInformation
         {
             info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-            info.insert( "model", "Palm Pre (Plus)" );
+            info.insert( "model", "Palm Pre/Pre Plus/Pre 2" );
             info.insert( "manufacturer", "Palm, Inc." );
 
             Msmcomm.RadioFirmwareVersionInfo firmware_info;
@@ -71,7 +71,7 @@ public class MsmDeviceGetInformation : DeviceGetInformation
         }
         catch ( Msmcomm.Error err0 )
         {
-            var msg = @"Could not process get_firmware_info/get_imei command, got: $(err0.message)";
+            var msg = @"Could not process get_radio_firmware_version or get_imei command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
         catch ( GLib.Error err1 )
@@ -145,6 +145,64 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
         catch ( Msmcomm.Error err0 )
         {
             var msg = @"Could not process change_operation_mode command, got: $(err0.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( GLib.Error err1 )
+        {
+        }
+    }
+}
+
+public class MsmDeviceGetCurrentTime : DeviceGetCurrentTime
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+#if 0
+        try
+        {
+            // Fetch time from modem
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+        }
+        catch ( GLib.Error err1 )
+        {
+        }
+
+        // some modems strip the leading zero for one-digit chars, so we have to reassemble it
+        var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( cmd.year, cmd.month, cmd.day, cmd.hour, cmd.minute, cmd.second );
+        var formatstr = "%y/%m/%d,%H:%M:%S";
+        var t = GLib.Time();
+        t.strptime( timestr, formatstr );
+        since_epoch = (int) Linux.timegm( t );
+#endif
+    }
+}
+
+public class MsmDeviceSetCurrentTime : DeviceSetCurrentTime
+{
+    public override async void run( int since_epoch ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        var t = GLib.Time.gm( (time_t) since_epoch );
+
+        try
+        {
+            var info = DateInfo();
+            info.year = t.year + 1900 - 2000;
+            info.month = t.month + 1;
+            info.day = t.day;
+            info.hours = t.hour;
+            info.minutes = t.minute;
+            info.seconds = t.second;
+            info.timezone_offset = 0;
+            info.time_source = TimeSource.MANUAL;
+
+            yield channel.misc_service.set_date( info );
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+            var msg = @"Could not process set_date command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
         catch ( GLib.Error err1 )
