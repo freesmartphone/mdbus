@@ -66,6 +66,7 @@ void test_utilities_stringhandling_list()
 }
 
 public enum MyEnumType { FOO, BAR, BAZ }
+public enum MyEnumType2 { FOO, BAR, BAZ }
 
 //===========================================================================
 void test_utilities_stringhandling_enum()
@@ -75,6 +76,7 @@ void test_utilities_stringhandling_enum()
     assert ( StringHandling.enumToString<MyEnumType>( MyEnumType.BAR ) == "MY_ENUM_TYPE_BAR" );
     assert ( StringHandling.enumToString<MyEnumType>( MyEnumType.BAZ ) == "MY_ENUM_TYPE_BAZ" );
     assert ( StringHandling.enumToString<MyEnumType>( (MyEnumType)1000 ).has_prefix( "Unknown" ) );
+    assert ( StringHandling.convertEnum<MyEnumType, MyEnumType2>( MyEnumType.BAR ) == MyEnumType2.BAR );
 }
 
 //===========================================================================

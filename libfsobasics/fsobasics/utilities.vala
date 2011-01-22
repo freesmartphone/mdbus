@@ -343,6 +343,12 @@ public T enumFromNick<T>( string nick )
     return ev == null ? -1 : ev.value;
 }
 
+public T convertEnum<F,T>( F from )
+{
+    var s = FsoFramework.StringHandling.enumToNick<F>( from );
+    return FsoFramework.StringHandling.enumFromNick<T>( s );
+}
+
 public GLib.HashTable<string,string> splitKeyValuePairs( string str )
 {
     var result = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
