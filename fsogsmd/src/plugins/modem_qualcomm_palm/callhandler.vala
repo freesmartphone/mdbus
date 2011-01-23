@@ -77,12 +77,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
             if ( numberOfBusyCalls() == 0 ) // simple case
             {
-                yield channel.call_service.answer( id );
+                yield channel.call_service.answer_call( id );
             }
             else
             {
                 // call is present and incoming or held
-                yield channel.call_service.sups( Msmcomm.SupsAction.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
+                yield channel.call_service.sups_call( Msmcomm.SupsAction.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -105,7 +105,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         try 
         {
             // Initiate call to the selected number
-            yield channel.call_service.originate(number, false);
+            yield channel.call_service.originate_call(number, false);
 
             // Wait until the modem reports the origination of our new call
             yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION );
@@ -142,7 +142,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
                 throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating" );
             }
  
-            yield channel.call_service.sups( 0, Msmcomm.SupsAction.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD );
+            yield channel.call_service.sups_call( 0, Msmcomm.SupsAction.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -190,7 +190,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             }
             else
             {
-                yield channel.call_service.sups( id, Msmcomm.SupsAction.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD );
+                yield channel.call_service.sups_call( id, Msmcomm.SupsAction.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD );
             }
         }
         catch ( Msmcomm.Error err0 )
@@ -277,11 +277,10 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
 
-#if 0
         try
         {
-            // var channel = theModem.channel( "main" ) as MsmChannel;
-            // yield channel.call_service.end( id );
+            var channel = theModem.channel( "main" ) as MsmChannel;
+            yield channel.call_service.end_call( id );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -290,7 +289,6 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         catch ( Error err1 )
         {
         }
-#endif
     }
 
     protected override async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -305,7 +303,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             // signal when we have no active calls. Maybe there is another way in msmcomm
             // to do reject an incomming call but we currently don't know about.
             var cmd_type = Msmcomm.SupsAction.DROP_ALL_OR_SEND_BUSY;
-            yield channel.call_service.sups( 0, cmd_type );
+            yield channel.call_service.sups_call( 0, cmd_type );
         }
         catch ( Msmcomm.Error err0 )
         {
