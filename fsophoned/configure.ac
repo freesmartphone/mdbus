@@ -95,6 +95,8 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/manager/Makefile
+  src/plugins/technology_gsm_fsogsm/Makefile
+  src/plugins/technology_voip_sflphone/Makefile
   tests/Makefile
 ])
 
