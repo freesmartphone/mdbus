@@ -6,16 +6,15 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
-
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
-
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
- *
  */
 
 using GLib;
@@ -27,6 +26,7 @@ public enum MsmUrcType
     INVALID,
     RESET_RADIO_IND,
     CALL_ORIGINATION,
+    EXTENDED_FILE_INFO,
 }
 
 internal class WaitForUnsolicitedResponseData
@@ -39,7 +39,6 @@ internal class WaitForUnsolicitedResponseData
 /**
  * MSM Unsolicited Base Class and Handler
  **/
-
 public class MsmUnsolicitedResponseHandler : AbstractObject
 {
     private GLib.List<WaitForUnsolicitedResponseData> urc_waiters;
@@ -68,56 +67,51 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
 
             switch ( urc_name )
             {
-                /* 
+                /*
                  * General sim events
                  */
                 case "sim-inserted":
                     updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
                     break;
 
+                case "sim-init-completed":
+                    var pbhandler = theModem.pbhandler as MsmPhonebookHandler;
+                    pbhandler.initializeStorage();
+                    break;
+
                 /*
                  * All pin status events
                  */
-
                 case "pin1-enabled":
                     MsmData.pin1_status = MsmPinStatus.ENABLED;
                     break;
-
                 case "pin1-disabled":
                     MsmData.pin1_status = MsmPinStatus.DISABLED;
                     break;
-
                 case "pin1-blocked":
                     MsmData.pin1_status = MsmPinStatus.BLOCKED;
                     updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
                     break;
-
                 case "pin1-verified":
                     updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
                     break;
-
                 case "pin1-perm-blocked":
                     MsmData.pin1_status = MsmPinStatus.PERM_BLOCKED;
                     updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN );
                     break;
-
                 case "pin2-enabled":
                     MsmData.pin2_status = MsmPinStatus.ENABLED;
                     break;
-
                 case "pin2-disabled":
                     MsmData.pin2_status = MsmPinStatus.DISABLED;
                     break;
-
                 case "pin2-blocked":
                     MsmData.pin2_status = MsmPinStatus.BLOCKED;
                     updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
                     break;
-
                 case "pin2-verified":
                     updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
                     break;
-
                 case "pin2-perm-blocked":
                     MsmData.pin2_status = MsmPinStatus.PERM_BLOCKED;
                     updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN );
@@ -125,6 +119,18 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
             }
         });
 
+        channel.phonebook_service.extended_file_info_event.connect( ( info ) => {
+            GLib.Variant vi = info;
+            notifyUnsolicitedResponse( MsmUrcType.EXTENDED_FILE_INFO, vi );
+        });
+
+        channel.phonebook_service.ready.connect( ( book_type ) => {
+            var pbhandler = theModem.pbhandler as MsmPhonebookHandler;
+            if ( pbhandler != null)
+            {
+                pbhandler.syncPhonebook( book_type );
+            }
+        });
     }
 
     public override string repr()

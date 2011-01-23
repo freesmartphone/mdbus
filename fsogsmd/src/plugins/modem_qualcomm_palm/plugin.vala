@@ -72,8 +72,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 
     protected override PhonebookHandler createPhonebookHandler()
     {
-        // return new MsmPhonebookHandler();
-        return (PhonebookHandler) null;
+        return new MsmPhonebookHandler();
     }
 
     protected override WatchDog createWatchDog()

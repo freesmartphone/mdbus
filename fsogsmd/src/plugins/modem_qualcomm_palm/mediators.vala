@@ -213,6 +213,11 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(SimGetAuthStatus) ]             = typeof( MsmSimGetAuthStatus );
     table[ typeof(SimSendAuthCode) ]              = typeof( MsmSimSendAuthCode );
     table[ typeof(SimGetInformation) ]            = typeof( MsmSimGetInformation );
+    table[ typeof(SimDeleteEntry) ]               = typeof( MsmSimDeleteEntry );
+    table[ typeof(SimGetPhonebookInfo) ]          = typeof( MsmSimGetPhonebookInfo );
+    table[ typeof(SimWriteEntry) ]                = typeof( MsmSimWriteEntry );
+    table[ typeof(SimRetrievePhonebook) ]         = typeof( MsmSimRetrievePhonebook );
+    table[ typeof(SimWriteEntry) ]                = typeof( MsmSimWriteEntry );
 
     table[ typeof(DeviceGetFeatures) ]            = typeof( MsmDeviceGetFeatures );
     table[ typeof(DeviceGetInformation) ]         = typeof( MsmDeviceGetInformation );
@@ -223,17 +228,13 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetCurrentTime) ]         = typeof( MsmDeviceSetCurrentTime );
 
 #if 0
-    table[ typeof(SimDeleteEntry) ]               = typeof( MsmSimDeleteEntry );
     table[ typeof(SimDeleteMessage) ]             = typeof( MsmSimDeleteMessage );
-    table[ typeof(SimGetPhonebookInfo) ]          = typeof( MsmSimGetPhonebookInfo );
     table[ typeof(SimGetServiceCenterNumber) ]    = typeof( MsmSimGetServiceCenterNumber );
     table[ typeof(SimGetUnlockCounters) ]         = typeof( MsmSimGetUnlockCounters );
     table[ typeof(SimRetrieveMessage) ]           = typeof( MsmSimRetrieveMessage );
-    table[ typeof(SimRetrievePhonebook) ]         = typeof( MsmSimRetrievePhonebook );
     table[ typeof(SimSendStoredMessage) ]         = typeof( MsmSimSendStoredMessage );
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( MsmSimSetServiceCenterNumber );
     table[ typeof(SimStoreMessage) ]              = typeof( MsmSimStoreMessage );
-    table[ typeof(SimWriteEntry) ]                = typeof( MsmSimWriteEntry );
     table[ typeof(SimUnlock) ]                    = typeof( MsmSimUnlock );
 
     table[ typeof(NetworkRegister) ]              = typeof( MsmNetworkRegister );
