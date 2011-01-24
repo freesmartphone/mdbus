@@ -58,44 +58,56 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         Idle.add( () => { retrievePhonebookProperties( book_type ); return false; });
 
         var info = (yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.EXTENDED_FILE_INFO )) as PhonebookInfo;
-        assert( logger.debug( @"Got the phonebook properties from modem: book_type = $(info.book_type) slot_count = $(info.slot_count), slots_used = $(info.slots_used)" ) );
+        assert( logger.debug( @"Got phonebook properties from modem: book_type = $(info.book_type) slot_count = $(info.slot_count), slots_used = $(info.slots_used)" ) );
 
-        var position = 1;
-        FreeSmartphone.GSM.SIMEntry[] phonebook = new FreeSmartphone.GSM.SIMEntry[] { };
-        for ( var n = 0; n < info.slots_used; n++ )
+        // Wait some seconds before modem can process next commands (FIXME this should be
+        // fixed in msmcommd)
+        Posix.sleep(2);
+
+        if ( info.slots_used > 0 )
         {
-            // Try to read entry from phonebook as long as we have records left
-            for ( var m = position; m < info.slot_count; m++, position++ )
+            FreeSmartphone.GSM.SIMEntry[] phonebook = new FreeSmartphone.GSM.SIMEntry[] { };
+            var count = 0;
+            for ( var position = 1; position < info.slot_count; position++ )
             {
+                logger.debug( @"Trying to read record at position $(position); We already have $(count) record of $(info.slots_used)" );
+
                 try
                 {
-                    var record = yield channel.phonebook_service.read_record( book_type, m );
-
+                    // Try to read a phonebook entry from current position
+                    var record = yield channel.phonebook_service.read_record( book_type, position );
+                    logger.debug( @"Got phonebook entry at position $(position)" );
                     var entry = FreeSmartphone.GSM.SIMEntry( position, record.title, record.number );
                     phonebook += entry;
-
-                    position++;
-                    break;
+                    count++;
                 }
                 catch ( Msmcomm.Error err0 )
                 {
+                    // If we get an exception here there is no entry at this position. We
+                    // ignore this an try again at the next position.
                 }
                 catch ( GLib.Error err1 )
                 {
                 }
+
+                // We have already found all phonebook entries?
+                if ( count == info.slots_used )
+                {
+                    break;
+                }
             }
-        }
 
-        if ( phonebook.length != info.slots_used )
-        {
-            logger.debug( @"Could not retrieve all records for phonebook $(bookTypeToCategory(book_type)) from SIM!" );
-        }
-        else
-        {
-            logger.debug( @"Retrieved all phonebook entries for book $(bookTypeToCategory(book_type))!" );
-        }
+            if ( count != info.slots_used )
+            {
+                logger.debug( @"Could not retrieve all records for phonebook $(bookTypeToCategory(book_type)) from SIM!" );
+            }
+            else
+            {
+                logger.debug( @"Retrieved all phonebook entries for book $(bookTypeToCategory(book_type))!" );
+            }
 
-        storage.addPhonebook( bookTypeToCategory( book_type ), 0, (int) info.slot_count, phonebook );
+            storage.addPhonebook( bookTypeToCategory( book_type ), 0, (int) info.slot_count, phonebook );
+        }
     }
 
     public async void initializeStorage()

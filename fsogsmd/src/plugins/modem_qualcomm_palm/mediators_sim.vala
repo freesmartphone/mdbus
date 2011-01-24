@@ -29,9 +29,9 @@ private PhonebookBookType categoryToBookType( string category )
         case "contacts":
             result = PhonebookBookType.ADN;
             break;
-        case "emergency":
+        //case "emergency":
             // result = PhonebookBookType.EFECC;
-            break;
+            //break;
         case "aux:fixed":
             result = PhonebookBookType.FDN;
             break;
@@ -42,7 +42,7 @@ private PhonebookBookType categoryToBookType( string category )
 
 private string bookTypeToCategory( PhonebookBookType book_type)
 {
-    string result = "<unknown>";
+    string result = "unknown";
 
     switch ( book_type )
     {
@@ -145,10 +145,14 @@ public class MsmSimDeleteEntry : SimDeleteEntry
         var channel = theModem.channel( "main" ) as MsmChannel;
         try
         {
-            var bookType = categoryToBookType( category );
+            var book_type = categoryToBookType( category );
             // As there is no real delete command for the phonebook we overwrite  with an emtpy
             // number and title the old record
-            yield channel.phonebook_service.write_record( bookType, (uint) index, "", "" );
+            yield channel.phonebook_service.write_record( book_type, (uint) index, "", "" );
+
+            // Resync complete phonebook
+            var pbhandler = theModem.pbhandler as MsmPhonebookHandler;
+            pbhandler.syncPhonebook( book_type );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -158,14 +162,6 @@ public class MsmSimDeleteEntry : SimDeleteEntry
         catch ( GLib.Error err1 )
         {
         }
-    }
-}
-
-public class MsmSimDeleteMessage : SimDeleteMessage
-{
-    public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
@@ -214,6 +210,49 @@ public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
     }
 }
 
+public class MsmSimRetrievePhonebook : SimRetrievePhonebook
+{
+    public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        phonebook = theModem.pbhandler.storage.phonebook( category, mindex, maxdex );
+    }
+}
+
+public class MsmSimWriteEntry : SimWriteEntry
+{
+    public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        try
+        {
+            var book_type = categoryToBookType( category );
+            yield channel.phonebook_service.write_record( book_type, (uint) index, name, number );
+
+            // Resync complete phonebook
+            var pbhandler = theModem.pbhandler as MsmPhonebookHandler;
+            pbhandler.syncPhonebook( book_type );
+
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+            var msg = @"Could not process write_record command, got: $(err0.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
+        catch ( GLib.Error err1 )
+        {
+        }
+    }
+}
+
+public class MsmSimDeleteMessage : SimDeleteMessage
+{
+    public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+}
+
+
 public class MsmSimGetServiceCenterNumber : SimGetServiceCenterNumber
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -235,14 +274,6 @@ public class MsmSimRetrieveMessage : SimRetrieveMessage
     public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-}
-
-public class MsmSimRetrievePhonebook : SimRetrievePhonebook
-{
-    public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        phonebook = theModem.pbhandler.storage.phonebook( category, mindex, maxdex );
     }
 }
 
@@ -275,27 +306,6 @@ public class MsmSimUnlock : SimUnlock
     public override async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-}
-
-public class MsmSimWriteEntry : SimWriteEntry
-{
-    public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        var channel = theModem.channel( "main" ) as MsmChannel;
-        try
-        {
-            var bookType = categoryToBookType( category );
-            yield channel.phonebook_service.write_record( bookType, (uint) index, number, name );
-        }
-        catch ( Msmcomm.Error err0 )
-        {
-            var msg = @"Could not process write_record command, got: $(err0.message)";
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
-        }
-        catch ( GLib.Error err1 )
-        {
-        }
     }
 }
 
