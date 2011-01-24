@@ -1,0 +1,34 @@
+Short list of things which need to be done
+- SIM
+    - change pin
+    - disable/enable pin
+- Call
+    - Dial
+    - Answer
+    - End
+    - Forward
+    - Halt
+    - Conference
+    - Dtmf
+    - Transfer
+    - Join
+    - Emergency
+- Network
+    - Register
+    - Unregister
+    - ListProviders
+    - RegisterWithProvider
+    - Forwarding
+    - Identification
+    - USSD
+    - Time Report
+- SMS
+    - SendMessage
+    - RetrieveMessage from SIM
+    - Notify incomming messages
+- Phonebook
+    - Retrieve emergency numbers
+- PDP
+- CB
+- Monitor
+- HZ
