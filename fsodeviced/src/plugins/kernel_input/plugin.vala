@@ -337,9 +337,9 @@ class AggregateInputDevice : FreeSmartphone.Device.Input, FsoFramework.AbstractO
         _registerInputWatches();
         _hookToExternalModules();
 
-        keys = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
-        switches = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
-        relatives = new HashMap<int,EventStatus>( direct_hash, direct_equal, direct_equal );
+        keys = new HashMap<int,EventStatus>();
+        switches = new HashMap<int,EventStatus>();
+        relatives = new HashMap<int,EventStatus>();
 
         _parseConfig();
 

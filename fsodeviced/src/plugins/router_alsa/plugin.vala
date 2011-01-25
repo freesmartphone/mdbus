@@ -17,8 +17,6 @@
  *
  */
 
-using Gee;
-
 namespace Router
 {
 
@@ -30,7 +28,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
     private const string MODULE_NAME = "fsodevice.router_alsa";
 
     private FsoDevice.SoundDevice device;
-    private HashMap<string,FsoDevice.BunchOfMixerControls> allscenarios;
+    private Gee.HashMap<string,FsoDevice.BunchOfMixerControls> allscenarios;
     private string currentscenario;
     private GLib.Queue<string> scenarios;
 
@@ -82,7 +80,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         configurationPath = FsoFramework.Utility.machineConfigurationDir() + "/alsa.conf";
 
         scenarios = new GLib.Queue<string>();
-        allscenarios = new HashMap<string,FsoDevice.BunchOfMixerControls>( str_hash, str_equal );
+        allscenarios = new Gee.HashMap<string,FsoDevice.BunchOfMixerControls>();
         currentscenario = "unknown";
 
         // init scenarios
