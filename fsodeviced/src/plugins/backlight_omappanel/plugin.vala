@@ -229,12 +229,12 @@ class OmapPanel : FreeSmartphone.Device.Display,
 
     public async bool get_backlight_power()
     {
-        return FsoFramework.FileHandling.read( this.state ).to_int() == 0;
+        return FsoFramework.FileHandling.read( this.state ).to_int() == 1;
     }
 
     public async void set_backlight_power( bool power )
     {
-        var value = power ? "0" : "1";
+        var value = power ? "1" : "0";
         FsoFramework.FileHandling.write( value, this.state );
         backlight_power( power ); // DBUS SIGNAL 
     }
