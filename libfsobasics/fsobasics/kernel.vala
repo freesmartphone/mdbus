@@ -31,7 +31,7 @@ namespace FsoFramework
         public string name
         {
             get { return _name; }
-            set { checkAvailability(); _name = value; }
+            set { _name = value; checkAvailability(); }
         }
         public string arguments { get; set; default = ""; }
 
