@@ -32,6 +32,7 @@ using FsoGsm;
 class QualcommPalm.Modem : FsoGsm.AbstractModem
 {
     private const string MSM_CHANNEL_NAME = "main";
+    private const string AT_CHANNEL_NAME = "data";
 
     construct
     {
@@ -84,11 +85,16 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     {
         // create MAIN channel
         new MsmChannel( MSM_CHANNEL_NAME );
+
+        // create AT channel for data use
+        var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );
+        var parser = new FsoGsm.StateBasedAtParser();
+        new FsoGsm.AtChannel( AT_CHANNEL_NAME, datatransport, parser );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        return (FsoGsm.Channel) null;
+        return channels[ AT_CHANNEL_NAME ];
     }
 
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
