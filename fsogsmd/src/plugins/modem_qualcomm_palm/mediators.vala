@@ -58,6 +58,13 @@ public void updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
                 theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
             }
         }
+        else if ( modemStatus == Modem.Status.ALIVE_REGISTERED )
+        {
+            if ( status == FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
+            }
+        }
     }
 }
 
@@ -140,12 +147,15 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
     {
         theModem.logger.warning( "Unhandled error while querying SIM PIN status" );
     }
-    
+
 #endif
 
     inGatherSimStatusAndUpdate = false;
 }
 
+/**
+ * Update network status if something in network state has changed
+ **/
 public async void triggerUpdateNetworkStatus()
 {
     if ( inTriggerUpdateNetworkStatus )
@@ -155,10 +165,9 @@ public async void triggerUpdateNetworkStatus()
     }
     inTriggerUpdateNetworkStatus = true;
 
-#if 0
     var mstat = theModem.status();
 
-    // ignore, if we don't have proper status to issue networking commands yet
+    // Ignore, if we don't have proper status to issue networking commands yet
     if ( mstat != Modem.Status.ALIVE_SIM_READY && mstat != Modem.Status.ALIVE_REGISTERED )
     {
         assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() ignored while modem is in status $mstat" ) );
@@ -166,39 +175,24 @@ public async void triggerUpdateNetworkStatus()
         return;
     }
 
-    // gather info
-    try
+
+    // Advance modem status, if necessary
+    if ( MsmData.network_info.reg_status == Msmcomm.NetworkRegistrationStatus.HOME  ||
+         MsmData.network_info.reg_status == Msmcomm.NetworkRegistrationStatus.ROAMING )
     {
-        var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
-        yield m.run();
-    }
-    catch ( GLib.Error e )
-    {
-        theModem.logger.warning( @"Can't query networking status: $(e.message)" );
-        inTriggerUpdateNetworkStatus = false;
-        return;
+        if ( mstat != Modem.Status.ALIVE_REGISTERED )
+        {
+            theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
+        }
     }
 
-    // advance modem status, if necessary
-    var status = m.status.lookup( "registration" ).get_string();
-    assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
-
-    if ( ( status == "home" || status == "roaming" ) && mstat != Modem.Status.ALIVE_REGISTERED )
-    {
-        theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
-    }
-    else if ( mstat != Modem.Status.ALIVE_SIM_READY )
-    {
-        theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
-    }
-
-    // send dbus signal
+    // Send network status signal to connected clients
+    var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+    fillNetworkStatusInfo( status );
     var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-    obj.status( m.status );
-#endif 
+    obj.status( status );
 
     inTriggerUpdateNetworkStatus = false;
-
 }
 
 /**
@@ -227,6 +221,12 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceGetCurrentTime) ]         = typeof( MsmDeviceGetCurrentTime );
     table[ typeof(DeviceSetCurrentTime) ]         = typeof( MsmDeviceSetCurrentTime );
 
+    table[ typeof(NetworkRegister) ]              = typeof( MsmNetworkRegister );
+    table[ typeof(NetworkUnregister) ]            = typeof( MsmNetworkUnregister );
+    table[ typeof(NetworkGetStatus) ]             = typeof( MsmNetworkGetStatus );
+    table[ typeof(NetworkGetSignalStrength) ]     = typeof( MsmNetworkGetSignalStrength );
+
+
 #if 0
     table[ typeof(SimDeleteMessage) ]             = typeof( MsmSimDeleteMessage );
     table[ typeof(SimGetServiceCenterNumber) ]    = typeof( MsmSimGetServiceCenterNumber );
@@ -237,10 +237,6 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(SimStoreMessage) ]              = typeof( MsmSimStoreMessage );
     table[ typeof(SimUnlock) ]                    = typeof( MsmSimUnlock );
 
-    table[ typeof(NetworkRegister) ]              = typeof( MsmNetworkRegister );
-    table[ typeof(NetworkUnregister) ]            = typeof( MsmNetworkUnregister );
-    table[ typeof(NetworkGetSignalStrength) ]     = typeof( MsmNetworkGetSignalStrength );
-    table[ typeof(NetworkGetStatus) ]             = typeof( MsmNetworkGetStatus );
     table[ typeof(NetworkListProviders) ]         = typeof( MsmNetworkListProviders );
     table[ typeof(NetworkGetCallingId) ]          = typeof( MsmNetworkGetCallingId );
     table[ typeof(NetworkSendUssdRequest) ]       = typeof( MsmNetworkSendUssdRequest );

@@ -27,6 +27,7 @@ public enum MsmUrcType
     RESET_RADIO_IND,
     CALL_ORIGINATION,
     EXTENDED_FILE_INFO,
+    NETWORK_STATE_INFO,
 }
 
 internal class WaitForUnsolicitedResponseData
@@ -129,6 +130,41 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
             if ( pbhandler != null)
             {
                 pbhandler.syncPhonebook( book_type );
+            }
+        });
+
+        channel.network_service.network_status.connect( ( name, info ) => {
+            switch ( name )
+            {
+                case "rssi":
+                case "srv-changed":
+                    var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+
+                    status.insert( "mode", "automatic" );
+                    status.insert( "strength", (int) info.rssi );
+                    status.insert( "registration", networkRegistrationStatusToString( info.reg_status ) );
+                    status.insert( "lac", "unknown" );
+                    status.insert( "cid", "unknown" );
+                    status.insert( "provider", info.operator_name );
+                    status.insert( "display", info.operator_name );
+                    status.insert( "code", "unknown" );
+                    status.insert( "pdp.registration", "unknown" );
+                    status.insert( "pdp.lac", "unknown" );
+                    status.insert( "pdp.cid", "unknown" );
+
+                    var obj = FsoGsm.theModem.theDevice<FreeSmartphone.GSM.Network>();
+                    obj.status( status );
+
+                    MsmData.network_info.rssi = info.rssi;
+                    MsmData.network_info.ecio = info.ecio;
+                    MsmData.network_info.operator_name = info.operator_name;
+                    MsmData.network_info.reg_status = info.reg_status;
+                    MsmData.network_info.service_status = info.service_status;
+
+                    notifyUnsolicitedResponse( MsmUrcType.NETWORK_STATE_INFO, info );
+                    triggerUpdateNetworkStatus();
+
+                    break;
             }
         });
     }

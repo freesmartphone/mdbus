@@ -37,10 +37,27 @@ public static class MsmData
         pin1_status = MsmPinStatus.ENABLED;
         pin2_status = MsmPinStatus.ENABLED;
         operation_mode = Msmcomm.OperationMode.OFFLINE;
+        network_info = NetworkInfo();
+        network_info.reg_status = Msmcomm.NetworkRegistrationStatus.NO_SERVICE;
+        network_info.service_status = Msmcomm.NetworkServiceStatus.NO_SERVICE;
+        network_info.operator_name = "";
+        network_info.rssi = 0;
+        network_info.ecio = 0;
     }
 
     public static MsmPinStatus pin1_status;
     public static MsmPinStatus pin2_status;
     public static Msmcomm.OperationMode operation_mode;
+
+    public struct NetworkInfo
+    {
+        Msmcomm.NetworkRegistrationStatus reg_status;
+        Msmcomm.NetworkServiceStatus service_status;
+        public string operator_name;
+        public uint rssi;
+        public uint ecio;
+    }
+
+    public static NetworkInfo network_info;
 }
 

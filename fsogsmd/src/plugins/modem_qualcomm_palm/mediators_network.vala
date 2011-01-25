@@ -19,32 +19,100 @@
 
 using FsoGsm;
 
+private string networkRegistrationStatusToString( Msmcomm.NetworkRegistrationStatus reg_status )
+{
+    string result = "unknown";
+
+    switch ( reg_status )
+    {
+        case Msmcomm.NetworkRegistrationStatus.NO_SERVICE:
+            result = "unregistered";
+            break;
+        case Msmcomm.NetworkRegistrationStatus.HOME:
+            result = "home";
+            break;
+        case Msmcomm.NetworkRegistrationStatus.ROAMING:
+            result = "roaming";
+            break;
+        case Msmcomm.NetworkRegistrationStatus.DENIED:
+            result = "denied";
+            break;
+        case Msmcomm.NetworkRegistrationStatus.SEARCHING:
+            result = "busy";
+            break;
+    }
+
+    return result;
+}
+
+public async void changeOperationMode( Msmcomm.OperationMode operation_mode ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+{
+    var channel = theModem.channel( "main" ) as MsmChannel;
+
+    if ( MsmData.operation_mode == operation_mode )
+    {
+        return;
+    }
+
+    try
+    {
+        yield channel.state_service.change_operation_mode( operation_mode );
+        MsmData.operation_mode = operation_mode;
+    }
+    catch ( Msmcomm.Error err0 )
+    {
+        handleMsmcommErrorMessage( err0 );
+    }
+    catch ( Error err1 )
+    {
+    }
+}
+
+public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
+{
+    status.insert( "strength", MsmData.network_info.rssi );
+    status.insert( "provider", MsmData.network_info.operator_name );
+    status.insert( "network", MsmData.network_info.operator_name );
+    status.insert( "display", MsmData.network_info.operator_name );
+    status.insert( "registration", networkRegistrationStatusToString( MsmData.network_info.reg_status ) );
+    status.insert( "mode", "automatic" );
+    status.insert( "lac", "" );
+    status.insert( "cid", "" );
+    status.insert( "act", "GSM" );
+}
+
 public class MsmNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as MsmChannel;
-
-        try
-        {
-            yield channel.state_service.change_operation_mode( Msmcomm.OperationMode.ONLINE );
-            MsmData.operation_mode = Msmcomm.OperationMode.ONLINE;
-        }
-        catch ( Msmcomm.Error err0 )
-        {
-            handleMsmcommErrorMessage( err0 );
-        }
-        catch ( Error err1 )
-        {
-        }
+        yield changeOperationMode( Msmcomm.OperationMode.ONLINE );
     }
 }
 
+public class MsmNetworkUnregister : NetworkUnregister
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield changeOperationMode( Msmcomm.OperationMode.OFFLINE );
+
+        // After we switched to offline mode now we have to resend the pin to the modem to
+        // authenticate again
+        if ( theModem.data().simPin.length > 0 )
+        {
+            var m = theModem.createMediator<FsoGsm.SimSendAuthCode>();
+            yield m.run( theModem.data().simPin );
+        }
+        else
+        {
+            updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+        }
+    }
+}
 public class MsmNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        // signal = MsmData.signal_strength;
+        signal = (int) MsmData.network_info.rssi;
     }
 }
 
@@ -52,39 +120,16 @@ public class MsmNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-#if 0
-        status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
-        var strvalue = new GLib.Variant( typeof(string) );
-        var intvalue = new GLib.Variant( typeof(int) );
+        status = new GLib.HashTable<string, Variant>( str_hash, str_equal );
 
-        // FIXME should we really provide here the plain rssi value? We need
-        // the percentage here!
-        status.insert( "strength", MsmData.signal_strength );
-
-        // TODO:
-        // - mode (network registration status: automatic, manual, unregister, unknown)
-        // - registration (network registration mode: unregistered, home, searching, denied, roaming, unknown)
-        // - lac - location area code
-        // - cid  - cell id
-        // - act (Compact GSM, UMTS, EDGE, HSDPA, HSUPA, HSDPA/HSUPA, GSM)
-
-        if ( MsmData.functionality_status == Msmcomm.ModemOperationMode.ONLINE )
+        if ( MsmData.operation_mode == Msmcomm.OperationMode.ONLINE )
         {
-            status.insert( "provider", MsmData.current_operator_name );
-            status.insert( "network", MsmData.current_operator_name );
-            status.insert( "display", MsmData.current_operator_name );
-            status.insert( "registration",
-                           networkRegistrationStatusToString( MsmData.network_reg_status ) );
-            status.insert( "mode", "automatic" );
-            status.insert( "lac", "" );
-            status.insert( "cid", "" );
-            status.insert( "act", "GSM" );
+            fillNetworkStatusInfo( status );
         }
         else
         {
             status.insert( "registration", "unregistered" );
         }
-#endif
     }
 }
 
@@ -122,27 +167,6 @@ public class MsmNetworkListProviders : NetworkListProviders
         {
         }
         #endif
-    }
-}
-
-public class MsmNetworkUnregister : NetworkUnregister
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        var channel = theModem.channel( "main" ) as MsmChannel;
-
-        try
-        {
-            yield channel.state_service.change_operation_mode( Msmcomm.OperationMode.OFFLINE );
-            // MsmData.functionality_status = Msmcomm.OperationMode.OFFLINE;
-        }
-        catch ( Msmcomm.Error err0 )
-        {
-            handleMsmcommErrorMessage( err0 );
-        }
-        catch ( Error err1 )
-        {
-        }
     }
 }
 

@@ -39,6 +39,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     public Msmcomm.Call call_service;
     public Msmcomm.Sim sim_service;
     public Msmcomm.Phonebook phonebook_service;
+    public Msmcomm.Network network_service;
 
     private void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
     {
@@ -204,6 +205,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             state_service =  Bus.get_proxy_sync<Msmcomm.State>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             sim_service = Bus.get_proxy_sync<Msmcomm.Sim>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             phonebook_service = Bus.get_proxy_sync<Msmcomm.Phonebook>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            network_service = Bus.get_proxy_sync<Msmcomm.Network>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
         }
         catch ( GLib.IOError err0 )
         {
