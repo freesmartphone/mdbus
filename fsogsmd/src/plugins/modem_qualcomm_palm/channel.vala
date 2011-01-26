@@ -30,6 +30,8 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     private FreeSmartphone.Usage usage;
     private bool is_initialized;
     private Msmcomm.ModemStatus currentModemStatus;
+    private bool modem_lock_status;
+    private uint modem_lock_count;
 
     public MsmUnsolicitedResponseHandler urc_handler;
 
@@ -40,6 +42,32 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     public Msmcomm.Sim sim_service;
     public Msmcomm.Phonebook phonebook_service;
     public Msmcomm.Network network_service;
+
+#if 0
+    public void lockModem()
+    {
+        modem_lock_count++;
+        modem_lock_status = true;
+    }
+
+    public void unlockModem();
+    {
+        if ( modem_lock_count > 0 )
+        {
+            modem_lock_count--;
+        }
+        else
+        {
+            logger.critical( "Someone calls unlockModem functionality without calling lockModem before!" );
+        }
+
+        modem_lock_status = modem_lock_count > 0;
+    }
+
+    public async void waitUntilModemIsUnlocked()
+    {
+    }
+#endif
 
     private void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
     {
@@ -135,6 +163,16 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             logger.debug( "Modem is back after reset now; Synchronizing ..." );
             yield misc_service.test_alive();
 
+            // create AT channel for data use; NOTE I moved it from the modem class to
+            // this place as the data channel will go off and on while reseting the modem.
+            // So we have to take care that everytime we do a hard reset of the modem, we
+            // have to reopen the data channel. A hard reset of the modem is done via
+            // org.msmcomm.Management.Initialize method
+            var modem = theModem as FsoGsm.AbstractModem;
+            var datatransport = FsoFramework.Transport.create( modem.data_transport, modem.data_port, modem.data_speed );
+            var parser = new FsoGsm.StateBasedAtParser();
+            new FsoGsm.AtChannel( QualcommPalm.Modem.AT_CHANNEL_NAME, datatransport, parser );
+
             is_initialized = true;
         }
         catch ( Msmcomm.Error err0 )
@@ -221,7 +259,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         catch ( GLib.Error err)
         {
         }
-        
+
         return yield requestModemResource();
     }
 
