@@ -34,7 +34,9 @@ SUBDIRS += \
 endif
 
 if WANT_PALM
-SUBDIRS += modem_qualcomm_palm
+SUBDIRS += \
+	modem_qualcomm_palm \
+	lowlevel_palmpre
 endif
 
 if WANT_ISI
