@@ -163,6 +163,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             logger.debug( "Modem is back after reset now; Synchronizing ..." );
             yield misc_service.test_alive();
 
+#if 0
             // create AT channel for data use; NOTE I moved it from the modem class to
             // this place as the data channel will go off and on while reseting the modem.
             // So we have to take care that everytime we do a hard reset of the modem, we
@@ -171,8 +172,8 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             var modem = theModem as FsoGsm.AbstractModem;
             var datatransport = FsoFramework.Transport.create( modem.data_transport, modem.data_port, modem.data_speed );
             var parser = new FsoGsm.StateBasedAtParser();
-            new FsoGsm.AtChannel( QualcommPalm.Modem.AT_CHANNEL_NAME, datatransport, parser );
-
+            var datachannel = new FsoGsm.AtChannel( QualcommPalm.Modem.AT_CHANNEL_NAME, datatransport, parser );
+#endif
             is_initialized = true;
         }
         catch ( Msmcomm.Error err0 )
