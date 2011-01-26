@@ -124,6 +124,29 @@ namespace PalmPre
         }
     }
 
+    public class BluetoothPowerControl : FsoDevice.BasePowerControl
+    {
+        private const string DEFAULT_DEV_NAME = "/dev/btuart";
+        private const string DEFUALT_POWER_NODE = "/sys/user_hw/pins/bt/reset/level";
+        private FsoFramework.Subsystem subsystem;
+        private bool is_active;
+
+        public BluetoothPowerControl( FsoFramework.Subsystem subsystem )
+        {
+            base( "Bluetooth" );
+            this.subsystem = subsystem;
+        }
+
+        public override bool getPower()
+        {
+            return is_active;
+        }
+
+        public override void setPower( bool power )
+        {
+        }
+    }
+
     /**
      * @class PowerControl
      **/
@@ -141,8 +164,11 @@ namespace PalmPre
             {
                 var wifi = new WifiPowerControl( subsystem );
                 instances.append( wifi );
+                var bt = new BluetoothPowerControl( subsystem );
+                instances.append( bt );
 #if WANT_FSO_RESOURCE
                 resources.append( new FsoDevice.BasePowerControlResource( wifi, "WiFi", subsystem ) );
+                resources.append( new FsoDevice.BasePowerControlResource( bt, "Bluetooth", subsystem ) );
 #endif
             }
         }
