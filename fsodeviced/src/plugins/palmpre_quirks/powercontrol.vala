@@ -124,12 +124,52 @@ namespace PalmPre
         }
     }
 
+    public class HciOverHsuartTransport : FsoFramework.HsuartTransport
+    {
+        // FIXME this should be in linux.vapi ... Can be found in drivers/bluetooth/hci_uart.h
+        private static const uint N_HCI = 15;
+
+        public HciOverHsuartTransport( string portname )
+        {
+            base( portname );
+        }
+
+        protected override void configure()
+        {
+            base.configure();
+
+            uint flags = 0;
+
+            // Set disclipe of our transport to HCI so the kernel detects that we have a
+            // serial line which is able to talk HCI and loads the special driver for
+            // this.
+            Linux.ioctl( fd, Linux.Termios.TIOCSETD, N_HCI );
+
+            // FIXME maybe we have to set the protocol type here via the HCIUARTSETPROTO
+            // ioctl. There are H4, BCSP, 3WIRE, H4DS and LL as possible types.
+
+            // NOTE We have to set the protocol here but there is currently no ioctl to do
+            // this. How does the 2.6.24 kernel handle this? hciattach sets the protocol
+            // for the specific bluetooth chip used in the device with the HCIUARTSETPROTO
+            // ioctl.
+
+            // NOTE webOS does the following with the btuart devnode:
+            // 1692  open("/dev/btuart", O_RDWR|O_NOCTTY) = 5
+            // 1692  ioctl(5, 0x40046807, 0xf)         = 0 ; set N_HCI via TIOCSETD
+            // 1692  ioctl(5, 0x80086804, 0x9eaafabc)  = 0
+            // 1692  ioctl(5, 0x40086805, 0x9eaafabc)  = 0
+            // 1692  ioctl(5, 0x80086804, 0x9eaafabc)  = 0
+            // 1692  ioctl(5, 0x40046809, 0x80)        = 0
+        }
+    }
+
     public class BluetoothPowerControl : FsoDevice.BasePowerControl
     {
         private const string DEFAULT_DEV_NAME = "/dev/btuart";
-        private const string DEFUALT_POWER_NODE = "/sys/user_hw/pins/bt/reset/level";
+        private const string DEFAULT_RESET_NODE = "/sys/user_hw/pins/bt/reset/level";
         private FsoFramework.Subsystem subsystem;
-        private bool is_active;
+        private int fd;
+        private FsoFramework.BaseTransport transport;
 
         public BluetoothPowerControl( FsoFramework.Subsystem subsystem )
         {
@@ -139,11 +179,27 @@ namespace PalmPre
 
         public override bool getPower()
         {
-            return is_active;
+            return fd > 0;
         }
 
         public override void setPower( bool power )
         {
+            // Only power on when we are not already powered on
+            if ( power && !transport.isOpen() )
+            {
+                // Reset bluetooth chip first
+                FsoFramework.FileHandling.write( "0", DEFAULT_RESET_NODE );
+                Posix.sleep( 2 );
+                FsoFramework.FileHandling.write( "1", DEFAULT_RESET_NODE );
+
+                transport = new HciOverHsuartTransport( DEFAULT_DEV_NAME );
+                transport.open();
+                // FIXME set delegates for HUP and CLOSE events ..
+            }
+            else if ( !power && transport.isOpen() )
+            {
+                transport.close();
+            }
         }
     }
 
