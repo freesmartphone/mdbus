@@ -631,6 +631,32 @@ namespace FsoFramework { namespace Async {
             return true;
         }
     }
+
+    public async void sleep_async( int timeout, GLib.Cancellable? cancellable = null )
+    {
+        ulong cancel = 0;
+        uint timeout_src = 0;
+        bool interrupted = false;
+        if( cancellable != null )
+        {
+            if ( cancellable.is_cancelled() )
+                return;
+            cancel = cancellable.cancelled.connect( () =>
+                {
+                    interrupted = true;
+                    sleep_async.callback();
+                } );
+        }
+
+        timeout_src = Timeout.add( timeout, sleep_async.callback );
+        yield;
+        Source.remove (timeout_src);
+
+        if (cancel != 0 && ! interrupted)
+        {
+            cancellable.disconnect( cancel );
+        }
+    }
 } }
 
 namespace FsoFramework { namespace Network {
