@@ -516,6 +516,20 @@ namespace FsoFramework { namespace Utility {
 
         return str.ndup(limit);
     }
+
+    public int copyData( ref uint8[] destination, uint8[] source, int limit = -1 )
+    {
+        int length = destination.length;
+        if( limit >= 0 && limit < length )
+             length = limit;
+        if( length > source.length )
+             length = source.length;
+        GLib.Memory.copy( destination, source, length );
+
+        destination.length = length;
+
+        return length;
+    }
 } }
 
 namespace FsoFramework { namespace Async {
