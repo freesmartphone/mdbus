@@ -353,3 +353,169 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         }
     }
 }
+
+public class AsyncProcess : GLib.Object
+{
+    static const int NUM_FRIENDLY_KILLS = 5;
+    ~AsyncProcess()
+    {
+        Source.remove( child );
+    }
+    public int std_in
+    {
+        get
+        {
+            return _std_in;
+        }
+    }
+
+    string _cmd_line = null;
+    public string cmd_line
+    {
+        get
+        {
+            if( _cmd_line == null )
+                _cmd_line = "\"" + string.joinv( """" """", argv ) + "\"";
+            return _cmd_line;
+        }
+    }
+
+    string[] argv;
+    SourceFunc callback;
+    Pid pid = 0;
+
+    int _std_in = -1;
+    int std_out;
+    int std_err;
+    IOChannel err_channel;
+    IOChannel out_channel;
+
+    int status = 0;
+    uint child;
+
+    public async int launch( Cancellable? cancel = null, string[] argv ) throws GLib.SpawnError
+    {
+        if( cancel != null && cancel.is_cancelled() )
+            return -1;
+
+        this.argv = argv;
+        GLib.Process.spawn_async_with_pipes(
+                        GLib.Environment.get_variable( "PWD" ),
+                        argv,
+                        null,
+                        GLib.SpawnFlags.DO_NOT_REAP_CHILD | GLib.SpawnFlags.SEARCH_PATH,
+                        null,
+                        out pid,
+                        out _std_in,
+                        out std_out,
+                        out std_err );
+        out_channel = new IOChannel.unix_new( std_out );
+        out_channel.set_flags( out_channel.get_flags() | IOFlags.NONBLOCK );
+        out_channel.add_watch( IOCondition.IN | IOCondition.HUP, onStdOut );
+
+        err_channel = new IOChannel.unix_new( std_err );
+        err_channel.set_flags( err_channel.get_flags() | IOFlags.NONBLOCK );
+        err_channel.add_watch( IOCondition.IN | IOCondition.HUP, onStdErr );
+
+        child = ChildWatch.add( pid, onExit );
+
+        if( cancel != nul )
+            cancel.cancelled.connect( onCancel );
+
+        this.callback = launch.callback;
+        yield;
+
+
+        return status;
+    }
+
+    public signal void on_stdout( string input );
+    public signal void on_stderr( string input );
+
+    private void onCancel()
+    {
+        if ( ( osix.pid_ )pid == 0 )
+        {
+            return;
+        }
+        onCancelAsync.begin();
+    }
+
+    private async void onCancelAsync()
+    {
+        for( int i = 0; i < NUM_FRIENDLY_KILLS; i+ )
+        {
+            if( pid == 0 )
+                return;
+            Posix.kill( ( osix.pid_ )pid, Posix.SIGTERM );
+            yield FsoFramework.Async.sleep_async( 1000 );
+        }
+
+        if( pid != 0 )
+            Posix.kill( ( osix.pid_ )pid, Posix.SIGKILL );
+    }
+
+    private void onExit( Pid p, int status )
+    {
+        assert( callback != null );
+        this.status = status;
+        pid = ( i )0;
+        this.callback();
+    }
+
+    private bool onStdOut( IOChannel source, IOCondition cond )
+    {
+        if( IOCondition.HUP in cond )
+        {
+            //remove me
+            return false;
+        }
+        else if( IOCondition.IN in cond )
+        {
+            try
+            {
+                var status = IOStatus.NORMAL;
+                var buffer = new char[4096];
+                string str = null;
+                size_t len = 0;
+                status = source.read_chars( buffer, out len );
+                str = FsoFramework.Utility.dataToString( ( int8[ )buffer, ( n )len );
+                on_stdout( str );
+            }
+            catch( GLib.Error error )
+            {
+                warning( @"error: $( rror.messag )" );
+            }
+        }
+
+        return true;
+    }
+
+    private bool onStdErr( IOChannel source, IOCondition cond )
+    {
+        if( IOCondition.HUP in cond )
+        {
+            //remove me
+            return false;
+        }
+        else if( IOCondition.IN in cond )
+        {
+            try
+            {
+                var status = IOStatus.NORMAL;
+                var buffer = new char[4096];
+                string str = null;
+                size_t len = 0;
+                status = source.read_chars( buffer , out len );
+                str = FsoFramework.Utility.dataToString( ( int8[ )buffer, ( n )len );
+                on_stderr( str );
+            }
+            catch( GLib.Error error )
+            {
+                warning( "error: $( rror.messag ) );
+            }
+        }
+
+        return true;
+    }
+}
