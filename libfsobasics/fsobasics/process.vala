@@ -419,7 +419,7 @@ public class AsyncProcess : GLib.Object
 
         child = ChildWatch.add( pid, onExit );
 
-        if( cancel != nul )
+        if( cancel != null )
             cancel.cancelled.connect( onCancel );
 
         this.callback = launch.callback;
@@ -434,7 +434,7 @@ public class AsyncProcess : GLib.Object
 
     private void onCancel()
     {
-        if ( ( osix.pid_ )pid == 0 )
+        if ( ( Posix.pid_t )pid == 0 )
         {
             return;
         }
@@ -443,23 +443,23 @@ public class AsyncProcess : GLib.Object
 
     private async void onCancelAsync()
     {
-        for( int i = 0; i < NUM_FRIENDLY_KILLS; i+ )
+        for( int i = 0; i < NUM_FRIENDLY_KILLS; ++i )
         {
             if( pid == 0 )
                 return;
-            Posix.kill( ( osix.pid_ )pid, Posix.SIGTERM );
+            Posix.kill( ( Posix.pid_t )pid, Posix.SIGTERM );
             yield FsoFramework.Async.sleep_async( 1000 );
         }
 
         if( pid != 0 )
-            Posix.kill( ( osix.pid_ )pid, Posix.SIGKILL );
+            Posix.kill( ( Posix.pid_t )pid, Posix.SIGKILL );
     }
 
     private void onExit( Pid p, int status )
     {
         assert( callback != null );
         this.status = status;
-        pid = ( i )0;
+        pid = 0;
         this.callback();
     }
 
@@ -479,12 +479,12 @@ public class AsyncProcess : GLib.Object
                 string str = null;
                 size_t len = 0;
                 status = source.read_chars( buffer, out len );
-                str = FsoFramework.Utility.dataToString( ( int8[ )buffer, ( n )len );
+                str = FsoFramework.Utility.dataToString( ( uint8[] )buffer, (int)len );
                 on_stdout( str );
             }
             catch( GLib.Error error )
             {
-                warning( @"error: $( rror.messag )" );
+                warning( @"error: $(error.message)" );
             }
         }
 
@@ -507,12 +507,12 @@ public class AsyncProcess : GLib.Object
                 string str = null;
                 size_t len = 0;
                 status = source.read_chars( buffer , out len );
-                str = FsoFramework.Utility.dataToString( ( int8[ )buffer, ( n )len );
+                str = FsoFramework.Utility.dataToString( ( uint8[] ) buffer, (int)len );
                 on_stderr( str );
             }
             catch( GLib.Error error )
             {
-                warning( "error: $( rror.messag ) );
+                warning( @"error: $(error.message)" );
             }
         }
 
