@@ -226,6 +226,13 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(NetworkGetStatus) ]             = typeof( MsmNetworkGetStatus );
     table[ typeof(NetworkGetSignalStrength) ]     = typeof( MsmNetworkGetSignalStrength );
 
+    table[ typeof(CallActivate) ]                 = typeof( MsmCallActivate );
+    table[ typeof(CallHoldActive) ]               = typeof( MsmCallHoldActive );
+    table[ typeof(CallInitiate) ]                 = typeof( MsmCallInitiate );
+    table[ typeof(CallListCalls) ]                = typeof( MsmCallListCalls );
+    table[ typeof(CallReleaseAll) ]               = typeof( MsmCallReleaseAll );
+    table[ typeof(CallRelease) ]                  = typeof( MsmCallRelease );
+    table[ typeof(CallSendDtmf) ]                 = typeof( MsmCallSendDtmf );
 
 #if 0
     table[ typeof(SimDeleteMessage) ]             = typeof( MsmSimDeleteMessage );
@@ -240,13 +247,5 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(NetworkListProviders) ]         = typeof( MsmNetworkListProviders );
     table[ typeof(NetworkGetCallingId) ]          = typeof( MsmNetworkGetCallingId );
     table[ typeof(NetworkSendUssdRequest) ]       = typeof( MsmNetworkSendUssdRequest );
-
-    table[ typeof(CallActivate) ]                 = typeof( MsmCallActivate );
-    table[ typeof(CallHoldActive) ]               = typeof( MsmCallHoldActive );
-    table[ typeof(CallInitiate) ]                 = typeof( MsmCallInitiate );
-    table[ typeof(CallListCalls) ]                = typeof( MsmCallListCalls );
-    table[ typeof(CallReleaseAll) ]               = typeof( MsmCallReleaseAll );
-    table[ typeof(CallRelease) ]                  = typeof( MsmCallRelease );
-    table[ typeof(CallSendDtmf) ]                 = typeof( MsmCallSendDtmf );
 #endif
 }
