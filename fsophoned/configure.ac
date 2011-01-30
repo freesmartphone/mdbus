@@ -54,15 +54,12 @@ if (test -z "{DBUS_SERVICE_DIR}"); then
 fi
 AC_SUBST(DBUS_SERVICE_DIR)
 
-# framework
+# fso
 PKG_CHECK_MODULES(FSO,
-  fsoframework-2.0 >= $FSO_REQUIRED)
+  fsoframework-2.0 >= $FSO_REQUIRED
+  fso-glib-1.0 >= $FSO_GLIB_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
-
-# fso-glib
-PKG_CHECK_MODULES(FSO_GLIB,
-  fso-glib-1.0 >= $FSO_GLIB_REQUIRED)
 
 # check for debugging
 AC_ARG_ENABLE(debug,

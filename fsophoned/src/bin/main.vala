@@ -1,5 +1,5 @@
 /*
- * (C) 2009-2010 Michael 'Mickey' Lauer <mickey@vanille-media.de>
+ * (C) 2011 Michael 'Mickey' Lauer <mickey@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,22 +28,22 @@ public static void sighandler( int signum )
 
 public static int main( string[] args )
 {
-    var subsystem = new FsoFramework.DBusSubsystem( "fsodata" );
+    var subsystem = new FsoFramework.DBusSubsystem( "fsophone" );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
     FsoFramework.theLogger.info( "loaded %u plugins".printf( count ) );
     if ( count > 0 )
     {
         mainloop = new GLib.MainLoop( null, false );
-        FsoFramework.theLogger.info( "fsodata => mainloop" );
+        FsoFramework.theLogger.info( "fsophoned => mainloop" );
         Posix.signal( Posix.SIGINT, sighandler );
         Posix.signal( Posix.SIGTERM, sighandler );
         // enable for release version?
         //Posix.signal( Posix.SIGBUS, sighandler );
         //Posix.signal( Posix.SIGSEGV, sighandler );
         mainloop.run();
-        FsoFramework.theLogger.info( "mainloop => fsodatad" );
+        FsoFramework.theLogger.info( "mainloop => fsophoned" );
     }
-    FsoFramework.theLogger.info( "fsodata shutdown." );
+    FsoFramework.theLogger.info( "fsophoned shutdown." );
     return 0;
 }

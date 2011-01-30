@@ -27,7 +27,7 @@ const string SFLPHONE_PATH_CALLMANAGER = "/org/sflphone/SFLphone/CallManager";
 /**
  * @class Phone.VoIP.SflPhone
  **/
-class Phone.VoIP.SflPhone : FsoPhone.VoiceCallProvider
+class Phone.VoIP.SflPhone : FsoPhone.ICommunicationProvider, FsoPhone.IVoiceCallProvider, FsoFramework.AbstractObject
 {
     public const string MODULE_NAME = "fsophone.technology_voip_sflphone";
 
@@ -46,7 +46,7 @@ class Phone.VoIP.SflPhone : FsoPhone.VoiceCallProvider
         return "<>";
     }
 
-    public async override void probe() throws Error
+    public async void probe() throws Error
     {
         assert( logger.debug( "Probing for SFLphone..." ) );
 
@@ -67,7 +67,6 @@ internal Phone.VoIP.SflPhone instance;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    instance = new Phone.VoIP.SflPhone( subsystem );
     return Phone.VoIP.SflPhone.MODULE_NAME;
 }
 

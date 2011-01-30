@@ -20,16 +20,16 @@
 namespace FsoPhone
 {
 
-public abstract interface ICommunicationProvider : FsoFramework.AbstractObject
+public interface ICommunicationProvider : FsoFramework.AbstractObject
 {
     public async abstract void probe() throws Error;
 }
 
-public interface IVoiceCallProvider : ICommunicationProvider, FsoFramework.AbstractObject
+public interface IVoiceCallProvider : FsoFramework.AbstractObject
 {
 }
 
-public abstract class VoiceCallProvider : IVoiceCallProvider, ICommunicationProvider, FsoFramework.AbstractObject
+public abstract class VoiceCallProvider : ICommunicationProvider, IVoiceCallProvider, FsoFramework.AbstractObject
 {
     public async abstract void probe() throws Error;
 }

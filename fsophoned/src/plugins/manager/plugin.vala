@@ -23,18 +23,60 @@ namespace Manager { const string MODULE_NAME = "fsophone.manager"; }
 
 class Phone.Manager : FsoFramework.AbstractObject
 {
-    FsoFramework.Subsystem subsystem;
+    private FsoFramework.Subsystem subsystem;
+    private FsoPhone.ICommunicationProvider[] plugins;
 
     public Manager( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
         //subsystem.registerObjectForService<FreeSmartphone.Data.World>( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath, this );
         logger.info( @"Created" );
+
+        Idle.add( () => {
+            registerProviderPlugins();
+            probe();
+            return false;
+        } );
     }
 
     public override string repr()
     {
         return "<>";
+    }
+
+    //
+    // private API
+    //
+    private void registerProviderPlugins()
+    {
+        plugins = new FsoPhone.ICommunicationProvider[] {};
+
+        var children = typeof( FsoFramework.AbstractObject ).children();
+        foreach ( var child in children )
+        {
+            if ( child.is_a( typeof( FsoPhone.ICommunicationProvider ) ) )
+            {
+                var obj = Object.new( child );
+                if ( obj != null )
+                {
+                    plugins += (FsoPhone.ICommunicationProvider) obj;
+                }
+                else
+                {
+                    logger.error( @"Can't instantiate $(child.name())" );
+                }
+            }
+        }
+
+        logger.info( @"Instantiated $(plugins.length) communication providers" );
+    }
+
+    private async void probe()
+    {
+        foreach ( var provider in plugins )
+        {
+            yield provider.probe();
+        }
     }
 
     //
