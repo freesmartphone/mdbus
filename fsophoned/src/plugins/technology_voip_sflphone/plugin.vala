@@ -18,17 +18,26 @@
  */
 
 using GLib;
+using sflphone;
 
-class Phone.VoIP.SflPhone : FsoFramework.AbstractObject
+const string SFLPHONE_BUS_NAME = "org.sflphone.SFLphone";
+const string SFLPHONE_PATH_CONFIGURATION = "/org/sflphone/SFLphone/ConfigurationManager";
+const string SFLPHONE_PATH_CALLMANAGER = "/org/sflphone/SFLphone/CallManager";
+
+/**
+ * @class Phone.VoIP.SflPhone
+ **/
+class Phone.VoIP.SflPhone : FsoPhone.VoiceCallProvider
 {
     public const string MODULE_NAME = "fsophone.technology_voip_sflphone";
 
     FsoFramework.Subsystem subsystem;
+    SFLphone.ConfigurationManager configuration;
+    SFLphone.CallManager callmanager;
 
     public SflPhone( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
-        //subsystem.registerObjectForService<FreeSmartphone.Data.World>( FsoFramework.Data.ServiceDBusName, FsoFramework.Data.WorldServicePath, this );
         logger.info( @"Created" );
     }
 
@@ -37,9 +46,15 @@ class Phone.VoIP.SflPhone : FsoFramework.AbstractObject
         return "<>";
     }
 
-    //
-    // DBus API (org.freesmartphone.Phone.Manager)
-    //
+    public async override void probe() throws Error
+    {
+        assert( logger.debug( "Probing for SFLphone..." ) );
+
+        configuration = yield Bus.get_proxy<SFLphone.ConfigurationManager>( BusType.SESSION, SFLPHONE_BUS_NAME, SFLPHONE_PATH_CONFIGURATION );
+        callmanager = yield Bus.get_proxy<SFLphone.CallManager>( BusType.SESSION, SFLPHONE_BUS_NAME, SFLPHONE_PATH_CALLMANAGER );
+
+        assert( logger.debug( "SFLphone found, proxies registered" ) );
+    }
 }
 
 internal Phone.VoIP.SflPhone instance;

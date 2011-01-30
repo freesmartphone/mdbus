@@ -32,7 +32,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsophone_la_VALASOURCES = \
-	dummy.vala \
+	voicecallprovider.vala \
 	$(NULL)
 
 libfsophone_la_SOURCES = \
