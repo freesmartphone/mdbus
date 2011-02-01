@@ -69,21 +69,6 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     }
 #endif
 
-    private void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
-    {
-        switch ( status )
-        {
-            case FsoGsm.Modem.Status.INITIALIZING:
-                initialize();
-                break;
-            case FsoGsm.Modem.Status.CLOSING:
-                shutdown();
-                break;
-            default:
-                break;
-        }
-    }
-
     private void onModemControlStatusChanged( Msmcomm.ModemStatus status )
     {
         currentModemStatus = status;
@@ -119,7 +104,6 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
         this.name = name;
         theModem.registerChannel( name, this );
-        theModem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
     public bool is_ready()
@@ -127,10 +111,12 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         return is_initialized;
     }
 
-    public async void initialize()
+    public async bool open()
     {
         try
         {
+            yield requestModemResource();
+
             /* initialize the modem controller itself */
             logger.debug( "Initialize modem controller ..." );
             yield management_service.initialize();
@@ -140,7 +126,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             Timeout.add_seconds(2, () => {
                 if ( currentModemStatus == Msmcomm.ModemStatus.ACTIVE )
                 {
-                    initialize.callback();
+                    open.callback();
                     return false;
                 }
                 return true;
@@ -171,22 +157,8 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         catch ( GLib.Error err1 )
         {
         }
-    }
 
-    public async void shutdown()
-    {
-        try
-        {
-            logger.debug( "Shutdown modem controller ..." );
-            yield management_service.shutdown();
-            is_initialized = false;
-        }
-        catch ( Msmcomm.Error err0 )
-        {
-        }
-        catch ( GLib.Error err1 )
-        {
-        }
+        return true;
     }
 
     public void injectResponse( string response )
@@ -208,6 +180,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     {
         try
         {
+            usage = Bus.get_proxy_sync<FreeSmartphone.Usage>( BusType.SYSTEM, "org.freesmartphone.ousaged", "/org/freesmartphone/Usage" );
             yield usage.request_resource( "Modem" );
             registerObjects();
         }
@@ -240,19 +213,6 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         }
     }
 
-    public async bool open()
-    {
-        try
-        {
-            usage = Bus.get_proxy_sync<FreeSmartphone.Usage>( BusType.SYSTEM, "org.freesmartphone.ousaged", "/org/freesmartphone/Usage" );
-        }
-        catch ( GLib.Error err)
-        {
-        }
-
-        return yield requestModemResource();
-    }
-
     private async void releaseModemResource()
     {
         try
@@ -269,6 +229,19 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
     public async void close()
     {
+        try
+        {
+            logger.debug( "Shutdown modem controller ..." );
+            yield management_service.shutdown();
+            is_initialized = false;
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+        }
+        catch ( GLib.Error err1 )
+        {
+        }
+
         yield releaseModemResource();
     }
 
