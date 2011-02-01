@@ -39,7 +39,6 @@ internal class WaitForUnsolicitedResponseData
 
 internal void updateSimPinStatus( MsmPinStatus status )
 {
-    var old_status = MsmData.pin_status;
     MsmData.pin_status = status;
 
     if ( status == MsmPinStatus.BLOCKED )
@@ -138,6 +137,7 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                 case "srv-changed":
                     var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
+                    status.insert( "act", networkDataServiceToActString( info.data_service ) );
                     status.insert( "mode", "automatic" );
                     status.insert( "strength", (int) info.rssi );
                     status.insert( "registration", networkRegistrationStatusToString( info.reg_status ) );

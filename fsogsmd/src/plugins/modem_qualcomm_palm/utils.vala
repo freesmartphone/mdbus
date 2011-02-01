@@ -46,3 +46,20 @@ public static string gatherFunctionalityLevel()
 
     return functionality_level;
 }
+
+public static string networkDataServiceToActString( Msmcomm.NetworkDataService data_service )
+{
+    string result = "GSM";
+
+    switch ( data_service )
+    {
+        case Msmcomm.NetworkDataService.EDGE:
+            result = "EDGE";
+            break;
+        case Msmcomm.NetworkDataService.HSDPA:
+            result = "HSDPA";
+            break;
+    }
+
+    return result;
+}
