@@ -155,7 +155,7 @@ class Led : FreeSmartphone.Device.LED, FsoFramework.AbstractObject
         if ( seconds < 1 )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Blinking timeout needs to be at least 1 second." );
 
-        set_blinking( delay_on, delay_off );
+        yield set_blinking( delay_on, delay_off );
 
         setTimeout( seconds );
     }
