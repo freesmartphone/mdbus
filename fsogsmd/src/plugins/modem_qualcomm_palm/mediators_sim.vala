@@ -108,8 +108,7 @@ public class MsmSimGetAuthCodeRequired : SimGetAuthCodeRequired
     {
         required = true;
 
-        if (MsmData.pin1_status == MsmPinStatus.DISABLED &&
-            MsmData.pin2_status == MsmPinStatus.DISABLED)
+        if ( MsmData.pin_status == MsmPinStatus.DISABLED )
         {
             required = false;
         }
@@ -124,7 +123,7 @@ public class MsmSimSendAuthCode : SimSendAuthCode
 
         try
         {
-            // FIXME select pin type acording to the current active pin
+            // NOTE we currently only use the PIN1 pin type
             yield channel.sim_service.verify_pin( Msmcomm.SimPinType.PIN1, pin );
         }
         catch ( Msmcomm.Error err0 )

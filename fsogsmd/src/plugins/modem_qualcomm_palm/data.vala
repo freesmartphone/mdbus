@@ -34,8 +34,7 @@ public static class MsmData
 {
     public static void reset()
     {
-        pin1_status = MsmPinStatus.ENABLED;
-        pin2_status = MsmPinStatus.ENABLED;
+        pin_status = MsmPinStatus.ENABLED;
         operation_mode = Msmcomm.OperationMode.OFFLINE;
         network_info = NetworkInfo();
         network_info.reg_status = Msmcomm.NetworkRegistrationStatus.NO_SERVICE;
@@ -45,8 +44,7 @@ public static class MsmData
         network_info.ecio = 0;
     }
 
-    public static MsmPinStatus pin1_status;
-    public static MsmPinStatus pin2_status;
+    public static MsmPinStatus pin_status;
     public static Msmcomm.OperationMode operation_mode;
 
     public struct NetworkInfo
