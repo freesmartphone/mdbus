@@ -763,24 +763,24 @@ class Commands : Object
         }
     }
 
-    public void _listObjects( string busname, string path, ref List<string> result, string prefix = "" )
+    public void _listObjects( string busname, string path, ref List<string> result, string prefix = "", bool with_interfaces = false )
     {
         dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
-
-        if ( path.has_prefix( prefix ) )
-        {
-            result.append( path );
-        }
 
         try
         {
             var idata = new Introspection( o.Introspect() );
+            if ( path.has_prefix( prefix ) && ( !with_interfaces || idata.interfaces.length() > 1 ) )
+            {
+                result.append( path );
+            }
+
             foreach ( var node in idata.nodes )
             {
                 //message ( "node = '%s'", node );
                 var nextnode = ( path == "/" ) ? "/%s".printf( node ) : "%s/%s".printf( path, node );
                 //message( "nextnode = '%s'", nextnode );
-                _listObjects( busname.strip(), nextnode.strip(), ref result, prefix );
+                _listObjects( busname.strip(), nextnode.strip(), ref result, prefix, with_interfaces );
             }
         }
         catch ( DBus.Error e )
@@ -1115,7 +1115,7 @@ class Commands : Object
                     break;
                 case 2: /* object path */
                     completions = new List<string>();
-                    commands._listObjects( parts[0].strip(), "/", ref completions, prefix );
+                    commands._listObjects( parts[0].strip(), "/", ref completions, prefix, true );
                     break;
                 case 3: /* interfaces (minus signals or properties) */
                     completions = commands._listInterfaces( parts[0].strip(), parts[1].strip(), prefix, true );
