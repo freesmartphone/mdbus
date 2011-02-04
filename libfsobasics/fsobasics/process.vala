@@ -369,6 +369,27 @@ public class AsyncProcess : GLib.Object
         }
     }
 
+    public void set_stdout_watch( GLib.IOFunc watch, GLib.IOCondition cond = GLib.IOCondition.IN | GLib.IOCondition.HUP, GLib.IOFlags flags = GLib.IOFlags.NONBLOCK )
+    {
+        stdout_watch = watch;
+        stdout_condition = cond;
+        stdout_flags = flags;
+    }
+
+    public void set_stderr_watch( GLib.IOFunc watch, GLib.IOCondition cond = GLib.IOCondition.IN | GLib.IOCondition.HUP, GLib.IOFlags flags = GLib.IOFlags.NONBLOCK )
+    {
+        stderr_watch = watch;
+        stderr_condition = cond;
+        stderr_flags = flags;
+    }
+
+    IOFunc stdout_watch;
+    IOFlags stdout_flags;
+    IOCondition stdout_condition;
+    IOFunc stderr_watch;
+    IOFlags stderr_flags;
+    IOCondition stderr_condition;
+
     string _cmd_line = null;
     public string cmd_line
     {
@@ -409,13 +430,19 @@ public class AsyncProcess : GLib.Object
                         out _std_in,
                         out std_out,
                         out std_err );
-        out_channel = new IOChannel.unix_new( std_out );
-        out_channel.set_flags( out_channel.get_flags() | IOFlags.NONBLOCK );
-        out_channel.add_watch( IOCondition.IN | IOCondition.HUP, onStdOut );
+        if( stdout_watch != null )
+        {
+            out_channel = new IOChannel.unix_new( std_out );
+            out_channel.set_flags( stdout_flags );
+            out_channel.add_watch( stdout_condition, stdout_watch );
+        }
 
-        err_channel = new IOChannel.unix_new( std_err );
-        err_channel.set_flags( err_channel.get_flags() | IOFlags.NONBLOCK );
-        err_channel.add_watch( IOCondition.IN | IOCondition.HUP, onStdErr );
+        if( stderr_watch != null )
+        {
+            err_channel = new IOChannel.unix_new( std_out );
+            err_channel.set_flags( stdout_flags );
+            err_channel.add_watch( stdout_condition, stdout_watch );
+        }
 
         child = ChildWatch.add( pid, onExit );
 
@@ -425,12 +452,8 @@ public class AsyncProcess : GLib.Object
         this.callback = launch.callback;
         yield;
 
-
         return status;
     }
-
-    public signal void on_stdout( string input );
-    public signal void on_stderr( string input );
 
     private void onCancel()
     {
@@ -463,59 +486,4 @@ public class AsyncProcess : GLib.Object
         this.callback();
     }
 
-    private bool onStdOut( IOChannel source, IOCondition cond )
-    {
-        if( IOCondition.HUP in cond )
-        {
-            //remove me
-            return false;
-        }
-        else if( IOCondition.IN in cond )
-        {
-            try
-            {
-                var status = IOStatus.NORMAL;
-                var buffer = new char[4096];
-                string str = null;
-                size_t len = 0;
-                status = source.read_chars( buffer, out len );
-                str = FsoFramework.Utility.dataToString( ( uint8[] )buffer, (int)len );
-                on_stdout( str );
-            }
-            catch( GLib.Error error )
-            {
-                warning( @"error: $(error.message)" );
-            }
-        }
-
-        return true;
-    }
-
-    private bool onStdErr( IOChannel source, IOCondition cond )
-    {
-        if( IOCondition.HUP in cond )
-        {
-            //remove me
-            return false;
-        }
-        else if( IOCondition.IN in cond )
-        {
-            try
-            {
-                var status = IOStatus.NORMAL;
-                var buffer = new char[4096];
-                string str = null;
-                size_t len = 0;
-                status = source.read_chars( buffer , out len );
-                str = FsoFramework.Utility.dataToString( ( uint8[] ) buffer, (int)len );
-                on_stderr( str );
-            }
-            catch( GLib.Error error )
-            {
-                warning( @"error: $(error.message)" );
-            }
-        }
-
-        return true;
-    }
 }
