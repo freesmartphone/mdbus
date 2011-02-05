@@ -22,6 +22,19 @@ namespace FsoFramework
     public Logger theLogger;
     public SmartKeyFile theConfig;
     internal GLibLogger glibLogger;
+
+    internal void onSignal( int sig )
+    {
+        theLogger.error( @"Caught signal $sig" );
+        var bt = Utility.createBacktrace();
+        foreach( var s in bt )
+        {
+            s.data[s.length - 1] = '\0';
+            theLogger.error( s );
+        }
+        Posix.signal( sig, Posix.SIG_DFL );
+        Posix.exit( sig );
+    }
 }
 
 static void vala_library_init()
@@ -35,6 +48,18 @@ static void vala_library_init()
     if ( FsoFramework.theConfig.boolValue( "logging", "log_integrate_glib", true ) )
     {
         FsoFramework.glibLogger = new GLibLogger( FsoFramework.theLogger );
+    }
+
+    if ( FsoFramework.theConfig.boolValue( "logging", "log_backtrace", true) )
+    {
+        int i = 0;
+        foreach( var sig in FsoFramework.theConfig.stringListValue( "logging", "log_bt_signals", { "2", "15" } ) )
+        {
+            Posix.signal( sig.to_int(), FsoFramework.onSignal );
+            i++;
+        }
+
+        FsoFramework.theLogger.debug( @"Registered $i backtrace handler" );
     }
 
     FsoFramework.theLogger.info( @"Binary launched successful ($classname created as theLogger)" );
