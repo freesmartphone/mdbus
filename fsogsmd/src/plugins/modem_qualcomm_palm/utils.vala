@@ -63,3 +63,24 @@ public static string networkDataServiceToActString( Msmcomm.NetworkDataService d
 
     return result;
 }
+
+public static FsoGsm.CallInfo createCallInfo( Msmcomm.CallStatusInfo info )
+{
+    var result = new FsoGsm.CallInfo();
+
+    result.id = (int) info.id;
+
+    switch ( info.type )
+    {
+        case Msmcomm.CallType.DATA:
+            result.ctype = "data";
+            break;
+        case Msmcomm.CallType.AUDIO:
+            result.ctype = "voice";
+            break;
+    }
+
+    result.cinfo.insert( "number", info.number );
+
+    return result;
+}

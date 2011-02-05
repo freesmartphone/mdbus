@@ -178,6 +178,25 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                     break;
             }
         });
+
+        channel.call_service.call_status.connect( ( name, info ) => {
+            var call_info = createCallInfo( info );
+            switch ( name )
+            {
+                case "orig":
+                    notifyUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION, (Variant) call_info );
+                    break;
+                case "end":
+                    theModem.callhandler.handleEndingCall( call_info );
+                    break;
+                case "incom":
+                    theModem.callhandler.handleIncomingCall( call_info );
+                    break;
+                case "connect":
+                    theModem.callhandler.handleConnectingCall( call_info );
+                    break;
+            }
+        });
     }
 
     public override string repr()
