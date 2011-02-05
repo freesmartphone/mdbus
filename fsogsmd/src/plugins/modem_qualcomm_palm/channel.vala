@@ -207,6 +207,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             sim_service = Bus.get_proxy_sync<Msmcomm.Sim>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             phonebook_service = Bus.get_proxy_sync<Msmcomm.Phonebook>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             network_service = Bus.get_proxy_sync<Msmcomm.Network>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            call_service = Bus.get_proxy_sync<Msmcomm.Call>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
         }
         catch ( GLib.IOError err0 )
         {
