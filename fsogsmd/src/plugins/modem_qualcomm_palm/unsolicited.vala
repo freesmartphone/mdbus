@@ -159,6 +159,19 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                     MsmData.network_info.reg_status = info.reg_status;
                     MsmData.network_info.service_status = info.service_status;
 
+                    if ( info.with_time_update )
+                    {
+                        var data = theModem.data();
+
+                        // some modems strip the leading zero for one-digit chars, so we have to reassemble it
+                        var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( (int) info.time.year, (int) info.time.month, (int) info.time.day, 
+                                                                              (int) info.time.hours, (int) info.time.minutes, (int) info.time.seconds );
+                        var formatstr = "%y/%m/%d,%H:%M:%S";
+                        var t = GLib.Time();
+                        t.strptime( timestr, formatstr );
+                        data.networkTimeReport.setTime( (int) t.mktime() );
+                    }
+
                     notifyUnsolicitedResponse( MsmUrcType.NETWORK_STATE_INFO, info );
                     triggerUpdateNetworkStatus();
 
