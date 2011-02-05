@@ -157,25 +157,7 @@ public class MsmDeviceGetCurrentTime : DeviceGetCurrentTime
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-#if 0
-        try
-        {
-            // Fetch time from modem
-        }
-        catch ( Msmcomm.Error err0 )
-        {
-        }
-        catch ( GLib.Error err1 )
-        {
-        }
-
-        // some modems strip the leading zero for one-digit chars, so we have to reassemble it
-        var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( cmd.year, cmd.month, cmd.day, cmd.hour, cmd.minute, cmd.second );
-        var formatstr = "%y/%m/%d,%H:%M:%S";
-        var t = GLib.Time();
-        t.strptime( timestr, formatstr );
-        since_epoch = (int) Linux.timegm( t );
-#endif
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
 
