@@ -19,7 +19,7 @@
 
 using Gee;
 using FsoGsm;
-
+using GIsiComm;
 
 namespace NokiaIsi
 {
@@ -71,10 +71,13 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
     // public FreeSmartphone.GSM.SIMAuthStatus status;
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-    #if 0
-        ISI.SIMAuth.Status isicode = 0;
+        int isicode = 0;
 
-        NokiaIsi.modem.isisimauth.request_status( ( code ) => {
+        NokiaIsi.modem.isisimauth.queryStatus( (error, code) => {
+            if ( error != ErrorCode.OK )
+            {
+                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( error.to_string() );
+            }
             debug( @"code = %d, $code".printf( code ) );
             isicode = code;
             run.callback();
@@ -83,20 +86,17 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
 
         switch ( isicode )
         {
-            case ISI.SIMAuth.Status.NO_SIM:
+            case GIsiClient.SIMAuth.StatusResponseRunningType.NO_SIM:
                 throw new FreeSmartphone.GSM.Error.SIM_NOT_PRESENT( "No SIM" );
                 break;
-            case ISI.SIMAuth.Status.UNPROTECTED:
-            case ISI.SIMAuth.Status.AUTHORIZED:
+            case GIsiClient.SIMAuth.StatusResponseRunningType.UNPROTECTED:
+            case GIsiClient.SIMAuth.StatusResponseRunningType.AUTHORIZED:
                 status = FreeSmartphone.GSM.SIMAuthStatus.READY;
                 break;
-            case ISI.SIMAuth.Status.NEED_NONE:
-                status = FreeSmartphone.GSM.SIMAuthStatus.READY;
-                break;
-            case ISI.SIMAuth.Status.NEED_PIN:
+            case GIsiClient.SIMAuth.StatusResponse.NEED_PIN:
                 status = FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED;
                 break;
-            case ISI.SIMAuth.Status.NEED_PUK:
+            case GIsiClient.SIMAuth.StatusResponse.NEED_PUK:
                 status = FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED;
                 break;
             default:
@@ -104,7 +104,6 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
                 status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
                 break;
         }
-    #endif
     }
 }
 

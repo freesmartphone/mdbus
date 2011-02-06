@@ -36,9 +36,9 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
     private const string ISI_CHANNEL_NAME = "main";
 
     public GIsi.Modem isimodem = null;
-    public GIsiClient.PhoneInfo isidevice = null;
-    public GIsiClient.SIMAuth isisimauth = null;
-    public GIsiClient.Network isinetwork = null;
+    public GIsiComm.PhoneInfo isidevice = null;
+    public GIsiComm.SIMAuth isisimauth = null;
+    public GIsiComm.Network isinetwork = null;
 
     construct
     {
