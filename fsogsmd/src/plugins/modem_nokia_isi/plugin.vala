@@ -22,23 +22,18 @@ using GLib;
 using Gee;
 using FsoGsm;
 
-namespace NokiaIsi { NokiaIsi.Modem modem; }
+namespace NokiaIsi { NokiaIsi.Modem modem; GIsiComm.ModemAccess isimodem; }
 
 /**
  * @class NokiaIsi.Modem
  *
  * This modem plugin supports the Nokia ISI chipset used on Nokia N900
  *
- * The modem uses a binary protocol which has been implemented in libmsmcomm.
+ * The modem uses a binary protocol implemented in libgisi / libgisicomm
  **/
 class NokiaIsi.Modem : FsoGsm.AbstractModem
 {
     private const string ISI_CHANNEL_NAME = "main";
-
-    public GIsi.Modem isimodem = null;
-    public GIsiComm.PhoneInfo isidevice = null;
-    public GIsiComm.SIMAuth isisimauth = null;
-    public GIsiComm.Network isinetwork = null;
 
     construct
     {
@@ -53,6 +48,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         }
 
         NokiaIsi.modem = this;
+        NokiaIsi.isimodem = new GIsiComm.ModemAccess( modem_port );
     }
 
     public override string repr()

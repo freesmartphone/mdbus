@@ -71,6 +71,7 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
     // public FreeSmartphone.GSM.SIMAuthStatus status;
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        #if 0
         int isicode = 0;
 
         NokiaIsi.modem.isisimauth.queryStatus( (error, code) => {
@@ -104,6 +105,7 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
                 status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
                 break;
         }
+        #endif
     }
 }
 

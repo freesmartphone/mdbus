@@ -50,43 +50,18 @@ public class IsiTransport : FsoFramework.NullTransport
 
     public override async bool openAsync()
     {
-        reachable = true;
+        // phase 1: modem & netlink
+        if ( ! ( yield NokiaIsi.isimodem.connect() ) )
+        {
+            return false;
+        }
 
-        /*
-        NokiaIsi.modem.isimodem = new ISI.Modem( iface, (err) => {
-            if ( err )
-            {
-                logger.error( "Modem not reachable" );
-                reachable = false;
-            }
-            else
-            {
-                logger.info( "Modem is reachable" );
-                NokiaIsi.modem.isidevice = new ISI.DeviceInfo( NokiaIsi.modem.isimodem, (err) => {
-                    if ( err )
-                    {
-                        logger.warning( "Device subsystem not reachable" );
-                    }
-                } );
-                NokiaIsi.modem.isisimauth = new ISI.SIMAuth( NokiaIsi.modem.isimodem );
-                NokiaIsi.modem.isinetwork = new ISI.Network( NokiaIsi.modem.isimodem, (err) => {
-                    if ( err )
-                    {
-                        logger.warning( "Network subsystem not reachable" );
-                    }
-                } );
-            }
-        } );
+        // phase 2: launch subsystems
+        if ( ! ( yield NokiaIsi.isimodem.launch() ) )
+        {
+            return false;
+        }
 
-        // wait 3 seconds for modem to come up
-        Timeout.add_seconds( 3, () => { openAsync.callback(); return false; } );
-
-        yield;
-
-        return reachable;
-        *         */
-
-        return false;
-
+        return true;
     }
 }
