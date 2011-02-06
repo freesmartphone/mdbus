@@ -52,6 +52,7 @@ public class IsiTransport : FsoFramework.NullTransport
     {
         reachable = true;
 
+        /*
         NokiaIsi.modem.isimodem = new ISI.Modem( iface, (err) => {
             if ( err )
             {
@@ -83,5 +84,9 @@ public class IsiTransport : FsoFramework.NullTransport
         yield;
 
         return reachable;
+        *         */
+
+        return false;
+
     }
 }

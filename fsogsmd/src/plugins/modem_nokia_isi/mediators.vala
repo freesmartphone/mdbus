@@ -20,6 +20,7 @@
 using Gee;
 using FsoGsm;
 
+
 namespace NokiaIsi
 {
 
@@ -31,7 +32,8 @@ public class IsiDeviceGetInformation : DeviceGetInformation
     /* revision, model, manufacturer, imei */
 
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-     {
+    {
+    #if 0
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         NokiaIsi.modem.isidevice.query_manufacturer( ( error, msg ) => {
@@ -57,6 +59,7 @@ public class IsiDeviceGetInformation : DeviceGetInformation
             run.callback();
         } );
         yield;
+    #endif
     }
 }
 
@@ -68,6 +71,7 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
     // public FreeSmartphone.GSM.SIMAuthStatus status;
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+    #if 0
         ISI.SIMAuth.Status isicode = 0;
 
         NokiaIsi.modem.isisimauth.request_status( ( code ) => {
@@ -100,6 +104,7 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
                 status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
                 break;
         }
+    #endif
     }
 }
 
@@ -107,6 +112,7 @@ public class IsiSimSendAuthCode : SimSendAuthCode
 {
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+    #if 0
         ISI.SIMAuth.Answer isicode = 0;
 
         NokiaIsi.modem.isisimauth.set_pin( pin, ( code ) => {
@@ -127,6 +133,7 @@ public class IsiSimSendAuthCode : SimSendAuthCode
                 throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"ISI Code = $isicode" );
                 break;
         }
+    #endif
     }
 }
 
@@ -137,6 +144,7 @@ public class IsiNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+    #if 0
         status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         var istatus = ISI.Network.Status();
@@ -196,6 +204,7 @@ public class IsiNetworkGetStatus : NetworkGetStatus
             run.callback();
         } );
         yield;
+    #endif
     }
 }
 
@@ -203,6 +212,7 @@ public class IsiNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+    #if 0
         var p = new FreeSmartphone.GSM.NetworkProvider[] {};
 
         NokiaIsi.modem.isinetwork.list_operators( ( error, operators ) => {
@@ -222,6 +232,7 @@ public class IsiNetworkListProviders : NetworkListProviders
         yield;
 
         providers = p;
+    #endif
     }
 }
 
@@ -229,6 +240,7 @@ public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+    #if 0
         NokiaIsi.modem.isinetwork.request_strength( ( error, strength ) => {
             if ( !error )
             {
@@ -241,6 +253,7 @@ public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
             }
         } );
         yield;
+    #endif
     }
 }
 
@@ -248,6 +261,7 @@ public class IsiNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+    #if 0
         NokiaIsi.modem.isinetwork.register_auto( (error) => {
             if ( !error )
             {
@@ -260,6 +274,7 @@ public class IsiNetworkRegister : NetworkRegister
 
         } );
         yield;
+    #endif
     }
 }
 
@@ -268,15 +283,15 @@ public class IsiNetworkRegister : NetworkRegister
  */
 static void registerMediators( HashMap<Type,Type> mediators )
 {
-    mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
+//    mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
 
     mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
-    mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
+//    mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
 
-    mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
-    mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
-    mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
-    mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
+//    mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
+//    mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
+//    mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
+//    mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
 }
