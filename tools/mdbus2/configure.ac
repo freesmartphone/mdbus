@@ -22,7 +22,6 @@ AC_SUBST(LDFLAGS)
 # requirements
 GLIB_REQUIRED=2.26.0
 DBUS_REQUIRED=1.2.1
-DBUS_GLIB_REQUIRED=0.76
 
 # libreadline and/or libhistory
 AC_CHECK_LIB(readline, rl_bind_key,
@@ -60,13 +59,6 @@ PKG_CHECK_MODULES(GLIB,
   gio-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
-
-# dbus and dbus-glib
-PKG_CHECK_MODULES(DBUS,
-  dbus-1 >= $DBUS_REQUIRED
-  dbus-glib-1 >= $DBUS_GLIB_REQUIRED)
-AC_SUBST(DBUS_CFLAGS)
-AC_SUBST(DBUS_LIBS)
 
 # check for debugging
 AC_ARG_ENABLE(debug,
