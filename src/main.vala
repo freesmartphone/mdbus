@@ -32,661 +32,54 @@ const string DBUS_BUS_NAME  = "org.freedesktop.DBus";
 const string DBUS_OBJ_PATH  = "/";
 const string DBUS_INTERFACE = "org.freedesktop.DBus";
 const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectable";
+[DBus (name="org.freedesktop.DBus.Introspectable")]
+public interface Introspectable : GLib.Object
+{
+        public abstract string introspect() throws DBusError, IOError;
+}
 
 //=========================================================================//
-
-[DBus (name = "org.freedesktop.DBus")]
-public interface IDBusSync : GLib.Object
-{
-    public abstract void           AddMatch( string match ) throws GLib.DBusError, GLib.IOError;
-    public abstract uint8[]        GetAdtAuditSessionData( string type ) throws GLib.DBusError, GLib.IOError;
-    public abstract uint8[]        GetConnectionSELinuxSecurityContext( string type ) throws GLib.DBusError, GLib.IOError;
-    public abstract uint32         GetConnectionUnixProcessID( string conn ) throws GLib.DBusError, GLib.IOError;
-    public abstract uint32         GetConnectionUnixUser( string conn ) throws GLib.DBusError, GLib.IOError;
-    public abstract string         GetId() throws GLib.DBusError, GLib.IOError;
-    public abstract string         GetNameOwner( string name ) throws GLib.DBusError, GLib.IOError;
-    public abstract string         Hello() throws GLib.DBusError, GLib.IOError;
-    public abstract string[]       ListActivatableNames() throws GLib.DBusError, GLib.IOError;
-    public abstract string[]       ListNames() throws GLib.DBusError, GLib.IOError;
-    public abstract string[]       ListQueuedOwners( string None ) throws GLib.DBusError, GLib.IOError;
-    public abstract bool           NameHasOwner( string name ) throws GLib.DBusError, GLib.IOError;
-    public abstract uint32         ReleaseName( string name ) throws GLib.DBusError, GLib.IOError;
-    public abstract void           ReloadConfig() throws GLib.DBusError, GLib.IOError;
-    public abstract void           RemoveMatch( string match ) throws GLib.DBusError, GLib.IOError;
-    public abstract uint32         RequestName( string name, uint32 flags ) throws GLib.DBusError, GLib.IOError;
-    public abstract uint32         StartServiceByName( string name, uint32 flags ) throws GLib.DBusError, GLib.IOError;
-    public abstract void           UpdateActivationEnvironment( GLib.HashTable<string,string> environment ) throws GLib.DBusError, GLib.IOError;
-
-    public signal void             NameAcquired( string name );
-    public signal void             NameLost( string name );
-    public signal void             NameOwnerChanged( string name, string oldowner, string newowner );
+[DBus (name = "org.freedesktop.DBus", timeout = 120000)]
+public interface DBusSync : GLib.Object {
+    public abstract string hello() throws DBusError, IOError;
+    public abstract uint request_name(string param0, uint param1) throws DBusError, IOError;
+    public abstract uint release_name(string param0) throws DBusError, IOError;
+    public abstract uint start_service_by_name(string param0, uint param1) throws DBusError, IOError;
+    public abstract void update_activation_environment(GLib.HashTable<string, string> param0) throws DBusError, IOError;
+    public abstract bool name_has_owner(string param0) throws DBusError, IOError;
+    public abstract string[] list_names() throws DBusError, IOError;
+    public abstract string[] list_activatable_names() throws DBusError, IOError;
+    public abstract void add_match(string param0) throws DBusError, IOError;
+    public abstract void remove_match(string param0) throws DBusError, IOError;
+    public abstract string get_name_owner(string param0) throws DBusError, IOError;
+    public abstract uint get_connection_unix_user(string param0) throws DBusError, IOError;
+    public abstract uint get_connection_unix_process_i_d(string param0) throws DBusError, IOError;
+    public abstract uint8[] get_adt_audit_session_data(string param0) throws DBusError, IOError;
+    public abstract void reload_config() throws DBusError, IOError;
+    public abstract string get_id() throws DBusError, IOError;
+    public signal void name_owner_changed(string param0, string param1, string param2);
+    public signal void name_lost(string param0);
+    public signal void name_acquired(string param0);
 }
-
-[DBus (name = "org.freedesktop.DBus.Introspectable")]
-public interface IIntrospectable : GLib.Object
-{
-    public abstract string Introspect () throws GLib.DBusError, GLib.IOError;
-}
-
 //=========================================================================//
 Commands commands;
 List<string> completions;
 //=========================================================================//
 
-string getIndentString( string prefix = "\n")
-{
-        if( ! prettyPrint )
-                return "";
-#if DEBUG
-        debug( @"adding $indentLevel indentation");
-#endif
-        string s = "";
-        for( int i = 0; i < indentLevel; i ++)
-                s += indentString;
-        return prefix + s;
-}
-int indentLevel = 0;
-
-public string formatSimpleContainerIter( DBus.RawMessageIter subiter, string start, string trenner, string stop, int depth = 0 )
-{
-#if DEBUG
-    debug( @"formatSimpleContainerIter: depth = $depth, subiter.has_next() = $(subiter.has_next())" );
-#endif
-
-    // check for empty container
-    if ( depth > 1 && !subiter.has_next() )
-    {
-        var result = formatResult( subiter, depth );
-        return @"$start $result $stop";
-    }
-
-    var result = "";
-    indentLevel ++;
-    result += start + getIndentString();
-    var next = true;
-    while ( next )
-    {
-        result += formatResult( subiter, depth);
-        if ( subiter.has_next() )
-        {
-            result += trenner + getIndentString();
-;
-        }
-        next = subiter.next();
-    }
-    indentLevel --;
-    result += getIndentString() + stop;
-    return result;
-}
-
-public string formatMessage( DBus.RawMessage msg )
-{
-#if DEBUG
-    debug( @"message has signature: $(msg.get_signature())" );
-#endif
-
-    DBus.RawMessageIter iter = DBus.RawMessageIter();
-    if ( msg.iter_init( iter ) )
-    {
-        return formatSimpleContainerIter( iter, "(", ",", ")" );
-    }
-    else
-    {
-        return "()";
-    }
-}
-public string formatResult( DBus.RawMessageIter iter, int depth = 0 )
-{
-    var signature = iter.get_signature();
-#if DEBUG
-    debug( @"signature for this iter = $signature" );
-#endif
-    /*
-     * Dictionary container
-     */
-    if ( signature[0] == 'a' && signature[1] == '{' )
-    {
-        DBus.RawMessageIter subiter = DBus.RawMessageIter();
-        iter.recurse( subiter );
-        return formatSimpleContainerIter( subiter, "{", ",", "}", depth+1 );
-    }
-
-    /*
-     * Array container
-     */
-    if ( signature[0] == 'a' )
-    {
-        DBus.RawMessageIter subiter = DBus.RawMessageIter();
-        iter.recurse( subiter );
-        return formatSimpleContainerIter( subiter, "[", ",", "]", depth+1 );
-    }
-
-    /*
-     * Structure
-     */
-    if ( signature[0] == '(' && signature[signature.length-1] == ')' )
-    {
-        DBus.RawMessageIter subiter = DBus.RawMessageIter();
-        iter.recurse( subiter );
-        return formatSimpleContainerIter( subiter, "(", ",", ")", depth+1 );
-    }
-
-    /*
-     * Dictionary Entry
-     */
-    if ( signature[0] == '{' && signature[signature.length-1] == '}' )
-    {
-        DBus.RawMessageIter subiter = DBus.RawMessageIter();
-        iter.recurse( subiter );
-
-        if (iter.get_arg_type() == DBus.RawType.INVALID)
-             return "";
-
-        var result = "";
-        result += formatResult( subiter, depth+1 );
-        result += ":";
-        subiter.next();
-        result += formatResult( subiter, depth+1 );
-        return result;
-    }
-
-    /*
-     * Variant
-     */
-    if ( signature == "v" )
-    {
-        DBus.RawMessageIter subiter = DBus.RawMessageIter();
-        iter.recurse( subiter );
-        var result = " ";
-        result += formatResult( subiter, depth+1 );
-        return result;
-    }
-
-    /*
-     * Simple Type
-     */
-    return formatSimpleType( signature, iter );
-}
-
-static string formatSimpleType( string signature, DBus.RawMessageIter iter )
-{
-    if ( iter.get_arg_type() == DBus.RawType.INVALID )
-    {
-        return "";
-    }
-
-    switch ( signature )
-    {
-        case "y":
-            uint8 i = 0;
-            iter.get_basic( &i );
-            return i.to_string();
-        case "b":
-            bool b = false;
-            iter.get_basic( &b );
-            return b.to_string();
-        case "n":
-            int16 i = 0;
-            iter.get_basic( &i );
-            return i.to_string();
-        case "i":
-            int i = 0;
-            iter.get_basic( &i );
-            return i.to_string();
-        case "q":
-            uint16 i = 0;
-            iter.get_basic( &i );
-            return i.to_string();
-        case "x":
-            int64 i = 0;
-            iter.get_basic( &i );
-            return i.to_string();
-        case "u":
-            uint32 i = 0;
-            iter.get_basic( &i );
-            return i.to_string();
-        case "t":
-            uint64 i = 0;
-            iter.get_basic( &i );
-            return i.to_string();
-        case "d":
-            double i = 0;
-            iter.get_basic( &i );
-            return i.to_string();
-        case "s":
-            unowned string s = "";
-            iter.get_basic( &s );
-            return @"\"$s\"";
-        case "o":
-            unowned string s = null;
-            iter.get_basic( &s );
-            return @"op'$s'";
-        default:
-#if DEBUG
-            critical( @"signature $signature not yet handled" );
-#endif
-            return @"<?$signature?>";
-    }
-}
-
-//===========================================================================
-public class Argument : Object
-{
-    public Argument( string name, string typ )
-    {
-        this.name = name;
-        this.typ = typ;
-    }
-
-    public bool appendToCall( string arg, DBus.RawMessage message )
-    {
-        var iter = DBus.RawMessageIter();
-        message.iter_init_append( iter );
-        return appendTypeToCall( arg, iter, typ);
-    }
-
-    private bool appendTypeToCall( string arg, DBus.RawMessageIter iter, string typ )
-    {
-#if DEBUG
-        debug( @"trying to parse argument $name of type $typ delivered as $arg" );
-#endif
-        switch ( typ.substring(0,1) )
-        {
-            case "y":
-                uint8 value = (uint8)arg.to_int();
-                assert( iter.append_basic( DBus.RawType.BYTE, (void*)(&value) ) );
-                break;
-            case "b":
-                bool value = ( arg == "true" || arg == "True" || arg == "1" );
-                assert( iter.append_basic( DBus.RawType.BOOLEAN, (void*)(&value) ) );
-                break;
-            case "n":
-                int16 value = (int16)arg.to_int();
-                assert( iter.append_basic( DBus.RawType.INT16, (void*)(&value) ) );
-                break;
-            case "i":
-                int value = arg.to_int();
-                assert( iter.append_basic( DBus.RawType.INT32, (void*)(&value) ) );
-                break;
-            case "q":
-                uint16 value = (uint16)arg.to_int();
-                assert( iter.append_basic( DBus.RawType.UINT16, (void*)(&value) ) );
-                break;
-            case "u":
-                uint32 value = (uint32)arg.to_long();
-                assert( iter.append_basic( DBus.RawType.UINT32, (void*)(&value) ) );
-                break;
-            case "t":
-                uint64 value = (uint64)arg.to_long();
-                assert( iter.append_basic( DBus.RawType.UINT64, (void*)(&value) ) );
-                break;
-            case "x":
-                uint64 value = (uint64)arg.to_long();
-                assert( iter.append_basic( DBus.RawType.INT64, (void*)(&value)) );
-                break;
-            case "d":
-                double value = arg.to_double();
-                assert( iter.append_basic( DBus.RawType.DOUBLE, (void*)(&value) ) );
-                break;
-            case "s":
-                assert( iter.append_basic( DBus.RawType.STRING, (void*)(&arg) ) );
-                break;
-            case "o":
-                assert( iter.append_basic( DBus.RawType.OBJECT_PATH, (void*)(&arg) ) );
-                break;
-            case "a":
-                var subsig = getSubSignature( typ.substring( 1, typ.length - 1 ) );
-                return appendArrayTypeToCall(arg, iter, subsig);
-            case "(":
-                return appendStructTypeToCall(arg, iter, typ);
-            case "{":
-                return appendDictEntryTypeToCall(arg, iter, typ);
-
-            default:
-                stderr.printf( @"Unsupported type $typ\n" );
-                return false;
-        }
-        return true;
-    }
-
-    private bool appendArrayTypeToCall(string arg, DBus.RawMessageIter iter, string typ)
-    {
-        //remove []
-        var subiter = DBus.RawMessageIter();
-#if DEBUG
-        debug( @"parsing array '$arg' with subsignature '$typ'" );
-#endif
-        assert( iter.open_container( DBus.RawType.ARRAY, typ, subiter ) );
-        foreach( var sub_arg in getSubArgs( arg.substring( 1, arg.length - 2 ) ) )
-        {
-            if(appendTypeToCall( sub_arg, subiter, typ ) == false)
-                 return false;
-        }
-        assert( iter.close_container ( subiter ) );
-        return true;
-
-    }
-
-    private bool appendStructTypeToCall(string arg, DBus.RawMessageIter iter, string typ)
-    {
-#if DEBUG
-        debug(@"Sending Struct with signature '$typ' with arg: '$arg'" );
-#endif
-        int sigpos = 0;
-        var subtyp = typ.substring(1, typ.length - 2);
-        var subiter = DBus.RawMessageIter();
-        assert( iter.open_container( DBus.RawType.STRUCT, null, subiter ) );
-        foreach(var s in getSubArgs( arg.substring( 1, arg.length - 2 )  ) )
-        {
-            var sig = getSubSignature( subtyp.offset( sigpos ) );
-            sigpos += (int)sig.length;
-            if( appendTypeToCall(s, subiter, sig) == false)
-                 return false;
-        }
-        assert( iter.close_container( subiter ) );
-        return true;
-    }
-
-    public bool appendDictEntryTypeToCall( string arg, DBus.RawMessageIter iter, string typ )
-    {
-#if DEBUG
-        debug(@"Sending DictEntry with signature '$typ' and arg '$arg'");
-#endif
-        var subtyp = typ.substring(1, typ.length - 2 );
-        var keytyp = getSubSignature(subtyp);
-        var valuetyp = subtyp.offset( keytyp.length );
-
-        var values = getSubArgs( arg, ':' );
-        var key = values[0];
-        var value = values[1];
-
-        var subiter = DBus.RawMessageIter();
-        assert( iter.open_container( DBus.RawType.DICT_ENTRY, null, subiter ) );
-
-        if( appendTypeToCall( key, subiter, keytyp ) == false)
-             return false;
-        if( appendTypeToCall( value, subiter, valuetyp ) == false)
-             return false;
-
-        assert( iter.close_container( subiter ) );
-        return true;
-    }
-    const char[] start_chars = {'{', '[', '('};
-    const char[] end_chars = {'}', ']', ')'};
-    const char arg_separator = ',';
-
-    private string getSubSignature( string signature )
-    {
-        var result = "";
-        int depth = 0;
-        for(int i = 0; i < signature.length; i++)
-        {
-            char c = (char)signature[i];
-            if( c == 'a')
-            {
-                 result += c.to_string();
-                 continue;
-            }
-            else if( c in start_chars )
-                 depth ++;
-            else if( c in end_chars )
-                 depth --;
-            result += c.to_string();
-            if (depth == 0)
-                 break;
-        }
-        assert( depth == 0 );
-        return result;
-    }
-
-    string[] getSubArgs(string arg, char separator = arg_separator)
-    {
-        var result = new string[0];
-        var part = "";
-        int depth = 0;
-        for( int i = 0; i < arg.length; i ++ )
-        {
-            char c = (char)arg[i];
-            if( c in start_chars )
-                 depth ++;
-            else if( c in end_chars )
-                 depth --;
-            part += c.to_string();
-            if (depth == 0 && c == separator)
-            {
-                result += part.substring(0, part.length - 1 );
-                part = "";
-            }
-        }
-        assert(depth == 0);
-        if( part.length != 0)
-            result += part;
-        return result;
-    }
-
-    public string name;
-    public string typ;
-}
-
-//===========================================================================
-public class Entity : Object
-{
-    public enum Typ
-    {
-        METHOD,
-        SIGNAL,
-        PROPERTY
-    }
-
-    public Entity( string name, Typ typ )
-    {
-        this.name = name;
-        this.typ = typ;
-    }
-
-    public string to_string()
-    {
-        string line = "";
-
-        switch ( typ )
-        {
-            case Typ.METHOD:   line = "[METHOD]    %s(%s) -> (%s)";
-            break;
-            case Typ.SIGNAL:   line = "[SIGNAL]    %s(%s)";
-            break;
-            case Typ.PROPERTY: line = "[PROPERTY]  %s(%s)";
-            break;
-            default:
-                assert_not_reached();
-        }
-
-        string inargs = "";
-
-        foreach ( var arg in inArgs )
-        {
-            inargs += " %s:%s,".printf( arg.typ, arg.name );
-        }
-        if ( inArgs.length() > 0 )
-            ( (char[]) inargs )[inargs.length-1] = ' ';
-
-        string outargs = "";
-
-        if ( outArgs.length() > 0 )
-        {
-            foreach ( var arg in outArgs )
-            {
-                outargs += " %s:%s,".printf( arg.typ, arg.name );
-            }
-            ( (char[]) outargs )[outargs.length-1] = ' ';
-        }
-
-        line = line.printf( name, inargs, outargs );
-        return line;
-    }
-
-    public string inSignature()
-    {
-        var result = "";
-
-        foreach ( var arg in inArgs )
-        {
-            result += arg.typ;
-        }
-        return result;
-    }
-
-    public string outSignature()
-    {
-        var result = "";
-
-        foreach ( var arg in outArgs )
-        {
-            result += arg.typ;
-        }
-        return result;
-    }
-
-    public string name;
-    public Typ typ;
-    public List<Argument> inArgs;
-    public List<Argument> outArgs;
-}
-
-//===========================================================================
-public class Introspection : Object
-{
-    public List<string> nodes;
-    public List<string> interfaces;
-    public List<Entity> entitys;
-
-    private string iface;
-    private Entity entity;
-
-    public Introspection( string xmldata )
-    {
-        //message( "introspection object created w/ xmldata: %s", xmldata );
-
-        MarkupParser parser = { startElement, null, null, null, null };
-        var mpc = new MarkupParseContext( parser, MarkupParseFlags.TREAT_CDATA_AS_TEXT, this, null );
-
-        try
-        {
-            foreach ( var line in xmldata.split( "\n" ) )
-            {
-                if ( line[1] != '!' || line[0] != '"' )
-                {
-                    //message( "dealing with line '%s'", line );
-                    mpc.parse( line, line.length );
-                }
-            }
-        }
-        catch ( MarkupError e )
-        {
-            stderr.printf( "[ERR]: Invalid introspection data\n" );
-        }
-    }
-
-    public void handleAttributes( string[] attribute_names, string[] attribute_values )
-    {
-        string name = "none";
-        string direction = "in";
-        string typ = "?";
-
-        for ( int i = 0; i < attribute_names.length; ++i )
-        {
-            switch ( attribute_names[i] )
-            {
-                case "name":
-                    name = attribute_values[i];
-                    break;
-                case "direction":
-                    direction = attribute_values[i];
-                    break;
-                case "type":
-                    typ = attribute_values[i];
-                    break;
-            }
-        }
-
-        var arg = new Argument( name, typ );
-        if ( direction == "in" )
-            entity.inArgs.append( arg );
-        else
-            entity.outArgs.append( arg );
-    }
-
-    public void startElement( MarkupParseContext context,
-                              string element_name,
-                              string[] attribute_names,
-                              string[] attribute_values ) throws MarkupError
-    {
-        //message( "start element '%s'", element_name );
-
-        foreach ( var attribute in attribute_names )
-        {
-            //message( "attribute name '%s'", attribute );
-        }
-        foreach ( var value in attribute_values )
-        {
-            //message( "attribute value '%s'", value );
-        }
-
-        switch ( element_name )
-        {
-            case "node":
-                if ( attribute_names != null &&
-                     attribute_names[0] == "name" &&
-                     attribute_values != null &&
-                     attribute_values[0][0] != '/' &&
-                     attribute_values[0] != "" )
-                {
-                    nodes.append( attribute_values[0] );
-                }
-                break;
-            case "interface":
-                iface = attribute_values[0];
-                interfaces.append( iface );
-                break;
-            case "method":
-                entity = new Entity( "%s.%s".printf( iface, attribute_values[0] ), Entity.Typ.METHOD );
-                entitys.append( entity );
-                break;
-            case "signal":
-                entity = new Entity( "%s.%s".printf( iface, attribute_values[0] ), Entity.Typ.SIGNAL );
-                entitys.append( entity );
-                break;
-            case "property":
-                entity = new Entity( "%s.%s".printf( iface, attribute_values[0] ), Entity.Typ.PROPERTY );
-                entitys.append( entity );
-                handleAttributes( attribute_names, attribute_values );
-                break;
-            case "arg":
-                assert( entity != null );
-                handleAttributes( attribute_names, attribute_values );
-                break;
-            default:
-#if DEBUG
-                stderr.printf( @"[WARN]: Unknown introspection type $element_name; ignoring\n" );
-#endif
-                break;
-        }
-    }
-}
-
 //=========================================================================//
 class Commands : Object
 {
-    DBus.Connection bus;
-    IDBusSync busobj;
+    DBusConnection bus;
+    DBusSync busobj;
 
-    public Commands( DBus.BusType bustype )
+    public Commands( GLib.BusType bustype )
     {
         try
         {
-            bus = DBus.Bus.get( bustype );
-            busobj = Bus.get_proxy_sync<IDBusSync>( BusType.SYSTEM, DBUS_BUS_NAME, DBUS_OBJ_PATH );
+            bus = Bus.get_sync( bustype );
+            busobj = bus.get_proxy_sync<DBusSync>( DBUS_BUS_NAME, DBUS_OBJ_PATH );
         }
-        catch ( GLib.Error e )
+        catch ( Error e )
         {
             stderr.printf( @"Can't hook to DBus %s bus: $(e.message)\n".printf( useSystemBus ? "system" : "session" ) );
             Posix.exit( -1 );
@@ -723,6 +116,7 @@ class Commands : Object
     {
 #if ALWAYS_INTROSPECT
         var allpaths = new List<string>();
+        var o = 
         _listObjects( busname.strip(), "/", ref allpaths );
         foreach ( var p in allpaths )
         {
@@ -751,9 +145,9 @@ class Commands : Object
 
         try
         {
-            pid = busobj.GetConnectionUnixProcessID( name );
+            pid = busobj.get_connection_unix_process_i_d( name );
         }
-        catch ( DBus.Error e )
+        catch ( Error e )
         {
 #if DEBUG
             debug( "%s", e.message );
@@ -764,8 +158,17 @@ class Commands : Object
 
     public List<string> _listBusNames( string prefix = "" )
     {
-        string[] names = busobj.ListNames();
         List<string> sortednames = new List<string>();
+        string[] names = new string[0];
+        try
+        {
+            names = busobj.list_names();
+        }
+        catch (GLib.Error e)
+        {
+            stdout.printf( @"[ERR]: List busnames: $(e.message)");
+            return sortednames;
+        }
 
         if ( showAnonymous )
         {
@@ -800,25 +203,20 @@ class Commands : Object
 
     public void _listObjects( string busname, string path, ref List<string> result, string prefix = "", bool with_interfaces = false )
     {
-        IIntrospectable o = Bus.get_proxy_sync<IIntrospectable>( BusType.SYSTEM, busname, path );
-
         try
         {
-            var idata = new Introspection( o.Introspect() );
-            if ( path.has_prefix( prefix ) && ( !with_interfaces || idata.interfaces.length() > 1 ) )
+            var nodeinfo = getNodeInfo( busname, path );
+            if ( path.has_prefix( prefix ) && ( !with_interfaces || ( nodeinfo != null && nodeinfo.interfaces.length > 1 ) ) )
             {
                 result.append( path );
             }
 
-            foreach ( var node in idata.nodes )
+            foreach ( var node in nodeinfo.nodes )
             {
-                //message ( "node = '%s'", node );
-                var nextnode = ( path == "/" ) ? "/%s".printf( node ) : "%s/%s".printf( path, node );
-                //message( "nextnode = '%s'", nextnode );
-                _listObjects( busname.strip(), nextnode.strip(), ref result, prefix, with_interfaces );
+                _listObjects( busname, Path.build_filename( path, node.path ), ref result, prefix, with_interfaces );
             }
         }
-        catch ( GLib.Error e )
+        catch ( Error e )
         {
             stderr.printf( @"[ERR]: $(e.message)\n" );
             return;
@@ -832,48 +230,52 @@ class Commands : Object
             stdout.printf( @"[ERR]: Unknown busname $busname\n" );
             return;
         }
-
-        var names = new List<string>();
-        _listObjects( busname, path, ref names );
-        foreach ( var name in names )
+        try
         {
-            stdout.printf( "%s\n", name );
+            var names = new List<string>();
+            _listObjects( busname, path, ref names );
+            foreach ( var name in names )
+            {
+                stdout.printf( "%s\n", name );
+            }
+
+        }
+        catch (GLib.Error e)
+        {
+            stdout.printf( @"[ERR]: Intropecting $(busname) $path: $(e.message)");
         }
     }
 
     public List<string> _listInterfaces( string busname, string path, string? prefix = null, bool stripPropertiesAndSignals = false )
     {
         var result = new List<string>();
-        IIntrospectable o = Bus.get_proxy_sync<IIntrospectable>( BusType.SYSTEM, busname, path );
 
         try
         {
-            var idata = new Introspection( o.Introspect() );
-            if ( idata.entitys.length() == 0 )
-            {
-                stderr.printf( "[ERR]: No introspection data at object '%s'\n", path );
+            var nodeinfo = getNodeInfo( busname, path );
+            if( nodeinfo == null)
                 return result;
-            }
-            foreach ( var entity in idata.entitys )
+            foreach ( var iface in nodeinfo.interfaces )
             {
-                if ( stripPropertiesAndSignals && entity.typ != Entity.Typ.METHOD )
-                {
-                    continue;
-                }
+#if DEBUG
+                debug(@"list interface $(iface.name) ");
+#endif
                 if ( prefix == null )
                 {
-                    result.append( entity.to_string() );
+                    foreach( var s in interfaceDescription( iface, stripPropertiesAndSignals ) )
+                        result.append( s );
                 }
                 else
                 {
-                    if ( entity.name.has_prefix( prefix ) )
+                    if ( iface.name.has_prefix( prefix ) )
                     {
-                        result.append( entity.name );
+                        foreach( var s in interfaceDescription( iface, stripPropertiesAndSignals ) )
+                            result.append( s );
                     }
                 }
             }
         }
-        catch ( GLib.Error e )
+        catch ( Error e )
         {
             stderr.printf( "[ERR]: %s\n", e.message );
         }
@@ -893,6 +295,12 @@ class Commands : Object
             stderr.printf( @"[ERR]: Unknown object path $path for $busname\n" );
             return;
         }
+        var nodeinfo = getNodeInfo( busname, path );
+        if ( nodeinfo == null )            
+        {
+            stderr.printf( "[ERR]: No introspection data for object '%s'\n", path );
+            return;
+        }
 
         foreach ( var name in _listInterfaces( busname, path ) )
         {
@@ -902,29 +310,17 @@ class Commands : Object
 
     private bool callMethodWithoutIntrospection( string busname, string path, string method )
     {
-        var methodWithPoint = method.rchr( -1, '.' );
-        var baseMethod = methodWithPoint.substring( 1 );
-        var iface = method.substring( 0, method.length - baseMethod.length - 1 );
-        var call = new DBus.RawMessage.call( busname, path, iface, baseMethod );
-        DBus.RawError error = DBus.RawError();
-        DBus.RawConnection* connection = bus.get_connection();
-        DBus.RawMessage reply = connection->send_with_reply_and_block( call, 100000, ref error );
-
-        if ( error.is_set() )
+        var point = method.last_index_of_char( '.' );
+        var baseMethod = method.substring( point + 1 , -1);
+        var iface = method.substring( 0, point );
+        try
         {
-#if DEBUG
-            stdout.printf( @"Method call done. Result:\nDBus Error $(error.name): $(error.message)\n" );
-#else
-            stderr.printf( @"$(error.name): $(error.message)\n" );
-#endif
+            var v = bus.call_sync( busname, path, iface, baseMethod, null, VariantType.ANY, 0, 100000);
+            stdout.printf( @"$(v.print(annotateTypes))\n");
         }
-        else
+        catch (GLib.Error e)
         {
-#if DEBUG
-            stdout.printf( @"Method call done. Result:\n$(formatMessage(reply))\n" );
-#else
-            stdout.printf( @"$(formatMessage(reply))\n" );
-#endif
+            stdout.printf(@"$(e.message)");
         }
         return true;
     }
@@ -949,76 +345,58 @@ class Commands : Object
             return callMethodWithoutIntrospection( busname, path, method );
         }
 
-        IIntrospectable o = Bus.get_proxy_sync<IIntrospectable>( BusType.SYSTEM, busname, path );
-
         try
         {
-            var idata = new Introspection( o.Introspect() );
-            if ( idata.entitys.length() == 0 )
+            var nodeinfo = getNodeInfo( busname, path );
+            if ( nodeinfo == null )
             {
                 stderr.printf( "[ERR]: No introspection data at object %s\n", path );
                 return false;
             }
+            var point = method.last_index_of_char( '.' );
+            var baseMethod = method.substring( point + 1 );
+            var iface = method.substring( 0, point );
 
-            foreach ( var entity in idata.entitys )
+            debug(@"calling $iface $baseMethod");
+
+            var ifaceinfo = nodeinfo.lookup_interface( iface );
+            if( ifaceinfo == null )
             {
-                if ( entity.typ == Entity.Typ.METHOD && entity.name == method )
+                stdout.printf( @"[ERR]: $path doesn't implement $iface\n" );
+                return false;
+            }
+
+            var methodinfo = ifaceinfo.lookup_method( baseMethod );
+            if( methodinfo == null )
+            {
+                stdout.printf( @"[ERR]: $iface doesn't have $baseMethod method\n" );
+                return false;
+            }
+
+            if ( args.length != methodinfo.in_args.length )
+            {
+                stderr.printf( "[ERR]: Need %u params for signature '%s', supplied %u\n", methodinfo.in_args.length, buildSignature(methodinfo.in_args), args.length );
+                return false;
+            }
+
+            var vargs_builder = new VariantBuilder( VariantType.ARRAY );
+            for( int i = 0; i < args.length; i++ )
+            {
+                try
                 {
-                    var methodWithPoint = method.rchr( -1, '.' );
-                    var baseMethod = methodWithPoint.substring( 1 );
-                    var iface = method.substring( 0, method.length - baseMethod.length - 1 );
-
-                    // check number of input params
-                    if ( args.length != entity.inArgs.length() )
-                    {
-                        stderr.printf( "[ERR]: Need %u params for signature '%s', supplied %u\n", entity.inArgs.length(), entity.inSignature(), args.length );
-                        return false;
-                    }
-
-                    // construct DBus Message arg by arg
-                    var call = new DBus.RawMessage.call( busname, path, iface, baseMethod );
-                    int i = 0;
-                    foreach ( var inarg in entity.inArgs )
-                    {
-                        if ( inarg.appendToCall( args[i++], call ) )
-                        {
-#if DEBUG
-                            debug( @"Argument $i parsed from commandline ok" );
-#endif
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-
-                    DBus.RawError error = DBus.RawError();
-                    DBus.RawConnection* connection = bus.get_connection();
-                    DBus.RawMessage reply = connection->send_with_reply_and_block( call, 100000, ref error );
-
-                    if ( error.is_set() )
-                    {
-#if DEBUG
-                        stdout.printf( @"Method call done. Result:\nDBus Error $(error.name): $(error.message)\n" );
-#else
-                        stderr.printf( @"$(error.name): $(error.message)\n" );
-#endif
-                    }
-                    else
-                    {
-#if DEBUG
-                        stdout.printf( @"Method call done. Result:\n$(formatMessage(reply))\n" );
-#else
-                        stdout.printf( @"$(formatMessage(reply))\n" );
-#endif
-                    }
-                    return true;
+                    var v = Variant.parse( new VariantType( methodinfo.in_args[i].signature ), args[i] );
+                    vargs_builder.add_value( v );
+                }
+                catch (GLib.VariantParseError e)
+                {
+                    stdout.printf( @"[ERR]: $(e.message) while parsing '$(args[i])'\n" );
                 }
             }
 
-            stderr.printf( @"[ERR]: No method $method found at $path for $busname\n" );
+            var result = bus.call_sync( busname, path, iface, baseMethod, vargs_builder.end(), new VariantType( buildSignature( methodinfo.out_args ) ), DBusCallFlags.NONE, 100000 );
+            stdout.printf( @"$(result.print(annotateTypes))\n" );
         }
-        catch ( DBus.Error e )
+        catch ( Error e )
         {
             stderr.printf( "[ERR]: %s\n", e.message );
             return false;
@@ -1026,56 +404,40 @@ class Commands : Object
         return false;
     }
 
-    public DBus.RawHandlerResult signalHandler( DBus.RawConnection conn, DBus.RawMessage message )
+    public void signalHandler( GLib.DBusConnection conn, string sender, string path, string iface, string name, Variant params )
     {
-#if DEBUG
-        debug( "got message w/ type %d", message.get_type() );
-#endif
-        if ( message.get_type() != DBus.RawMessageType.SIGNAL )
-        {
-            return DBus.RawHandlerResult.NOT_YET_HANDLED;
-        }
-
         var line = "[SIGNAL] %s.%s  %s  %s\n%s".printf(
-          message.get_interface(),
-          message.get_member(),
-          message.get_path(),
-          message.get_sender(),
-          formatMessage( message ) );
+          iface,
+          name,
+          path,
+          sender,
+          params.print(annotateTypes));
         stdout.printf( @"$line\n" );
-
-        return DBus.RawHandlerResult.HANDLED;
     }
 
-    private string formatRule( string busname, string objectpath, string iface )
+
+    //TODO: filter by method
+    public void listenForSignals( string? busname = null, string? objectpath = null, string? iface = null )
     {
-        var rule = "type='signal'";
-
-        if ( busname != "*" )
+        string method = null;
+        string realiface = iface;
+        if( iface != null)
         {
-            rule += @",sender='$busname'";
+            var point = iface.last_index_of_char( '.' );
+            var tmpiface = iface.substring( 0, point );
+            var nodeinfo = getNodeInfo( busname, objectpath );
+            if( nodeinfo!= null && nodeinfo.lookup_interface( tmpiface ) != null)
+            {
+                realiface = tmpiface;
+                method = iface.substring( point + 1, -1 );
+            }
         }
-
-        if ( objectpath != "*" )
-        {
-            rule += @",path='$objectpath'";
-        }
-
-        if ( iface != "*" )
-        {
-            rule += @",interface='$iface'";
-        }
-
-        return rule;
-    }
-
-    public void listenForSignals( string busname = "*", string objectpath = "*", string iface = "*" )
-    {
-        DBus.RawConnection* connection = bus.get_connection();
-        connection->add_filter( signalHandler );
-        DBus.RawError error = DBus.RawError();
-        connection->add_match( formatRule( busname, objectpath, iface ), ref error );
-        ( new MainLoop() ).run();
+#if DEBUG
+        message( "listening for signal %s %s %s %s", busname, objectpath, realiface, method );
+#endif
+        bus.signal_subscribe( busname, realiface, method, objectpath, null, DBusSignalFlags.NONE, signalHandler );
+        var mainloop = new MainLoop();
+        mainloop.run();
     }
 
     private void performCommandFromShell( string commandline )
@@ -1150,7 +512,7 @@ class Commands : Object
                     break;
                 case 2: /* object path */
                     completions = new List<string>();
-                    commands._listObjects( parts[0].strip(), "/", ref completions, prefix, true );
+                    commands._listObjects( parts[0].strip(), "/" , ref completions, prefix, true );
                     break;
                 case 3: /* interfaces (minus signals or properties) */
                     completions = commands._listInterfaces( parts[0].strip(), parts[1].strip(), prefix, true );
@@ -1166,6 +528,72 @@ class Commands : Object
 #endif
         }
         return completions.nth_data( state );
+    }
+
+    private string buildSignature( DBusArgInfo[] args, bool with_names = false )
+    {
+        string result = "";
+        foreach(var arg in args)
+        {
+            if( with_names )
+                result += @"$(arg.signature):$(arg.name), ";
+            else
+                result += arg.signature;
+        }
+        if( with_names )
+            result = result.substring( 0, result.length - 2 );
+        return result;
+    }
+
+    private string[] interfaceDescription( DBusInterfaceInfo iface , bool only_methods )
+    {
+        string[] result = new string[0];
+        foreach( var m in iface.methods )
+        {
+            if( !only_methods )
+                result += methodToString( m, iface.name );
+            else
+                result += iface.name + "." + m.name;
+        }
+        if( ! only_methods )
+        {
+            foreach( var s in iface.signals )
+                result += signalToString( s, iface.name );
+            foreach( var p in iface.properties )
+                result += propertyToString( p, iface.name );
+        }
+        return result;
+    }
+
+    private string propertyToString( DBusPropertyInfo prop, string iface )
+    {
+        return @"[PROPERTY] $(iface).$(prop.name)($(prop.name):$(prop.signature))";
+    }
+
+    private string signalToString( DBusSignalInfo signal, string iface )
+    {
+        return @"[SIGNAL]    $(iface).$(signal.name)($(buildSignature(signal.args,true)))";
+    }
+
+    private string methodToString( DBusMethodInfo method, string iface )
+    {
+        return @"[METHOD]    $(iface).$(method.name)($(buildSignature(method.in_args,true))) -> ($(buildSignature(method.out_args,true)))";
+    }
+
+    public DBusNodeInfo? getNodeInfo( string busname, string path )
+    {
+        try
+        {
+            var o = bus.get_proxy_sync<Introspectable>( busname, path );
+            return new DBusNodeInfo.for_xml( o.introspect() );
+        }
+        catch (GLib.Error e)
+        {
+#if DEBUG
+            debug(@"Cannot introspect $busname $path: $(e.message)");
+#endif
+            return null;
+        }
     }
 
     public void launchShell()
@@ -1216,8 +644,7 @@ bool listenerMode;
 bool showPIDs;
 bool useSystemBus;
 bool interactive;
-bool prettyPrint = false;
-string indentString;
+bool annotateTypes;
 
 const OptionEntry[] options =
 {
@@ -1226,15 +653,13 @@ const OptionEntry[] options =
     { "listen", 'l', 0, OptionArg.NONE, ref listenerMode, "Listen for signals", null },
     { "system", 's', 0, OptionArg.NONE, ref useSystemBus, "Use System Bus", null },
     { "interactive", 'i', 0, OptionArg.NONE, ref interactive, "Enter interactive shell", null },
-    { "pretty-print", 'n', 0, OptionArg.NONE, ref prettyPrint, "Enable pretty print", null },
-    { "indent-string", '\0', 0, OptionArg.STRING, ref indentString, "Indentation string for pretty print", "A string to indent parameters (default 4 spaces)" },
+    { "annotate-types", 't', 0, OptionArg.NONE, ref annotateTypes, "Annotate DBus type", null },
     { null }
 };
 
 //=========================================================================//
 int main( string[] args )
 {
-    indentString = "    ";
     try
     {
         var opt_context = new OptionContext( "[ busname [ objectpath [ method [ params... ] ] ] ]" );
@@ -1269,7 +694,7 @@ mdbus2: DBus has never been that much fun!""" );
         return 1;
     }
 
-    commands = new Commands( useSystemBus ? DBus.BusType.SYSTEM : DBus.BusType.SESSION );
+    commands = new Commands( useSystemBus ? BusType.SYSTEM : BusType.SESSION );
 
     switch ( args.length )
     {

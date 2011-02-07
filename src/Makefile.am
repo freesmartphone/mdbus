@@ -10,13 +10,14 @@ VALAC_ARGS = \
 	--pkg dbus-glib-1 \
 	--pkg gio-2.0 \
 	--save-temps
+	--pkg gio-2.0 \
+	--enable-experimental
 
 if WANT_DEBUG
 VALAC_ARGS += -D DEBUG
 endif
 
 INCLUDES = \
-	$(DBUS_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	$(NULL)
@@ -39,7 +40,6 @@ $(BUILT_SOURCES): $(mdbus2_VALASOURCES)
 
 mdbus2_LDADD = \
 	$(LIBREADLINE) \
-	$(DBUS_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 
