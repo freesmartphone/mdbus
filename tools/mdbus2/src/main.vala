@@ -255,6 +255,18 @@ class Commands : Object
             var nodeinfo = getNodeInfo( busname, path );
             if( nodeinfo == null)
                 return result;
+            string method_prefix = null;
+            var i = splitInterfaceMethod( prefix, out method_prefix );
+            var ifaceinfo = nodeinfo.lookup_interface( i );
+            if( ifaceinfo != null)
+            {
+                foreach( var m in ifaceinfo.methods)
+                {
+                    if( m.name.has_prefix( method_prefix ) )
+                        result.append( i + "." + m.name );
+                }
+                return result;
+            }
             foreach ( var iface in nodeinfo.interfaces )
             {
 #if DEBUG
@@ -267,7 +279,7 @@ class Commands : Object
                 }
                 else
                 {
-                    if ( iface.name.has_prefix( prefix ) )
+                    if( iface.name.has_prefix( prefix ) )
                     {
                         foreach( var s in interfaceDescription( iface, stripPropertiesAndSignals ) )
                             result.append( s );
@@ -310,9 +322,8 @@ class Commands : Object
 
     private bool callMethodWithoutIntrospection( string busname, string path, string method )
     {
-        var point = method.last_index_of_char( '.' );
-        var baseMethod = method.substring( point + 1 , -1);
-        var iface = method.substring( 0, point );
+        string baseMethod = null;
+        var iface = splitInterfaceMethod( method, out baseMethod );
         try
         {
             var v = bus.call_sync( busname, path, iface, baseMethod, null, VariantType.ANY, 0, 100000);
@@ -347,9 +358,8 @@ class Commands : Object
 
         try
         {
-            var point = method.last_index_of_char( '.' );
-            var baseMethod = method.substring( point + 1 );
-            var iface = method.substring( 0, point );
+            string baseMethod = null;
+            var iface = splitInterfaceMethod( method, out baseMethod );
             var nodeinfo = getNodeInfo( busname, path );
             DBusMethodInfo methodinfo = null;
 
@@ -588,6 +598,13 @@ class Commands : Object
 #endif
             return null;
         }
+    }
+
+    public string splitInterfaceMethod( string interface, out string method )
+    {
+        var point = interface.last_index_of_char( '.' );
+        method = interface.substring( point + 1 , -1);
+        return interface.substring( 0, point );
     }
 
     public void launchShell()
