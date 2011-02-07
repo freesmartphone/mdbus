@@ -33,33 +33,31 @@ public class IsiDeviceGetInformation : DeviceGetInformation
 
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-    #if 0
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-        NokiaIsi.modem.isidevice.query_manufacturer( ( error, msg ) => {
-            info.insert( "manufacturer", error ? "unknown" : msg );
+        NokiaIsi.isimodem.info.readManufacturer( ( error, msg ) => {
+            info.insert( "manufacturer", error != ErrorCode.OK ? "unknown" : msg );
             run.callback();
         } );
         yield;
 
-        NokiaIsi.modem.isidevice.query_model( ( error, msg ) => {
-            info.insert( "model", error ? "unknown" : msg );
+        NokiaIsi.isimodem.info.readModel( ( error, msg ) => {
+            info.insert( "model", error != ErrorCode.OK ? "unknown" : msg );
             run.callback();
         } );
         yield;
 
-        NokiaIsi.modem.isidevice.query_revision( ( error, msg ) => {
-            info.insert( "revision", error ? "unknown" : msg );
+        NokiaIsi.isimodem.info.readVersion( ( error, msg ) => {
+            info.insert( "revision", error != ErrorCode.OK ? "unknown" : msg );
             run.callback();
         } );
         yield;
 
-        NokiaIsi.modem.isidevice.query_serial( ( error, msg ) => {
-            info.insert( "imei", error ? "unknown" : msg );
+        NokiaIsi.isimodem.info.readSerial( ( error, msg ) => {
+            info.insert( "imei", error != ErrorCode.OK ? "unknown" : msg );
             run.callback();
         } );
         yield;
-    #endif
     }
 }
 
@@ -71,10 +69,9 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
     // public FreeSmartphone.GSM.SIMAuthStatus status;
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
         int isicode = 0;
 
-        NokiaIsi.modem.isisimauth.queryStatus( (error, code) => {
+        NokiaIsi.isimodem.simauth.queryStatus( (error, code) => {
             if ( error != ErrorCode.OK )
             {
                 throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( error.to_string() );
@@ -105,7 +102,6 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
                 status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
                 break;
         }
-        #endif
     }
 }
 
@@ -284,7 +280,7 @@ public class IsiNetworkRegister : NetworkRegister
  */
 static void registerMediators( HashMap<Type,Type> mediators )
 {
-//    mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
+    mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
 
     mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
 //    mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
