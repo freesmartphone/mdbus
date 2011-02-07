@@ -347,53 +347,47 @@ class Commands : Object
 
         try
         {
-            var nodeinfo = getNodeInfo( busname, path );
-            if ( nodeinfo == null )
-            {
-                stderr.printf( "[ERR]: No introspection data at object %s\n", path );
-                return false;
-            }
             var point = method.last_index_of_char( '.' );
             var baseMethod = method.substring( point + 1 );
             var iface = method.substring( 0, point );
+            var nodeinfo = getNodeInfo( busname, path );
+            DBusMethodInfo methodinfo = null;
 
-            debug(@"calling $iface $baseMethod");
-
-            var ifaceinfo = nodeinfo.lookup_interface( iface );
-            if( ifaceinfo == null )
+            if ( nodeinfo != null )
             {
-                stdout.printf( @"[ERR]: $path doesn't implement $iface\n" );
-                return false;
+                var ifaceinfo = nodeinfo.lookup_interface( iface );
+                if( ifaceinfo != null )
+                {
+                    methodinfo = ifaceinfo.lookup_method( baseMethod );
+                }
             }
 
-            var methodinfo = ifaceinfo.lookup_method( baseMethod );
-            if( methodinfo == null )
-            {
-                stdout.printf( @"[ERR]: $iface doesn't have $baseMethod method\n" );
-                return false;
-            }
 
-            if ( args.length != methodinfo.in_args.length )
+            if ( methodinfo != null && args.length != methodinfo.in_args.length )
             {
                 stderr.printf( "[ERR]: Need %u params for signature '%s', supplied %u\n", methodinfo.in_args.length, buildSignature(methodinfo.in_args), args.length );
                 return false;
             }
 
-            var vargs_builder = new VariantBuilder( VariantType.ARRAY );
+            var vargs_builder = new VariantBuilder( VariantType.TUPLE );
             for( int i = 0; i < args.length; i++ )
             {
                 try
                 {
-                    var v = Variant.parse( new VariantType( methodinfo.in_args[i].signature ), args[i] );
+                    unowned VariantType? vt = (methodinfo == null) ? null : new VariantType( methodinfo.in_args[i].signature );
+                    var v = Variant.parse( vt, args[i] );
                     vargs_builder.add_value( v );
                 }
                 catch (GLib.VariantParseError e)
                 {
                     stdout.printf( @"[ERR]: $(e.message) while parsing '$(args[i])'\n" );
+                    return false;
                 }
             }
 
-            var result = bus.call_sync( busname, path, iface, baseMethod, vargs_builder.end(), new VariantType( buildSignature( methodinfo.out_args ) ), DBusCallFlags.NONE, 100000 );
+            var parameters = vargs_builder.end();
+            unowned VariantType? full_vt = parameters.get_type();//methodinfo == null ?  : new VariantType( buildSignature( methodinfo.out_args ) );
+            var result = bus.call_sync( busname, path, iface, baseMethod, parameters, full_vt, DBusCallFlags.NONE, 100000 );
             stdout.printf( @"$(result.print(annotateTypes))\n" );
         }
         catch ( Error e )
