@@ -30,7 +30,6 @@ namespace NokiaIsi
 public class IsiDeviceGetInformation : DeviceGetInformation
 {
     /* revision, model, manufacturer, imei */
-
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
@@ -66,7 +65,6 @@ public class IsiDeviceGetInformation : DeviceGetInformation
  */
 public class IsiSimGetAuthStatus : SimGetAuthStatus
 {
-    // public FreeSmartphone.GSM.SIMAuthStatus status;
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         int isicode = 0;
@@ -109,10 +107,13 @@ public class IsiSimSendAuthCode : SimSendAuthCode
 {
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-    #if 0
-        ISI.SIMAuth.Answer isicode = 0;
+        int isicode = 0;
 
-        NokiaIsi.modem.isisimauth.set_pin( pin, ( code ) => {
+        NokiaIsi.isimodem.simauth.sendPin( pin, ( error, code ) => {
+            if ( error != ErrorCode.OK )
+            {
+                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( error.to_string() );
+            }
             isicode = code;
             run.callback();
         } );
@@ -120,17 +121,16 @@ public class IsiSimSendAuthCode : SimSendAuthCode
 
         switch ( isicode )
         {
-            case ISI.SIMAuth.Answer.OK:
+            case GIsiClient.SIMAuth.MessageType.SUCCESS_RESP:
                 theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_UNLOCKED );
                 break;
-            case ISI.SIMAuth.Answer.ERR_NEED_PUK:
+            case GIsiClient.SIMAuth.ErrorType.NEED_PUK:
                 throw new FreeSmartphone.GSM.Error.SIM_BLOCKED( @"ISI Code = $isicode" );
                 break;
             default:
                 throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"ISI Code = $isicode" );
                 break;
         }
-    #endif
     }
 }
 
@@ -283,7 +283,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
 
     mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
-//    mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
+    mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
 
 //    mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
 //    mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
