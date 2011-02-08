@@ -422,9 +422,8 @@ class Commands : Object
                 }
             }
 
-
             var parameters = vargs_builder.end();
-            unowned VariantType? full_vt = (methodinfo == null) ? null : new VariantType( buildSignature( methodinfo.out_args ) );
+            unowned VariantType? full_vt = (methodinfo == null || methodinfo.out_args.length <= 0) ? null :  new VariantType( "(" + buildSignature( methodinfo.out_args )  + ")" );
             var result = bus.call_sync( busname, path, iface, baseMethod, parameters, full_vt, DBusCallFlags.NONE, 100000 );
             stdout.printf( @"$(result.print(annotateTypes))\n" );
         }
