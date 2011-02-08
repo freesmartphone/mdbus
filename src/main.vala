@@ -383,6 +383,7 @@ class Commands : Object
             if( propinfo != null && args.length > 1 )
             {
                 stderr.printf( "[ERR]: Need 1 paramter to set or 0 parameter to get a property with signature '%s', supplied %u", propinfo.signature, args.length );
+                return false;
             }
 
             var vargs_builder = new VariantBuilder( VariantType.TUPLE );
