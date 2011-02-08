@@ -265,7 +265,6 @@ class Commands : Object
                     if( m.name.has_prefix( method_prefix ) )
                         result.append( i + "." + m.name );
                 }
-                return result;
             }
             foreach ( var iface in nodeinfo.interfaces )
             {
