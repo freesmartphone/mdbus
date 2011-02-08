@@ -246,7 +246,7 @@ class Commands : Object
         }
     }
 
-    public List<string> _listInterfaces( string busname, string path, string? prefix = null, bool stripPropertiesAndSignals = false )
+    public List<string> _listInterfaces( string busname, string path, string? prefix = null, bool stripSignals = false )
     {
         var result = new List<string>();
 
@@ -273,14 +273,14 @@ class Commands : Object
 #endif
                 if ( prefix == null )
                 {
-                    foreach( var s in interfaceDescription( iface, stripPropertiesAndSignals ) )
+                    foreach( var s in interfaceDescription( iface, stripSignals ) )
                         result.append( s );
                 }
                 else
                 {
                     if( iface.name.has_prefix( prefix ) )
                     {
-                        foreach( var s in interfaceDescription( iface, stripPropertiesAndSignals ) )
+                        foreach( var s in interfaceDescription( iface, stripSignals ) )
                             result.append( s );
                     }
                 }
@@ -581,22 +581,27 @@ class Commands : Object
         return result;
     }
 
-    private string[] interfaceDescription( DBusInterfaceInfo iface , bool only_methods )
+    private string[] interfaceDescription( DBusInterfaceInfo iface , bool stripSignals )
     {
         string[] result = new string[0];
         foreach( var m in iface.methods )
         {
-            if( !only_methods )
+            if( !stripSignals )
                 result += methodToString( m, iface.name );
             else
                 result += iface.name + "." + m.name;
         }
-        if( ! only_methods )
+        foreach( var p in iface.properties )
+        {
+            if( !stripSignals)
+                result += propertyToString( p, iface.name );
+            else
+                result += iface.name + "." + p.name;
+        }
+        if( ! stripSignals )
         {
             foreach( var s in iface.signals )
                 result += signalToString( s, iface.name );
-            foreach( var p in iface.properties )
-                result += propertyToString( p, iface.name );
         }
         return result;
     }
