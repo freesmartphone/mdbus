@@ -402,6 +402,7 @@ class Commands : Object
                     catch (GLib.VariantParseError e)
                     {
                         stderr.printf( @"[ERR]: parsing '$tmparg': $(e.message)" );
+                        return false;
                     }
                     vargs_builder.add_value( v );
                 }
