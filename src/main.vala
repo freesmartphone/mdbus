@@ -361,6 +361,7 @@ class Commands : Object
             var iface = splitInterfaceMethod( method, out baseMethod );
             var nodeinfo = getNodeInfo( busname, path );
             DBusMethodInfo methodinfo = null;
+            DBusPropertyInfo propinfo = null;
 
             if ( nodeinfo != null )
             {
@@ -368,6 +369,7 @@ class Commands : Object
                 if( ifaceinfo != null )
                 {
                     methodinfo = ifaceinfo.lookup_method( baseMethod );
+                    propinfo = ifaceinfo.lookup_property( baseMethod );
                 }
             }
 
@@ -378,24 +380,51 @@ class Commands : Object
                 return false;
             }
 
-            var vargs_builder = new VariantBuilder( VariantType.TUPLE );
-            for( int i = 0; i < args.length; i++ )
+            if( propinfo != null && args.length != 1 )
             {
+                stderr.printf( "[ERR]: Need 1 paramter to set a property with signature '%s', supplied %u", propinfo.signature, args.length );
+            }
+
+            var vargs_builder = new VariantBuilder( VariantType.TUPLE );
+            if( propinfo != null )
+            {
+                var tmparg = args[0];
+                vargs_builder.add_value( iface );
+                vargs_builder.add_value( baseMethod );
+                Variant v = null;
                 try
                 {
-                    unowned VariantType? vt = (methodinfo == null) ? null : new VariantType( methodinfo.in_args[i].signature );
-                    var v = Variant.parse( vt, args[i] );
-                    vargs_builder.add_value( v );
+                        v = new Variant.variant( Variant.parse( new VariantType( propinfo.signature ), tmparg ) );
                 }
                 catch (GLib.VariantParseError e)
                 {
-                    stdout.printf( @"[ERR]: $(e.message) while parsing '$(args[i])'\n" );
-                    return false;
+                    stderr.printf( @"[ERR]: parsing '$tmparg': $(e.message)" );
+                }
+                vargs_builder.add_value( v );
+                iface = "org.freedesktop.DBus.Properties";
+                baseMethod = "Set";
+            }
+            else
+            {
+                for( int i = 0; i < args.length; i++ )
+                {
+                    try
+                    {
+                        unowned VariantType? vt = (methodinfo == null) ? null : new VariantType( methodinfo.in_args[i].signature );
+                        var v = Variant.parse( vt, args[i] );
+                        vargs_builder.add_value( v );
+                    }
+                    catch (GLib.VariantParseError e)
+                    {
+                        stdout.printf( @"[ERR]: $(e.message) while parsing '$(args[i])'\n" );
+                        return false;
+                    }
                 }
             }
 
+
             var parameters = vargs_builder.end();
-            unowned VariantType? full_vt = parameters.get_type();//methodinfo == null ?  : new VariantType( buildSignature( methodinfo.out_args ) );
+            unowned VariantType? full_vt = (methodinfo == null) ? null : new VariantType( buildSignature( methodinfo.out_args ) );
             var result = bus.call_sync( busname, path, iface, baseMethod, parameters, full_vt, DBusCallFlags.NONE, 100000 );
             stdout.printf( @"$(result.print(annotateTypes))\n" );
         }
