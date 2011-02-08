@@ -350,10 +350,10 @@ class Commands : Object
         }
 
         // skip introspection if we don't have any arguments
-        if ( args.length == 0 )
-        {
-            return callMethodWithoutIntrospection( busname, path, method );
-        }
+        //if ( args.length == 0 )
+        //{
+            //return callMethodWithoutIntrospection( busname, path, method );
+        //}
 
         try
         {
@@ -380,9 +380,9 @@ class Commands : Object
                 return false;
             }
 
-            if( propinfo != null && args.length != 1 )
+            if( propinfo != null && args.length > 1 )
             {
-                stderr.printf( "[ERR]: Need 1 paramter to set a property with signature '%s', supplied %u", propinfo.signature, args.length );
+                stderr.printf( "[ERR]: Need 1 paramter to set or 0 parameter to get a property with signature '%s', supplied %u", propinfo.signature, args.length );
             }
 
             var vargs_builder = new VariantBuilder( VariantType.TUPLE );
@@ -391,18 +391,21 @@ class Commands : Object
                 var tmparg = args[0];
                 vargs_builder.add_value( iface );
                 vargs_builder.add_value( baseMethod );
-                Variant v = null;
-                try
+                if( args.length == 1 )
                 {
+                    Variant v = null;
+                    try
+                    {
                         v = new Variant.variant( Variant.parse( new VariantType( propinfo.signature ), tmparg ) );
+                    }
+                    catch (GLib.VariantParseError e)
+                    {
+                        stderr.printf( @"[ERR]: parsing '$tmparg': $(e.message)" );
+                    }
+                    vargs_builder.add_value( v );
                 }
-                catch (GLib.VariantParseError e)
-                {
-                    stderr.printf( @"[ERR]: parsing '$tmparg': $(e.message)" );
-                }
-                vargs_builder.add_value( v );
                 iface = "org.freedesktop.DBus.Properties";
-                baseMethod = "Set";
+                baseMethod = (args.length == 1) ? "Set" : "Get";
             }
             else
             {
