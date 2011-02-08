@@ -613,12 +613,12 @@ class Commands : Object
 
     private string signalToString( DBusSignalInfo signal, string iface )
     {
-        return @"[SIGNAL]    $(iface).$(signal.name)($(buildSignature(signal.args,true)))";
+        return @"[SIGNAL]   $(iface).$(signal.name)($(buildSignature(signal.args,true)))";
     }
 
     private string methodToString( DBusMethodInfo method, string iface )
     {
-        return @"[METHOD]    $(iface).$(method.name)($(buildSignature(method.in_args,true))) -> ($(buildSignature(method.out_args,true)))";
+        return @"[METHOD]   $(iface).$(method.name)($(buildSignature(method.in_args,true))) -> ($(buildSignature(method.out_args,true)))";
     }
 
     public DBusNodeInfo? getNodeInfo( string busname, string path )
