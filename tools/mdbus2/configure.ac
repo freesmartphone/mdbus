@@ -21,7 +21,6 @@ AC_SUBST(LDFLAGS)
 
 # requirements
 GLIB_REQUIRED=2.26.0
-DBUS_REQUIRED=1.2.1
 
 # libreadline and/or libhistory
 AC_CHECK_LIB(readline, rl_bind_key,
