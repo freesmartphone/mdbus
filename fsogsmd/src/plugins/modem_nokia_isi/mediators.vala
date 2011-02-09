@@ -291,9 +291,8 @@ public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-    #if 0
-        NokiaIsi.modem.isinetwork.request_strength( ( error, strength ) => {
-            if ( !error )
+        NokiaIsi.isimodem.net.queryStrength( ( error, strength ) => {
+            if ( error == ErrorCode.OK )
             {
                 this.signal = strength;
                 run.callback();
@@ -304,7 +303,6 @@ public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
             }
         } );
         yield;
-    #endif
     }
 }
 
@@ -341,7 +339,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
 
     mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
-//    mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
+    mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
 //    mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
 //    mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
 
