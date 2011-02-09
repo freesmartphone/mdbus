@@ -168,13 +168,12 @@ public class IsiNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-    #if 0
         status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-        var istatus = ISI.Network.Status();
+        var istatus = Network.ISI_RegStatus();
 
-        NokiaIsi.modem.isinetwork.request_status( ( error, isistatus ) => {
-            if ( !error )
+        NokiaIsi.isimodem.net.queryStatus( ( error, isistatus ) => {
+            if ( error == ErrorCode.OK )
             {
                 istatus = isistatus;
             }
@@ -182,32 +181,38 @@ public class IsiNetworkGetStatus : NetworkGetStatus
         } );
         yield;
 
-        status.insert( "lac", "%04X".printf( istatus.lac ) );
-        status.insert( "cid", "%04X".printf( istatus.cid ) );
+        status.insert( "lac", istatus.lac );
+        status.insert( "cid", istatus.cid );
         var regstatus = "<unknown>";
         switch ( istatus.status )
         {
-            case ISI.Network.RegistrationStatus.HOME:
+            case GIsiClient.Network.RegistrationStatus.HOME:
                 regstatus = "home";
                 break;
-            case ISI.Network.RegistrationStatus.ROAM:
-            case ISI.Network.RegistrationStatus.ROAM_BLINK:
+            case GIsiClient.Network.RegistrationStatus.ROAM:
+            case GIsiClient.Network.RegistrationStatus.ROAM_BLINK:
                 regstatus = "roaming";
                 break;
-            case ISI.Network.RegistrationStatus.NOSERV:
-            case ISI.Network.RegistrationStatus.NOSERV_NOTSEARCHING:
+            case GIsiClient.Network.RegistrationStatus.NOSERV:
+            case GIsiClient.Network.RegistrationStatus.NOSERV_NOTSEARCHING:
                 regstatus = "unregistered";
                 break;
-            case ISI.Network.RegistrationStatus.NOSERV_SEARCHING:
+            case GIsiClient.Network.RegistrationStatus.NOSERV_SEARCHING:
                 regstatus = "searching";
                 break;
-            case ISI.Network.RegistrationStatus.NOSERV_NOSIM:
-            case ISI.Network.RegistrationStatus.NOSERV_SIM_REJECTED_BY_NW:
+            case GIsiClient.Network.RegistrationStatus.NOSERV_NOSIM:
+            case GIsiClient.Network.RegistrationStatus.NOSERV_SIM_REJECTED_BY_NW:
                 regstatus = "denied";
                 break;
         }
         status.insert( "registration", regstatus );
-        status.insert( "act", Constants.instance().networkProviderActToString( istatus.technology ) );
+
+        status.insert( "provider", istatus.name );
+        status.insert( "display", istatus.name );
+
+        //status.insert( "act", Constants.instance().networkProviderActToString( istatus.technology ) );
+
+        /*
 
         NokiaIsi.modem.isinetwork.current_operator( ( error, operator ) => {
             if ( !error )
@@ -228,7 +233,8 @@ public class IsiNetworkGetStatus : NetworkGetStatus
             run.callback();
         } );
         yield;
-    #endif
+        *
+        */
     }
 }
 
@@ -313,7 +319,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(SimGetInformation) ]                   = typeof( IsiSimGetInformation );
     mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
 
-//    mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
+    mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
 //    mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
 //    mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
 //    mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
