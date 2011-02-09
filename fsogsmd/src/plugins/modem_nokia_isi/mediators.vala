@@ -183,6 +183,7 @@ public class IsiNetworkGetStatus : NetworkGetStatus
 
         status.insert( "lac", istatus.lac );
         status.insert( "cid", istatus.cid );
+
         var regstatus = "<unknown>";
         switch ( istatus.status )
         {
@@ -205,36 +206,56 @@ public class IsiNetworkGetStatus : NetworkGetStatus
                 regstatus = "denied";
                 break;
         }
-        status.insert( "registration", regstatus );
 
+        string regmode;
+        switch ( istatus.mode )
+        {
+            case GIsiClient.Network.OperatorSelectMode.AUTOMATIC:
+                regmode = "automatic";
+                break;
+            case GIsiClient.Network.OperatorSelectMode.MANUAL:
+                regmode = "manual";
+                break;
+            /*
+            case GIsiClient.Network.OperatorSelectMode.USER_RESELECTION:
+                regmode = "automatic;manual";
+                break;
+            case GIsiClient.Network.OperatorSelectMode.NO_SELECTION:
+                regmode = "unregister";
+                break;
+            */
+            default:
+                regmode = "unknown";
+                break;
+        }
+        status.insert( "mode", regmode );
+
+        status.insert( "registration", regstatus );
+        status.insert( "band", istatus.band );
+        status.insert( "code", istatus.mcc + istatus.mnc );
         status.insert( "provider", istatus.name );
         status.insert( "display", istatus.name );
 
-        //status.insert( "act", Constants.instance().networkProviderActToString( istatus.technology ) );
+        var technology = 0;
+        if ( istatus.hsupa || istatus.hsdpa )
+        {
+            technology = 2;
+        }
+        else if ( istatus.egprs )
+        {
+            technology = 3;
+        }
 
-        /*
+        status.insert( "act", Constants.instance().networkProviderActToString( technology ) );
 
-        NokiaIsi.modem.isinetwork.current_operator( ( error, operator ) => {
-            if ( !error )
-            {
-                status.insert( "display", operator.name );
-                status.insert( "provider", operator.name );
-                status.insert( "code", operator.mcc + operator.mnc );
-            }
-            run.callback();
-        } );
-        yield;
-
-        NokiaIsi.modem.isinetwork.request_strength( ( error, strength ) => {
-            if ( !error )
+        NokiaIsi.isimodem.net.queryStrength( ( error, strength ) => {
+            if ( error == ErrorCode.OK )
             {
                 status.insert( "strength", strength );
             }
             run.callback();
         } );
         yield;
-        *
-        */
     }
 }
 
