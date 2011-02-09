@@ -310,9 +310,8 @@ public class IsiNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-    #if 0
-        NokiaIsi.modem.isinetwork.register_auto( (error) => {
-            if ( !error )
+        NokiaIsi.isimodem.net.registerAutomatic( true, (error) => {
+            if ( error == ErrorCode.OK )
             {
                 run.callback();
             }
@@ -320,10 +319,8 @@ public class IsiNetworkRegister : NetworkRegister
             {
                 throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
             }
-
         } );
         yield;
-    #endif
     }
 }
 
@@ -341,7 +338,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
     mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
 //    mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
-//    mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
+    mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
 }
