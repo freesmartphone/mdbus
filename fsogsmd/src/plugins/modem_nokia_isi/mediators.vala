@@ -35,25 +35,25 @@ public class IsiDeviceGetInformation : DeviceGetInformation
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         NokiaIsi.isimodem.info.readManufacturer( ( error, msg ) => {
-            info.insert( "manufacturer", error != ErrorCode.OK ? "unknown" : msg );
+            info.insert( "manufacturer", error != ErrorCode.OK ? "<unknown>" : msg );
             run.callback();
         } );
         yield;
 
         NokiaIsi.isimodem.info.readModel( ( error, msg ) => {
-            info.insert( "model", error != ErrorCode.OK ? "unknown" : msg );
+            info.insert( "model", error != ErrorCode.OK ? "<unknown>" : msg );
             run.callback();
         } );
         yield;
 
         NokiaIsi.isimodem.info.readVersion( ( error, msg ) => {
-            info.insert( "revision", error != ErrorCode.OK ? "unknown" : msg );
+            info.insert( "revision", error != ErrorCode.OK ? "<unknown>" : msg );
             run.callback();
         } );
         yield;
 
         NokiaIsi.isimodem.info.readSerial( ( error, msg ) => {
-            info.insert( "imei", error != ErrorCode.OK ? "unknown" : msg );
+            info.insert( "imei", error != ErrorCode.OK ? "<unknown>" : msg );
             run.callback();
         } );
         yield;
@@ -100,6 +100,33 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
                 status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
                 break;
         }
+    }
+}
+
+public class IsiSimGetInformation : SimGetInformation
+{
+    /* imsi, issuer, phonebooks, slots [sms], used [sms] */
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+
+        NokiaIsi.isimodem.sim.readIMSI( ( error, msg ) => {
+            info.insert( "imsi", error != ErrorCode.OK ? "<unknown>" : msg );
+            run.callback();
+        } );
+        yield;
+
+        NokiaIsi.isimodem.sim.readSPN( ( error, msg ) => {
+            info.insert( "issuer", error != ErrorCode.OK ? "<unknown>" : msg );
+            run.callback();
+        } );
+        yield;
+
+        NokiaIsi.isimodem.sim.readHPLMN( ( error, msg ) => {
+            info.insert( "hplmn", error != ErrorCode.OK ? "<unknown>" : msg );
+            run.callback();
+        } );
+        yield;
     }
 }
 
@@ -157,7 +184,7 @@ public class IsiNetworkGetStatus : NetworkGetStatus
 
         status.insert( "lac", "%04X".printf( istatus.lac ) );
         status.insert( "cid", "%04X".printf( istatus.cid ) );
-        var regstatus = "unknown";
+        var regstatus = "<unknown>";
         switch ( istatus.status )
         {
             case ISI.Network.RegistrationStatus.HOME:
@@ -283,6 +310,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
 
     mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
+    mediators[ typeof(SimGetInformation) ]                   = typeof( IsiSimGetInformation );
     mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
 
 //    mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
