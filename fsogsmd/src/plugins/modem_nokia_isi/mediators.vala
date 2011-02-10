@@ -263,11 +263,10 @@ public class IsiNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-    #if 0
         var p = new FreeSmartphone.GSM.NetworkProvider[] {};
 
-        NokiaIsi.modem.isinetwork.list_operators( ( error, operators ) => {
-            if ( !error )
+        NokiaIsi.isimodem.net.listProviders( ( error, operators ) => {
+            if ( error == ErrorCode.OK )
             {
                 for ( int i = 0; i < operators.length; ++i )
                 {
@@ -283,7 +282,6 @@ public class IsiNetworkListProviders : NetworkListProviders
         yield;
 
         providers = p;
-    #endif
     }
 }
 
@@ -337,7 +335,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
 
     mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
     mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
-//    mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
+    mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
     mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
