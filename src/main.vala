@@ -401,7 +401,16 @@ class Commands : Object
                     }
                     catch (GLib.VariantParseError e)
                     {
-                        stderr.printf( @"[ERR]: parsing '$tmparg': $(e.message)" );
+                        stderr.printf( @"[ERR]: parsing '$tmparg': $(e.message)\n" );
+                        var range = e.message.split( ":", 1 );
+                        var ranges = range[0].split( "-" );
+                        var from = ranges[0].to_int();
+                        int to = from + 1;
+                        if( ranges.length == 2)
+                            to = ranges[1].to_int();
+                        var indent = string.nfill ( /* "[ERR]: parsing '".length */ 16 + from, ' ' );
+                        var arrows = string.nfill ( to - from, '^' );
+                        stderr.printf( @"$indent$arrows\n" );
                         return false;
                     }
                     vargs_builder.add_value( v );
@@ -421,7 +430,16 @@ class Commands : Object
                     }
                     catch (GLib.VariantParseError e)
                     {
-                        stdout.printf( @"[ERR]: $(e.message) while parsing '$(args[i])'\n" );
+                        stderr.printf( @"[ERR]: parsing '$(args[i])': $(e.message)\n" );
+                        var range = e.message.split( ":", 1 );
+                        var ranges = range[0].split( "-" );
+                        var from = ranges[0].to_int();
+                        int to = from + 1;
+                        if( ranges.length == 2)
+                            to = ranges[1].to_int();
+                        var indent = string.nfill ( /* "[ERR]: parsing '".length */ 16 + from, ' ' );
+                        var arrows = string.nfill ( to - from, '^' );
+                        stderr.printf( @"$indent$arrows\n" );
                         return false;
                     }
                 }
