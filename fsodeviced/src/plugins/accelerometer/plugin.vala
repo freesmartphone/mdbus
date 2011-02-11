@@ -23,8 +23,7 @@ namespace Hardware
 {
     internal const string HW_ACCEL_PLUGIN_NAME = "fsodevice.accelerometer";
 
-    internal const int FLAT_SURFACE_Z_MIDDLE = 1000;
-    internal const int FLAT_SURFACE_Z_RADIUS = 100;
+    internal const int DEFAULT_DEADZONE = 180;
 
 /**
  * Implementation of org.freesmartphone.Device.Orientation for an Accelerometer device
@@ -37,17 +36,12 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
 
     private FsoFramework.Subsystem subsystem;
 
-    private Ternary flat;
-    private Ternary landscape;
-    private Ternary facedown;
-    private Ternary reverse;
+    private int deadzone;
+    private bool flat;
+    private bool landscape;
+    private bool faceup;
+    private bool reverse;
     private string orientation;
-
-    public enum Polarity
-    {
-        PLUS,
-        MINUS,
-    }
 
     public enum Ternary
     {
@@ -59,9 +53,12 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
     public Accelerometer( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
+
         subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
         subsystem.registerObjectForService<FreeSmartphone.Device.Orientation>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
-        generateOrientationSignal( Ternary.UNKNOWN, Ternary.UNKNOWN, Ternary.UNKNOWN, Ternary.UNKNOWN );
+
+        deadzone = config.intValue( HW_ACCEL_PLUGIN_NAME, "deadzone", DEFAULT_DEADZONE);
+        generateOrientationSignal( false, false, true, false );
         logger.info( "Created new Orientation object." );
     }
 
@@ -127,43 +124,38 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
         message( @"onAcceleration: acceleration values: $x, $y, $z" ) );
 #endif
 
-        var flat = ( intWithinRegion( z, FLAT_SURFACE_Z_MIDDLE, FLAT_SURFACE_Z_RADIUS ) || intWithinRegion( z, -FLAT_SURFACE_Z_MIDDLE, FLAT_SURFACE_Z_RADIUS ) ) ? Ternary.TRUE : Ternary.FALSE;
+        var xpol = polarity( x );
+        var ypol = polarity( y );
+        var zpol = polarity( z );
 
-        var facedown = ( polarity( z ) == Polarity.MINUS ) ? Ternary.TRUE : Ternary.FALSE;
-        var landscape = ( polarity( x ) != polarity( y ) ) ? Ternary.TRUE : Ternary.FALSE;
-        var reverse = ( polarity( x ) == Polarity.PLUS ) ? Ternary.TRUE : Ternary.FALSE;
+        bool flat = ( xpol == Ternary.UNKNOWN && ypol == Ternary.UNKNOWN ? true : false );
+        bool faceup = ( zpol == Ternary.UNKNOWN ? this.faceup : zpol == Ternary.TRUE );
+        bool landscape = ( xpol == Ternary.UNKNOWN || ypol == Ternary.UNKNOWN ? this.landscape
+                         : ( xpol != ypol ? true : false ) );
+        bool reverse = ( xpol == Ternary.UNKNOWN ? this.reverse : xpol == Ternary.TRUE );
 
-        generateOrientationSignal( flat, landscape, facedown, reverse );
+        generateOrientationSignal( flat, landscape, faceup, reverse );
     }
 
-    private Polarity polarity( int value )
+    private Ternary polarity( int value )
     {
-        return value >= 0 ? Polarity.PLUS : Polarity.MINUS;
+        if ( value < -deadzone || value > deadzone )
+            return ( value > 0 ? Ternary.TRUE : Ternary.FALSE );
+
+        return Ternary.UNKNOWN;
     }
 
-    private bool intWithinRegion( int value, int middle, int region )
+    public void generateOrientationSignal( bool flat, bool landscape, bool faceup, bool reverse )
     {
-        int bounds1 = middle - region;
-        int bounds2 = middle + region;
-        var res = ( bounds1 > bounds2 ) ? value > bounds2 && value < bounds1 : value > bounds1 && value < bounds2;
-#if DEBUG
-        message( @"intWithinRegion: $value, $middle, $region. Answer = $res" );
-#endif
-
-        return res; //( value > lowerbounds && value < upperbounds );
-    }
-
-    public void generateOrientationSignal( Ternary flat, Ternary landscape, Ternary facedown, Ternary reverse )
-    {
-        if ( flat == Ternary.TRUE )
+        if ( flat )
         {
-            orientation = "flat %s".printf( facedown == Ternary.TRUE ? "facedown" : "faceup" );
+            orientation = "flat %s".printf( faceup ? "faceup" : "facedown" );
         }
         else
         {
-            orientation = "held %s %s %s".printf( landscape == Ternary.TRUE ? "landscape" : "portrait",
-                                                  facedown == Ternary.TRUE ? "facedown" : "faceup",
-                                                  reverse == Ternary.TRUE ? "reverse" : "normal" );
+            orientation = "held %s %s %s".printf( landscape ? "landscape" : "portrait",
+                                                  faceup    ? "faceup"    : "facedown",
+                                                  reverse   ? "reverse"   : "normal" );
         }
 
         var signal = "";
@@ -171,28 +163,28 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
         if ( flat != this.flat )
         {
             this.flat = flat;
-            signal += flat == Ternary.TRUE ? "flat " : "held ";
+            signal += flat ? "flat " : "held ";
         }
 
-        if ( facedown != this.facedown )
+        if ( faceup != this.faceup )
         {
-            this.facedown = facedown;
-            signal += facedown == Ternary.TRUE ? "facedown " : "faceup ";
+            this.faceup = faceup;
+            signal += faceup ? "faceup " : "facedown ";
         }
 
         // additional info only valid, if not laying flat
-        if ( flat == Ternary.FALSE )
+        if ( ! flat )
         {
             if ( landscape != this.landscape )
             {
                 this.landscape = landscape;
-                signal += landscape == Ternary.TRUE ? "landscape " : "portrait ";
+                signal += landscape ? "landscape " : "portrait ";
             }
 
             if ( reverse != this.reverse )
             {
                 this.reverse = reverse;
-                signal += reverse == Ternary.TRUE ? "reverse " : "normal ";
+                signal += reverse ? "reverse " : "normal ";
             }
         }
 
