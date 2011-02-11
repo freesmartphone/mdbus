@@ -22,17 +22,16 @@ using GLib;
 namespace Hardware {
 
     internal const string PLUGIN_NAME = "fsodevice.accelerometer_lis302";
-    internal const string DEFAULT_EVENT_NODE = "/input/event3";
-    internal const string LIS302_CONFIGURATION_NODE = "/class/input/input3/";
+    internal const string DEFAULT_EVENT_NODE = "/input/event4";
+    internal const string LIS302_CONFIGURATION_NODE = "/bus/spi/devices/spi3.0/";
 
-    internal const int LIS302_DEFAULT_SAMPLERATE = 250;
-    internal const int LIS302_DEFAULT_THRESHOLD = 3;
+    internal const int LIS302_DEFAULT_SAMPLERATE = 100;
+    internal const int LIS302_DEFAULT_THRESHOLD = 54;
 
 class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 {
     private string inputnode;
     private string sysfsnode;
-    private string modenode;
 
     private uint sample_rate;
     private uint threshold;
@@ -53,9 +52,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         var devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
         inputnode = devfs_root + config.stringValue( PLUGIN_NAME, "inputnode", DEFAULT_EVENT_NODE );
         sysfsnode = sysfs_root + LIS302_CONFIGURATION_NODE;
-        modenode  = sysfsnode + "/mode";
-
-        sample_rate = config.intValue( PLUGIN_NAME, "poll_interval", LIS302_DEFAULT_SAMPLERATE );
+        sample_rate = config.intValue( PLUGIN_NAME, "sample_rate", LIS302_DEFAULT_SAMPLERATE );
         threshold = config.intValue( PLUGIN_NAME, "threshold", LIS302_DEFAULT_THRESHOLD );
 
         if ( !FsoFramework.FileHandling.isPresent( sysfsnode ) )
@@ -64,9 +61,8 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         }
         else
         {
-            FsoFramework.FileHandling.write( sample_rate.to_string(), sysfsnode + "/poll_interval" );
-            FsoFramework.FileHandling.write( threshold.to_string(), sysfsnode + "/accelerometer_motion_wake_up_threshold" );
-            //FsoFramework.FileHandling.write( full_scale, sysfsnode + "/full_scale" );
+            FsoFramework.FileHandling.write( sample_rate.to_string(), sysfsnode + "/sample_rate" );
+            FsoFramework.FileHandling.write( threshold.to_string(), sysfsnode + "/threshold" );
         }
         axis = new int[3];
     }
@@ -86,14 +82,10 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         }
         channel = new IOChannel.unix_new( fd );
         watch = channel.add_watch( IOCondition.IN, onInputEvent );
-
-        FsoFramework.FileHandling.write( "all", modenode );
     }
 
     public override void stop()
     {
-        FsoFramework.FileHandling.write( "off", modenode );
-
         if ( watch > 0 )
         {
             Source.remove( watch );
