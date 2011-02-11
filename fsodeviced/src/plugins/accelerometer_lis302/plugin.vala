@@ -25,6 +25,7 @@ namespace Hardware {
     internal const string DEFAULT_EVENT_NODE = "/input/event4";
     internal const string LIS302_CONFIGURATION_NODE = "/bus/spi/devices/spi3.0/";
 
+    internal const int LIS302_DEFAULT_DURATION = 200;
     internal const int LIS302_DEFAULT_SAMPLERATE = 100;
     internal const int LIS302_DEFAULT_THRESHOLD = 54;
     internal const string LIS302_DEFAULT_FULLSCALE = "2.3";
@@ -34,6 +35,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
     private string inputnode;
     private string sysfsnode;
 
+    private uint duration;
     private uint sample_rate;
     private uint threshold;
     private string full_scale;
@@ -54,6 +56,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         var devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
         inputnode = devfs_root + config.stringValue( PLUGIN_NAME, "inputnode", DEFAULT_EVENT_NODE );
         sysfsnode = sysfs_root + config.stringValue( PLUGIN_NAME, "sysfsnode", LIS302_CONFIGURATION_NODE );
+        duration = config.intValue( PLUGIN_NAME, "duration", LIS302_DEFAULT_DURATION );
         sample_rate = config.intValue( PLUGIN_NAME, "sample_rate", LIS302_DEFAULT_SAMPLERATE );
         threshold = config.intValue( PLUGIN_NAME, "threshold", LIS302_DEFAULT_THRESHOLD );
         full_scale = config.stringValue( PLUGIN_NAME, "full_scale", LIS302_DEFAULT_FULLSCALE );
@@ -65,6 +68,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         }
         else
         {
+            FsoFramework.FileHandling.write( duration.to_string(), sysfsnode + "/duration" );
             FsoFramework.FileHandling.write( sample_rate.to_string(), sysfsnode + "/sample_rate" );
             FsoFramework.FileHandling.write( threshold.to_string(), sysfsnode + "/threshold" );
             FsoFramework.FileHandling.write( full_scale, sysfsnode + "/full_scale" );
