@@ -61,6 +61,7 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
         this.subsystem = subsystem;
         subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
         subsystem.registerObjectForService<FreeSmartphone.Device.Orientation>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
+        generateOrientationSignal( Ternary.UNKNOWN, Ternary.UNKNOWN, Ternary.UNKNOWN, Ternary.UNKNOWN );
         logger.info( "Created new Orientation object." );
     }
 
