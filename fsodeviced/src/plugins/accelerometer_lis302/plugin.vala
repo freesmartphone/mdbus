@@ -27,6 +27,7 @@ namespace Hardware {
 
     internal const int LIS302_DEFAULT_SAMPLERATE = 100;
     internal const int LIS302_DEFAULT_THRESHOLD = 54;
+    internal const string LIS302_DEFAULT_FULLSCALE = "2.3";
 
 class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 {
@@ -35,6 +36,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 
     private uint sample_rate;
     private uint threshold;
+    private string full_scale;
 
     internal int fd = -1;
     private IOChannel channel;
@@ -54,6 +56,8 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         sysfsnode = sysfs_root + config.stringValue( PLUGIN_NAME, "sysfsnode", LIS302_CONFIGURATION_NODE );
         sample_rate = config.intValue( PLUGIN_NAME, "sample_rate", LIS302_DEFAULT_SAMPLERATE );
         threshold = config.intValue( PLUGIN_NAME, "threshold", LIS302_DEFAULT_THRESHOLD );
+        full_scale = config.stringValue( PLUGIN_NAME, "full_scale", LIS302_DEFAULT_FULLSCALE );
+
 
         if ( !FsoFramework.FileHandling.isPresent( sysfsnode ) )
         {
@@ -63,6 +67,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         {
             FsoFramework.FileHandling.write( sample_rate.to_string(), sysfsnode + "/sample_rate" );
             FsoFramework.FileHandling.write( threshold.to_string(), sysfsnode + "/threshold" );
+            FsoFramework.FileHandling.write( full_scale, sysfsnode + "/full_scale" );
         }
         axis = new int[3];
     }
