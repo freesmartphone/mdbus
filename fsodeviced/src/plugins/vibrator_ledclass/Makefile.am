@@ -36,6 +36,10 @@ vibrator_ledclass_la_LIBADD = $(progs_ldadd)
 vibrator_ledclass_la_LDFLAGS = -no-undefined -module -avoid-version
 vibrator_ledclass_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(vibrator_ledclass_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

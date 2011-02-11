@@ -45,6 +45,10 @@ kernel_input_la_LIBADD = $(progs_ldadd)
 kernel_input_la_LDFLAGS = -no-undefined -module -avoid-version
 kernel_input_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(kernel_input_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

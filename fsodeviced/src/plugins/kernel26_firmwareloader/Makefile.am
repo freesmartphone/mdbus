@@ -44,6 +44,10 @@ kernel26_firmwareloader_la_LIBADD = $(progs_ldadd)
 kernel26_firmwareloader_la_LDFLAGS = -no-undefined -module -avoid-version
 kernel26_firmwareloader_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(kernel26_firmwareloader_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

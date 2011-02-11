@@ -43,6 +43,10 @@ player_canberra_la_LIBADD = $(progs_ldadd)
 player_canberra_la_LDFLAGS = -no-undefined -module -avoid-version
 player_canberra_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(player_canberra_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

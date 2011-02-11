@@ -45,6 +45,10 @@ player_gstreamer_la_LIBADD = $(progs_ldadd)
 player_gstreamer_la_LDFLAGS = -no-undefined -module -avoid-version
 player_gstreamer_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(player_gstreamer_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

@@ -41,6 +41,10 @@ accelerometer_la_LIBADD = $(progs_ldadd)
 accelerometer_la_LDFLAGS = -no-undefined -module -avoid-version
 accelerometer_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(accelerometer_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

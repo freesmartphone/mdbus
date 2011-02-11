@@ -36,6 +36,10 @@ vibrator_timedoutputclass_la_LIBADD = $(progs_ldadd)
 vibrator_timedoutputclass_la_LDFLAGS = -no-undefined -module -avoid-version
 vibrator_timedoutputclass_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(vibrator_timedoutputclass_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

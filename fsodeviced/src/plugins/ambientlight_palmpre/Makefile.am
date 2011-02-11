@@ -36,6 +36,10 @@ ambientlight_palmpre_la_LIBADD = $(progs_ldadd)
 ambientlight_palmpre_la_LDFLAGS = -no-undefined -module -avoid-version
 ambientlight_palmpre_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(ambientlight_palmpre_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

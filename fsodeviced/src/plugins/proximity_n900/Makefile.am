@@ -37,6 +37,10 @@ proximity_n900_la_LIBADD = $(progs_ldadd)
 proximity_n900_la_LDFLAGS = -no-undefined -module -avoid-version
 proximity_n900_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(proximity_n900_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

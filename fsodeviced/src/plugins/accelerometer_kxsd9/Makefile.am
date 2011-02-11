@@ -42,6 +42,10 @@ accelerometer_kxsd9_la_LIBADD = $(progs_ldadd)
 accelerometer_kxsd9_la_LDFLAGS = -no-undefined -module -avoid-version
 accelerometer_kxsd9_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(accelerometer_kxsd9_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     plugin.c \
     plugin.h \

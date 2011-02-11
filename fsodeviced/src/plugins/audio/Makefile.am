@@ -40,6 +40,10 @@ audio_la_LIBADD = $(progs_ldadd)
 audio_la_LDFLAGS = -no-undefined -module -avoid-version
 audio_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(audio_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

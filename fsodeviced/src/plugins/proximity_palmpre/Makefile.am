@@ -34,6 +34,10 @@ proximity_palmpre_la_LIBADD = $(progs_ldadd)
 proximity_palmpre_la_LDFLAGS = -no-undefined -module -avoid-version
 proximity_palmpre_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(proximity_palmpre_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

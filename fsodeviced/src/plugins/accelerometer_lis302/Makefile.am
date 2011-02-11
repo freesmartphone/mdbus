@@ -42,6 +42,10 @@ accelerometer_lis302_la_LIBADD = $(progs_ldadd)
 accelerometer_lis302_la_LDFLAGS = -no-undefined -module -avoid-version
 accelerometer_lis302_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(accelerometer_lis302_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     plugin.c \
     plugin.h \

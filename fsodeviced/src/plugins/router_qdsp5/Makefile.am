@@ -42,6 +42,10 @@ router_qdsp5_la_LIBADD = $(progs_ldadd)
 router_qdsp5_la_LDFLAGS = -no-undefined -module -avoid-version
 router_qdsp5_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(router_qdsp5_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     plugin.c \
     *.la \

@@ -44,6 +44,10 @@ n900_powercontrol_la_LIBADD = $(progs_ldadd)
 n900_powercontrol_la_LDFLAGS = -no-undefined -module -avoid-version
 n900_powercontrol_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(n900_powercontrol_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

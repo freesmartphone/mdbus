@@ -39,6 +39,10 @@ kernel_idle_la_LIBADD = $(progs_ldadd)
 kernel_idle_la_LDFLAGS = -no-undefined -module -avoid-version
 kernel_idle_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(kernel_idle_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

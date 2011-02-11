@@ -51,6 +51,10 @@ palmpre_quirks_la_LIBADD = $(progs_ldadd)
 palmpre_quirks_la_LDFLAGS = -no-undefined -module -avoid-version
 palmpre_quirks_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(palmpre_quirks_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

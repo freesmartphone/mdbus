@@ -46,6 +46,10 @@ dummy_input_la_LIBADD = $(progs_ldadd)
 dummy_input_la_LDFLAGS = -no-undefined -module -avoid-version
 dummy_input_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(dummy_input_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

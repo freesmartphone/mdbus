@@ -37,6 +37,10 @@ powersupply_n900_la_LIBADD = $(progs_ldadd)
 powersupply_n900_la_LDFLAGS = -no-undefined -module -avoid-version
 powersupply_n900_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(powersupply_n900_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

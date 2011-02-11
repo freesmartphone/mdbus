@@ -39,6 +39,10 @@ powercontrol_ifconfig_la_LIBADD = $(progs_ldadd)
 powercontrol_ifconfig_la_LDFLAGS = -no-undefined -module -avoid-version
 powercontrol_ifconfig_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(powercontrol_ifconfig_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

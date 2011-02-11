@@ -40,6 +40,10 @@ router_alsa_la_LIBADD = $(progs_ldadd)
 router_alsa_la_LDFLAGS = -no-undefined -module -avoid-version
 router_alsa_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(router_alsa_la_VALASOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \
