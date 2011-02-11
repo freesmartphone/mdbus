@@ -51,7 +51,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         var devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
         inputnode = devfs_root + config.stringValue( PLUGIN_NAME, "inputnode", DEFAULT_EVENT_NODE );
-        sysfsnode = sysfs_root + LIS302_CONFIGURATION_NODE;
+        sysfsnode = sysfs_root + config.stringValue( PLUGIN_NAME, "sysfsnode", LIS302_CONFIGURATION_NODE );
         sample_rate = config.intValue( PLUGIN_NAME, "sample_rate", LIS302_DEFAULT_SAMPLERATE );
         threshold = config.intValue( PLUGIN_NAME, "threshold", LIS302_DEFAULT_THRESHOLD );
 
