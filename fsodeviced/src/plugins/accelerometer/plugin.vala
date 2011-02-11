@@ -147,52 +147,21 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
 
     public void generateOrientationSignal( bool flat, bool landscape, bool faceup, bool reverse )
     {
-        if ( flat )
-        {
-            orientation = "flat %s".printf( faceup ? "faceup" : "facedown" );
-        }
-        else
-        {
-            orientation = "held %s %s %s".printf( landscape ? "landscape" : "portrait",
-                                                  faceup    ? "faceup"    : "facedown",
-                                                  reverse   ? "reverse"   : "normal" );
-        }
+        bool signal = (flat      != this.flat      || faceup  != this.faceup ||
+                       landscape != this.landscape || reverse != this.reverse );
 
-        var signal = "";
+        orientation = "%s %s %s %s".printf( flat      ? "flat"      : "held",
+                                            faceup    ? "faceup"    : "facedown",
+                                            landscape ? "landscape" : "portrait",
+                                            reverse   ? "reverse"   : "normal" );
 
-        if ( flat != this.flat )
-        {
-            this.flat = flat;
-            signal += flat ? "flat " : "held ";
-        }
+        this.flat      = flat;
+        this.faceup    = faceup;
+        this.landscape = landscape;
+        this.reverse   = reverse;
 
-        if ( faceup != this.faceup )
-        {
-            this.faceup = faceup;
-            signal += faceup ? "faceup " : "facedown ";
-        }
-
-        // additional info only valid, if not laying flat
-        if ( ! flat )
-        {
-            if ( landscape != this.landscape )
-            {
-                this.landscape = landscape;
-                signal += landscape ? "landscape " : "portrait ";
-            }
-
-            if ( reverse != this.reverse )
-            {
-                this.reverse = reverse;
-                signal += reverse ? "reverse " : "normal ";
-            }
-        }
-
-        assert( logger.debug( @"Full orientation = $orientation. Sending change signal for $signal" ) );
-        if ( signal.length > 0 )
-        {
-            this.orientation_changed( signal );
-        }
+        if ( signal )
+            this.orientation_changed( orientation );
     }
 
     //
