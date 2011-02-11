@@ -45,9 +45,6 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
     private uint watch;
     private int[] axis;
 
-    private uint timeout;
-
-
     construct
     {
         logger.info( "Registering lis302 accelerometer" );
@@ -107,13 +104,6 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         fd = -1;
     }
 
-    private bool onTimeout()
-    {
-        this.accelerate( axis[0], axis[1], axis[2] ); // GOBJECT SIGNAL
-        timeout = 0;
-        return false; // don't call me again
-    }
-
     private void _handleInputEvent( ref Linux.Input.Event ev )
     {
         if ( ev.code > 2 )
@@ -123,11 +113,7 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
         }
 
         axis[ev.code] = ev.value;
-        if ( timeout != 0 )
-        {
-            Source.remove( timeout );
-        }
-        timeout = Timeout.add_seconds( 1, onTimeout );
+        this.accelerate( axis[0], axis[1], axis[2] );
     }
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
