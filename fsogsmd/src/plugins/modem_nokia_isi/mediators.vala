@@ -323,6 +323,33 @@ public class IsiNetworkRegister : NetworkRegister
 }
 
 /*
+ * org.freesmartphone.GSM.Network
+ */
+
+public class IsiCallInitiate : CallInitiate
+{
+    public override async void run( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        if ( ctype != "voice" )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "This modem only supports voice calls" );
+        }
+
+        NokiaIsi.isimodem.call.initiateVoiceCall( number, 145, GIsiClient.Call.PresentationType.GSM_DEFAULT, (error) => {
+            if ( error == ErrorCode.OK )
+            {
+                run.callback();
+            }
+            else
+            {
+                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
+            }
+        } );
+        yield;
+    }
+}
+
+/*
  * Register Mediators
  */
 static void registerMediators( HashMap<Type,Type> mediators )
@@ -330,13 +357,15 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
 
     mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
-    mediators[ typeof(SimGetInformation) ]                   = typeof( IsiSimGetInformation );
+    mediators[ typeof(SimGetInformation) ]               = typeof( IsiSimGetInformation );
     mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
 
     mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
     mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
     mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
     mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
+
+    mediators[ typeof(CallInitiate) ]                    = typeof( IsiCallInitiate );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
 }
