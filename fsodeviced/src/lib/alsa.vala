@@ -272,6 +272,11 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
         mix.load();
 
         Alsa.MixerElement mel = mix.first_elem();
+        if( mel == null )
+        {
+            warning( "mix.first_elem() returned NULL" );
+            return 0;
+        }
         while ( id-- > 0 )
         {
             mel = mel.next();
@@ -300,6 +305,11 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
         mix.load();
 
         Alsa.MixerElement mel = mix.first_elem();
+        if( mel == null )
+        {
+            warning( "mix.first_elem() returned NULL" );
+            return;
+        }
         while ( id-- > 0 )
         {
             mel = mel.next();
