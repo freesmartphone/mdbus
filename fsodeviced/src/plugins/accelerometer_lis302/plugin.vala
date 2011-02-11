@@ -36,7 +36,6 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 
     private uint sample_rate;
     private uint threshold;
-    private string full_scale;
 
     internal int fd = -1;
     private IOChannel channel;
@@ -58,7 +57,6 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
 
         sample_rate = config.intValue( PLUGIN_NAME, "poll_interval", LIS302_DEFAULT_SAMPLERATE );
         threshold = config.intValue( PLUGIN_NAME, "threshold", LIS302_DEFAULT_THRESHOLD );
-        //full_scale = config.stringValue( PLUGIN_NAME, "full_scale", LIS302_DEFAULT_FULLSCALE );
 
         if ( !FsoFramework.FileHandling.isPresent( sysfsnode ) )
         {
@@ -76,16 +74,6 @@ class AccelerometerLis302 : FsoDevice.BaseAccelerometer
     public override string repr()
     {
         return "<via %s>".printf( inputnode );
-    }
-
-    private bool feedImpulse()
-    {
-        axis[0] = 0;
-        axis[1] = 0;
-        axis[2] = 0;
-
-        this.accelerate( axis[0], axis[1], axis[2] ); // GOBJECT SIGNAL
-        return false;
     }
 
     public override void start()

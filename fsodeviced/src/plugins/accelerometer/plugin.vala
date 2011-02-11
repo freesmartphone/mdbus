@@ -21,26 +21,10 @@ using GLib;
 
 namespace Hardware
 {
-    internal char[] buffer;
-    internal const uint BUFFER_SIZE = 512;
-
     internal const string HW_ACCEL_PLUGIN_NAME = "fsodevice.accelerometer";
-
-    internal const int kHistorySize = 150;
-    internal const float kFilteringFactor = 0.1f;
-
-    internal const int MOVEMENT_IDLE_THRESHOLD = 20;
-    internal const int MOVEMENT_BUSY_THRESHOLD = 50;
 
     internal const int FLAT_SURFACE_Z_MIDDLE = 1000;
     internal const int FLAT_SURFACE_Z_RADIUS = 100;
-
-    internal struct AccelerometerValue
-    {
-        int x;
-        int y;
-        int z;
-    }
 
 /**
  * Implementation of org.freesmartphone.Device.Orientation for an Accelerometer device
@@ -58,16 +42,6 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
     private Ternary facedown;
     private Ternary reverse;
     private string orientation;
-
-    private AccelerometerValue[] history;
-    private AccelerometerValue acceleration;
-
-    private uint movementIdleThreshold;
-    private uint movementBusyThreshold;
-
-    private bool moving = false;
-
-    private uint nextIndex = 0;
 
     public enum Polarity
     {
@@ -88,8 +62,6 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
         subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
         subsystem.registerObjectForService<FreeSmartphone.Device.Orientation>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
         logger.info( "Created new Orientation object." );
-
-        history = new AccelerometerValue[kHistorySize];
     }
 
     public override string repr()
@@ -128,9 +100,6 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
             logger.info( "Ready. Using accelerometer plugin '%s'".printf( devicetype ) );
 
             accelerometer.accelerate.connect( this.onAcceleration );
-
-            movementIdleThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_idle_threshold", Hardware.MOVEMENT_IDLE_THRESHOLD );
-            movementBusyThreshold = config.intValue( Hardware.HW_ACCEL_PLUGIN_NAME, "movement_busy_threshold", Hardware.MOVEMENT_BUSY_THRESHOLD );
         }
         accelerometer.start();
     }
@@ -156,38 +125,6 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
 #if DEBUG
         message( @"onAcceleration: acceleration values: $x, $y, $z" ) );
 #endif
-
-        /*
-
-        // apply lowpass filter to smooth curve
-        acceleration.x = (int) Math.lround( x * kFilteringFactor + acceleration.x * (1.0 - kFilteringFactor) );
-        history[nextIndex].x = x - acceleration.x;
-        acceleration.y = (int) Math.lround( y * kFilteringFactor + acceleration.y * (1.0 - kFilteringFactor) );
-        history[nextIndex].y = y - acceleration.y;
-        acceleration.z = (int) Math.lround( z * kFilteringFactor + acceleration.z * (1.0 - kFilteringFactor) );
-        history[nextIndex].z = z - acceleration.z;
-
-        logger.info( "Current acceleration delta: %d, %d, %d".printf( history[nextIndex].x, history[nextIndex].y, history[nextIndex].z ) );
-
-        uint movement = (uint) Math.sqrtf( (float) ( history[nextIndex].x * history[nextIndex].x ) + ( history[nextIndex].y * history[nextIndex].y ) + ( history[nextIndex].z * history[nextIndex].z ) );
-
-        if ( !moving && movement > movementBusyThreshold )
-        {
-            logger.debug( "Started moving (%u > %u)...".printf( movement, movementBusyThreshold ) );
-            moving = true;
-        }
-
-        if ( moving && movement < movementIdleThreshold )
-        {
-            logger.debug( "Stopped moving (%u < %u)...".printf( movement, movementIdleThreshold ) );
-            moving = false;
-            generateOrientationSignal( history[nextIndex].x, history[nextIndex].y, history[nextIndex].z );
-        }
-
-        // Advance buffer pointer to next position or reset to zero.
-        nextIndex = (nextIndex + 1) % kHistorySize;
-
-        */
 
         var flat = ( intWithinRegion( z, FLAT_SURFACE_Z_MIDDLE, FLAT_SURFACE_Z_RADIUS ) || intWithinRegion( z, -FLAT_SURFACE_Z_MIDDLE, FLAT_SURFACE_Z_RADIUS ) ) ? Ternary.TRUE : Ternary.FALSE;
 
