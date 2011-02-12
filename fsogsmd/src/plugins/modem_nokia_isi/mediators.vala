@@ -367,6 +367,24 @@ public class IsiCallReleaseAll : CallReleaseAll
     }
 }
 
+public class IsiCallSendDtmf : CallSendDtmf
+{
+    public override async void run( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        NokiaIsi.isimodem.call.sendTonesOnVoiceCall( 1, tones, ( error ) => {
+            if ( error == ErrorCode.OK )
+            {
+                run.callback();
+            }
+            else
+            {
+                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
+            }
+        } );
+        yield;
+    }
+}
+
 /*
  * Register Mediators
  */
@@ -388,6 +406,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(CallInitiate) ]                    = typeof( IsiCallInitiate );
     mediators[ typeof(CallRelease) ]                     = typeof( IsiCallRelease );
     mediators[ typeof(CallReleaseAll) ]                  = typeof( IsiCallReleaseAll );
+    mediators[ typeof(CallSendDtmf) ]                    = typeof( IsiCallSendDtmf );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
 }
