@@ -323,29 +323,47 @@ public class IsiNetworkRegister : NetworkRegister
 }
 
 /*
- * org.freesmartphone.GSM.Network
+ * org.freesmartphone.GSM.Call
  */
+
+public class IsiCallActivate : CallActivate
+{
+    public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.activate( id );
+    }
+}
+
+public class IsiCallHoldActive : CallHoldActive
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.hold();
+    }
+}
 
 public class IsiCallInitiate : CallInitiate
 {
     public override async void run( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        if ( ctype != "voice" )
-        {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "This modem only supports voice calls" );
-        }
+        validatePhoneNumber( number );
+        id = yield theModem.callhandler.initiate( number, ctype );
+    }
+}
 
-        NokiaIsi.isimodem.call.initiateVoiceCall( number, 145, GIsiClient.Call.PresentationType.GSM_DEFAULT, (error) => {
-            if ( error == ErrorCode.OK )
-            {
-                run.callback();
-            }
-            else
-            {
-                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
-            }
-        } );
-        yield;
+public class IsiCallRelease : CallRelease
+{
+    public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.release( id );
+    }
+}
+
+public class IsiCallReleaseAll : CallReleaseAll
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.releaseAll();
     }
 }
 
@@ -365,7 +383,11 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
     mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
 
+    mediators[ typeof(CallActivate) ]                    = typeof( IsiCallActivate );
+    mediators[ typeof(CallHoldActive) ]                  = typeof( IsiCallHoldActive );
     mediators[ typeof(CallInitiate) ]                    = typeof( IsiCallInitiate );
+    mediators[ typeof(CallRelease) ]                     = typeof( IsiCallRelease );
+    mediators[ typeof(CallReleaseAll) ]                  = typeof( IsiCallReleaseAll );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
 }

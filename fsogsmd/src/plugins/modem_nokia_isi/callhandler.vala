@@ -19,6 +19,7 @@
 
 using GLib;
 using FsoGsm;
+using GIsiComm;
 
 /**
  * @class IsiCallHandler
@@ -46,27 +47,6 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
     {
     }
 
-    public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-    }
-
-    public override async int  initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        return 0;
-    }
-
-    public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-    }
-
-    public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-    }
-
-    public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-    }
-
     protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
     }
@@ -79,4 +59,48 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
     {
     }
 
+    //
+    // User Actions (forwarded through the generic mediators)
+    //
+    public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        if ( ctype != "voice" )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "This modem only supports voice calls" );
+        }
+
+        NokiaIsi.isimodem.call.initiateVoiceCall( number, 145, GIsiClient.Call.PresentationType.GSM_DEFAULT, (error) => {
+            if ( error == ErrorCode.OK )
+            {
+                initiate.callback();
+            }
+            else
+            {
+                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
+            }
+        } );
+        yield;
+
+        return 0;
+    }
+
+    public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
 }
