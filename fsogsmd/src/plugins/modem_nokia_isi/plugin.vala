@@ -66,7 +66,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     protected override CallHandler createCallHandler()
     {
-		return null;
+		return new IsiCallHandler();
     }
 
     protected override SmsHandler createSmsHandler()
