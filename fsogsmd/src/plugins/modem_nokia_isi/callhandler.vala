@@ -64,7 +64,17 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
     //
     public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        NokiaIsi.isimodem.call.answerVoiceCall( (uint8) id+1, (error) => {
+            if ( error == ErrorCode.OK )
+            {
+                activate.callback();
+            }
+            else
+            {
+                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
+            }
+        } );
+        yield;
     }
 
     public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -96,7 +106,7 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
 
     public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        NokiaIsi.isimodem.call.releaseVoiceCall( (uint8) id-1, GIsiClient.Call.CauseType.CLIENT, GIsiClient.Call.IsiCause.RELEASE_BY_USER, (error) => {
+        NokiaIsi.isimodem.call.releaseVoiceCall( (uint8) id+1, GIsiClient.Call.CauseType.CLIENT, GIsiClient.Call.IsiCause.RELEASE_BY_USER, (error) => {
             if ( error == ErrorCode.OK )
             {
                 release.callback();
