@@ -687,6 +687,18 @@ public class FsoGsm.Constants
         }
     }
 
+    public string phonenumberStringToRealTuple( string number, out uint8 ntype )
+    {
+        if ( number[0] == '+' )
+        {
+            ntype = 145;
+            return number.offset( 1 );
+        }
+
+        ntype = 129;
+        return number;
+    }
+
     public FreeSmartphone.GSM.SIMAuthStatus simAuthStatusToEnum( string status )
     {
         switch ( status )

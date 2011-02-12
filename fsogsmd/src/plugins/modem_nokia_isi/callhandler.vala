@@ -84,7 +84,10 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "This modem only supports voice calls" );
         }
 
-        NokiaIsi.isimodem.call.initiateVoiceCall( number, 145, GIsiClient.Call.PresentationType.GSM_DEFAULT, (error) => {
+        uint8 ntype;
+        var gsmnumber = Constants.instance().phonenumberStringToRealTuple( number, out ntype );
+
+        NokiaIsi.isimodem.call.initiateVoiceCall( gsmnumber, ntype, GIsiClient.Call.PresentationType.GSM_DEFAULT, (error) => {
             if ( error == ErrorCode.OK )
             {
                 initiate.callback();
