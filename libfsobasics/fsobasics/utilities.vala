@@ -386,6 +386,55 @@ public GLib.HashTable<string,string> splitKeyValuePairs( string str )
     return result;
 }
 
+public string hexdump( uint8[] array, int linelength = 16, string prefix = "", uchar unknownCharacter = '?' )
+{
+    if ( array.length < 1 )
+    {
+        return "";
+    }
+
+    string result = "";
+
+    int BYTES_PER_LINE = linelength;
+
+    var hexline = new StringBuilder( prefix );
+    var ascline = new StringBuilder();
+    uchar b;
+    int i;
+
+    for ( i = 0; i < array.length; ++i )
+    {
+        b = array[i];
+        hexline.append_printf( "%02X ", b );
+        if ( 31 < b && b < 128 )
+            ascline.append_printf( "%c", b );
+        else
+            ascline.append_printf( "." );
+
+        if ( i % BYTES_PER_LINE+1 == BYTES_PER_LINE )
+        {
+            hexline.append( ascline.str );
+            result += hexline.str;
+            result += "\n";
+            hexline = new StringBuilder( prefix );
+            ascline = new StringBuilder();
+        }
+    }
+    if ( i % BYTES_PER_LINE+1 != BYTES_PER_LINE )
+    {
+        while ( hexline.len < 3 * BYTES_PER_LINE )
+        {
+            hexline.append_c( ' ' );
+        }
+
+        hexline.append( ascline.str );
+        result += hexline.str;
+        result += "\n";
+    }
+
+    return result.strip();
+}
+
 public string filterByAllowedCharacters( string input, string allowed )
 {
     var output = "";
