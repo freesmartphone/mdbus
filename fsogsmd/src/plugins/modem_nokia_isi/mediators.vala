@@ -386,6 +386,56 @@ public class IsiCallSendDtmf : CallSendDtmf
 }
 
 /*
+ * org.freesmartphone.GSM.Debug
+ */
+
+public class IsiDebugCommand : DebugCommand
+{
+    public override async void run( string command, string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        if ( ! ( command in new string[] { "MTC", "SIM", "SIMAUTH", "NET", "CALL", "PHONEINFO" } ) )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Subsystem $command not known" );
+        }
+
+        var req = new uint8[] {};
+
+        foreach ( var byte in category.split( " " ) )
+        {
+            uint8 b = 0;
+            if ( 0 == byte.scanf( "%X", &b ) )
+            {
+                throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Can't parse $byte in command" );
+            }
+
+            req += b;
+        }
+
+        GIsiComm.AbstractBaseClient client = null;
+        if ( command == "MTC" ) client = NokiaIsi.isimodem.mtc;
+        else if ( command == "SIM" ) client = NokiaIsi.isimodem.sim;
+        else if ( command == "SIMAUTH" ) client = NokiaIsi.isimodem.simauth;
+        else if ( command == "NET" ) client = NokiaIsi.isimodem.net;
+        else if ( command == "CALL" ) client = NokiaIsi.isimodem.call;
+        else if ( command == "PHONEINFO" ) client = NokiaIsi.isimodem.info;
+
+        client.sendGenericRequest( req, (error, answer) => {
+            if ( error == ErrorCode.OK )
+            {
+                response = FsoFramework.StringHandling.hexdump( answer );
+            }
+            else
+            {
+                response = "<ISI COMMUNICATION ERROR>";
+            }
+            run.callback();
+        } );
+        yield;
+    }
+}
+
+
+/*
  * Register Mediators
  */
 static void registerMediators( HashMap<Type,Type> mediators )
@@ -407,6 +457,8 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(CallRelease) ]                     = typeof( IsiCallRelease );
     mediators[ typeof(CallReleaseAll) ]                  = typeof( IsiCallReleaseAll );
     mediators[ typeof(CallSendDtmf) ]                    = typeof( IsiCallSendDtmf );
+
+    mediators[ typeof(DebugCommand) ]                    = typeof( IsiDebugCommand );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
 }
