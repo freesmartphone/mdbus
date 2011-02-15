@@ -76,6 +76,12 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
             {
                 return;
             }
+            // check wether the main channel successfully initialized the modem
+            else if ( theModem.status() == Modem.Status.ALIVE_SIM_READY )
+            {
+                isMainInitialized = true;
+                break;
+            }
 
             theModem.logger.debug( "Main channel not initialized yet... waiting" );
             Timeout.add_seconds( 1, initialize.callback );
