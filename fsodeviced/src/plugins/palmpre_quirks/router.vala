@@ -30,6 +30,7 @@ namespace Router
         {
             if (FsoFramework.FileHandling.isPresent(filename))
             {
+                FsoFramework.theLogger.debug( @"loading audio script from '$(filename)'" );
                 string script = FsoFramework.FileHandling.read(filename);
                 FsoFramework.FileHandling.write(script, FSO_PALMPRE_AUDIO_SCINIT_PATH);
             }
@@ -254,6 +255,8 @@ namespace Router
 
         construct
         {
+            FsoFramework.theLogger.debug( @"Initializing ..." );
+
             current_volume = 10; // FIXME maybe use some lower volume at startup
             current_state = AudioStateType.MEDIA_BACKSPEAKER;
 
