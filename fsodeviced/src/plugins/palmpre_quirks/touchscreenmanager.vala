@@ -62,25 +62,27 @@ namespace PalmPre
                 return;
             }
 
+            Idle.add( () => { registerWithDisplayResource(); return false; } );
+
+            logger.info("Successfully launched touchscreen manager");
+        }
+
+        private async void registerWithDisplayResource()
+        {
             try
             {
                 /* setup our dbus signal handler we need to react when the display goes on or off */
-                odeviced_display = Bus.get_proxy_sync<FreeSmartphone.Device.Display>( BusType.SYSTEM, FsoFramework.Device.ServiceDBusName, FsoFramework.Device.DisplayServicePath );
+                odeviced_display = yield Bus.get_proxy<FreeSmartphone.Device.Display>( BusType.SYSTEM,
+                                                                                       FsoFramework.Device.ServiceDBusName,
+                                                                                       FsoFramework.Device.DisplayServicePath,
+                                                                                       DBusProxyFlags.DO_NOT_AUTO_START );
                 odeviced_display.backlight_power.connect( onBacklightPowerChanged );
             }
-            catch ( DBusError e )
+            catch ( GLib.Error e )
             {
                 logger.error( @"Could not connect to odeviced's display resource $(e.message); Touchscreen functionality will be very unstable ..." );
                 return;
             }
-            catch ( IOError e )
-            {
-                logger.error( @"Could not connect to odeviced's display resource $(e.message); Touchscreen functionality will be very unstable ..." );
-                return;
-            }
-
-
-            logger.info("Successfully launched touchscreen manager");
         }
 
         public override string repr()
