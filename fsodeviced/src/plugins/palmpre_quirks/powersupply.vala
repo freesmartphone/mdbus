@@ -55,7 +55,10 @@ namespace PalmPre
      *
      * Management of the battery power supply on the Palm Pre devices
      **/
-    private class BatteryPowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.AbstractObject
+    private class BatteryPowerSupply :
+        FreeSmartphone.Device.PowerSupply,
+        FreeSmartphone.Info,
+        FsoFramework.AbstractObject
     {
         private FsoFramework.Subsystem subsystem;
         private string master_node;
@@ -184,7 +187,9 @@ namespace PalmPre
             }
 
             // Register our provided dbus service on the bus
-            subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
+            subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
+
+
 
             critical_capacity = FsoFramework.theConfig.intValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "critical", 10);
             current_capacity = getCapacity();
@@ -219,6 +224,16 @@ namespace PalmPre
                 return -1;
 
             return FsoFramework.FileHandling.read(Path.build_filename(slave_node, "getpercent")).to_int();
+        }
+
+        //
+        // FreeSmartphone.Info (DBUS API)
+        //
+
+        public async HashTable<string,Value?> get_info() throws DBusError, IOError
+        {
+            var res = new HashTable<string,Value?>( str_hash, str_equal );
+            return res;
         }
 
         //
