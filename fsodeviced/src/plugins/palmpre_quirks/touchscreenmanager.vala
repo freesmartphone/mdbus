@@ -52,6 +52,13 @@ namespace PalmPre
                 return;
             }
 
+            // FIXME get binary name from tsmd_path var and not use the static version here
+            int pid = 0;
+            if ( ( pid = FsoFramework.Process.pidof( "tsmd" ) ) > 0 )
+            {
+                Posix.kill( pid, Posix.SIGKILL );
+            }
+
             tsmd_process.setAutoRelaunch( true );
             string cmdline = @"$(tsmd_path) $(tsmd_args)";
             tsmd_process.launch( cmdline.split(" ") );
