@@ -81,6 +81,13 @@ void test_process_kill_implicit()
 }
 
 //===========================================================================
+void test_pidof()
+//===========================================================================
+{
+    assert( FsoFramework.Process.pidof( "init" ) == 1 );
+}
+
+//===========================================================================
 void main (string[] args)
 //===========================================================================
 {
@@ -90,6 +97,7 @@ void main (string[] args)
     Test.add_func( "/Process/signals", test_process_signals );
     Test.add_func( "/Process/kill/explicit", test_process_kill_explicit );
     Test.add_func( "/Process/kill/implicit", test_process_kill_implicit );
+    Test.add_func( "/Process/pidof", test_pidof );
 
     Test.run ();
 }

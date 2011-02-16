@@ -17,6 +17,8 @@
  *
  */
 
+using FsoFramework.FileHandling;
+
 /**
  * @interface FsoFramework.IProcessGuard
  **/
@@ -31,6 +33,55 @@ public interface FsoFramework.IProcessGuard : GLib.Object
 
     public signal void running();
     public signal void stopped();
+}
+
+/**
+ * Some process relevant utility functions
+ **/
+namespace FsoFramework.Process
+{
+    private static const string PROC_PATH = "/proc";
+
+    public Posix.pid_t pidof( string name )
+    {
+        int result = 0;
+        int pid = 0;
+        string statfile, pstat, comm, pname;
+        string[] stat_info;
+        string[] subdirs = listDirectory( PROC_PATH );
+
+        foreach ( var dirname in subdirs )
+        {
+            pid = dirname.to_int();
+
+            // check for invalid pid and ignore them
+            if ( pid <= 0 )
+                continue;
+
+            // Now we have a valid pid, find out more about the process! (see man 5 proc
+            // for more details)
+            statfile = @"$(PROC_PATH)/$(pid)/stat";
+            if ( !isPresent(statfile) )
+                continue;
+
+            pstat = read( statfile );
+            stat_info = pstat.split( " " );
+
+            // validate process command name for correct length
+            if ( !( stat_info.length >= 2 ) && stat_info[0].length > 2 )
+                continue;
+
+            // extract and check process name for the correct one
+            pname = (stat_info[1])[1:stat_info[1].length-2];
+            if ( name.has_prefix( pname ) )
+            {
+                result = pid;
+                break;
+            }
+        }
+
+        return (Posix.pid_t) result;
+    }
 }
 
 /**
