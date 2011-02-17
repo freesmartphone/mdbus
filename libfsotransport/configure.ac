@@ -46,7 +46,7 @@ AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
 # check for disabling of fast baud rates
 AC_ARG_ENABLE(fast-baud,
-  AS_HELP_STRING([--disable-fast-baud], [Disable fast baud rates]),
+  AS_HELP_STRING([--disable-fast-baud], [Disable fast baud rates (default=yes)]),
   [fastbaud="$enableval"],
   AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <termios.h>
@@ -54,11 +54,11 @@ AC_ARG_ENABLE(fast-baud,
   ]])],fastbaud="yes",fastbaud="no") )
 AM_CONDITIONAL( [FAST_BAUD], [test x"$fastbaud" = x"yes"])
 
-# check for enabling palm pre hsuart support
+# check for disabling palm pre hsuart support
 AC_ARG_ENABLE(palmpre-hsuart,
-  AS_HELP_STRING([--enable-palmpre-hsuart], [Enable Palm Pre HSUART support (default=no)]),
+  AS_HELP_STRING([--disable-palmpre-hsuart], [Disable Palm Pre HSUART support (default=yes)]),
   [palmprehsuart="$enableval"],
-  [palmprehsuart="no"])
+  [palmprehsuart="yes"])
 AM_CONDITIONAL( [WANT_PALMPRE_HSUART], [test x"$palmprehsuart" = x"yes"])
 
 # git version
