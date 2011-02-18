@@ -40,6 +40,7 @@ namespace PalmPre
         {
             this.subsystem = subsystem;
             this.tsmd_process = new FsoFramework.GProcessGuard();
+            this.tsmd_process.setAutoRelaunch( true );
 
             tsmd_path = config.stringValue(@"$(MODULE_NAME)/touchscreen", "tsmd_path", "/usr/bin/tsmd");
             tsmd_args = config.stringValue(@"$(MODULE_NAME)/touchscreen", "tsmd_args", "-n /dev/touchscreen");
@@ -52,16 +53,19 @@ namespace PalmPre
                 return;
             }
 
-            // FIXME get binary name from tsmd_path var and not use the static version here
+            // Now we check first if the ts daemon is already running, if it is then we
+            // only start watching it's state. Otherwise we launch it.
             int pid = 0;
+            string[] command = @"$(tsmd_path) $(tsmd_args)".split( " " );
+            // FIXME get binary name from tsmd_path var and not use the static version here
             if ( ( pid = FsoFramework.Process.findByName( "tsmd" ) ) > 0 )
             {
-                Posix.kill( pid, Posix.SIGKILL );
+                tsmd_process.attach( pid, command );
             }
-
-            tsmd_process.setAutoRelaunch( true );
-            string cmdline = @"$(tsmd_path) $(tsmd_args)";
-            tsmd_process.launch( cmdline.split(" ") );
+            else
+            {
+                tsmd_process.launch( command );
+            }
 
             if (!tsmd_process.isRunning())
             {
