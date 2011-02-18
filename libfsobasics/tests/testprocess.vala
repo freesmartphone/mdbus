@@ -87,7 +87,8 @@ void test_process_attach()
     Posix.pid_t init_pid = FsoFramework.Process.findByName( "init" );
     assert( init_pid == 1 );
     var guard = new GProcessGuard();
-    assert( guard.attach( init_pid ) );
+    var cmdline = "/sbin/init";
+    assert( guard.attach( init_pid, cmdline.split( " " ) ) );
 }
 
 //===========================================================================
