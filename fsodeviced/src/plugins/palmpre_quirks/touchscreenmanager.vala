@@ -54,7 +54,7 @@ namespace PalmPre
 
             // FIXME get binary name from tsmd_path var and not use the static version here
             int pid = 0;
-            if ( ( pid = FsoFramework.Process.pidof( "tsmd" ) ) > 0 )
+            if ( ( pid = FsoFramework.Process.findByName( "tsmd" ) ) > 0 )
             {
                 Posix.kill( pid, Posix.SIGKILL );
             }

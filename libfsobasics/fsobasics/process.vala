@@ -42,7 +42,7 @@ namespace FsoFramework.Process
 {
     private static const string PROC_PATH = "/proc";
 
-    public Posix.pid_t pidof( string name )
+    public Posix.pid_t findByName( string name )
     {
         int result = 0;
         int pid = 0;
