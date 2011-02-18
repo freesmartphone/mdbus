@@ -68,7 +68,7 @@ namespace FsoFramework.Process
             stat_info = pstat.split( " " );
 
             // validate process command name for correct length
-            if ( !( stat_info.length >= 2 ) && stat_info[0].length > 2 )
+            if ( !( stat_info.length >= 2 ) && stat_info[1].length > 2 )
                 continue;
 
             // extract and check process name for the correct one
