@@ -111,6 +111,24 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
         }
     }
 
+    /**
+     * Attach to a already running process and watch it's events. If we already watching
+     * at a running process this methods fails.
+     **/
+    public bool attach( Posix.pid_t pid )
+    {
+        if ( this.pid != (Pid)0 )
+        {
+            warning( @"Can't attach to process with id %d; already running as pid %d".printf( (int) pid, (int) this.pid ) );
+            return false;
+        }
+
+        this.pid = pid;
+        watch = GLib.ChildWatch.add( this.pid, onChildWatchEvent );
+        this.running(); // SIGNAL
+        return true;
+    }
+
     public bool launch( string[] command )
     {
         this.command = command; // save for possible relaunching

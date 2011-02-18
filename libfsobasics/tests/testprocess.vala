@@ -81,6 +81,16 @@ void test_process_kill_implicit()
 }
 
 //===========================================================================
+void test_process_attach()
+//===========================================================================
+{
+    Posix.pid_t init_pid = FsoFramework.Process.pidof( "init" );
+    assert( init_pid == 1 );
+    var guard = new GProcessGuard();
+    assert( guard.attach( init_pid ) );
+}
+
+//===========================================================================
 void test_pidof()
 //===========================================================================
 {
@@ -97,6 +107,7 @@ void main (string[] args)
     Test.add_func( "/Process/signals", test_process_signals );
     Test.add_func( "/Process/kill/explicit", test_process_kill_explicit );
     Test.add_func( "/Process/kill/implicit", test_process_kill_implicit );
+    Test.add_func( "/Process/attach", test_process_attach );
     Test.add_func( "/Process/pidof", test_pidof );
 
     Test.run ();
