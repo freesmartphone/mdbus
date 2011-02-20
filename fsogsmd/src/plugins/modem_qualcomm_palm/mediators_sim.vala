@@ -123,8 +123,16 @@ public class MsmSimSendAuthCode : SimSendAuthCode
 
         try
         {
-            // NOTE we currently only use the PIN1 pin type
-            yield channel.sim_service.verify_pin( Msmcomm.SimPinType.PIN1, pin );
+            // We only send the verify_pin command to the modem when the pin is enabled.
+            // When not we return an error.
+            if ( MsmData.pin_status == MsmPinStatus.ENABLED )
+            {
+                yield channel.sim_service.verify_pin( Msmcomm.SimPinType.PIN1, pin );
+            }
+            else
+            {
+                throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"Could not send auth code as auth code is disabled" );
+            }
         }
         catch ( Msmcomm.Error err0 )
         {
