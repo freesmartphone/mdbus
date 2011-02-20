@@ -60,7 +60,7 @@ class LowLevel.PalmPre : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
     public void suspend()
     {
-        FsoFramework.FileHandling.write( "mem\n", sys_power_state );
+        FsoFramework.FileHandling.write( "mem", sys_power_state );
     }
 
     public ResumeReason resume()
