@@ -87,7 +87,6 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                  * General sim events
                  */
                 case "sim-inserted":
-                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
                     break;
 
                 case "sim-init-completed":
@@ -101,6 +100,7 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                  */
                 case "pin1-enabled":
                     updateSimPinStatus( MsmPinStatus.ENABLED );
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
                     break;
                 case "pin1-disabled":
                     updateSimPinStatus( MsmPinStatus.DISABLED );
