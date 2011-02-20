@@ -85,10 +85,15 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         // create MAIN channel
         new MsmChannel( MSM_CHANNEL_NAME );
 
-        // create AT channel for data use
-        var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );
-        var parser = new FsoGsm.StateBasedAtParser();
-        new FsoGsm.AtChannel( QualcommPalm.Modem.AT_CHANNEL_NAME, datatransport, parser );
+        // Only enable data transport when config told us to do so
+        var enableDataTransport = FsoFramework.theConfig.boolValue( "fsogsm.modem_qualcomm_palm", "enable_data", true );
+        if ( enableDataTransport )
+        {
+            // create AT channel for data use
+            var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );
+            var parser = new FsoGsm.StateBasedAtParser();
+            new FsoGsm.AtChannel( QualcommPalm.Modem.AT_CHANNEL_NAME, datatransport, parser );
+        }
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
