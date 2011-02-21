@@ -60,10 +60,19 @@ namespace PalmPre
             // FIXME get binary name from tsmd_path var and not use the static version here
             if ( ( pid = FsoFramework.Process.findByName( "tsmd" ) ) > 0 )
             {
+                logger.debug( @"Attaching to already running tsmd process ..." );
                 tsmd_process.attach( pid, command );
+
+                // After we have attached to the running tsmd process we need to tell it
+                // that it should reopen the connection to the touchscreen and recalibrate
+                logger.debug( @"Recalibrating touchscreen ..." );
+                tsmd_process.sendSignal( Posix.SIGUSR1 );
+                Posix.sleep( 2 );
+                tsmd_process.sendSignal( Posix.SIGUSR2 );
             }
             else
             {
+                logger.debug( @"Launching new tsmd process ..." );
                 tsmd_process.launch( command );
             }
 
@@ -75,7 +84,7 @@ namespace PalmPre
 
             Idle.add( () => { registerWithDisplayResource(); return false; } );
 
-            logger.info("Successfully launched touchscreen manager");
+            logger.info( "Successfully configured the touchscreen manager" );
         }
 
         private async void registerWithDisplayResource()
