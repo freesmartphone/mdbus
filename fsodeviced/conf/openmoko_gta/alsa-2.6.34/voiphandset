@@ -1,7 +1,7 @@
 1:'PCM Volume':2:235,235
 2:'ADC Capture Volume':2:195,195
-3:'Headphone Playback Volume':2:127,127
-4:'Speaker Playback Volume':2:0,0
+3:'Headphone Playback Volume':2:0,0
+4:'Speaker Playback Volume':2:127,127
 5:'Mono Playback Volume':1:121
 6:'Bypass Playback Volume':2:2,2
 7:'Sidetone Playback Volume':2:2,2
