@@ -33,9 +33,11 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 {
     private const string MSM_CHANNEL_NAME = "main";
     private const string AT_CHANNEL_NAME = "data";
+    private bool enableDataTransport;
 
     construct
     {
+        enableDataTransport = FsoFramework.theConfig.boolValue( "fsogsm.modem_qualcomm_palm", "enable_data", true );
     }
 
     public override string repr()
@@ -86,7 +88,6 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         new MsmChannel( MSM_CHANNEL_NAME );
 
         // Only enable data transport when config told us to do so
-        var enableDataTransport = FsoFramework.theConfig.boolValue( "fsogsm.modem_qualcomm_palm", "enable_data", true );
         if ( enableDataTransport )
         {
             // create AT channel for data use
@@ -98,7 +99,12 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        return channels[ AT_CHANNEL_NAME ];
+        if ( enableDataTransport )
+        {
+            return channels[ AT_CHANNEL_NAME ];
+        }
+
+        return (FsoGsm.Channel) null;
     }
 
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
