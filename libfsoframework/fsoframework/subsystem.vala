@@ -294,7 +294,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
     {
         ensureConnection();
 
-        var cleanedname = objectpath.replace( "-", "" ).replace( ":", "" );
+        var cleanedname = objectpath.replace( "-", "_" ).replace( ":", "_" );
         try
         {
             var refid = connection.register_object<T>( cleanedname, obj );
