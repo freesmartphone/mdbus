@@ -24,6 +24,7 @@ namespace Hardware
     internal const string HW_ACCEL_PLUGIN_NAME = "fsodevice.accelerometer";
 
     internal const int DEFAULT_DEADZONE = 180;
+    internal const int DEFAULT_DELAY = 1000;
 
 /**
  * Implementation of org.freesmartphone.Device.Orientation for an Accelerometer device
@@ -37,6 +38,9 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
     private FsoFramework.Subsystem subsystem;
 
     private int deadzone;
+    private int delay;
+    private uint timeout;
+
     private bool flat;
     private bool landscape;
     private bool faceup;
@@ -58,6 +62,8 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
         subsystem.registerObjectForService<FreeSmartphone.Device.Orientation>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.OrientationServicePath, this );
 
         deadzone = config.intValue( HW_ACCEL_PLUGIN_NAME, "deadzone", DEFAULT_DEADZONE);
+        delay = config.intValue( HW_ACCEL_PLUGIN_NAME, "delay", DEFAULT_DELAY);
+
         generateOrientationSignal( false, false, true, false );
         logger.info( "Created new Orientation object." );
     }
@@ -147,7 +153,7 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
 
     public void generateOrientationSignal( bool flat, bool landscape, bool faceup, bool reverse )
     {
-        bool signal = (flat      != this.flat      || faceup  != this.faceup ||
+        bool change = (flat      != this.flat      || faceup  != this.faceup ||
                        landscape != this.landscape || reverse != this.reverse );
 
         orientation = "%s %s %s %s".printf( flat      ? "flat"      : "held",
@@ -160,8 +166,25 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
         this.landscape = landscape;
         this.reverse   = reverse;
 
-        if ( signal )
+        if ( !change )
+            return;
+
+        if ( delay == 0 )
+        {
             this.orientation_changed( orientation );
+            return;
+        }
+
+        if ( timeout != 0 )
+            Source.remove( timeout );
+        timeout = Timeout.add( delay, onTimeout );
+    }
+
+    private bool onTimeout()
+    {
+        this.orientation_changed( orientation );
+        timeout = 0;
+        return false;
     }
 
     //
