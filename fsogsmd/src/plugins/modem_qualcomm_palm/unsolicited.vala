@@ -39,8 +39,6 @@ internal class WaitForUnsolicitedResponseData
 
 internal void updateSimPinStatus( MsmPinStatus status )
 {
-    MsmData.pin_status = status;
-
     if ( status == MsmPinStatus.BLOCKED )
     {
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
@@ -50,6 +48,8 @@ internal void updateSimPinStatus( MsmPinStatus status )
         // FIXME Is this correct? Means PERM_BLOCKED from msm that puk2 is required?
         updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK2_REQUIRED );
     }
+
+    MsmData.pin_status = status;
 }
 
 /**
@@ -87,9 +87,11 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                  * General sim events
                  */
                 case "sim-inserted":
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
                     break;
 
                 case "sim-init-completed":
+                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
                     var pbhandler = theModem.pbhandler as MsmPhonebookHandler;
                     pbhandler.initializeStorage();
                     break;
@@ -100,16 +102,12 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                  */
                 case "pin1-enabled":
                     updateSimPinStatus( MsmPinStatus.ENABLED );
-                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
                     break;
                 case "pin1-disabled":
                     updateSimPinStatus( MsmPinStatus.DISABLED );
                     break;
                 case "pin1-blocked":
                     updateSimPinStatus( MsmPinStatus.BLOCKED );
-                    break;
-                case "pin1-verified":
-                    updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
                     break;
                 case "pin1-perm-blocked":
                     updateSimPinStatus( MsmPinStatus.PERM_BLOCKED );

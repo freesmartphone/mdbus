@@ -34,7 +34,7 @@ public static class MsmData
 {
     public static void reset()
     {
-        pin_status = MsmPinStatus.ENABLED;
+        pin_status = MsmPinStatus.DISABLED;
         operation_mode = Msmcomm.OperationMode.OFFLINE;
         network_info = NetworkInfo();
         network_info.reg_status = Msmcomm.NetworkRegistrationStatus.NO_SERVICE;
