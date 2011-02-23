@@ -57,7 +57,7 @@ class Source.Gsm : FsoTime.AbstractSource
 
     private void testing()
     {
-        var status = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        var status = new GLib.HashTable<string,GLib.Variant>( GLib.str_hash, GLib.str_equal );
         //status.insert( "code", "310038" );
         status.insert( "code", "26203" );
         onGsmNetworkStatusSignal( status );
@@ -112,11 +112,11 @@ class Source.Gsm : FsoTime.AbstractSource
         triggerQueryAsync();
     }
 
-    private async void onGsmNetworkStatusSignal( GLib.HashTable<string,GLib.Value?> status )
+    private async void onGsmNetworkStatusSignal( GLib.HashTable<string,GLib.Variant> status )
     {
         logger.info( "Received GSM network status signal" );
 
-        var codev = status.lookup( "code" );
+        Variant? codev = status.lookup( "code" );
         if ( codev == null )
         {
             logger.info( "No provider code contained, ignoring." );

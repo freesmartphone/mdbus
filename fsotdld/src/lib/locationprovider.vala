@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@ using GLib;
 
 public interface FsoTdl.ILocationProvider : FsoFramework.AbstractObject
 {
-    public signal void location( FsoTdl.ILocationProvider provider, HashTable<string,Value?> location );
+    public signal void location( FsoTdl.ILocationProvider provider, HashTable<string,GLib.Variant> location );
 
     public abstract uint accuracy();
     public abstract void start();
