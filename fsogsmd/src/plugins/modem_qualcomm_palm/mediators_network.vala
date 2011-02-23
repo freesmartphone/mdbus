@@ -137,6 +137,8 @@ public class MsmNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        providers = { };
+
         #if 0
         try
         {
