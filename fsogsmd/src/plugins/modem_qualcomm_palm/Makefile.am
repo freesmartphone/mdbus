@@ -61,6 +61,9 @@ modem_qualcomm_palm_la_VALASOURCES = \
  mediators_sms.vala \
  mediators_network.vala \
  mediators_call.vala \
+ mediators_cb.vala \
+ mediators_monitor.vala \
+ mediators_vm.vala \
  utils.vala \
  $(NULL)
 

@@ -200,7 +200,8 @@ public async void triggerUpdateNetworkStatus()
  **/
 public void registerMsmMediators( HashMap<Type,Type> table )
 {
-    /* NOTE: add only mediators you have tested !!! */
+    table[ typeof(DebugCommand) ]                 = typeof( MsmDebugCommand );
+    table[ typeof(DebugInjectResponse) ]          = typeof( MsmDebugInjectResponse );
     table[ typeof(DebugPing) ]                    = typeof( MsmDebugPing );
 
     table[ typeof(SimGetAuthCodeRequired) ]       = typeof( MsmSimGetAuthCodeRequired );
@@ -220,6 +221,7 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(SimSetServiceCenterNumber) ]    = typeof( MsmSimSetServiceCenterNumber );
     table[ typeof(SimStoreMessage) ]              = typeof( MsmSimStoreMessage );
     table[ typeof(SimUnlock) ]                    = typeof( MsmSimUnlock );
+    table[ typeof(SimChangeAuthCode) ]            = typeof( MsmSimChangeAuthCode );
 
     table[ typeof(DeviceGetFeatures) ]            = typeof( MsmDeviceGetFeatures );
     table[ typeof(DeviceGetInformation) ]         = typeof( MsmDeviceGetInformation );
@@ -228,12 +230,20 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(DeviceSetFunctionality) ]       = typeof( MsmDeviceSetFunctionality );
     table[ typeof(DeviceGetCurrentTime) ]         = typeof( MsmDeviceGetCurrentTime );
     table[ typeof(DeviceSetCurrentTime) ]         = typeof( MsmDeviceSetCurrentTime );
+    table[ typeof(DeviceGetAlarmTime) ]           = typeof( MsmDeviceGetAlarmTime );
+    table[ typeof(DeviceGetMicrophoneMuted) ]     = typeof( MsmDeviceGetMicrophoneMuted );
+    table[ typeof(DeviceGetSimBuffersSms) ]       = typeof( MsmDeviceGetSimBuffersSms );
+    table[ typeof(DeviceGetSpeakerVolume) ]       = typeof( MsmDeviceGetSpeakerVolume );
+    table[ typeof(DeviceSetAlarmTime) ]           = typeof( MsmDeviceSetAlarmTime );
+    table[ typeof(DeviceSetMicrophoneMuted) ]     = typeof( MsmDeviceSetMicrophoneMuted );
+    table[ typeof(DeviceSetSpeakerVolume) ]       = typeof( MsmDeviceSetSpeakerVolume );
 
     table[ typeof(NetworkRegister) ]              = typeof( MsmNetworkRegister );
     table[ typeof(NetworkUnregister) ]            = typeof( MsmNetworkUnregister );
     table[ typeof(NetworkGetStatus) ]             = typeof( MsmNetworkGetStatus );
     table[ typeof(NetworkGetSignalStrength) ]     = typeof( MsmNetworkGetSignalStrength );
     table[ typeof(NetworkListProviders) ]         = typeof( MsmNetworkListProviders );
+    table[ typeof(NetworkSetCallingId) ]          = typeof( MsmNetworkSetCallingId );
     table[ typeof(NetworkGetCallingId) ]          = typeof( MsmNetworkGetCallingId );
     table[ typeof(NetworkSendUssdRequest) ]       = typeof( MsmNetworkSendUssdRequest );
 
@@ -244,4 +254,17 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(CallReleaseAll) ]               = typeof( MsmCallReleaseAll );
     table[ typeof(CallRelease) ]                  = typeof( MsmCallRelease );
     table[ typeof(CallSendDtmf) ]                 = typeof( MsmCallSendDtmf );
+
+    table[ typeof(SmsRetrieveTextMessages) ]      = typeof( MsmSmsRetrieveTextMessages );
+    table[ typeof(SmsGetSizeForTextMessage) ]     = typeof( MsmSmsGetSizeForTextMessage );
+    table[ typeof(SmsSendTextMessage) ]           = typeof( MsmSmsSendTextMessage );
+
+    table[ typeof(CbSetCellBroadcastSubscriptions) ] = typeof( MsmCbSetCellBroadcastSubscriptions );
+    table[ typeof(CbGetCellBroadcastSubscriptions) ] = typeof( MsmCbGetCellBroadcastSubscriptions );
+
+    table[ typeof(MonitorGetServingCellInformation) ] = typeof( MsmMonitorGetServingCellInformation );
+    table[ typeof(MonitorGetNeighbourCellInformation) ] = typeof( MsmMonitorGetNeighbourCellInformation );
+
+    table[ typeof(VoiceMailboxGetNumber) ]        = typeof( MsmVoiceMailboxGetNumber );
+    table[ typeof(VoiceMailboxSetNumber) ]        = typeof( MsmVoiceMailboxSetNumber );
 }

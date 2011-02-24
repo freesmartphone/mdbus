@@ -39,3 +39,20 @@ public class MsmDebugPing : DebugPing
         }
     }
 }
+
+public class MsmDebugCommand : DebugCommand
+{
+    public override async void run( string command, string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class MsmDebugInjectResponse : DebugInjectResponse
+{
+    public override async void run( string command, string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+

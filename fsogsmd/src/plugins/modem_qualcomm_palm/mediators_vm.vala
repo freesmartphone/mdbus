@@ -20,29 +20,21 @@
 using FsoGsm;
 
 /**
- * SMS Mediators
+ * Voice Mailbox Mediators
  **/
-public class MsmSmsRetrieveTextMessages : SmsRetrieveTextMessages
+public class MsmVoiceMailboxGetNumber : VoiceMailboxGetNumber
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
     }
 }
 
-public class MsmSmsGetSizeForTextMessage : SmsGetSizeForTextMessage
+public class MsmVoiceMailboxSetNumber : VoiceMailboxSetNumber
 {
-    public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
-    }
-}
-
-public class MsmSmsSendTextMessage : SmsSendTextMessage
-{
-    public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
     }
 }
 

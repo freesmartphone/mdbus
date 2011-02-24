@@ -137,38 +137,7 @@ public class MsmNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        providers = { };
-
-        #if 0
-        try
-        {
-            var ma = MsmModemAgent.instance();
-            yield ma.commands.get_network_list();
-
-            // NOTE: the following code block will handling the waiting for the
-            // unsolicited response NETWORK_LIST which transmits all available
-            // networks
-
-            GLib.Variant v = yield ma.waitForUnsolicitedResponse( Msmcomm.UrcType.NETWORK_LIST );
-            Msmcomm.NetworkProviderList nplist = Msmcomm.NetworkProviderList.from_variant( v );
-
-            FreeSmartphone.GSM.NetworkProvider[] tmp = { };
-            foreach( var provider in nplist.providers )
-            {
-                var p = FreeSmartphone.GSM.NetworkProvider("", "", provider.operator_name, "", "");
-                tmp += p;
-            }
-
-            providers = tmp;
-        }
-        catch ( Msmcomm.Error err0 )
-        {
-            handleMsmcommErrorMessage( err0 );
-        }
-        catch ( DBus.Error err1 )
-        {
-        }
-        #endif
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -176,11 +145,7 @@ public class MsmNetworkSendUssdRequest : NetworkSendUssdRequest
 {
     public override async void run( string request ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCUSD>( "+CUSD" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query( request ) );
-        checkResponseOk( cmd, response );
-        #endif
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -188,12 +153,7 @@ public class MsmNetworkGetCallingId : NetworkGetCallingId
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCLIR>( "+CLIR" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
-        checkResponseValid( cmd, response );
-        status = (FreeSmartphone.GSM.CallingIdentificationStatus) cmd.value;
-        #endif
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -201,11 +161,8 @@ public class MsmNetworkSetCallingId : NetworkSetCallingId
 {
     public override async void run( FreeSmartphone.GSM.CallingIdentificationStatus status ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCLIR>( "+CLIR" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( status ) );
-        checkResponseOk( cmd, response );
-        #endif
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
+
 

@@ -20,30 +20,21 @@
 using FsoGsm;
 
 /**
- * SMS Mediators
+ * CB Mediators
  **/
-public class MsmSmsRetrieveTextMessages : SmsRetrieveTextMessages
+public class MsmCbSetCellBroadcastSubscriptions : CbSetCellBroadcastSubscriptions
+{
+    public override async void run( string subscriptions ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class MsmCbGetCellBroadcastSubscriptions : CbGetCellBroadcastSubscriptions
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
     }
 }
-
-public class MsmSmsGetSizeForTextMessage : SmsGetSizeForTextMessage
-{
-    public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
-    }
-}
-
-public class MsmSmsSendTextMessage : SmsSendTextMessage
-{
-    public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
-    }
-}
-
 

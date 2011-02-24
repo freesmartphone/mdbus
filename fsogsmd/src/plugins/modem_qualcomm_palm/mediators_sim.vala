@@ -62,6 +62,14 @@ private string bookTypeToCategory( PhonebookBookType book_type)
     return result;
 }
 
+public class MsmSimChangeAuthCode : SimChangeAuthCode
+{
+    public override async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
 public class MsmSimGetAuthStatus : SimGetAuthStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -255,7 +263,7 @@ public class MsmSimDeleteMessage : SimDeleteMessage
 {
     public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -264,7 +272,7 @@ public class MsmSimGetServiceCenterNumber : SimGetServiceCenterNumber
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -272,7 +280,7 @@ public class MsmSimGetUnlockCounters : SimGetUnlockCounters
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -280,7 +288,7 @@ public class MsmSimRetrieveMessage : SimRetrieveMessage
 {
     public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-       throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+       throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -288,7 +296,7 @@ public class MsmSimSendStoredMessage : SimSendStoredMessage
 {
     public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -296,7 +304,7 @@ public class MsmSimSetServiceCenterNumber : SimSetServiceCenterNumber
 {
     public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -304,7 +312,7 @@ public class MsmSimStoreMessage : SimStoreMessage
 {
     public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -312,7 +320,7 @@ public class MsmSimUnlock : SimUnlock
 {
     public override async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 

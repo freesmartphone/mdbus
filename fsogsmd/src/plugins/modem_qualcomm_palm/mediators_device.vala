@@ -157,7 +157,7 @@ public class MsmDeviceGetCurrentTime : DeviceGetCurrentTime
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
     }
 }
 
@@ -190,5 +190,61 @@ public class MsmDeviceSetCurrentTime : DeviceSetCurrentTime
         catch ( GLib.Error err1 )
         {
         }
+    }
+}
+
+public class MsmDeviceGetAlarmTime : DeviceGetAlarmTime
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class MsmDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class MsmDeviceGetSimBuffersSms : DeviceGetSimBuffersSms
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class MsmDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class MsmDeviceSetAlarmTime : DeviceSetAlarmTime
+{
+    public override async void run( int since_epoch ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class MsmDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
+{
+    public override async void run( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class MsmDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
+{
+    public override async void run( int volume ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
     }
 }
