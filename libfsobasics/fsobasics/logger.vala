@@ -533,7 +533,6 @@ public class GLibLogger : Object
                 break;
             default:
                 assert_not_reached();
-                break;
         }
     }
 }

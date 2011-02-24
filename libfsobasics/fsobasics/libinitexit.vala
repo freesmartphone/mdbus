@@ -52,10 +52,10 @@ static void vala_library_init()
 
     if ( FsoFramework.theConfig.boolValue( "logging", "log_backtrace", true) )
     {
-        int i = 0;
+        var i = 0;
         foreach( var sig in FsoFramework.theConfig.stringListValue( "logging", "log_bt_signals", { "2", "15" } ) )
         {
-            Posix.signal( sig.to_int(), FsoFramework.onSignal );
+            Posix.signal( int.parse( sig ), FsoFramework.onSignal );
             i++;
         }
 

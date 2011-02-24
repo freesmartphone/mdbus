@@ -46,13 +46,13 @@ namespace FsoFramework.Process
     {
         int result = 0;
         int pid = 0;
-        string statfile, pstat, comm, pname;
+        string statfile, pstat, pname;
         string[] stat_info;
         string[] subdirs = listDirectory( PROC_PATH );
 
         foreach ( var dirname in subdirs )
         {
-            pid = dirname.to_int();
+            pid = int.parse( dirname );
 
             // check for invalid pid and ignore them
             if ( pid <= 0 )
@@ -427,6 +427,7 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
 public class AsyncProcess : GLib.Object
 {
     static const int NUM_FRIENDLY_KILLS = 5;
+
     ~AsyncProcess()
     {
         Source.remove( child );
@@ -465,7 +466,7 @@ public class AsyncProcess : GLib.Object
     {
         get
         {
-            if( _cmd_line == null )
+            if ( _cmd_line == null )
                 _cmd_line = "\"" + string.joinv( """" """", argv ) + "\"";
             return _cmd_line;
         }
@@ -486,7 +487,7 @@ public class AsyncProcess : GLib.Object
 
     public async int launch( Cancellable? cancel = null, string[] argv ) throws GLib.SpawnError
     {
-        if( cancel != null && cancel.is_cancelled() )
+        if ( cancel != null && cancel.is_cancelled() )
             return -1;
 
         this.argv = argv;
@@ -500,17 +501,31 @@ public class AsyncProcess : GLib.Object
                         out _std_in,
                         out std_out,
                         out std_err );
-        if( stdout_watch != null )
+        if ( stdout_watch != null )
         {
             out_channel = new IOChannel.unix_new( std_out );
-            out_channel.set_flags( stdout_flags );
+            try
+            {
+                out_channel.set_flags( stdout_flags );
+            }
+            catch ( IOChannelError e1 )
+            {
+                warning( @"Could not set flags for stdout: $(e1.message)" );
+            }
             out_channel.add_watch( stdout_condition, stdout_watch );
         }
 
-        if( stderr_watch != null )
+        if ( stderr_watch != null )
         {
             err_channel = new IOChannel.unix_new( std_out );
-            err_channel.set_flags( stdout_flags );
+            try
+            {
+                err_channel.set_flags( stdout_flags );
+            }
+            catch ( IOChannelError e2 )
+            {
+                warning( @"Could not set flags for stderr: $(e2.message)" );
+            }
             err_channel.add_watch( stdout_condition, stdout_watch );
         }
 

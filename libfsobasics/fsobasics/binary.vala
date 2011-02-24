@@ -1,8 +1,4 @@
-/* 
- * File Name: 
- * Creation Date: 
- * Last Modified: 
- *
+/*
  * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,9 +26,9 @@ namespace FsoFramework {
  */
 public class BinBuilder: Object
 {
-    public static uint8 nth_byte(uint64 val, uint byte) 
+    public static uint8 nth_byte(uint64 val, uint byte)
     {
-        if( byte > sizeof(uint64) ) 
+        if( byte > sizeof(uint64) )
         {
             critical(@"byte value out of range: $byte");
             return 0;
@@ -73,7 +69,7 @@ public class BinBuilder: Object
         this.alignment_byte = alignment_byte;
     }
 
-    construct 
+    construct
     {
         _data = new List<uint8>();
     }
@@ -128,7 +124,7 @@ public class BinBuilder: Object
         append_align();
     }
 
-    public void append_int16(int16 v) 
+    public void append_int16(int16 v)
     {
         var uv = uint16_convert((uint16)v);
 
@@ -199,28 +195,28 @@ public class BinBuilder: Object
         append_align();
     }
 
-    public void append_pad(long length, uint8 byte) 
+    public void append_pad(long length, uint8 byte)
     {
         if(length > 0)
         {
             _data.reverse();
 
-            for(int i = 0; i < length; i++) 
+            for(int i = 0; i < length; i++)
                 _data.prepend( byte );
 
             _data.reverse();
         }
     }
 
-    public void append_align() 
+    public void append_align()
     {
         if(alignment == 0)
              return;
         var align_bytes = alignment - (_data.length() % alignment);
 
-        if(align_bytes != alignment) 
+        if(align_bytes != alignment)
         {
-            for(int i = 0; i < align_bytes; i++) 
+            for(int i = 0; i < align_bytes; i++)
             {
                 _data.append( alignment_byte );
             }
@@ -306,7 +302,7 @@ public class BinBuilder: Object
             l.data = e;
             l = l.next;
         }
-        for(int i = (int)s.length; i < pad_to; i ++) 
+        for(int i = (int)s.length; i < pad_to; i ++)
         {
             l.data = padding;
             l = l.next;
@@ -396,7 +392,7 @@ public class BinBuilder: Object
         insert_uint16(Checksum.crc16(data[start:end]), pos);
     }
 
-    public void reset() 
+    public void reset()
     {
         _data = new List<uint8>();
     }
@@ -431,7 +427,7 @@ public class BinBuilder: Object
              return val;
     }
 
-    protected unowned List<uint8> get_at(int position, uint assure_nth = 1) 
+    protected unowned List<uint8> get_at(int position, uint assure_nth = 1)
     {
         if(position < 0)
              position += (int)_data.length();
@@ -567,7 +563,7 @@ public class BinReader : Object
         public uint64 get_bits(int position, int offset, int length) throws BinReaderError
         {
             uint64 result = 0;
-            int byte_offset = offset / 8;
+            //int byte_offset = offset / 8;
 
             if(length > 64)
                  throw new BinReaderError.ILLEGAL_PARAMETER(@"length[$length] is > 64");
