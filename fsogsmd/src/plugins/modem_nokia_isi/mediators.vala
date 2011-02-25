@@ -148,10 +148,10 @@ public class IsiSimSendAuthCode : SimSendAuthCode
 
         switch ( isicode )
         {
-            case GIsiClient.SIMAuth.MessageType.SUCCESS_RESP:
+            case GIsiClient.SIMAuth.IndicationType.OK:
                 theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_UNLOCKED );
                 break;
-            case GIsiClient.SIMAuth.ErrorType.NEED_PUK:
+            case GIsiClient.SIMAuth.IndicationType.PUK:
                 throw new FreeSmartphone.GSM.Error.SIM_BLOCKED( @"ISI Code = $isicode" );
                 break;
             default:
@@ -312,7 +312,7 @@ public class IsiNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        NokiaIsi.isimodem.net.registerAutomatic( true, (error) => {
+        NokiaIsi.isimodem.net.registerAutomatic( false, (error) => {
             if ( error == ErrorCode.OK )
             {
                 run.callback();
