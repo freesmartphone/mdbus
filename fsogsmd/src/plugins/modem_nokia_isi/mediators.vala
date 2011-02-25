@@ -181,8 +181,16 @@ public class IsiNetworkGetStatus : NetworkGetStatus
         } );
         yield;
 
-        status.insert( "lac", istatus.lac );
-        status.insert( "cid", istatus.cid );
+        if ( istatus.status == GIsiClient.Network.RegistrationStatus.HOME ||
+             istatus.status == GIsiClient.Network.RegistrationStatus.ROAM ||
+             istatus.status == GIsiClient.Network.RegistrationStatus.ROAM_BLINK )
+        {
+            status.insert( "lac", istatus.lac );
+            status.insert( "cid", istatus.cid );
+            status.insert( "code", istatus.mcc + istatus.mnc );
+            status.insert( "provider", istatus.name );
+            status.insert( "display", istatus.name );
+        }
 
         var regstatus = "<unknown>";
         switch ( istatus.status )
@@ -229,12 +237,8 @@ public class IsiNetworkGetStatus : NetworkGetStatus
                 break;
         }
         status.insert( "mode", regmode );
-
         status.insert( "registration", regstatus );
         status.insert( "band", istatus.band );
-        status.insert( "code", istatus.mcc + istatus.mnc );
-        status.insert( "provider", istatus.name );
-        status.insert( "display", istatus.name );
 
         var technology = 0;
         if ( istatus.hsupa || istatus.hsdpa )
