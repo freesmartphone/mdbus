@@ -188,6 +188,7 @@ public class IsiNetworkGetStatus : NetworkGetStatus
             status.insert( "lac", istatus.lac );
             status.insert( "cid", istatus.cid );
             status.insert( "code", istatus.mcc + istatus.mnc );
+            status.insert( "network", istatus.network ?? istatus.name );
             status.insert( "provider", istatus.name );
             status.insert( "display", istatus.name );
         }
