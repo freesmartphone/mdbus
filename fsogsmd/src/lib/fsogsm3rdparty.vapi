@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -442,15 +442,15 @@ namespace Sms
 
             if ( !extract_concatenation( out ref_num, out max_msgs, out seq_num ) )
             {
-                // service center address, originating address, delivery timestamp
-                return @"$(sc_addr)_$(oaddr)_$(deliver.scts.to_epoch())_1".replace( "+", "" );
+                // originating address, delivery timestamp
+                return @"$(oaddr)_$(deliver.scts.to_epoch())_1".replace( "+", "" );
             }
             else
             {
-                // service center address, originating address, reference number, # of fragments
+                // originating address, reference number, # of fragments
                 //FIXME: This goes wrong (problem probably in sms_address_to_string)
                 //return @"$(sc_addr)_$(deliver.oaddr)_$(ref_num)_$(max_msgs)";
-                return @"$(sc_addr)_$(oaddr)_$(ref_num)_$(max_msgs)".replace( "+", "" );
+                return @"$(oaddr)_$(ref_num)_$(max_msgs)".replace( "+", "" );
             }
         }
 
