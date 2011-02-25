@@ -17,6 +17,11 @@
  *
  */
 
+namespace FsoGsm
+{
+    internal const uint DEFAULT_COMMAND_TIMEOUT = 5;
+    internal const uint DEFAULT_COMMAND_RETRY = 3;
+}
 /**
  * AT Command Interface and Abstract Base Class.
  *
@@ -350,12 +355,12 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
 
     public virtual uint get_timeout()
     {
-        return 2 * 60;
+        return DEFAULT_COMMAND_TIMEOUT;
     }
 
     public virtual uint get_retry()
     {
-        return 3;
+        return DEFAULT_COMMAND_RETRY;
     }
 
     public virtual string get_prefix()

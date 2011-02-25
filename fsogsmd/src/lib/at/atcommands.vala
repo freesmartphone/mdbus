@@ -28,6 +28,11 @@ using Gee;
 
 namespace FsoGsm {
 
+internal const uint MODEM_COMM_TIMEOUT = 5;
+internal const uint SIM_COMM_TIMEOUT = 20;
+internal const uint NETWORK_COMM_TIMEOUT = 120;
+internal const uint VOICE_COMM_TIMEOUT = 3600 * 24;
+
 public class PlusCALA : AbstractAtCommand
 {
     public int year;
@@ -690,6 +695,8 @@ public class PlusCMGS : AbstractAtCommand
 
     public override string get_prefix() { return ""; }
     public override string get_postfix() { return ""; }
+
+    public override uint get_timeout() { return NETWORK_COMM_TIMEOUT; }
 }
 
 public class PlusCMGW : AbstractAtCommand
@@ -915,6 +922,8 @@ public class PlusCOPN : AbstractAtCommand
     {
         return "+COPN";
     }
+
+    public override uint get_timeout() { return SIM_COMM_TIMEOUT; }
 }
 
 public class PlusCOPS : AbstractAtCommand
@@ -1012,6 +1021,8 @@ public class PlusCOPS : AbstractAtCommand
     {
         return "+COPS=?";
     }
+
+    public override uint get_timeout() { return NETWORK_COMM_TIMEOUT; }
 }
 
 public class PlusCPBR : AbstractAtCommand
@@ -1189,6 +1200,8 @@ public class PlusCPIN : AbstractAtCommand
     {
         return "+CPIN?";
     }
+
+    public override uint get_timeout() { return SIM_COMM_TIMEOUT; }
 }
 
 public class PlusCPMS : AbstractAtCommand
@@ -1569,6 +1582,8 @@ public class V250D : V250terCommand
         var safenumber = Constants.instance().cleanPhoneNumber( number );
         return @"D$safenumber$postfix";
     }
+
+    public override uint get_timeout() { return VOICE_COMM_TIMEOUT; }
 }
 
 public class V250H : V250terCommand
