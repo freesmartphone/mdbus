@@ -1,7 +1,7 @@
 /*
  * main.vala
  *
- * (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

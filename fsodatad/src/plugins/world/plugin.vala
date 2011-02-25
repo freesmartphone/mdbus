@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -95,7 +95,7 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
         var country = FsoData.MBPI.Database.instance().allCountries()[country_code];
         if ( country == null )
         {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"No country for $country_code found" );
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Can't find a country for code '$country_code'" );
         }
         var timezones = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
         foreach ( var key in country.timezones.keys )

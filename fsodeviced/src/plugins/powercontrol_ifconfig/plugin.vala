@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *                    2010 Sebastian Krzyszkowiak <seba.dos1@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
