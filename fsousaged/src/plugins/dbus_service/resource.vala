@@ -231,12 +231,7 @@ public class Resource : IResource, Object
             peer.Ping();
             return true;
         }
-        catch ( DBusError e )
-        {
-            instance.logger.warning( @"Resource $name incommunicado: $(e.message)" );
-            return false;
-        }
-        catch ( IOError e )
+        catch ( Error e )
         {
             instance.logger.warning( @"Resource $name incommunicado: $(e.message)" );
             return false;
@@ -279,7 +274,7 @@ public class Resource : IResource, Object
             status = FsoFramework.ResourceStatus.ENABLED;
             updateStatus();
         }
-        catch ( GLib.Error e )
+        catch ( Error e )
         {
             instance.logger.error( @"Resource $name can't be enabled: $(e.message). Trying to disable instead" );
             yield proxy.disable();
@@ -299,17 +294,11 @@ public class Resource : IResource, Object
             status = FsoFramework.ResourceStatus.DISABLED;
             updateStatus();
         }
-        catch ( DBusError e )
+        catch ( Error e )
         {
             instance.logger.error( @"Resource $name can't be disabled: $(e.message). Setting status to UNKNOWN" );
             status = FsoFramework.ResourceStatus.UNKNOWN;
             throw e;
-        }
-        catch ( IOError e2 )
-        {
-            instance.logger.error( @"Resource $name can't be disabled: $(e2.message). Setting status to UNKNOWN" );
-            status = FsoFramework.ResourceStatus.UNKNOWN;
-            throw e2;
         }
     }
 
@@ -323,17 +312,11 @@ public class Resource : IResource, Object
                 status = FsoFramework.ResourceStatus.SUSPENDED;
                 updateStatus();
             }
-            catch ( DBusError e )
+            catch ( Error e )
             {
                 instance.logger.error( @"Resource $name can't be suspended: $(e.message). Trying to disable instead" );
                 yield proxy.disable();
                 throw e;
-            }
-            catch ( IOError e2 )
-            {
-                instance.logger.error( @"Resource $name can't be suspended: $(e2.message). Trying to disable instead" );
-                yield proxy.disable();
-                throw e2;
             }
         }
         else
@@ -352,17 +335,11 @@ public class Resource : IResource, Object
                 status = FsoFramework.ResourceStatus.ENABLED;
                 updateStatus();
             }
-            catch ( DBusError e )
+            catch ( Error e )
             {
                 instance.logger.error( @"Resource $name can't be resumed: $(e.message). Trying to disable instead" );
                 yield proxy.disable();
                 throw e;
-            }
-            catch ( IOError e2 )
-            {
-                instance.logger.error( @"Resource $name can't be resumed: $(e2.message). Trying to disable instead" );
-                yield proxy.disable();
-                throw e2;
             }
         }
         else

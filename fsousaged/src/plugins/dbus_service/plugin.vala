@@ -197,17 +197,9 @@ public class Controller : FsoFramework.AbstractObject
             {
                 r.enable();
             }
-            catch ( FreeSmartphone.ResourceError e )
+            catch ( Error e )
             {
                 logger.warning( @"Error while trying to (initially) enable resource $(r.name): $(e.message)" );
-            }
-            catch ( DBusError e )
-            {
-                logger.warning( @"Error while trying to (initially) enable resource $(r.name): $(e.message)" );
-            }
-            catch ( IOError e2 )
-            {
-                logger.warning( @"Error while trying to (initially) enable resource $(r.name): $(e2.message)" );
             }
         }
 
@@ -218,17 +210,9 @@ public class Controller : FsoFramework.AbstractObject
             {
                 r.disable();
             }
-            catch ( FreeSmartphone.ResourceError e )
+            catch ( Error e )
             {
                 logger.warning( @"Error while trying to (initially) disable resource $(r.name): $(e.message)" );
-            }
-            catch ( DBusError e )
-            {
-                logger.warning( @"Error while trying to (initially) disable resource $(r.name): $(e.message)" );
-            }
-            catch ( IOError e2 )
-            {
-                logger.warning( @"Error while trying to (initially) disable resource $(r.name): $(e2.message)" );
             }
         }
     }
@@ -308,13 +292,9 @@ public class Controller : FsoFramework.AbstractObject
         {
             idlenotifier.set_state( idlestate );
         }
-        catch ( DBusError e )
+        catch ( Error e )
         {
-            logger.error( @"DBus Error while talking to IdleNotifier: $(e.message)" );
-        }
-        catch ( IOError e2 )
-        {
-            logger.error( @"DBus Error while talking to IdleNotifier: $(e2.message)" );
+            logger.error( @"Error while talking to IdleNotifier: $(e.message)" );
         }
 
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.ALIVE );
@@ -349,17 +329,9 @@ public class Controller : FsoFramework.AbstractObject
             {
                 yield r.disable();
             }
-            catch ( FreeSmartphone.ResourceError e1 )
+            catch ( Error e )
             {
-                logger.warning( @"Error while trying to disable resource $(r.name): $(e1.message)" );
-            }
-            catch ( DBusError e2 )
-            {
-                logger.warning( @"Error while trying to disable resource $(r.name): $(e2.message)" );
-            }
-            catch ( IOError e3 )
-            {
-                logger.warning( @"Error while trying to disable resource $(r.name): $(e3.message)" );
+                logger.warning( @"Error while trying to disable resource $(r.name): $(e.message)" );
             }
         }
         assert( logger.debug( "... done" ) );
@@ -374,17 +346,9 @@ public class Controller : FsoFramework.AbstractObject
             {
                 yield r.suspend();
             }
-            catch ( FreeSmartphone.ResourceError e1 )
+            catch ( Error e )
             {
-                logger.warning( @"Error while trying to suspend resource $(r.name): $(e1.message)" );
-            }
-            catch ( DBusError e2 )
-            {
-                logger.warning( @"Error while trying to suspend resource $(r.name): $(e2.message)" );
-            }
-            catch ( IOError e3 )
-            {
-                logger.warning( @"Error while trying to suspend resource $(r.name): $(e3.message)" );
+                logger.warning( @"Error while trying to suspend resource $(r.name): $(e.message)" );
             }
         }
         assert( logger.debug( "... done disabling." ) );
@@ -399,17 +363,9 @@ public class Controller : FsoFramework.AbstractObject
             {
                 yield r.resume();
             }
-            catch ( FreeSmartphone.ResourceError e1 )
+            catch ( Error e )
             {
-                logger.warning( @"Error while trying to resume resource $(r.name): $(e1.message)" );
-            }
-            catch ( DBusError e2 )
-            {
-                logger.warning( @"Error while trying to resume resource $(r.name): $(e2.message)" );
-            }
-            catch ( IOError e3 )
-            {
-                logger.warning( @"Error while trying to resume resource $(r.name): $(e3.message)" );
+                logger.warning( @"Error while trying to resume resource $(r.name): $(e.message)" );
             }
         }
         assert( logger.debug( "... done resuming." ) );
