@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,9 @@ namespace Source
     public const string MODULE_NAME_GSM = "source_gsm";
 }
 
+/**
+ * @class Source.Gsm
+ **/
 class Source.Gsm : FsoTime.AbstractSource
 {
     FreeSmartphone.GSM.Network ogsmd_device;
@@ -65,7 +68,7 @@ class Source.Gsm : FsoTime.AbstractSource
 
     public override string repr()
     {
-        return "";
+        return "<>";
     }
 
     private bool arrayContainsElement( string[] array, string element )
@@ -92,13 +95,9 @@ class Source.Gsm : FsoTime.AbstractSource
                 var status = yield ogsmd_device.get_status();
                 yield onGsmNetworkStatusSignal( status );
             }
-            catch ( DBusError e )
+            catch ( Error e )
             {
                 logger.warning( @"Could not query the status from ogsmd: $(e.message)" );
-            }
-            catch ( IOError e2 )
-            {
-                logger.warning( @"Could not query the status from ogsmd: $(e2.message)" );
             }
         }
         else
@@ -132,14 +131,9 @@ class Source.Gsm : FsoTime.AbstractSource
             countrycode = yield odatad_world.get_country_code_for_mcc_mnc( code );
             timezones = yield odatad_world.get_timezones_for_country_code( countrycode );
         }
-        catch ( DBusError e )
+        catch ( Error e )
         {
             logger.warning( @"Could not query odatad: $(e.message)" );
-            return;
-        }
-        catch ( IOError e2 )
-        {
-            logger.warning( @"Could not query odatad: $(e2.message)" );
             return;
         }
 
