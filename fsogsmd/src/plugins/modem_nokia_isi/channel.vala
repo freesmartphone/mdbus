@@ -23,7 +23,8 @@ using FsoGsm;
 
 public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
 {
-    //public FsoFramework.Transport transport { get; set; }
+    private NokiaIsi.IsiUnsolicitedHandler unsolicitedHandler;
+
     public string name;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
@@ -104,6 +105,11 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
         {
             theModem.logger.error( @"Can't get SIM auth status: $(e2.message) - what now?" );
             // FIXME: move to close status?
+        }
+
+        if ( unsolicitedHandler == null )
+        {
+            unsolicitedHandler = new NokiaIsi.IsiUnsolicitedHandler();
         }
     }
 

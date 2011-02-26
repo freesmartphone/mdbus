@@ -24,6 +24,85 @@ using GIsiComm;
 namespace NokiaIsi
 {
 
+public GLib.HashTable<string,Variant> isiRegStatusToFsoRegStatus( Network.ISI_RegStatus istatus )
+{
+    var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+
+    if ( istatus.status == GIsiClient.Network.RegistrationStatus.HOME ||
+         istatus.status == GIsiClient.Network.RegistrationStatus.ROAM ||
+         istatus.status == GIsiClient.Network.RegistrationStatus.ROAM_BLINK )
+    {
+        status.insert( "lac", istatus.lac );
+        status.insert( "cid", istatus.cid );
+        status.insert( "code", istatus.mcc + istatus.mnc );
+        status.insert( "network", istatus.network ?? istatus.name );
+        status.insert( "provider", istatus.name );
+        status.insert( "display", istatus.name );
+    }
+
+    var regstatus = "<unknown>";
+    switch ( istatus.status )
+    {
+        case GIsiClient.Network.RegistrationStatus.HOME:
+            regstatus = "home";
+            break;
+        case GIsiClient.Network.RegistrationStatus.ROAM:
+        case GIsiClient.Network.RegistrationStatus.ROAM_BLINK:
+            regstatus = "roaming";
+            break;
+        case GIsiClient.Network.RegistrationStatus.NOSERV:
+        case GIsiClient.Network.RegistrationStatus.NOSERV_NOTSEARCHING:
+            regstatus = "unregistered";
+            break;
+        case GIsiClient.Network.RegistrationStatus.NOSERV_SEARCHING:
+            regstatus = "searching";
+            break;
+        case GIsiClient.Network.RegistrationStatus.NOSERV_NOSIM:
+        case GIsiClient.Network.RegistrationStatus.NOSERV_SIM_REJECTED_BY_NW:
+            regstatus = "denied";
+            break;
+    }
+
+    string regmode;
+    switch ( istatus.mode )
+    {
+        case GIsiClient.Network.OperatorSelectMode.AUTOMATIC:
+            regmode = "automatic";
+            break;
+        case GIsiClient.Network.OperatorSelectMode.MANUAL:
+            regmode = "manual";
+            break;
+        /*
+        case GIsiClient.Network.OperatorSelectMode.USER_RESELECTION:
+            regmode = "automatic;manual";
+            break;
+        case GIsiClient.Network.OperatorSelectMode.NO_SELECTION:
+            regmode = "unregister";
+            break;
+        */
+        default:
+            regmode = "unknown";
+            break;
+    }
+    status.insert( "mode", regmode );
+    status.insert( "registration", regstatus );
+    status.insert( "band", istatus.band );
+
+    var technology = 0;
+    if ( istatus.hsupa || istatus.hsdpa )
+    {
+        technology = 2;
+    }
+    else if ( istatus.egprs )
+    {
+        technology = 3;
+    }
+
+    status.insert( "act", Constants.instance().networkProviderActToString( technology ) );
+
+    return status;
+}
+
 /*
  * org.freesmartphone.Info
  */
@@ -168,8 +247,6 @@ public class IsiNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
-
         var istatus = Network.ISI_RegStatus();
 
         NokiaIsi.isimodem.net.queryStatus( ( error, isistatus ) => {
@@ -181,77 +258,7 @@ public class IsiNetworkGetStatus : NetworkGetStatus
         } );
         yield;
 
-        if ( istatus.status == GIsiClient.Network.RegistrationStatus.HOME ||
-             istatus.status == GIsiClient.Network.RegistrationStatus.ROAM ||
-             istatus.status == GIsiClient.Network.RegistrationStatus.ROAM_BLINK )
-        {
-            status.insert( "lac", istatus.lac );
-            status.insert( "cid", istatus.cid );
-            status.insert( "code", istatus.mcc + istatus.mnc );
-            status.insert( "network", istatus.network ?? istatus.name );
-            status.insert( "provider", istatus.name );
-            status.insert( "display", istatus.name );
-        }
-
-        var regstatus = "<unknown>";
-        switch ( istatus.status )
-        {
-            case GIsiClient.Network.RegistrationStatus.HOME:
-                regstatus = "home";
-                break;
-            case GIsiClient.Network.RegistrationStatus.ROAM:
-            case GIsiClient.Network.RegistrationStatus.ROAM_BLINK:
-                regstatus = "roaming";
-                break;
-            case GIsiClient.Network.RegistrationStatus.NOSERV:
-            case GIsiClient.Network.RegistrationStatus.NOSERV_NOTSEARCHING:
-                regstatus = "unregistered";
-                break;
-            case GIsiClient.Network.RegistrationStatus.NOSERV_SEARCHING:
-                regstatus = "searching";
-                break;
-            case GIsiClient.Network.RegistrationStatus.NOSERV_NOSIM:
-            case GIsiClient.Network.RegistrationStatus.NOSERV_SIM_REJECTED_BY_NW:
-                regstatus = "denied";
-                break;
-        }
-
-        string regmode;
-        switch ( istatus.mode )
-        {
-            case GIsiClient.Network.OperatorSelectMode.AUTOMATIC:
-                regmode = "automatic";
-                break;
-            case GIsiClient.Network.OperatorSelectMode.MANUAL:
-                regmode = "manual";
-                break;
-            /*
-            case GIsiClient.Network.OperatorSelectMode.USER_RESELECTION:
-                regmode = "automatic;manual";
-                break;
-            case GIsiClient.Network.OperatorSelectMode.NO_SELECTION:
-                regmode = "unregister";
-                break;
-            */
-            default:
-                regmode = "unknown";
-                break;
-        }
-        status.insert( "mode", regmode );
-        status.insert( "registration", regstatus );
-        status.insert( "band", istatus.band );
-
-        var technology = 0;
-        if ( istatus.hsupa || istatus.hsdpa )
-        {
-            technology = 2;
-        }
-        else if ( istatus.egprs )
-        {
-            technology = 3;
-        }
-
-        status.insert( "act", Constants.instance().networkProviderActToString( technology ) );
+        status = isiRegStatusToFsoRegStatus( istatus );
 
         NokiaIsi.isimodem.net.queryStrength( ( error, strength ) => {
             if ( error == ErrorCode.OK )
