@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -88,6 +88,12 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
 
         // modem-specific init sequences
         var seq = modem_data.cmdSequences;
+
+        // sequence for when the modem is registered
+        registerAtCommandSequence( "urc", "registered", new AtCommandSequence( {
+            """+CSMS=1""", /* enable SMS phase 2 */
+            """+CNMI=3,3,3,2,1""" /* deliver SMS right away, don't buffer */
+        } ) );
 
         // modem-specific ppp options
         modem_data.pppOptions = config.stringListValue( CONFIG_SECTION, "ppp_options", {
