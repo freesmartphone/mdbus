@@ -273,7 +273,7 @@ namespace Sms
     [CCode (cname = "struct sms_deliver", destroy_function = "", cheader_filename = "smsutil.h")]
     public struct Deliver
     {
-        public void addProperties( GLib.HashTable<string,GLib.Value?> props )
+        public void addProperties( GLib.HashTable<string,GLib.Variant> props )
         {
             props.insert( "mms", mms );
             props.insert( "sri", sri );
@@ -465,9 +465,9 @@ namespace Sms
             }
         }
 
-        public GLib.HashTable<string,GLib.Value?> properties()
+        public GLib.HashTable<string,GLib.Variant> properties()
         {
-            var props = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+            var props = new GLib.HashTable<string,GLib.Variant>( GLib.str_hash, GLib.str_equal );
 
             int dst;
             int src;
