@@ -8,11 +8,25 @@ THIRDPARTY_SOURCES = \
 	$(top_srcdir)/src/3rdparty/smsutil.c \
 	$(top_srcdir)/src/3rdparty/storage.c \
 	$(top_srcdir)/src/3rdparty/util.c \
+	\
+	$(top_srcdir)/src/3rdparty/ppp/crc-ccitt.c \
+	$(top_srcdir)/src/3rdparty/ppp/gathdlc.c \
+	$(top_srcdir)/src/3rdparty/ppp/gatio.c \
+	$(top_srcdir)/src/3rdparty/ppp/gatppp.c \
+	$(top_srcdir)/src/3rdparty/ppp/gatutil.c \
+	$(top_srcdir)/src/3rdparty/ppp/ppp_auth.c \
+	$(top_srcdir)/src/3rdparty/ppp/ppp_cp.c \
+	$(top_srcdir)/src/3rdparty/ppp/ppp_ipcp.c \
+	$(top_srcdir)/src/3rdparty/ppp/ppp_lcp.c \
+	$(top_srcdir)/src/3rdparty/ppp/ppp_net.c \
+	$(top_srcdir)/src/3rdparty/ppp/ringbuffer.c \
+	\
 	$(NULL)
 
 AM_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/3rdparty \
+	-I$(top_srcdir)/src/3rdparty/ppp \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
