@@ -24,7 +24,7 @@ using FsoGsm;
 namespace CinterionMc75
 {
     const string MODULE_NAME = "fsogsm.modem_cinterion_mc75";
-    const string CHANNEL_NAMES[] = { "call", "data", "main" };
+    const string CHANNEL_NAMES[] = { "main", "data", "call" };
 }
 
 /**
@@ -90,7 +90,7 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         var seq = modem_data.cmdSequences;
 
         // sequence for when the modem is registered
-        registerAtCommandSequence( "urc", "registered", new AtCommandSequence( {
+        registerAtCommandSequence( "main", "registered", new AtCommandSequence( {
             """+CSMS=1""", /* enable SMS phase 2 */
             """+CNMI=3,3,3,2,1""" /* deliver SMS right away, don't buffer */
         } ) );
