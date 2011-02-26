@@ -220,6 +220,11 @@ public class AtSimRetrieveMessage : SimRetrieveMessage
         checkMultiResponseValid( cmgr, response );
 
         var sms = Sms.Message.newFromHexPdu( cmgr.hexpdu, cmgr.tpdulen );
+        if ( sms == null )
+        {
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( @"Can't read SMS at index $index" );
+        }
+
         status = Constants.instance().simMessagebookStatusToString( cmgr.status );
         number = sms.number();
         contents = sms.to_string();
