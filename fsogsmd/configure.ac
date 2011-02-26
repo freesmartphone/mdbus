@@ -206,6 +206,7 @@ AC_CONFIG_FILES([
   src/plugins/modem_qualcomm_htc/Makefile
   src/plugins/modem_qualcomm_palm/Makefile
   src/plugins/pdp_ppp/Makefile
+  src/plugins/pdp_ppp_internal/Makefile
   src/plugins/pdp_ppp_mux/Makefile
   src/plugins/pdp_qmi/Makefile
   src/ppp/Makefile

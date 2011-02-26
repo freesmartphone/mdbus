@@ -21,7 +21,7 @@ SUBDIRS = \
 	$(NULL)
 
 if WANT_PPP
-SUBDIRS += pdp_ppp
+SUBDIRS += pdp_ppp pdp_ppp_internal
 if WANT_MUX
 SUBDIRS += pdp_ppp_mux
 endif

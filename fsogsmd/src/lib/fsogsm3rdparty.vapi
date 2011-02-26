@@ -17,6 +17,18 @@
  *
  */
 
+[CCode (cheader_filename = "gatppp.h", cprefix = "", lower_case_cprefix = "")]
+namespace ThirdParty
+{
+    [CCode (cname = "GAtPPP", cprefix = "g_at_ppp_", destroy_function = "", cheader_filename = "gatppp.h")]
+    [Compact]
+    public class PPP
+    {
+        [CCode (cname = "g_at_ppp_new", cheader_filename = "gatppp.h")]
+        public PPP( GLib.IOChannel channel );
+    }
+}
+
 [CCode (cheader_filename = "conversions.h,util.h", cprefix = "", lower_case_cprefix = "")]
 namespace Conversions
 {
