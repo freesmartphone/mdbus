@@ -81,7 +81,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             }
             else
             {
-                // call is present and incoming or held
+                // We already have an active call so hold it accept the new incomming call
                 yield channel.call_service.sups_call( Msmcomm.SupsAction.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
             }
         }
@@ -102,16 +102,23 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         int num = 0;
         var channel = theModem.channel( "main" ) as MsmChannel;
 
+        if ( numberOfBusyCalls() > 0 )
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "System busy" );
+        }
+
         try 
         {
             // Initiate call to the selected number
             yield channel.call_service.originate_call(number, false);
 
             // Wait until the modem reports the origination of our new call
-            yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION );
-            // var call_info = Msmcomm.CallInfo.from_variant( response );
+            var response = yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION );
+            var call_info = Msmcomm.CallInfo.from_variant( response );
 
-            startTimeoutIfNecessary();
+            // ... and store the new call in our internal list
+            var call = new FsoGsm.Call.newFromDetail( call_info.id );
+            calls.set( call_info.id, call );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -214,17 +221,14 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
      **/
     public override void handleIncomingCall( FsoGsm.CallInfo call_info )
     {
-        // Create a new call with status == RELEASE with the supplied id
         var new_call = new FsoGsm.Call.newFromId( call_info.id );
 
-        // Update the created call so it is now an incomming one
         var empty_properties = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
         var call_detail = FreeSmartphone.GSM.CallDetail( call_info.id, 
-                                                             FreeSmartphone.GSM.CallStatus.INCOMING, 
-                                                             empty_properties );
+                                                         FreeSmartphone.GSM.CallStatus.INCOMING,
+                                                         empty_properties );
         new_call.update( call_detail );
 
-        // Save call for later processing
         calls.set( call_info.id, new_call );
     }
 
@@ -233,12 +237,9 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
      **/
     public override void handleConnectingCall( FsoGsm.CallInfo call_info )
     {
-        // Do we have an call with the supplied id?
-        if ( calls.has_key( call_info.id ) )
+        if ( !calls.has_key( call_info.id ) )
         {
-            // Call is connecting, so it's next state is ACTIVE
-            var call = calls.get( call_info.id );
-            call.update_status( FreeSmartphone.GSM.CallStatus.ACTIVE );
+            call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
         }
         else
         {
@@ -251,10 +252,8 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
      **/
     public override void handleEndingCall( FsoGsm.CallInfo call_info )
     {
-        // Do we have an call with the supplied id?
         if ( calls.has_key( call_info.id ) )
         {
-            // Call is connecting, so it's next state is ACTIVE
             var call = calls.get( call_info.id );
             call.update_status( FreeSmartphone.GSM.CallStatus.RELEASE );
             calls.unset( call_info.id );

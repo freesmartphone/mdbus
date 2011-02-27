@@ -184,6 +184,8 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                 case "orig":
                     notifyUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION, (Variant) call_info );
                     break;
+                case "orig-fwd-status":
+                    break;
                 case "end":
                     theModem.callhandler.handleEndingCall( call_info );
                     break;
