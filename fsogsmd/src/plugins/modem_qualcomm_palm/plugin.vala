@@ -90,6 +90,8 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
         // Only enable data transport when config told us to do so
         if ( enableDataTransport )
         {
+            logger.debug( @"Creating data transport ..." );
+
             // create AT channel for data use
             var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );
             var parser = new FsoGsm.StateBasedAtParser();
@@ -101,6 +103,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     {
         if ( enableDataTransport )
         {
+            logger.debug( @"channelForCommand: using \"$(AT_CHANNEL_NAME)\" channel ..." );
             return channels[ AT_CHANNEL_NAME ];
         }
 
