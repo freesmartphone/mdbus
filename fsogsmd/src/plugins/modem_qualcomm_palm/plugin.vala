@@ -33,12 +33,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 {
     private const string MSM_CHANNEL_NAME = "main";
     private const string AT_CHANNEL_NAME = "data";
-    private bool enableDataTransport;
-
-    construct
-    {
-        enableDataTransport = FsoFramework.theConfig.boolValue( "fsogsm.modem_qualcomm_palm", "enable_data", true );
-    }
+    private bool enableDataTransport = true;
 
     public override string repr()
     {
@@ -84,6 +79,9 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
+        // read necessary configuration settings
+        enableDataTransport = FsoFramework.theConfig.boolValue( "fsogsm.modem_qualcomm_palm", "enable_data", true );
+
         // create MAIN channel
         new MsmChannel( MSM_CHANNEL_NAME );
 
