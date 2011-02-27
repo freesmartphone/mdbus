@@ -30,6 +30,9 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
 {
     public const string MODULE_NAME = "fsogsm.pdp_ppp_internal";
 
+    private ThirdParty.At.PPP ppp;
+    private IOChannel iochannel;
+
     public override string repr()
     {
         return "<>";
@@ -53,7 +56,18 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
         }
 
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        /*
+
+        if ( ( (FsoGsm.AbstractModem) theModem ).data_transport != "mux" )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "ippp only supports data transport MUX for now" );
+        }
+        */
+
+        var transport = theModem.channel( "main" ).transport;
+        iochannel = new IOChannel.unix_new( transport.freeze() );
+
+        ppp = new ThirdParty.At.PPP( iochannel );
     }
 
     public async override void sc_deactivate()

@@ -397,6 +397,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             case "qmi":
                 typename = "PdpQmi";
                 break;
+            case "ippp":
+                typename = "PdpPppInternal";
+                break;
             default:
                 logger.warning( @"Invalid pdp_type $pdphandlertype; data connectivity will NOT be available" );
                 //pdphandler = new FsoGsm.Nullpdphandler();

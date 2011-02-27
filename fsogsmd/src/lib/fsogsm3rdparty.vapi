@@ -20,12 +20,79 @@
 [CCode (cheader_filename = "gatppp.h", cprefix = "", lower_case_cprefix = "")]
 namespace ThirdParty
 {
-    [CCode (cname = "GAtPPP", cprefix = "g_at_ppp_", destroy_function = "", cheader_filename = "gatppp.h")]
-    [Compact]
-    public class PPP
+    [CCode (cname = "struct ring_buffer", cheader_filename = "ringbuffer.h")]
+    public struct RingBuffer
     {
-        [CCode (cname = "g_at_ppp_new", cheader_filename = "gatppp.h")]
-        public PPP( GLib.IOChannel channel );
+    }
+
+    namespace At
+    {
+        [CCode (cname = "GAtDebugFunc", cheader_filename = "gat.h")]
+        public delegate void DebugFunc( string message );
+
+        [CCode (cname = "GAtDisconnectFunc", cheader_filename = "gat.h")]
+        public delegate void DisconnectFunc();
+
+        [CCode (cname = "GAtReceiveFunc", cheader_filename = "gat.h")]
+        public delegate void ReceiveFunc( uint8[] data );
+
+        [CCode (cname = "GAtIo", cprefix = "g_at_io_", destroy_function = "", cheader_filename = "gatio.h")]
+        [Compact]
+        public class Io
+        {
+            [CCode (cname = "GAtIOReadFunc", cheader_filename = "gatio.h")]
+            public delegate void ReadFunc( RingBuffer buffer );
+            [CCode (cname = "GAtIOWriteFunc", cheader_filename = "gatio.h")]
+            public delegate bool WriteFunc();
+
+            public Io( GLib.IOChannel channel );
+            public Io.blocking( GLib.IOChannel channel );
+
+            public GLib.IOChannel get_channel();
+            public bool set_read_handler( ReadFunc func );
+            public bool set_write_handler( WriteFunc func );
+            public size_t write( uint8[] data );
+            public bool set_disconnect_function( At.DisconnectFunc func );
+            public bool set_debug( At.DebugFunc func );
+        }
+
+        [CCode (cname = "GAtPPP", cprefix = "g_at_ppp_", destroy_function = "", cheader_filename = "gatppp.h")]
+        [Compact]
+        public class PPP
+        {
+            [CCode (cname = "GAtPPPDisconnectReason", cprefix = "G_AT_PPP_REASON_")]
+            public enum DisconnectReason
+            {
+                UNKNOWN,
+                AUTH_FAIL,	/* Failed to authenticate */
+                IPCP_FAIL,	/* Failed to negotiate IPCP */
+                NET_FAIL,	/* Failed to create tun */
+                PEER_CLOSED,	/* Peer initiated a close */
+                LINK_DEAD,	/* Link to the peer died */
+                LOCAL_CLOSE,	/* Normal user close */
+            }
+
+            [CCode (cname = "GAtPPPConnectFunc", cheader_filename = "gatppp.h")]
+            public delegate void ConnectFunc( string iface, string local, string peer, string dns1, string dns2 );
+            [CCode (cname = "GAtPPPDisconnectFunc", cheader_filename = "gatppp.h")]
+            public delegate void DisconnectFunc( DisconnectReason reason );
+
+            public PPP( GLib.IOChannel channel );
+            public PPP.new_from_io( Io io );
+            public PPP.server_new( GLib.IOChannel channel, string local );
+            public PPP.server_new_from_io( Io io, string local );
+
+            public void open();
+            public void set_connect_function( ConnectFunc func );
+            public void set_disconnect_function( DisconnectFunc func );
+            public void set_debug( At.DebugFunc func );
+            public void shutdown();
+            public bool set_credentials( string username, string password );
+            public string get_username();
+            public string get_password();
+            public void set_recording( string filename );
+            public void set_server_info( string remote_ip, string dns1, string dns2 );
+        }
     }
 }
 
