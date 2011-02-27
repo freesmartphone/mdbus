@@ -48,12 +48,7 @@ public class MsmCallListCalls : CallListCalls
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusCLCC>( "+CLCC" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
-        checkMultiResponseValid( cmd, response );
-        calls = cmd.calls;
-        #endif
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented yet!" );
     }
 }
 
@@ -61,11 +56,7 @@ public class MsmCallSendDtmf : CallSendDtmf
 {
     public override async void run( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        #if 0
-        var cmd = theModem.createAtCommand<PlusVTS>( "+VTS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( tones ) );
-        checkResponseOk( cmd, response );
-        #endif
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented yet!" );
     }
 }
 

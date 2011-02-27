@@ -113,12 +113,11 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             yield channel.call_service.originate_call(number, false);
 
             // Wait until the modem reports the origination of our new call
-            var response = yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION );
-            var call_info = Msmcomm.CallInfo.from_variant( response );
+            var call_info = ( yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION ) ) as Msmcomm.CallStatusInfo;
 
             // ... and store the new call in our internal list
-            var call = new FsoGsm.Call.newFromDetail( call_info.id );
-            calls.set( call_info.id, call );
+            var call = new FsoGsm.Call.newFromId( (int) call_info.id );
+            calls.set( (int) call_info.id, call );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -239,6 +238,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     {
         if ( !calls.has_key( call_info.id ) )
         {
+            var call = calls[ call_info.id ];
             call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
         }
         else

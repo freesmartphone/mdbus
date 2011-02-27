@@ -182,7 +182,7 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
             switch ( name )
             {
                 case "orig":
-                    notifyUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION, (Variant) call_info );
+                    notifyUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION, info );
                     break;
                 case "orig-fwd-status":
                     break;
