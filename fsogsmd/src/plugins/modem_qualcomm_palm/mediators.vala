@@ -58,11 +58,14 @@ public void updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
                 theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
             }
         }
-        else if ( modemStatus == Modem.Status.ALIVE_REGISTERED )
+        // NOTE: If we're registered to a network and we unregister then we need to
+        // re-authenticate with the sim card and the correct pin. We are in REGISTERED or
+        // UNLOCKED state before this, so we move to LOCKED sim state in this case.
+        else if ( modemStatus == Modem.Status.ALIVE_REGISTERED || modemStatus == Modem.Status.ALIVE_SIM_UNLOCKED  )
         {
             if ( status == FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED )
             {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED, true );
             }
         }
     }
