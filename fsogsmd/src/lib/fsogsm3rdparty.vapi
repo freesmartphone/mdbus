@@ -37,7 +37,6 @@ namespace ThirdParty
         public delegate void ReceiveFunc( uint8[] data );
 
         [CCode (cname = "GAtIo", cprefix = "g_at_io_", destroy_function = "", cheader_filename = "gatio.h")]
-        [Compact]
         public class Io
         {
             [CCode (cname = "GAtIOReadFunc", cheader_filename = "gatio.h")]
@@ -57,19 +56,18 @@ namespace ThirdParty
         }
 
         [CCode (cname = "GAtPPP", cprefix = "g_at_ppp_", destroy_function = "", cheader_filename = "gatppp.h")]
-        [Compact]
         public class PPP
         {
             [CCode (cname = "GAtPPPDisconnectReason", cprefix = "G_AT_PPP_REASON_")]
             public enum DisconnectReason
             {
                 UNKNOWN,
-                AUTH_FAIL,	/* Failed to authenticate */
-                IPCP_FAIL,	/* Failed to negotiate IPCP */
-                NET_FAIL,	/* Failed to create tun */
-                PEER_CLOSED,	/* Peer initiated a close */
-                LINK_DEAD,	/* Link to the peer died */
-                LOCAL_CLOSE,	/* Normal user close */
+                AUTH_FAIL,      /* Failed to authenticate */
+                IPCP_FAIL,      /* Failed to negotiate IPCP */
+                NET_FAIL,       /* Failed to create tun */
+                PEER_CLOSED,    /* Peer initiated a close */
+                LINK_DEAD,      /* Link to the peer died */
+                LOCAL_CLOSE,    /* Normal user close */
             }
 
             [CCode (cname = "GAtPPPConnectFunc", cheader_filename = "gatppp.h")]

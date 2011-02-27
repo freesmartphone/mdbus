@@ -42,6 +42,11 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
     {
     }
 
+    public void onDebugFromAtPPP( string str )
+    {
+        assert( logger.debug( @"ThirdParty.At.PPP: $str" ) );
+    }
+
     public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var data = theModem.data();
@@ -68,6 +73,9 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
         iochannel = new IOChannel.unix_new( transport.freeze() );
 
         ppp = new ThirdParty.At.PPP( iochannel );
+        ppp.set_debug( onDebugFromAtPPP );
+        ppp.set_recording( "/tmp/ppp.log" );
+        ppp.open();
     }
 
     public async override void sc_deactivate()
