@@ -115,6 +115,8 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     {
         try
         {
+            MsmData.reset();
+
             yield requestModemResource();
 
             /* initialize the modem controller itself */
