@@ -129,26 +129,15 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
         {
             case "minimal":
             case "full":
-                MsmData.operation_mode = OperationMode.ONLINE;
+                var mreg = theModem.createMediator<FsoGsm.NetworkRegister>();
+                yield mreg.run();
                 break;
             case "airplane":
-                MsmData.operation_mode = OperationMode.OFFLINE;
+                var munreg = theModem.createMediator<FsoGsm.NetworkUnregister>();
+                yield munreg.run();
                 break;
             default:
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
-        }
-
-        try 
-        {
-            yield channel.state_service.change_operation_mode( MsmData.operation_mode ); 
-        }
-        catch ( Msmcomm.Error err0 )
-        {
-            var msg = @"Could not process change_operation_mode command, got: $(err0.message)";
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
-        }
-        catch ( GLib.Error err1 )
-        {
         }
     }
 }
