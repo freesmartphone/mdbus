@@ -87,6 +87,7 @@ class OmapPanel : FreeSmartphone.Device.Display,
             Linux.ioctl( fb_fd, FBIOBLANK, on ? FB_BLANK_UNBLANK : FB_BLANK_POWERDOWN );
         */
         FsoFramework.FileHandling.write( on ? "1" : "0", this.state );
+        backlight_power( on ); // DBUS SIGNAL 
     }
 
     private int _valueToPercent( int value )
@@ -234,9 +235,7 @@ class OmapPanel : FreeSmartphone.Device.Display,
 
     public async void set_backlight_power( bool power )
     {
-        var value = power ? "1" : "0";
-        FsoFramework.FileHandling.write( value, this.state );
-        backlight_power( power ); // DBUS SIGNAL 
+        _setBacklightPower( power );
     }
 }
 
