@@ -111,6 +111,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     private const int KEY_REPEAT = 2;
 
     private string[] states;
+    private HashTable<int,string> stateIgnoreById;
 
     private FreeSmartphone.Device.IdleState displayResourcePreventState;
 
@@ -124,6 +125,9 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         this.subsystem = subsystem;
         this.sysfsnode = sysfsnode;
         idlestatus = new IdleStatus();
+
+        states = { "busy", "idle", "idle_dim", "idle_prelock", "lock", "suspend" };
+        stateIgnoreById = new HashTable<int,string>( null, null );
 
         hookToExternalModules();
 
@@ -139,6 +143,20 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
         var display_resource_allows_dim = config.boolValue( KERNEL_IDLE_PLUGIN_NAME, "display_resource_allows_dim", false );
         displayResourcePreventState = display_resource_allows_dim ? FreeSmartphone.Device.IdleState.IDLE_PRELOCK : FreeSmartphone.Device.IdleState.IDLE_DIM;
+
+        var n = 0;
+        foreach ( var state in states )
+        {
+            var to_ignore = config.stringValue( KERNEL_IDLE_PLUGIN_NAME, @"$(state):ignore_by_id", "" );
+            stateIgnoreById.insert( n, to_ignore );
+
+            if ( to_ignore.length > 0 )
+            {
+                assert( logger.debug( @"Read ignore_by_id entry for state = $(state)" ) );
+            }
+
+            n++;
+        }
 
         Idle.add( () => {
             idlestatus.onState( FreeSmartphone.Device.IdleState.AWAKE );
@@ -250,7 +268,6 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     public void resetTimeouts()
     {
-        states = { "busy", "idle", "idle_dim", "idle_prelock", "lock", "suspend" };
         for ( int i = 0; i < states.length; ++i )
         {
             idlestatus.timeouts[i] = config.intValue( KERNEL_IDLE_PLUGIN_NAME, states[i], idlestatus.timeouts[i] );
@@ -330,6 +347,42 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         }
     }
 
+    /**
+     * In some cases we have to check for an input device id to ignore only in one idle
+     * state. So we ask here about the device id where the event comes from and then check
+     * if we have to ignore it in the current idle state.
+     **/
+    private bool checkForIgnoreInputEvent( int sourceFd )
+    {
+        bool ignore = false;
+        string ids = stateIgnoreById.lookup( idlestatus.status );
+        string[] idsToIgnore = ids.split( ";" );
+
+        if ( idsToIgnore.length == 0 )
+        {
+            return false;
+        }
+
+        var length = Linux.ioctl( sourceFd, Linux.Input.EVIOCGNAME( BUFFER_SIZE ), buffer );
+        if ( length > 0 )
+        {
+            var product = cleanBuffer( length );
+            ignore = product in idsToIgnore;
+        }
+
+        if ( !ignore )
+        {
+            length = Linux.ioctl( sourceFd, Linux.Input.EVIOCGPHYS( BUFFER_SIZE ), buffer );
+            if ( length > 0 )
+            {
+                var phys = cleanBuffer( length );
+                ignore = phys in idsToIgnore;
+            }
+        }
+
+        return ignore;
+    }
+
     private void handleInputEvent( ref Linux.Input.Event ev )
     {
         idlestatus.onState( FreeSmartphone.Device.IdleState.BUSY );
@@ -348,7 +401,11 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 #if DEBUG
         assert( logger.debug( @"Input event (fd$(source.unix_get_fd())): $(ev.type), $(ev.code), $(ev.value)" ) );
 #endif
-        handleInputEvent( ref ev );
+
+        if ( !checkForIgnoreInputEvent( source.unix_get_fd() ) )
+        {
+            handleInputEvent( ref ev );
+        }
 
         return true;
     }
