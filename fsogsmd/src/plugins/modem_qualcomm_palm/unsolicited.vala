@@ -210,6 +210,8 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
      **/
     public async GLib.Variant waitForUnsolicitedResponse( MsmUrcType type )
     {
+        logger.debug( @"Create an new urc waiter with type = $(type)" );
+
         // Create waiter and yield until urc occurs
         var data = new WaitForUnsolicitedResponseData();
         data.urc_type = type;
@@ -229,6 +231,7 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
      **/
     public async void notifyUnsolicitedResponse( MsmUrcType type, GLib.Variant? response )
     {
+        logger.debug( @"Awake all waiters for urc type $(type)" );
         var waiters = retriveUrcWaiters( type );
 
         // awake all waiters for the notified urc type and supply them the message payload

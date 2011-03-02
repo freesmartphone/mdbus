@@ -109,15 +109,22 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
         try 
         {
+            logger.debug( @"Initiating new call with number $number ..." );
+
             // Initiate call to the selected number
             yield channel.call_service.originate_call(number, false);
 
             // Wait until the modem reports the origination of our new call
+            logger.debug( @"Waiting for the call to complete initialization ..." );
             var call_info = ( yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION ) ) as Msmcomm.CallStatusInfo;
+
+            logger.debug( @"Call is instatiated; waiting now for the counter part to answer it." );
 
             // ... and store the new call in our internal list
             var call = new FsoGsm.Call.newFromId( (int) call_info.id );
             calls.set( (int) call_info.id, call );
+
+            call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
         }
         catch ( Msmcomm.Error err0 )
         {
@@ -220,6 +227,8 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
      **/
     public override void handleIncomingCall( FsoGsm.CallInfo call_info )
     {
+        logger.debug( @"Got a new incomming call with id = $(call_info.id)" );
+
         var new_call = new FsoGsm.Call.newFromId( call_info.id );
 
         var empty_properties = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
@@ -236,10 +245,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
      **/
     public override void handleConnectingCall( FsoGsm.CallInfo call_info )
     {
+        logger.debug( @"Got a new connecting call with id = $(call_info.id)" );
+
         if ( !calls.has_key( call_info.id ) )
         {
             var call = calls[ call_info.id ];
-            call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
+            call.update_status( FreeSmartphone.GSM.CallStatus.ACTIVE );
         }
         else
         {
@@ -252,6 +263,8 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
      **/
     public override void handleEndingCall( FsoGsm.CallInfo call_info )
     {
+        logger.debug( @"Got a new ending call with id = $(call_info.id)" );
+
         if ( calls.has_key( call_info.id ) )
         {
             var call = calls.get( call_info.id );
