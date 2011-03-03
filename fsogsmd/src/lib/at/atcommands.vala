@@ -278,6 +278,8 @@ public class PlusCFUN : SimpleAtCommand<int>
     {
         base( "+CFUN" );
     }
+
+    public override uint get_timeout() { return SIM_COMM_TIMEOUT; }
 }
 
 public class PlusCGACT : SimpleAtCommand<int>
