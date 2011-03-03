@@ -30,7 +30,7 @@ class LowLevel.PalmPre : FsoUsage.LowLevel, FsoFramework.AbstractObject
     construct
     {
         logger.info( "Registering palmpre low level suspend/resume handling" );
-        // grab sysfs paths
+
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
         sys_resume_reason = Path.build_filename( sysfs_root, SYSFS_RESUME_REASON_PATH );
@@ -74,19 +74,19 @@ class LowLevel.PalmPre : FsoUsage.LowLevel, FsoFramework.AbstractObject
          */
         try
         {
-            var regex = new Regex("""\[.*\]\sGPIO\s\((\w*)\).*""");
+            var regex = new Regex( """^\[.*\]\s.*\s\((\w*)\)\s.*\s\(.*\)$""" );
 
             // We want only the last reason !
-            if (reasons != null && reasons.length > 0)
+            if ( reasons != null && reasons.length > 0 )
             {
                 string[] parts = regex.split_full(reasons[reasons.length-1]);
-                if (parts != null && parts.length == 3)
+                if ( parts != null && parts.length == 3 )
                 {
                     reasonkey = parts[1];
                 }
             }
         }
-        catch (GLib.RegexError err)
+        catch ( GLib.RegexError err )
         {
             logger.error("Regex determination of the resumevalue failed");
         }
@@ -98,7 +98,7 @@ class LowLevel.PalmPre : FsoUsage.LowLevel, FsoFramework.AbstractObject
            return ResumeReason.Unknown;
         }
 
-        return (ResumeReason)reasonvalue;
+        return (ResumeReason) reasonvalue;
     }
 }
 
