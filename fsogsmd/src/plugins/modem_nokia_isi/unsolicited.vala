@@ -48,6 +48,19 @@ public class IsiUnsolicitedHandler : FsoFramework.AbstractObject
 
     private void onRegistrationStatusUpdate( Network.ISI_RegStatus istatus )
     {
+        switch ( istatus.status )
+        {
+            case GIsiClient.Network.RegistrationStatus.HOME:
+            case GIsiClient.Network.RegistrationStatus.ROAM:
+            case GIsiClient.Network.RegistrationStatus.ROAM_BLINK:
+                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+                break;
+
+            default:
+                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+                break;
+        }
+
         var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
         obj.status( isiRegStatusToFsoRegStatus( istatus ) );
     }

@@ -59,27 +59,11 @@ public class IsiTransport : FsoFramework.NullTransport
             return false;
         }
 
-        // phase 2: modem device power on
         debug( "ISI OPEN ASYNC ENTER PHASE 2" );
-        if ( ! ( yield NokiaIsi.isimodem.poweron() ) )
-        {
-            debug( "ISI PROBLEM in PHASE 2, FAIL" );
-            return false;
-        }
-
-        // phase 3: modem terminal power on
-        debug( "ISI OPEN ASYNC ENTER PHASE 3" );
-        if ( ! ( yield NokiaIsi.isimodem.rfon() ) )
-        {
-            debug( "ISI PROBLEM in PHASE 3, FAIL" );
-            return false;
-        }
-
-        debug( "ISI OPEN ASYNC ENTER PHASE 4" );
-        // phase 4: launch subsystems
+        // phase 2: launch subsystems
         if ( ! ( yield NokiaIsi.isimodem.launch() ) )
         {
-            debug( "ISI PROBLEM in PHASE 4, FAIL" );
+            debug( "ISI PROBLEM in PHASE 2, FAIL" );
             return false;
         }
 

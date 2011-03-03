@@ -174,6 +174,13 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
             case GIsiClient.SIMAuth.StatusResponse.NEED_PUK:
                 status = FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED;
                 break;
+
+            case GIsiClient.SIMAuth.StatusResponse.INIT:
+                status = FreeSmartphone.GSM.SIMAuthStatus.READY;
+                debug( "warning, SIMAuth Status = INIT..." );
+                break;
+
+
             default:
                 theModem.logger.warning( @"Unhandled ISI SIMAuth.Status $isicode" );
                 status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
@@ -318,9 +325,28 @@ public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
 
 public class IsiNetworkRegister : NetworkRegister
 {
+    private async void runInBackground()
+    {
+        if ( yield NokiaIsi.isimodem.poweron() )
+        {
+            NokiaIsi.isimodem.net.listProviders( ( error, providers ) => {
+                runInBackground.callback();
+            } );
+            yield;
+            NokiaIsi.isimodem.net.registerAutomatic( false, ( error ) => {
+                runInBackground.callback();
+            } );
+            yield;
+        }
+    }
+
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        NokiaIsi.isimodem.net.registerAutomatic( false, (error) => {
+
+        runInBackground(); // yes, no yield!
+
+        /*
+        NokiaIsi.isimodem.net.registerAutomatic( forced, (error) => {
             if ( error == ErrorCode.OK )
             {
                 run.callback();
@@ -331,6 +357,9 @@ public class IsiNetworkRegister : NetworkRegister
             }
         } );
         yield;
+
+        forced = false;
+        */
     }
 }
 
