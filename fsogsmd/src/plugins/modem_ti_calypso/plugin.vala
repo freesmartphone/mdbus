@@ -123,6 +123,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         registerAtCommandSequence( "urc", "registered", new AtCommandSequence( {
             cnmiCommand,
             """+CCWA=1,1""", /* register for waiting call notifications */
+            """+CSMS=1""", /* enable SMS phase 2 */
             """%CPHS=1""" /* enable CPHS phase 2 */
         } ) );
 
