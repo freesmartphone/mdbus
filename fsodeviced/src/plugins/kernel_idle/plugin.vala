@@ -111,7 +111,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     private const int KEY_REPEAT = 2;
 
     private string[] states;
-    private HashTable<int,string> stateIgnoreById;
+    private Gee.HashMap<int,string> stateIgnoreById;
 
     private FreeSmartphone.Device.IdleState displayResourcePreventState;
 
@@ -127,7 +127,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         idlestatus = new IdleStatus();
 
         states = { "busy", "idle", "idle_dim", "idle_prelock", "lock", "suspend" };
-        stateIgnoreById = new HashTable<int,string>( null, null );
+        stateIgnoreById = new Gee.HashMap<int,string>();
 
         hookToExternalModules();
 
@@ -148,7 +148,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         foreach ( var state in states )
         {
             var to_ignore = config.stringValue( KERNEL_IDLE_PLUGIN_NAME, @"$(state):ignore_by_id", "" );
-            stateIgnoreById.insert( n, to_ignore );
+            stateIgnoreById.set( n, to_ignore );
 
             if ( to_ignore.length > 0 )
             {
@@ -355,7 +355,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     private bool checkForIgnoreInputEvent( int sourceFd )
     {
         bool ignore = false;
-        string ids = stateIgnoreById.lookup( idlestatus.status );
+        string ids = stateIgnoreById[ idlestatus.status ];
         string[] idsToIgnore = ids.split( ";" );
 
         if ( idsToIgnore.length == 0 )
@@ -402,7 +402,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         assert( logger.debug( @"Input event (fd$(source.unix_get_fd())): $(ev.type), $(ev.code), $(ev.value)" ) );
 #endif
 
-        if ( !checkForIgnoreInputEvent( source.unix_get_fd() ) )
+        if ( stateIgnoreById[idlestatus.status].length == 0 || !checkForIgnoreInputEvent( source.unix_get_fd() ) )
         {
             handleInputEvent( ref ev );
         }
