@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.freesmartphone.oaudiod
+Exec=@prefix@/sbin/fsoaudiod
+User=root
