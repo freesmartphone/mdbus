@@ -202,4 +202,12 @@ namespace FsoFramework
         public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Usage";
         public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Usage";
     }
+
+    namespace Audio
+    {
+        public const string ServiceDBusName = FsoFramework.ServiceDBusPrefix + ".oaudiod";
+
+        public const string ServiceFacePrefix = FsoFramework.ServiceFacePrefix + ".Audio";
+        public const string ServicePathPrefix = FsoFramework.ServicePathPrefix + "/Audio";
+    }
 }
