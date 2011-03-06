@@ -83,6 +83,7 @@ AC_CONFIG_FILES([
   conf/Makefile
   conf/default/Makefile
   conf/htc_qualcomm_dream/Makefile
+  conf/htcleo/Makefile
   conf/openmoko_gta/Makefile
   conf/palm_pre/Makefile
   data/org.freesmartphone.ousaged.service

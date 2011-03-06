@@ -6,6 +6,7 @@ SUBDIRS = \
 	default \
 	htc_qualcomm_dream \
 	htc_qualcomm_msm \
+	htcleo \
 	motorola_ezx \
 	openmoko_gta \
 	palm_pre \

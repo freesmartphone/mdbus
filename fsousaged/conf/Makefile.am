@@ -5,6 +5,7 @@ NULL=
 SUBDIRS = \
 	default \
 	htc_qualcomm_dream \
+	htcleo \
 	openmoko_gta \
 	palm_pre \
 	$(NULL)

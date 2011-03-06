@@ -163,6 +163,7 @@ AC_CONFIG_FILES([
   conf/htc_qualcomm_dream/Makefile
   conf/htc_qualcomm_dream/alsa-default/Makefile
   conf/htc_qualcomm_msm/Makefile
+  conf/htcleo/Makefile
   conf/motorola_ezx/Makefile
   conf/nokia_n900/Makefile
   conf/nokia_n900/alsa-default/Makefile

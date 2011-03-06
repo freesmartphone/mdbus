@@ -182,6 +182,7 @@ AC_CONFIG_FILES([
   conf/default/Makefile
   conf/htc_qualcomm_dream/Makefile
   conf/htc_qualcomm_msm/Makefile
+  conf/htcleo/Makefile
   conf/motorola_ezx/Makefile
   conf/openmoko_gta/Makefile
   conf/palm_pre/Makefile
