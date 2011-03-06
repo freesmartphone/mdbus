@@ -192,8 +192,9 @@ public async void triggerUpdateNetworkStatus()
     // Send network status signal to connected clients
     var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
     fillNetworkStatusInfo( status );
-    var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-    obj.status( status );
+    var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
+    network.status( status );
+    network.signal_strength( (int) MsmData.network_info.rssi );
 
     inTriggerUpdateNetworkStatus = false;
 }
