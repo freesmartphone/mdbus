@@ -27,8 +27,8 @@ namespace FsoAudio
         public abstract void set_output( string name );
         public abstract void set_input( string name );
         public abstract void set_volume( uint volume );
-        public abstract string[] get_available_inputs();
-        public abstract string[] get_available_outputs();
+        public abstract string[] get_available_input_devices();
+        public abstract string[] get_available_output_devices();
     }
 
     public abstract class AbstractRouter : IRouter, FsoFramework.AbstractObject
@@ -37,8 +37,8 @@ namespace FsoAudio
         public abstract void set_output( string name );
         public abstract void set_input( string name );
         public abstract void set_volume( uint volume );
-        public abstract string[] get_available_inputs();
-        public abstract string[] get_available_outputs();
+        public abstract string[] get_available_input_devices();
+        public abstract string[] get_available_output_devices();
 
     }
 
@@ -60,12 +60,12 @@ namespace FsoAudio
         {
         }
 
-        public override string[] get_available_inputs()
+        public override string[] get_available_input_devices()
         {
             return new string[] { };
         }
 
-        public override string[] get_available_outputs()
+        public override string[] get_available_output_devices()
         {
             return new string[] { };
         }

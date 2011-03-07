@@ -23,12 +23,12 @@ namespace FsoAudio
 {
     const string MANAGER_MODULE_NAME = "fsoaudio.manager";
 
-    class Control : FsoFramework.AbstractObject
+    class DeviceControl : FsoFramework.AbstractObject
     {
         public string name;
         public uint current_raw_volume;
 
-        public Control( string name )
+        public DeviceControl( string name )
         {
             this.name;
         }
@@ -49,8 +49,8 @@ namespace FsoAudio
         private FreeSmartphone.Audio.Mode current_mode;
         private FsoAudio.IRouter router;
         private string routertype;
-        private Gee.HashMap<string,Control> input_controls;
-        private Gee.HashMap<string,Control> output_controls;
+        private Gee.HashMap<string,DeviceControl> input_controls;
+        private Gee.HashMap<string,DeviceControl> output_controls;
 
         public Manager( FsoFramework.Subsystem subsystem )
         {
@@ -94,8 +94,8 @@ namespace FsoAudio
                 this.routertype = typename;
             }
 
-            input_controls = createControls( router.get_available_outputs() );
-            output_controls = createControls( router.get_available_inputs() );
+            input_controls = createDeviceControls( router.get_available_output_devices() );
+            output_controls = createDeviceControls( router.get_available_input_devices() );
 
             logger.info( @"Created" );
         }
@@ -105,13 +105,13 @@ namespace FsoAudio
             return "<>";
         }
 
-        private Gee.HashMap<string,Control> createControls( string[] control_names )
+        private Gee.HashMap<string,DeviceControl> createDeviceControls( string[] control_names )
         {
-            var controls = new Gee.HashMap<string,Control>();
+            var controls = new Gee.HashMap<string,DeviceControl>();
 
             foreach ( string name in control_names )
             {
-                controls.set( name, new Control( name ) );
+                controls.set( name, new DeviceControl( name ) );
                 assert( logger.debug( @"Created new audio control '$name'" ) );
             }
 
@@ -122,19 +122,19 @@ namespace FsoAudio
         // DBus API (org.freesmartphone.Audio.Manager)
         //
 
-        public async string[] get_available_inputs ( FreeSmartphone.Audio.Mode mode )
+        public async string[] get_available_input_devices( FreeSmartphone.Audio.Mode mode )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return router.get_available_inputs();
+            return router.get_available_input_devices();
         }
 
-        public async string[] get_available_outputs( FreeSmartphone.Audio.Mode mode )
+        public async string[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return router.get_available_outputs();
+            return router.get_available_output_devices();
         }
 
-        public async GLib.ObjectPath get_current_input()
+        public async GLib.ObjectPath get_current_input_device()
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
             return null;
@@ -146,13 +146,13 @@ namespace FsoAudio
             return current_mode;
         }
 
-        public async GLib.ObjectPath get_current_output()
+        public async GLib.ObjectPath get_current_output_device()
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
             return null;
         }
 
-        public async void set_input( string name )
+        public async void set_input_device( string name )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
         }
@@ -162,7 +162,7 @@ namespace FsoAudio
         {
         }
 
-        public async void set_output( string name )
+        public async void set_output_device( string name )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
         }
