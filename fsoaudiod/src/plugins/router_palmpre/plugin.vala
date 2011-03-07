@@ -19,38 +19,42 @@
 
 using GLib;
 
-const string FSO_PALMPRE_AUDIO_SCRIPT_BASE_PATH = "/etc/audio/scripts";
-const string FSO_PALMPRE_AUDIO_SCRUN_PATH = "/sys/devices/platform/twl4030_audio/scrun";
-const string FSO_PALMPRE_AUDIO_SCINIT_PATH = "/sys/devices/platform/twl4030_audio/scinit";
+const string ROUTER_PALMPRE_SCRIPT_BASE_PATH = "/etc/audio/scripts";
+const string ROUTER_PALMPRE_SCRUN_PATH = "/sys/devices/platform/twl4030_audio/scrun";
+const string ROUTER_PALMPRE_SCINIT_PATH = "/sys/devices/platform/twl4030_audio/scinit";
 
 namespace FsoAudio
 {
     public static const string ROUTER_PALMPRE_MODULE_NAME = "fsoaudio.router_palmpre";
-}
 
-private class KernelScriptInterface
-{
-    public static void loadAndStoreScriptFromFile(string filename)
+    const string ROUTER_PALMPRE_SCRIPT_BASE_PATH = "/etc/audio/scripts";
+    const string ROUTER_PALMPRE_SCRUN_PATH = "/sys/devices/platform/twl4030_audio/scrun";
+    const string ROUTER_PALMPRE_SCINIT_PATH = "/sys/devices/platform/twl4030_audio/scinit";
+
+    private class KernelScriptInterface
     {
-        if (FsoFramework.FileHandling.isPresent(filename))
+        public static void loadAndStoreScriptFromFile(string filename)
         {
-            FsoFramework.theLogger.debug( @"loading audio script from '$(filename)'" );
-            string script = FsoFramework.FileHandling.read(filename);
-            FsoFramework.FileHandling.write(script, FSO_PALMPRE_AUDIO_SCINIT_PATH);
+            if (FsoFramework.FileHandling.isPresent(filename))
+            {
+                FsoFramework.theLogger.debug( @"loading audio script from '$(filename)'" );
+                string script = FsoFramework.FileHandling.read(filename);
+                FsoFramework.FileHandling.write(script, ROUTER_PALMPRE_SCINIT_PATH);
+            }
         }
-    }
 
-    public static void runScript(string script_name)
-    {
-        FsoFramework.theLogger.debug( @"executing audio script '$(script_name)'" );
-        FsoFramework.FileHandling.write(script_name, FSO_PALMPRE_AUDIO_SCRUN_PATH);
-    }
-
-    public static void runScripts(string[] scripts)
-    {
-        foreach ( var script in scripts )
+        public static void runScript(string script_name)
         {
-            runScript( script );
+            FsoFramework.theLogger.debug( @"executing audio script '$(script_name)'" );
+            FsoFramework.FileHandling.write(script_name, ROUTER_PALMPRE_SCRUN_PATH);
+        }
+
+        public static void runScripts(string[] scripts)
+        {
+            foreach ( var script in scripts )
+            {
+                runScript( script );
+            }
         }
     }
 }
@@ -77,6 +81,8 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
         };
 
         string[] scripts = new string[] {
+            "default",
+            "dtmf",
             "media_back_speaker",
             "media_front_speaker",
             "media_headset",
@@ -89,8 +95,8 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
 
         foreach ( var script in scripts )
         {
-            var path = @"$(FSO_PALMPRE_AUDIO_SCRIPT_BASE_PATH)/$(script).txt";
-            KernelScriptInterface.loadAndStoreScriptFromFile( path );
+            var path = @"$(FsoAudio.ROUTER_PALMPRE_SCRIPT_BASE_PATH)/$(script).txt";
+            FsoAudio.KernelScriptInterface.loadAndStoreScriptFromFile( path );
         }
     }
 
@@ -137,16 +143,52 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
 
     public override void set_mode( FreeSmartphone.Audio.Mode mode )
     {
+        if ( mode == current_mode )
+        {
+            return;
+        }
+
+        var previous_mode = current_mode;
         base.set_mode( mode );
+
+        // Check wether a call scenario as started or ended
+        if ( previous_mode == FreeSmartphone.Audio.Mode.NORMAL && 
+             current_mode == FreeSmartphone.Audio.Mode.CALL )
+        {
+            FsoAudio.KernelScriptInterface.runScript( "call_started" );
+        }
+        else if ( previous_mode == FreeSmartphone.Audio.Mode.CALL &&
+                  current_mode == FreeSmartphone.Audio.Mode.NORMAL )
+        {
+            FsoAudio.KernelScriptInterface.runScript( "call_ended" );
+        }
+
+        // Route correctly to current output device
+        FsoAudio.KernelScriptInterface.runScript( retrieveScriptPrefix() );
     }
 
     public override void set_output_device( FreeSmartphone.Audio.Device device )
     {
         base.set_output_device( device );
+
+        var script_name = retrieveScriptPrefix();
+        FsoAudio.KernelScriptInterface.runScript( script_name );
     }
 
     public override void set_volume( uint volume )
     {
+        var base_name = retrieveScriptPrefix();
+
+        if ( current_mode == FreeSmartphone.Audio.Mode.NORMAL )
+        {
+            // FIXME we currently cannot adjust the volume in normal media playback mode
+        }
+        else if ( current_mode == FreeSmartphone.Audio.Mode.CALL )
+        {
+            var level = 0; // FIXME
+            var script_name = @"$(base_name)_volume_$(level)";
+            FsoAudio.KernelScriptInterface.runScript( script_name );
+        }
     }
 
     public override FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
