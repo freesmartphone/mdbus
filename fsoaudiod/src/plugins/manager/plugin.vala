@@ -23,38 +23,22 @@ namespace FsoAudio
 {
     const string MANAGER_MODULE_NAME = "fsoaudio.manager";
 
-    class DeviceControl : FsoFramework.AbstractObject
-    {
-        public string name;
-        public uint current_raw_volume;
-
-        public DeviceControl( string name )
-        {
-            this.name;
-        }
-
-        public void exposeToRouter( IRouter router )
-        {
-        }
-
-        public override string repr()
-        {
-            return "<>";
-        }
-    }
-
-    class Manager : FsoFramework.AbstractObject, FreeSmartphone.Audio.Manager
+    public class Manager : FsoFramework.AbstractObject,
+                           FreeSmartphone.Audio.Manager,
+                           FreeSmartphone.Info
     {
         private FsoFramework.Subsystem subsystem;
         private FreeSmartphone.Audio.Mode current_mode;
+        private FreeSmartphone.Audio.Device current_output_device;
         private FsoAudio.IRouter router;
         private string routertype;
-        private Gee.HashMap<string,DeviceControl> input_controls;
-        private Gee.HashMap<string,DeviceControl> output_controls;
 
         public Manager( FsoFramework.Subsystem subsystem )
         {
             this.subsystem = subsystem;
+
+            subsystem.registerObjectForService<FreeSmartphone.Audio.Manager>( FsoFramework.Audio.ServiceDBusName, FsoFramework.Audio.ServicePathPrefix, this );
+            subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Audio.ServiceDBusName, FsoFramework.Audio.ServicePathPrefix, this );
 
             current_mode = FreeSmartphone.Audio.Mode.NORMAL;
 
@@ -94,9 +78,6 @@ namespace FsoAudio
                 this.routertype = typename;
             }
 
-            input_controls = createDeviceControls( router.get_available_output_devices() );
-            output_controls = createDeviceControls( router.get_available_input_devices() );
-
             logger.info( @"Created" );
         }
 
@@ -105,39 +86,24 @@ namespace FsoAudio
             return "<>";
         }
 
-        private Gee.HashMap<string,DeviceControl> createDeviceControls( string[] control_names )
+        //
+        // DBus API (org.freesmartphone.Info)
+        //
+
+        public async HashTable<string,Variant> get_info() throws DBusError, IOError
         {
-            var controls = new Gee.HashMap<string,DeviceControl>();
-
-            foreach ( string name in control_names )
-            {
-                controls.set( name, new DeviceControl( name ) );
-                assert( logger.debug( @"Created new audio control '$name'" ) );
-            }
-
-            return controls;
+            var dict = new HashTable<string,Variant>( str_hash, str_equal );
+            return dict;
         }
 
         //
         // DBus API (org.freesmartphone.Audio.Manager)
         //
 
-        public async string[] get_available_input_devices( FreeSmartphone.Audio.Mode mode )
+        public async FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return router.get_available_input_devices();
-        }
-
-        public async string[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
-            throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
-        {
-            return router.get_available_output_devices();
-        }
-
-        public async GLib.ObjectPath get_current_input_device()
-            throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
-        {
-            return null;
+            return router.get_available_output_devices( mode );
         }
 
         public async FreeSmartphone.Audio.Mode get_current_mode()
@@ -146,26 +112,51 @@ namespace FsoAudio
             return current_mode;
         }
 
-        public async GLib.ObjectPath get_current_output_device()
+        public async FreeSmartphone.Audio.Device get_current_output_device()
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return null;
-        }
-
-        public async void set_input_device( string name )
-            throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
-        {
+            return current_output_device;
         }
 
         public async void set_mode( FreeSmartphone.Audio.Mode mode )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
+            current_mode = mode;
+            router.set_mode( current_mode );
         }
 
-        public async void set_output_device( string name )
+        public async void set_output_device( FreeSmartphone.Audio.Device device )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
+            current_output_device = device;
+            router.set_output_device( current_output_device );
         }
+
+        public async void set_microphone_mute( bool mute )
+            throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+            throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+        }
+
+        public async bool get_microphone_mute()
+            throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+            throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+        }
+
+        public async void mute() throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+        }
+
+        public async void set_volume (int volume) throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+        }
+
+        public async void unmute () throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+        }
+
+        public signal void volume_changed( FreeSmartphone.Audio.Device device, int volume );
     }
 }
 

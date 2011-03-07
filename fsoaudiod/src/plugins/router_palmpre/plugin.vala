@@ -19,15 +19,115 @@
 
 using GLib;
 
+const string FSO_PALMPRE_AUDIO_SCRIPT_BASE_PATH = "/etc/audio/scripts";
+const string FSO_PALMPRE_AUDIO_SCRUN_PATH = "/sys/devices/platform/twl4030_audio/scrun";
+const string FSO_PALMPRE_AUDIO_SCINIT_PATH = "/sys/devices/platform/twl4030_audio/scinit";
+
 namespace FsoAudio
 {
     public static const string ROUTER_PALMPRE_MODULE_NAME = "fsoaudio.router_palmpre";
 }
 
+private class KernelScriptInterface
+{
+    public static void loadAndStoreScriptFromFile(string filename)
+    {
+        if (FsoFramework.FileHandling.isPresent(filename))
+        {
+            FsoFramework.theLogger.debug( @"loading audio script from '$(filename)'" );
+            string script = FsoFramework.FileHandling.read(filename);
+            FsoFramework.FileHandling.write(script, FSO_PALMPRE_AUDIO_SCINIT_PATH);
+        }
+    }
+
+    public static void runScript(string script_name)
+    {
+        FsoFramework.theLogger.debug( @"executing audio script '$(script_name)'" );
+        FsoFramework.FileHandling.write(script_name, FSO_PALMPRE_AUDIO_SCRUN_PATH);
+    }
+
+    public static void runScripts(string[] scripts)
+    {
+        foreach ( var script in scripts )
+        {
+            runScript( script );
+        }
+    }
+}
+
 public class Router.PalmPre : FsoAudio.AbstractRouter
 {
+    private FreeSmartphone.Audio.Device[] call_supported_outputs;
+    private FreeSmartphone.Audio.Device[] normal_supported_outputs;
+
     construct
     {
+        normal_supported_outputs = new FreeSmartphone.Audio.Device[] {
+            FreeSmartphone.Audio.Device.BACKSPEAKER,
+            FreeSmartphone.Audio.Device.FRONTSPEAKER,
+            FreeSmartphone.Audio.Device.HEADSET,
+            FreeSmartphone.Audio.Device.BLUETOOTH_A2DP
+        };
+
+        call_supported_outputs = new FreeSmartphone.Audio.Device[] {
+            FreeSmartphone.Audio.Device.BACKSPEAKER,
+            FreeSmartphone.Audio.Device.FRONTSPEAKER,
+            FreeSmartphone.Audio.Device.HEADSET,
+            FreeSmartphone.Audio.Device.BLUETOOTH_SCO
+        };
+
+        string[] scripts = new string[] {
+            "media_back_speaker",
+            "media_front_speaker",
+            "media_headset",
+            "media_bluetooth_a2dp",
+            "phone_back_speaker",
+            "phone_front_speaker",
+            "phone_headset",
+            "phone_bluetooth_sco" 
+        };
+
+        foreach ( var script in scripts )
+        {
+            var path = @"$(FSO_PALMPRE_AUDIO_SCRIPT_BASE_PATH)/$(script).txt";
+            KernelScriptInterface.loadAndStoreScriptFromFile( path );
+        }
+    }
+
+    private string retrieveScriptPrefix()
+    {
+        string prefix = "";
+
+        switch ( current_mode )
+        {
+            case FreeSmartphone.Audio.Mode.NORMAL:
+                prefix = "media_";
+                break;
+            case FreeSmartphone.Audio.Mode.CALL:
+                prefix = "phone_";
+                break;
+        }
+
+        switch ( current_output_device )
+        {
+            case FreeSmartphone.Audio.Device.BACKSPEAKER:
+                prefix += "back_speaker";
+                break;
+            case FreeSmartphone.Audio.Device.FRONTSPEAKER:
+                prefix += "front_speaker";
+                break;
+            case FreeSmartphone.Audio.Device.HEADSET:
+                prefix += "headset";
+                break;
+            case FreeSmartphone.Audio.Device.BLUETOOTH_SCO:
+                prefix += "bluetooth_sco";
+                break;
+            case FreeSmartphone.Audio.Device.BLUETOOTH_A2DP:
+                prefix += "bluetooth_a2dp";
+                break;
+        }
+
+        return prefix;
     }
 
     public override string repr()
@@ -37,28 +137,33 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
 
     public override void set_mode( FreeSmartphone.Audio.Mode mode )
     {
+        base.set_mode( mode );
     }
 
-    public override void set_output( string name )
+    public override void set_output_device( FreeSmartphone.Audio.Device device )
     {
-    }
-
-    public override void set_input( string name )
-    {
+        base.set_output_device( device );
     }
 
     public override void set_volume( uint volume )
     {
     }
 
-    public override string[] get_available_input_devices()
+    public override FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
     {
-        return new string[] { };
-    }
+        FreeSmartphone.Audio.Device[] result = new FreeSmartphone.Audio.Device[] { };
 
-    public override string[] get_available_output_devices()
-    {
-        return new string[] { };
+        switch ( mode )
+        {
+            case FreeSmartphone.Audio.Mode.NORMAL:
+                result = normal_supported_outputs;
+                break;
+            case FreeSmartphone.Audio.Mode.CALL:
+                result = call_supported_outputs;
+                break;
+        }
+
+        return result;
     }
 }
 

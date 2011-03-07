@@ -24,50 +24,38 @@ namespace FsoAudio
     public interface IRouter : FsoFramework.AbstractObject
     {
         public abstract void set_mode( FreeSmartphone.Audio.Mode mode );
-        public abstract void set_output( string name );
-        public abstract void set_input( string name );
+        public abstract void set_output_device( FreeSmartphone.Audio.Device device );
         public abstract void set_volume( uint volume );
-        public abstract string[] get_available_input_devices();
-        public abstract string[] get_available_output_devices();
+        public abstract FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode );
     }
 
     public abstract class AbstractRouter : IRouter, FsoFramework.AbstractObject
     {
-        public abstract void set_mode( FreeSmartphone.Audio.Mode mode );
-        public abstract void set_output( string name );
-        public abstract void set_input( string name );
-        public abstract void set_volume( uint volume );
-        public abstract string[] get_available_input_devices();
-        public abstract string[] get_available_output_devices();
+        protected FreeSmartphone.Audio.Mode current_mode;
+        protected FreeSmartphone.Audio.Device current_output_device;
 
+        public virtual void set_mode( FreeSmartphone.Audio.Mode mode )
+        {
+            current_mode = mode;
+        }
+
+        public virtual void set_output_device( FreeSmartphone.Audio.Device device )
+        {
+            current_output_device = device;
+        }
+
+        public virtual void set_volume( uint volume )
+        {
+        }
+
+        public abstract FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode );
     }
 
     public class NullRouter : AbstractRouter
     {
-        public override void set_mode( FreeSmartphone.Audio.Mode mode )
+        public override FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
         {
-        }
-
-        public override void set_output( string name )
-        {
-        }
-
-        public override void set_input( string name )
-        {
-        }
-
-        public override void set_volume( uint volume )
-        {
-        }
-
-        public override string[] get_available_input_devices()
-        {
-            return new string[] { };
-        }
-
-        public override string[] get_available_output_devices()
-        {
-            return new string[] { };
+            return new FreeSmartphone.Audio.Device[] { };
         }
 
         public override string repr()
