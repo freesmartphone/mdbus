@@ -22,43 +22,43 @@ using GLib;
 namespace FsoAudio
 {
     public static const string ROUTER_PALMPRE_MODULE_NAME = "fsoaudio.router_palmpre";
+}
 
-    public class RouterPalmPre : AbstractRouter
+public class Router.PalmPre : FsoAudio.AbstractRouter
+{
+    construct
     {
-        construct
-        {
-        }
+    }
 
-        public override string repr()
-        {
-            return "<>";
-        }
+    public override string repr()
+    {
+        return "<>";
+    }
 
-        public override void set_mode( FreeSmartphone.Audio.Mode mode )
-        {
-        }
+    public override void set_mode( FreeSmartphone.Audio.Mode mode )
+    {
+    }
 
-        public override void set_output( string name )
-        {
-        }
+    public override void set_output( string name )
+    {
+    }
 
-        public override void set_input( string name )
-        {
-        }
+    public override void set_input( string name )
+    {
+    }
 
-        public override void set_volume( uint volume )
-        {
-        }
+    public override void set_volume( uint volume )
+    {
+    }
 
-        public override string[] get_available_input_devices()
-        {
-            return new string[] { };
-        }
+    public override string[] get_available_input_devices()
+    {
+        return new string[] { };
+    }
 
-        public override string[] get_available_output_devices()
-        {
-            return new string[] { };
-        }
+    public override string[] get_available_output_devices()
+    {
+        return new string[] { };
     }
 }
 
