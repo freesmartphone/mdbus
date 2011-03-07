@@ -92,6 +92,7 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/manager/Makefile
+  src/plugins/router_palmpre/Makefile
 ])
 
 AC_OUTPUT

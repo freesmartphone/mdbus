@@ -6,4 +6,6 @@ AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS = \
 	manager \
 	\
+	router_palmpre \
+	\
 	$(NULL)
