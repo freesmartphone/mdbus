@@ -4,6 +4,7 @@ NULL=
 
 SUBDIRS = \
 	default \
+	palm_pre \
 	$(NULL)
 
 MAINTAINERCLEANFILES = Makefile.in

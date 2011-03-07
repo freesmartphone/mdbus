@@ -85,6 +85,7 @@ AC_CONFIG_FILES([
   Makefile
   conf/Makefile
   conf/default/Makefile
+  conf/palm_pre/Makefile
   data/Makefile
   data/org.freesmartphone.oaudiod.service
   src/Makefile
