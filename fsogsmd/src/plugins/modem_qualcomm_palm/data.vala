@@ -37,11 +37,7 @@ public static class MsmData
         pin_status = MsmPinStatus.DISABLED;
         operation_mode = Msmcomm.OperationMode.OFFLINE;
         network_info = NetworkInfo();
-        network_info.reg_status = Msmcomm.NetworkRegistrationStatus.NO_SERVICE;
-        network_info.service_status = Msmcomm.NetworkServiceStatus.NO_SERVICE;
-        network_info.operator_name = "";
-        network_info.rssi = 0;
-        network_info.ecio = 0;
+        network_info.reset();
     }
 
     public static MsmPinStatus pin_status;
@@ -54,6 +50,15 @@ public static class MsmData
         public string operator_name;
         public uint rssi;
         public uint ecio;
+
+        public void reset()
+        {
+            reg_status = Msmcomm.NetworkRegistrationStatus.NO_SERVICE;
+            service_status = Msmcomm.NetworkServiceStatus.NO_SERVICE;
+            operator_name = "";
+            rssi = 0;
+            ecio = 0;
+        }
     }
 
     public static NetworkInfo network_info;

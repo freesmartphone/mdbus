@@ -95,6 +95,8 @@ public class MsmNetworkUnregister : NetworkUnregister
     {
         yield changeOperationMode( Msmcomm.OperationMode.OFFLINE );
 
+        MsmData.network_info.reset();
+
         // After we switched to offline mode now we have to resend the pin to the modem to
         // authenticate again
         if ( theModem.data().simPin.length > 0 )
