@@ -1,0 +1,5 @@
+
+manager:
+- when switching the mode the manager should save the device which was active in this mode
+  and be able to set it as active again when user switches back to this mode. Currently
+  the user can only set the output device globally and not for a mode.
