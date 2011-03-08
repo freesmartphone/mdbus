@@ -7,5 +7,6 @@ SUBDIRS = \
 	manager \
 	\
 	router_palmpre \
+	router_alsa \
 	\
 	$(NULL)
