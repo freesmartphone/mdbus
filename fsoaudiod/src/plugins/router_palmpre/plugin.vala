@@ -61,9 +61,6 @@ namespace FsoAudio
 
 public class Router.PalmPre : FsoAudio.AbstractRouter
 {
-    private FreeSmartphone.Audio.Device[] call_supported_outputs;
-    private FreeSmartphone.Audio.Device[] normal_supported_outputs;
-
     construct
     {
         normal_supported_outputs = new FreeSmartphone.Audio.Device[] {
@@ -98,6 +95,8 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
             var path = @"$(FsoAudio.ROUTER_PALMPRE_SCRIPT_BASE_PATH)/$(script).txt";
             FsoAudio.KernelScriptInterface.loadAndStoreScriptFromFile( path );
         }
+
+        logger.info( @"Created and configured." );
     }
 
     private string retrieveScriptPrefix()
@@ -185,27 +184,10 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
         }
         else if ( current_mode == FreeSmartphone.Audio.Mode.CALL )
         {
-            var level = 0; // FIXME
+            var level = 5; // FIXME
             var script_name = @"$(base_name)_volume_$(level)";
             FsoAudio.KernelScriptInterface.runScript( script_name );
         }
-    }
-
-    public override FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
-    {
-        FreeSmartphone.Audio.Device[] result = new FreeSmartphone.Audio.Device[] { };
-
-        switch ( mode )
-        {
-            case FreeSmartphone.Audio.Mode.NORMAL:
-                result = normal_supported_outputs;
-                break;
-            case FreeSmartphone.Audio.Mode.CALL:
-                result = call_supported_outputs;
-                break;
-        }
-
-        return result;
     }
 }
 

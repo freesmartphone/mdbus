@@ -33,6 +33,8 @@ namespace FsoAudio
     {
         protected FreeSmartphone.Audio.Mode current_mode;
         protected FreeSmartphone.Audio.Device current_output_device;
+        protected FreeSmartphone.Audio.Device[] call_supported_outputs;
+        protected FreeSmartphone.Audio.Device[] normal_supported_outputs;
 
         public virtual void set_mode( FreeSmartphone.Audio.Mode mode )
         {
@@ -48,7 +50,22 @@ namespace FsoAudio
         {
         }
 
-        public abstract FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode );
+        public virtual FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
+        {
+            FreeSmartphone.Audio.Device[] result = new FreeSmartphone.Audio.Device[] { };
+
+            switch ( mode )
+            {
+                case FreeSmartphone.Audio.Mode.NORMAL:
+                    result = normal_supported_outputs;
+                    break;
+                case FreeSmartphone.Audio.Mode.CALL:
+                    result = call_supported_outputs;
+                    break;
+            }
+
+            return result;
+        }
     }
 
     public class NullRouter : AbstractRouter
