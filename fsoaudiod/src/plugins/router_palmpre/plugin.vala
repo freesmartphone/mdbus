@@ -48,14 +48,6 @@ namespace FsoAudio
             FsoFramework.theLogger.debug( @"executing audio script '$(script_name)'" );
             FsoFramework.FileHandling.write(script_name, ROUTER_PALMPRE_SCRUN_PATH);
         }
-
-        public static void runScripts(string[] scripts)
-        {
-            foreach ( var script in scripts )
-            {
-                runScript( script );
-            }
-        }
     }
 }
 
@@ -63,14 +55,14 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
 {
     construct
     {
-        normal_supported_outputs = new FreeSmartphone.Audio.Device[] {
+        normal_supported_devices = new FreeSmartphone.Audio.Device[] {
             FreeSmartphone.Audio.Device.BACKSPEAKER,
             FreeSmartphone.Audio.Device.FRONTSPEAKER,
             FreeSmartphone.Audio.Device.HEADSET,
             FreeSmartphone.Audio.Device.BLUETOOTH_A2DP
         };
 
-        call_supported_outputs = new FreeSmartphone.Audio.Device[] {
+        call_supported_devices = new FreeSmartphone.Audio.Device[] {
             FreeSmartphone.Audio.Device.BACKSPEAKER,
             FreeSmartphone.Audio.Device.FRONTSPEAKER,
             FreeSmartphone.Audio.Device.HEADSET,
@@ -113,7 +105,7 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
                 break;
         }
 
-        switch ( current_output_device )
+        switch ( current_device )
         {
             case FreeSmartphone.Audio.Device.BACKSPEAKER:
                 prefix += "back_speaker";
@@ -166,15 +158,20 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
         FsoAudio.KernelScriptInterface.runScript( retrieveScriptPrefix() );
     }
 
-    public override void set_output_device( FreeSmartphone.Audio.Device device )
+    public override void set_device( FreeSmartphone.Audio.Device device, bool expose = true )
     {
-        base.set_output_device( device );
+        base.set_device( device, expose );
+
+        if ( !expose )
+        {
+            return;
+        }
 
         var script_name = retrieveScriptPrefix();
         FsoAudio.KernelScriptInterface.runScript( script_name );
     }
 
-    public override void set_volume( uint volume )
+    public override void set_volume( FreeSmartphone.Audio.Control control, uint volume )
     {
         var base_name = retrieveScriptPrefix();
 

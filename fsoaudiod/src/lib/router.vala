@@ -24,43 +24,43 @@ namespace FsoAudio
     public interface IRouter : FsoFramework.AbstractObject
     {
         public abstract void set_mode( FreeSmartphone.Audio.Mode mode );
-        public abstract void set_output_device( FreeSmartphone.Audio.Device device );
-        public abstract void set_volume( uint volume );
-        public abstract FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode );
+        public abstract void set_device( FreeSmartphone.Audio.Device device, bool expose = true );
+        public abstract void set_volume( FreeSmartphone.Audio.Control control, uint volume );
+        public abstract FreeSmartphone.Audio.Device[] get_available_devices( FreeSmartphone.Audio.Mode mode );
     }
 
     public abstract class AbstractRouter : IRouter, FsoFramework.AbstractObject
     {
         protected FreeSmartphone.Audio.Mode current_mode;
-        protected FreeSmartphone.Audio.Device current_output_device;
-        protected FreeSmartphone.Audio.Device[] call_supported_outputs;
-        protected FreeSmartphone.Audio.Device[] normal_supported_outputs;
+        protected FreeSmartphone.Audio.Device current_device;
+        protected FreeSmartphone.Audio.Device[] call_supported_devices;
+        protected FreeSmartphone.Audio.Device[] normal_supported_devices;
 
         public virtual void set_mode( FreeSmartphone.Audio.Mode mode )
         {
             current_mode = mode;
         }
 
-        public virtual void set_output_device( FreeSmartphone.Audio.Device device )
+        public virtual void set_device( FreeSmartphone.Audio.Device device, bool expose = true )
         {
-            current_output_device = device;
+            current_device = device;
         }
 
-        public virtual void set_volume( uint volume )
+        public virtual void set_volume( FreeSmartphone.Audio.Control control, uint volume )
         {
         }
 
-        public virtual FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
+        public virtual FreeSmartphone.Audio.Device[] get_available_devices( FreeSmartphone.Audio.Mode mode )
         {
             FreeSmartphone.Audio.Device[] result = new FreeSmartphone.Audio.Device[] { };
 
             switch ( mode )
             {
                 case FreeSmartphone.Audio.Mode.NORMAL:
-                    result = normal_supported_outputs;
+                    result = normal_supported_devices;
                     break;
                 case FreeSmartphone.Audio.Mode.CALL:
-                    result = call_supported_outputs;
+                    result = call_supported_devices;
                     break;
             }
 
@@ -70,7 +70,7 @@ namespace FsoAudio
 
     public class NullRouter : AbstractRouter
     {
-        public override FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
+        public override FreeSmartphone.Audio.Device[] get_available_devices( FreeSmartphone.Audio.Mode mode )
         {
             return new FreeSmartphone.Audio.Device[] { };
         }

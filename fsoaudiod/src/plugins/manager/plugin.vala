@@ -23,17 +23,43 @@ namespace FsoAudio
 {
     const string MANAGER_MODULE_NAME = "fsoaudio.manager";
 
-    internal struct DeviceInfo
+    public class ControlInfo
     {
-        public FreeSmartphone.Audio.Device type;
-        public int volumes[2]; /* two volume levels - for NORMAL and CALL mode */
+        public FreeSmartphone.Audio.Control type;
+        public int volume;
         public bool muted;
 
-        public DeviceInfo(FreeSmartphone.Audio.Device type, int[] volumes)
+        public ControlInfo( FreeSmartphone.Audio.Control type, int volume )
         {
             this.type = type;
-            this.volumes = volumes;
-            this.muted = false;
+            this.volume = volume;
+            this.muted = ( this.volume == 0 );
+        }
+    }
+
+    public class DeviceInfo
+    {
+        public FreeSmartphone.Audio.Device type;
+        public ControlInfo[] controls;
+
+        public DeviceInfo( FreeSmartphone.Audio.Device type )
+        {
+            this.type = type;
+            this.controls = new ControlInfo[] {
+                new ControlInfo( FreeSmartphone.Audio.Control.SPEAKER, 80 ),
+                new ControlInfo( FreeSmartphone.Audio.Control.MICROPHONE, 80 )
+            };
+        }
+
+        public void set_volume( FreeSmartphone.Audio.Control ctrl, int volume )
+        {
+            controls[ ctrl ].volume = volume;
+            controls[ ctrl ].muted = volume == 0;
+        }
+
+        public void set_mute( FreeSmartphone.Audio.Control ctrl, bool mute )
+        {
+            controls[ ctrl].muted = mute;
         }
     }
 
@@ -46,7 +72,7 @@ namespace FsoAudio
         private FsoAudio.IRouter router;
         private string routertype;
         private DeviceInfo[] devices;
-        private DeviceInfo current_device;
+        private FreeSmartphone.Audio.Device current_device;
 
         public Manager( FsoFramework.Subsystem subsystem )
         {
@@ -95,35 +121,21 @@ namespace FsoAudio
                 this.routertype = typename;
             }
 
-            // FIXME we have to store the following settings in a preference file
-            // somewhere and load them on startup
             devices = new DeviceInfo[] {
-                DeviceInfo( FreeSmartphone.Audio.Device.BACKSPEAKER, new int[] { 80, 80 } ),
-                DeviceInfo( FreeSmartphone.Audio.Device.FRONTSPEAKER, new int[] { 80, 80 } ),
-                DeviceInfo( FreeSmartphone.Audio.Device.HEADSET, new int[] { 80, 80 } ),
-                DeviceInfo( FreeSmartphone.Audio.Device.BLUETOOTH_SCO, new int[] { 80, 80 } ),
-                DeviceInfo( FreeSmartphone.Audio.Device.BLUETOOTH_A2DP, new int[] { 80, 80 } )
+                new DeviceInfo( FreeSmartphone.Audio.Device.BACKSPEAKER ),
+                new DeviceInfo( FreeSmartphone.Audio.Device.FRONTSPEAKER ),
+                new DeviceInfo( FreeSmartphone.Audio.Device.HEADSET ),
+                new DeviceInfo( FreeSmartphone.Audio.Device.BLUETOOTH_SCO ),
+                new DeviceInfo( FreeSmartphone.Audio.Device.BLUETOOTH_A2DP )
             };
 
-            set_mode( FreeSmartphone.Audio.Mode.NORMAL );
-            set_output_device( FreeSmartphone.Audio.Device.FRONTSPEAKER );
+            current_mode = FreeSmartphone.Audio.Mode.NORMAL;
+            current_device = FreeSmartphone.Audio.Device.FRONTSPEAKER;
+
+            router.set_device( current_device, false );
+            router.set_mode( current_mode );
 
             logger.info( @"Created" );
-        }
-
-        private DeviceInfo? find_device( FreeSmartphone.Audio.Device devt )
-        {
-            DeviceInfo? result = null;
-
-            foreach ( var device in devices )
-            {
-                if ( device.type == devt )
-                {
-                    result = device;
-                }
-            }
-
-            return result;
         }
 
         public override string repr()
@@ -145,92 +157,88 @@ namespace FsoAudio
         // DBus API (org.freesmartphone.Audio.Manager)
         //
 
-        public async FreeSmartphone.Audio.Device[] get_available_output_devices( FreeSmartphone.Audio.Mode mode )
+        public async FreeSmartphone.Audio.Device[] get_available_devices( FreeSmartphone.Audio.Mode mode )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return router.get_available_output_devices( mode );
+            return router.get_available_devices( mode );
         }
 
-        public async FreeSmartphone.Audio.Mode get_current_mode()
+        public async FreeSmartphone.Audio.Mode get_mode()
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
             return current_mode;
         }
 
-        public async FreeSmartphone.Audio.Device get_current_output_device()
+        public async FreeSmartphone.Audio.Device get_device()
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return current_device.type;
+            return current_device;
         }
 
         public async void set_mode( FreeSmartphone.Audio.Mode mode )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
+            if ( mode == current_mode )
+            {
+                return;
+            }
+
             assert( logger.debug( @"Switching mode: $(current_mode) -> $(mode)" ) );
             current_mode = mode;
             router.set_mode( current_mode );
         }
 
-        public async void set_output_device( FreeSmartphone.Audio.Device device_type )
+        public async void set_device( FreeSmartphone.Audio.Device device )
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
             // check wether the device is supported by our router
-            var supported_devices = router.get_available_output_devices( current_mode );
-            if ( !( device_type in supported_devices ) )
+            var supported_devices = router.get_available_devices( current_mode );
+            if ( !( device in supported_devices ) )
             {
                 throw new FreeSmartphone.Error.UNSUPPORTED( "The supplied audio device is not supported by the current router" );
             }
 
-            var next_device = find_device( device_type );
-            if ( next_device == null )
-            {
-                throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not set new output device" );
-            }
+            assert( logger.debug( @"Switching output device: $(current_device) -> $(device)" ) );
 
-            assert( logger.debug( @"Switching output device: $(current_device.type) -> $(next_device.type)" ) );
-
-            current_device = next_device;
-            router.set_output_device( current_device.type );
+            current_device = device;
+            router.set_device( current_device );
+            device_changed( current_device );
         }
 
-        public async void set_microphone_mute( bool mute )
-            throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        public async void set_mute( FreeSmartphone.Audio.Control control, bool mute )
+            throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
-        }
-
-        public async bool get_microphone_mute()
-            throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
-        {
-            throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
-        }
-
-        public async void mute() throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
-        {
+#if 0
             current_device.muted = true;
             router.set_volume( 0 );
+#endif
         }
 
-        public async void set_volume( int volume ) throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        public async bool get_mute( FreeSmartphone.Audio.Control control )
+            throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+            return false;
+        }
+
+
+        public async void set_volume( FreeSmartphone.Audio.Control control, int volume )
+            throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
             if ( volume < 0 || volume > 100 )
             {
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Supplied volume level is out of range 0 - 100" );
             }
-
+#if 0
             current_device.volumes[ current_mode ] = volume;
             router.set_volume( volume );
             volume_changed( current_device.type, volume );
+#endif
         }
 
-        public async void unmute() throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        public async int get_volume( FreeSmartphone.Audio.Control control )
+            throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            if ( current_device.muted )
-            {
-                current_device.muted = false;
-                router.set_volume( current_device.volumes[ current_mode ] );
-                volume_changed( current_device.type, current_device.volumes[ current_mode ] );
-            }
+            return 0;
         }
     }
 }

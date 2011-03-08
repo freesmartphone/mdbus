@@ -28,13 +28,13 @@ public class Router.Alsa : FsoAudio.AbstractRouter
 {
     construct
     {
-        normal_supported_outputs = new FreeSmartphone.Audio.Device[] {
+        normal_supported_devices = new FreeSmartphone.Audio.Device[] {
             FreeSmartphone.Audio.Device.BACKSPEAKER,
             FreeSmartphone.Audio.Device.FRONTSPEAKER,
             FreeSmartphone.Audio.Device.HEADSET
         };
 
-        call_supported_outputs = new FreeSmartphone.Audio.Device[] {
+        call_supported_devices = new FreeSmartphone.Audio.Device[] {
             FreeSmartphone.Audio.Device.BACKSPEAKER,
             FreeSmartphone.Audio.Device.FRONTSPEAKER,
             FreeSmartphone.Audio.Device.HEADSET
@@ -59,12 +59,12 @@ public class Router.Alsa : FsoAudio.AbstractRouter
         base.set_mode( mode );
     }
 
-    public override void set_output_device( FreeSmartphone.Audio.Device device )
+    public override void set_device( FreeSmartphone.Audio.Device device, bool expose = true )
     {
-        base.set_output_device( device );
+        base.set_device( device, expose );
     }
 
-    public override void set_volume( uint volume )
+    public override void set_volume( FreeSmartphone.Audio.Control control, uint volume )
     {
     }
 }
