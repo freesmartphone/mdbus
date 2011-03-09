@@ -54,12 +54,21 @@ namespace FsoAudio
         public void set_volume( FreeSmartphone.Audio.Control ctrl, int volume )
         {
             controls[ ctrl ].volume = volume;
-            controls[ ctrl ].muted = volume == 0;
+        }
+
+        public int get_volume( FreeSmartphone.Audio.Control ctrl )
+        {
+            return controls[ ctrl ].volume;
         }
 
         public void set_mute( FreeSmartphone.Audio.Control ctrl, bool mute )
         {
             controls[ ctrl].muted = mute;
+        }
+
+        public bool get_mute( FreeSmartphone.Audio.Control ctrl )
+        {
+            return controls[ ctrl ].muted;
         }
     }
 
@@ -186,6 +195,7 @@ namespace FsoAudio
             assert( logger.debug( @"Switching mode: $(current_mode) -> $(mode)" ) );
             current_mode = mode;
             router.set_mode( current_mode );
+            mode_changed( current_mode );
         }
 
         public async void set_device( FreeSmartphone.Audio.Device device )
@@ -208,16 +218,28 @@ namespace FsoAudio
         public async void set_mute( FreeSmartphone.Audio.Control control, bool mute )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-#if 0
-            current_device.muted = true;
-            router.set_volume( 0 );
-#endif
+            if ( devices[ current_device ].get_mute( control ) )
+            {
+                return;
+            }
+
+            devices[ current_device ].set_mute( control, mute );
+
+            if ( mute )
+            {
+                router.set_volume( control, 0 );
+            }
+            else
+            {
+                var level = devices[ current_device ].get_volume( control );
+                router.set_volume( control, level );
+            } 
         }
 
         public async bool get_mute( FreeSmartphone.Audio.Control control )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return false;
+            return devices[ current_device ].get_mute( control );
         }
 
 
@@ -228,17 +250,20 @@ namespace FsoAudio
             {
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Supplied volume level is out of range 0 - 100" );
             }
-#if 0
-            current_device.volumes[ current_mode ] = volume;
-            router.set_volume( volume );
-            volume_changed( current_device.type, volume );
-#endif
+
+            devices[ current_device ].set_volume( control, volume );
+            if ( !devices[ current_device ].get_mute( control ) )
+            {
+                router.set_volume( control, volume );
+            }
+
+            volume_changed( control, volume );
         }
 
         public async int get_volume( FreeSmartphone.Audio.Control control )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return 0;
+            return devices[ current_device ].get_volume( control );
         }
     }
 }
