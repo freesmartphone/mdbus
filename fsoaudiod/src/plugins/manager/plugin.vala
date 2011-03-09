@@ -40,34 +40,48 @@ namespace FsoAudio
     public class DeviceInfo
     {
         public FreeSmartphone.Audio.Device type;
-        public ControlInfo[] controls;
+        public ControlInfo[] call_controls;
+        public ControlInfo[] normal_controls;
 
         public DeviceInfo( FreeSmartphone.Audio.Device type )
         {
             this.type = type;
-            this.controls = new ControlInfo[] {
+            normal_controls = new ControlInfo[] {
+                new ControlInfo( FreeSmartphone.Audio.Control.SPEAKER, 80 ),
+                new ControlInfo( FreeSmartphone.Audio.Control.MICROPHONE, 80 )
+            };
+            call_controls = new ControlInfo[] {
                 new ControlInfo( FreeSmartphone.Audio.Control.SPEAKER, 80 ),
                 new ControlInfo( FreeSmartphone.Audio.Control.MICROPHONE, 80 )
             };
         }
 
-        public void set_volume( FreeSmartphone.Audio.Control ctrl, int volume )
+        private ControlInfo[] get_controls( FreeSmartphone.Audio.Mode mode )
         {
+            return mode == FreeSmartphone.Audio.Mode.NORMAL ? normal_controls : call_controls;
+        }
+
+        public void set_volume( FreeSmartphone.Audio.Mode mode, FreeSmartphone.Audio.Control ctrl, int volume )
+        {
+            var controls = get_controls( mode );
             controls[ ctrl ].volume = volume;
         }
 
-        public int get_volume( FreeSmartphone.Audio.Control ctrl )
+        public int get_volume( FreeSmartphone.Audio.Mode mode, FreeSmartphone.Audio.Control ctrl )
         {
+            var controls = get_controls( mode );
             return controls[ ctrl ].volume;
         }
 
-        public void set_mute( FreeSmartphone.Audio.Control ctrl, bool mute )
+        public void set_mute( FreeSmartphone.Audio.Mode mode, FreeSmartphone.Audio.Control ctrl, bool mute )
         {
+            var controls = get_controls( mode );
             controls[ ctrl].muted = mute;
         }
 
-        public bool get_mute( FreeSmartphone.Audio.Control ctrl )
+        public bool get_mute( FreeSmartphone.Audio.Mode mode, FreeSmartphone.Audio.Control ctrl )
         {
+            var controls = get_controls( mode );
             return controls[ ctrl ].muted;
         }
     }
@@ -81,6 +95,7 @@ namespace FsoAudio
         private FsoAudio.IRouter router;
         private string routertype;
         private DeviceInfo[] devices;
+
         private FreeSmartphone.Audio.Device current_device;
 
         public Manager( FsoFramework.Subsystem subsystem )
@@ -218,12 +233,12 @@ namespace FsoAudio
         public async void set_mute( FreeSmartphone.Audio.Control control, bool mute )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            if ( devices[ current_device ].get_mute( control ) )
+            if ( devices[ current_device ].get_mute( current_mode, control ) )
             {
                 return;
             }
 
-            devices[ current_device ].set_mute( control, mute );
+            devices[ current_device ].set_mute( current_mode, control, mute );
 
             if ( mute )
             {
@@ -231,7 +246,7 @@ namespace FsoAudio
             }
             else
             {
-                var level = devices[ current_device ].get_volume( control );
+                var level = devices[ current_device ].get_volume( current_mode, control );
                 router.set_volume( control, level );
             } 
         }
@@ -239,7 +254,7 @@ namespace FsoAudio
         public async bool get_mute( FreeSmartphone.Audio.Control control )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return devices[ current_device ].get_mute( control );
+            return devices[ current_device ].get_mute( current_mode, control );
         }
 
 
@@ -251,8 +266,8 @@ namespace FsoAudio
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Supplied volume level is out of range 0 - 100" );
             }
 
-            devices[ current_device ].set_volume( control, volume );
-            if ( !devices[ current_device ].get_mute( control ) )
+            devices[ current_device ].set_volume( current_mode, control, volume );
+            if ( !devices[ current_device ].get_mute( current_mode, control ) )
             {
                 router.set_volume( control, volume );
             }
@@ -263,7 +278,7 @@ namespace FsoAudio
         public async int get_volume( FreeSmartphone.Audio.Control control )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return devices[ current_device ].get_volume( control );
+            return devices[ current_device ].get_volume( current_mode, control );
         }
     }
 }
