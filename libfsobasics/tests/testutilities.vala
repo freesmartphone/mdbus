@@ -77,6 +77,9 @@ void test_utilities_stringhandling_enum()
     assert ( StringHandling.enumToString<MyEnumType>( MyEnumType.BAZ ) == "MY_ENUM_TYPE_BAZ" );
     assert ( StringHandling.enumToString<MyEnumType>( (MyEnumType)1000 ).has_prefix( "Unknown" ) );
     assert ( StringHandling.convertEnum<MyEnumType, MyEnumType2>( MyEnumType.BAR ) == MyEnumType2.BAR );
+    assert ( StringHandling.enumFromName<MyEnumType>( "MY_ENUM_TYPE_FOO" ) == MyEnumType.FOO );
+    assert ( StringHandling.enumToNick( MyEnumType.FOO ) == "foo" );
+    assert ( StringHandling.enumFromNick<MyEnumType>( "foo" ) == MyEnumType.FOO );
 }
 
 //===========================================================================
