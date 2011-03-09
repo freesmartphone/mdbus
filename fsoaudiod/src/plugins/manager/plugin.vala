@@ -114,11 +114,9 @@ namespace FsoAudio
 
             switch ( routername )
             {
-    #if 0
                 case "alsa":
                     typename = "RouterLibAlsa";
                     break;
-    #endif
                 case "palmpre":
                     typename = "RouterPalmPre";
                     break;

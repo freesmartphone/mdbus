@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2011 Simon Busch <morphis@gravedo.de>
+ * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *                         Simon Busch <morphis@gravedo.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,10 +25,20 @@ namespace FsoAudio
     public static const string ROUTER_ALSA_MODULE_NAME = "fsoaudio.router_alsa";
 }
 
-public class Router.Alsa : FsoAudio.AbstractRouter
+public class Router.LibAlsa : FsoAudio.AbstractRouter
 {
+    private FsoAudio.SoundDevice device;
+    private Gee.HashMap<string,FsoAudio.BunchOfMixerControls> allscenarios;
+    private Gee.HashMap<FreeSmartphone.Audio.Device,string> normalDeviceScenarios;
+    private Gee.HashMap<FreeSmartphone.Audio.Device,string> callDeviceScenarios;
+
+    private string configurationPath;
+    private string dataPath;
+    private string currentscenario;
+
     construct
     {
+#if 0
         normal_supported_devices = new FreeSmartphone.Audio.Device[] {
             FreeSmartphone.Audio.Device.BACKSPEAKER,
             FreeSmartphone.Audio.Device.FRONTSPEAKER,
@@ -39,9 +50,190 @@ public class Router.Alsa : FsoAudio.AbstractRouter
             FreeSmartphone.Audio.Device.FRONTSPEAKER,
             FreeSmartphone.Audio.Device.HEADSET
         };
+#endif
+        initScenarios();
 
         logger.info( @"Created and configured." );
     }
+
+    private void addScenario( string scenario, File file, uint idxMainVolume )
+    {
+        FsoAudio.MixerControl[] controls = {};
+
+        try
+        {
+            // Open file for reading and wrap returned FileInputStream into a
+            // DataInputStream, so we can read line by line
+            var in_stream = new DataInputStream( file.read( null ) );
+            string line;
+            // Read lines until end of file (null) is reached
+            while ( ( line = in_stream.read_line( null, null ) ) != null )
+            {
+                var stripped = line.strip();
+                if ( stripped == "" || stripped.has_prefix( "#" ) ) // skip empty lines and comments
+                    continue;
+                var control = device.controlForString( line );
+                controls += control;
+            }
+#if DEBUG
+            debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
+#endif
+            var bunch = new FsoAudio.BunchOfMixerControls( controls, idxMainVolume );
+            allscenarios[scenario] = bunch;
+        }
+        catch ( IOError e )
+        {
+            FsoFramework.theLogger.warning( "%s".printf( e.message ) );
+        }
+    }
+
+    private Gee.HashMap<FreeSmartphone.Audio.Device,string> readDeviceScenarios( FsoFramework.SmartKeyFile alsaconf, GLib.List<string> sections )
+    {
+        var result = new Gee.HashMap<FreeSmartphone.Audio.Device,string>();
+
+        foreach ( var section in sections )
+        {
+            var device_name = section.split( "." )[1];
+            if ( device_name != "" )
+            {
+                var scenario = alsaconf.stringValue( section, "scenario", "" );
+                var idxMainVolume = alsaconf.intValue( section, "main_volume", 0 );
+
+                assert( FsoFramework.theLogger.debug( "Found scenario '%s' - main volume = %d".printf( scenario, idxMainVolume ) ) );
+
+                var file = File.new_for_path( Path.build_filename( dataPath, scenario ) );
+                if ( !file.query_exists(null) )
+                {
+                    FsoFramework.theLogger.warning( @"Scenario file $(file.get_path()) doesn't exist. Ignoring." );
+                }
+                else
+                {
+                    addScenario( scenario, file, idxMainVolume );
+
+                    var device_type = FsoFramework.StringHandling.enumFromNick<FreeSmartphone.Audio.Device>( device_name );
+                    result.set( device_type, scenario );
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void initScenarios()
+    {
+        GLib.List<string> sections;
+
+        configurationPath = FsoFramework.Utility.machineConfigurationDir() + "/alsa.conf";
+        allscenarios = new Gee.HashMap<string,FsoAudio.BunchOfMixerControls>();
+        currentscenario = "unknown";
+
+        // init scenarios
+        FsoFramework.SmartKeyFile alsaconf = new FsoFramework.SmartKeyFile();
+        if ( alsaconf.loadFromFile( configurationPath ) )
+        {
+            var soundcard = alsaconf.stringValue( "alsa", "cardname", "default" );
+            dataPath = FsoFramework.Utility.machineConfigurationDir() + @"/alsa-$soundcard";
+
+            try
+            {
+                device = FsoAudio.SoundDevice.create( soundcard );
+            }
+            catch ( FsoAudio.SoundError e )
+            {
+                FsoFramework.theLogger.warning( @"Sound card problem: $(e.message)" );
+                return;
+            }
+
+            sections = alsaconf.sectionsWithPrefix( "normal." );
+            normalDeviceScenarios = readDeviceScenarios( alsaconf, sections );
+
+            sections = alsaconf.sectionsWithPrefix( "call." );
+            callDeviceScenarios = readDeviceScenarios( alsaconf, sections );
+
+            // listen for changes for alsa configuration
+            FsoFramework.INotifier.add( dataPath, Linux.InotifyMaskFlags.MODIFY, onModifiedScenario );
+        }
+        else
+        {
+            FsoFramework.theLogger.warning( @"Could not load $configurationPath. No scenarios available." );
+
+            // try to set sane default state; use "default" as soundcard and current values as default scenario
+            try
+            {
+                device = FsoAudio.SoundDevice.create( "default" );
+            }
+            catch ( FsoAudio.SoundError e )
+            {
+                FsoFramework.theLogger.warning( @"Sound card problem: $(e.message)" );
+                return;
+            }
+            var bunch = new FsoAudio.BunchOfMixerControls( device.allMixerControls() );
+            allscenarios["current"] = bunch;
+            currentscenario = "current";
+        }
+    }
+
+    private void updateScenarioIfChanged( string scenario )
+    {
+        if ( currentscenario != scenario )
+        {
+            assert( device != null );
+            device.setAllMixerControls( allscenarios[scenario].controls );
+
+            currentscenario = scenario;
+            //this.scenario( currentscenario, "N/A" ); // DBUS SIGNAL
+        }
+    }
+
+    private void onModifiedScenario( Linux.InotifyMaskFlags flags, uint32 cookie, string? name )
+    {
+#if DEBUG
+        debug( "onModifiedScenario: %s", name );
+#endif
+        assert( name != null );
+
+        if ( ! ( name in allscenarios ) )
+        {
+            assert( FsoFramework.theLogger.debug( @"$name is not a recognized scenario. Ignoring" ) );
+            return;
+        }
+
+        var idxMainVolume = allscenarios[name].idxMainVolume;
+
+        if ( name == currentscenario )
+        {
+            FsoFramework.theLogger.info( @"Scenario $name has been changed (being also the current scenario); invalidating cache and reloading" );
+            var file = File.new_for_path( Path.build_filename( dataPath, name ) );
+            if ( !file.query_exists(null) )
+            {
+                FsoFramework.theLogger.warning( @"Scenario file $(file.get_path()) doesn't exist. Ignoring." );
+            }
+            else
+            {
+                addScenario( name, file, idxMainVolume );
+                device.setAllMixerControls( allscenarios[name].controls );
+            }
+        }
+        else
+        {
+            FsoFramework.theLogger.info( @"Scenario $name has been changed; invalidating cache for this." );
+            // save current one
+            var scene = new FsoAudio.BunchOfMixerControls( device.allMixerControls() );
+            // reload changed one from disk
+            var file = File.new_for_path( Path.build_filename( dataPath, name ) );
+            if ( !file.query_exists(null) )
+            {
+                FsoFramework.theLogger.warning( @"Scenario file $(file.get_path()) doesn't exist. Ignoring." );
+            }
+            else
+            {
+                addScenario( name, file, idxMainVolume );
+            }
+            // restore saved one
+            device.setAllMixerControls( scene.controls );
+        }
+    }
+
 
     public override string repr()
     {
@@ -83,7 +275,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsoaudio.manager fso_register_function" );
+    FsoFramework.theLogger.debug( "fsoaudio.router_alsa fso_register_function" );
 }
 
 /**
