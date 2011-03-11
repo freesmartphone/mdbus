@@ -16,8 +16,8 @@ COMPAT = \
 	$(NULL)
 
 install-data-local:
-	$(mkinstalldirs) $(sysconfdir)/freesmartphone/conf/
-	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(sysconfdir)/freesmartphone/conf/$$compat; done
+	$(mkinstalldirs) $(DESTDIR)/etc/freesmartphone/conf/
+	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(DESTDIR)/etc/freesmartphone/conf/$$compat; done
 
 
 MAINTAINERCLEANFILES = Makefile.in
