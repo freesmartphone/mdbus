@@ -315,6 +315,20 @@ public string stringListToString( string[] list )
     return res;
 }
 
+public T enumFromString<T>( string value, T default_value )
+{
+    T result = enumFromName<T>( value );
+    if ( ((int) result) == -1 )
+    {
+        result = enumFromNick<T>( value );
+        if ( ((int) result) == -1 )
+        {
+            result = default_value;
+        }
+    }
+    return result;
+}
+
 public string enumToString<T>( T value )
 {
     EnumClass ec = (EnumClass) typeof( T ).class_ref();

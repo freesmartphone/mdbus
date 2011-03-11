@@ -80,6 +80,9 @@ void test_utilities_stringhandling_enum()
     assert ( StringHandling.enumFromName<MyEnumType>( "MY_ENUM_TYPE_FOO" ) == MyEnumType.FOO );
     assert ( StringHandling.enumToNick( MyEnumType.FOO ) == "foo" );
     assert ( StringHandling.enumFromNick<MyEnumType>( "foo" ) == MyEnumType.FOO );
+    assert ( StringHandling.enumFromString<MyEnumType>( "foobar", MyEnumType.FOO ) == MyEnumType.FOO );
+    assert ( StringHandling.enumFromString<MyEnumType>( "bar", MyEnumType.FOO ) == MyEnumType.BAR );
+    assert ( StringHandling.enumFromString<MyEnumType>( "MY_ENUM_TYPE_BAR", MyEnumType.FOO ) == MyEnumType.BAR );
 }
 
 //===========================================================================
