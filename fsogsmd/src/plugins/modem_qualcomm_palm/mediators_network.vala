@@ -58,10 +58,18 @@ public async void changeOperationMode( Msmcomm.OperationMode operation_mode ) th
     {
         yield channel.state_service.change_operation_mode( operation_mode );
         MsmData.operation_mode = operation_mode;
+
+        // after we have send the power off command we have to wait until we get the final
+        // information that our command was successful
+        var info = ( yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.OPERATION_MODE ) ) as Msmcomm.StateInfo;
+        if ( info.mode != operation_mode )
+        {
+            // reported mode after executed command is not the same as we want to have
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not switch operation mode successfully" );
+        }
     }
     catch ( Msmcomm.Error err0 )
     {
-        handleMsmcommErrorMessage( err0 );
     }
     catch ( Error err1 )
     {
@@ -94,20 +102,7 @@ public class MsmNetworkUnregister : NetworkUnregister
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         yield changeOperationMode( Msmcomm.OperationMode.OFFLINE );
-
         MsmData.network_info.reset();
-
-        // After we switched to offline mode now we have to resend the pin to the modem to
-        // authenticate again
-        if ( theModem.data().simPin.length > 0 )
-        {
-            var m = theModem.createMediator<FsoGsm.SimSendAuthCode>();
-            yield m.run( theModem.data().simPin );
-        }
-        else
-        {
-            updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
-        }
     }
 }
 public class MsmNetworkGetSignalStrength : NetworkGetSignalStrength

@@ -28,6 +28,7 @@ public enum MsmUrcType
     CALL_ORIGINATION,
     EXTENDED_FILE_INFO,
     NETWORK_STATE_INFO,
+    OPERATION_MODE,
 }
 
 internal class WaitForUnsolicitedResponseData
@@ -71,6 +72,16 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
     public void setup()
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
+
+        channel.state_service.operation_mode.connect( ( info ) => {
+            // if modem goes offline we have to re-authenticate against the sim card
+            if ( info.mode == Msmcomm.OperationMode.OFFLINE )
+            {
+                updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+            }
+
+            notifyUnsolicitedResponse( MsmUrcType.OPERATION_MODE, info );
+        });
 
         channel.misc_service.radio_reset_ind.connect( () => {
             notifyUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND, null );
