@@ -41,7 +41,6 @@ palmpre_quirks_la_VALASOURCES = \
 	touchscreenmanager.vala \
 	powersupply.vala \
 	powercontrol.vala \
-	router.vala \
 	$(NULL)
 palmpre_quirks_la_SOURCES = $(palmpre_quirks_la_VALASOURCES:.vala=.c)
 $(palmpre_quirks_la_SOURCES): $(palmpre_quirks_la_VALASOURCES)
