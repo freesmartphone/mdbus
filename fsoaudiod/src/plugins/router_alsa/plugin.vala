@@ -38,19 +38,6 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
 
     construct
     {
-#if 0
-        normal_supported_devices = new FreeSmartphone.Audio.Device[] {
-            FreeSmartphone.Audio.Device.BACKSPEAKER,
-            FreeSmartphone.Audio.Device.FRONTSPEAKER,
-            FreeSmartphone.Audio.Device.HEADSET
-        };
-
-        call_supported_devices = new FreeSmartphone.Audio.Device[] {
-            FreeSmartphone.Audio.Device.BACKSPEAKER,
-            FreeSmartphone.Audio.Device.FRONTSPEAKER,
-            FreeSmartphone.Audio.Device.HEADSET
-        };
-#endif
         initScenarios();
 
         logger.info( @"Created and configured." );
@@ -119,6 +106,18 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
         return result;
     }
 
+    private FreeSmartphone.Audio.Device[] buildDeviceList( Gee.HashMap<FreeSmartphone.Audio.Device,string> deviceMap )
+    {
+        FreeSmartphone.Audio.Device[] devices =  new FreeSmartphone.Audio.Device[] { };
+
+        foreach ( var device in deviceMap.keys )
+        {
+            devices += device;
+        }
+
+        return devices;
+    }
+
     private void initScenarios()
     {
         GLib.List<string> sections;
@@ -146,9 +145,11 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
 
             sections = alsaconf.sectionsWithPrefix( "normal." );
             normalDeviceScenarios = readDeviceScenarios( alsaconf, sections );
+            normal_supported_devices = buildDeviceList( normalDeviceScenarios );
 
             sections = alsaconf.sectionsWithPrefix( "call." );
             callDeviceScenarios = readDeviceScenarios( alsaconf, sections );
+            call_supported_devices = buildDeviceList( callDeviceScenarios );
 
             // listen for changes for alsa configuration
             FsoFramework.INotifier.add( dataPath, Linux.InotifyMaskFlags.MODIFY, onModifiedScenario );
@@ -234,6 +235,42 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
         }
     }
 
+    private string retrieveScenarioForDevice( FreeSmartphone.Audio.Device device )
+    {
+        string scenario = "unknown";
+
+        if ( current_mode == FreeSmartphone.Audio.Mode.NORMAL )
+        {
+            if ( callDeviceScenarios.has_key( device ) )
+            {
+                scenario = normalDeviceScenarios[ device ];
+            }
+        }
+        else if ( current_mode == FreeSmartphone.Audio.Mode.CALL )
+        {
+            if ( callDeviceScenarios.has_key( device ) )
+            {
+                scenario = callDeviceScenarios[ device ];
+            }
+        }
+
+        return scenario;
+    }
+
+    private bool setScenarioForDevice( FreeSmartphone.Audio.Device device )
+    {
+        bool result = false;
+
+        string scenario = retrieveScenarioForDevice( device );
+        if ( scenario != "unknown" )
+        {
+            updateScenarioIfChanged( scenario );
+            result = true;
+        }
+
+        return result;
+    }
+
 
     public override string repr()
     {
@@ -249,11 +286,30 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
 
         var previous_mode = current_mode;
         base.set_mode( mode );
+        if ( !setScenarioForDevice( current_device ) )
+        {
+            // Something went terrible wrong ... maybe device is not supported in the new
+            // mode. Anyway we will switch back to old mode now.
+            logger.error( @"Could not switch to new mode $(mode); switching back to old mode $(previous_mode) ..." );
+            set_mode( previous_mode );
+        }
     }
 
     public override void set_device( FreeSmartphone.Audio.Device device, bool expose = true )
     {
+        if ( device == current_device )
+        {
+            return;
+        }
+
         base.set_device( device, expose );
+
+        if ( !expose )
+        {
+            return;
+        }
+
+        setScenarioForDevice( device );
     }
 
     public override void set_volume( FreeSmartphone.Audio.Control control, uint volume )
