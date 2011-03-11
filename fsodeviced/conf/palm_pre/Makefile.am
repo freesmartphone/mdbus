@@ -9,7 +9,6 @@ THISDIR = `basename $$PWD`
 confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
 dist_conf_DATA = \
 	fsodeviced.conf \
-	audio.conf \
 	$(NULL)
 
 # boards compatible with palm_pre
