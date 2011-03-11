@@ -18,6 +18,7 @@
  */
 
 using GLib;
+using FsoFramework;
 
 namespace FsoAudio
 {
@@ -95,8 +96,8 @@ namespace FsoAudio
         private FsoAudio.IRouter router;
         private string routertype;
         private DeviceInfo[] devices;
-
-        private FreeSmartphone.Audio.Device current_device;
+        private FreeSmartphone.Audio.Device[] default_devices;
+        private FreeSmartphone.Audio.Device[] current_devices;
 
         public Manager( FsoFramework.Subsystem subsystem )
         {
@@ -151,13 +152,47 @@ namespace FsoAudio
                 new DeviceInfo( FreeSmartphone.Audio.Device.BLUETOOTH_A2DP )
             };
 
-            current_mode = FreeSmartphone.Audio.Mode.NORMAL;
-            current_device = FreeSmartphone.Audio.Device.FRONTSPEAKER;
+            default_devices = new FreeSmartphone.Audio.Device[] { 
+                FreeSmartphone.Audio.Device.BACKSPEAKER,
+                FreeSmartphone.Audio.Device.FRONTSPEAKER
+            };
 
-            router.set_device( current_device, false );
+            readConfiguration();
+
+            // set current mode and device to router
+            current_mode = FreeSmartphone.Audio.Mode.NORMAL;
+            current_devices = new FreeSmartphone.Audio.Device[] {
+                default_devices[ FreeSmartphone.Audio.Mode.NORMAL ],
+                default_devices[ FreeSmartphone.Audio.Mode.CALL ]
+            };
+
+            router.set_device( current_devices[ current_mode ], false );
             router.set_mode( current_mode );
 
             logger.info( @"Created" );
+        }
+
+        private void readConfiguration()
+        {
+            // FIXME the code below will read the default devices for both modes we
+            // currently support. Maybe we should do this more dynamically when we add an
+            // extra audio mode somewhere in the future ...
+
+            var device_str = config.stringValue( MANAGER_MODULE_NAME, "normal_default_device", "backspeaker" );
+            var device = StringHandling.enumFromString<FreeSmartphone.Audio.Device>( device_str, FreeSmartphone.Audio.Device.BACKSPEAKER );
+            if ( !( device in router.get_available_devices( FreeSmartphone.Audio.Mode.NORMAL ) ) )
+            {
+                device = FreeSmartphone.Audio.Device.BACKSPEAKER;
+            }
+            default_devices[ FreeSmartphone.Audio.Mode.NORMAL ] = device;
+
+            device_str = config.stringValue( MANAGER_MODULE_NAME, "call_default_device", "frontspeaker" );
+            device = StringHandling.enumFromString<FreeSmartphone.Audio.Device>( device_str, FreeSmartphone.Audio.Device.FRONTSPEAKER );
+            if ( !( device in router.get_available_devices( FreeSmartphone.Audio.Mode.CALL ) ) )
+            {
+                device = FreeSmartphone.Audio.Device.FRONTSPEAKER;
+            }
+            default_devices[ FreeSmartphone.Audio.Mode.CALL ] = device;
         }
 
         public override string repr()
@@ -194,7 +229,7 @@ namespace FsoAudio
         public async FreeSmartphone.Audio.Device get_device()
             throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return current_device;
+            return current_devices[ current_mode ];
         }
 
         public async void set_mode( FreeSmartphone.Audio.Mode mode )
@@ -206,9 +241,18 @@ namespace FsoAudio
             }
 
             assert( logger.debug( @"Switching mode: $(current_mode) -> $(mode)" ) );
+
+            var previous_mode = current_mode;
             current_mode = mode;
+
+            router.set_device( current_devices[ current_mode ], false );
             router.set_mode( current_mode );
+
             mode_changed( current_mode );
+            if ( current_devices[ previous_mode ] != current_devices[ current_mode ] )
+            {
+                device_changed( current_devices[ current_mode ] );
+            }
         }
 
         public async void set_device( FreeSmartphone.Audio.Device device )
@@ -221,16 +265,18 @@ namespace FsoAudio
                 throw new FreeSmartphone.Error.UNSUPPORTED( "The supplied audio device is not supported by the current router" );
             }
 
-            assert( logger.debug( @"Switching output device: $(current_device) -> $(device)" ) );
+            assert( logger.debug( @"Switching output device: $(current_devices[current_mode]) -> $(device)" ) );
 
-            current_device = device;
-            router.set_device( current_device );
-            device_changed( current_device );
+            current_devices[ current_mode ] = device;
+            router.set_device( current_devices[ current_mode ] );
+            device_changed( current_devices[ current_mode ] );
         }
 
         public async void set_mute( FreeSmartphone.Audio.Control control, bool mute )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
+            var current_device = current_devices[ current_mode ];
+
             if ( devices[ current_device ].get_mute( current_mode, control ) )
             {
                 return;
@@ -252,6 +298,7 @@ namespace FsoAudio
         public async bool get_mute( FreeSmartphone.Audio.Control control )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
+            var current_device = current_devices[ current_mode ];
             return devices[ current_device ].get_mute( current_mode, control );
         }
 
@@ -264,6 +311,7 @@ namespace FsoAudio
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Supplied volume level is out of range 0 - 100" );
             }
 
+            var current_device = current_devices[ current_mode ];
             devices[ current_device ].set_volume( current_mode, control, volume );
             if ( !devices[ current_device ].get_mute( current_mode, control ) )
             {
@@ -276,6 +324,7 @@ namespace FsoAudio
         public async int get_volume( FreeSmartphone.Audio.Control control )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
+            var current_device = current_devices[ current_mode ];
             return devices[ current_device ].get_volume( current_mode, control );
         }
     }
