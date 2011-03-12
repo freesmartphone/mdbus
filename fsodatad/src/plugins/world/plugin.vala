@@ -59,35 +59,47 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
 
     public async string get_country_code_for_mcc_mnc( string mcc_mnc ) throws FreeSmartphone.Error, DBusError, IOError
     {
+        var mcc = "%c%c%c".printf( (int)mcc_mnc[0], (int)mcc_mnc[1], (int)mcc_mnc[2] );
+        var prefixccode = "";
+#if DEBUG
+        debug( @"Looking for = $(mcc_mnc)" );
+#endif
         foreach ( var country in FsoData.MBPI.Database.instance().allCountries().values )
         {
+#if DEBUG
+            debug( @"Country = $(country.code)" );
+#endif
             foreach ( var provider in country.providers.values )
             {
+#if DEBUG
+                debug( @"Provider = $(provider.name)" );
+#endif
                 foreach ( var code1 in provider.codes )
                 {
+#if DEBUG
+                    debug( @"Code = $(code1)" );
+#endif
                     if ( code1 == mcc_mnc )
                     {
+#if DEBUG
+                        debug( @"Full match with country code $(country.code)" );
+#endif
                         return country.code;
                     }
-                }
-#if DEBUG
-                debug( @"Exact match not found for $mcc_mnc; trying first three digits..." );
-#endif
-                var mcc = "%c%c%c".printf( (int)mcc_mnc[0], (int)mcc_mnc[1], (int)mcc_mnc[2] );
-
-                foreach ( var code2 in provider.codes )
-                {
-                    if ( code2.has_prefix( mcc ) )
+                    else if ( ( prefixccode == "" ) && code1.has_prefix( mcc ) )  
                     {
-                        return country.code;
+#if DEBUG
+                        debug( @"Prefix match with country code $(country.code)" );
+#endif
+                        prefixccode = country.code;
                     }
                 }
-#if DEBUG
-                debug( @"No provider with MCC $mcc found" );
-#endif
             }
         }
-        return "";
+#if DEBUG
+        debug( @"No country/provider found with MCC $mcc" );
+#endif
+        return prefixccode;
     }
 
     public async GLib.HashTable<string,string> get_timezones_for_country_code( string country_code ) throws FreeSmartphone.Error, DBusError, IOError
