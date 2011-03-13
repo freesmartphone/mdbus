@@ -168,38 +168,52 @@ namespace PalmPre
         private const string DEFAULT_DEV_NAME = "/dev/btuart";
         private const string DEFAULT_RESET_NODE = "/sys/user_hw/pins/bt/reset/level";
         private FsoFramework.Subsystem subsystem;
-        private int fd;
         private FsoFramework.BaseTransport transport;
+        private bool power_status;
 
         public BluetoothPowerControl( FsoFramework.Subsystem subsystem )
         {
             base( "Bluetooth" );
             this.subsystem = subsystem;
+            this.power_status = false;
+
+            subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName,
+                                                                                              FsoFramework.Device.PowerControlServicePath,
+                                                                                              this );
+            logger.info( "Created." );
         }
 
         public override bool getPower()
         {
-            return fd > 0;
+            return power_status;
         }
 
         public override void setPower( bool power )
         {
             // Only power on when we are not already powered on
-            if ( power && !transport.isOpen() )
+            if ( !power_status && power )
             {
                 // Reset bluetooth chip first
+                assert( logger.debug( "Reseting bluetooth chip ..." ) );
                 FsoFramework.FileHandling.write( "0", DEFAULT_RESET_NODE );
                 Posix.sleep( 2 );
                 FsoFramework.FileHandling.write( "1", DEFAULT_RESET_NODE );
 
+                assert( logger.debug( "Opening HCI over HSUart transport ... " ) );
                 transport = new HciOverHsuartTransport( DEFAULT_DEV_NAME );
                 transport.open();
+
                 // FIXME set delegates for HUP and CLOSE events ..
+
+                assert( logger.debug( "Successfully powerd on!" ) );
             }
-            else if ( !power && transport.isOpen() )
+            else if ( power_status && !power )
             {
+                assert( logger.debug( "Closing HCI over HSUart transport ... " ) );
                 transport.close();
             }
+
+            power_status = power;
         }
     }
 
@@ -220,12 +234,19 @@ namespace PalmPre
             {
                 var wifi = new WifiPowerControl( subsystem );
                 instances.append( wifi );
+#if WANT_FSO_RESOURCE
+                resources.append( new FsoDevice.BasePowerControlResource( wifi, "WiFi", subsystem ) );
+#endif
+            }
+
+            if ( config.hasSection( @"$(POWERCONTROL_MODULE_NAME)/bluetooth" ) )
+            {
                 var bt = new BluetoothPowerControl( subsystem );
                 instances.append( bt );
 #if WANT_FSO_RESOURCE
-                resources.append( new FsoDevice.BasePowerControlResource( wifi, "WiFi", subsystem ) );
                 resources.append( new FsoDevice.BasePowerControlResource( bt, "Bluetooth", subsystem ) );
 #endif
+
             }
         }
 
