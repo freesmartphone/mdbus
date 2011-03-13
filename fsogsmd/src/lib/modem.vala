@@ -532,6 +532,41 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.cmdSequences[ @"$channel-$purpose" ] = sequence;
     }
 
+    private async void checkChannelsForHangup()
+    {
+        // we need to find out which channel has a hangup as we need to react
+        // differently if it is the main channel or not
+        var mainchannel = channels[ "main" ];
+        if ( mainchannel.isActive() )
+        {
+            logger.error( "Detected main channel hangup; closing modem" );
+            close();
+            this.hangup();
+        }
+        else
+        {
+            // it was not the main channel which has a hangup so we restart the one
+            // with the hangup
+            foreach ( var cname in channels.keys )
+            {
+                if ( cname != "main" )
+                {
+                    var channel = channels[ cname ];
+                    if ( !channel.isActive() )
+                    {
+                        logger.info( @"Detected $cname channel hangup; reopening channel ..." );
+
+                        var ok = yield channel.open();
+                        if ( !ok )
+                        {
+                            logger.error( @"Could not reopen channel '$cname' after hangup!!!" );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void onChannelHangup()
     {
         if ( modem_status == Modem.Status.CLOSING )
@@ -540,9 +575,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         }
         else
         {
-            logger.error( "Detected channel hangup; closing modem" );
-            close();
-            this.hangup();
+            Idle.add( () => {
+                checkChannelsForHangup();
+                return false;
+            } );
         }
     }
 

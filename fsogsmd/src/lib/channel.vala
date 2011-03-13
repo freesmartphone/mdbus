@@ -25,5 +25,13 @@ public interface FsoGsm.Channel : FsoFramework.CommandQueue
     public abstract async bool suspend();
     public abstract async bool resume();
 
+    /**
+     * Check if the channel is currently active.
+     **/
+    public bool isActive()
+    {
+        return transport == null ? false : transport.isOpen();
+    }
+
     public signal void hangup();
 }
