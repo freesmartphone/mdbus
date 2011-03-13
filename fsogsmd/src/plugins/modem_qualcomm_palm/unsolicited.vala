@@ -29,6 +29,7 @@ public enum MsmUrcType
     EXTENDED_FILE_INFO,
     NETWORK_STATE_INFO,
     OPERATION_MODE,
+    PIN1_VERIFIED,
 }
 
 internal class WaitForUnsolicitedResponseData
@@ -122,6 +123,9 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                     break;
                 case "pin1-perm-blocked":
                     updateSimPinStatus( MsmPinStatus.PERM_BLOCKED );
+                    break;
+                case "pin1-verified":
+                    notifyUnsolicitedResponse( MsmUrcType.PIN1_VERIFIED, null );
                     break;
             }
         });

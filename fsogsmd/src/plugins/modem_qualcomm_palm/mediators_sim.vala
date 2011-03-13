@@ -136,6 +136,10 @@ public class MsmSimSendAuthCode : SimSendAuthCode
             if ( MsmData.pin_status == MsmPinStatus.ENABLED )
             {
                 yield channel.sim_service.verify_pin( Msmcomm.SimPinType.PIN1, pin );
+
+                // we have to wait until the pin was verified successfully, otherwise
+                // authentication failed!
+                yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.PIN1_VERIFIED );
             }
             else
             {
