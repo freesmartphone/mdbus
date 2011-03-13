@@ -37,6 +37,8 @@ internal class WaitForUnsolicitedResponseData
     public GLib.SourceFunc callback;
     public MsmUrcType urc_type;
     public GLib.Variant? response;
+    public uint timeout;
+    public SourceFunc? timeout_func;
 }
 
 internal void updateSimPinStatus( MsmPinStatus status )
@@ -223,7 +225,7 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
      * Lets wait for a specific unsolicited response to recieve and return it's payload
      * after it finaly recieves.
      **/
-    public async GLib.Variant waitForUnsolicitedResponse( MsmUrcType type )
+    public async GLib.Variant waitForUnsolicitedResponse( MsmUrcType type, int timeout = 0, SourceFunc? timeout_func = null )
     {
         logger.debug( @"Create an new urc waiter with type = $(type)" );
 
@@ -231,7 +233,26 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         var data = new WaitForUnsolicitedResponseData();
         data.urc_type = type;
         data.callback = waitForUnsolicitedResponse.callback;
+        data.timeout_func = timeout_func;
         urc_waiters.append( data );
+
+        // if user specified a timeout for the wait we add it here and return to the
+        // caller when the timeout occured
+        if ( timeout > 0 )
+        {
+            data.timeout = Timeout.add_seconds( timeout, () => {
+                urc_waiters.remove( data );
+
+                if ( data.timeout_func != null )
+                {
+                    data.timeout_func();
+                }
+
+                data.callback();
+                return false;
+            } );
+        }
+
         yield;
 
         // Urc occured so we can return the recieved message structure to the caller who
@@ -252,6 +273,14 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         // awake all waiters for the notified urc type and supply them the message payload
         foreach (var waiter in waiters )
         {
+            // check wether this waiter has a timeout
+            if ( waiter.timeout > 0 )
+            {
+                Source.remove( waiter.timeout );
+                waiter.timeout = 0;
+            }
+
+            urc_waiters.remove( waiter );
             waiter.response = response;
             waiter.callback();
         }
