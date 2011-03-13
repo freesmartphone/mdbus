@@ -29,14 +29,8 @@ namespace PalmPre
     public class WifiPowerControl : FsoDevice.BasePowerControl
     {
         private FsoFramework.Kernel26Module sirloin_wifi_mod;
-        private FsoFramework.Kernel26Module libertas_mod;
-        private FsoFramework.Kernel26Module libertas_sdio_mod;
-        private Gee.ArrayList<FsoFramework.Kernel26Module> modules;
         private FsoFramework.Subsystem subsystem;
         private bool is_active;
-        private bool debug;
-        private string firmware_name;
-        private string firmware_helper_name;
 
         public WifiPowerControl( FsoFramework.Subsystem subsystem )
         {
@@ -45,29 +39,7 @@ namespace PalmPre
             this.subsystem = subsystem;
             this.is_active = false;
 
-            debug = config.boolValue( @"$(POWERCONTROL_MODULE_NAME)/wifi", "debug", false );
-            firmware_name = config.stringValue( @"$(POWERCONTROL_MODULE_NAME)/wifi", "firmware_name", "sd8686.bin" );
-            firmware_helper_name = config.stringValue( @"$(POWERCONTROL_MODULE_NAME)/wifi", "firmware_helper_name", "sd8686_helper.bin" );
-
-            logger.debug( @"configuration: debug = $(debug) firmware_name = $(firmware_name) firmware_helper_name = $(firmware_helper_name)" );
-
             sirloin_wifi_mod = new FsoFramework.Kernel26Module( "sirloin_wifi" );
-            libertas_mod = new FsoFramework.Kernel26Module( "libertas" );
-            libertas_sdio_mod = new FsoFramework.Kernel26Module( "libertas_sdio" );
-
-            /* build arguments string for libertas_sdio module */
-            libertas_sdio_mod.arguments = @"fw_name=$(firmware_name) helper_name=$(firmware_helper_name)";
-
-            /* if we are in debug mode than we have to adjust libertas module params */
-            if ( debug )
-            {
-                libertas_mod.arguments = "libertas_debug=0xffffffff";
-            }
-
-            modules = new Gee.ArrayList<FsoFramework.Kernel26Module>();
-            modules.add(sirloin_wifi_mod);
-            modules.add(libertas_mod);
-            modules.add(libertas_sdio_mod);
 
             subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
@@ -89,15 +61,16 @@ namespace PalmPre
                     return;
                 }
 
-                foreach ( FsoFramework.Kernel26Module mod in modules )
-                {
-                    logger.debug( @"Loading module $(mod.name) with arguments '$(mod.arguments)" );
+                logger.info( "Powering on WiFi ..." );
 
-                    if ( !mod.load() )
-                    {
-                        logger.error( @"Could not load module '$(mod.name)'; aborting WiFi powering process ..." );
-                        return;
-                    }
+                var ok = sirloin_wifi_mod.load();
+                if ( !ok )
+                {
+                    logger.error( "Loading WiFi kernel module failed!!!" );
+                }
+                else
+                {
+                    is_active = true;
                 }
             }
             else
@@ -108,17 +81,16 @@ namespace PalmPre
                     return;
                 }
 
-                for ( var n = modules.size - 1; n >= 0; n-- )
+                logger.info( "Powering off Wifi ..." );
+
+                var ok = sirloin_wifi_mod.unload();
+                if( !ok )
                 {
-                    var mod = modules.get( n );
-
-                    logger.debug( @"Unloading module $(mod.name)" );
-
-                    if ( !mod.load() )
-                    {
-                        logger.error( @"Could not load module '$(mod.name)'; aborting WiFi powering process ..." );
-                        return;
-                    }
+                    logger.error( "Unloading WiFi kernel module failed!!!" );
+                }
+                else
+                {
+                    is_active = false;
                 }
             }
         }
