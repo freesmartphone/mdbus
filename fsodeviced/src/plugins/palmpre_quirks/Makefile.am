@@ -38,7 +38,6 @@ modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = palmpre_quirks.la
 palmpre_quirks_la_VALASOURCES = \
 	plugin.vala \
-	touchscreenmanager.vala \
 	powersupply.vala \
 	powercontrol.vala \
 	$(NULL)
