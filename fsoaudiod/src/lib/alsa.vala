@@ -38,14 +38,20 @@ public class FsoAudio.BunchOfMixerControls
     public FsoAudio.MixerControl[] controls;
 
     /**
-     * Index of the control that should be used as main volume control
+     * Index of control that should be used as main speaker volume control
      **/
-    public uint idxMainVolume;
+    public uint idxSpeakerVolume;
 
-    public BunchOfMixerControls( FsoAudio.MixerControl[] controls, uint idxMainVolume = 0 )
+    /**
+     * Index of control that should be used as main microphone volume control
+     **/
+    public uint idxMicVolume;
+
+    public BunchOfMixerControls( FsoAudio.MixerControl[] controls, uint idxSpeakerVolume = 0, uint idxMicVolume = 0 )
     {
         this.controls = controls;
-        this.idxMainVolume = idxMainVolume;
+        this.idxSpeakerVolume = idxSpeakerVolume;
+        this.idxMicVolume = idxMicVolume;
     }
 
     public string to_string()

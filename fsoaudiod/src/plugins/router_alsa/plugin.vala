@@ -43,7 +43,7 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
         logger.info( @"Created and configured." );
     }
 
-    private void addScenario( string scenario, File file, uint idxMainVolume )
+    private void addScenario( string scenario, File file, uint idxSpeakerVolume, uint idxMicVolume )
     {
         FsoAudio.MixerControl[] controls = {};
 
@@ -65,7 +65,7 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
 #if DEBUG
             debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
 #endif
-            var bunch = new FsoAudio.BunchOfMixerControls( controls, idxMainVolume );
+            var bunch = new FsoAudio.BunchOfMixerControls( controls, idxSpeakerVolume, idxMicVolume );
             allscenarios[scenario] = bunch;
         }
         catch ( IOError e )
@@ -84,9 +84,10 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
             if ( device_name != "" )
             {
                 var scenario = alsaconf.stringValue( section, "scenario", "" );
-                var idxMainVolume = alsaconf.intValue( section, "main_volume", 0 );
+                var idxSpeakerVolume = alsaconf.intValue( section, "speaker_volume", 0 );
+                var idxMicVolume = alsaconf.intValue( section, "mic_volume", 0 );
 
-                assert( FsoFramework.theLogger.debug( "Found scenario '%s' - main volume = %d".printf( scenario, idxMainVolume ) ) );
+                assert( FsoFramework.theLogger.debug( "Found scenario '%s' - speaker volume = %d, mic volume = %d".printf( scenario, idxSpeakerVolume, idxMicVolume ) ) );
 
                 var file = File.new_for_path( Path.build_filename( dataPath, scenario ) );
                 if ( !file.query_exists(null) )
@@ -95,7 +96,7 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
                 }
                 else
                 {
-                    addScenario( scenario, file, idxMainVolume );
+                    addScenario( scenario, file, idxSpeakerVolume, idxMicVolume );
 
                     var device_type = FsoFramework.StringHandling.enumFromNick<FreeSmartphone.Audio.Device>( device_name );
                     result.set( device_type, scenario );
@@ -182,7 +183,6 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
             device.setAllMixerControls( allscenarios[scenario].controls );
 
             currentscenario = scenario;
-            //this.scenario( currentscenario, "N/A" ); // DBUS SIGNAL
         }
     }
 
@@ -199,7 +199,8 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
             return;
         }
 
-        var idxMainVolume = allscenarios[name].idxMainVolume;
+        var idxSpeakerVolume = allscenarios[name].idxSpeakerVolume;
+        var idxMicVolume = allscenarios[name].idxMicVolume;
 
         if ( name == currentscenario )
         {
@@ -211,7 +212,7 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
             }
             else
             {
-                addScenario( name, file, idxMainVolume );
+                addScenario( name, file, idxSpeakerVolume, idxMicVolume );
                 device.setAllMixerControls( allscenarios[name].controls );
             }
         }
@@ -228,7 +229,7 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
             }
             else
             {
-                addScenario( name, file, idxMainVolume );
+                addScenario( name, file, idxSpeakerVolume, idxMicVolume );
             }
             // restore saved one
             device.setAllMixerControls( scene.controls );
@@ -314,6 +315,11 @@ public class Router.LibAlsa : FsoAudio.AbstractRouter
 
     public override void set_volume( FreeSmartphone.Audio.Control control, uint volume )
     {
+        var scenario = allscenarios[currentscenario];
+        assert( scenario != null );
+
+        var idx = control == FreeSmartphone.Audio.Control.SPEAKER ? scenario.idxSpeakerVolume : scenario.idxMicVolume;
+        device.setVolumeForIndex( idx, (uint8) volume );
     }
 }
 
