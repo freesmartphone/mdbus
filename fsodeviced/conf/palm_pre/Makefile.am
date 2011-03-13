@@ -14,7 +14,7 @@ dist_conf_DATA = \
 # boards compatible with palm_pre
 COMPAT = \
 	SirloinOMAP3430board \
-	SirloinOMAP3640board \
+	SirloinOMAP3630board \
 	$(NULL)
 
 install-data-local:
