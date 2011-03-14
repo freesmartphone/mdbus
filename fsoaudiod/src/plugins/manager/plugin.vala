@@ -195,6 +195,28 @@ namespace FsoAudio
             default_devices[ FreeSmartphone.Audio.Mode.CALL ] = device;
         }
 
+        /**
+         * Adjust the volume settings for current mode:device combination as defined in
+         * device configuration data.
+         **/
+        private void adjustVolumeSettings()
+        {
+            var device_type = current_devices[ current_mode ];
+            var device = devices[ device_type ];
+
+            var controls = new FreeSmartphone.Audio.Control[] {
+                FreeSmartphone.Audio.Control.SPEAKER,
+                FreeSmartphone.Audio.Control.MICROPHONE
+            };
+
+            foreach ( var ctrl in controls ) 
+            {
+                var volume = device.get_volume( current_mode, ctrl );
+                router.set_volume( ctrl, volume );
+                volume_changed( ctrl, volume ); // DBUS signal
+            }
+        }
+
         public override string repr()
         {
             return "<>";
@@ -245,14 +267,18 @@ namespace FsoAudio
             var previous_mode = current_mode;
             current_mode = mode;
 
+            // set device first to router but do not expose it as it should we exposed
+            // only when the devices changes too!
             router.set_device( current_devices[ current_mode ], false );
             router.set_mode( current_mode );
 
-            mode_changed( current_mode );
+            mode_changed( current_mode ); // DBUS signal
             if ( current_devices[ previous_mode ] != current_devices[ current_mode ] )
             {
-                device_changed( current_devices[ current_mode ] );
+                device_changed( current_devices[ current_mode ] ); // DBUS signal
             }
+
+            adjustVolumeSettings();
         }
 
         public async void set_device( FreeSmartphone.Audio.Device device )
@@ -270,6 +296,8 @@ namespace FsoAudio
             current_devices[ current_mode ] = device;
             router.set_device( current_devices[ current_mode ] );
             device_changed( current_devices[ current_mode ] );
+
+            adjustVolumeSettings();
         }
 
         public async void set_mute( FreeSmartphone.Audio.Control control, bool mute )

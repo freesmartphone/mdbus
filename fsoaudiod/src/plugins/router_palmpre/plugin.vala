@@ -175,6 +175,9 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
     {
         var base_name = retrieveScriptPrefix();
 
+        // NOTE: we ignore the control type here completly as we don't have a method to
+        // adjust the volume for different controls ...
+
         if ( current_mode == FreeSmartphone.Audio.Mode.NORMAL )
         {
             // FIXME we currently cannot adjust the volume in normal media playback mode
