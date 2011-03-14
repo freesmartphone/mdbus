@@ -86,7 +86,7 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
 #endif
                         return country.code;
                     }
-                    else if ( ( prefixccode == "" ) && code1.has_prefix( mcc ) )  
+                    else if ( ( prefixccode == "" ) && code1.has_prefix( mcc ) )
                     {
 #if DEBUG
                         debug( @"Prefix match with country code $(country.code)" );
@@ -115,6 +115,37 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
             timezones.insert( key, country.timezones[key] );
         }
         return timezones;
+    }
+
+    public async FreeSmartphone.Data.WorldConnectivityAccessPoint[] get_apns_for_mcc_mnc( string mcc_mnc ) throws FreeSmartphone.Error, DBusError, IOError
+    {
+        var result = new FreeSmartphone.Data.WorldConnectivityAccessPoint[] {};
+
+        var mcc = "%c%c%c".printf( (int)mcc_mnc[0], (int)mcc_mnc[1], (int)mcc_mnc[2] );
+
+        foreach ( var country in FsoData.MBPI.Database.instance().allCountries().values )
+        {
+            foreach ( var provider in country.providers.values )
+            {
+                foreach ( var code in provider.codes )
+                {
+                    if ( code == mcc_mnc )
+                    {
+                        foreach ( var apn in provider.gsm.values )
+                        {
+                            var name = provider.name;
+                            if ( apn.description != null )
+                            {
+                                name += " (%s)".printf( apn.description );
+                            }
+                            result += FreeSmartphone.Data.WorldConnectivityAccessPoint( name, apn.name ?? "unknown", apn.user ?? "", apn.password ?? "", "", "" );
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 }
 

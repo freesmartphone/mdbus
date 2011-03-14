@@ -1,4 +1,4 @@
-AC_INIT([fsodatad], [0.1.0], [smartphones-userland@linuxtogo.org], [fsodatad])
+AC_INIT([fsodatad], [0.2.0], [smartphones-userland@linuxtogo.org], [fsodatad])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -22,7 +22,7 @@ AC_SUBST(LDFLAGS)
 GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 XML_REQUIRED=2.7.3
-FSO_GLIB_REQUIRED=2010.05.11.2
+FSO_GLIB_REQUIRED=2011.03.14.1
 FSO_REQUIRED=0.2.3
 MBPI_REQUIRED=20090918
 

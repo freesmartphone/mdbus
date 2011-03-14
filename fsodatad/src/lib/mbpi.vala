@@ -65,7 +65,7 @@ public class AccessPoint
     public string description;
     public string name;
     public string user;
-    public string passsword;
+    public string password;
     public Gee.ArrayList<string> dns;
 }
 
@@ -198,7 +198,7 @@ public class Database : FsoFramework.AbstractObject
                 accesspoint.user = content;
                 break;
             case "password":
-                accesspoint.passsword = content;
+                accesspoint.password = content;
                 break;
             case "dns":
                 accesspoint.dns.add( content );
