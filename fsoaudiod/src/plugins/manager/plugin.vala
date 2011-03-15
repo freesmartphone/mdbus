@@ -98,6 +98,7 @@ namespace FsoAudio
         private DeviceInfo[] devices;
         private FreeSmartphone.Audio.Device[] default_devices;
         private FreeSmartphone.Audio.Device[] current_devices;
+        private GLib.Queue<FreeSmartphone.Audio.Device> device_stack;
 
         public Manager( FsoFramework.Subsystem subsystem )
         {
@@ -143,6 +144,8 @@ namespace FsoAudio
                 router = (FsoAudio.IRouter) GLib.Object.new( routertype );
                 this.routertype = typename;
             }
+
+            device_stack = new GLib.Queue<FreeSmartphone.Audio.Device>();
 
             devices = new DeviceInfo[] {
                 new DeviceInfo( FreeSmartphone.Audio.Device.BACKSPEAKER ),
@@ -264,6 +267,9 @@ namespace FsoAudio
 
             assert( logger.debug( @"Switching mode: $(current_mode) -> $(mode)" ) );
 
+            // we reset the complete device stack for push/pull when the mode changes
+            device_stack.clear();
+
             var previous_mode = current_mode;
             current_mode = mode;
 
@@ -288,16 +294,42 @@ namespace FsoAudio
             var supported_devices = router.get_available_devices( current_mode );
             if ( !( device in supported_devices ) )
             {
-                throw new FreeSmartphone.Error.UNSUPPORTED( "The supplied audio device is not supported by the current router" );
+                throw new FreeSmartphone.Audio.Error.NOT_SUPPORTED_DEVICE( "The supplied audio device is not supported by the current router" );
             }
 
             assert( logger.debug( @"Switching output device: $(current_devices[current_mode]) -> $(device)" ) );
 
             current_devices[ current_mode ] = device;
             router.set_device( current_devices[ current_mode ] );
-            device_changed( current_devices[ current_mode ] );
+            device_changed( current_devices[ current_mode ] ); // DBUS signal
 
             adjustVolumeSettings();
+        }
+
+        public async void push_device( FreeSmartphone.Audio.Device device )
+            throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+            set_device( device );
+            device_stack.push_head( device );
+
+#if DEBUG
+            debug( @"device_stack.length = $(device_stack.get_length())" );
+#endif
+        }
+
+        public async FreeSmartphone.Audio.Device pull_device()
+            throws FreeSmartphone.Audio.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+           device_stack.pop_head();
+
+           if ( device_stack.is_empty() )
+           {
+                throw new FreeSmartphone.Audio.Error.DEVICE_STACK_UNDERFLOW( "No device left to active" );
+           }
+
+           var device = device_stack.peek_head();
+           set_device( device );
+           return device;
         }
 
         public async void set_mute( FreeSmartphone.Audio.Control control, bool mute )
@@ -320,7 +352,7 @@ namespace FsoAudio
             {
                 var level = devices[ current_device ].get_volume( current_mode, control );
                 router.set_volume( control, level );
-            } 
+            }
         }
 
         public async bool get_mute( FreeSmartphone.Audio.Control control )
