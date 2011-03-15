@@ -7,4 +7,9 @@ SUBDIRS = \
 	palm_pre \
 	$(NULL)
 
+confdir = $(sysconfdir)
+dist_conf_DATA = \
+	asound.conf \
+	$(NULL)
+
 MAINTAINERCLEANFILES = Makefile.in
