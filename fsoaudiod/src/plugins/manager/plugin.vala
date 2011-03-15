@@ -353,6 +353,8 @@ namespace FsoAudio
                 var level = devices[ current_device ].get_volume( current_mode, control );
                 router.set_volume( control, level );
             }
+
+            mute_changed( control, mute ); // DBUS signal
         }
 
         public async bool get_mute( FreeSmartphone.Audio.Control control )
