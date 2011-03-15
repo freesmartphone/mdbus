@@ -337,7 +337,7 @@ namespace FsoAudio
         {
             var current_device = current_devices[ current_mode ];
 
-            if ( devices[ current_device ].get_mute( current_mode, control ) )
+            if ( devices[ current_device ].get_mute( current_mode, control ) == mute )
             {
                 return;
             }
