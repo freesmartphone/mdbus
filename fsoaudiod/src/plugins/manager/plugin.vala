@@ -111,39 +111,7 @@ namespace FsoAudio
                                                                      FsoFramework.Audio.ServicePathPrefix,
                                                                      this );
 
-            var routername = config.stringValue( MANAGER_MODULE_NAME, "router_type", "" );
-            var typename = "";
-
-            switch ( routername )
-            {
-                case "alsa":
-                    typename = "RouterLibAlsa";
-                    break;
-                case "palmpre":
-                    typename = "RouterPalmPre";
-                    break;
-    #if 0
-                case "qdsp5":
-                    typename = "RouterQdsp5";
-                    break;
-    #endif
-                default:
-                    typename = "NullRouter";
-                    break;
-            }
-
-            var routertype = GLib.Type.from_name( typename );
-            if ( routertype == GLib.Type.INVALID )
-            {
-                logger.warning( @"Can't instanciate requested router type $typename; will not be able to route audio" );
-                router = new FsoAudio.NullRouter();
-                this.routertype = "NullRouter";
-            }
-            else
-            {
-                router = (FsoAudio.IRouter) GLib.Object.new( routertype );
-                this.routertype = typename;
-            }
+            createRouter();
 
             device_stack = new GLib.Queue<FreeSmartphone.Audio.Device>();
 
@@ -173,6 +141,38 @@ namespace FsoAudio
             router.set_mode( current_mode );
 
             logger.info( @"Created" );
+        }
+
+        private void createRouter()
+        {
+            var routername = config.stringValue( MANAGER_MODULE_NAME, "router_type", "" );
+            var typename = "";
+
+            switch ( routername )
+            {
+                case "alsa":
+                    typename = "RouterLibAlsa";
+                    break;
+                case "palmpre":
+                    typename = "RouterPalmPre";
+                    break;
+                default:
+                    typename = "NullRouter";
+                    break;
+            }
+
+            var routertype = GLib.Type.from_name( typename );
+            if ( routertype == GLib.Type.INVALID )
+            {
+                logger.warning( @"Can't instanciate requested router type $typename; will not be able to route audio" );
+                router = new FsoAudio.NullRouter();
+                this.routertype = "NullRouter";
+            }
+            else
+            {
+                router = (FsoAudio.IRouter) GLib.Object.new( routertype );
+                this.routertype = typename;
+            }
         }
 
         private void readConfiguration()
