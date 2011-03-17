@@ -132,11 +132,6 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
             }
         });
 
-        channel.phonebook_service.extended_file_info_event.connect( ( info ) => {
-            GLib.Variant vi = info;
-            notifyUnsolicitedResponse( MsmUrcType.EXTENDED_FILE_INFO, vi );
-        });
-
         channel.phonebook_service.ready.connect( ( book_type ) => {
             var pbhandler = theModem.pbhandler as MsmPhonebookHandler;
             if ( pbhandler != null)

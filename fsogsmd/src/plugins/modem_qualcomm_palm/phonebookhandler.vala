@@ -34,30 +34,21 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         return storage != null ? storage.repr() : "<None>";
     }
 
-    private async void retrievePhonebookProperties( PhonebookBookType book_type )
+    public async void syncPhonebook( PhonebookBookType book_type ) throws FreeSmartphone.Error
     {
-        try
-        {
-            var channel = theModem.channel( "main" ) as MsmChannel;
-            yield channel.phonebook_service.extended_file_info( book_type );
-        }
-        catch ( Msmcomm.Error err0 )
-        {
-        }
-        catch ( GLib.Error err1 )
-        {
-        }
-    }
-
-    public async void syncPhonebook( PhonebookBookType book_type )
-    {
+        PhonebookInfo info = PhonebookInfo();
         var channel = theModem.channel( "main" ) as MsmChannel;
 
-        // Retrieve phonebook properties but don't care about the result; Will timeout
-        // as we get the correct result with an unsolicited response.
-        Idle.add( () => { retrievePhonebookProperties( book_type ); return false; });
+        try
+        {
+            info = yield channel.phonebook_service.get_extended_file_info( book_type );
+        }
+        catch ( GLib.Error err )
+        {
+            var msg = @"Could not process get_extended_file_info command, got: $(err.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+        }
 
-        var info = (yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.EXTENDED_FILE_INFO )) as PhonebookInfo;
         assert( logger.debug( @"Got phonebook properties from modem: book_type = $(info.book_type) slot_count = $(info.slot_count), slots_used = $(info.slots_used)" ) );
 
         // Wait some seconds before modem can process next commands (FIXME this should be

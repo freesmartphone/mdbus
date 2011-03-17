@@ -186,33 +186,13 @@ public class MsmSimDeleteEntry : SimDeleteEntry
 
 public class MsmSimGetPhonebookInfo : SimGetPhonebookInfo
 {
-    private async void retrievePhonebookProperties( PhonebookBookType book_type )
-    {
-        try
-        {
-            var channel = theModem.channel( "main" ) as MsmChannel;
-            yield channel.phonebook_service.extended_file_info( book_type );
-        }
-        catch ( Msmcomm.Error err0 )
-        {
-        }
-        catch ( GLib.Error err1 )
-        {
-        }
-    }
-
-    public override async void run( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+        public override async void run( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
         try
         {
             var book_type = categoryToBookType( category );
-
-            // Retrieve phonebook properties but don't care about the result; Will timeout
-            // as we get the correct result with an unsolicited response.
-            Idle.add( () => { retrievePhonebookProperties( book_type ); return false; });
-
-            var info = (yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.EXTENDED_FILE_INFO )) as PhonebookInfo;
+            var info = yield channel.phonebook_service.get_extended_file_info( book_type );
 
             slots = (int) info.slot_count;
             numberlength = (int) info.max_chars_per_number;
