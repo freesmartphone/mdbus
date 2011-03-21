@@ -7,4 +7,5 @@ SUBDIRS = \
 	lib \
 	plugins \
 	bin \
+	alsa_hooks \
 	$(NULL)

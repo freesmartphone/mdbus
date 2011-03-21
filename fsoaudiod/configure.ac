@@ -98,6 +98,7 @@ AC_CONFIG_FILES([
   src/Makefile
   src/lib/Makefile
   src/bin/Makefile
+  src/alsa_hooks/Makefile
   src/plugins/Makefile
   src/plugins/manager/Makefile
   src/plugins/router_palmpre/Makefile
