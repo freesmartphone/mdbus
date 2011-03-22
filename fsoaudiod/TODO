@@ -1,5 +1,3 @@
-
-manager:
-- when switching the mode the manager should save the device which was active in this mode
-  and be able to set it as active again when user switches back to this mode. Currently
-  the user can only set the output device globally and not for a mode.
+router_alsa:
+- we should listen for changes of the volume / microphone controls so we can adjust our
+  internal volume settings to the new values (or force our own settings -> config option)
