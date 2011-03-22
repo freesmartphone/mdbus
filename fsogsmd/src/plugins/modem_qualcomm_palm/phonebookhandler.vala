@@ -108,7 +108,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
             var channel = theModem.channel( "main" ) as MsmChannel;
 
             // Fetch and check imsi from sim
-            var fi = yield channel.sim_service.read( SimFieldType.IMSI );
+            var fi = yield channel.sim_service.read_field( SimFieldType.IMSI );
             string imsi = fi.data;
             if ( imsi.length == 0 )
             {

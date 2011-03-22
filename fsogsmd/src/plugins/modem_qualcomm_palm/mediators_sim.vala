@@ -91,17 +91,17 @@ public class MsmSimGetInformation : SimGetInformation
 
         try
         {
-            SimFieldInfo fi = yield channel.sim_service.read( SimFieldType.MSISDN );
+            SimFieldInfo fi = yield channel.sim_service.read_field( SimFieldType.MSISDN );
             info.insert( "msisdn", fi.data );
 
-            fi = yield channel.sim_service.read( SimFieldType.IMSI );
+            fi = yield channel.sim_service.read_field( SimFieldType.IMSI );
             info.insert( "imsi", fi.data );
 
             info.insert( "phonebooks", "contacts emergency aux:fixed" );
         }
         catch ( Msmcomm.Error err0 )
         {
-            var msg = @"Could not process SIM read command, got: $(err0.message)";
+            var msg = @"Could not process SIM read_field command, got: $(err0.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
         catch ( GLib.Error err1 )
