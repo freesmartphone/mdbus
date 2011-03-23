@@ -184,7 +184,6 @@ AC_CONFIG_FILES([
   src/plugins/accelerometer_kxsd9/Makefile
   src/plugins/accelerometer_lis302/Makefile
   src/plugins/ambientlight_n900/Makefile
-  src/plugins/ambientlight_palmpre/Makefile
   src/plugins/audio/Makefile
   src/plugins/backlight_omappanel/Makefile
   src/plugins/gpio_input/Makefile
