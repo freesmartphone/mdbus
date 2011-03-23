@@ -33,12 +33,8 @@ libfsoaudio_release_session_la_LIBADD = \
 	$(NULL)
 
 CLEANFILES = \
-	$(libfsoaudio_request_session_la_SOURCES) \
-	$(libfsoaudio_release_session_la_SOURCES) \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
-	$(libfsoaudio_request_session_la_SOURCES) \
-	$(libfsoaudio_release_session_la_SOURCES) \
 	Makefile.in
 
