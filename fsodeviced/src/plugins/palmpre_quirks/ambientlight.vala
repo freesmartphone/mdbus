@@ -19,14 +19,12 @@
 
 using GLib;
 
-namespace AmbientLight
+class PalmPre.AmbientLight : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
 {
     internal const string DEFAULT_INPUT_NODE = "input/event4";
     internal const int DARKNESS = 0;
     internal const int SUNLIGHT = 1000;
 
-class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
-{
     FsoFramework.Subsystem subsystem;
 
     private string sysfsnode;
@@ -54,7 +52,7 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
 
     FsoFramework.Async.ReactorChannel input;
 
-    public PalmPre( FsoFramework.Subsystem subsystem, string sysfsnode )
+    public AmbientLight( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         minvalue = DARKNESS;
         maxvalue = SUNLIGHT;
@@ -117,52 +115,3 @@ class PalmPre : FreeSmartphone.Device.AmbientLight, FsoFramework.AbstractObject
         timestamp = brightness_timestamp;
     }
 }
-
-} /* namespace */
-
-static string sysfs_root;
-static string devfs_root;
-AmbientLight.PalmPre instance;
-
-/**
- * This function gets called on plugin initialization time.
- * @return the name of your plugin here
- * @note that it needs to be a name in the format <subsystem>.<plugin>
- * else your module will be unloaded immediately.
- **/
-public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
-{
-    // grab sysfs paths
-    var config = FsoFramework.theConfig;
-    sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
-    devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
-    var dirname = GLib.Path.build_filename( sysfs_root, "devices", "platform", "temt6200_light", "input", "input4" );
-    if ( FsoFramework.FileHandling.isPresent( dirname ) )
-    {
-        instance = new AmbientLight.PalmPre( subsystem, dirname );
-    }
-    else
-    {
-        FsoFramework.theLogger.error( "No ambient light device found; ambient light object will not be available" );
-    }
-    return "fsodevice.ambientlight_palmpre";
-}
-
-[ModuleInit]
-public static void fso_register_function( TypeModule module )
-{
-    FsoFramework.theLogger.debug( "fsodevice.ambientlight_palmpre fso_register_function()" );
-}
-
-/**
- * This function gets called on plugin load time.
- * @return false, if the plugin operating conditions are present.
- * @note Some versions of glib contain a bug that leads to a SIGSEGV
- * in g_module_open, if you return true here.
- **/
-/*public static bool g_module_check_init( void* m )
-{
-    var ok = FsoFramework.FileHandling.isPresent( Kernel26.SYS_CLASS_LEDS );
-    return (!ok);
-}
-*/
