@@ -58,7 +58,7 @@ namespace ThirdParty
         [CCode (cname = "GAtPPP", cprefix = "g_at_ppp_", destroy_function = "", cheader_filename = "gatppp.h")]
         public class PPP
         {
-            [CCode (cname = "GAtPPPDisconnectReason", cprefix = "G_AT_PPP_REASON_")]
+            [CCode (cname = "GAtPPPDisconnectReason", cprefix = "G_AT_PPP_REASON_", has_type_id = false)]
             public enum DisconnectReason
             {
                 UNKNOWN,
