@@ -37,6 +37,18 @@ $(testmodules_SOURCES): $(testmodules_VALASOURCES)
 testmodules_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testmodules_VALASOURCES)
 
+#
+# network test
+#
+TEST_PROGS += testnetwork
+testnetwork_VALASOURCES = testnetwork.vala
+testnetwork_SOURCES = testnetwork.c
+$(testnetwork_SOURCES): $(testnetwork_VALASOURCES)
+	$(VALAC) -C $(VALAC_ARGS) $^
+	touch $@
+testnetwork_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testnetwork_VALASOURCES)
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \
