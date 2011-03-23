@@ -29,6 +29,7 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
+	--pkg fsosystem-2.0 \
 	--pkg fsodevice-2.0
 
 if WANT_FSORESOURCE

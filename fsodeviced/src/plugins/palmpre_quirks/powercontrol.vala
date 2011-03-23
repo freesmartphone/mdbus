@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *                         Simon Busch <morphis@gravedo.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,6 +19,7 @@
  */
 
 using GLib;
+using FsoFramework;
 
 namespace PalmPre
 {
@@ -72,6 +74,11 @@ namespace PalmPre
                 {
                     is_active = true;
                 }
+
+                // after interface is available we need to activate it
+                var iface = new Network.Interface( "eth0" );
+                iface.up();
+                iface.finish();
             }
             else
             {
