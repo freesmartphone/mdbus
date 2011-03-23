@@ -27,15 +27,16 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
     private bool isInitialized;
     private bool isMainChannel;
 
-    public AtChannel( string name, FsoFramework.Transport transport, FsoFramework.Parser parser )
+    public AtChannel( string? name, FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
         base( transport, parser );
         this.name = name;
-        theModem.registerChannel( name, this );
-
-        theModem.signalStatusChanged.connect( onModemStatusChanged );
-
-        this.isMainChannel = ( name == "main" );
+        if ( name != null ) // anonymous channels will not get registered with the modem
+        {
+            theModem.registerChannel( name, this );
+            theModem.signalStatusChanged.connect( onModemStatusChanged );
+            this.isMainChannel = ( name == "main" );
+        }
     }
 
     public void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
