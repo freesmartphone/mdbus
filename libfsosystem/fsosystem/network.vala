@@ -48,7 +48,7 @@ namespace FsoFramework.Network
             var rc = ioctl( fd, Linux.Network.SIOCGIFFLAGS, &ifr);
             if ( rc == -1 )
             {
-                throw new FsoFramework.Network.Error.INTERNAL_ERROR( "Could not process ioctl to gather interface status" );
+                throw new FsoFramework.Network.Error.INTERNAL_ERROR( "Could not process ioctl to gather interface status: $(Posix.strerror(Posix.errno))" );
             }
 
             return (bool) ( ifr.ifr_flags & flags );
@@ -82,7 +82,7 @@ namespace FsoFramework.Network
             fd = socket( AF_INET, SOCK_DGRAM, 0 );
             if ( fd < 0 )
             {
-                throw new Error.INTERNAL_ERROR( "Could not create socket for interface configuration" );
+                throw new Error.INTERNAL_ERROR( @"Could not create socket for interface configuration: $(Posix.strerror(Posix.errno))" );
             }
         }
 
@@ -93,7 +93,7 @@ namespace FsoFramework.Network
         {
             if ( !set_flags( IFF_UP, 0 ) )
             {
-                throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not bring interface $name up!" );
+                throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not bring interface $name up: $(Posix.strerror(Posix.errno))" );
             }
         }
 
@@ -109,9 +109,8 @@ namespace FsoFramework.Network
         {
             if ( !set_flags( 0, IFF_UP ) )
             {
-                throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not bring interface $name down!" );
+                throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not bring interface $name down: $(Posix.strerror(Posix.errno))" );
             }
-
         }
 
         /**
