@@ -78,7 +78,7 @@ public Constants.AtResponse checkResponseExpected( FsoGsm.AtCommand command,
     assert_not_reached(); // if this fails here, then our code is broken
 }
 
-internal void checkResponseConnect( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+public void checkResponseConnect( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validateOk( response );
     if ( code == Constants.AtResponse.CONNECT )

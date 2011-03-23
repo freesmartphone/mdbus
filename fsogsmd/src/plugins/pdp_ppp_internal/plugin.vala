@@ -30,6 +30,7 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
 {
     public const string MODULE_NAME = "fsogsm.pdp_ppp_internal";
 
+    private FsoFramework.Transport transport;
     private ThirdParty.At.PPP ppp;
     private IOChannel iochannel;
 
@@ -47,8 +48,20 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
         assert( logger.debug( @"ThirdParty.At.PPP: $str" ) );
     }
 
+    public void onConnectFromAtPPPP( string iface, string local, string peer, string dns1, string dns2 )
+    {
+        logger.info( @"PPP stack now online via $iface. Local IP is $local, remote IP is $peer, DNS1 is $dns1, DNS2 is $dns2" );
+    }
+
+    public void onDisconnectFromAtPPP( ThirdParty.At.PPP.DisconnectReason reason )
+    {
+        logger.info( @"PPP stack now offline. Disconnect reason is $reason" );
+    }
+
     public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var m = theModem as FsoGsm.AbstractModem;
+
         var data = theModem.data();
 
         if ( data.contextParams == null )
@@ -61,20 +74,53 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
         }
 
-        /*
-
-        if ( ( (FsoGsm.AbstractModem) theModem ).data_transport != "mux" )
+        if ( ( (FsoGsm.AbstractModem) theModem ).data_transport != "serial" &&  ( (FsoGsm.AbstractModem) theModem ).data_transport != "tcp" )
         {
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "ippp only supports data transport MUX for now" );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "ippp only supports data transport types 'serial' and 'tcp' for now" );
         }
-        */
 
-        var transport = theModem.channel( "main" ).transport;
+        theModem.channel( "main" ).transport.freeze();
+
+        transport = FsoFramework.Transport.create( m.data_transport, m.data_port, m.data_speed );
+        var channel = new AtChannel( null, transport, new FsoGsm.StateBasedAtParser() );
+
+        if ( !yield channel.open() )
+        {
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't open data channel or transport" );
+        }
+
+        var response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "E0" );
+
+        response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGDCONT=1,\"IP\",\"%s\"".printf( data.contextParams.apn ) );
+        if ( response[0].strip() != "OK" )
+        {
+            yield channel.close();
+            transport = null;
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
+        }
+        response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGACT=1" );
+        if ( response[0].strip() != "OK" )
+        {
+            yield channel.close();
+            transport = null;
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
+        }
+        response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGDATA=\"PPP\"" );
+        if ( response[0].strip() != "CONNECT" )
+        {
+            yield channel.close();
+            transport = null;
+            throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
+        }
+
         iochannel = new IOChannel.unix_new( transport.freeze() );
 
         ppp = new ThirdParty.At.PPP( iochannel );
         ppp.set_debug( onDebugFromAtPPP );
         ppp.set_recording( "/tmp/ppp.log" );
+        ppp.set_credentials( data.contextParams.username, data.contextParams.password );
+        ppp.set_connect_function( onConnectFromAtPPPP );
+        ppp.set_disconnect_function( onDisconnectFromAtPPP );
         ppp.open();
     }
 
