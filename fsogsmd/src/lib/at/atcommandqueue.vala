@@ -92,8 +92,17 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
     {
         base( transport );
         this.parser = parser;
+        // FIXME: the delegates need to be owned!
         parser.setDelegates( haveCommand, isExpectedPrefix, onParserCompletedSolicited, onParserCompletedUnsolicited );
         buffer = malloc( COMMAND_QUEUE_BUFFER_SIZE );
+    }
+
+    ~AtCommandQueue()
+    {
+        parser.setDelegates( null, null, null, null );
+#if DEBUG
+        debug( "ATCommandQueue destructed" );
+#endif
     }
 
     protected override void onReadFromTransport( FsoFramework.Transport t )
@@ -125,10 +134,14 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
 
     protected void onParserCompletedSolicited( string[] response )
     {
+        // FIXME: make sure we don't get unref'ed while we're in this method
+        // better: var this_ref = this;
+        this.ref();
         assert( current != null );
         onSolicitedResponse( (AtCommandHandler)current, response );
         current = null;
         Idle.add( checkRestartingQ );
+        this.unref();
     }
 
     protected void onParserCompletedUnsolicited( string[] response )
