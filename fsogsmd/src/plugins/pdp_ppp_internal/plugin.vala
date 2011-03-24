@@ -51,11 +51,13 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
     public void onConnectFromAtPPPP( string iface, string local, string peer, string dns1, string dns2 )
     {
         logger.info( @"PPP stack now online via $iface. Local IP is $local, remote IP is $peer, DNS1 is $dns1, DNS2 is $dns2" );
+        connectedWithNewDefaultRoute( iface, local, "255.255.255.0", peer, dns1, dns2 );
     }
 
     public void onDisconnectFromAtPPP( ThirdParty.At.PPP.DisconnectReason reason )
     {
         logger.info( @"PPP stack now offline. Disconnect reason is $reason" );
+        disconnected();
     }
 
     public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -79,6 +81,7 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "ippp only supports data transport types 'serial' and 'tcp' for now" );
         }
 
+        // DEBUG only, remove in production code
         theModem.channel( "main" ).transport.freeze();
 
         transport = FsoFramework.Transport.create( m.data_transport, m.data_port, m.data_speed );
@@ -126,6 +129,11 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
 
     public async override void sc_deactivate()
     {
+        ppp = null;
+        iochannel = null;
+        transport.close();
+        transport = null;
+        iochannel = null;
     }
 
     public async override void statusUpdate( string status, GLib.HashTable<string,Variant> properties )
