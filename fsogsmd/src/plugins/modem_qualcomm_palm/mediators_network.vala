@@ -103,6 +103,11 @@ public class MsmNetworkUnregister : NetworkUnregister
     {
         yield changeOperationMode( Msmcomm.OperationMode.OFFLINE );
         MsmData.network_info.reset();
+
+        // after we have unregistered from the network we have to authenticate again with
+        // the sim card
+        MsmData.sim_auth_status = FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED;
+        yield gatherSimStatusAndUpdate();
     }
 }
 public class MsmNetworkGetSignalStrength : NetworkGetSignalStrength

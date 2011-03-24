@@ -99,13 +99,13 @@ public class MsmSimGetInformation : SimGetInformation
 
             info.insert( "phonebooks", "contacts emergency aux:fixed" );
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( Msmcomm.SimError err0 )
         {
-            var msg = @"Could not process SIM read_field command, got: $(err0.message)";
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
         catch ( GLib.Error err1 )
         {
+            var msg = @"Could not process SIM read_field command, got: $(err1.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
     }
 }
@@ -129,6 +129,11 @@ public class MsmSimSendAuthCode : SimSendAuthCode
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
 
+        if ( !MsmData.sim_available )
+        {
+            throw new FreeSmartphone.GSM.Error.SIM_NOT_PRESENT( "SIM card is not present; cannot send auth code!" );
+        }
+
         try
         {
             // We only send the verify_pin command to the modem when the pin is enabled.
@@ -140,19 +145,22 @@ public class MsmSimSendAuthCode : SimSendAuthCode
                 // we have to wait until the pin was verified successfully, otherwise
                 // authentication failed!
                 yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.PIN1_VERIFIED );
+
+                yield gatherSimStatusAndUpdate();
             }
             else
             {
                 throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"Could not send auth code as auth code is disabled" );
             }
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( Msmcomm.SimError err0 )
         {
-            var msg = @"Could not process verify_pin command, got: $(err0.message)";
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+            var msg = @"SIM pin authentication failed: $(err0.message)";
+            throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( msg );
         }
         catch ( GLib.Error err1 )
         {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Could not process verify_pin command: $(err1.message)" );
         }
     }
 }
@@ -162,6 +170,7 @@ public class MsmSimDeleteEntry : SimDeleteEntry
     public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
+
         try
         {
             var book_type = categoryToBookType( category );

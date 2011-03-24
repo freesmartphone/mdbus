@@ -30,8 +30,10 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     private FreeSmartphone.Usage usage;
     private bool is_initialized;
     private Msmcomm.ModemStatus currentModemStatus;
+#if 0
     private bool modem_lock_status;
     private uint modem_lock_count;
+#endif
 
     public MsmUnsolicitedResponseHandler urc_handler;
 

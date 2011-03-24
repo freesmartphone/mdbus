@@ -123,8 +123,6 @@ public class MsmDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as MsmChannel;
-
         switch ( level )
         {
             case "minimal":

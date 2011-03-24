@@ -93,15 +93,24 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         channel.sim_service.sim_status.connect( ( urc_name ) => {
             /* Check if the channel is already ready for processing */
             if (!channel.is_ready())
+            {
                 return;
+            }
 
             switch ( urc_name )
             {
                 /*
                  * General sim events
                  */
+
                 case "sim-inserted":
+                    MsmData.sim_available = true;
                     updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+                    break;
+
+                case "no-sim":
+                case "no-sim-event":
+                    MsmData.sim_available = false;
                     break;
 
                 case "sim-init-completed":
@@ -114,11 +123,14 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                  * All pin status events
                  * NOTE: we completly ignore the PIN2 type msmcomm offers here!
                  */
+
                 case "pin1-enabled":
                     updateSimPinStatus( MsmPinStatus.ENABLED );
                     break;
                 case "pin1-disabled":
                     updateSimPinStatus( MsmPinStatus.DISABLED );
+                    break;
+                case "pin1-unblocked":
                     break;
                 case "pin1-blocked":
                     updateSimPinStatus( MsmPinStatus.BLOCKED );
@@ -127,6 +139,7 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                     updateSimPinStatus( MsmPinStatus.PERM_BLOCKED );
                     break;
                 case "pin1-verified":
+                    MsmData.sim_auth_status = FreeSmartphone.GSM.SIMAuthStatus.READY;
                     notifyUnsolicitedResponse( MsmUrcType.PIN1_VERIFIED, null );
                     break;
             }
@@ -174,7 +187,7 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                         var data = theModem.data();
 
                         // some modems strip the leading zero for one-digit chars, so we have to reassemble it
-                        var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( (int) info.time.year, (int) info.time.month, (int) info.time.day, 
+                        var timestr = "%02d/%02d/%02d,%02d:%02d:%02d".printf( (int) info.time.year, (int) info.time.month, (int) info.time.day,
                                                                               (int) info.time.hours, (int) info.time.minutes, (int) info.time.seconds );
                         var formatstr = "%y/%m/%d,%H:%M:%S";
                         var t = GLib.Time();
@@ -190,6 +203,13 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         });
 
         channel.call_service.call_status.connect( ( name, info ) => {
+            // we do not handle call urcs with type data here
+            if ( info.type == Msmcomm.CallType.DATA )
+            {
+                return;
+            }
+
+            // dispatch urc to call handler
             var call_info = createCallInfo( info );
             switch ( name )
             {

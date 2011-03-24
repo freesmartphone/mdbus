@@ -51,9 +51,11 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
 
         assert( logger.debug( @"Got phonebook properties from modem: book_type = $(info.book_type) slot_count = $(info.slot_count), slots_used = $(info.slots_used)" ) );
 
+#if 0
         // Wait some seconds before modem can process next commands (FIXME this should be
         // fixed in msmcommd)
         Posix.sleep(2);
+#endif
 
         if ( info.slots_used > 0 )
         {
@@ -79,6 +81,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
                 }
                 catch ( GLib.Error err1 )
                 {
+                    throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Could not read record from SIM card due to a internal error: $(err1.message)" );
                 }
 
                 // We have already found all phonebook entries?

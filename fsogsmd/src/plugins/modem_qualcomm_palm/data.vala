@@ -36,12 +36,16 @@ public static class MsmData
     {
         pin_status = MsmPinStatus.DISABLED;
         operation_mode = Msmcomm.OperationMode.OFFLINE;
+        sim_available = false;
+        sim_auth_status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
         network_info = NetworkInfo();
         network_info.reset();
     }
 
     public static MsmPinStatus pin_status;
+    public static FreeSmartphone.GSM.SIMAuthStatus sim_auth_status;
     public static Msmcomm.OperationMode operation_mode;
+    public static bool sim_available;
 
     public struct NetworkInfo
     {
