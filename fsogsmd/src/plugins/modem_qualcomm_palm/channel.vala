@@ -95,6 +95,108 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         }
     }
 
+    private void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
+    {
+        switch ( status )
+        {
+            case FsoGsm.Modem.Status.INITIALIZING:
+                initialize();
+                break;
+            case FsoGsm.Modem.Status.CLOSING:
+                shutdown();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private async bool requestModemResource()
+    {
+        try
+        {
+            usage = Bus.get_proxy_sync<FreeSmartphone.Usage>( BusType.SYSTEM, "org.freesmartphone.ousaged", "/org/freesmartphone/Usage" );
+            yield usage.request_resource( "Modem" );
+            registerObjects();
+        }
+        catch ( FreeSmartphone.UsageError err0  )
+        {
+            logger.error( @"Modem resource is not available: $(err0.message)" );
+            return false;
+        }
+        catch ( GLib.Error err1 )
+        {
+        }
+
+        return true;
+    }
+
+    private void registerObjects()
+    {
+        try 
+        {
+            management_service =  Bus.get_proxy_sync<Msmcomm.Management>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            management_service.modem_status.connect( onModemControlStatusChanged );
+            misc_service =  Bus.get_proxy_sync<Msmcomm.Misc>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            state_service =  Bus.get_proxy_sync<Msmcomm.State>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            sim_service = Bus.get_proxy_sync<Msmcomm.Sim>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            phonebook_service = Bus.get_proxy_sync<Msmcomm.Phonebook>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            network_service = Bus.get_proxy_sync<Msmcomm.Network>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            call_service = Bus.get_proxy_sync<Msmcomm.Call>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+        }
+        catch ( GLib.IOError err0 )
+        {
+        }
+    }
+
+    private async void releaseModemResource()
+    {
+        try
+        {
+            yield usage.release_resource( "Modem" );
+        }
+        catch ( FreeSmartphone.UsageError err0 )
+        {
+        }
+        catch ( GLib.Error err1 )
+        {
+        }
+    }
+
+    private async void initialize()
+    {
+        try
+        {
+            // set network as primary source for time updates
+            var date_info = Msmcomm.DateInfo();
+            date_info.time_source = Msmcomm.TimeSource.NETWORK;
+            yield misc_service.set_date( date_info );
+
+            // try to set charger mode always to usb and 1000mA (the mode will adjust the
+            // current on it's own)
+            var charger_info = Msmcomm.ChargerStatusInfo();
+            charger_info.mode = Msmcomm.ChargerMode.USB;
+            charger_info.voltage = Msmcomm.ChargerVoltage.VOLTAGE_1000mA;
+            yield misc_service.set_charge( charger_info );
+        }
+        catch ( Msmcomm.Error err0 )
+        {
+        }
+        catch ( GLib.Error err1 )
+        {
+        }
+    }
+
+    private async void shutdown()
+    {
+        // NOTE do not any modem relevant things here as modem is already closed when we
+        // get here!
+    }
+
+
+    //
+    // public API
+    //
+
     public MsmChannel( string name )
     {
         urc_handler = new MsmUnsolicitedResponseHandler();
@@ -104,6 +206,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
         this.name = name;
         theModem.registerChannel( name, this );
+        theModem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
     public bool is_ready()
@@ -176,58 +279,6 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     public async bool resume()
     {
         return true;
-    }
-
-    private async bool requestModemResource()
-    {
-        try
-        {
-            usage = Bus.get_proxy_sync<FreeSmartphone.Usage>( BusType.SYSTEM, "org.freesmartphone.ousaged", "/org/freesmartphone/Usage" );
-            yield usage.request_resource( "Modem" );
-            registerObjects();
-        }
-        catch ( FreeSmartphone.UsageError err0  )
-        {
-            logger.error( @"Modem resource is not available: $(err0.message)" );
-            return false;
-        }
-        catch ( GLib.Error err1 )
-        {
-        }
-
-        return true;
-    }
-
-    private void registerObjects()
-    {
-        try 
-        {
-            management_service =  Bus.get_proxy_sync<Msmcomm.Management>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
-            management_service.modem_status.connect( onModemControlStatusChanged );
-            misc_service =  Bus.get_proxy_sync<Msmcomm.Misc>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
-            state_service =  Bus.get_proxy_sync<Msmcomm.State>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
-            sim_service = Bus.get_proxy_sync<Msmcomm.Sim>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
-            phonebook_service = Bus.get_proxy_sync<Msmcomm.Phonebook>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
-            network_service = Bus.get_proxy_sync<Msmcomm.Network>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
-            call_service = Bus.get_proxy_sync<Msmcomm.Call>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
-        }
-        catch ( GLib.IOError err0 )
-        {
-        }
-    }
-
-    private async void releaseModemResource()
-    {
-        try
-        {
-            yield usage.release_resource( "Modem" );
-        }
-        catch ( FreeSmartphone.UsageError err0 )
-        {
-        }
-        catch ( GLib.Error err1 )
-        {
-        }
     }
 
     public async void close()
