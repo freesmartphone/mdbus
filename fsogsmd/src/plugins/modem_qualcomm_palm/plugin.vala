@@ -64,7 +64,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 
     protected override SmsHandler createSmsHandler()
     {
-        return (SmsHandler) null;
+        return new MsmSmsHandler();
     }
 
     protected override PhonebookHandler createPhonebookHandler()

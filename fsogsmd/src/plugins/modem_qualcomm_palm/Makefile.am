@@ -54,6 +54,7 @@ modem_qualcomm_palm_la_VALASOURCES = \
  callhandler.vala \
  data.vala \
  phonebookhandler.vala \
+ sms.vala \
  consts.vala \
  mediatorhelpers.vala \
  mediators_debug.vala \
