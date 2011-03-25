@@ -27,6 +27,9 @@ const int BUFFER_SIZE = 8192;
 
 char[] buffer;
 
+const int LINE_DISCIPLINE_N_GSM = 21;
+const uchar MKNOD_TTYGSM_MAJOR = 249;
+
 //========================================================================//
 public class Terminal : Object
 //========================================================================//
@@ -34,6 +37,8 @@ public class Terminal : Object
     Transport transport;
     weak Options options;
     Reader reader;
+    int fd;
+    int oldisc;
 
     string transportname;
     string portname;
@@ -44,11 +49,113 @@ public class Terminal : Object
         this.options = option;
     }
 
+    public void close()
+    {
+        if ( Options.muxmode != -1 )
+        {
+            fsoMessage( @"Resetting line discipline" );
+            Linux.ioctl( fd, Linux.Termios.TIOCSETD, &oldisc );
+            transport.thaw();
+            transport.close();
+            transport = null;
+            return;
+        }
+    }
+
+    public void setMuxMode( int mode )
+    {
+        fsoMessage( "Opening port..." );
+
+        if ( mode == 1 )
+        {
+            quitWithMessage( "Advanced mode not supported yet" );
+            return;
+        }
+
+        transport = new SerialTransport( portname, options.portspeed );
+        if ( !transport.open() )
+        {
+            quitWithMessage( @"Can't open transport: $(strerror(errno))" );
+            return;
+        }
+
+        fsoMessage( "Entering MUX mode..." );
+
+        var buffer = new char[128];
+        var command = "\r\nATE0Q0V1\r\n";
+        var bread = transport.writeAndRead( command, command.length, buffer, 128 );
+        command = "AT+CMUX=0\r\n";
+        bread = transport.writeAndRead( command, command.length, buffer, 128 );
+        buffer[bread] = '\0';
+        var response = ( (string)buffer ).strip();
+        if ( response != "OK" )
+        {
+            quitWithMessage( @"Can't enter MUX mode: Modem answered '$response'" );
+            return;
+        }
+
+        fsoMessage( "Setting line discipline..." );
+
+        fd = transport.freeze();
+        int ldisc = LINE_DISCIPLINE_N_GSM;
+
+        if ( Linux.ioctl( fd, Linux.Termios.TIOCGETD, &oldisc ) == -1 )
+        {
+            quitWithMessage( @"Can't get old line disciplne: $(strerror(errno))" );
+            return;
+        }
+
+        if ( Linux.ioctl( fd, Linux.Termios.TIOCSETD, &ldisc ) == -1 )
+        {
+            quitWithMessage( @"Can't set N_GSM line discipline: $(strerror(errno))" );
+            return;
+        }
+
+        var muxconfig = LinuxExt.Tty.GsmMuxConfig();
+        if ( Linux.ioctl( fd, LinuxExt.Tty.GSMIOC_GETCONF, &muxconfig ) == -1 )
+        {
+            quitWithMessage( @"Can't get N_GSM configuration: $(strerror(errno))" );
+            Linux.ioctl( fd, Linux.Termios.TIOCSETD, &oldisc );
+            return;
+        }
+        muxconfig.initiator = 1;
+        muxconfig.encapsulation = 0;
+        muxconfig.mru = 127;
+        muxconfig.mtu = 127;
+        if ( Linux.ioctl( fd, LinuxExt.Tty.GSMIOC_SETCONF, &muxconfig ) == -1 )
+        {
+            quitWithMessage( @"Can't set N_GSM configuration: $(strerror(errno))" );
+            Linux.ioctl( fd, Linux.Termios.TIOCSETD, &oldisc );
+            return;
+        }
+
+        fsoMessage( "MUX mode established, you can now use /dev/ttygsm[1-n]" );
+#if 0
+        fsoMessage( "MUX mode established, creating device nodes..." );
+        for ( int i = 0; i < 8; ++i )
+        {
+            Posix.mknod( @"/dev/ttygsm$i", Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH | Posix.S_IWOTH | Posix.S_IWGRP, 'c' );
+        }
+#endif
+    }
+
     public bool open()
     {
         if ( !parsePortspec() )
         {
             quitWithMessage( "FATAL: Can't parse portspec '%s'.".printf( options.portspec ) );
+            return MAINLOOP_DONT_CALL_AGAIN;
+        }
+
+        if ( Options.muxmode != -1 && transportname != "serial" )
+        {
+            quitWithMessage( "FATAL: MUX Mode is only available with serial transports" );
+            return MAINLOOP_DONT_CALL_AGAIN;
+        }
+
+        if ( Options.muxmode != -1 )
+        {
+            setMuxMode( Options.muxmode );
             return MAINLOOP_DONT_CALL_AGAIN;
         }
 

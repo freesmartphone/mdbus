@@ -29,10 +29,12 @@ public class Options
     public static int portspeed = 115200;
     public static string portspec;
     public static string[] arguments;
+    public static int muxmode = -1;
 
     OptionContext context;
 
     const OptionEntry[] options = {
+        { "mux", 'm', 0, OptionArg.INT, ref muxmode, "Configure PORTSPEC for 07.10 mode MUXMODE (needs n_gsm kernel module)", "MUXMODE" },
         { "portspeed", 's', 0, OptionArg.INT, ref portspeed, "The port speed (bytes per sec) [default=115200]", "PORTSPEED" },
         { "", 0, 0, OptionArg.STRING_ARRAY, ref arguments, "portspec", "<PORTSPEC>" },
         { null }
@@ -49,23 +51,36 @@ public class Options
     {
         context.parse( ref args );
         if ( arguments == null )
+        {
             throw new OptionError.BAD_VALUE( "No port specification given." );
+        }
         else if ( arguments[1] != null )
+        {
             throw new OptionError.BAD_VALUE( "Too many arguments." );
+        }
         else
+        {
             portspec = arguments[0];
+        }
+        if ( muxmode != -1 && ( muxmode < 0 || muxmode > 1 ) )
+        {
+            throw new OptionError.BAD_VALUE( "Mux Mode needs to be 0 (for basic mode) or 1 (for advanced mode)." );
+        }
     }
 }
 
 //===========================================================================
 public static void SIGINT_handler( int signum )
 {
-    stdout.printf( "Ouch! Press CTRL-D to end the terminal or CTRL-C again to force quitting.\n" );
+    if ( Options.muxmode == -1 )
+    {
+        stdout.printf( "Ouch! Press CTRL-D to end the terminal or CTRL-C again to force quitting.\n" );
+    }
     Posix.signal( signum, null ); // restore original signal handler
-    /*
-    if ( loop != null )
+    if ( Options.muxmode != -1 && loop != null )
+    {
         loop.quit();
-    */
+    }
 }
 
 //===========================================================================
@@ -135,6 +150,7 @@ public int main( string[] args )
     fsoMessage( "Welcome." );
     Idle.add( terminal.open );
     loop.run();
+    terminal.close();
     fsoMessage( "Goodbye." );
     Readline.free_line_state();
     Readline.cleanup_after_signal();
