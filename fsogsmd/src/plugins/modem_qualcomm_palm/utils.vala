@@ -84,3 +84,37 @@ public static FsoGsm.CallInfo createCallInfo( Msmcomm.CallStatusInfo info )
 
     return result;
 }
+
+public int convertRawRssiToPercentage( uint raw_rssi )
+{
+    int result = 0;
+
+    // NOTE this conversation is based on meassured values from logs of the
+    // TelephonyInterfaceLayer daemon from webOS. We don't know the exact formular to
+    // convert raw rssi values to percentage values. The appropiate function looks like
+    // f(x) = a + b * sqrt(-x + c). Need to find out the correct constants for a, b and c
+    // and create a little LUT to speed up calculation.
+
+    if ( raw_rssi < 72 )
+    {
+        result = 100;
+    }
+    else if ( raw_rssi < 86 )
+    {
+        result = 80;
+    }
+    else if ( raw_rssi < 100 )
+    {
+        result = 60;
+    }
+    else if ( raw_rssi < 107 )
+    {
+        result = 40;
+    }
+    else if ( raw_rssi < 117 )
+    {
+        result = 20;
+    }
+
+    return result;
+}

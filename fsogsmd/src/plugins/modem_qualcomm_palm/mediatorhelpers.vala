@@ -173,7 +173,7 @@ public async void triggerUpdateNetworkStatus()
     fillNetworkStatusInfo( status );
     var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
     network.status( status );
-    network.signal_strength( (int) MsmData.network_info.rssi );
+    network.signal_strength( convertRawRssiToPercentage(MsmData.network_info.rssi) );
 
     inTriggerUpdateNetworkStatus = false;
 }
