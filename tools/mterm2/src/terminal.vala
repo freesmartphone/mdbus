@@ -113,7 +113,7 @@ public class Terminal : Object
             return;
         }
         muxconfig.initiator = 1;
-        muxconfig.encapsulation = 0;
+        muxconfig.encapsulation = mode;
         muxconfig.mru = 127;
         muxconfig.mtu = 127;
         if ( Linux.ioctl( fd, Linux.Gsm.GSMIOC_SETCONF, &muxconfig ) == -1 )
