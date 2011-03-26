@@ -36,5 +36,5 @@ namespace Linux
             public uint k;
             public uint i;
         }
-    } /* namespace Tty */
+    } /* namespace Gsm */
 }

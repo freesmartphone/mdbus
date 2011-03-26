@@ -66,12 +66,6 @@ public class Terminal : Object
     {
         fsoMessage( "Opening port..." );
 
-        if ( mode == 1 )
-        {
-            quitWithMessage( "Advanced mode not supported yet" );
-            return;
-        }
-
         transport = new SerialTransport( portname, options.portspeed );
         if ( !transport.open() )
         {
@@ -84,7 +78,7 @@ public class Terminal : Object
         var buffer = new char[128];
         var command = "\r\nATE0Q0V1\r\n";
         var bread = transport.writeAndRead( command, command.length, buffer, 128 );
-        command = "AT+CMUX=0\r\n";
+        command = mode == 0 ? "AT+CMUX=0\r\n" : "AT+CMUX=1,0,5,64\r\n";
         bread = transport.writeAndRead( command, command.length, buffer, 128 );
         buffer[bread] = '\0';
         var response = ( (string)buffer ).strip();
