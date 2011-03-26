@@ -5,9 +5,16 @@ namespace Config
     public const string PACKAGE_DATADIR;
 }
 
-namespace LinuxExt
+namespace Linux
 {
-    namespace Tty
+    [CCode (cname = "makedev", cheader_filename = "sys/types.h")]
+    public Posix.dev_t makedev( int maj, int min );
+    [CCode (cname = "major", cheader_filename = "sys/types.h")]
+    public int major( Posix.dev_t dev );
+    [CCode (cname = "minor", cheader_filename = "sys/types.h")]
+    public int minor( Posix.dev_t dev );
+
+    namespace Gsm
     {
         [CCode (cname = "GSMIOC_GETCONF", cheader_filename = "linux/gsmmux.h")]
         public const int GSMIOC_GETCONF;
@@ -15,7 +22,7 @@ namespace LinuxExt
         public const int GSMIOC_SETCONF;
 
         [CCode (cname = "struct gsm_config", cheader_filename = "linux/gsmmux.h")]
-        public struct GsmMuxConfig
+        public struct Config
         {
             public uint adaption;
             public uint encapsulation;
