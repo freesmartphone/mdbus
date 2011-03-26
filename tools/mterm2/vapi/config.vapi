@@ -5,7 +5,7 @@ namespace Config
     public const string PACKAGE_DATADIR;
 }
 
-namespace Linux
+namespace LinuxExt
 {
     [CCode (cname = "makedev", cheader_filename = "sys/types.h")]
     public Posix.dev_t makedev( int maj, int min );

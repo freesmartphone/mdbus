@@ -19,6 +19,7 @@ SUBDIRS = \
 
 INCLUDES = \
 	-I$(top_srcdir) \
+	-I$(top_srcdir)/include \
 	$(DEPS_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	$(NULL)

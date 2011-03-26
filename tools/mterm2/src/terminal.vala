@@ -105,8 +105,8 @@ public class Terminal : Object
             return;
         }
 
-        var muxconfig = Linux.Gsm.Config();
-        if ( Linux.ioctl( fd, Linux.Gsm.GSMIOC_GETCONF, &muxconfig ) == -1 )
+        var muxconfig = LinuxExt.Gsm.Config();
+        if ( Linux.ioctl( fd, LinuxExt.Gsm.GSMIOC_GETCONF, &muxconfig ) == -1 )
         {
             quitWithMessage( @"Can't get N_GSM configuration: $(strerror(errno))" );
             Linux.ioctl( fd, Linux.Termios.TIOCSETD, &oldisc );
@@ -116,7 +116,7 @@ public class Terminal : Object
         muxconfig.encapsulation = mode;
         muxconfig.mru = 127;
         muxconfig.mtu = 127;
-        if ( Linux.ioctl( fd, Linux.Gsm.GSMIOC_SETCONF, &muxconfig ) == -1 )
+        if ( Linux.ioctl( fd, LinuxExt.Gsm.GSMIOC_SETCONF, &muxconfig ) == -1 )
         {
             quitWithMessage( @"Can't set N_GSM configuration: $(strerror(errno))" );
             Linux.ioctl( fd, Linux.Termios.TIOCSETD, &oldisc );
