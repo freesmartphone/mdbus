@@ -56,7 +56,9 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         // always turn off first
         poweroff();
-
+#if DEBUG
+        debug( "lowlevel_openmoko_poweron()" );
+#endif
         Thread.usleep( 1000 * 1000 );
 
         FsoFramework.FileHandling.write( "1\n", powerNode );
@@ -81,40 +83,53 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
             buf[bread] = '\0';
 
             var displayString = ((string)buf).escape( "" );
+#if DEBUG
             debug( @"setPower: 1) got '$displayString'" );
-
+#endif
             if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
             {
+#if DEBUG
                 debug( "setPower: answer OK, ready to send first command" );
+#endif
                 bread = transport.writeAndRead( "AT%SLEEP=2\r\n", 12, buf, 512 );
                 buf[bread] = '\0';
 
                 displayString = ((string)buf).escape( "" );
+#if DEBUG
                 debug( @"setPower: 2) got '$displayString'" );
+#endif
 
                 if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
                 {
+#if DEBUG
                     debug( "setPower: answer OK, ready to send MUX command" );
+#endif
                     transport.close();
                     return true;
                 }
             }
         }
+#if DEBUG
         debug( "NOTHING WORKS :/ returning false" );
+#endif
         transport.close();
         return false;
     }
 
     public bool poweroff()
     {
+#if DEBUG
         debug( "lowlevel_openmoko_poweroff()" );
+#endif
         FsoFramework.FileHandling.write( "0\n", powerNode );
         return true;
     }
 
     public bool suspend()
     {
+#if DEBUG
         debug( "lowlevel_openmoko_suspend()" );
+#endif
         if ( fcNode == "unknown" )
         {
             logger.error( "fc_node not defined. Can't prepare for suspend." );
@@ -126,7 +141,9 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     public bool resume()
     {
+#if DEBUG
         debug( "lowlevel_openmoko_resume()" );
+#endif
         if ( fcNode == "unknown" )
         {
             logger.error( "fc_node not defined. Can't recover from suspend." );
