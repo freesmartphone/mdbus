@@ -53,6 +53,11 @@ public class Terminal : Object
     {
         if ( Options.muxmode != -1 )
         {
+            fsoMessage( @"Stopping MUX session" );
+            transport.thaw();
+            transport.close();
+            transport.open();
+            fd = transport.freeze();
             fsoMessage( @"Resetting line discipline" );
             Linux.ioctl( fd, Linux.Termios.TIOCSETD, &oldisc );
             transport.thaw();
@@ -95,7 +100,7 @@ public class Terminal : Object
 
         if ( Linux.ioctl( fd, Linux.Termios.TIOCGETD, &oldisc ) == -1 )
         {
-            quitWithMessage( @"Can't get old line disciplne: $(strerror(errno))" );
+            quitWithMessage( @"Can't get old line discipline: $(strerror(errno))" );
             return;
         }
 
