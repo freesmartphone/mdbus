@@ -68,27 +68,28 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
 
         if ( data.contextParams == null )
         {
+            disconnected();
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Context parameters not set" );
         }
 
         if ( data.contextParams.apn == null )
         {
+            disconnected();
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
         }
 
         if ( ( (FsoGsm.AbstractModem) theModem ).data_transport != "serial" &&  ( (FsoGsm.AbstractModem) theModem ).data_transport != "tcp" )
         {
+            disconnected();
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "ippp only supports data transport types 'serial' and 'tcp' for now" );
         }
-
-        // DEBUG only, remove in production code
-        theModem.channel( "main" ).transport.freeze();
 
         transport = FsoFramework.Transport.create( m.data_transport, m.data_port, m.data_speed );
         var channel = new AtChannel( null, transport, new FsoGsm.StateBasedAtParser() );
 
         if ( !yield channel.open() )
         {
+            disconnected();
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't open data channel or transport" );
         }
 
@@ -99,6 +100,7 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
         {
             yield channel.close();
             transport = null;
+            disconnected();
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
         }
         response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGACT=1" );
@@ -106,13 +108,15 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
         {
             yield channel.close();
             transport = null;
+            disconnected();
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
         }
-        response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGDATA=\"PPP\"" );
+        response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "D*99***1#" );
         if ( response[0].strip() != "CONNECT" )
         {
             yield channel.close();
             transport = null;
+            disconnected();
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
         }
 
