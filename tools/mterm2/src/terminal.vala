@@ -131,7 +131,7 @@ public class Terminal : Object
         fsoMessage( "Creating device nodes... (needs root privileges)" );
         for ( int i = 1; i < 8; ++i )
         {
-            Posix.mknod( @"/dev/ttygsm$i", Posix.S_IFCHR | 0666, Linux.makedev( MKNOD_TTYGSM_MAJOR, i ) );
+            Posix.mknod( @"/dev/ttygsm$i", Posix.S_IFCHR | 0666, LinuxExt.makedev( MKNOD_TTYGSM_MAJOR, i ) );
         }
 
         fsoMessage( "MUX mode established, you can now use /dev/ttygsm[1-n]" );
