@@ -574,8 +574,10 @@ public void registerDummyMediators( HashMap<Type,Type> table )
     table[ typeof(CallRelease) ]                  = typeof( DummyAtCallRelease );
     table[ typeof(CallSendDtmf) ]                 = typeof( DummyAtCallSendDtmf );
 
+#if 0
     table[ typeof(PdpActivateContext) ]           = typeof( DummyAtPdpActivateContext );
     table[ typeof(PdpDeactivateContext) ]         = typeof( DummyAtPdpDeactivateContext );
+#endif
     table[ typeof(PdpSetCredentials) ]            = typeof( DummyAtPdpSetCredentials );
     table[ typeof(PdpGetCredentials) ]            = typeof( DummyAtPdpGetCredentials );
 
