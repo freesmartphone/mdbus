@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
  */
- 
+
 using FsoGsm;
 
 /**
@@ -50,7 +50,8 @@ public class MsmPdpSetCredentials : PdpSetCredentials
 {
     public override async void run( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented yet!" );
+        var data = theModem.data();
+        data.contextParams = new ContextParams( apn, username, password );
     }
 }
 

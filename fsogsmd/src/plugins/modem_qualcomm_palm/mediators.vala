@@ -94,8 +94,8 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(VoiceMailboxGetNumber) ]        = typeof( MsmVoiceMailboxGetNumber );
     table[ typeof(VoiceMailboxSetNumber) ]        = typeof( MsmVoiceMailboxSetNumber );
 
-    table[ typeof(PdpActivateContext) ]           = typeof( MsmPdpActivateContext );
-    table[ typeof(PdpDeactivateContext) ]         = typeof( MsmPdpDeactivateContext );
+    //table[ typeof(PdpActivateContext) ]           = typeof( MsmPdpActivateContext );
+    //table[ typeof(PdpDeactivateContext) ]         = typeof( MsmPdpDeactivateContext );
     table[ typeof(PdpSetCredentials) ]            = typeof( MsmPdpSetCredentials );
     table[ typeof(PdpGetCredentials) ]            = typeof( MsmPdpGetCredentials );
 }
