@@ -111,6 +111,10 @@ public abstract class FsoFramework.Transport : Object
             case "udp":
             case "tcp":
                 return new FsoFramework.SocketTransport( type, name, speed );
+            case "ngsmbasic":
+                return new FsoFramework.NgsmBasicMuxTransport( name, speed );
+            case "ngsmadvanced":
+                return new FsoFramework.NgsmAdvancedMuxTransport( name, speed );
             default:
                 return null;
         }
