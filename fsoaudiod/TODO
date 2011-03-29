@@ -1,3 +1,6 @@
 router_alsa:
 - we should listen for changes of the volume / microphone controls so we can adjust our
   internal volume settings to the new values (or force our own settings -> config option)
+
+general:
+- we should save volume/device/mode settings on shutdown and restore them on next start
