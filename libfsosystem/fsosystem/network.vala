@@ -26,29 +26,21 @@ namespace FsoFramework.Network
         INTERNAL_ERROR,
     }
 
-    // FIXME should be in linux.vapi
-    private static const uint IFNAMSIZ = 16;
-    private static const uint IFF_UP = 0x1;
-
     public class Interface
     {
         private int fd;
         private string name;
 
-        // FIXME dirty trick to get the correct header files included. If we remove this
-        // netinet/in.h is not included which is needed by linux/if.h
-        private SockAddrIn dummy;
-
         private bool check_flags( uint flags ) throws FsoFramework.Network.Error
         {
             var ifr = Linux.Network.IfReq();
-            strncpy( (string) ifr.ifr_name, this.name, IFNAMSIZ );
-            ifr.ifr_name[ IFNAMSIZ - 1 ] = '\0';
+            strncpy( (string) ifr.ifr_name, this.name, Linux.Network.INTERFACE_NAME_SIZE );
+            ifr.ifr_name[ Linux.Network.INTERFACE_NAME_SIZE - 1 ] = '\0';
 
             var rc = ioctl( fd, Linux.Network.SIOCGIFFLAGS, &ifr);
             if ( rc == -1 )
             {
-                throw new FsoFramework.Network.Error.INTERNAL_ERROR( "Could not process ioctl to gather interface status: $(Posix.strerror(Posix.errno))" );
+                throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not process ioctl to gather interface status: $(Posix.strerror(Posix.errno))" );
             }
 
             return (bool) ( ifr.ifr_flags & flags );
@@ -58,11 +50,11 @@ namespace FsoFramework.Network
          * Set flags for interface. With @param set you specify the flag you want to set
            and with @param clr the flag you want to unset.
          **/
-        private bool set_flags(uint set, uint clr)
+        private bool set_flags( uint set, uint clr )
         {
             var ifr = Linux.Network.IfReq();
-            strncpy( (string) ifr.ifr_name, this.name, IFNAMSIZ );
-            ifr.ifr_name[ IFNAMSIZ - 1 ] = '\0';
+            strncpy( (string) ifr.ifr_name, this.name, Linux.Network.INTERFACE_NAME_SIZE );
+            ifr.ifr_name[ Linux.Network.INTERFACE_NAME_SIZE - 1 ] = '\0';
 
             var rc = ioctl( fd, Linux.Network.SIOCSIFFLAGS, &ifr);
             if ( rc == -1 )
@@ -91,7 +83,7 @@ namespace FsoFramework.Network
          **/
         public void up() throws FsoFramework.Network.Error
         {
-            if ( !set_flags( IFF_UP, 0 ) )
+            if ( !set_flags( Linux.Network.IfFlag.UP, 0 ) )
             {
                 throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not bring interface $name up: $(Posix.strerror(Posix.errno))" );
             }
@@ -99,7 +91,7 @@ namespace FsoFramework.Network
 
         public bool is_up() throws FsoFramework.Network.Error
         {
-            return check_flags( IFF_UP );
+            return check_flags( Linux.Network.IfFlag.UP );
         }
 
         /**
@@ -107,7 +99,7 @@ namespace FsoFramework.Network
          **/
         public void down() throws FsoFramework.Network.Error
         {
-            if ( !set_flags( 0, IFF_UP ) )
+            if ( !set_flags( 0, Linux.Network.IfFlag.UP ) )
             {
                 throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not bring interface $name down: $(Posix.strerror(Posix.errno))" );
             }
