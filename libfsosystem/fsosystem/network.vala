@@ -26,6 +26,13 @@ namespace FsoFramework.Network
         INTERNAL_ERROR,
     }
 
+    /**
+     * @class Interface
+     *
+     * Wraps a Linux network interface using ioctls to implement access.
+     *
+     * Eventually this should use the netlink APIs rather than ioctls.
+     **/
     public class Interface
     {
         private int fd;
@@ -116,6 +123,22 @@ namespace FsoFramework.Network
                 close( fd );
                 fd = -1;
             }
+        }
+    }
+
+    /**
+     * @class WextInterface
+     *
+     * Wraps a wireless interface using the Wireless Extension API (WEXT).
+     *
+     * This is actually already deprecated and we should rather implement
+     * nl80211 as soon as possible.
+     **/
+    public class WextInterface : Interface
+    {
+        public WextInterface( string name ) throws FsoFramework.Network.Error
+        {
+            base( name );
         }
     }
 }
