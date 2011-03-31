@@ -138,7 +138,7 @@ namespace FsoAudio
             };
 
             router.set_device( current_devices[ current_mode ], false );
-            router.set_mode( current_mode );
+            router.set_mode( current_mode, true );
 
             logger.info( @"Created" );
         }

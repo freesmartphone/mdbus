@@ -132,9 +132,9 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
         return "<>";
     }
 
-    public override void set_mode( FreeSmartphone.Audio.Mode mode )
+    public override void set_mode( FreeSmartphone.Audio.Mode mode, bool force = false )
     {
-        if ( mode == current_mode )
+        if ( !force && mode == current_mode )
         {
             return;
         }

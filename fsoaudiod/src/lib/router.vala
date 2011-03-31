@@ -23,7 +23,7 @@ namespace FsoAudio
 {
     public interface IRouter : FsoFramework.AbstractObject
     {
-        public abstract void set_mode( FreeSmartphone.Audio.Mode mode );
+        public abstract void set_mode( FreeSmartphone.Audio.Mode mode, bool force = false );
         public abstract void set_device( FreeSmartphone.Audio.Device device, bool expose = true );
         public abstract void set_volume( FreeSmartphone.Audio.Control control, uint volume );
         public abstract FreeSmartphone.Audio.Device[] get_available_devices( FreeSmartphone.Audio.Mode mode );
@@ -36,7 +36,7 @@ namespace FsoAudio
         protected FreeSmartphone.Audio.Device[] call_supported_devices;
         protected FreeSmartphone.Audio.Device[] normal_supported_devices;
 
-        public virtual void set_mode( FreeSmartphone.Audio.Mode mode )
+        public virtual void set_mode( FreeSmartphone.Audio.Mode mode, bool force = false )
         {
             current_mode = mode;
         }
