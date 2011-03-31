@@ -1,4 +1,4 @@
-AC_INIT([libfsotransport], [0.9.7], [smartphones-userland@linuxtogo.org], [libfsotransport])
+AC_INIT([libfsotransport], [0.9.8], [smartphones-userland@linuxtogo.org], [libfsotransport])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -16,11 +16,10 @@ AC_SUBST(LDFLAGS)
 # pkg-config requirements
 PKG_PROG_PKG_CONFIG
 
-VALA_REQUIRED=0.11.2
+VALA_REQUIRED=0.11.3
 GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 FSO_BASICS_REQUIRED=0.9.9
-PALMPRE_SYSTEM_DEPS=0.1
 
 # vala
 AC_PATH_PROG(VALAC, valac, valac)
@@ -61,6 +60,13 @@ AC_ARG_ENABLE(palmpre-hsuart,
   [palmprehsuart="yes"])
 AM_CONDITIONAL( [WANT_PALMPRE_HSUART], [test x"$palmprehsuart" = x"yes"])
 
+# check for disabling the n_gsm support
+AC_ARG_ENABLE(ngsm,
+  AS_HELP_STRING([--disable-ngsm], [Disable support for the N_GSM line discipline (default=yes)]),
+  [ngsm="$enableval"],
+  [ngsm="yes"])
+AM_CONDITIONAL( [WANT_NGSM], [test x"$ngsm" = x"yes"])
+
 # git version
 GITV=`cat ../.git/refs/heads/master || echo "unknown"`
 AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
@@ -83,12 +89,13 @@ echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
 echo
-echo "  debug build.............: $debug"
+echo "  debug build....................: $debug"
 echo
-echo "  fast baud rates.........: $fastbaud"
-echo "  palm pre hsuart support.: $palmprehsuart"
+echo "  fast baud rates................: $fastbaud"
+echo "  palm pre hsuart support........: $palmprehsuart"
+echo "  n_gsm line discipline support..: $ngsm"
 echo
-echo "  prefix..................: $prefix"
+echo "  prefix.........................: $prefix"
 echo
 echo "------------------------------------------------------------------------"
 echo

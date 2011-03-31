@@ -57,6 +57,7 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
     public void onDisconnectFromAtPPP( ThirdParty.At.PPP.DisconnectReason reason )
     {
         logger.info( @"PPP stack now offline. Disconnect reason is $reason" );
+        this.sc_deactivate();
         disconnected();
     }
 
@@ -93,10 +94,15 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't open data channel or transport" );
         }
 
-        var response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "E0" );
+        var delay = config.intValue( MODULE_NAME, "post_open_delay", 500 );
+        Timeout.add( delay, sc_activate.callback );
+        yield;
 
-        response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGDCONT=1,\"IP\",\"%s\"".printf( data.contextParams.apn ) );
-        if ( response[0].strip() != "OK" )
+        //var response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "E0" );
+        var response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGQREQ=1;+CGQMIN=1;+CGEQREQ=1;+CGEQMIN=1" );
+
+        response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGDCONT=1,\"IP\",\"%s\",,0,0".printf( data.contextParams.apn ) );
+        if ( ! response[0].strip().has_suffix( "OK" ) )
         {
             yield channel.close();
             transport = null;
@@ -104,7 +110,7 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
         }
         response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGACT=1" );
-        if ( response[0].strip() != "OK" )
+        if ( ! response[0].strip().has_suffix( "OK" ) )
         {
             yield channel.close();
             transport = null;
@@ -112,7 +118,7 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
         }
         response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "D*99***1#" );
-        if ( response[0].strip() != "CONNECT" )
+        if ( ! response[0].strip().has_suffix( "CONNECT" ) )
         {
             yield channel.close();
             transport = null;
@@ -121,6 +127,10 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
         }
 
         iochannel = new IOChannel.unix_new( transport.freeze() );
+
+        delay = config.intValue( MODULE_NAME, "post_connect_delay", 500 );
+        Timeout.add( delay, sc_activate.callback );
+        yield;
 
         ppp = new ThirdParty.At.PPP( iochannel );
         ppp.set_debug( onDebugFromAtPPP );

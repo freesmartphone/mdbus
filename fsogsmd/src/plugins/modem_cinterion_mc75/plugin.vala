@@ -43,6 +43,8 @@ namespace CinterionMc75
  **/
 class CinterionMc75.Modem : FsoGsm.AbstractModem
 {
+    private FsoFramework.NgsmBasicMuxTransport muxtransport;
+
     public override string repr()
     {
         return @"<$(channels.size)C>";
@@ -119,8 +121,39 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
             "usepeerdns" } );
     }
 
+    public override async bool open()
+    {
+        if ( modem_transport.has_prefix( "ngsm" ) )
+        {
+            muxtransport = new FsoFramework.NgsmBasicMuxTransport( modem_port, modem_speed );
+            if ( !muxtransport.open() )
+            {
+                return false;
+            }
+        }
+        return yield base.open();
+    }
+
+    public override async void close()
+    {
+        yield base.close();
+
+        if ( muxtransport != null )
+        {
+            muxtransport.close();
+            muxtransport = null;
+        }
+    }
+
     protected override void createChannels()
     {
+        if ( modem_transport.has_prefix( "ngsm" ) )
+        {
+            new AtChannel( "main", new FsoFramework.SerialTransport( "/dev/ttygsm1", 115200 ), new FsoGsm.StateBasedAtParser() );
+            new AtChannel( "call", new FsoFramework.SerialTransport( "/dev/ttygsm3", 115200 ), new FsoGsm.StateBasedAtParser() );
+            return;
+        }
+
         for ( int i = 0; i < CHANNEL_NAMES.length; ++i )
         {
             var transport = new FsoGsm.LibGsm0710muxTransport( i+1 );
