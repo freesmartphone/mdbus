@@ -18,11 +18,10 @@
  */
 
 using GLib;
+using FsoGsm;
 
 public class MsmAtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 {
-    private static bool isMainInitialized;
-
     protected string name;
     private bool isInitialized;
 
@@ -42,6 +41,9 @@ public class MsmAtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
             case Modem.Status.ALIVE_REGISTERED:
                 initialize();
                 break;
+            case Modem.Status.CLOSING:
+                shutdown();
+                break;
             default:
                 break;
         }
@@ -49,9 +51,6 @@ public class MsmAtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
     private async void initialize()
     {
-        var seq = theModem.atCommandSequence( name, "init" );
-        yield seq.performOnChannel( this );
-
         // select charset, try to lock to preferred one (if available)
         var charset = yield configureCharset( { theModem.data().charset, "UTF8", "UCS2", "HEX", "IRA" } );
 
@@ -95,15 +94,11 @@ public class MsmAtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
     public async bool suspend()
     {
-        var seq = theModem.atCommandSequence( name, "suspend" );
-        yield seq.performOnChannel( this );
         return true;
     }
 
     public async bool resume()
     {
-        var seq = theModem.atCommandSequence( name, "resume" );
-        yield seq.performOnChannel( this );
         return true;
     }
 }

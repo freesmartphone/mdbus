@@ -93,7 +93,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
             // create AT channel for data use
             var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );
             var parser = new FsoGsm.StateBasedAtParser();
-            new FsoGsm.AtChannel( QualcommPalm.Modem.AT_CHANNEL_NAME, datatransport, parser );
+            new MsmAtChannel( QualcommPalm.Modem.AT_CHANNEL_NAME, datatransport, parser );
         }
     }
 
