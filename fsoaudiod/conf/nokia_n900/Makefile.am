@@ -2,15 +2,11 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-SUBDIRS = \
-	default \
-	palm_pre \
-	nokia_n900 \
-	$(NULL)
+THISDIR = `basename $$PWD`
 
-confdir = $(sysconfdir)
+confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
 dist_conf_DATA = \
-	asound.conf \
+	fsoaudiod.conf \
 	$(NULL)
 
 MAINTAINERCLEANFILES = Makefile.in
