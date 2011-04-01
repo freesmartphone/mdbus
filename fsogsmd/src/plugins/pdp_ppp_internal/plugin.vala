@@ -86,6 +86,15 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
         }
 
         transport = FsoFramework.Transport.create( m.data_transport, m.data_port, m.data_speed );
+
+        // in the case that we have a serial transport we need to cycle the dtr line of
+        // the serial port if the config tells us to do so
+        if ( ( (FsoGsm.AbstractModem) theModem ).data_transport == "serial" )
+        {
+            var serial_transport = transport as FsoFramework.SerialTransport;
+            serial_transport.dtr_cycle = FsoFramework.theConfig.boolValue( MODULE_NAME, "dtr_cycle", false );
+        }
+
         var channel = new AtChannel( null, transport, new FsoGsm.StateBasedAtParser() );
 
         if ( !yield channel.open() )
