@@ -107,6 +107,8 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
         Timeout.add( delay, sc_activate.callback );
         yield;
 
+        var reason = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "Z" );
+
         //var response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "E0" );
         var response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGQREQ=1;+CGQMIN=1;+CGEQREQ=1;+CGEQMIN=1" );
 
