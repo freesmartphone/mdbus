@@ -109,12 +109,8 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         }
     }
 
-    protected virtual void configure()
+    protected Posix.speed_t parse_speed( uint speed )
     {
-        Posix.fcntl( fd, Posix.F_SETFL, 0 );
-        Posix.termios termios = {};
-        Posix.tcgetattr( fd, termios );
-
         Posix.speed_t tspeed;
 
         switch ( speed )
@@ -219,6 +215,17 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
                 tspeed = Posix.B0;
                 break;
         }
+
+        return tspeed;
+    }
+
+    protected virtual void configure()
+    {
+        Posix.fcntl( fd, Posix.F_SETFL, 0 );
+        Posix.termios termios = {};
+        Posix.tcgetattr( fd, termios );
+
+        Posix.speed_t tspeed = parse_speed( speed );
 
         Posix.cfsetispeed( termios, tspeed );
         Posix.cfsetospeed( termios, tspeed );
