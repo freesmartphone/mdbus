@@ -41,7 +41,7 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
         int bits = TIOCM_DTR;
         int rc;
 
-        rc = Posix.ioctl( fd, ( on ? TIOCMBIS : TIOCMBIC ), bits );
+        rc = Posix.ioctl( fd, ( on ? TIOCMBIS : TIOCMBIC ), &bits );
         if ( rc < 0 )
         {
             logger.warning( "could not set dtr bit for serial transport: %s".printf( Posix.strerror( Posix.errno ) ) );
