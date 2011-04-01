@@ -18,17 +18,37 @@
  */
 
 using GLib;
+using Linux.Termios;
 
 //===========================================================================
 public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
 //===========================================================================
 {
+    public bool dtr_cycle;
+
     public SerialTransport( string portname,
                             uint portspeed,
                             bool raw = true,
                             bool hard = true )
     {
         base( portname, portspeed, raw, hard );
+
+        dtr_cycle = false;
+    }
+
+    private bool set_dtr( bool on )
+    {
+        int bits = TIOCM_DTR;
+        int rc;
+
+        rc = Posix.ioctl( fd, ( on ? TIOCMBIS : TIOCMBIC ), bits );
+        if ( rc < 0 )
+        {
+            logger.warning( "could not set dtr bit for serial transport: %s".printf( Posix.strerror( Posix.errno ) ) );
+            return false;
+        }
+
+        return true;
     }
 
     public override bool open()
@@ -41,6 +61,13 @@ public class FsoFramework.SerialTransport : FsoFramework.BaseTransport
         }
 
         configure();
+
+        if ( dtr_cycle )
+        {
+            set_dtr( false );
+            Posix.sleep( 1 );
+            set_dtr( true );
+        }
 
         return base.open();
     }
