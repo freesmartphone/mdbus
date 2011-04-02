@@ -120,6 +120,8 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
             disconnected();
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
         }
+
+#if 0
         response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGACT=1" );
         if ( ! response[0].strip().has_suffix( "OK" ) )
         {
@@ -128,6 +130,8 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
             disconnected();
             throw new FreeSmartphone.Error.SYSTEM_ERROR( "Can't initialize data transport" );
         }
+#endif
+
         response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "D*99***1#" );
         if ( ! response[0].strip().has_suffix( "CONNECT" ) )
         {
