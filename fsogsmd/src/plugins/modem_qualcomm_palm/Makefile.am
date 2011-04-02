@@ -48,7 +48,6 @@ modlibexec_LTLIBRARIES = modem_qualcomm_palm.la
 
 modem_qualcomm_palm_la_VALASOURCES = \
  channel.vala \
- atchannel.vala \
  mediators.vala \
  unsolicited.vala \
  plugin.vala \

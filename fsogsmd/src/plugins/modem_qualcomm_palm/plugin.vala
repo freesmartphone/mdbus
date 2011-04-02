@@ -33,7 +33,6 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 {
     private const string MSM_CHANNEL_NAME = "main";
     private const string AT_CHANNEL_NAME = "data";
-    private bool enableDataTransport = true;
 
     public override string repr()
     {
@@ -52,7 +51,7 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
     protected override UnsolicitedResponseHandler createUnsolicitedHandler()
     {
         // NOTE: we define our base unsolicited handler in our commandqueue,
-        // as the base on is very AT command specific atm. Need to change 
+        // as the base on is very AT command specific atm. Need to change
         // this somewhere in the future ...
         return (UnsolicitedResponseHandler) null;
     }
@@ -79,33 +78,12 @@ class QualcommPalm.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        // read necessary configuration settings
-        enableDataTransport = FsoFramework.theConfig.boolValue( "fsogsm.modem_qualcomm_palm", "enable_data", true );
-
-        // create MAIN channel
         new MsmChannel( MSM_CHANNEL_NAME );
-
-        // Only enable data transport when config told us to do so
-        if ( enableDataTransport )
-        {
-            logger.debug( @"Creating data transport ..." );
-
-            // create AT channel for data use
-            var datatransport = FsoFramework.Transport.create( data_transport, data_port, data_speed );
-            var parser = new FsoGsm.StateBasedAtParser();
-            new MsmAtChannel( QualcommPalm.Modem.AT_CHANNEL_NAME, datatransport, parser );
-        }
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        if ( enableDataTransport )
-        {
-            logger.debug( @"channelForCommand: using \"$(AT_CHANNEL_NAME)\" channel ..." );
-            return channels[ AT_CHANNEL_NAME ];
-        }
-
-        return (FsoGsm.Channel) null;
+        assert_not_reached();
     }
 
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
