@@ -118,15 +118,11 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         {
             usage = Bus.get_proxy_sync<FreeSmartphone.Usage>( BusType.SYSTEM, "org.freesmartphone.ousaged", "/org/freesmartphone/Usage" );
             yield usage.request_resource( "Modem" );
-            registerObjects();
         }
-        catch ( FreeSmartphone.UsageError err0  )
+        catch ( GLib.Error err )
         {
-            logger.error( @"Modem resource is not available: $(err0.message)" );
+            logger.error( @"Modem resource is not available: $(err.message)" );
             return false;
-        }
-        catch ( GLib.Error err1 )
-        {
         }
 
         return true;
@@ -134,9 +130,9 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
     private void registerObjects()
     {
-        try 
+        try
         {
-            management_service =  Bus.get_proxy_sync<Msmcomm.Management>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            management_service = Bus.get_proxy_sync<Msmcomm.Management>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             management_service.modem_status.connect( onModemControlStatusChanged );
             misc_service =  Bus.get_proxy_sync<Msmcomm.Misc>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             state_service =  Bus.get_proxy_sync<Msmcomm.State>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
@@ -145,8 +141,9 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             network_service = Bus.get_proxy_sync<Msmcomm.Network>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             call_service = Bus.get_proxy_sync<Msmcomm.Call>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
         }
-        catch ( GLib.IOError err0 )
+        catch ( GLib.IOError err )
         {
+            logger.error( @"Can't initialize msmcommd proxy objects: $(err.message)" );
         }
     }
 
@@ -156,10 +153,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         {
             yield usage.release_resource( "Modem" );
         }
-        catch ( FreeSmartphone.UsageError err0 )
-        {
-        }
-        catch ( GLib.Error err1 )
+        catch ( GLib.Error err )
         {
         }
     }
@@ -218,6 +212,16 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
     public async bool open()
     {
+        if ( management_service == null )
+        {
+            registerObjects();
+        }
+
+        if ( management_service == null )
+        {
+            return false;
+        }
+
         try
         {
             MsmData.reset();
