@@ -325,19 +325,28 @@ public class IsiNetworkGetSignalStrength : NetworkGetSignalStrength
 
 public class IsiNetworkRegister : NetworkRegister
 {
+    static bool force = false;
+
     private async void runInBackground()
     {
+        /*
         if ( yield NokiaIsi.isimodem.poweron() )
         {
+            /*
+            debug( "list providers..." );
             NokiaIsi.isimodem.net.listProviders( ( error, providers ) => {
                 runInBackground.callback();
             } );
             yield;
-            NokiaIsi.isimodem.net.registerAutomatic( false, ( error ) => {
+            **/
+            NokiaIsi.isimodem.net.registerAutomatic( force, ( error ) => {
+                debug( "error = %d", error );
                 runInBackground.callback();
             } );
             yield;
-        }
+
+            force = !force;
+        //}
     }
 
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -360,6 +369,36 @@ public class IsiNetworkRegister : NetworkRegister
 
         forced = false;
         */
+    }
+}
+
+public class IsiNetworkRegisterWithProvider : NetworkRegisterWithProvider
+{
+    private async void runInBackground( string mccmnc )
+    {
+        if ( yield NokiaIsi.isimodem.poweron() )
+        {
+            debug( "list providers..." );
+            NokiaIsi.isimodem.net.listProviders( ( error, providers ) => {
+                runInBackground.callback();
+            } );
+            yield;
+            debug( "done, calling register" );
+            NokiaIsi.isimodem.net.registerManual( mccmnc[0:3], mccmnc[3:5], ( error ) => {
+                debug( "error = %d", error );
+                runInBackground.callback();
+            } );
+            yield;
+        }
+        else
+        {
+            debug( "poweron failed, not registering" );
+        }
+    }
+
+    public override async void run( string mccmnc ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        runInBackground( mccmnc ); // yes, no yield!
     }
 }
 
@@ -491,6 +530,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
     mediators[ typeof(NetworkListProviders) ]            = typeof( IsiNetworkListProviders );
     mediators[ typeof(NetworkRegister) ]                 = typeof( IsiNetworkRegister );
+    mediators[ typeof(NetworkRegisterWithProvider) ]     = typeof( IsiNetworkRegisterWithProvider );
 
     mediators[ typeof(CallActivate) ]                    = typeof( IsiCallActivate );
     mediators[ typeof(CallHoldActive) ]                  = typeof( IsiCallHoldActive );
