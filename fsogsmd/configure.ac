@@ -100,7 +100,7 @@ AM_CONDITIONAL( [WANT_PPP], [test x"$ppp" = x"yes"])
 ##############################################################################
 # optional feature: connman
 AC_ARG_ENABLE(connman-support,
-  [  --disable-connman-support   Disable building connman support (default=disabled)],
+  [  --disable-connman-support   Disable building connman support (default=enabled)],
   [connman=$enableval],
   [connman="yes"])
 
