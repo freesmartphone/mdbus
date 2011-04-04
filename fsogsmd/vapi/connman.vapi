@@ -31,9 +31,13 @@ namespace Connman
 
     [CCode (has_target = false)]
     public delegate int NetworkDriverProbeFunc(Network network);
+    [CCode (has_target = false)]
     public delegate int NetworkDriverRemoveFunc(Network network);
+    [CCode (has_target = false)]
     public delegate int NetworkDriverConnectFunc(Network network);
+    [CCode (has_target = false)]
     public delegate int NetworkDriverDisconnectFunc(Network network);
+    [CCode (has_target = false)]
     public delegate int NetworkDriverSetupFunc(Network network, string key);
 
     [CCode (cname = "int", cprefix = "CONNMAN_NETWORK_TYPE_", has_type_id = false, cheader_filename = "connman/network.h")]
@@ -144,9 +148,8 @@ namespace Connman
         public void update();
     }
 
-    [Compact]
-    [CCode (cname = "struct connman_network_driver", cheader_filename = "connman/network.h", free_function = "")]
-    public class NetworkDriver
+    [CCode (cname = "struct connman_network_driver", cheader_filename = "connman/network.h", destroy_function = "")]
+    public struct NetworkDriver
     {
         public string name;
         public NetworkType type;
@@ -154,18 +157,14 @@ namespace Connman
         public NetworkDriverProbeFunc probe;
         public NetworkDriverRemoveFunc remove;
         public NetworkDriverConnectFunc connect;
-        public NetworkDriverDisconnectFunc disconnet;
+        public NetworkDriverDisconnectFunc disconnect;
         public NetworkDriverSetupFunc setup;
 
-        public NetworkDriver(string name, NetworkType type)
-        {
-            this.name = name;
-            this.type = type;
-        }
 
         [CCode (cname = "connman_network_driver_register")]
         public int register();
-        [CCode (cname = "connman_network_driver_unregister")]
+        [CCode (cname = "connman_network_driver_register")]
         public void unregister();
+
     }
 }

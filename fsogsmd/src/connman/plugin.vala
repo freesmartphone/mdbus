@@ -20,12 +20,58 @@
 using GLib;
 using FsoFramework;
 
+public static int network_probe( Connman.Network network )
+{
+    debug( "network_probe()" );
+    return 0;
+}
+
+public static int network_remove( Connman.Network network )
+{
+    debug( "network_remove()" );
+    return 0;
+}
+
+public static int network_connect( Connman.Network network )
+{
+    debug( "network_connect()" );
+    return 0;
+}
+
+public static int network_disconnect( Connman.Network network )
+{
+    debug( "network_disconnect()" );
+    return 0;
+}
+
+Connman.NetworkDriver network_driver;
+
 public static int fsogsm_plugin_init()
 {
+    int err;
+
+    network_driver = Connman.NetworkDriver() {
+        name = "network",
+        type = Connman.NetworkType.CELLULAR,
+        probe = network_probe,
+        remove = network_remove,
+        connect = network_connect,
+        disconnect = network_disconnect
+    };
+
+    // try to register our brand new network driver to the core
+    err = network_driver.register();
+    if ( err < 0 )
+    {
+        network_driver.unregister();
+        return err;
+    }
+
     return 0;
 }
 
 public static void fsogsm_plugin_exit()
 {
+    network_driver.unregister();
 }
 
