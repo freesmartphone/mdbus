@@ -1,6 +1,6 @@
 /*
  * (C) 2009-2010 Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
- *               Michael 'Mickey' Lauer <mickey@vanille-media.de>
+ * (C) 2009-2011 Michael 'Mickey' Lauer <mickey@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -194,10 +194,16 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         {
             logger.error( @"Can't ifconfig $iface $ipv4address netmask $ipv4mask up" );
         }
-        ok = Posix.system( @"route add default gw $ipv4gateway $iface" );
+        var routecmd = @"route add default gw $ipv4gateway $iface";
+        if ( ipv4gateway == "0.0.0.0" )
+        {
+            routecmd = @"route add default $iface";
+        }
+
+        ok = Posix.system( routecmd );
         if ( ok != 0 )
         {
-            logger.error( @"Can't route add default gw $ipv4gateway $iface" );
+            logger.error( @"$routecmd returned error code $ok" );
         }
         FsoFramework.FileHandling.write( @"nameserver $dns1\nnameserver $dns2\n", ETC_RESOLV_CONF );
     }
