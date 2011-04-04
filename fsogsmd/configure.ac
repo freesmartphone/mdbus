@@ -31,7 +31,7 @@ FSO_GLIB_REQUIRED=2010.07.28.1
 FSO_FRAMEWORK_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.5.9
 FSO_RESOURCE_REQUIRED=0.1.0
-CONNMAN_REQUIRED=0.72
+CONNMAN_REQUIRED=0.68
 
 ##############################################################################
 # vala
