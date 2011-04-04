@@ -27,5 +27,5 @@
 int fsogsm_plugin_init (void);
 void fsogsm_plugin_exit (void);
 
-CONNMAN_PLUGIN_DEFINE(fsogsm, "FSO GSM Telephony Plugin", VERSION,
+CONNMAN_PLUGIN_DEFINE(fsogsm, "FSO GSM Telephony Plugin", CONNMAN_VERSION,
 			CONNMAN_PLUGIN_PRIORITY_LOW, fsogsm_plugin_init, fsogsm_plugin_exit)

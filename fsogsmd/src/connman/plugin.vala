@@ -59,7 +59,7 @@ public static int fsogsm_plugin_init()
         disconnect = network_disconnect
     };
 
-    // try to register our brand new network driver to the core
+    // try to register our brand new network driver to the connman core
     err = network_driver.register();
     if ( err < 0 )
     {
