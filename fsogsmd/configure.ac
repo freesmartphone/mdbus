@@ -31,6 +31,7 @@ FSO_GLIB_REQUIRED=2010.07.28.1
 FSO_FRAMEWORK_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.5.9
 FSO_RESOURCE_REQUIRED=0.1.0
+CONNMAN_REQUIRED=0.72
 
 ##############################################################################
 # vala
@@ -95,6 +96,21 @@ if test "x$ppp" = "xyes"; then
       [AC_MSG_ERROR([Could not find pppd.h. pppd development headers are required to build the ppp plugin.])])
 fi
 AM_CONDITIONAL( [WANT_PPP], [test x"$ppp" = x"yes"])
+
+##############################################################################
+# optional feature: connman
+AC_ARG_ENABLE(connman-support,
+  [  --disable-connman-support   Disable building connman support (default=disabled)],
+  [connman=$enableval],
+  [connman="yes"])
+
+if test "x$connman" = "xyes"; then
+    PKG_CHECK_MODULES(CONNMAN, connman >= $CONNMAN_REQUIRED)
+    AC_SUBST(CONNMAN_CFLAGS)
+    AC_SUBST(CONNMAN_LIBS)
+fi
+AM_CONDITIONAL( [WANT_CONNMAN], [test x"$connman" = x"yes"])
+
 
 ##############################################################################
 # optional feature: libgsm0710mux support
@@ -229,6 +245,7 @@ echo "Configuration Options:"
 echo
 echo "  ppp support.............: $ppp"
 echo "  pdp_mux.................: $mux"
+echo "  connman_support.........: $connman"
 echo "  modem_ti_calypso........: $mux"
 echo "  modem_cinterion_mc75....: $mux"
 echo "  modem_qualcomm_palm.....: $palm"
