@@ -14,4 +14,6 @@ if WANT_PPP
 SUBDIRS += ppp
 endif
 
-
+if WANT_CONNMAN
+SUBDIRS += connman
+endif

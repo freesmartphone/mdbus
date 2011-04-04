@@ -227,6 +227,7 @@ AC_CONFIG_FILES([
   src/plugins/pdp_ppp_mux/Makefile
   src/plugins/pdp_qmi/Makefile
   src/ppp/Makefile
+  src/connman/Makefile
   tests/Makefile
 ])
 
