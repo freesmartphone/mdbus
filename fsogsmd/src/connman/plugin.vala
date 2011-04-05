@@ -44,7 +44,32 @@ public static int network_disconnect( Connman.Network network )
     return 0;
 }
 
+public static int modem_probe( Connman.Device device )
+{
+    debug( "modem_probe()" );
+    return 0;
+}
+
+public static int modem_remove( Connman.Device device )
+{
+    debug( "modem_remove()" );
+    return 0;
+}
+
+public static int modem_enable( Connman.Device device )
+{
+    debug( "modem_enable()" );
+    return 0;
+}
+
+public static int modem_disable( Connman.Device device )
+{
+    debug( "modem_disable()" );
+    return 0;
+}
+
 Connman.NetworkDriver network_driver;
+Connman.DeviceDriver modem_driver;
 
 public static int fsogsm_plugin_init()
 {
@@ -59,8 +84,22 @@ public static int fsogsm_plugin_init()
         disconnect = network_disconnect
     };
 
-    // try to register our brand new network driver to the connman core
+    modem_driver = Connman.DeviceDriver() {
+        name = "modem",
+        type = Connman.DeviceType.CELLULAR,
+        probe = modem_probe,
+        remove = modem_remove,
+        enable = modem_enable,
+        disable = modem_disable
+    };
+
     err = network_driver.register();
+    if ( err < 0 )
+    {
+        return err;
+    }
+
+    err = modem_driver.register();
     if ( err < 0 )
     {
         network_driver.unregister();
