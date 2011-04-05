@@ -98,6 +98,7 @@ namespace Connman
         HIGH = 100
     }
 
+    [Compact]
     [CCode (cprefix = "connman_ipaddress_", cname = "struct connman_ipaddress", free_function = "connman_ipaddress_free", cheader_filename = "connman/ipconfig.h")]
     public class IpAddress
     {
@@ -187,6 +188,8 @@ namespace Connman
             ref_function = "connman_device_ref", unref_function = "connman_device_unref")]
     public class Device
     {
+        [CCode (cname = "connman_device_create")]
+        public Device(string identifcation, Connman.DeviceType type);
         public DeviceType get_type();
         public void set_index(int index);
         public int get_index();
