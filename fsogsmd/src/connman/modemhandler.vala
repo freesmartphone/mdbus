@@ -18,7 +18,7 @@
  **/
 
 using GLib;
-
+using Posix;
 
 public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
 {
@@ -29,6 +29,7 @@ public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
     private FreeSmartphone.GSM.PDP pdp_service;
     private FreeSmartphone.GSM.Device device_service;
     private FreeSmartphone.GSM.Network network_service;
+    private FreeSmartphone.Data.World world_service;
 
     /* these are the parts we need as interface to the connman core */
     private Connman.Device? network_device;
@@ -42,6 +43,7 @@ public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
     private bool supports_gprs;
     private int signal_strength;
     private string operator_name;
+    private string mccmnc;
 
     /**
      * Reset internal data structure
@@ -130,7 +132,11 @@ public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
             }
 
             ipaddr.clear();
+
+            network.set_group( "fsogsm" );
             network.set_available( true );
+            network.set_associating( false );
+            network.set_connected( false );
             network.set_index( -1 );
             network.set_string( "Operator", operator_name );
             network.set_strength( (uint8) signal_strength );
@@ -213,6 +219,9 @@ public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
         signal_strength = ( v1 == null ? 0 : v1.get_int32() );
 #endif
 
+        Variant? v2 = status.lookup( "code" );
+        mccmnc = ( v2 == null ? "" : v2.get_string() );
+
         if ( network != null )
         {
             network.set_strength( (uint8) signal_strength );
@@ -232,7 +241,6 @@ public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
              status < FreeSmartphone.GSM.DeviceStatus.ALIVE_SIM_READY )
         {
             logger.debug( @"Removing network as modem is not ready anymore" );
-            network_device.remove_all_networks();
             return;
         }
 
@@ -263,6 +271,10 @@ public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
             sim_service = get_service<FreeSmartphone.GSM.SIM>();
             network_service = get_service<FreeSmartphone.GSM.Network>();
             pdp_service = get_service<FreeSmartphone.GSM.PDP>();
+
+            world_service = Bus.get_proxy_sync<FreeSmartphone.Data.World>( BusType.SYSTEM, FsoFramework.Data.ServiceDBusName,
+                                                                          FsoFramework.Data.WorldServicePath,
+                                                                          DBusProxyFlags.NONE );
 
             device_service.device_status.connect( on_modem_device_status_changed );
             network_service.status.connect( on_modem_network_status_changed );
@@ -312,7 +324,7 @@ public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
         {
             usage = Bus.get_proxy_sync<FreeSmartphone.Usage>( BusType.SYSTEM, FsoFramework.Usage.ServiceDBusName,
                                                               FsoFramework.Usage.ServicePathPrefix,
-                                                              GLib.DBusProxyFlags.NONE );
+                                                              DBusProxyFlags.NONE );
             usage.resource_available.connect( on_resource_available );
 
             resources = yield usage.list_resources();
@@ -332,9 +344,80 @@ public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
         initialized = true;
     }
 
+    /**
+     * Establish PDP connection with registered network
+     **/
+    public async int connect_network()
+    {
+        logger.debug( @"Establishing GSM PDP connection ..." );
+
+        if ( mccmnc.length == 0 )
+        {
+            logger.error( "We don't have mcc and mnc to retrieve correct APN for PDP connection" );
+            return -EINVAL;
+        }
+
+        try
+        {
+            logger.debug( @"mccmnc = $(mccmnc)" );
+            var apns = yield world_service.get_apns_for_mcc_mnc( mccmnc );
+            if ( apns.length == 0 )
+            {
+                logger.error( "Invalid mcc and mnc wihtout context information!" );
+                return -EINVAL;
+            }
+
+            var apn = apns[0];
+            logger.debug( @"Using apn = \"$(apn.apn)\", username = \"$(apn.username)\", password = \"$(apn.password)\"");
+            yield pdp_service.set_credentials( apn.apn, apn.username, apn.password );
+            yield pdp_service.activate_context();
+        }
+        catch ( Error err )
+        {
+            logger.error( @"Failed to activate PDP connection: $(err.message)" );
+            return -1;
+        }
+
+        // FIXME set ipaddr, method ...
+
+        network.set_connected( true );
+
+        return 0;
+    }
+
+    /**
+     * Realse current active PDP connection
+     **/
+    public async int disconnect_network()
+    {
+        logger.debug( @"Releasing GSM PDP connection ..." );
+
+        try
+        {
+            yield pdp_service.deactivate_context();
+        }
+        catch ( Error err )
+        {
+            logger.error( @"Failed to deactivate PDP connection: $(err.message)" );
+            return -1;
+        }
+
+        network.set_connected( false );
+
+        return 0;
+    }
+
     public void shutdown()
     {
         logger.info( "Shuting down ..." );
+
+        if ( network_device != null )
+        {
+            network_device.remove_all_networks();
+            network_device.unregister();
+            network_device = null;
+            network = null;
+        }
     }
 }
 

@@ -37,13 +37,13 @@ public static int network_remove( Connman.Network network )
 
 public static int network_connect( Connman.Network network )
 {
-    debug( "network_connect()" );
+    modem.connect_network();
     return 0;
 }
 
 public static int network_disconnect( Connman.Network network )
 {
-    debug( "network_disconnect()" );
+    modem.disconnect_network();
     return 0;
 }
 
@@ -61,13 +61,11 @@ public static int modem_remove( Connman.Device device )
 
 public static int modem_enable( Connman.Device device )
 {
-    debug( "modem_enable()" );
     return 0;
 }
 
 public static int modem_disable( Connman.Device device )
 {
-    debug( "modem_disable()" );
     return 0;
 }
 
