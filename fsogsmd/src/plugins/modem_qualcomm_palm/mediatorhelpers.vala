@@ -40,7 +40,7 @@ public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
     if ( MsmData.network_info.reg_status == Msmcomm.NetworkRegistrationStatus.HOME ||
          MsmData.network_info.reg_status == Msmcomm.NetworkRegistrationStatus.ROAMING )
     {
-        status.insert( "code", "%u%u".printf( MsmData.network_info.mcc,
+        status.insert( "code", "%03u%02u".printf( MsmData.network_info.mcc,
                                               MsmData.network_info.mnc ) );
     }
 }
