@@ -18,7 +18,10 @@
  **/
 
 using GLib;
-using FsoFramework;
+
+Connman.NetworkDriver network_driver;
+Connman.DeviceDriver modem_driver;
+FsoGsm.ModemHandler modem;
 
 public static int network_probe( Connman.Network network )
 {
@@ -68,12 +71,12 @@ public static int modem_disable( Connman.Device device )
     return 0;
 }
 
-Connman.NetworkDriver network_driver;
-Connman.DeviceDriver modem_driver;
-
-public static int fsogsm_plugin_init()
+public int fsogsm_plugin_init()
 {
     int err;
+
+    modem = new FsoGsm.ModemHandler();
+    modem.initialize();
 
     network_driver = Connman.NetworkDriver() {
         name = "network",
@@ -109,8 +112,9 @@ public static int fsogsm_plugin_init()
     return 0;
 }
 
-public static void fsogsm_plugin_exit()
+public void fsogsm_plugin_exit()
 {
+    modem.shutdown();
     network_driver.unregister();
 }
 

@@ -33,13 +33,18 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	$(NULL)
 
+if WANT_DEBUG
+VALAC_ARGS += -g -D DEBUG
+AM_CPPFLAGS += -ggdb -O0
+endif
+
 #
 # plugin
 #
 modlibexecdir = $(libdir)/connman/plugins
 modlibexec_LTLIBRARIES = fsogsm.la
-fsogsm_la_SOURCES = connman-wrapper.c plugin.c
-fsogsm_la_VALASOURCES = plugin.vala
+fsogsm_la_SOURCES = connman-wrapper.c plugin.c modemhandler.c
+fsogsm_la_VALASOURCES = plugin.vala modemhandler.vala
 $(fsogsm_la_SOURCES): $(fsogsm_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
