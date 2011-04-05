@@ -24,6 +24,27 @@ using FsoGsm;
 /**
  * Public helpers
  **/
+
+public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
+{
+    status.insert( "strength", convertRawRssiToPercentage( MsmData.network_info.rssi ) );
+    status.insert( "provider", MsmData.network_info.operator_name );
+    status.insert( "network", MsmData.network_info.operator_name );
+    status.insert( "display", MsmData.network_info.operator_name );
+    status.insert( "registration", networkRegistrationStatusToString( MsmData.network_info.reg_status ) );
+    status.insert( "mode", "automatic" );
+    status.insert( "lac", "unknown" );
+    status.insert( "cid", "unknown" );
+    status.insert( "act", networkDataServiceToActString( MsmData.network_info.data_service ) );
+
+    if ( MsmData.network_info.reg_status == Msmcomm.NetworkRegistrationStatus.HOME ||
+         MsmData.network_info.reg_status == Msmcomm.NetworkRegistrationStatus.ROAMING )
+    {
+        status.insert( "code", "%u%u".printf( MsmData.network_info.mcc,
+                                              MsmData.network_info.mnc ) );
+    }
+}
+
 public void updateMsmSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
 {
     theModem.logger.info( @"SIM Auth status now $status" );

@@ -51,17 +51,23 @@ public static class MsmData
     {
         Msmcomm.NetworkRegistrationStatus reg_status;
         Msmcomm.NetworkServiceStatus service_status;
+        Msmcomm.NetworkDataService data_service;
         public string operator_name;
         public uint rssi;
         public uint ecio;
+        public uint mcc;
+        public uint mnc;
 
         public void reset()
         {
             reg_status = Msmcomm.NetworkRegistrationStatus.NO_SERVICE;
             service_status = Msmcomm.NetworkServiceStatus.NO_SERVICE;
+            data_service = Msmcomm.NetworkDataService.NONE;
             operator_name = "";
             rssi = 0;
             ecio = 0;
+            mcc = 0;
+            mnc = 0;
         }
     }
 

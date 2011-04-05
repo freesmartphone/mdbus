@@ -76,19 +76,6 @@ public async void changeOperationMode( Msmcomm.OperationMode operation_mode ) th
     }
 }
 
-public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
-{
-    status.insert( "strength", MsmData.network_info.rssi );
-    status.insert( "provider", MsmData.network_info.operator_name );
-    status.insert( "network", MsmData.network_info.operator_name );
-    status.insert( "display", MsmData.network_info.operator_name );
-    status.insert( "registration", networkRegistrationStatusToString( MsmData.network_info.reg_status ) );
-    status.insert( "mode", "automatic" );
-    status.insert( "lac", "" );
-    status.insert( "cid", "" );
-    status.insert( "act", "GSM" );
-}
-
 public class MsmNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

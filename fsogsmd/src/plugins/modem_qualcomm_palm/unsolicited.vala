@@ -158,29 +158,13 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
             {
                 case "rssi":
                 case "srv-changed":
-                    var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
-
-                    status.insert( "act", networkDataServiceToActString( info.data_service ) );
-                    status.insert( "mode", "automatic" );
-                    status.insert( "strength", (int) info.rssi );
-                    status.insert( "registration", networkRegistrationStatusToString( info.reg_status ) );
-                    status.insert( "lac", "unknown" );
-                    status.insert( "cid", "unknown" );
-                    status.insert( "provider", info.operator_name );
-                    status.insert( "display", info.operator_name );
-                    status.insert( "code", "unknown" );
-                    status.insert( "pdp.registration", "unknown" );
-                    status.insert( "pdp.lac", "unknown" );
-                    status.insert( "pdp.cid", "unknown" );
-
-                    var obj = FsoGsm.theModem.theDevice<FreeSmartphone.GSM.Network>();
-                    obj.status( status );
-
                     MsmData.network_info.rssi = info.rssi;
                     MsmData.network_info.ecio = info.ecio;
                     MsmData.network_info.operator_name = info.operator_name;
                     MsmData.network_info.reg_status = info.reg_status;
                     MsmData.network_info.service_status = info.service_status;
+                    MsmData.network_info.mcc = info.mcc;
+                    MsmData.network_info.mnc = info.mnc;
 
                     if ( info.with_time_update )
                     {
