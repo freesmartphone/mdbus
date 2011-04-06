@@ -5,7 +5,6 @@ NULL =
 AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
-	$(PALM_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
@@ -15,7 +14,6 @@ AM_CFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
-	$(PALM_LIBS) \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
