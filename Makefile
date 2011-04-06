@@ -3,6 +3,8 @@ SUBDIRS = \
 	libfsotransport \
 	libfsoframework \
 	libfsoresource \
+	libfsosystem \
+	fsoaudiod \
 	fsodatad \
 	fsodeviced \
 	fsogsmd \
@@ -31,7 +33,9 @@ rebuild:
 	pushd libfsotransport; make uninstall; ./autogen.sh; make install; popd
 	pushd libgsm0710mux; make uninstall; ./autogen.sh; make install; popd
 	pushd libfsoframework; make uninstall; ./autogen.sh; make install; popd
+	pushd libfsosystem; make uninstall; ./autogen.sh; make install; popd
 	pushd libfsoresource; make uninstall; ./autogen.sh; make install; popd
+	pushd fsoaudiod; make uninstall; ./autogen.sh; make install; popd
 	pushd fsodatad; make uninstall; ./autogen.sh; make install; popd
 	pushd fsodeviced; make uninstall; ./autogen.sh; make install; popd
 	pushd fsogsmd; make uninstall; ./autogen.sh --enable-modem-qualcomm-palm --enable-libgsm0710mux; make install; popd
