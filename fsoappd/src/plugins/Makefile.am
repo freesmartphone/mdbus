@@ -5,4 +5,5 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
 	manager \
+	windowctrl_illume \
 	$(NULL)

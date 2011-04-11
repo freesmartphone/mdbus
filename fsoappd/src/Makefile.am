@@ -4,7 +4,7 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
-	plugins \
 	lib \
 	bin \
+	plugins \
 	$(NULL)
