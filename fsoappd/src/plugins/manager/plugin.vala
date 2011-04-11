@@ -24,19 +24,71 @@ namespace FsoApp
 {
     const string MANAGER_MODULE_NAME = "fsoapp.manager";
 
+    [DBus (name = "org.freesmartphone.Application.Manager", timeout = 120000)]
+    public interface IApplicationManager : Object
+    {
+        public abstract async void register_session( BusName busname, string appname) 
+            throws FreeSmartphone.Application.Error, FreeSmartphone.Error, DBusError, IOError;
+
+        public abstract async void release_session( BusName busname )
+            throws FreeSmartphone.Application.Error, FreeSmartphone.Error, DBusError, IOError;
+    }
+
+    public class Application : AbstractObject
+    {
+        private uint busnameWatchRef;
+
+        public BusName busname;
+        public FreeSmartphone.Application.Status status;
+
+        public Application( BusName busname )
+        {
+            this.busname = busname;
+            this.status = FreeSmartphone.Application.Status.STOPPED;
+
+            busnameWatchRef = GLibHacks.Bus.watch_name( BusType.SYSTEM, busname, BusNameWatcherFlags.NONE, 
+                                                        ( connection, name, owner ) => {}, 
+                                                        ( connection, name ) => {
+                assert( name == this.busname );
+                this.disappeared( this ); // DBus signal
+            } );
+
+            assert( logger.debug( "Created" ) );
+        }
+
+        ~Application()
+        {
+            Bus.unwatch_name( busnameWatchRef );
+            assert( logger.debug( "Destroyed" ) );
+        }
+
+        public override string repr()
+        {
+            return @"<$busname>";
+        }
+
+        public signal void disappeared( Application application );
+    }
+
     public class Manager : FsoFramework.AbstractObject,
-                           FreeSmartphone.Application.Manager,
+                           IApplicationManager,
                            FreeSmartphone.Info
     {
         private FsoFramework.Subsystem subsystem;
+        private Gee.HashMap<string,Application> applications;
+
+        construct
+        {
+            this.applications = new Gee.HashMap<string,Application>();
+        }
 
         public Manager( FsoFramework.Subsystem subsystem )
         {
             this.subsystem = subsystem;
 
-            subsystem.registerObjectForService<FreeSmartphone.Application.Manager>( FsoFramework.Application.ServiceDBusName,
-                                                                                    FsoFramework.Application.ServicePathPrefix,
-                                                                                    this );
+            subsystem.registerObjectForService<IApplicationManager>( FsoFramework.Application.ServiceDBusName,
+                                                                     FsoFramework.Application.ServicePathPrefix,
+                                                                     this );
             subsystem.registerObjectForService<FreeSmartphone.Info>( FsoFramework.Application.ServiceDBusName,
                                                                      FsoFramework.Application.ServicePathPrefix,
                                                                      this );
@@ -47,6 +99,16 @@ namespace FsoApp
         public override string repr()
         {
             return "<>";
+        }
+
+        private void handleDisappearingHandlerForApplication( Application application )
+        {
+            if ( application.status != FreeSmartphone.Application.Status.STOPPED )
+            {
+                logger.error( "Application disappeared before it arrived the STOPPED state; may it's segfault'ing?");
+            }
+
+            applications.unset( application.busname.to_string() );
         }
 
         //
@@ -60,15 +122,33 @@ namespace FsoApp
         }
 
         //
-        // DBus API (org.freesmartphone.Audio.Manager)
+        // DBus API (org.freesmartphone.Application.Manager)
         //
 
-        public async void register_session( string appname ) throws FreeSmartphone.Application.Error, FreeSmartphone.Error
+        public async void register_session( BusName busname, string appname ) throws FreeSmartphone.Application.Error, FreeSmartphone.Error
         {
+            assert( logger.debug( @"$busname wants to register for a application session" ) );
+
+            var application = applications[busname.to_string()];
+            if ( application != null )
+            {
+                throw new FreeSmartphone.Application.Error.ALREADY_REGISTERED( @"$busname has already a registered application session!" );
+            }
+
+            applications[busname.to_string()] = new Application( busname );
+            applications[busname.to_string()].disappeared.connect( handleDisappearingHandlerForApplication );
         }
 
-        public async void release_session() throws FreeSmartphone.Application.Error, FreeSmartphone.Error
+        public async void release_session( BusName busname ) throws FreeSmartphone.Application.Error, FreeSmartphone.Error
         {
+            if ( ! ( busname in applications ) )
+            {
+                throw new FreeSmartphone.Error.INVALID_PARAMETER( "Unsubscribing without ever subscribing is lame" );
+            }
+
+            assert( logger.debug( @"$busname wants to release it's application session" ) );
+
+            applications.unset( busname.to_string() );
         }
     }
 }
