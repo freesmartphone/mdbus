@@ -15,7 +15,8 @@ progs_ldadd = \
 	$(FSO_GLIB_LIBS) \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
-	$(GEE_LIBS)
+	$(GEE_LIBS) \
+	$(top_srcdir)/src/lib/libfsoapp.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -36,15 +37,15 @@ endif
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsoapp
-modlibexec_LTLIBRARIES = illumewindowctrl.la
-illumewindowctrl_la_SOURCES = plugin.c
-illumewindowctrl_la_VALASOURCES = plugin.vala
-$(illumewindowctrl_la_SOURCES): $(illumewindowctrl_la_VALASOURCES)
+modlibexec_LTLIBRARIES = windowctrl_illume.la
+windowctrl_illume_la_SOURCES = plugin.c
+windowctrl_illume_la_VALASOURCES = plugin.vala
+$(windowctrl_illume_la_SOURCES): $(windowctrl_illume_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-illumewindowctrl_la_LIBADD = $(progs_ldadd)
-illumewindowctrl_la_LDFLAGS = -no-undefined -module -avoid-version
-illumewindowctrl_la_LIBTOOLFLAGS = --tag=disable-static
+windowctrl_illume_la_LIBADD = $(progs_ldadd)
+windowctrl_illume_la_LDFLAGS = -no-undefined -module -avoid-version
+windowctrl_illume_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

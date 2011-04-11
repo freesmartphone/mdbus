@@ -5,6 +5,7 @@ NULL =
 INCLUDES = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	-I$(top_srcdir)/src/lib \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsoappd\" \
 	$(NULL)
