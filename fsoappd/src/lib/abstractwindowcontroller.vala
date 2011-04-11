@@ -22,12 +22,19 @@ using FsoFramework;
 
 namespace FsoApp
 {
+    public struct WindowProperties
+    {
+        public int id;
+        public string classname;
+        public Posix.pid_t pid;
+    }
+
     public abstract class AbstractWindowController : AbstractObject
     {
         public abstract WindowProperties[] list_all();
-        public abstract void hide( WindowProperties window );
-        public abstract void show( WindowProperties window );
-        public abstract void destroy( WindowProperties window );
+        public abstract void hide( int id );
+        public abstract void show( int id );
+        public abstract void destroy( int id );
     }
 }
 
@@ -40,24 +47,24 @@ public class NullWindowController : FsoApp.AbstractWindowController
 
     public override FsoApp.WindowProperties[] list_all()
     {
-        logger.warning( "NullWindowController::list_all() - this is probably not what you want" );
+        logger.warning( "NullController::list_all() - this is probably not what you want" );
 
         FsoApp.WindowProperties[] result = { };
         return result;
     }
 
-    public override void hide( FsoApp.WindowProperties window )
+    public override void hide( int id )
     {
-        logger.warning( "NullWindowController::hide() - this is probably not what you want" );
+        logger.warning( "NullController::hide() - this is probably not what you want" );
     }
 
-    public override void show( FsoApp.WindowProperties window )
+    public override void show( int id )
     {
-        logger.warning( "NullWindowController::show() - this is probably not what you want" );
+        logger.warning( "NullController::show() - this is probably not what you want" );
     }
 
-    public override void destroy( FsoApp.WindowProperties window )
+    public override void destroy( int id )
     {
-        logger.warning( "NullWindowController::destroy() - this is probably not what you want" );
+        logger.warning( "NullController::destroy() - this is probably not what you want" );
     }
 }

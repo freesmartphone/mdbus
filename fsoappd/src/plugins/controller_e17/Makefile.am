@@ -37,15 +37,15 @@ endif
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsoapp
-modlibexec_LTLIBRARIES = windowctrl_illume.la
-windowctrl_illume_la_SOURCES = plugin.c
-windowctrl_illume_la_VALASOURCES = plugin.vala
-$(windowctrl_illume_la_SOURCES): $(windowctrl_illume_la_VALASOURCES)
+modlibexec_LTLIBRARIES = controller_e17.la
+controller_e17_la_SOURCES = plugin.c
+controller_e17_la_VALASOURCES = plugin.vala
+$(controller_e17_la_SOURCES): $(controller_e17_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-windowctrl_illume_la_LIBADD = $(progs_ldadd)
-windowctrl_illume_la_LDFLAGS = -no-undefined -module -avoid-version
-windowctrl_illume_la_LIBTOOLFLAGS = --tag=disable-static
+controller_e17_la_LIBADD = $(progs_ldadd)
+controller_e17_la_LDFLAGS = -no-undefined -module -avoid-version
+controller_e17_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

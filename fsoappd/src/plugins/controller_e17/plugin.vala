@@ -18,32 +18,31 @@
  */
 
 using GLib;
-using FsoApp;
 using FsoFramework;
 
-public static const string ILLUME_CTRL_MODULE_NAME = "fsoapp.windowctrl_illume";
+public static const string E17_CONTROLLER_MODULE_NAME = "fsoapp.controller_e17";
 
-public class IllumeWindowController : AbstractWindowController
+public class E17.Controller : FsoApp.AbstractWindowController
 {
     public override string repr()
     {
         return "<>";
     }
 
-    public override WindowProperties[] list_all()
+    public override FsoApp.WindowProperties[] list_all()
     {
         return null;
     }
 
-    public override void show( WindowProperties window )
+    public override void show( int id )
     {
     }
 
-    public override void hide( WindowProperties window )
+    public override void hide( int id )
     {
     }
 
-    public override void destroy( WindowProperties window )
+    public override void destroy( int id )
     {
     }
 }
@@ -56,7 +55,7 @@ public class IllumeWindowController : AbstractWindowController
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    return ILLUME_CTRL_MODULE_NAME;
+    return E17_CONTROLLER_MODULE_NAME;
 }
 
 [ModuleInit]

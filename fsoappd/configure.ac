@@ -99,7 +99,7 @@ AC_CONFIG_FILES([
   src/lib/Makefile
   src/plugins/Makefile
   src/plugins/manager/Makefile
-  src/plugins/windowctrl_illume/Makefile
+  src/plugins/controller_e17/Makefile
 ])
 
 AC_OUTPUT

@@ -36,8 +36,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsoapp_la_VALASOURCES = \
-	windowproperties.vala \
-	windowcontroller.vala \
+	abstractwindowcontroller.vala \
 	$(NULL)
 
 libfsoapp_la_SOURCES = \

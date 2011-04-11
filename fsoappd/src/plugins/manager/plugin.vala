@@ -78,7 +78,7 @@ namespace FsoApp
     {
         private FsoFramework.Subsystem subsystem;
         private Gee.HashMap<string,Application> applications;
-        private AbstractWindowController winctrl;
+        //private AbstractController controller;
         private bool ready;
 
         construct
@@ -98,7 +98,7 @@ namespace FsoApp
                                                                      FsoFramework.Application.ServicePathPrefix,
                                                                      this );
 
-            if ( !createWindowController() )
+            if ( !createWindowcontroller() )
             {
                 return;
             }
@@ -107,31 +107,33 @@ namespace FsoApp
             logger.info( @"Created" );
         }
 
-        private bool createWindowController()
+        private bool createWindowcontroller()
         {
-            // create our window controller by type mentioned in the configuration file
-            var winctrl_type = theConfig.stringValue( MANAGER_MODULE_NAME, "winctrl_type", "none" );
-            string typename = "NullWindowController";
+#if 0
+            var controller_type = theConfig.stringValue( MANAGER_MODULE_NAME, "controller_type", "none" );
+            string typename = "Nullcontroller";
 
-            switch ( winctrl_type )
+            switch ( controller_type )
             {
-                case "illume":
-                    typename = "IllumeWindowController";
+                case "e17":
+                    typename = "E17controller";
                     break;
             }
 
             var type = Type.from_name( typename );
             if ( type == Type.INVALID )
             {
-               logger.error( @"Got invalid type for window controller \"$(typename)\"; Aborting initialisation ..." ); 
+               logger.error( @"Got invalid type for controller \"$(typename)\"; Aborting initialisation ..." ); 
                return false;
             }
 
-            winctrl = Object.new( type ) as AbstractWindowController;
+            controller = (AbstractController) Object.new( type );
 
-            logger.info( @"Using $(typename) as window controller" );
+            logger.info( @"Using $(typename) as controller" );
 
-            return winctrl != null;
+            return controller != null;
+#endif
+            return true;
         }
 
         public override string repr()
