@@ -39,11 +39,13 @@ namespace FsoApp
         private uint busnameWatchRef;
 
         public BusName busname;
+        public string name;
         public FreeSmartphone.Application.Status status;
 
-        public Application( BusName busname )
+        public Application( BusName busname, string name )
         {
             this.busname = busname;
+            this.name = name;
             this.status = FreeSmartphone.Application.Status.STOPPED;
 
             busnameWatchRef = GLibHacks.Bus.watch_name( BusType.SYSTEM, busname, BusNameWatcherFlags.NONE, 
@@ -76,10 +78,13 @@ namespace FsoApp
     {
         private FsoFramework.Subsystem subsystem;
         private Gee.HashMap<string,Application> applications;
+        private AbstractWindowController winctrl;
+        private bool ready;
 
         construct
         {
-            this.applications = new Gee.HashMap<string,Application>();
+            applications = new Gee.HashMap<string,Application>();
+            ready = false;
         }
 
         public Manager( FsoFramework.Subsystem subsystem )
@@ -93,7 +98,40 @@ namespace FsoApp
                                                                      FsoFramework.Application.ServicePathPrefix,
                                                                      this );
 
+            if ( !createWindowController() )
+            {
+                return;
+            }
+
+            ready = true;
             logger.info( @"Created" );
+        }
+
+        private bool createWindowController()
+        {
+            // create our window controller by type mentioned in the configuration file
+            var winctrl_type = theConfig.stringValue( MANAGER_MODULE_NAME, "winctrl_type", "none" );
+            string typename = "NullWindowController";
+
+            switch ( winctrl_type )
+            {
+                case "illume":
+                    typename = "IllumeWindowController";
+                    break;
+            }
+
+            var type = Type.from_name( typename );
+            if ( type == Type.INVALID )
+            {
+               logger.error( @"Got invalid type for window controller \"$(typename)\"; Aborting initialisation ..." ); 
+               return false;
+            }
+
+            winctrl = Object.new( type ) as AbstractWindowController;
+
+            logger.info( @"Using $(typename) as window controller" );
+
+            return winctrl != null;
         }
 
         public override string repr()
@@ -135,7 +173,7 @@ namespace FsoApp
                 throw new FreeSmartphone.Application.Error.ALREADY_REGISTERED( @"$busname has already a registered application session!" );
             }
 
-            applications[busname.to_string()] = new Application( busname );
+            applications[busname.to_string()] = new Application( busname, appname );
             applications[busname.to_string()].disappeared.connect( handleDisappearingHandlerForApplication );
         }
 
@@ -149,6 +187,10 @@ namespace FsoApp
             assert( logger.debug( @"$busname wants to release it's application session" ) );
 
             applications.unset( busname.to_string() );
+        }
+
+        public async void activate( string appname ) throws FreeSmartphone.Application.Error, FreeSmartphone.Error
+        {
         }
     }
 }

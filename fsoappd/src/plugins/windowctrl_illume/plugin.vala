@@ -18,35 +18,33 @@
  */
 
 using GLib;
+using FsoApp;
 using FsoFramework;
 
-namespace FsoApp
+public static const string ILLUME_CTRL_MODULE_NAME = "fsoapp.windowctrl_illume";
+
+public class IllumeWindowController : AbstractWindowController
 {
-    public static const string ILLUME_CTRL_MODULE_NAME = "fsoapp.windowctrl_illume";
-
-    public class IllumeWindowController : AbstractWindowController
+    public override string repr()
     {
-        public override string repr()
-        {
-            return "<>";
-        }
+        return "<>";
+    }
 
-        public override WindowProperties[] list_all()
-        {
-            return null;
-        }
+    public override WindowProperties[] list_all()
+    {
+        return null;
+    }
 
-        public override void show( WindowProperties window )
-        {
-        }
+    public override void show( WindowProperties window )
+    {
+    }
 
-        public override void hide( WindowProperties window )
-        {
-        }
+    public override void hide( WindowProperties window )
+    {
+    }
 
-        public override void destroy( WindowProperties window )
-        {
-        }
+    public override void destroy( WindowProperties window )
+    {
     }
 }
 
@@ -58,13 +56,13 @@ namespace FsoApp
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    return FsoApp.ILLUME_CTRL_MODULE_NAME;
+    return ILLUME_CTRL_MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsoapp.manager fso_register_function" );
+    FsoFramework.theLogger.debug( "fsoapp.windowctrl_illume fso_register_function" );
 }
 
 /**
