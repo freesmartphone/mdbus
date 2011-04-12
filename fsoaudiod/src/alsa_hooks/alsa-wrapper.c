@@ -26,12 +26,12 @@
 
 static int _hook_hw_params(snd_pcm_hook_t *hook)
 {
-    return 0;
+    return fsoaudio_request_session();
 }
 
 static int _hook_hw_free(snd_pcm_hook_t *hook)
 {
-    return 0;
+    return fsoaudio_release_session();
 }
 
 static int _hook_close(snd_pcm_hook_t *hook)
