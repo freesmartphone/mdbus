@@ -99,6 +99,7 @@ namespace FsoAudio
         private FreeSmartphone.Audio.Device[] default_devices;
         private FreeSmartphone.Audio.Device[] current_devices;
         private GLib.Queue<FreeSmartphone.Audio.Device> device_stack;
+        private SessionHandler sessionhandler;
 
         public Manager( FsoFramework.Subsystem subsystem )
         {
@@ -139,6 +140,8 @@ namespace FsoAudio
 
             router.set_device( current_devices[ current_mode ], false );
             router.set_mode( current_mode, true );
+
+            sessionhandler = new SessionHandler();
 
             logger.info( @"Created" );
         }
@@ -393,14 +396,13 @@ namespace FsoAudio
         public async string register_session( FreeSmartphone.Audio.Stream stream )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            string token = "";
-
-            return token;
+            return sessionhandler.register_session( stream );
         }
 
         public async void release_session( string token )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
+            sessionhandler.release_session( token );
         }
     }
 }
