@@ -94,12 +94,12 @@ namespace FsoAudio
         private FsoFramework.Subsystem subsystem;
         private FreeSmartphone.Audio.Mode current_mode;
         private FsoAudio.IRouter router;
-        private string routertype;
         private DeviceInfo[] devices;
         private FreeSmartphone.Audio.Device[] default_devices;
         private FreeSmartphone.Audio.Device[] current_devices;
         private GLib.Queue<FreeSmartphone.Audio.Device> device_stack;
         private SessionHandler sessionhandler;
+        private AbstractAudioSessionPolicy policy;
 
         public Manager( FsoFramework.Subsystem subsystem )
         {
@@ -113,6 +113,7 @@ namespace FsoAudio
                                                                      this );
 
             createRouter();
+            createAudioSessionPolicy();
 
             device_stack = new GLib.Queue<FreeSmartphone.Audio.Device>();
 
@@ -141,9 +142,36 @@ namespace FsoAudio
             router.set_device( current_devices[ current_mode ], false );
             router.set_mode( current_mode, true );
 
-            sessionhandler = new SessionHandler();
+            sessionhandler = new SessionHandler( policy );
 
             logger.info( @"Created" );
+        }
+
+        private void createAudioSessionPolicy()
+        {
+            var policyname = config.stringValue( MANAGER_MODULE_NAME, "policy_type", "none" );
+            var typename = "";
+
+            switch ( policyname )
+            {
+                default:
+                    policy = new FsoAudio.NullAudioSessionPolicy();
+                    break;
+            }
+
+            if ( policyname != "none" )
+            {
+                var policytype = GLib.Type.from_name( typename );
+                if ( policytype == GLib.Type.INVALID )
+                {
+                    logger.warning( @"Can't instanciate requested session policy type $typename; will no be able to handle audio sessions" );
+                    policy = new FsoAudio.NullAudioSessionPolicy();
+                }
+                else
+                {
+                    policy = (FsoAudio.AbstractAudioSessionPolicy) GLib.Object.new( policytype );
+                }
+            }
         }
 
         private void createRouter()
@@ -160,21 +188,22 @@ namespace FsoAudio
                     typename = "RouterPalmPre";
                     break;
                 default:
-                    typename = "NullRouter";
+                    router = new FsoAudio.NullRouter();
                     break;
             }
 
-            var routertype = GLib.Type.from_name( typename );
-            if ( routertype == GLib.Type.INVALID )
+            if ( routername != "none" )
             {
-                logger.warning( @"Can't instanciate requested router type $typename; will not be able to route audio" );
-                router = new FsoAudio.NullRouter();
-                this.routertype = "NullRouter";
-            }
-            else
-            {
-                router = (FsoAudio.IRouter) GLib.Object.new( routertype );
-                this.routertype = typename;
+                var routertype = GLib.Type.from_name( typename );
+                if ( routertype == GLib.Type.INVALID )
+                {
+                    logger.warning( @"Can't instanciate requested router type $typename; will not be able to route audio" );
+                    router = new FsoAudio.NullRouter();
+                }
+                else
+                {
+                    router = (FsoAudio.IRouter) GLib.Object.new( routertype );
+                }
             }
         }
 

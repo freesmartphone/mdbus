@@ -29,10 +29,16 @@ namespace FsoAudio
     public class SessionHandler : AbstractObject
     {
         private HashMap<string,FreeSmartphone.Audio.Stream> sessions;
+        private AbstractAudioSessionPolicy policy;
 
         construct
         {
             sessions = new HashMap<string,FreeSmartphone.Audio.Stream>();
+        }
+
+        public SessionHandler( AbstractAudioSessionPolicy policy )
+        {
+            this.policy = policy;
         }
 
         public override string repr()

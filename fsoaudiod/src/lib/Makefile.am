@@ -38,6 +38,7 @@ libfsoaudio_la_VALASOURCES = \
 	router.vala \
 	alsa.vala \
 	sessionhandler.vala \
+	audiosessionpolicy.vala \
 	$(NULL)
 
 libfsoaudio_la_SOURCES = \
