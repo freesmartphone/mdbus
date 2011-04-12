@@ -80,10 +80,12 @@ namespace FsoApp
         private Gee.HashMap<string,Application> applications;
         //private AbstractController controller;
         private bool ready;
+        private ApplicationStorage appstorage;
 
         construct
         {
             applications = new Gee.HashMap<string,Application>();
+            appstorage = new ApplicationStorage();
             ready = false;
         }
 
