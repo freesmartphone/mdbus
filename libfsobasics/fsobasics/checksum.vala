@@ -1,9 +1,5 @@
 /* 
- * File Name: 
- * Creation Date: 
- * Last Modified: 
- *
- * Authored by Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
+ * (c) 2010-2011 Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
  */
+
 using GLib;
-namespace FsoFramework { namespace Checksum {
+
+namespace FsoFramework.Checksum
+{
     internal const uint16[] crc16tab_fcs =
     {
             0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
@@ -57,19 +56,21 @@ namespace FsoFramework { namespace Checksum {
             0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
             0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
     };
-    public static uint16 crc16(uint8[] data)
+
+    public static uint16 crc16( uint8[] data )
     {
         uint16 sum = 0xFFFF;
-        for(int i = 0; i < data.length; i++)
+
+        for( int i = 0; i < data.length; i++ )
         {
-            sum = (sum >> 8) ^ crc16tab_fcs[((sum ^ data[i]) & 0xFF)];
+            sum = ( sum >> 8 ) ^ crc16tab_fcs[( ( sum ^ data[i] ) & 0xFF )];
         }
+
         return sum;
     }
 
-    public static bool crc16_verify(uint8[] data, uint16 expected)
+    public static bool crc16_verify( uint8[] data, uint16 expected )
     {
-        return crc16(data) == expected;
+        return crc16( data ) == expected;
     }
-}
 }
