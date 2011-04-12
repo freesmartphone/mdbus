@@ -389,6 +389,19 @@ namespace FsoAudio
             var current_device = current_devices[ current_mode ];
             return devices[ current_device ].get_volume( current_mode, control );
         }
+
+        public async string register_session( FreeSmartphone.Audio.Stream stream )
+            throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+            string token = "";
+
+            return token;
+        }
+
+        public async void release_session( string token )
+            throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+        {
+        }
     }
 }
 
