@@ -329,24 +329,25 @@ public class IsiNetworkRegister : NetworkRegister
 
     private async void runInBackground()
     {
-        /*
-        if ( yield NokiaIsi.isimodem.poweron() )
-        {
-            /*
-            debug( "list providers..." );
-            NokiaIsi.isimodem.net.listProviders( ( error, providers ) => {
-                runInBackground.callback();
-            } );
-            yield;
-            **/
-            NokiaIsi.isimodem.net.registerAutomatic( force, ( error ) => {
-                debug( "error = %d", error );
-                runInBackground.callback();
-            } );
-            yield;
+        NokiaIsi.isimodem.net.queryRat( ( error, result ) => {
+            debug( "error = %d", error );
+            runInBackground.callback();
+        } );
+        yield;
 
-            force = !force;
-        //}
+        NokiaIsi.isimodem.net.queryStatus( ( error, result ) => {
+            debug( "error = %d", error );
+            runInBackground.callback();
+        } );
+        yield;
+
+        NokiaIsi.isimodem.net.registerAutomatic( force, ( error ) => {
+            debug( "error = %d", error );
+            runInBackground.callback();
+        } );
+        yield;
+
+        force = !force;
     }
 
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

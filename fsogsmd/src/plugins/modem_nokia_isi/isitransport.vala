@@ -67,6 +67,14 @@ public class IsiTransport : FsoFramework.NullTransport
             return false;
         }
 
+        debug( "ISI OPEN ASYNC ENTER PHASE 3" );
+        // phase 3: poweron
+        if ( ! ( yield NokiaIsi.isimodem.poweron() ) )
+        {
+            debug( "ISI PROBLEM in PHASE 3, FAIL" );
+            return false;
+        }
+
         debug( "ISI OPEN ASYNC OK" );
 
         return true;
