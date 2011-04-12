@@ -24,9 +24,56 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static int _hook_hw_params(snd_pcm_hook_t *hook)
+{
+    return 0;
+}
+
+static int _hook_hw_free(snd_pcm_hook_t *hook)
+{
+    return 0;
+}
+
+static int _hook_close(snd_pcm_hook_t *hook)
+{
+    return 0;
+}
+
 int fsoaudio_alsa_hook_request_session_install(snd_pcm_t *pcm, snd_config_t *conf)
 {
-	return 0;
+    int err;
+    snd_pcm_hook_t *h_hw_params = NULL;
+    snd_pcm_hook_t *h_hw_free = NULL;
+    snd_pcm_hook_t *h_close = NULL;
+
+    err = snd_pcm_hook_add(&h_hw_params, pcm, SND_PCM_HOOK_TYPE_HW_PARAMS,
+                           _hook_hw_params, NULL);
+    if (err < 0)
+        goto error;
+
+    err = snd_pcm_hook_add(&h_hw_free, pcm, SND_PCM_HOOK_TYPE_HW_FREE,
+                           _hook_hw_free, NULL);
+    if (err < 0)
+        goto error;
+
+    err = snd_pcm_hook_add(&h_close, pcm, SND_PCM_HOOK_TYPE_CLOSE,
+                           _hook_close, NULL);
+    if (err < 0)
+        goto error;
+
+    return 0;
+
+error:
+    if (h_hw_params)
+        snd_pcm_hook_remove(h_hw_params);
+
+    if (h_hw_free)
+        snd_pcm_hook_remove(h_hw_free);
+
+    if (h_close)
+        snd_pcm_hook_remove(h_close);
+
+    return err;
 }
 
 SND_DLSYM_BUILD_VERSION(fsoaudio_alsa_hook_request_session_install, SND_PCM_DLSYM_VERSION);
