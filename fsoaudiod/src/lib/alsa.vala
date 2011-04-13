@@ -398,3 +398,32 @@ public class FsoAudio.MixerControl
     }
 }
 
+public class FsoAudio.PcmDeviceController
+{
+    private string device_name;
+    private AlsaExt.PcmDevice device;
+
+    public bool open( string device_name )
+    {
+        if ( AlsaExt.PcmDevice.open( out device, device_name, AlsaExt.PcmStream.PLAYBACK, 0 ) < 0 )
+        {
+            error( @"Can't open PCM device \"$(device_name)\"; device not available!?" );
+            return false;
+        }
+
+        this.device_name = device_name;
+        return true;
+    }
+
+    public bool close()
+    {
+        if ( device.close() < 0 )
+        {
+            error( @"Can't close opened PCM device \"$(device_name)\"!" );
+            return false;
+        }
+
+        return true;
+    }
+ }
+
