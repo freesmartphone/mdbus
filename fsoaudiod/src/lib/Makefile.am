@@ -40,6 +40,7 @@ libfsoaudio_la_VALASOURCES = \
 	alsa.vala \
 	sessionhandler.vala \
 	audiosessionpolicy.vala \
+	streamcontrol.vala \
 	$(NULL)
 
 libfsoaudio_la_SOURCES = \
