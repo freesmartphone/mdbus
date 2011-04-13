@@ -50,8 +50,6 @@ public class IsiTransport : FsoFramework.NullTransport
 
     public override async bool openAsync()
     {
-        debug( "ISI OPEN ASYNC ENTER PHASE 1" );
-
         // phase 1: modem & netlink
         if ( ! ( yield NokiaIsi.isimodem.connect() ) )
         {
@@ -59,7 +57,6 @@ public class IsiTransport : FsoFramework.NullTransport
             return false;
         }
 
-        debug( "ISI OPEN ASYNC ENTER PHASE 2" );
         // phase 2: launch subsystems
         if ( ! ( yield NokiaIsi.isimodem.launch() ) )
         {
@@ -67,9 +64,8 @@ public class IsiTransport : FsoFramework.NullTransport
             return false;
         }
 
-        debug( "ISI OPEN ASYNC ENTER PHASE 3" );
-        // phase 3: poweron
-        if ( ! ( yield NokiaIsi.isimodem.poweron() ) )
+        // phase 2: launch subsystems
+        if ( ! ( yield NokiaIsi.isimodem.startup() ) )
         {
             debug( "ISI PROBLEM in PHASE 3, FAIL" );
             return false;
