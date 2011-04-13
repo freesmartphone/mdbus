@@ -24,6 +24,9 @@ namespace FsoAudio
 {
     const string MANAGER_MODULE_NAME = "fsoaudio.manager";
 
+    /**
+     * Information about a simple control like volume, mute status.
+     **/
     public class ControlInfo
     {
         public FreeSmartphone.Audio.Control type;
@@ -38,6 +41,10 @@ namespace FsoAudio
         }
     }
 
+    /**
+     * Saves controls for both modes normal and call and their states and offers a simple
+     * API to manage them.
+     **/
     public class DeviceInfo
     {
         public FreeSmartphone.Audio.Device type;
@@ -87,6 +94,10 @@ namespace FsoAudio
         }
     }
 
+    /**
+     * The audio subsystem manager. Here all features come together and are wrapped into a
+     * simple API which can be used with DBus.
+     **/
     public class Manager : FsoFramework.AbstractObject,
                            FreeSmartphone.Audio.Manager,
                            FreeSmartphone.Info
@@ -100,6 +111,7 @@ namespace FsoAudio
         private GLib.Queue<FreeSmartphone.Audio.Device> device_stack;
         private SessionHandler sessionhandler;
         private AbstractAudioSessionPolicy policy;
+        private AbstractStreamControl streamcontrol;
 
         public Manager( FsoFramework.Subsystem subsystem )
         {
@@ -113,6 +125,7 @@ namespace FsoAudio
                                                                      this );
 
             createRouter();
+            createStreamControl();
             createAudioSessionPolicy();
 
             device_stack = new GLib.Queue<FreeSmartphone.Audio.Device>();
@@ -145,6 +158,33 @@ namespace FsoAudio
             sessionhandler = new SessionHandler( policy );
 
             logger.info( @"Created" );
+        }
+
+        private void createStreamControl()
+        {
+            var sctrlname = config.stringValue( MANAGER_MODULE_NAME, "streamcontrol_type", "none" );
+            var typename = "";
+
+            switch( sctrlname )
+            {
+                default:
+                    streamcontrol = new FsoAudio.NullStreamControl();
+                    break;
+            }
+
+            if ( sctrlname != "none" )
+            {
+                var sctrltype = GLib.Type.from_name( typename );
+                if ( sctrltype == GLib.Type.INVALID )
+                {
+                    logger.warning( @"Can't instanciate requested stream control type $typename; will no be able to control associated streams!" );
+                    streamcontrol = new FsoAudio.NullStreamControl();
+                }
+                else
+                {
+                    streamcontrol = (FsoAudio.AbstractStreamControl) GLib.Object.new( sctrltype );
+                }
+            }
         }
 
         private void createAudioSessionPolicy()
