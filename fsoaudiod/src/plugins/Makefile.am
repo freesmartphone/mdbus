@@ -9,4 +9,6 @@ SUBDIRS = \
 	router_palmpre \
 	router_alsa \
 	\
+	streamcontrol_alsa \
+	\
 	$(NULL)

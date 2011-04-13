@@ -105,6 +105,7 @@ AC_CONFIG_FILES([
   src/plugins/manager/Makefile
   src/plugins/router_palmpre/Makefile
   src/plugins/router_alsa/Makefile
+  src/plugins/streamcontrol_alsa/Makefile
 ])
 
 AC_OUTPUT
