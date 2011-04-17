@@ -13,6 +13,8 @@ dist_conf_DATA = \
 COMPAT = \
 	MotorolaEZXA780 \
 	MotorolaEZXA1200 \
+	MotorolaEZXE2 \
+	MotorolaEZXE6 \
 	$(NULL)
 
 install-data-local:
