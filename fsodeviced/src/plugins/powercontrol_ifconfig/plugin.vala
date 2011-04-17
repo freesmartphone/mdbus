@@ -89,8 +89,8 @@ class Ifconfig : FsoDevice.ISimplePowerControl,
             arg = "up";
         else
             arg = "down";
-        exec("ifconfig", iface, arg);
-        if (on) exec("iwconfig", iface, "power", "on"); // TODO: add config option for that
+        exec("/sbin/ifconfig", iface, arg);
+        if (on) exec("/sbin/iwconfig", iface, "power", "on"); // TODO: add config option for that
     }
 
     //
