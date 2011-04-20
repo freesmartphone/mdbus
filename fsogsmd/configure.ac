@@ -211,7 +211,6 @@ AC_CONFIG_FILES([
   src/plugins/Makefile
   src/plugins/dbus_service/Makefile
   src/plugins/lowlevel_motorola_ezx/Makefile
-  src/plugins/lowlevel_nokia900/Makefile
   src/plugins/lowlevel_openmoko/Makefile
   src/plugins/lowlevel_palmpre/Makefile
   src/plugins/modem_cinterion_mc75/Makefile
