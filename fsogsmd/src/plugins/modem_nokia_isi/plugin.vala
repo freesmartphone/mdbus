@@ -72,6 +72,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         NokiaIsi.modem = this;
         NokiaIsi.isimodem = new GIsiComm.ModemAccess( modem_port );
         NokiaIsi.isimodem.netlinkChanged.connect( onNetlinkChanged );
+        gpio_probe();
         poweron();
     }
 
