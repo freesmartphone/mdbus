@@ -101,7 +101,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
             return true;
 
         // always turn off first
-        //powerOff();
+        _power_off();
 
         startup_sequence = true;
 
@@ -144,6 +144,11 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         if ( !handle_modem_power )
             return;
 
+        _power_off();
+    }
+
+    protected void _power_off()
+    {
         gpio_write( cmt_apeslpx, false ); /* skip flash mode */
         gpio_write( cmt_rst_rq, false );  /* prevent current drain */
 
