@@ -76,6 +76,11 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         poweron();
     }
 
+    ~Modem()
+    {
+        poweroff();
+    }
+
     public override string repr()
     {
         return @"<$modem_transport:$modem_port>";
