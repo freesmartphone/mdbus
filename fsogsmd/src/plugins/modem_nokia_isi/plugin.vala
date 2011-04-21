@@ -22,7 +22,12 @@ using GLib;
 using Gee;
 using FsoGsm;
 
-namespace NokiaIsi { NokiaIsi.Modem modem; GIsiComm.ModemAccess isimodem; }
+namespace NokiaIsi
+{
+    const string MODULE_NAME = "fsogsm.modem_nokia_isi";
+    NokiaIsi.Modem modem;
+    GIsiComm.ModemAccess isimodem;
+}
 
 /**
  * @class NokiaIsi.Modem
@@ -57,6 +62,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
     private bool have_gpio[5];
 
     private bool startup_sequence = false;
+    private bool handle_modem_power = true;
 
 
     construct
@@ -70,6 +76,8 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         {
             logger.critical( @"Interface $modem_port not available" );
         }
+
+        handle_modem_power = config.boolValue( MODULE_NAME, "handle_modem_power", true );
 
         NokiaIsi.modem = this;
         NokiaIsi.isimodem = new GIsiComm.ModemAccess( modem_port );
@@ -88,6 +96,9 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
             return false;
 
         assert( logger.debug( "modem_nokia_isi: powerOn" ) );
+
+        if ( !handle_modem_power )
+            return true;
 
         // always turn off first
         //powerOff();
@@ -129,6 +140,9 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         base.powerOff();
 
         assert( logger.debug( "modem_nokia_isi: powerOff" ) );
+
+        if ( !handle_modem_power )
+            return;
 
         gpio_write( cmt_apeslpx, false ); /* skip flash mode */
         gpio_write( cmt_rst_rq, false );  /* prevent current drain */
@@ -193,7 +207,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     private void onNetlinkChanged( bool online )
     {
-        if ( online && startup_sequence )
+        if ( handle_modem_power && online && startup_sequence )
         {
             gpio_write( cmt_rst_rq, false );
             if ( rapu_type == RapuType.TYPE_1 )
