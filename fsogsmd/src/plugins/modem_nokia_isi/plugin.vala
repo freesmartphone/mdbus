@@ -56,6 +56,8 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
     private bool have_gpio_switch;
     private bool have_gpio[5];
 
+    private bool startup_sequence = false;
+
 
     construct
     {
@@ -137,6 +139,8 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         // always turn off first
         poweroff();
 
+        startup_sequence = true;
+
         gpio_write( cmt_apeslpx, false ); /* skip flash mode */
         gpio_write( cmt_rst_rq, false ); /* prevent current drain */
 
@@ -204,11 +208,13 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     private void onNetlinkChanged( bool online )
     {
-        if ( online )
+        if ( online && startup_sequence )
         {
             gpio_write( cmt_rst_rq, false );
             if ( rapu_type == RapuType.TYPE_1 )
                 gpio_write( cmt_en, false );  /* release "power key" */
+
+            startup_sequence = false;
         }
     }
 
