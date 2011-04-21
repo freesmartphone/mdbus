@@ -121,18 +121,6 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
         gpio_write( cmt_rst_rq, true );
 
-        Posix.sleep(5);
-
-        switch ( rapu_type )
-        {
-            case RapuType.TYPE_2:
-                break;
-
-            case RapuType.TYPE_1:
-                gpio_write( cmt_en, false );  /* release "power key" */
-                break;
-        }
-
         return true;
     }
 
