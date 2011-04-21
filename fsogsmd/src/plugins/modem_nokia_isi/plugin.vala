@@ -75,12 +75,6 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         NokiaIsi.isimodem = new GIsiComm.ModemAccess( modem_port );
         NokiaIsi.isimodem.netlinkChanged.connect( onNetlinkChanged );
         gpio_probe();
-        poweron();
-    }
-
-    ~Modem()
-    {
-        poweroff();
     }
 
     public override string repr()
@@ -88,56 +82,15 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         return @"<$modem_transport:$modem_port>";
     }
 
-    protected override UnsolicitedResponseHandler createUnsolicitedHandler()
+    protected override bool powerOn()
     {
-        // NOTE: we define our base unsolicited handler in our commandqueue,
-        // as the base on is very AT command specific atm. Need to change
-        // this somewhere in the future ...
-        return null;
-    }
+        if ( !base.powerOn() )
+            return false;
 
-    protected override CallHandler createCallHandler()
-    {
-		return new IsiCallHandler();
-    }
-
-    protected override SmsHandler createSmsHandler()
-    {
-        return null;
-    }
-
-    protected override PhonebookHandler createPhonebookHandler()
-    {
-		return null;
-    }
-
-    protected override WatchDog createWatchDog()
-    {
-		return null;
-    }
-
-    protected override void createChannels()
-    {
-        new IsiChannel( ISI_CHANNEL_NAME, new IsiTransport( modem_port ) );
-    }
-
-    protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
-    {
-        return null;
-    }
-
-    protected override void registerCustomMediators( HashMap<Type,Type> mediators )
-    {
-        mediators.clear(); // we don't need the default AT mediators
-        NokiaIsi.registerMediators( mediators );
-    }
-
-    public bool poweron()
-    {
-        assert( logger.debug( "lowlevel_nokia900_poweron()" ) );
+        assert( logger.debug( "modem_nokia_isi: powerOn" ) );
 
         // always turn off first
-        poweroff();
+        //powerOff();
 
         startup_sequence = true;
 
@@ -183,9 +136,11 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         return true;
     }
 
-    public bool poweroff()
+    protected override void powerOff()
     {
-        assert( logger.debug( "lowlevel_nokia900_poweroff()" ) );
+        base.powerOff();
+
+        assert( logger.debug( "modem_nokia_isi: powerOff" ) );
 
         gpio_write( cmt_apeslpx, false ); /* skip flash mode */
         gpio_write( cmt_rst_rq, false );  /* prevent current drain */
@@ -202,8 +157,50 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
                 gpio_write( cmt_rst, true );  /* release modem to be powered off by bootloader */
                 break;
         }
+    }
 
-        return true;
+    protected override UnsolicitedResponseHandler createUnsolicitedHandler()
+    {
+        // NOTE: we define our base unsolicited handler in our commandqueue,
+        // as the base on is very AT command specific atm. Need to change
+        // this somewhere in the future ...
+        return null;
+    }
+
+    protected override CallHandler createCallHandler()
+    {
+		return new IsiCallHandler();
+    }
+
+    protected override SmsHandler createSmsHandler()
+    {
+        return null;
+    }
+
+    protected override PhonebookHandler createPhonebookHandler()
+    {
+		return null;
+    }
+
+    protected override WatchDog createWatchDog()
+    {
+		return null;
+    }
+
+    protected override void createChannels()
+    {
+        new IsiChannel( ISI_CHANNEL_NAME, new IsiTransport( modem_port ) );
+    }
+
+    protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
+    {
+        return null;
+    }
+
+    protected override void registerCustomMediators( HashMap<Type,Type> mediators )
+    {
+        mediators.clear(); // we don't need the default AT mediators
+        NokiaIsi.registerMediators( mediators );
     }
 
     private void onNetlinkChanged( bool online )
