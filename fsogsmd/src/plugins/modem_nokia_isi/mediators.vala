@@ -327,8 +327,9 @@ public class IsiNetworkRegister : NetworkRegister
 {
     static bool force = false;
 
-    private async void runInBackground()
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        /*
         NokiaIsi.isimodem.net.queryRat( ( error, result ) => {
             debug( "error = %d", error );
             runInBackground.callback();
@@ -340,66 +341,41 @@ public class IsiNetworkRegister : NetworkRegister
             runInBackground.callback();
         } );
         yield;
+        */
+
+        ErrorCode e = ErrorCode.OK;
 
         NokiaIsi.isimodem.net.registerAutomatic( force, ( error ) => {
-            debug( "error = %d", error );
-            runInBackground.callback();
+            e = error;
+            run.callback();
         } );
         yield;
+
+        if ( e != ErrorCode.OK )
+        {
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "ISI Error %d".printf( e ) );
+        }
 
         force = !force;
-    }
-
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-
-        runInBackground(); // yes, no yield!
-
-        /*
-        NokiaIsi.isimodem.net.registerAutomatic( forced, (error) => {
-            if ( error == ErrorCode.OK )
-            {
-                run.callback();
-            }
-            else
-            {
-                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
-            }
-        } );
-        yield;
-
-        forced = false;
-        */
     }
 }
 
 public class IsiNetworkRegisterWithProvider : NetworkRegisterWithProvider
 {
-    private async void runInBackground( string mccmnc )
-    {
-        if ( yield NokiaIsi.isimodem.poweron() )
-        {
-            debug( "list providers..." );
-            NokiaIsi.isimodem.net.listProviders( ( error, providers ) => {
-                runInBackground.callback();
-            } );
-            yield;
-            debug( "done, calling register" );
-            NokiaIsi.isimodem.net.registerManual( mccmnc[0:3], mccmnc[3:5], ( error ) => {
-                debug( "error = %d", error );
-                runInBackground.callback();
-            } );
-            yield;
-        }
-        else
-        {
-            debug( "poweron failed, not registering" );
-        }
-    }
-
     public override async void run( string mccmnc ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        runInBackground( mccmnc ); // yes, no yield!
+        ErrorCode e = ErrorCode.OK;
+
+        NokiaIsi.isimodem.net.registerManual( mccmnc[0:3], mccmnc[3:5], ( error ) => {
+            e = error;
+            run.callback();
+        } );
+        yield;
+
+        if ( e != ErrorCode.OK )
+        {
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "ISI Error %d".printf( e ) );
+        }
     }
 }
 
