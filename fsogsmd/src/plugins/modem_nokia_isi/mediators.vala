@@ -35,9 +35,10 @@ public GLib.HashTable<string,Variant> isiRegStatusToFsoRegStatus( Network.ISI_Re
         status.insert( "lac", istatus.lac );
         status.insert( "cid", istatus.cid );
         status.insert( "code", istatus.mcc + istatus.mnc );
-        status.insert( "network", istatus.network ?? istatus.name );
-        status.insert( "provider", istatus.name );
-        status.insert( "display", istatus.name );
+        string name = istatus.name ?? "";
+        status.insert( "network", istatus.network ?? name );
+        status.insert( "provider", istatus.name ?? name );
+        status.insert( "display", istatus.name ?? name );
     }
 
     var regstatus = "<unknown>";
