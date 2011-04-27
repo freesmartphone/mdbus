@@ -121,21 +121,9 @@ class DBusService.Device :
             throw new FreeSmartphone.Error.UNAVAILABLE( "There is no underlying hardware present... stop talking to a vapourware modem!" );
         }
 
-        switch ( modem.status() )
+        if ( ( modem.status() < required ) || ( modem.status() >= FsoGsm.Modem.Status.SUSPENDING ) )
         {
-            case FsoGsm.Modem.Status.ALIVE_NO_SIM:
-                break;
-            case FsoGsm.Modem.Status.ALIVE_SIM_LOCKED:
-                break;
-            case FsoGsm.Modem.Status.ALIVE_SIM_UNLOCKED:
-                break;
-            case FsoGsm.Modem.Status.ALIVE_SIM_READY:
-                break;
-            case FsoGsm.Modem.Status.ALIVE_REGISTERED:
-                break;
-            default:
-                throw new FreeSmartphone.Error.UNAVAILABLE( @"This function is not available while modem is in state $(modem.status())" );
-                break;
+            throw new FreeSmartphone.Error.UNAVAILABLE( @"This function is not available while modem is in state $(modem.status())" );
         }
     }
 
