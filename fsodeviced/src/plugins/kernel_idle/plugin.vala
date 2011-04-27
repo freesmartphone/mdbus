@@ -356,6 +356,11 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     {
         bool ignore = false;
         string ids = stateIgnoreById[ idlestatus.status ];
+        if ( !ids )
+        {
+            return false;
+        }
+        
         string[] idsToIgnore = ids.split( ";" );
 
         if ( idsToIgnore.length == 0 )
@@ -402,7 +407,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
         assert( logger.debug( @"Input event (fd$(source.unix_get_fd())): $(ev.type), $(ev.code), $(ev.value)" ) );
 #endif
 
-        if ( stateIgnoreById[idlestatus.status].length == 0 || !checkForIgnoreInputEvent( source.unix_get_fd() ) )
+        if ( !checkForIgnoreInputEvent( source.unix_get_fd() ) )
         {
             handleInputEvent( ref ev );
         }
