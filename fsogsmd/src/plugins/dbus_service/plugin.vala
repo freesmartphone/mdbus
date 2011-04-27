@@ -618,7 +618,7 @@ class DBusService.Device :
 
     public async int get_signal_strength() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
-        checkAvailability();
+        checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
         var m = modem.createMediator<FsoGsm.NetworkGetSignalStrength>();
         yield m.run();
         return m.signal;
