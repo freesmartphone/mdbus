@@ -356,7 +356,7 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     {
         bool ignore = false;
         string ids = stateIgnoreById[ idlestatus.status ];
-        if ( !ids )
+        if ( ids == null )
         {
             return false;
         }
