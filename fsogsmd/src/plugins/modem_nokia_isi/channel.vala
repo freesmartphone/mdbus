@@ -39,7 +39,7 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
                 initialize();
                 break;
             case FsoGsm.Modem.Status.ALIVE_SIM_READY:
-                netinitialize();
+                poweron();
                 break;
             case FsoGsm.Modem.Status.CLOSING:
                 shutdown();
@@ -70,19 +70,14 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
         theModem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
-    public async void netinitialize()
+    public async void poweron()
     {
-        yield NokiaIsi.isimodem.poweron();
         unsolicitedHandler = new NokiaIsi.IsiUnsolicitedHandler();
+        yield NokiaIsi.isimodem.poweron();
     }
 
     public async void initialize()
     {
-        /*
-        theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
-        return;
-        */
-
         var getAuthStatus = new NokiaIsi.IsiSimGetAuthStatus();
         try
         {

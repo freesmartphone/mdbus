@@ -48,6 +48,8 @@ public class IsiUnsolicitedHandler : FsoFramework.AbstractObject
 
     private void onRegistrationStatusUpdate( Network.ISI_RegStatus istatus )
     {
+        debug( @"on registration status update w/ isi status $(istatus.status)" );
+
         switch ( istatus.status )
         {
             case GIsiClient.Network.RegistrationStatus.HOME:
@@ -57,7 +59,6 @@ public class IsiUnsolicitedHandler : FsoFramework.AbstractObject
                 break;
 
             default:
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
                 break;
         }
 
