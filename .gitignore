@@ -6,6 +6,7 @@ Makefile
 *.la
 *.c
 *.h
+.*.swp
 *.stamp
 *.gir
 *.lineno
