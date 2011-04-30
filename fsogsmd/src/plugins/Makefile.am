@@ -39,5 +39,7 @@ SUBDIRS += \
 endif
 
 if WANT_ISI
-SUBDIRS += modem_nokia_isi
+SUBDIRS += \
+	modem_nokia_isi \
+	pdp_nokia_isi
 endif
