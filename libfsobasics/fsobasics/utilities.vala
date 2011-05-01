@@ -30,6 +30,30 @@ internal static string _program = null;
 
 internal static GLib.Regex _keyValueRe = null;
 
+internal static GLib.HashTable<string,void*> _hashtable = null;
+
+namespace FsoFramework { namespace DataSharing {
+
+public void setValueForKey( string key, void* val )
+{
+    if ( _hashtable == null )
+    {
+        _hashtable = new GLib.HashTable<string,void*>( GLib.str_hash, GLib.str_equal );
+    }
+    _hashtable.insert( key, val );
+}
+
+public void* valueForKey( string key )
+{
+    if ( _hashtable == null )
+    {
+        _hashtable = new GLib.HashTable<string,void*>( GLib.str_hash, GLib.str_equal );
+    }
+    return _hashtable.lookup( key );
+}
+
+} }
+
 namespace FsoFramework { namespace FileHandling {
 
 public bool createDirectory( string filename, Posix.mode_t mode )
