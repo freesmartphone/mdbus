@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
 	$(FSO_CFLAGS) \
+	$(ISI_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsogsm.pdp_nokia_isi\" \
 	$(NULL)
 
@@ -24,7 +25,8 @@ VALAC_ARGS = \
 	--pkg thread \
 	--pkg glib-2.0 \
 	--pkg fsoframework-2.0 \
-	--pkg fsogsm-2.0
+	--pkg fsogsm-2.0 \
+	--pkg gisicomm-0.0
 
 #
 # plugin

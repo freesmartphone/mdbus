@@ -20,6 +20,7 @@
 using GLib;
 
 using FsoGsm;
+using GIsiComm;
 
 /**
  * @class Pdp.Isi
@@ -42,6 +43,10 @@ class Pdp.NokiaIsi : FsoGsm.PdpHandler
     public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var data = theModem.data();
+        GIsiComm.ModemAccess isimodem = FsoFramework.DataSharing.valueForKey( "NokiaIsi.isimodem") as GIsiComm.ModemAccess;
+
+        isimodem.gpds.contextActivated.connect( onContextActivated );
+        isimodem.gpds.contextDeactivated.connect( onContextDeactivated );
 
         if ( data.contextParams == null )
         {
@@ -53,16 +58,30 @@ class Pdp.NokiaIsi : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
         }
 
-        var cmdline = @"up:$(data.contextParams.apn) $(data.contextParams.username) $(data.contextParams.password)";
+        isimodem.gpds.activate( data.contextParams.apn, data.contextParams.username, data.contextParams.password, ( err ) => {
+            if ( err != ErrorCode.OK )
+                throw new FreeSmartphone.Error.INTERNAL_ERROR( "Failed to activate the GPRS context" );
+        } );
     }
 
     public async override void sc_deactivate()
     {
+        GIsiComm.ModemAccess isimodem = FsoFramework.DataSharing.valueForKey( "NokiaIsi.isimodem") as GIsiComm.ModemAccess;
+        isimodem.gpds.deactivate();
     }
 
     public async override void statusUpdate( string status, GLib.HashTable<string,Variant> properties )
     {
         assert_not_reached();
+    }
+
+    private void onContextActivated( string iface, string ip, string dns1, string dns2 )
+    {
+        this.connectedWithNewDefaultRoute( iface, ip, "255.255.255.255", "0.0.0.0", dns1, dns2 );
+    }
+
+    private void onContextDeactivated()
+    {
     }
 }
 
