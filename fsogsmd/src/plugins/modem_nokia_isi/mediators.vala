@@ -444,6 +444,21 @@ public class IsiCallSendDtmf : CallSendDtmf
 }
 
 /*
+ * org.freesmartphone.GSM.Pdp
+ */
+
+public class IsiPdpSetCredentials : PdpSetCredentials
+{
+    public override async void run( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var data = theModem.data();
+        data.contextParams = new ContextParams( apn, username, password );
+    }
+}
+
+
+
+/*
  * org.freesmartphone.GSM.Debug
  */
 
@@ -518,7 +533,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(CallSendDtmf) ]                    = typeof( IsiCallSendDtmf );
 
     mediators[ typeof(PdpGetCredentials) ]               = typeof( AtPdpGetCredentials );
-    mediators[ typeof(PdpSetCredentials) ]               = typeof( AtPdpSetCredentials );
+    mediators[ typeof(PdpSetCredentials) ]               = typeof( IsiPdpSetCredentials );
     mediators[ typeof(PdpActivateContext) ]              = typeof( AtPdpActivateContext ); 
     mediators[ typeof(PdpDeactivateContext) ]            = typeof( AtPdpDeactivateContext ); 
 
