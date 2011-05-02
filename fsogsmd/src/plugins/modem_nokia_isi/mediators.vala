@@ -517,6 +517,11 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(CallReleaseAll) ]                  = typeof( IsiCallReleaseAll );
     mediators[ typeof(CallSendDtmf) ]                    = typeof( IsiCallSendDtmf );
 
+    mediators[ typeof(PdpGetCredentials) ]               = typeof( AtPdpGetCredentials );
+    mediators[ typeof(PdpSetCredentials) ]               = typeof( AtPdpSetCredentials );
+    mediators[ typeof(PdpActivateContext) ]              = typeof( AtPdpActivateContext ); 
+    mediators[ typeof(PdpDeactivateContext) ]            = typeof( AtPdpDeactivateContext ); 
+
     mediators[ typeof(DebugCommand) ]                    = typeof( IsiDebugCommand );
 
     theModem.logger.debug( "Nokia ISI mediators registered" );
