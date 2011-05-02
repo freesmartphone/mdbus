@@ -74,6 +74,7 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
     {
         unsolicitedHandler = new NokiaIsi.IsiUnsolicitedHandler();
         yield NokiaIsi.isimodem.poweron();
+        FsoFramework.DataSharing.setValueForKey( "NokiaIsi.isimodem", NokiaIsi.isimodem );
     }
 
     public async void initialize()
