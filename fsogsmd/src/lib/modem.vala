@@ -400,6 +400,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             case "ippp":
                 typename = "PdpPppInternal";
                 break;
+	    case "nokia_isi":
+		typename = "PdpNokiaIsi";
+		break;
             default:
                 logger.warning( @"Invalid pdp_type $pdphandlertype; data connectivity will NOT be available" );
                 //pdphandler = new FsoGsm.Nullpdphandler();
