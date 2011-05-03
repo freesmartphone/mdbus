@@ -15,6 +15,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 progs_ldadd = \
 	$(top_srcdir)/src/lib/libfsogsm.la \
 	$(FSO_LIBS) \
+	$(ISI_LIBS) \
 	$(NULL)
 
 VALAC_ARGS = \
