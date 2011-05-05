@@ -130,3 +130,5 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
 }
 
 } /* namespace FsoFramework */
+
+// vim:ts=4:sw=4:expandtab
