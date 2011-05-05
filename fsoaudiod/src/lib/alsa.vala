@@ -427,3 +427,4 @@ public class FsoAudio.PcmDeviceController
     }
  }
 
+// vim:ts=4:sw=4:expandtab
