@@ -3,6 +3,27 @@
 [CCode (cheader_filename = "alsa/asoundlib.h")]
 namespace Alsa2
 {
+    [CCode (cname = "snd_spcm_latency_t", cprefix = "SND_SPCM_LATENCY_")]
+    public enum PcmSimpleLatency
+    {
+        STANDARD,
+        MEDIUM,
+        REALTIME
+    }
+
+    [CCode (cname = "snd_spcm_xrun_type_t", cprefix = "SND_SPCM_XRUN_")]
+    public enum PcmSimpleXrunType
+    {
+        IGNORE,
+        STOP,
+    }
+
+    [CCode (cname = "snd_spcm_duplex_t", cprefix = "SND_SPCM_DUPLEX_")]
+    public enum PcmSimpleDuplex {
+	    LIBERAL,
+	    PEDANTIC,
+    }
+
     [CCode (cname = "snd_pcm_access_t", cprefix = "SND_PCM_ACCESS_")]
     public enum PcmAccess
     {
@@ -396,6 +417,14 @@ namespace Alsa2
         public int recover( int err, int silent );
         public int set_params( PcmFormat format, PcmAccess access, uint channels, uint rate, int soft_resample, uint latency );
         public int get_params( out PcmUnsignedFrames buffer_size, out PcmUnsignedFrames period_size );
+
+        // simple setup
+        [CCode (cname = "snd_spcm_init")]
+        public int simple_init( uint rate, uint channels, PcmFormat format, PcmSubformat subformat, PcmSimpleLatency latency, PcmAccess access, PcmSimpleXrunType xrun );
+        [CCode (cname = "snd_spcm_init_duplex")]
+        public static int simple_init_duplex( PcmDevice playback, PcmDevice capture, uint rate, uint channels, PcmFormat format, PcmSubformat subformat, PcmSimpleLatency latency, PcmAccess access, PcmSimpleXrunType xrun, PcmSimpleDuplex duplex );
+        [CCode (cname = "snd_spcm_get_params")]
+        public int simple_get_params( out uint rate, out PcmUnsignedFrames buffer_size, out PcmUnsignedFrames period_size );
 
         // HW params API
         public int test_access( PcmHardwareParams params, PcmAccess access );
