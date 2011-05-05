@@ -294,3 +294,5 @@ public class Manager : Object
 }
 
 } /* namespace Gsm0710mux */
+
+// vim:ts=4:sw=4:expandtab
