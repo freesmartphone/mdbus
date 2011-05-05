@@ -115,3 +115,5 @@ class PalmPre.AmbientLight : FreeSmartphone.Device.AmbientLight, FsoFramework.Ab
         timestamp = brightness_timestamp;
     }
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -98,3 +98,5 @@ public abstract class BaseAudioRouter : AudioRouter, GLib.Object
 }
 
 } /* namespace FsoDevice */
+
+// vim:ts=4:sw=4:expandtab

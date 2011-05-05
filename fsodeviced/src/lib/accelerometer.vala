@@ -40,3 +40,5 @@ public abstract class FsoDevice.BaseAccelerometer : FsoFramework.AbstractObject
         return "<>";
     }
 }
+
+// vim:ts=4:sw=4:expandtab

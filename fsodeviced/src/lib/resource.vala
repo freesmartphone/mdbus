@@ -59,3 +59,5 @@ public class BasePowerControlResource : FsoFramework.AbstractDBusResource
 
 
 } /* namespace FsoDevice */
+
+// vim:ts=4:sw=4:expandtab

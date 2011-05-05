@@ -30,3 +30,5 @@ public interface SignallingInputDevice : FsoFramework.AbstractObject
 }
 
 } /* namespace FsoDevice */
+
+// vim:ts=4:sw=4:expandtab

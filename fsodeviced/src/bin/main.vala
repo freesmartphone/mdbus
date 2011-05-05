@@ -56,3 +56,5 @@ public static int main( string[] args )
     FsoFramework.theLogger.info( "fsodeviced shutdown." );
     return 0;
 }
+
+// vim:ts=4:sw=4:expandtab

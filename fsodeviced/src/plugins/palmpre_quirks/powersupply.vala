@@ -275,3 +275,5 @@ namespace PalmPre
     }
 
 } /* namespace PalmPre */
+
+// vim:ts=4:sw=4:expandtab

@@ -161,3 +161,5 @@ public static void fso_register_function( TypeModule module )
 {
     FsoFramework.theLogger.debug( "fsodevice.accelerometer_lis302 fso_register_function" );
 }
+
+// vim:ts=4:sw=4:expandtab
