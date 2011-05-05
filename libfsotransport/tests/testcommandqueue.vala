@@ -37,3 +37,5 @@ void main( string[] args )
     Test.add_func( "/CommandQueue/Enqueue", test_commandqueue_enqueue );
     Test.run();
 }
+
+// vim:ts=4:sw=4:expandtab

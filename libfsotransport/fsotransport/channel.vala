@@ -52,3 +52,5 @@ public class FsoGsm.Channel : FsoGsm.AtCommandQueue
     }
 }
 
+// vim:ts=4:sw=4:expandtab
+

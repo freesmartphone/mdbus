@@ -100,3 +100,5 @@ namespace PalmPre.Hsuart
         public ulong rx_dropped;
     }
 } // namespace PalmPre.Hsuart
+
+// vim:ts=4:sw=4:expandtab

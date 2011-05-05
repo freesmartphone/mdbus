@@ -546,3 +546,5 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         Posix.tcflush( fd, Posix.TCIOFLUSH );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

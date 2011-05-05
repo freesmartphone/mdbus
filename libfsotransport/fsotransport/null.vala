@@ -74,3 +74,5 @@ public class FsoFramework.NullTransport : FsoFramework.BaseTransport
     {
     }
 }
+
+// vim:ts=4:sw=4:expandtab

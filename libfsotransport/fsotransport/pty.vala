@@ -66,3 +66,5 @@ public class FsoFramework.PtyTransport : FsoFramework.BaseTransport
     }
 }
 
+// vim:ts=4:sw=4:expandtab
+

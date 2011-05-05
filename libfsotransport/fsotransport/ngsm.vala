@@ -157,3 +157,5 @@ public class FsoFramework.NgsmAdvancedMuxTransport : FsoFramework.NgsmTransport
         base( portname, portspeed, true, framesize );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

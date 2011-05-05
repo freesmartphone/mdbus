@@ -197,3 +197,5 @@ public delegate void FsoFramework.TransportFunc( Transport transport );
 public delegate int FsoFramework.TransportDataFunc( void* data, int length, Transport transport );
 public delegate bool FsoFramework.TransportBoolFunc( Transport transport );
 public delegate int FsoFramework.TransportIntFunc( Transport transport );
+
+// vim:ts=4:sw=4:expandtab

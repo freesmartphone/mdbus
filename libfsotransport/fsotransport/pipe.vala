@@ -86,3 +86,5 @@ public class FsoFramework.FdPipe : GLib.Object
         Source.remove( destoutWatch );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

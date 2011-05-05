@@ -204,3 +204,5 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
         transport.close();
     }
 }
+
+// vim:ts=4:sw=4:expandtab

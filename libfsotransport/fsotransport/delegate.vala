@@ -96,3 +96,5 @@ public class FsoFramework.DelegateTransport : FsoFramework.BaseTransport
         assert_not_reached(); // NYI here
     }
 }
+
+// vim:ts=4:sw=4:expandtab
