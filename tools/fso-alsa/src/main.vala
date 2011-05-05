@@ -21,6 +21,7 @@
 //=========================================================================//
 using GLib;
 using FsoDevice;
+using Alsa2;
 
 //=========================================================================//
 class Commands : Object
@@ -71,6 +72,27 @@ class Commands : Object
 
     public void info()
     {
+        stdout.printf( """Unknown command; available commands are:
+
+scenario:             Dump the current alsa scenario in fso-format,
+mixer:                Dump the current alsa simple mixer settings,
+record:               Record into file 'audio.raw'
+play:                 Play from file 'audio.raw'
+""" );
+    }
+
+    public void record()
+    {
+    }
+
+    public void playback()
+    {
+        PcmDevice pcm;
+        var ok = PcmDevice.open( out pcm, cardname, PcmStream.PLAYBACK );
+        assert( pcm != null );
+
+        //snd_pcm_hw_params_alloca(&hwparams);
+
     }
 }
 
@@ -81,7 +103,7 @@ static bool info;
 [NoArrayLength()]
 static string[] command;
 
-const OptionEntry[] options =
+const OptionEntry[] opts =
 {
     { "cardname", 'c', 0, OptionArg.STRING, ref cardname, "The card name [default='default']", "CARDNAME" },
     { "", 0, 0, OptionArg.FILENAME_ARRAY, ref command, null, "[--] COMMAND [ARGS]..." },
@@ -93,12 +115,14 @@ int main( string[] args )
 {
     cardname = "default";
 
+    OptionContext options;
+
     try
     {
-        var opt_context = new OptionContext( "- FSO Alsa Diagnostics" );
-        opt_context.set_help_enabled( true );
-        opt_context.add_main_entries( options, null );
-        opt_context.parse( ref args );
+        options = new OptionContext( "- FSO Alsa Diagnostics" );
+        options.set_help_enabled( true );
+        options.add_main_entries( opts, null );
+        options.parse( ref args );
     }
     catch ( OptionError e )
     {
