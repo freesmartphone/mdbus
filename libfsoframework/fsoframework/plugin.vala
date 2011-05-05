@@ -173,3 +173,5 @@ public class FsoFramework.BasePlugin : FsoFramework.Plugin, TypeModule
 
 }
 
+// vim:ts=4:sw=4:expandtab
+

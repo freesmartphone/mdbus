@@ -39,3 +39,5 @@ public abstract class FsoFramework.AbstractObject : GLib.Object
 
     public abstract string repr();
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -242,3 +242,5 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
     }
 }
 #endif
+
+// vim:ts=4:sw=4:expandtab
