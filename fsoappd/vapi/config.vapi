@@ -7,3 +7,4 @@ namespace Config
     public const string PACKAGE_LIBDIR;
 }
 
+// vim:ts=4:sw=4:expandtab

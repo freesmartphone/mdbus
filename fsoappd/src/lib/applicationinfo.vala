@@ -32,3 +32,5 @@ namespace FsoApp
         public bool single_instance;
     }
 }
+
+// vim:ts=4:sw=4:expandtab

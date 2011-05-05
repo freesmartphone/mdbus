@@ -68,3 +68,5 @@ public class NullWindowController : FsoApp.AbstractWindowController
         logger.warning( "NullController::destroy() - this is probably not what you want" );
     }
 }
+
+// vim:ts=4:sw=4:expandtab
