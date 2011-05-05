@@ -40,3 +40,5 @@ void main()
 {
     var ips = ipv4ForInterface( "wlan0" );
 }
+
+// vim:ts=4:sw=4:expandtab

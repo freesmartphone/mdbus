@@ -42,3 +42,5 @@ namespace PosixExtra {
     [CCode (cheader_filename = "netdb.h")]
     public unowned HostEnt gethostbyname (string name);
 }
+
+// vim:ts=4:sw=4:expandtab

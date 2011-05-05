@@ -66,3 +66,5 @@ namespace Sound {
         public static int dump(string card_name = "default");
     }
 }
+
+// vim:ts=4:sw=4:expandtab
