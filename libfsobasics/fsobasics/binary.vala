@@ -650,3 +650,5 @@ public errordomain BinReaderError
     ILLEGAL_PARAMETER
 }
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -209,3 +209,5 @@ public class FsoFramework.BaseKObjectNotifier : Object
 
 }
 
+// vim:ts=4:sw=4:expandtab
+

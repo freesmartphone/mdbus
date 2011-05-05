@@ -79,3 +79,5 @@ internal static void silence_unused_warning()
     vala_library_init();
     silence_unused_warning();
 }
+
+// vim:ts=4:sw=4:expandtab

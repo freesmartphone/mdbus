@@ -74,3 +74,5 @@ namespace FsoFramework.Checksum
         return crc16( data ) == expected;
     }
 }
+
+// vim:ts=4:sw=4:expandtab

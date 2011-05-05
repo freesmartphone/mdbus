@@ -118,3 +118,5 @@ public void callDelegateOnNewThread( VoidFuncWithVoidStarParam func,
 }
 
 } }
+
+// vim:ts=4:sw=4:expandtab

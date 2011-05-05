@@ -96,3 +96,5 @@ public class FsoFramework.WaitForPredicate : GLib.Object
         return true;
     }
 }
+
+// vim:ts=4:sw=4:expandtab

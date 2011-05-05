@@ -75,3 +75,4 @@ public class FsoFramework.AsyncWorkerQueue<T> : FsoFramework.AbstractWorkerQueue
     }
 }
 
+// vim:ts=4:sw=4:expandtab

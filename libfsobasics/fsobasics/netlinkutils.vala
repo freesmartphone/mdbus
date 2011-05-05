@@ -66,3 +66,5 @@ public string ipv4AddressForInterface( string iface )
 
 } /* namespace Net */
 } /* namespace FsoFramework */
+
+// vim:ts=4:sw=4:expandtab

@@ -79,3 +79,5 @@ namespace FsoFramework
         return type in subtype.children();
     }
 }
+
+// vim:ts=4:sw=4:expandtab

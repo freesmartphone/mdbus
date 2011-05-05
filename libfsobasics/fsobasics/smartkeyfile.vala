@@ -363,3 +363,5 @@ public class FsoFramework.SmartKeyFileSection : Object
             return null;
     }
 }
+
+// vim:ts=4:sw=4:expandtab
