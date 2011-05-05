@@ -44,3 +44,5 @@ public abstract class FsoTime.AbstractSource : FsoTime.Source, FsoFramework.Abst
 
 }
 
+// vim:ts=4:sw=4:expandtab
+

@@ -35,3 +35,5 @@ void main (string[] args)
     Test.add_func( "/FsoTime/SourceNtp/all", test_it );
     Test.run ();
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -8,3 +8,5 @@ namespace GLibHacks
         public static uint watch_name_on_connection (GLib.DBusConnection connection, string name, GLib.BusNameWatcherFlags flags, [CCode (type = "GClosure*")] GLib.BusNameAppearedCallback name_appeared_handler, [CCode (type = "GClosure*")] GLib.BusNameVanishedCallback name_vanished_handler);
     }
 }
+
+// vim:ts=4:sw=4:expandtab

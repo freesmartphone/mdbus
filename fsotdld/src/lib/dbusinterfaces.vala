@@ -28,3 +28,5 @@ public interface WpaDBusIface : GLib.Object
     public abstract async GLib.ObjectPath[] scanResults() throws DBusError, IOError;
     public signal void ScanResultsAvailable();
 }
+
+// vim:ts=4:sw=4:expandtab

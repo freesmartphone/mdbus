@@ -50,3 +50,5 @@ public class FsoGps.FixInfo
         this.lon = lon;
     }
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -221,3 +221,4 @@ public abstract class FsoGps.AbstractReceiver : FsoTdl.AbstractLocationProvider
     }
 }
 
+// vim:ts=4:sw=4:expandtab

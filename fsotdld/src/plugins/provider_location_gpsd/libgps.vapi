@@ -232,3 +232,5 @@ extern double wgs84_separation(double, double);
 
 #endif
 
+// vim:ts=4:sw=4:expandtab
+

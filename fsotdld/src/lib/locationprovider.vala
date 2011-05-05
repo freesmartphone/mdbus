@@ -35,3 +35,5 @@ public abstract class FsoTdl.AbstractLocationProvider : FsoTdl.ILocationProvider
     public abstract void start();
     public abstract void stop();
 }
+
+// vim:ts=4:sw=4:expandtab
