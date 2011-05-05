@@ -1286,3 +1286,4 @@ mdbus2: DBus has never been that much fun!""" );
     return 0;
 }
 
+// vim:ts=4:sw=4:expandtab
