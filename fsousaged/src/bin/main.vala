@@ -63,3 +63,5 @@ public static int main( string[] args )
     FsoFramework.theLogger.info( "fsousaged exit" );
     return 0;
 }
+
+// vim:ts=4:sw=4:expandtab

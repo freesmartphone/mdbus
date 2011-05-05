@@ -350,3 +350,5 @@ public class Resource : IResource, Object
 }
 
 } /* namespace Usage */
+
+// vim:ts=4:sw=4:expandtab

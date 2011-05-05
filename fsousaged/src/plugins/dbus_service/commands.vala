@@ -266,3 +266,5 @@ public class Resume : SystemCommand
 }
 
 } /* namespace Usage */
+
+// vim:ts=4:sw=4:expandtab

@@ -7,3 +7,5 @@ namespace Config
     public const string DBUS_SERVICE_DIR;
     public const string DBUS_SYSTEM_SERVICE_DIR;
 }
+
+// vim:ts=4:sw=4:expandtab
