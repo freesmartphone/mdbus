@@ -151,3 +151,4 @@ public bool CHECK( Predicate p, string message, bool abort = false )
 
 } // namespace
 
+// vim:ts=4:sw=4:expandtab

@@ -74,3 +74,4 @@ public class ValidateSystemAction : IAction, GLib.Object
 
 } // namespace
 
+// vim:ts=4:sw=4:expandtab

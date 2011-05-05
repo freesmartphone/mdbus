@@ -46,3 +46,5 @@ public interface IActionQueue : GLib.Object
 }
 
 } // namespace
+
+// vim:ts=4:sw=4:expandtab

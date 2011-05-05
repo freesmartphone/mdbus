@@ -89,3 +89,4 @@ public class PalmPreConfiguration : BaseConfiguration
 
 } // namespace
 
+// vim:ts=4:sw=4:expandtab

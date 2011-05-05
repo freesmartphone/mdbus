@@ -161,3 +161,5 @@ public void ERROR( string message )
     stdout.printf( @"$(TimeVal().to_iso8601()) FSO-BOOT: [ERROR] $message\n" );
     Posix.exit( -1 );
 }
+
+// vim:ts=4:sw=4:expandtab
