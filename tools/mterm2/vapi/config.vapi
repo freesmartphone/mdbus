@@ -38,3 +38,5 @@ namespace LinuxExt
         }
     } /* namespace Gsm */
 }
+
+// vim:ts=4:sw=4:expandtab

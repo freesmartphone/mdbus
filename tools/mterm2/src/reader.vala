@@ -65,3 +65,5 @@ public class Reader
         Readline.History.write( HISTORY_PATH.printf( Environment.get_variable( "HOME" ) ) );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

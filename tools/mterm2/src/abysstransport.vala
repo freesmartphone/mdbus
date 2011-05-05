@@ -39,3 +39,5 @@ public class AbyssTransport : FsoFramework.SerialTransport
         }
     }
 }
+
+// vim:ts=4:sw=4:expandtab

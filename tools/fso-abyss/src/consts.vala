@@ -31,3 +31,5 @@ namespace CONST
     public const string MUXER_OBJ_PATH  = "/org/freesmartphone/GSM/Muxer";
     public const string MUXER_INTERFACE = "org.freesmartphone.GSM.MUX";
 }
+
+// vim:ts=4:sw=4:expandtab

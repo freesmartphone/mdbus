@@ -508,3 +508,5 @@ namespace Alsa2
         public int set_buffer_size_last( PcmHardwareParams params, out PcmUnsignedFrames frames );
     }
 }
+
+// vim:ts=4:sw=4:expandtab
