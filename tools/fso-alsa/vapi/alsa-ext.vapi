@@ -47,11 +47,22 @@ namespace Alsa2
         LAST
     }
 
+    [CCode (cname = "gint", cprefix = "SND_PCM_")]
+    public enum PcmMode
+    {
+        NONBLOCK,
+        ASYNC,
+        NO_AUTO_RESAMPLE,
+        NO_AUTO_CHANNELS,
+        NO_AUTO_FORMAT,
+        NO_SOFTVOL
+    }
+
     [Compact]
     [CCode (cname = "snd_pcm_t", cprefix = "snd_pcm_", free_function = "")]
     public class PcmDevice
     {
-        public static int open( out PcmDevice pcm, string name, PcmStream stream, int mode );
+        public static int open( out PcmDevice pcm, string name, PcmStream stream, PcmMode mode = 0 );
 
         public int close();
         [CCode (cname = "snd_pcm_name")]
