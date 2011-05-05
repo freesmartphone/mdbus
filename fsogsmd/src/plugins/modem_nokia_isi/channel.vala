@@ -142,3 +142,4 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
     }
 }
 
+// vim:ts=4:sw=4:expandtab

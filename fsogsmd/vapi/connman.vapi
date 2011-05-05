@@ -231,3 +231,5 @@ namespace Connman
         public void unregister();
     }
 }
+
+// vim:ts=4:sw=4:expandtab

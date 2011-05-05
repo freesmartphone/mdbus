@@ -234,3 +234,5 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+FCLASS", test_atcommand_PlusFCLASS );
     //Test.run();
 }
+
+// vim:ts=4:sw=4:expandtab

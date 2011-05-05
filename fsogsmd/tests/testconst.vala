@@ -44,3 +44,5 @@ void main( string[] args )
     Test.add_func( "/Const/ctzvToTimezone", test_ctzv_to_timezone );
     Test.run();
 }
+
+// vim:ts=4:sw=4:expandtab

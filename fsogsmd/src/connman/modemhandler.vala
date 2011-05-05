@@ -421,3 +421,4 @@ public class FsoGsm.ModemHandler : FsoFramework.AbstractObject
     }
 }
 
+// vim:ts=4:sw=4:expandtab

@@ -158,3 +158,5 @@ public void registerNeptuneMediators( HashMap<Type,Type> table )
 }
 
 } /* FreescaleNeptune */
+
+// vim:ts=4:sw=4:expandtab

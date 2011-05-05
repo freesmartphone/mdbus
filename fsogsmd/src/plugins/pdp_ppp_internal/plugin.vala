@@ -196,3 +196,5 @@ public static void fso_register_function( TypeModule module )
 {
     // do not remove this function
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -46,4 +46,4 @@ public class MsmSmsSendTextMessage : SmsSendTextMessage
     }
 }
 
-
+// vim:ts=4:sw=4:expandtab

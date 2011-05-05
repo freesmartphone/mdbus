@@ -47,3 +47,5 @@ public class AtMonitorGetNeighbourCellInformation : MonitorGetNeighbourCellInfor
 }
 
 } // namespace FsoGsm
+
+// vim:ts=4:sw=4:expandtab

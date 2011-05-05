@@ -91,3 +91,5 @@ public class AtSmsSendTextMessage : SmsSendTextMessage
 }
 
 } // namespace FsoGsm
+
+// vim:ts=4:sw=4:expandtab

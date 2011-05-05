@@ -118,3 +118,5 @@ public int convertRawRssiToPercentage( uint raw_rssi )
 
     return result;
 }
+
+// vim:ts=4:sw=4:expandtab

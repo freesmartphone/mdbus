@@ -421,3 +421,5 @@ public abstract class FsoGsm.VoiceMailboxSetNumber : FsoGsm.AbstractMediator
 {
     public abstract async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
+
+// vim:ts=4:sw=4:expandtab

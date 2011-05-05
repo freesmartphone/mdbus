@@ -35,3 +35,5 @@ public interface FsoGsm.Channel : FsoFramework.CommandQueue
 
     public signal void hangup();
 }
+
+// vim:ts=4:sw=4:expandtab

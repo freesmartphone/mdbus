@@ -1685,3 +1685,5 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 }
 
 } /* namespace FsoGsm */
+
+// vim:ts=4:sw=4:expandtab

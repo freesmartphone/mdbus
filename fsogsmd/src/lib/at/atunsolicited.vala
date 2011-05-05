@@ -316,3 +316,5 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         }
     }
 }
+
+// vim:ts=4:sw=4:expandtab

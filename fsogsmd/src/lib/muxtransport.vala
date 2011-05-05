@@ -293,3 +293,5 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
         assert( bwritten == length );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

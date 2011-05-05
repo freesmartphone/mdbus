@@ -584,3 +584,5 @@ public void registerDummyMediators( HashMap<Type,Type> table )
 }
 
 } // namespace FsoGsm
+
+// vim:ts=4:sw=4:expandtab

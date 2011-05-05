@@ -395,3 +395,5 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 }
 
 } // namespace FsoGsm
+
+// vim:ts=4:sw=4:expandtab

@@ -300,3 +300,5 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         return result;
     }
 }
+
+// vim:ts=4:sw=4:expandtab

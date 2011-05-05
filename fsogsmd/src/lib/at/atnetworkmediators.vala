@@ -215,3 +215,5 @@ public class AtNetworkSetCallingId : NetworkSetCallingId
 }
 
 } // namespace FsoGsm
+
+// vim:ts=4:sw=4:expandtab

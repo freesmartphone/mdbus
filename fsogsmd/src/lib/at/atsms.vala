@@ -558,3 +558,5 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         storage.storeTransactionIndizesForSentMessage( hexpdus );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -460,3 +460,4 @@ public class FsoGsm.HtcAtParser : FsoFramework.BaseParser
     }
 }
 
+// vim:ts=4:sw=4:expandtab

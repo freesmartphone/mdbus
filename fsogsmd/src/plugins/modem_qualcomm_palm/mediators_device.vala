@@ -235,3 +235,5 @@ public class MsmDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
         throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

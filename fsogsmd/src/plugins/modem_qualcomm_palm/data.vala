@@ -74,3 +74,4 @@ public static class MsmData
     public static NetworkInfo network_info;
 }
 
+// vim:ts=4:sw=4:expandtab

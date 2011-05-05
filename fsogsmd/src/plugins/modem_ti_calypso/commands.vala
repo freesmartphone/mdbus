@@ -365,3 +365,5 @@ public void registerCustomAtCommands( HashMap<string,AtCommand> table )
 }
 
 } /* namespace TiCalypso */
+
+// vim:ts=4:sw=4:expandtab

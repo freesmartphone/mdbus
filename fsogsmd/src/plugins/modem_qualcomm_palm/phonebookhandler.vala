@@ -131,3 +131,5 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         }
     }
 }
+
+// vim:ts=4:sw=4:expandtab

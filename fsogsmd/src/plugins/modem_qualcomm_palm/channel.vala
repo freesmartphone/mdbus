@@ -324,3 +324,4 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     }
 }
 
+// vim:ts=4:sw=4:expandtab

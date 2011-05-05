@@ -47,3 +47,5 @@ public string hexToString( string hex, uint lowest = 0x20, uint highest = 0x7f, 
 }
 
 } /* namespace Codec */
+
+// vim:ts=4:sw=4:expandtab

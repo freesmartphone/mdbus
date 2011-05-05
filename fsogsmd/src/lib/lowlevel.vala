@@ -74,3 +74,5 @@ public class NullLowLevel : LowLevel, FsoFramework.AbstractObject
 }
 
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -543,3 +543,5 @@ static void registerMediators( HashMap<Type,Type> mediators )
 }
 
 } /* namespace NokiaIsi */
+
+// vim:ts=4:sw=4:expandtab

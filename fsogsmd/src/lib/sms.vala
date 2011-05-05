@@ -93,3 +93,5 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
     public abstract Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents, bool requestReport );
     public abstract void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus );
 }
+
+// vim:ts=4:sw=4:expandtab

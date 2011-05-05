@@ -1073,3 +1073,5 @@ public abstract class FsoGsm.AbstractGsmModem : FsoGsm.AbstractModem
 public abstract class FsoGsm.AbstractCdmaModem : FsoGsm.AbstractModem
 {
 }
+
+// vim:ts=4:sw=4:expandtab

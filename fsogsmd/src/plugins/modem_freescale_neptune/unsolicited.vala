@@ -134,3 +134,5 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
         assert( theModem.logger.debug( @"URC: $prefix not implemented on Neptune" ) );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

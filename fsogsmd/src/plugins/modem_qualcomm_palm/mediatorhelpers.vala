@@ -198,3 +198,5 @@ public async void triggerUpdateNetworkStatus()
 
     inTriggerUpdateNetworkStatus = false;
 }
+
+// vim:ts=4:sw=4:expandtab

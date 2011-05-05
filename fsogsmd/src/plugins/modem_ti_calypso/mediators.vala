@@ -135,3 +135,5 @@ public void registerCustomMediators( HashMap<Type,Type> table )
 }
 
 } /* namespace TiCalypso */
+
+// vim:ts=4:sw=4:expandtab

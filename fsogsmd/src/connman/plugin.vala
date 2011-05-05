@@ -116,3 +116,4 @@ public void fsogsm_plugin_exit()
     network_driver.unregister();
 }
 
+// vim:ts=4:sw=4:expandtab

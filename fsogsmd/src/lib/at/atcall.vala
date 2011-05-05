@@ -326,3 +326,5 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         // no checkResponseOk, this call will always succeed
     }
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -76,3 +76,4 @@ public class MsmCallReleaseAll : CallReleaseAll
     }
 }
 
+// vim:ts=4:sw=4:expandtab

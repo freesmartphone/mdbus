@@ -60,3 +60,5 @@ public static int main( string[] args )
     FsoFramework.theLogger.info( "%s exit".printf( bin ) );
     return 0;
 }
+
+// vim:ts=4:sw=4:expandtab

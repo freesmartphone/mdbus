@@ -99,3 +99,5 @@ public void registerMsmMediators( HashMap<Type,Type> table )
     table[ typeof(PdpSetCredentials) ]            = typeof( MsmPdpSetCredentials );
     table[ typeof(PdpGetCredentials) ]            = typeof( MsmPdpGetCredentials );
 }
+
+// vim:ts=4:sw=4:expandtab

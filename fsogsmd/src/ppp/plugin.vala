@@ -166,3 +166,5 @@ static void plugin_init()
         PPPD.error( @"IOError while initializing plugin: $(e.message)" );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

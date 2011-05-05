@@ -56,3 +56,4 @@ public class MsmDebugInjectResponse : DebugInjectResponse
     }
 }
 
+// vim:ts=4:sw=4:expandtab

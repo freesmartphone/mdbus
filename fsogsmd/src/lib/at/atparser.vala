@@ -438,3 +438,4 @@ public class FsoGsm.StateBasedAtParser : FsoFramework.BaseParser
     }
 }
 
+// vim:ts=4:sw=4:expandtab

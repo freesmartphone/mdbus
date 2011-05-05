@@ -1001,3 +1001,5 @@ public class FsoGsm.Constants
         return sign ? -zone * 15 : zone * 15;
     }
 }
+
+// vim:ts=4:sw=4:expandtab

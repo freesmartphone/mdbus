@@ -673,3 +673,5 @@ public class FsoGsm.CustomAtCommand : FsoGsm.AbstractAtCommand
         }
     }
 }
+
+// vim:ts=4:sw=4:expandtab

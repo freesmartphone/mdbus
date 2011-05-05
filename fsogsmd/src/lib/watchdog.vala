@@ -136,3 +136,5 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
         unlockFailed = false;
     }
 }
+
+// vim:ts=4:sw=4:expandtab

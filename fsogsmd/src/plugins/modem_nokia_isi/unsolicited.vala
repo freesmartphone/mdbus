@@ -68,3 +68,5 @@ public class IsiUnsolicitedHandler : FsoFramework.AbstractObject
 }
 
 } /* namespace NokiaIsi */
+
+// vim:ts=4:sw=4:expandtab

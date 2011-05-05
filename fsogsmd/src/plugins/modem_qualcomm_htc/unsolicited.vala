@@ -91,3 +91,5 @@ public class QualcommHtc.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedRespon
 
     }
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -355,3 +355,5 @@ public class AtSimWriteEntry : SimWriteEntry
 }
 
 } // namespace FsoGsm
+
+// vim:ts=4:sw=4:expandtab

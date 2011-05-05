@@ -127,3 +127,5 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 }
+
+// vim:ts=4:sw=4:expandtab

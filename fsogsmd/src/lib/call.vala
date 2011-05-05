@@ -194,3 +194,5 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
      **/
     protected abstract async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
+
+// vim:ts=4:sw=4:expandtab
