@@ -47,3 +47,5 @@ public static int main( string[] args )
     FsoFramework.theLogger.info( "fsodata shutdown." );
     return 0;
 }
+
+// vim:ts=4:sw=4:expandtab

@@ -357,3 +357,5 @@ public class Database : FsoFramework.AbstractObject
 }
 
 } /* namespace */
+
+// vim:ts=4:sw=4:expandtab

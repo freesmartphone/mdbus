@@ -66,3 +66,5 @@ void main (string[] args)
     Test.add_func( "/FsoData/World/MBPI/LookupCountry", test_world_mbpi_lookup_countries );
     Test.run ();
 }
+
+// vim:ts=4:sw=4:expandtab

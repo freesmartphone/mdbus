@@ -181,3 +181,5 @@ public static void fso_register_function( TypeModule module )
     return (!ok);
 }
 */
+
+// vim:ts=4:sw=4:expandtab
