@@ -36,3 +36,4 @@ public abstract class VoiceCallProvider : ICommunicationProvider, IVoiceCallProv
 
 } /* namespace FsoPhone */
 
+// vim:ts=4:sw=4:expandtab

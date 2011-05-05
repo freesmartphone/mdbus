@@ -34,3 +34,5 @@ void main (string[] args)
     Test.add_func( "/FsoPhone/Technologies", test_phone_technologies );
     Test.run ();
 }
+
+// vim:ts=4:sw=4:expandtab
