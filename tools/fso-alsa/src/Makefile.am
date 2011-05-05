@@ -3,9 +3,10 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 VALAC_ARGS = \
-	-C  --vapidir vapi \
+	-C  --vapidir ../vapi \
         --pkg fsodevice-2.0 \
         --pkg fsoframework-2.0 \
+        --pkg alsa-ext \
         --save-temps \
         --basedir $(top_srcdir)
 
