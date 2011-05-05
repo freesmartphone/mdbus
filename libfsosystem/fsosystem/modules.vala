@@ -75,3 +75,5 @@ public void probeModule( string modulename, string? options = null )
 
 } /* namespace Kernel */
 } /* namespace FsoFramework */
+
+// vim:ts=4:sw=4:expandtab
