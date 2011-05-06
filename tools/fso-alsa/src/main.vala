@@ -100,7 +100,7 @@ play:                 Play from file 'audio.raw'
         message( @"ok = $ok" );
         ok = pcm.hw_params_set_access( hwparams, PcmAccess.RW_INTERLEAVED );
         message( @"ok = $ok" );
-        ok = pcm.hw_params_set_format( hwparams, PcmFormat.FLOAT );
+        ok = pcm.hw_params_set_format( hwparams, PcmFormat.S8 );
         message( @"ok = $ok" );
         int rate = 8000;
         ok = pcm.hw_params_set_rate_near( hwparams, ref rate, 0 );
@@ -120,14 +120,12 @@ play:                 Play from file 'audio.raw'
             while ( ( bread = Posix.read( fd, buffer, 2048 ) ) > 0 )
             {
                 message( @"read $bread bytes from fd" );
-                ok = pcm.drain();
-                message( @"ok = $ok" );
-                PcmUnsignedFrames written = pcm.writei( (void*) buffer, (PcmUnsignedFrames) (int) ( bread / 2 ) );
+                PcmUnsignedFrames written = pcm.writei( (void*) buffer, (PcmUnsignedFrames) (int) ( bread / 1 ) );
                 message( "wrote %d frames", (int)written );
             }
         }
 
-        Thread.usleep( 1000 * 1000 * 60 );
+        while ( pcm.drain() > 0 );
     }
 }
 
