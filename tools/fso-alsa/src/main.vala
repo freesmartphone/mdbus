@@ -85,14 +85,49 @@ play:                 Play from file 'audio.raw'
     {
     }
 
-    public void playback()
+    public void play()
     {
         PcmDevice pcm;
         var ok = PcmDevice.open( out pcm, cardname, PcmStream.PLAYBACK );
+        message( @"ok = $ok" );
         assert( pcm != null );
 
-        //snd_pcm_hw_params_alloca(&hwparams);
+        PcmHardwareParams hwparams;
+        PcmHardwareParams.malloc( out hwparams );
+        message( @"ok = $ok" );
 
+        ok = pcm.hw_params_any( hwparams );
+        message( @"ok = $ok" );
+        ok = pcm.hw_params_set_access( hwparams, PcmAccess.RW_INTERLEAVED );
+        message( @"ok = $ok" );
+        ok = pcm.hw_params_set_format( hwparams, PcmFormat.FLOAT );
+        message( @"ok = $ok" );
+        int rate = 8000;
+        ok = pcm.hw_params_set_rate_near( hwparams, ref rate, 0 );
+        message( @"ok = $ok" );
+        ok = pcm.hw_params_set_channels( hwparams, 1 );
+        message( @"ok = $ok" );
+        ok = pcm.hw_params( hwparams );
+        message( @"ok = $ok" );
+        ok = pcm.prepare();
+        message( @"ok = $ok" );
+
+        var fd = Posix.open( "audio.raw", Posix.O_RDONLY );
+        if ( fd != -1 )
+        {
+            uint8[] buffer = new uint8[2048];
+            ssize_t bread = 0;
+            while ( ( bread = Posix.read( fd, buffer, 2048 ) ) > 0 )
+            {
+                message( @"read $bread bytes from fd" );
+                ok = pcm.drain();
+                message( @"ok = $ok" );
+                PcmUnsignedFrames written = pcm.writei( (void*) buffer, (PcmUnsignedFrames) (int) ( bread / 2 ) );
+                message( "wrote %d frames", (int)written );
+            }
+        }
+
+        Thread.usleep( 1000 * 1000 * 60 );
     }
 }
 
@@ -144,6 +179,9 @@ int main( string[] args )
             break;
         case "mixer":
             commands.dumpMixer();
+            break;
+        case "play":
+            commands.play();
             break;
         default:
             commands.info();

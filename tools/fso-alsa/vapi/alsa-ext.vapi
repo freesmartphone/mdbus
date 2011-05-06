@@ -3,7 +3,7 @@
 [CCode (cheader_filename = "alsa/asoundlib.h")]
 namespace Alsa2
 {
-    [CCode (cname = "snd_spcm_latency_t", cprefix = "SND_SPCM_LATENCY_")]
+    [CCode (cname = "snd_spcm_latency_t", cprefix = "SND_SPCM_LATENCY_", has_type_id = false)]
     public enum PcmSimpleLatency
     {
         STANDARD,
@@ -11,20 +11,20 @@ namespace Alsa2
         REALTIME
     }
 
-    [CCode (cname = "snd_spcm_xrun_type_t", cprefix = "SND_SPCM_XRUN_")]
+    [CCode (cname = "snd_spcm_xrun_type_t", cprefix = "SND_SPCM_XRUN_", has_type_id = false)]
     public enum PcmSimpleXrunType
     {
         IGNORE,
         STOP,
     }
 
-    [CCode (cname = "snd_spcm_duplex_t", cprefix = "SND_SPCM_DUPLEX_")]
+    [CCode (cname = "snd_spcm_duplex_t", cprefix = "SND_SPCM_DUPLEX_", has_type_id = false)]
     public enum PcmSimpleDuplex {
 	    LIBERAL,
 	    PEDANTIC,
     }
 
-    [CCode (cname = "snd_pcm_access_t", cprefix = "SND_PCM_ACCESS_")]
+    [CCode (cname = "snd_pcm_access_t", cprefix = "SND_PCM_ACCESS_", has_type_id = false)]
     public enum PcmAccess
     {
         MMAP_INTERLEAVED,
@@ -35,7 +35,7 @@ namespace Alsa2
         LAST,
     }
 
-    [CCode (cname = "snd_pcm_class_t", cprefix = "SND_PCM_CLASS_")]
+    [CCode (cname = "snd_pcm_class_t", cprefix = "SND_PCM_CLASS_", has_type_id = false)]
     public enum PcmClass
     {
         GENERIC,
@@ -45,7 +45,7 @@ namespace Alsa2
         LAST,
     }
 
-    [CCode (cname = "snd_pcm_format_t", cprefix = "SND_PCM_FORMAT_")]
+    [CCode (cname = "snd_pcm_format_t", cprefix = "SND_PCM_FORMAT_", has_type_id = false)]
     public enum PcmFormat
     {
         UNKNOWN,
@@ -99,7 +99,7 @@ namespace Alsa2
         IEC958_SUBFRAME,
     }
 
-    [CCode (cname = "gint", cprefix = "SND_PCM_")]
+    [CCode (cname = "gint", cprefix = "SND_PCM_", has_type_id = false)]
     public enum PcmMode
     {
         NONBLOCK,
@@ -110,7 +110,7 @@ namespace Alsa2
         NO_SOFTVOL,
     }
 
-    [CCode (cname = "snd_pcm_start_t", cprefix = "SND_PCM_START_")]
+    [CCode (cname = "snd_pcm_start_t", cprefix = "SND_PCM_START_", has_type_id = false)]
     public enum PcmStart
     {
         DATA,
@@ -118,7 +118,7 @@ namespace Alsa2
         LAST,
     }
 
-    [CCode (cname = "snd_pcm_state_t", cprefix = "")]
+    [CCode (cname = "snd_pcm_state_t", cprefix = "", has_type_id = false)]
     public enum PcmState
     {
         OPEN,
@@ -133,7 +133,7 @@ namespace Alsa2
         LAST,
     }
 
-    [CCode (cname = "snd_pcm_stream_t", cprefix = "SND_PCM_STREAM_")]
+    [CCode (cname = "snd_pcm_stream_t", cprefix = "SND_PCM_STREAM_", has_type_id = false)]
     public enum PcmStream
     {
         PLAYBACK,
@@ -141,7 +141,7 @@ namespace Alsa2
         LAST,
     }
 
-    [CCode (cname = "snd_pcm_subclass_t", cprefix = "SND_PCM_SUBCLASS_")]
+    [CCode (cname = "snd_pcm_subclass_t", cprefix = "SND_PCM_SUBCLASS_", has_type_id = false)]
     public enum PcmSubclass
     {
         GENERIC_MIX,
@@ -149,14 +149,14 @@ namespace Alsa2
         LAST,
     }
 
-    [CCode (cname = "snd_pcm_subformat_t", cprefix = "SND_PCM_SUBFORMAT_")]
+    [CCode (cname = "snd_pcm_subformat_t", cprefix = "SND_PCM_SUBFORMAT_", has_type_id = false)]
     public enum PcmSubformat
     {
         STD,
         LAST,
     }
 
-    [CCode (cname = "snd_pcm_tstamp_t", cprefix = "SND_PCM_TSTAMP_")]
+    [CCode (cname = "snd_pcm_tstamp_t", cprefix = "SND_PCM_TSTAMP_", has_type_id = false)]
     public enum PcmTimestamp
     {
         NONE,
@@ -165,7 +165,7 @@ namespace Alsa2
         LAST,
     }
 
-    [CCode (cname = "snd_pcm_type_t", cprefix = "SND_PCM_TYPE_")]
+    [CCode (cname = "snd_pcm_type_t", cprefix = "SND_PCM_TYPE_", has_type_id = false)]
     public enum PcmType
     {
         HW,
@@ -201,7 +201,7 @@ namespace Alsa2
         LAST,
     }
 
-    [CCode (cname = "snd_pcm_xrun_t", cprefix = "SND_PCM_XRUN_")]
+    [CCode (cname = "snd_pcm_xrun_t", cprefix = "SND_PCM_XRUN_", has_type_id = false)]
     public enum PcmXrun
     {
         NONE,
@@ -209,38 +209,38 @@ namespace Alsa2
         LAST,
     }
 
-    [Compact]
+    [SimpleType]
     [CCode (cname = "snd_pcm_access_mask_t")]
-    public class PcmAccessMask
+    public struct PcmAccessMask
     {
     }
 
-    [Compact]
+    [SimpleType]
     [CCode (cname = "snd_pcm_format_mask_t")]
-    public class PcmFormatMask
+    public struct PcmFormatMask
     {
     }
 
-    [Compact]
+    [SimpleType]
     [CCode (cname = "snd_pcm_subformat_mask_t")]
-    public class PcmSubformatMask
+    public struct PcmSubformatMask
     {
     }
 
-    [Compact]
+    [SimpleType]
     [CCode (cname = "snd_pcm_timestamp_t")]
-    public class PcmSoftwareTimestamp
+    public struct PcmSoftwareTimestamp
     {
     }
 
-    [Compact]
+    [SimpleType]
     [CCode (cname = "snd_pcm_htimestamp_t")]
-    public class PcmHardwareTimestamp
+    public struct PcmHardwareTimestamp
     {
     }
 
     [Compact]
-    [CCode (cname = "snd_pcm_info_t")]
+    [CCode (cname = "snd_pcm_info_t", cprefix = "snd_pcm_info_")]
     public class PcmInfo
     {
         public static int alloca( out PcmInfo info );
@@ -265,7 +265,7 @@ namespace Alsa2
     }
 
     [Compact]
-    [CCode (cname = "snd_pcm_sw_params_t")]
+    [CCode (cname = "snd_pcm_hw_params_t", cprefix = "snd_pcm_hw_params_", free_function = "snd_pcm_hw_params_free")]
     public class PcmHardwareParams
     {
         public static int alloca( out PcmHardwareParams params );
@@ -324,15 +324,15 @@ namespace Alsa2
     {
     }
 
-    [Compact]
     [CCode (cname = "snd_pcm_uframes_t")]
-    public class PcmUnsignedFrames
+    [IntegerType (rank = 9)]
+    public struct PcmUnsignedFrames
     {
     }
 
-    [Compact]
     [CCode (cname = "snd_pcm_sframes_t")]
-    public class PcmSignedFrames
+    [IntegerType (rank = 8)]
+    public struct PcmSignedFrames
     {
     }
 
@@ -379,12 +379,9 @@ namespace Alsa2
         //public int snd_async_add_pcm_handler( snd_async_handler_t **handler, snd_pcm_t *pcm, snd_async_callback_t callback, void *private_data );
         //public PcmDevice async_handler_get_pcm( snd_async_handler_t *handler );
         public int info( PcmInfo info );
-        public int hw_params_current( out PcmHardwareParams params );
-        public int hw_params( PcmHardwareParams params );
-        public int hw_params_any( PcmHardwareParams params );
-        public int hw_free();
         public int sw_params_current( out PcmSoftwareParams params );
         public int sw_params( PcmSoftwareParams params );
+        public int hw_free();
         public int prepare();
         public int reset();
         [CCode (cname = "snd_pcm_status")]
@@ -407,7 +404,7 @@ namespace Alsa2
         public PcmSignedFrames forward( PcmUnsignedFrames frames );
         public PcmSignedFrames writei( void* buffer, PcmUnsignedFrames size );
         public PcmSignedFrames readi( void* buffer, PcmUnsignedFrames size );
-        public PcmSignedFrames writen( out void* bufs, PcmUnsignedFrames size );
+        public PcmSignedFrames writen( void* bufs, PcmUnsignedFrames size );
         public PcmSignedFrames readn( out void* bufs, PcmUnsignedFrames size );
         public int wait( int timeout );
         public int link( PcmDevice otherDevice );
@@ -427,85 +424,88 @@ namespace Alsa2
         public int simple_get_params( out uint rate, out PcmUnsignedFrames buffer_size, out PcmUnsignedFrames period_size );
 
         // HW params API
-        public int test_access( PcmHardwareParams params, PcmAccess access );
-        public int set_access( PcmHardwareParams params, PcmAccess access );
-        public int set_access_first( PcmHardwareParams params, out PcmAccess access );
-        public int set_access_last( PcmHardwareParams params, out PcmAccess access );
-        public int set_access_mask( PcmHardwareParams params, out PcmAccessMask mask );
-        public int test_format( PcmHardwareParams params, PcmFormat format );
-        public int set_format( PcmHardwareParams params, PcmFormat format );
-        public int set_format_first( PcmHardwareParams params, out PcmFormat format );
-        public int set_format_last( PcmHardwareParams params, out PcmFormat format );
-        public int set_format_mask( PcmHardwareParams params, out PcmFormatMask mask );
-        public int test_subformat( PcmHardwareParams params, PcmSubformat subformat );
-        public int set_subformat( PcmHardwareParams params, PcmSubformat subformat );
-        public int set_subformat_first( PcmHardwareParams params, out PcmSubformat subformat );
-        public int set_subformat_last( PcmHardwareParams params, out PcmSubformat subformat );
-        public int set_subformat_mask( PcmHardwareParams params, out PcmSubformatMask mask );
-        public int test_channels( PcmHardwareParams params, uint val );
-        public int set_channels( PcmHardwareParams params, uint val );
-        public int set_channels_min( PcmHardwareParams params, out int val );
-        public int set_channels_max( PcmHardwareParams params, out int val );
-        public int set_channels_minmax( PcmHardwareParams params, out uint min, out int max );
-        public int set_channels_near( PcmHardwareParams params, out int val );
-        public int set_channels_first( PcmHardwareParams params, out int val );
-        public int set_channels_last( PcmHardwareParams params, out int val );
-        public int test_rate( PcmHardwareParams params, uint val, int dir );
-        public int set_rate( PcmHardwareParams params, uint val, int dir );
-        public int set_rate_min( PcmHardwareParams params, out int val, out int dir );
-        public int set_rate_max( PcmHardwareParams params, out int val, out int dir );
-        public int set_rate_minmax( PcmHardwareParams params, out uint min, out int mindir, out int max, out int maxdir );
-        public int set_rate_near( PcmHardwareParams params, out int val, out int dir );
-        public int set_rate_first( PcmHardwareParams params, out int val, out int dir );
-        public int set_rate_last( PcmHardwareParams params, out int val, out int dir );
-        public int set_rate_resample( PcmHardwareParams params, uint val );
-        public int get_rate_resample( PcmHardwareParams params, out int val );
-        public int set_export_buffer( PcmHardwareParams params, uint val );
-        public int get_export_buffer( PcmHardwareParams params, out int val );
-        public int set_period_wakeup( PcmHardwareParams params, uint val );
-        public int get_period_wakeup( PcmHardwareParams params, out int val );
-        public int test_period_time( PcmHardwareParams params, uint val, int dir );
-        public int set_period_time( PcmHardwareParams params, uint val, int dir );
-        public int set_period_time_min( PcmHardwareParams params, out int val, out int dir );
-        public int set_period_time_max( PcmHardwareParams params, out int val, out int dir );
-        public int set_period_time_minmax( PcmHardwareParams params, out uint min, out int mindir, out int max, out int maxdir );
-        public int set_period_time_near( PcmHardwareParams params, out int val, out int dir );
-        public int set_period_time_first( PcmHardwareParams params, out int val, out int dir );
-        public int set_period_time_last( PcmHardwareParams params, out int val, out int dir );
-        public int test_period_size( PcmHardwareParams params, PcmUnsignedFrames frames, int dir );
-        public int set_period_size( PcmHardwareParams params, PcmUnsignedFrames frames, int dir );
-        public int set_period_size_min( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
-        public int set_period_size_max( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
-        public int set_period_size_minmax( PcmHardwareParams params, out PcmUnsignedFrames min, out int mindir, out PcmUnsignedFrames max, out int maxdir );
-        public int set_period_size_near( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
-        public int set_period_size_first( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
-        public int set_period_size_last( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
-        public int set_period_size_integer( PcmHardwareParams params );
-        public int test_periods( PcmHardwareParams params, uint val, int dir );
-        public int set_periods( PcmHardwareParams params, uint val, int dir );
-        public int set_periods_min( PcmHardwareParams params, out int val, out int dir );
-        public int set_periods_max( PcmHardwareParams params, out int val, out int dir );
-        public int set_periods_minmax( PcmHardwareParams params, out uint min, out int mindir, out int max, out int maxdir );
-        public int set_periods_near( PcmHardwareParams params, out int val, out int dir );
-        public int set_periods_first( PcmHardwareParams params, out int val, out int dir );
-        public int set_periods_last( PcmHardwareParams params, out int val, out int dir );
-        public int set_periods_integer( PcmHardwareParams params );
-        public int test_buffer_time( PcmHardwareParams params, uint val, int dir );
-        public int set_buffer_time( PcmHardwareParams params, uint val, int dir );
-        public int set_buffer_time_min( PcmHardwareParams params, out int val, out int dir );
-        public int set_buffer_time_max( PcmHardwareParams params, out int val, out int dir );
-        public int set_buffer_time_minmax( PcmHardwareParams params, out uint min, out int mindir, out int max, out int maxdir );
-        public int set_buffer_time_near( PcmHardwareParams params, out int val, out int dir );
-        public int set_buffer_time_first( PcmHardwareParams params, out int val, out int dir );
-        public int set_buffer_time_last( PcmHardwareParams params, out int val, out int dir );
-        public int test_buffer_size( PcmHardwareParams params, PcmUnsignedFrames frames );
-        public int set_buffer_size( PcmHardwareParams params, PcmUnsignedFrames frames );
-        public int set_buffer_size_min( PcmHardwareParams params, out PcmUnsignedFrames frames );
-        public int set_buffer_size_max( PcmHardwareParams params, out PcmUnsignedFrames frames );
-        public int set_buffer_size_minmax( PcmHardwareParams params, out PcmUnsignedFrames min, out PcmUnsignedFrames max );
-        public int set_buffer_size_near( PcmHardwareParams params, out PcmUnsignedFrames frames );
-        public int set_buffer_size_first( PcmHardwareParams params, out PcmUnsignedFrames frames );
-        public int set_buffer_size_last( PcmHardwareParams params, out PcmUnsignedFrames frames );
+        public int hw_params_current( out PcmHardwareParams params );
+        public int hw_params( PcmHardwareParams params );
+        public int hw_params_any( PcmHardwareParams params );
+        public int hw_params_test_access( PcmHardwareParams params, PcmAccess access );
+        public int hw_params_set_access( PcmHardwareParams params, PcmAccess access );
+        public int hw_params_set_access_first( PcmHardwareParams params, out PcmAccess access );
+        public int hw_params_set_access_last( PcmHardwareParams params, out PcmAccess access );
+        public int hw_params_set_access_mask( PcmHardwareParams params, out PcmAccessMask mask );
+        public int hw_params_test_format( PcmHardwareParams params, PcmFormat format );
+        public int hw_params_set_format( PcmHardwareParams params, PcmFormat format );
+        public int hw_params_set_format_first( PcmHardwareParams params, out PcmFormat format );
+        public int hw_params_set_format_last( PcmHardwareParams params, out PcmFormat format );
+        public int hw_params_set_format_mask( PcmHardwareParams params, out PcmFormatMask mask );
+        public int hw_params_test_subformat( PcmHardwareParams params, PcmSubformat subformat );
+        public int hw_params_set_subformat( PcmHardwareParams params, PcmSubformat subformat );
+        public int hw_params_set_subformat_first( PcmHardwareParams params, out PcmSubformat subformat );
+        public int hw_params_set_subformat_last( PcmHardwareParams params, out PcmSubformat subformat );
+        public int hw_params_set_subformat_mask( PcmHardwareParams params, out PcmSubformatMask mask );
+        public int hw_params_test_channels( PcmHardwareParams params, uint val );
+        public int hw_params_set_channels( PcmHardwareParams params, uint val );
+        public int hw_params_set_channels_min( PcmHardwareParams params, out int val );
+        public int hw_params_set_channels_max( PcmHardwareParams params, out int val );
+        public int hw_params_set_channels_minmax( PcmHardwareParams params, out uint min, out int max );
+        public int hw_params_set_channels_near( PcmHardwareParams params, out int val );
+        public int hw_params_set_channels_first( PcmHardwareParams params, out int val );
+        public int hw_params_set_channels_last( PcmHardwareParams params, out int val );
+        public int hw_params_test_rate( PcmHardwareParams params, uint val, int dir );
+        public int hw_params_set_rate( PcmHardwareParams params, uint val, int dir );
+        public int hw_params_set_rate_min( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_rate_max( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_rate_minmax( PcmHardwareParams params, out uint min, out int mindir, out int max, out int maxdir );
+        public int hw_params_set_rate_near( PcmHardwareParams params, ref int val, int dir );
+        public int hw_params_set_rate_first( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_rate_last( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_rate_resample( PcmHardwareParams params, uint val );
+        public int hw_params_get_rate_resample( PcmHardwareParams params, out int val );
+        public int hw_params_set_export_buffer( PcmHardwareParams params, uint val );
+        public int hw_params_get_export_buffer( PcmHardwareParams params, out int val );
+        public int hw_params_set_period_wakeup( PcmHardwareParams params, uint val );
+        public int hw_params_get_period_wakeup( PcmHardwareParams params, out int val );
+        public int hw_params_test_period_time( PcmHardwareParams params, uint val, int dir );
+        public int hw_params_set_period_time( PcmHardwareParams params, uint val, int dir );
+        public int hw_params_set_period_time_min( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_period_time_max( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_period_time_minmax( PcmHardwareParams params, out uint min, out int mindir, out int max, out int maxdir );
+        public int hw_params_set_period_time_near( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_period_time_first( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_period_time_last( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_test_period_size( PcmHardwareParams params, PcmUnsignedFrames frames, int dir );
+        public int hw_params_set_period_size( PcmHardwareParams params, PcmUnsignedFrames frames, int dir );
+        public int hw_params_set_period_size_min( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
+        public int hw_params_set_period_size_max( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
+        public int hw_params_set_period_size_minmax( PcmHardwareParams params, out PcmUnsignedFrames min, out int mindir, out PcmUnsignedFrames max, out int maxdir );
+        public int hw_params_set_period_size_near( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
+        public int hw_params_set_period_size_first( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
+        public int hw_params_set_period_size_last( PcmHardwareParams params, out PcmUnsignedFrames frames, out int dir );
+        public int hw_params_set_period_size_integer( PcmHardwareParams params );
+        public int hw_params_test_periods( PcmHardwareParams params, uint val, int dir );
+        public int hw_params_set_periods( PcmHardwareParams params, uint val, int dir );
+        public int hw_params_set_periods_min( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_periods_max( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_periods_minmax( PcmHardwareParams params, out uint min, out int mindir, out int max, out int maxdir );
+        public int hw_params_set_periods_near( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_periods_first( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_periods_last( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_periods_integer( PcmHardwareParams params );
+        public int hw_params_test_buffer_time( PcmHardwareParams params, uint val, int dir );
+        public int hw_params_set_buffer_time( PcmHardwareParams params, uint val, int dir );
+        public int hw_params_set_buffer_time_min( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_buffer_time_max( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_buffer_time_minmax( PcmHardwareParams params, out uint min, out int mindir, out int max, out int maxdir );
+        public int hw_params_set_buffer_time_near( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_buffer_time_first( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_set_buffer_time_last( PcmHardwareParams params, out int val, out int dir );
+        public int hw_params_test_buffer_size( PcmHardwareParams params, PcmUnsignedFrames frames );
+        public int hw_params_set_buffer_size( PcmHardwareParams params, PcmUnsignedFrames frames );
+        public int hw_params_set_buffer_size_min( PcmHardwareParams params, out PcmUnsignedFrames frames );
+        public int hw_params_set_buffer_size_max( PcmHardwareParams params, out PcmUnsignedFrames frames );
+        public int hw_params_set_buffer_size_minmax( PcmHardwareParams params, out PcmUnsignedFrames min, out PcmUnsignedFrames max );
+        public int hw_params_set_buffer_size_near( PcmHardwareParams params, out PcmUnsignedFrames frames );
+        public int hw_params_set_buffer_size_first( PcmHardwareParams params, out PcmUnsignedFrames frames );
+        public int hw_params_set_buffer_size_last( PcmHardwareParams params, out PcmUnsignedFrames frames );
     }
 }
 
