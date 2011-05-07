@@ -30,6 +30,33 @@ class FsoAudio.GsmVoiceCmtspeechdata.Plugin : FsoFramework.AbstractObject
     private CmtHandler cmthandler;
     private FreeSmartphone.GSM.Call gsmcallproxy;
 
+    //
+    // Private API
+    //
+    private void onCallStatusSignal( int id, FreeSmartphone.GSM.CallStatus status, GLib.HashTable<string,Variant> properties )
+    {
+        assert( logger.debug( @"onCallStatusSignal $id w/ status $status" ) );
+        switch ( status )
+        {
+            case FreeSmartphone.GSM.CallStatus.OUTGOING:
+            case FreeSmartphone.GSM.CallStatus.ACTIVE:
+                cmthandler.setAudioStatus( true );
+                break;
+
+            case FreeSmartphone.GSM.CallStatus.INCOMING:
+            case FreeSmartphone.GSM.CallStatus.RELEASE:
+                cmthandler.setAudioStatus( false );
+                break;
+
+            default:
+                assert( logger.debug( @"Unhandled call status $status" ) );
+                break;
+        }
+    }
+
+    //
+    // Public API
+    //
     public Plugin( FsoFramework.Subsystem subsystem )
     {
         this.subsystem = subsystem;
