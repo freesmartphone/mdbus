@@ -3,6 +3,7 @@ NULL =
 
 AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
+	$(CMTSPEECHDATA_CFLAGS) \
 	$(FSO_GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
@@ -12,6 +13,7 @@ AM_CFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
+    $(CMTSPEECHDATA_LIBS) \
 	$(FSO_GLIB_LIBS) \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
@@ -26,7 +28,8 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
-	--pkg fsoaudio-2.0
+	--pkg fsoaudio-2.0 \
+	--pkg libcmtspeechdata
 
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG

@@ -4,8 +4,6 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
-	gsmvoice_alsa_cmtspeechdata \
-	\
 	manager \
 	\
 	router_palmpre \
@@ -14,3 +12,9 @@ SUBDIRS = \
 	streamcontrol_alsa \
 	\
 	$(NULL)
+
+if WANT_CMTSPEECHDATA
+SUBDIRS += gsmvoice_alsa_cmtspeechdata
+endif
+
+
