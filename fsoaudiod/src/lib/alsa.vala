@@ -406,28 +406,65 @@ public class FsoAudio.PcmDevice
 {
     private string device_name;
     private Alsa2.PcmDevice device;
+    private Alsa2.PcmHardwareParams hwparams;
+    private int rate;
+    private Alsa2.PcmAccess access;
+    private Alsa2.PcmFormat format;
+    private uint channels;
 
-    public bool open( string device_name, Alsa2.PcmStream mode = Alsa2.PcmStream.PLAYBACK )
+    //
+    // Private API
+    //
+
+    private void checkedCall( string purpose, int err ) throws SoundError
     {
-        if ( Alsa2.PcmDevice.open( out device, device_name, mode, 0 ) < 0 )
+        if ( err < 0 )
         {
-            error( @"Can't open PCM device \"$(device_name)\"; device not available!?" );
-            return false;
+            throw new SoundError.DEVICE_ERROR( @"Can't $purpose: $(Alsa.strerror(err))" );
+        }
+    }
+
+    //
+    // Public API
+    //
+
+    public void open( string device_name, Alsa2.PcmStream mode = Alsa2.PcmStream.PLAYBACK ) throws SoundError
+    {
+        var err = Alsa2.PcmDevice.open( out device, device_name, mode, 0 );
+
+        if ( err < 0 )
+        {
+            throw new SoundError.NO_DEVICE( @"Can't open PCM device '$(device_name)': $(Alsa.strerror(err))" );
         }
 
         this.device_name = device_name;
-        return true;
+        Alsa2.PcmHardwareParams.malloc( out hwparams );
     }
 
-    public bool close()
+    public void setFormat( Alsa2.PcmAccess access, Alsa2.PcmFormat format, int desiredrate = 44100, uint channels = 2 ) throws SoundError
     {
-        if ( device.close() < 0 )
-        {
-            error( @"Can't close opened PCM device \"$(device_name)\"!" );
-            return false;
-        }
+        this.rate = desiredrate;
+        this.access = access;
+        this.format = format;
+        this.channels = channels;
 
-        return true;
+        checkedCall( "hw_params_any", device.hw_params_any( hwparams ) );
+        checkedCall( "hw_params_set_access", device.hw_params_set_access( hwparams, access ) );
+        checkedCall( "hw_params_set_format", device.hw_params_set_format( hwparams, format ) );
+        checkedCall( "hw_params_set_rate_near", device.hw_params_set_rate_near( hwparams, ref rate, 0 ) );
+        checkedCall( "hw_params_set_channels", device.hw_params_set_channels( hwparams, channels ) );
+        checkedCall( "hw_params", device.hw_params( hwparams ) );
+        checkedCall( "prepare", device.prepare() );
+    }
+
+    public void close()
+    {
+        var err = device.close();
+
+        if ( err < 0 )
+        {
+            warning( @"Can't close opened PCM device '$(device_name)': $(Alsa.strerror(err))" );
+        }
     }
  }
 
