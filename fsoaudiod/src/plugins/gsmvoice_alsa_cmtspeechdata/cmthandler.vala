@@ -161,6 +161,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         if ( connection == null )
         {
             logger.error( "Can't instanciate connection" );
+            return;
         }
 
         var fd = connection.descriptor();
