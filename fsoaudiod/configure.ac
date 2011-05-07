@@ -102,6 +102,7 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/alsa_hooks/Makefile
   src/plugins/Makefile
+  src/plugins/gsmvoice_alsa_cmtspeechdata/Makefile \
   src/plugins/manager/Makefile
   src/plugins/router_palmpre/Makefile
   src/plugins/router_alsa/Makefile

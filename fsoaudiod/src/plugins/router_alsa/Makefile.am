@@ -20,7 +20,8 @@ progs_ldadd = \
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/src/lib \
+	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \

@@ -67,6 +67,8 @@ public class FsoAudio.BunchOfMixerControls
 
 /**
  * @class FsoAudio.SoundDevice
+ *
+ * Encapsulates access to one Alsa Mixer Device
  **/
 public class FsoAudio.SoundDevice : FsoFramework.AbstractObject
 {
@@ -331,6 +333,8 @@ public class FsoAudio.SoundDevice : FsoFramework.AbstractObject
 
 /**
  * @class FsoAudio.MixerControl
+ *
+ * Encapsulates access to one mixer control
  **/
 public class FsoAudio.MixerControl
 {
@@ -398,14 +402,14 @@ public class FsoAudio.MixerControl
     }
 }
 
-public class FsoAudio.PcmDeviceController
+public class FsoAudio.PcmDevice
 {
     private string device_name;
-    private AlsaExt.PcmDevice device;
+    private Alsa2.PcmDevice device;
 
-    public bool open( string device_name )
+    public bool open( string device_name, Alsa2.PcmStream mode = Alsa2.PcmStream.PLAYBACK )
     {
-        if ( AlsaExt.PcmDevice.open( out device, device_name, AlsaExt.PcmStream.PLAYBACK, 0 ) < 0 )
+        if ( Alsa2.PcmDevice.open( out device, device_name, mode, 0 ) < 0 )
         {
             error( @"Can't open PCM device \"$(device_name)\"; device not available!?" );
             return false;

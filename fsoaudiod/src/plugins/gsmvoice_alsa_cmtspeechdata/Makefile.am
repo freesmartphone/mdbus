@@ -20,7 +20,7 @@ progs_ldadd = \
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/src/lib \
+	--vapidir $(top_srcdir)/lib \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
@@ -37,15 +37,15 @@ endif
 # plugin
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
-modlibexec_LTLIBRARIES = streamcontrol_alsa.la
-streamcontrol_alsa_la_SOURCES = plugin.c
-streamcontrol_alsa_la_VALASOURCES = plugin.vala
-$(streamcontrol_alsa_la_SOURCES): $(streamcontrol_alsa_la_VALASOURCES)
+modlibexec_LTLIBRARIES = gsmvoice_alsa_cmtspeechdata.la
+gsmvoice_alsa_cmtspeechdata_la_SOURCES = plugin.c
+gsmvoice_alsa_cmtspeechdata_la_VALASOURCES = plugin.vala
+$(gsmvoice_alsa_cmtspeechdata_la_SOURCES): $(gsmvoice_alsa_cmtspeechdata_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-streamcontrol_alsa_la_LIBADD = $(progs_ldadd)
-streamcontrol_alsa_la_LDFLAGS = -no-undefined -module -avoid-version
-streamcontrol_alsa_la_LIBTOOLFLAGS = --tag=disable-static
+gsmvoice_alsa_cmtspeechdata_la_LIBADD = $(progs_ldadd)
+gsmvoice_alsa_cmtspeechdata_la_LDFLAGS = -no-undefined -module -avoid-version
+gsmvoice_alsa_cmtspeechdata_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
     *.c \

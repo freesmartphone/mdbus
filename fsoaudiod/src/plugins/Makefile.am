@@ -4,6 +4,8 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
+	gsmvoice_alsa_cmtspeechdata \
+	\
 	manager \
 	\
 	router_palmpre \
