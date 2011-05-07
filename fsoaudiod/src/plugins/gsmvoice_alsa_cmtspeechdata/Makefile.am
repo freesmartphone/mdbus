@@ -41,8 +41,8 @@ endif
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
 modlibexec_LTLIBRARIES = gsmvoice_alsa_cmtspeechdata.la
-gsmvoice_alsa_cmtspeechdata_la_SOURCES = plugin.c
-gsmvoice_alsa_cmtspeechdata_la_VALASOURCES = plugin.vala
+gsmvoice_alsa_cmtspeechdata_la_SOURCES = plugin.c cmthandler.c
+gsmvoice_alsa_cmtspeechdata_la_VALASOURCES = plugin.vala cmthandler.vala
 $(gsmvoice_alsa_cmtspeechdata_la_SOURCES): $(gsmvoice_alsa_cmtspeechdata_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@

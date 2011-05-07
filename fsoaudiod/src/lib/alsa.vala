@@ -402,9 +402,14 @@ public class FsoAudio.MixerControl
     }
 }
 
+/**
+ * @class FsoAudio.PcmDevice
+ *
+ * Encapsulates access to a PCM device
+ **/
 public class FsoAudio.PcmDevice
 {
-    private string device_name;
+    private string name;
     private Alsa2.PcmDevice device;
     private Alsa2.PcmHardwareParams hwparams;
     private int rate;
@@ -428,16 +433,11 @@ public class FsoAudio.PcmDevice
     // Public API
     //
 
-    public void open( string device_name, Alsa2.PcmStream mode = Alsa2.PcmStream.PLAYBACK ) throws SoundError
+    public void open( string devicename = "default", Alsa2.PcmStream mode = Alsa2.PcmStream.PLAYBACK ) throws SoundError
     {
-        var err = Alsa2.PcmDevice.open( out device, device_name, mode, 0 );
-
-        if ( err < 0 )
-        {
-            throw new SoundError.NO_DEVICE( @"Can't open PCM device '$(device_name)': $(Alsa.strerror(err))" );
-        }
-
-        this.device_name = device_name;
+        checkedCall( @"open PCM device '$devicename'", Alsa2.PcmDevice.open( out device, devicename, mode, 0 ) );
+        assert( device != null );
+        this.name = devicename;
         Alsa2.PcmHardwareParams.malloc( out hwparams );
     }
 
@@ -463,9 +463,9 @@ public class FsoAudio.PcmDevice
 
         if ( err < 0 )
         {
-            warning( @"Can't close opened PCM device '$(device_name)': $(Alsa.strerror(err))" );
+            warning( @"Can't close opened PCM device '$name': $(Alsa.strerror(err))" );
         }
     }
- }
+}
 
 // vim:ts=4:sw=4:expandtab

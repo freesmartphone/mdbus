@@ -19,10 +19,40 @@
 
 using GLib;
 
-namespace FsoAudio
+namespace FsoAudio.GsmVoiceCmtspeechdata
 {
     public const string MODULE_NAME = "fsoaudio.gsmvoice_alsa_cmtspeechdata";
 }
+
+class FsoAudio.GsmVoiceCmtspeechdata.Plugin : FsoFramework.AbstractObject
+{
+    private FsoFramework.Subsystem subsystem;
+    private CmtHandler cmthandler;
+    private FreeSmartphone.GSM.Call gsmcallproxy;
+
+    public Plugin( FsoFramework.Subsystem subsystem )
+    {
+        this.subsystem = subsystem;
+        cmthandler = new CmtHandler();
+
+        try
+        {
+            gsmcallproxy = Bus.get_proxy_sync<FreeSmartphone.GSM.Call>( BusType.SYSTEM, "org.freesmartphone.ogsmd", "/org/freesmartphone/GSM/Device", DBusProxyFlags.DO_NOT_AUTO_START );
+            gsmcallproxy.call_status.connect( onCallStatusSignal );
+        }
+        catch ( Error e )
+        {
+            logger.error( @"Could not hook to fsogsmd: $(e.message)" );
+        }
+    }
+
+    public override string repr()
+    {
+        return "<>";
+    }
+}
+
+internal FsoAudio.GsmVoiceCmtspeechdata.Plugin instance;
 
 /**
  * This function gets called on plugin initialization time.
@@ -32,7 +62,8 @@ namespace FsoAudio
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    return FsoAudio.MODULE_NAME;
+    instance = new FsoAudio.GsmVoiceCmtspeechdata.Plugin( subsystem );
+    return FsoAudio.GsmVoiceCmtspeechdata.MODULE_NAME;
 }
 
 [ModuleInit]
