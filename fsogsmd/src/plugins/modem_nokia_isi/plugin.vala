@@ -313,6 +313,35 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
         assert( logger.debug( @"gpio_probe: rapu is $rapu_type" ) );
     }
+
+    public string deviceFunctionalityModemStateToString( GIsiClient.MTC.ModemState state )
+    {
+        switch ( state )
+        {
+            case GIsiClient.MTC.ModemState.NORMAL:
+                return "full";
+            case GIsiClient.MTC.ModemState.RF_INACTIVE:
+                return "airplane";
+            case GIsiClient.MTC.ModemState.POWER_OFF:
+                return "minimal";
+            default:
+                return "unknown";
+        }
+    }
+
+    public GIsiClient.MTC.ModemState deviceFunctionalityStringToModemState( string level )
+    {
+        switch ( level )
+        {
+            case "full":
+                return GIsiClient.MTC.ModemState.NORMAL;
+            case "airplane":
+                return GIsiClient.MTC.ModemState.RF_INACTIVE;
+            default:
+                return GIsiClient.MTC.ModemState.POWER_OFF;
+        }
+    }
+
 }
 
 /**

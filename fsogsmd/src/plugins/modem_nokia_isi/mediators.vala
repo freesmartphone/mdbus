@@ -141,6 +141,69 @@ public class IsiDeviceGetInformation : DeviceGetInformation
 }
 
 /*
+ * org.freesmartphone.GSM.Device
+ */
+public class IsiDeviceSetFunctionality : DeviceSetFunctionality
+{
+    public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var value = Constants.instance().deviceFunctionalityStringToStatus( level );
+
+        if ( value == -1 )
+        {
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
+        }
+
+        var curlevel = "unknown";
+        NokiaIsi.isimodem.mtc.readState( ( err, cur, tgt ) => {
+            if ( err == ErrorCode.OK )
+            {
+                curlevel = NokiaIsi.modem.deviceFunctionalityModemStateToString( cur );
+                theModem.logger.debug( @"current level is $curlevel" );
+            }
+            run.callback();
+        } );
+        yield;
+
+        if ( curlevel != level )
+        {
+            assert( theModem.logger.debug( @"setting Functionality to $level") );
+            bool on = false;
+            bool online = false;
+
+            switch ( level )
+            {
+                case "full":
+                    on = true;
+                    online = true;
+                    break;
+                case "airplane":
+                    on = true;
+                    break;
+            }
+
+            NokiaIsi.isimodem.mtc.setState( on, online, ( err, res ) => {
+                if ( err != ErrorCode.OK )
+                {
+                    throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unknown ISI Error" );
+                }
+                run.callback();
+            } );
+            yield;
+        }
+
+        var data = theModem.data();
+        data.keepRegistration = autoregister;
+        if ( pin != "" )
+        {
+            data.simPin = pin;
+            theModem.watchdog.resetUnlockMarker();
+        }
+        yield gatherSimStatusAndUpdate();
+    }
+}
+
+/*
  * org.freesmartphone.GSM.SIM
  */
 public class IsiSimGetAuthStatus : SimGetAuthStatus
@@ -514,6 +577,7 @@ public class IsiDebugCommand : DebugCommand
 static void registerMediators( HashMap<Type,Type> mediators )
 {
     mediators[ typeof(DeviceGetInformation) ]            = typeof( IsiDeviceGetInformation );
+    mediators[ typeof(DeviceSetFunctionality) ]          = typeof( IsiDeviceSetFunctionality );
 
     mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
     mediators[ typeof(SimGetInformation) ]               = typeof( IsiSimGetInformation );
