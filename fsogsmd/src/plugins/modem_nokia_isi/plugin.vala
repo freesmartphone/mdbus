@@ -189,11 +189,6 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 		return null;
     }
 
-    protected override WatchDog createWatchDog()
-    {
-		return null;
-    }
-
     protected override void createChannels()
     {
         new IsiChannel( ISI_CHANNEL_NAME, new IsiTransport( modem_port ) );
