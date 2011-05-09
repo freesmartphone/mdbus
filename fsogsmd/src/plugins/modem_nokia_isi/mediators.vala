@@ -311,6 +311,26 @@ public class IsiSimSendAuthCode : SimSendAuthCode
     }
 }
 
+public class IsiSimGetAuthCodeRequired : SimGetAuthCodeRequired
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        required = true;
+        NokiaIsi.isimodem.sim.queryStatus( ( err, code ) => {
+            if ( err == ErrorCode.OK )
+            {
+                if ( code == GIsiClient.SIMAuth.StatusResponseRunningType.UNPROTECTED )
+                {
+                    required = false;
+                }
+                run.callback();
+            }
+        } );
+        yield;
+    }
+}
+
+
 /*
  * org.freesmartphone.GSM.Network
  */
@@ -582,6 +602,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(SimGetAuthStatus) ]                = typeof( IsiSimGetAuthStatus );
     mediators[ typeof(SimGetInformation) ]               = typeof( IsiSimGetInformation );
     mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
+    mediators[ typeof(SimGetAuthCodeRequired) ]          = typeof( IsiSimGetAuthCodeRequired );
 
     mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
     mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
