@@ -125,11 +125,17 @@ class PowerSupply : FreeSmartphone.Device.PowerSupply,
         message( "capacity node not available, using energy_full and energy_now" );
 #endif
 
-        // fall back to energy_full and energy_now
-        var energy_full = FsoFramework.FileHandling.read( "%s/energy_full".printf( sysfsnode ) );
-        var energy_now = FsoFramework.FileHandling.read( "%s/energy_now".printf( sysfsnode ) );
+        // then, try energy_full and energy_now
+        var energy_full = FsoFramework.FileHandling.readIfPresent( "%s/energy_full".printf( sysfsnode ) );
+        var energy_now = FsoFramework.FileHandling.readIfPresent( "%s/energy_now".printf( sysfsnode ) );
         if ( energy_full != "" && energy_now != "" )
             return (int) ( ( energy_now.to_double()  / energy_full.to_double() ) * 100.0 );
+
+        // as a last resort, try charge_full and charge_now
+        var charge_full = FsoFramework.FileHandling.readIfPresent( "%s/charge_full".printf( sysfsnode ) );
+        var charge_now = FsoFramework.FileHandling.readIfPresent( "%s/charge_now".printf( sysfsnode ) );
+        if ( charge_full != "" && charge_now != "" )
+            return (int) ( ( charge_now.to_double()  / charge_full.to_double() ) * 100.0 );
 
         return -1;
     }
@@ -259,7 +265,6 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
                 logger.warning( "Not present; treating it like an AC adapter" );
                 typ = "ac";
             }
-            return;
         }
 
         var status = "unknown";
