@@ -30,6 +30,8 @@ lib_LTLIBRARIES = \
 libfsosystem_la_VALASOURCES = \
 	modules.vala \
 	network.vala \
+	filesystem.vala \
+	path.vala \
 	$(NULL)
 
 libfsosystem_la_SOURCES = \
