@@ -69,58 +69,8 @@ public class IsiUnsolicitedHandler : FsoFramework.AbstractObject
 
     private void onCallStatusUpdate( GIsiComm.Call.ISI_CallStatus istatus )
     {
-        /* only interested in speech calls */
-        if ( istatus.ntype != GIsiClient.Call.Mode.SPEECH )
-        {
-            debug( @"ignoring call status indication for ntype=$(istatus.ntype)" );
-            return;
-        }
-        var properties = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
-        properties.insert( "peer", istatus.number );
-        properties.insert( "direction", istatus.incoming ? "incoming" : "outgoing" );
-        var obj = theModem.theDevice<FreeSmartphone.GSM.Call>();
-        obj.call_status( istatus.id, isiCallStatusToFso( istatus ), properties );
-    }
-
-    private FreeSmartphone.GSM.CallStatus isiCallStatusToFso( GIsiComm.Call.ISI_CallStatus istatus )
-    {
-        FreeSmartphone.GSM.CallStatus ret = FreeSmartphone.GSM.CallStatus.RELEASE;
-
-        // GIsiClient.Call.Status.RETRIEVE_INITIATED:
-        // GIsiClient.Call.Status.SWAP_INITIATED:
-        // GIsiClient.Call.Status.RECONNECT_PENDING:
-        // GIsiClient.Call.Status.IDLE:
-        // GIsiClient.Call.Status.MO_RELEASE:
-        // GIsiClient.Call.Status.MT_RELEASE:
-        // GIsiClient.Call.Status.TERMINATED:
-        switch ( istatus.status )
-        {
-            case GIsiClient.Call.Status.CREATE:
-            case GIsiClient.Call.Status.PROCEEDING:
-            case GIsiClient.Call.Status.MO_ALERTING:
-                ret = FreeSmartphone.GSM.CallStatus.OUTGOING;
-                break;
-
-            case GIsiClient.Call.Status.COMING:
-            case GIsiClient.Call.Status.MT_ALERTING:
-                ret = FreeSmartphone.GSM.CallStatus.INCOMING;
-                break;
-
-            case GIsiClient.Call.Status.ANSWERED:
-            case GIsiClient.Call.Status.ACTIVE:
-            case GIsiClient.Call.Status.WAITING:
-                ret = FreeSmartphone.GSM.CallStatus.ACTIVE;
-                break;
-
-            case GIsiClient.Call.Status.HOLD_INITIATED:
-            case GIsiClient.Call.Status.HOLD:
-                ret = FreeSmartphone.GSM.CallStatus.HELD;
-                break;
-        }
-
-        debug( @"translating isi call status $(istatus.status) to $ret" );
-
-        return ret;
+        var callhandler = theModem.callhandler as FsoGsm.IsiCallHandler;
+        callhandler.handleStatusUpdate( istatus );
     }
 }
 
