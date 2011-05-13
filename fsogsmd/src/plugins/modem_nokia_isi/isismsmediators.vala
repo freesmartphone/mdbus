@@ -17,6 +17,10 @@
  *
  */
 
+using FsoGsm;
+
+namespace NokiaIsi
+{
 /*
  * org.freesmartphone.GSM.SMS
  */
@@ -47,3 +51,6 @@ public class IsiSmsSendTextMessage : SmsSendTextMessage
     }
 }
 
+} // namespace NokiaIsi
+
+// vim:ts=4:sw=4:expandtab

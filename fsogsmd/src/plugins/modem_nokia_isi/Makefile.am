@@ -39,10 +39,38 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_nokia_isi.la
-modem_nokia_isi_la_SOURCES = channel.c callhandler.c plugin.c mediators.c mediators_sim.c \
-			     unsolicited.c isitransport.c mediatorhelpers.c
-modem_nokia_isi_la_VALASOURCES = channel.vala callhandler.vala plugin.vala mediators.vala mediators_sim.vala \
-				 unsolicited.vala isitransport.vala mediatorhelpers.vala
+modem_nokia_isi_la_SOURCES = \
+	plugin.c \
+	isitransport.c \
+	channel.c \
+	unsolicited.c \
+	callhandler.c \
+	isicallmediators.c \
+	isidebugmediators.c \
+	isidevicemediators.c \
+	isimediatorhelpers.c \
+	isinetworkmediators.c \
+	isipdpmediators.c \
+	isisimmediators.c \
+	isismsmediators.c \
+	$(NULL)
+
+modem_nokia_isi_la_VALASOURCES = \
+	plugin.vala \
+	isitransport.vala \
+	channel.vala \
+	unsolicited.vala \
+	callhandler.vala \
+	isicallmediators.vala \
+	isidebugmediators.vala \
+	isidevicemediators.vala \
+	isimediatorhelpers.vala \
+	isinetworkmediators.vala \
+	isipdpmediators.vala \
+	isisimmediators.vala \
+	isismsmediators.vala \
+	$(NULL)
+
 $(modem_nokia_isi_la_SOURCES): $(modem_nokia_isi_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
