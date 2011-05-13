@@ -137,7 +137,9 @@ public class IsiSimGetAuthCodeRequired : SimGetAuthCodeRequired
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        required = true;
+        bool required = true;
+        bool ok = false;
+
         NokiaIsi.isimodem.simauth.queryStatus( ( err, code ) => {
             if ( err == ErrorCode.OK )
             {
@@ -145,10 +147,16 @@ public class IsiSimGetAuthCodeRequired : SimGetAuthCodeRequired
                 {
                     required = false;
                 }
-                run.callback();
+                ok = true;
             }
+            run.callback();
         } );
         yield;
+
+        if ( !ok )
+        {
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unkown ISI Error");
+        }
     }
 }
 
@@ -158,7 +166,7 @@ public class IsiSimChangeAuthCode : SimChangeAuthCode
     {
         bool ok = true;
 
-	    NokiaIsi.isimodem.simauth.changePin( oldpin, newpin, ( err ) => {
+        NokiaIsi.isimodem.simauth.changePin( oldpin, newpin, ( err ) => {
             if ( err != ErrorCode.OK )
             {
                 ok = false;
