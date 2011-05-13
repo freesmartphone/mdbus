@@ -203,132 +203,6 @@ public class IsiDeviceSetFunctionality : DeviceSetFunctionality
     }
 }
 
-/*
- * org.freesmartphone.GSM.SIM
- */
-public class IsiSimGetAuthStatus : SimGetAuthStatus
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        int isicode = 0;
-
-        NokiaIsi.isimodem.simauth.queryStatus( (error, code) => {
-            if ( error != ErrorCode.OK )
-            {
-                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( error.to_string() );
-            }
-            debug( @"code = %d, $code".printf( code ) );
-            isicode = code;
-            run.callback();
-        } );
-        yield;
-
-        switch ( isicode )
-        {
-            case GIsiClient.SIMAuth.StatusResponseRunningType.NO_SIM:
-                throw new FreeSmartphone.GSM.Error.SIM_NOT_PRESENT( "No SIM" );
-                break;
-            case GIsiClient.SIMAuth.StatusResponseRunningType.UNPROTECTED:
-            case GIsiClient.SIMAuth.StatusResponseRunningType.AUTHORIZED:
-                status = FreeSmartphone.GSM.SIMAuthStatus.READY;
-                break;
-            case GIsiClient.SIMAuth.StatusResponse.NEED_PIN:
-                status = FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED;
-                break;
-            case GIsiClient.SIMAuth.StatusResponse.NEED_PUK:
-                status = FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED;
-                break;
-
-            case GIsiClient.SIMAuth.StatusResponse.INIT:
-                status = FreeSmartphone.GSM.SIMAuthStatus.READY;
-                debug( "warning, SIMAuth Status = INIT..." );
-                break;
-
-
-            default:
-                theModem.logger.warning( @"Unhandled ISI SIMAuth.Status $isicode" );
-                status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
-                break;
-        }
-    }
-}
-
-public class IsiSimGetInformation : SimGetInformation
-{
-    /* imsi, issuer, phonebooks, slots [sms], used [sms] */
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
-
-        NokiaIsi.isimodem.sim.readIMSI( ( error, msg ) => {
-            info.insert( "imsi", error != ErrorCode.OK ? "<unknown>" : msg );
-            run.callback();
-        } );
-        yield;
-
-        NokiaIsi.isimodem.sim.readSPN( ( error, msg ) => {
-            info.insert( "issuer", error != ErrorCode.OK ? "<unknown>" : msg );
-            run.callback();
-        } );
-        yield;
-
-        NokiaIsi.isimodem.sim.readHPLMN( ( error, msg ) => {
-            info.insert( "hplmn", error != ErrorCode.OK ? "<unknown>" : msg );
-            run.callback();
-        } );
-        yield;
-    }
-}
-
-public class IsiSimSendAuthCode : SimSendAuthCode
-{
-    public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        int isicode = 0;
-
-        NokiaIsi.isimodem.simauth.sendPin( pin, ( error, code ) => {
-            if ( error != ErrorCode.OK )
-            {
-                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( error.to_string() );
-            }
-            isicode = code;
-            run.callback();
-        } );
-        yield;
-
-        switch ( isicode )
-        {
-            case GIsiClient.SIMAuth.IndicationType.OK:
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_UNLOCKED );
-                break;
-            case GIsiClient.SIMAuth.IndicationType.PUK:
-                throw new FreeSmartphone.GSM.Error.SIM_BLOCKED( @"ISI Code = $isicode" );
-                break;
-            default:
-                throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"ISI Code = $isicode" );
-                break;
-        }
-    }
-}
-
-public class IsiSimGetAuthCodeRequired : SimGetAuthCodeRequired
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        required = true;
-        NokiaIsi.isimodem.sim.queryStatus( ( err, code ) => {
-            if ( err == ErrorCode.OK )
-            {
-                if ( code == GIsiClient.SIMAuth.StatusResponseRunningType.UNPROTECTED )
-                {
-                    required = false;
-                }
-                run.callback();
-            }
-        } );
-        yield;
-    }
-}
 
 
 /*
@@ -603,6 +477,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(SimGetInformation) ]               = typeof( IsiSimGetInformation );
     mediators[ typeof(SimSendAuthCode) ]                 = typeof( IsiSimSendAuthCode );
     mediators[ typeof(SimGetAuthCodeRequired) ]          = typeof( IsiSimGetAuthCodeRequired );
+    mediators[ typeof(SimChangeAuthCode) ]               = typeof( IsiSimChangeAuthCode );
 
     mediators[ typeof(NetworkGetStatus) ]                = typeof( IsiNetworkGetStatus );
     mediators[ typeof(NetworkGetSignalStrength) ]        = typeof( IsiNetworkGetSignalStrength );
