@@ -156,14 +156,21 @@ public class IsiSimChangeAuthCode : SimChangeAuthCode
 {
     public override async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        bool ok = true;
+
 	    NokiaIsi.isimodem.simauth.changePin( oldpin, newpin, ( err ) => {
             if ( err != ErrorCode.OK )
             {
-                throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unkown ISI Error");
+                ok = false;
             }
             run.callback();
         } );
         yield;
+
+        if ( !ok )
+        {
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Unkown ISI Error");
+        }
     }
 }
 
