@@ -64,6 +64,13 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
                 call.update_status( FreeSmartphone.GSM.CallStatus.INCOMING );
                 break;
 
+            case GIsiClient.Call.Status.CREATE:
+                assert( logger.debug( @"outgoing call with id $(istatus.id) to $(istatus.number)" ) );
+                call.detail.properties.insert( "direction", "outgoing" );
+                call.detail.properties.insert( "peer", Constants.instance().phonenumberTupleToString( istatus.number, istatus.ntype ) );
+                call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
+                break;
+
             case GIsiClient.Call.Status.ACTIVE:
                 assert( logger.debug( @"call with id $(istatus.id) is active now" ) );
                 call.update_status( FreeSmartphone.GSM.CallStatus.ACTIVE );
@@ -144,11 +151,6 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
         NokiaIsi.isimodem.call.initiateVoiceCall( gsmnumber, ntype, GIsiClient.Call.PresentationType.GSM_DEFAULT, (error, id) => {
             if ( error == ErrorCode.OK )
             {
-                var call = new FsoGsm.Call.newFromId( id );
-                calls.set( id, call );
-                call.detail.properties.insert( "direction", "outgoing" );
-                call.detail.properties.insert( "peer", number );
-                call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
                 initiate.callback();
             }
             else
