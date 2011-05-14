@@ -410,7 +410,7 @@ public class FsoAudio.MixerControl
 public class FsoAudio.PcmDevice
 {
     private string name;
-    private Alsa2.PcmDevice device;
+    public Alsa2.PcmDevice device;
     private Alsa2.PcmHardwareParams hwparams;
     private int rate;
     private Alsa2.PcmAccess access;
