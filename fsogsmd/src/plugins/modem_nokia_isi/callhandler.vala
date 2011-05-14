@@ -174,6 +174,11 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call with specified id is not available" );
         }
+
+        if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.RELEASE )
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No active call with that id found" );
+        }
         
         NokiaIsi.isimodem.call.releaseVoiceCall( (uint8) id, GIsiClient.Call.CauseType.CLIENT, GIsiClient.Call.IsiCause.RELEASE_BY_USER, (error) => {
             if ( error == ErrorCode.OK )
