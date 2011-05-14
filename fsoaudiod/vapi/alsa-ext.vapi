@@ -510,6 +510,12 @@ namespace Alsa2
         public int hw_params_set_buffer_size_near( PcmHardwareParams params, out PcmUnsignedFrames frames );
         public int hw_params_set_buffer_size_first( PcmHardwareParams params, out PcmUnsignedFrames frames );
         public int hw_params_set_buffer_size_last( PcmHardwareParams params, out PcmUnsignedFrames frames );
+
+        // format conversion
+        public PcmSignedFrames bytes_to_frames( ssize_t bytes );
+        public ssize_t frames_to_bytes( PcmSignedFrames frames );
+        public long bytes_to_samples( ssize_t bytes );
+        public ssize_t samples_to_bytes( long samples );
     }
 }
 
