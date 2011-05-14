@@ -195,9 +195,35 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        foreach ( var call in calls.values )
+        {
+            if ( call.detail.status != FreeSmartphone.GSM.CallStatus.RELEASE )
+            {
+                try
+                {
+                    release( call.detail.id );
+                }
+                catch ( Error err )
+                {
+                }
+            }
+        }
     }
 
+    public async FreeSmartphone.GSM.CallDetail[] listCalls() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var ret = new FreeSmartphone.GSM.CallDetail[] {};
+
+        foreach ( var call in calls.values )
+        {
+            if ( call.detail.status != FreeSmartphone.GSM.CallStatus.RELEASE )
+            {
+                ret += call.detail;
+            }
+        }
+
+        return ret;
+    }
 
 }
 

@@ -48,6 +48,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
     mediators[ typeof(CallInitiate) ]                    = typeof( IsiCallInitiate );
     mediators[ typeof(CallRelease) ]                     = typeof( IsiCallRelease );
     mediators[ typeof(CallReleaseAll) ]                  = typeof( IsiCallReleaseAll );
+    mediators[ typeof(CallListCalls) ]                   = typeof( IsiCallListCalls );
     mediators[ typeof(CallSendDtmf) ]                    = typeof( IsiCallSendDtmf );
 
     mediators[ typeof(PdpGetCredentials) ]               = typeof( AtPdpGetCredentials );
