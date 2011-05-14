@@ -69,6 +69,15 @@ public class IsiCallReleaseAll : CallReleaseAll
     }
 }
 
+public class IsiCallListCalls : CallListCalls
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        calls = yield theModem.callhandler.listCalls();
+    }
+}
+
+
 public class IsiCallSendDtmf : CallSendDtmf
 {
     public override async void run( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
