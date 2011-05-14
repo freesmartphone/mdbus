@@ -466,6 +466,30 @@ public class FsoAudio.PcmDevice
             warning( @"Can't close opened PCM device '$name': $(Alsa.strerror(err))" );
         }
     }
+
+    public Alsa2.PcmSignedFrames write( uint8[] buf, Alsa2.PcmUnsignedFrames size ) throws SoundError
+    {
+        if ( access == Alsa2.PcmAccess.RW_INTERLEAVED || access == Alsa2.PcmAccess.MMAP_INTERLEAVED )
+        {
+            return device.writei( buf, size );
+        }
+        else
+        {
+            return device.writen( buf, size );
+        }
+    }
+
+    public Alsa2.PcmSignedFrames read( out uint8* buf, Alsa2.PcmUnsignedFrames size ) throws SoundError
+    {
+        if ( access == Alsa2.PcmAccess.RW_INTERLEAVED || access == Alsa2.PcmAccess.MMAP_INTERLEAVED )
+        {
+            return device.readi( out buf, size );
+        }
+        else
+        {
+            return device.readn( out buf, size );
+        }
+    }
 }
 
 // vim:ts=4:sw=4:expandtab

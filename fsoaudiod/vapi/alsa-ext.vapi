@@ -324,12 +324,14 @@ namespace Alsa2
     {
     }
 
+    [SimpleType]
     [CCode (cname = "snd_pcm_uframes_t")]
     [IntegerType (rank = 9)]
     public struct PcmUnsignedFrames
     {
     }
 
+    [SimpleType]
     [CCode (cname = "snd_pcm_sframes_t")]
     [IntegerType (rank = 8)]
     public struct PcmSignedFrames
@@ -402,10 +404,12 @@ namespace Alsa2
         public PcmSignedFrames rewind( PcmUnsignedFrames frames );
         public PcmSignedFrames forwardable();
         public PcmSignedFrames forward( PcmUnsignedFrames frames );
-        public PcmSignedFrames writei( void* buffer, PcmUnsignedFrames size );
-        public PcmSignedFrames readi( void* buffer, PcmUnsignedFrames size );
-        public PcmSignedFrames writen( void* bufs, PcmUnsignedFrames size );
-        public PcmSignedFrames readn( out void* bufs, PcmUnsignedFrames size );
+        public PcmSignedFrames writei( [CCode (array_length = false)] uint8[] buffer, PcmUnsignedFrames size );
+        public PcmSignedFrames writen( [CCode (array_length = false)] uint8* buffer, PcmUnsignedFrames size );
+        //public PcmSignedFrames readi( [CCode (array_length = false)] out uint8[] buffer, PcmUnsignedFrames size );
+        //public PcmSignedFrames readn( [CCode (array_length = false)] out uint8[] buffer, PcmUnsignedFrames size );
+        public PcmSignedFrames readi( out uint8* buffer, PcmUnsignedFrames size );
+        public PcmSignedFrames readn( out uint8* buffer, PcmUnsignedFrames size );
         public int wait( int timeout );
         public int link( PcmDevice otherDevice );
         public int unlink();
