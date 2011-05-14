@@ -22,14 +22,16 @@ progs_ldadd = \
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/lib \
+	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsoaudio-2.0 \
-	--pkg libcmtspeechdata
+	--pkg libcmtspeechdata \
+	--pkg alsa \
+	--pkg alsa-ext
 
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG

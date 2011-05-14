@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2011 Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,6 +18,91 @@
  *
  */
 
+/*
+ * TODO: change debug in logger calls
+ */
+
+//===========================================================================
+
+
+int data_fd;
+FsoAudio.PcmDevice pcm;
+bool status = false;
+
+
+//TODO: add fsomusicd config for that
+const bool file_interface = false;
+const bool loop_interface = false;
+const bool alsa_interface = true;
+
+const string voice_file = "/home/root/voice/voice_data.raw";
+
+
+//===========================================================================
+
+public static void handleAlsaSrc(CmtSpeech.FrameBuffer ulbuf)
+{
+
+}
+
+public static void handleAlsaSink(CmtSpeech.FrameBuffer dlbuf)
+{
+	pcm.write( (uint8[])dlbuf.payload, ( dlbuf.pcount /2 ) );
+}
+public static void handleLoop(CmtSpeech.FrameBuffer ulbuf,
+                              CmtSpeech.FrameBuffer dlbuf)
+{
+	if ( ulbuf.pcount == dlbuf.pcount ){
+        debug( @"looping DL packet to UL with %u payload bytes".printf( dlbuf.pcount ) );
+		Memory.copy( ulbuf.payload, dlbuf.payload, dlbuf.pcount );
+	}else{
+        debug( @"ulbuf.pcount(%d) != dlbuf.pcount(%d)",ulbuf.pcount,dlbuf.pcount );
+	}
+
+}
+
+public static void handleFileSink(CmtSpeech.FrameBuffer dlbuf)
+{
+	Posix.write(data_fd,dlbuf.payload,dlbuf.pcount);
+}
+//===========================================================================
+public static void fileSetup()
+{
+    debug( "Initializing File output");
+    data_fd = Posix.open(voice_file,Posix.O_CREAT|Posix.O_WRONLY);
+}
+
+public static void alsaSinkSetup()
+{
+    int channels = 1;
+    int rate = 8000;
+    Alsa2.PcmFormat format = Alsa2.PcmFormat.S16_LE;
+    Alsa2.PcmAccess access = Alsa2.PcmAccess.RW_INTERLEAVED;
+
+    pcm = new FsoAudio.PcmDevice();
+    debug (@"Setup alsa card for modem audio");
+    try {
+        //TODO: plug:default plughw:default plughw:0.0 plug:hw:0 could also be tried
+        pcm.open("plug:dmix");
+        pcm.setFormat(access,format, rate, channels );
+    }catch(Error e){
+        debug(@"Error: %s\n", e.message);
+    }
+}
+//===========================================================================
+
+public static void alsaSinkCleanup()
+{
+	pcm.close();
+}
+
+public static void fileCleanup()
+{
+	Posix.close(data_fd);
+}
+
+//===========================================================================
+
 /**
  * @class CmtHandler
  *
@@ -26,7 +112,6 @@ public class CmtHandler : FsoFramework.AbstractObject
 {
     private CmtSpeech.Connection connection;
     private IOChannel channel;
-
     //
     // Private API
     //
@@ -42,15 +127,20 @@ public class CmtHandler : FsoFramework.AbstractObject
         if ( ok == 0 )
         {
             assert( logger.debug( "received DL packet w/ %u bytes".printf( dlbuf.count ) ) );
+
+            if (file_interface)
+                handleFileSink(dlbuf);
+            if (alsa_interface)
+                handleAlsaSink(dlbuf);
+
             if ( connection.protocol_state() == CmtSpeech.State.ACTIVE_DLUL )
             {
                 assert( logger.debug( "protocol state is ACTIVE_DLUL, uploading as well..." ) );
                 ok = connection.ul_buffer_acquire( out ulbuf );
-                if ( ulbuf.pcount == dlbuf.pcount )
-                {
-                    assert( logger.debug( "looping DL packet to UL with %u payload bytes".printf( dlbuf.pcount ) ) );
-                    Memory.copy( ulbuf.payload, dlbuf.payload, dlbuf.pcount );
-                }
+
+                if (loop_interface)
+                    handleLoop(ulbuf,dlbuf);
+
                 connection.ul_buffer_release( ulbuf );
             }
             connection.dl_buffer_release( dlbuf );
@@ -186,8 +276,30 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     public void setAudioStatus( bool enabled )
     {
+        if ( enabled == status )
+        {
+            debug(@"not %s", enabled ? "enabling" : "disabling" );
+            return;
+        }
+        if ( enabled ){
+            debug(@"enabling");
+            if (file_interface)
+                fileSetup();
+            if (alsa_interface)
+                alsaSinkSetup();
+        }
+        else{
+            debug(@"disabling");
+            if (file_interface)
+                fileCleanup();
+            if(alsa_interface)
+                alsaSinkCleanup();
+        }
+
         assert( logger.debug( @"Setting call status to $enabled" ) );
         connection.state_change_call_status( enabled );
+
+        status = enabled;
+
     }
 }
-

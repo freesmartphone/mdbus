@@ -38,7 +38,8 @@ class FsoAudio.GsmVoiceCmtspeechdata.Plugin : FsoFramework.AbstractObject
         assert( logger.debug( @"onCallStatusSignal $id w/ status $status" ) );
         switch ( status )
         {
-            case FreeSmartphone.GSM.CallStatus.OUTGOING:
+            //commenting FreeSmartphone.GSM.CallStatus.OUTGOING makes audio during call work reliabily(probably timing related)
+            //case FreeSmartphone.GSM.CallStatus.OUTGOING:
             case FreeSmartphone.GSM.CallStatus.ACTIVE:
                 cmthandler.setAudioStatus( true );
                 break;
