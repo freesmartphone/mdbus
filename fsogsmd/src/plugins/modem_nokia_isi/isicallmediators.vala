@@ -73,7 +73,8 @@ public class IsiCallListCalls : CallListCalls
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        calls = yield theModem.callhandler.listCalls();
+        var callhandler = theModem.callhandler as FsoGsm.IsiCallHandler;
+        calls = yield callhandler.listCalls();
     }
 }
 
