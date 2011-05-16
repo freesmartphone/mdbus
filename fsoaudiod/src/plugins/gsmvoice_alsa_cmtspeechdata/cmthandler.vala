@@ -32,8 +32,7 @@ public class CmtHandler : FsoFramework.AbstractObject
     private FsoAudio.PcmDevice pcm;
     private bool status;
 
-
-    //TODO: add fsomusicd config for that
+    //TODO: add config for that
     private const bool file_interface = false;
     private const bool loop_interface = false;
     private const bool alsa_interface = true;
@@ -124,13 +123,13 @@ public class CmtHandler : FsoFramework.AbstractObject
 
         pcm = new FsoAudio.PcmDevice();
         assert( logger.debug( @"Setup alsa card for modem audio" ) );
-        try 
+        try
         {
             //TODO: plug:default plughw:default plughw:0.0 plug:hw:0 could also be tried
             pcm.open( "plug:dmix" );
             pcm.setFormat( access, format, rate, channels );
         }
-        catch (Error e)
+        catch ( Error e )
         {
             logger.error( @"Error: $(e.message)" );
         }
@@ -195,7 +194,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         assert( logger.debug( @"read event, type is $(event.msg_type)" ) );
         transition = connection.event_to_state_transition( event );
 
-        switch( transition )
+        switch ( transition )
         {
             case CmtSpeech.Transition.INVALID:
               assert( logger.debug( "ERROR: invalid state transition") );
@@ -206,7 +205,7 @@ public class CmtHandler : FsoFramework.AbstractObject
             case CmtSpeech.Transition.3_DL_START:
             case CmtSpeech.Transition.4_DLUL_STOP:
             case CmtSpeech.Transition.5_PARAM_UPDATE:
-              assert( logger.debug( @"state transition ok, new state is $transition" ) );
+              assert( logger.debug( @"State transition ok, new state is $transition" ) );
               break;
 
             case CmtSpeech.Transition.6_TIMING_UPDATE:
@@ -217,7 +216,7 @@ public class CmtHandler : FsoFramework.AbstractObject
             case CmtSpeech.Transition.10_RESET:
             case CmtSpeech.Transition.11_UL_STOP:
             case CmtSpeech.Transition.12_UL_START:
-              assert( logger.debug( @"state transition ok, new state is $transition" ) );
+              assert( logger.debug( @"State transition ok, new state is $transition" ) );
               break;
 
             default:
@@ -241,7 +240,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         var ok = connection.check_pending( out flags );
         if ( ok < 0 )
         {
-            assert( logger.debug( "error while checking for pending events..." ) );
+            assert( logger.debug( "Error while checking for pending events..." ) );
         }
         else if ( ok == 0 )
         {
@@ -249,7 +248,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         }
         else
         {
-            assert( logger.debug( "connection reports pending events with flags 0x%0X".printf( flags ) ) );
+            assert( logger.debug( "Connection reports pending events with flags 0x%0X".printf( flags ) ) );
 
             if ( ( flags & CmtSpeech.EventType.DL_DATA ) == CmtSpeech.EventType.DL_DATA )
             {
@@ -261,7 +260,7 @@ public class CmtHandler : FsoFramework.AbstractObject
             }
             else
             {
-                assert( logger.debug( "event no DL_DATA nor CONTROL, ignoring" ) );
+                assert( logger.debug( "Event no DL_DATA nor CONTROL, ignoring" ) );
             }
         }
 
@@ -271,7 +270,6 @@ public class CmtHandler : FsoFramework.AbstractObject
     //
     // Public API
     //
-
 
     public override string repr()
     {
@@ -283,7 +281,7 @@ public class CmtHandler : FsoFramework.AbstractObject
     {
         if ( enabled == status )
         {
-            assert( logger.debug( @"status already is $status)" ) );
+            assert( logger.debug( @"Status already $status" ) );
             return;
         }
 
@@ -308,7 +306,7 @@ public class CmtHandler : FsoFramework.AbstractObject
                 fileCleanup();
             }
 
-            if( alsa_interface )
+            if ( alsa_interface )
             {
                 alsaSinkCleanup();
             }
