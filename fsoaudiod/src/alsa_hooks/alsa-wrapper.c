@@ -23,6 +23,7 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
 
 static int _hook_hw_params(snd_pcm_hook_t *hook)
 {
@@ -60,6 +61,8 @@ int fsoaudio_alsa_hook_request_session_install(snd_pcm_t *pcm, snd_config_t *con
                            _hook_close, NULL);
     if (err < 0)
         goto error;
+
+    g_type_init();
 
     return 0;
 
