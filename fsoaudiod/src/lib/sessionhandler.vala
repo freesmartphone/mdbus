@@ -69,7 +69,10 @@ namespace FsoAudio
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Supplied unknown token for audio session" );
             }
 
+            var stream = sessions[ token ];
             sessions.unset( token );
+
+            logger.debug( @"Successfully release a audio session: token = $(token), stream = $(stream)" );
         }
 
         private string new_token()
