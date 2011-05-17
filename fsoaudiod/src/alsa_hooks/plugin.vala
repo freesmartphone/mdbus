@@ -19,7 +19,13 @@
 
 using GLib;
 
-DBusConnection conn = null;
+[DBus (name = "org.freesmartphone.Audio.Manager")]
+interface AudioManager : Object {
+    public abstract string register_session( string name ) throws IOError;
+    public abstract void release_session( string token ) throws IOError;
+}
+
+AudioManager manager = null;
 string active_token;
 bool registered;
 
@@ -36,23 +42,12 @@ public int fsoaudio_request_session()
 
     try
     {
-        conn = Bus.get_sync( BusType.SYSTEM );
+        manager = Bus.get_proxy_sync( BusType.SYSTEM, FSOAUDIO_BUSNAME, FSOAUDIO_PATH );
 
         // FIXME currently we default to media stream type. We should choose the right
         // stream according to the device the user wants to open
-        var params = new Variant[] {
-            new Variant.string( "media" )
-        };
-
-        Variant result = conn.call_sync( FSOAUDIO_BUSNAME, FSOAUDIO_PATH, FSOAUDIO_MANAGER_IFNAME,
-                                     "RegisterSession", params, VariantType.STRING,
-                                     DBusCallFlags.NO_AUTO_START, timeout );
-
-        if ( result.is_of_type( VariantType.STRING ) )
-        {
-            active_token = result.get_string();
-            registered = true;
-        }
+        active_token = manager.register_session( "media" );
+        registered = true;
     }
     catch ( Error err )
     {
@@ -63,18 +58,11 @@ public int fsoaudio_request_session()
 
 public int fsoaudio_release_session()
 {
-    if ( registered && conn != null && active_token.length > 0 )
+    if ( registered && manager != null && active_token.length > 0 )
     {
         try
         {
-            var params = new Variant[] {
-                new Variant.string( active_token )
-            };
-
-            Variant result = conn.call_sync( FSOAUDIO_BUSNAME, FSOAUDIO_PATH, FSOAUDIO_MANAGER_IFNAME,
-                                             "ReleaseSession", params, VariantType.ANY,
-                                             DBusCallFlags.NO_AUTO_START, timeout );
-
+            manager.release_session( active_token );
             registered = false;
         }
         catch ( Error err )
