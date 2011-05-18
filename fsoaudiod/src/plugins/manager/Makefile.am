@@ -38,8 +38,8 @@ endif
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
 modlibexec_LTLIBRARIES = manager.la
-manager_la_SOURCES = plugin.c
-manager_la_VALASOURCES = plugin.vala
+manager_la_SOURCES = plugin.c deviceinfo.c controlinfo.c
+manager_la_VALASOURCES = plugin.vala deviceinfo.vala controlinfo.vala
 $(manager_la_SOURCES): $(manager_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
