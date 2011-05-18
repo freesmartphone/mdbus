@@ -10,6 +10,7 @@ SUBDIRS = \
 	router_alsa \
 	\
 	streamcontrol_alsa \
+	sessionpolicy_default \
 	\
 	$(NULL)
 
