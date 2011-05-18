@@ -94,7 +94,6 @@ class PalmPre.AmbientLight : FreeSmartphone.Device.AmbientLight, FsoFramework.Ab
         var event = (Linux.Input.Event*) data;
         if ( event->type != 3 || event->code != 40 )
         {
-            assert( logger.debug( @"Unknown event w/ type $(event->type) code $(event->code) and value $(event->value); ignoring" ) );
             return;
         }
         brightness = _valueToPercent( event->value);
