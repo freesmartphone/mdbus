@@ -46,6 +46,16 @@ namespace FsoAudio
             return "<>";
         }
 
+        public FreeSmartphone.Audio.Stream streamTypeForToken( string token )
+        {
+            if ( sessions.has_key( token ) )
+            {
+                return sessions[ token ];
+            }
+
+            return FreeSmartphone.Audio.Stream.INVALID;
+        }
+
         public string register_session( FreeSmartphone.Audio.Stream stream ) throws FreeSmartphone.Error
         {
             string token = "";

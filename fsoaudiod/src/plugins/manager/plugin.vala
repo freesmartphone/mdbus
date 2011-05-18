@@ -395,13 +395,17 @@ namespace FsoAudio
         public async string register_session( FreeSmartphone.Audio.Stream stream )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
-            return sessionhandler.register_session( stream );
+            var token = sessionhandler.register_session( stream );
+            policy.handleConnectingStream( stream );
+            return token;
         }
 
         public async void release_session( string token )
             throws FreeSmartphone.Error, GLib.DBusError, GLib.IOError
         {
+            var stream = sessionhandler.streamTypeForToken( token );
             sessionhandler.release_session( token );
+            policy.handleDisconnectingStream( stream );
         }
     }
 }
