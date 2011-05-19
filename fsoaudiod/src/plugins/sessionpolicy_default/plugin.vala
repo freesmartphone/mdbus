@@ -18,10 +18,91 @@
  */
 
 using GLib;
+using FreeSmartphone.Audio;
 
 namespace FsoAudio
 {
     public static const string SESSIONPOLICY_DEFAULT_MODULE_NAME = "fsoaudio.sessionpolicy_default";
+
+    // NOTE this needs to adjust when the number of streams in specs has changed. It's the
+    // count of different streams we have without the INVALID one.
+    private static const uint STREAM_COUNT = 5;
+
+    public class DefaultSessionPolicy : AbstractSessionPolicy
+    {
+        private uint[] stream_usage;
+
+        private delegate void StreamProcessFunc( FreeSmartphone.Audio.Stream stream );
+
+        //
+        // private API
+        //
+
+        private void resetStreamUsage()
+        {
+            for ( int n = 0; n < STREAM_COUNT; n++ )
+            {
+                stream_usage[n] = 0;
+            }
+        }
+
+        private void processStreams( FreeSmartphone.Audio.Stream[] streams, StreamProcessFunc process_func )
+        {
+            foreach ( var stream in streams )
+            {
+                process_func( stream );
+            }
+        }
+
+        private void handleDuckStatusForStream( Stream stream, Stream[] streamsToProcess )
+        {
+            if ( stream_usage[stream] > 0 )
+            {
+                processStreams( streamsToProcess, ( s ) => stream_control.set_mute( s, true ) );
+            }
+            else if ( stream_usage[stream] == 0 )
+            {
+                processStreams( streamsToProcess, ( s ) => stream_control.set_mute( s, false ) );
+            }
+        }
+
+        private void updateStreamStatus()
+        {
+            // FIXME this should be read from the configuration file later!
+            handleDuckStatusForStream( Stream.ALARM, new Stream[] { Stream.MEDIA, Stream.NAVIGATION, Stream.ALERT, Stream.RINGTONE } );
+            handleDuckStatusForStream( Stream.RINGTONE, new Stream[] { Stream.MEDIA, Stream.NAVIGATION, Stream.ALERT } );
+            handleDuckStatusForStream( Stream.ALERT, new Stream[] { Stream.MEDIA, Stream.NAVIGATION } );
+            handleDuckStatusForStream( Stream.NAVIGATION, new Stream[] { Stream.MEDIA } );
+        }
+
+        //
+        // public API
+        //
+
+        construct
+        {
+            resetStreamUsage();
+            stream_usage = new uint[STREAM_COUNT];
+        }
+
+        public override void handleConnectingStream( Stream stream )
+        {
+            stream_usage[stream]++;
+            updateStreamStatus();
+        }
+
+        public override void handleDisconnectingStream( Stream stream )
+        {
+            if ( stream_usage[stream] == 0 )
+            {
+                logger.error( @"Got info about a disconnecting stream but all streams of this type already have been disconnected!?" );
+                return;
+            }
+
+            stream_usage[stream]--;
+            updateStreamStatus();
+        }
+    }
 }
 
 /**
@@ -30,7 +111,7 @@ namespace FsoAudio
  * @note that it needs to be a name in the format <subsystem>.<plugin>
  * else your module will be unloaded immediately.
  **/
-public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
+public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws GLib.Error
 {
     return FsoAudio.SESSIONPOLICY_DEFAULT_MODULE_NAME;
 }

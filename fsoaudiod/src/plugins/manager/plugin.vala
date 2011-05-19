@@ -124,6 +124,9 @@ namespace FsoAudio
 
             switch ( policyname )
             {
+                case "default":
+                    typename = "FsoAudioDefaultSessionPolicy";
+                    break;
                 default:
                     policy = new FsoAudio.NullSessionPolicy();
                     break;
@@ -142,6 +145,8 @@ namespace FsoAudio
                     policy = (FsoAudio.AbstractSessionPolicy) GLib.Object.new( policytype );
                 }
             }
+
+            policy.provideStreamControl( streamcontrol );
         }
 
         private void createRouter()

@@ -25,8 +25,15 @@ namespace FsoAudio
 {
     public abstract class AbstractSessionPolicy : AbstractObject
     {
+        protected AbstractStreamControl stream_control;
+
         public abstract void handleConnectingStream( FreeSmartphone.Audio.Stream stream );
         public abstract void handleDisconnectingStream( FreeSmartphone.Audio.Stream stream );
+
+        public void provideStreamControl( AbstractStreamControl stream_control )
+        {
+            this.stream_control = stream_control;
+        }
 
         public override string repr()
         {
