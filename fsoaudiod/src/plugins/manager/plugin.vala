@@ -40,7 +40,7 @@ namespace FsoAudio
         private FreeSmartphone.Audio.Device[] current_devices;
         private GLib.Queue<FreeSmartphone.Audio.Device> device_stack;
         private SessionHandler sessionhandler;
-        private AbstractAudioSessionPolicy policy;
+        private AbstractSessionPolicy policy;
         private AbstractStreamControl streamcontrol;
 
         public Manager( FsoFramework.Subsystem subsystem )
@@ -56,7 +56,7 @@ namespace FsoAudio
 
             createRouter();
             createStreamControl();
-            createAudioSessionPolicy();
+            createSessionPolicy();
 
             device_stack = new GLib.Queue<FreeSmartphone.Audio.Device>();
 
@@ -117,7 +117,7 @@ namespace FsoAudio
             }
         }
 
-        private void createAudioSessionPolicy()
+        private void createSessionPolicy()
         {
             var policyname = config.stringValue( MANAGER_MODULE_NAME, "policy_type", "none" );
             var typename = "";
@@ -125,7 +125,7 @@ namespace FsoAudio
             switch ( policyname )
             {
                 default:
-                    policy = new FsoAudio.NullAudioSessionPolicy();
+                    policy = new FsoAudio.NullSessionPolicy();
                     break;
             }
 
@@ -135,11 +135,11 @@ namespace FsoAudio
                 if ( policytype == GLib.Type.INVALID )
                 {
                     logger.warning( @"Can't instanciate requested session policy type $typename; will no be able to handle audio sessions" );
-                    policy = new FsoAudio.NullAudioSessionPolicy();
+                    policy = new FsoAudio.NullSessionPolicy();
                 }
                 else
                 {
-                    policy = (FsoAudio.AbstractAudioSessionPolicy) GLib.Object.new( policytype );
+                    policy = (FsoAudio.AbstractSessionPolicy) GLib.Object.new( policytype );
                 }
             }
         }

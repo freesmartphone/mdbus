@@ -23,7 +23,7 @@ using FsoFramework;
 
 namespace FsoAudio
 {
-    public abstract class AbstractAudioSessionPolicy : AbstractObject
+    public abstract class AbstractSessionPolicy : AbstractObject
     {
         public abstract void handleConnectingStream( FreeSmartphone.Audio.Stream stream );
         public abstract void handleDisconnectingStream( FreeSmartphone.Audio.Stream stream );
@@ -34,16 +34,16 @@ namespace FsoAudio
         }
     }
 
-    public class NullAudioSessionPolicy : AbstractAudioSessionPolicy
+    public class NullSessionPolicy : AbstractSessionPolicy
     {
         public override void handleConnectingStream( FreeSmartphone.Audio.Stream stream )
         {
-            logger.warning( "NullAudioSessionPolicy::handleConnectingStream(): This is maybe not what you want!" );
+            logger.warning( "NullSessionPolicy::handleConnectingStream(): This is maybe not what you want!" );
         }
 
         public override void handleDisconnectingStream( FreeSmartphone.Audio.Stream stream )
         {
-            logger.warning( "NullAudioSessionPolicy::handleDisconnectingStream(): This is maybe not what you want!" );
+            logger.warning( "NullSessionPolicy::handleDisconnectingStream(): This is maybe not what you want!" );
         }
     }
 }
