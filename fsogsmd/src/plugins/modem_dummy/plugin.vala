@@ -57,6 +57,25 @@ class Dummy.Modem : FsoGsm.AbstractModem
         registerDummyMediators( mediators );
     }
 
+    protected override CallHandler createCallHandler()
+    {
+        return null;
+    }
+
+    protected override SmsHandler createSmsHandler()
+    {
+        return null;
+    }
+
+    protected override PhonebookHandler createPhonebookHandler()
+    {
+        return null;
+    }
+
+    protected override WatchDog createWatchDog()
+    {
+        return null;
+    }
 }
 
 /**
