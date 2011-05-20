@@ -36,10 +36,10 @@ public class FsoFramework.SmartKeyFile : Object
     {
         location_prefix += "./";
         location_prefix += @"$(Environment.get_home_dir())/.";
-        location_prefix += "/etc/";
-        location_prefix += "/etc/freesmartphone/";
-        location_prefix += @"/etc/freesmartphone/conf/$(FsoFramework.Utility.hardware())/";
-        location_prefix += @"/etc/freesmartphone/conf/default/";
+        location_prefix += Config.SYSCONFDIR;
+        location_prefix += Path.build_filename( "freesmartphone" );
+        location_prefix += FsoFramework.Utility.machineConfigurationDir();
+        location_prefix += Path.build_filename( Config.SYSCONFDIR, "freesmartphone", "conf", "default");
     }
 
     public SmartKeyFile()
@@ -80,7 +80,7 @@ public class FsoFramework.SmartKeyFile : Object
 
         foreach ( var prefix in location_prefix )
         {
-            var location = @"$prefix$filename.conf";
+            var location = Path.build_filename( prefix, filename );
             if ( !FsoFramework.FileHandling.isPresent( location ) )
             {
                 continue;

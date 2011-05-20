@@ -589,8 +589,7 @@ namespace FsoFramework { namespace Utility {
 
     public string machineConfigurationDir()
     {
-        //FIXME: Don't hardcode
-        return @"/etc/freesmartphone/conf/$(hardware())";
+        return Path.build_filename( Config.SYSCONFDIR, "freesmartphone", "conf", hardware() );;
     }
     public string dataToString(uint8[] data, int limit = -1)
     {
