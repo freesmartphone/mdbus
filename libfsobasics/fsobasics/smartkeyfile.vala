@@ -80,7 +80,7 @@ public class FsoFramework.SmartKeyFile : Object
 
         foreach ( var prefix in location_prefix )
         {
-            var location = Path.build_filename( prefix, filename );
+            var location = Path.build_filename( prefix, @"$filename.conf" );
             if ( !FsoFramework.FileHandling.isPresent( location ) )
             {
                 continue;
