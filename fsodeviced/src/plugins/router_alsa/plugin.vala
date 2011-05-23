@@ -60,8 +60,15 @@ class LibAlsa : FsoDevice.BaseAudioRouter
                 var stripped = line.strip();
                 if ( stripped == "" || stripped.has_prefix( "#" ) ) // skip empty lines and comments
                     continue;
-                var control = device.controlForString( line );
-                controls += control;
+                try
+                {
+                    var control = device.controlForString( line );
+                    controls += control;
+                }
+                catch ( FsoDevice.SoundError e )
+                {
+                    FsoFramework.theLogger.warning( @"Invalid line '$line'. Ignoring." );
+                }
             }
 #if DEBUG
             debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
