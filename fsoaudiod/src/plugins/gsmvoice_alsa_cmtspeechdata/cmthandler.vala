@@ -87,7 +87,7 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     private void handleAlsaSink( CmtSpeech.FrameBuffer dlbuf )
     {
-        pcm.write( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
+        pcm.writei( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
     }
 
     private void handleLoop( CmtSpeech.FrameBuffer ulbuf, CmtSpeech.FrameBuffer dlbuf )
