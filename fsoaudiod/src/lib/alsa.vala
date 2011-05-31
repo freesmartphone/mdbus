@@ -479,15 +479,15 @@ public class FsoAudio.PcmDevice
         }
     }
 
-    public Alsa2.PcmSignedFrames read( out uint8* buf, Alsa2.PcmUnsignedFrames size ) throws SoundError
+    public Alsa2.PcmSignedFrames read( uint8[] buf, Alsa2.PcmUnsignedFrames size ) throws SoundError
     {
         if ( access == Alsa2.PcmAccess.RW_INTERLEAVED || access == Alsa2.PcmAccess.MMAP_INTERLEAVED )
         {
-            return device.readi( out buf, size );
+            return device.readi( buf, size );
         }
         else
         {
-            return device.readn( out buf, size );
+            return device.readn( buf, size );
         }
     }
 }

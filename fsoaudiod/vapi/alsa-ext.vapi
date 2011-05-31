@@ -405,11 +405,9 @@ namespace Alsa2
         public PcmSignedFrames forwardable();
         public PcmSignedFrames forward( PcmUnsignedFrames frames );
         public PcmSignedFrames writei( [CCode (array_length = false)] uint8[] buffer, PcmUnsignedFrames size );
-        public PcmSignedFrames writen( [CCode (array_length = false)] uint8* buffer, PcmUnsignedFrames size );
-        //public PcmSignedFrames readi( [CCode (array_length = false)] out uint8[] buffer, PcmUnsignedFrames size );
-        //public PcmSignedFrames readn( [CCode (array_length = false)] out uint8[] buffer, PcmUnsignedFrames size );
-        public PcmSignedFrames readi( out uint8* buffer, PcmUnsignedFrames size );
-        public PcmSignedFrames readn( out uint8* buffer, PcmUnsignedFrames size );
+        public PcmSignedFrames writen( [CCode (array_length = false)] uint8[] buffer, PcmUnsignedFrames size );
+        public PcmSignedFrames readi( [CCode (array_length = false)] uint8[] buffer, PcmUnsignedFrames size );
+        public PcmSignedFrames readn( [CCode (array_length = false)] uint8[] buffer, PcmUnsignedFrames size );
         public int wait( int timeout );
         public int link( PcmDevice otherDevice );
         public int unlink();
