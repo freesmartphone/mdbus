@@ -28,16 +28,15 @@ public class CmtHandler : FsoFramework.AbstractObject
 {
     private CmtSpeech.Connection connection;
     private IOChannel channel;
-    private int data_fd;
-    private FsoAudio.PcmDevice pcm;
+    private FsoAudio.PcmDevice pcmout;
+    private FsoAudio.PcmDevice pcmin;
+
     private bool status;
 
-    //TODO: add config for that
-    private const bool file_interface = false;
-    private const bool loop_interface = false;
-    private const bool alsa_interface = true;
-
-    private const string voice_file = "/home/root/voice/voice_data.raw";
+    private unowned Thread<void *> recordThread = null;
+    private bool runRecordThread = false;
+    private uint8 alsaSrcBuf[320];
+    private Mutex alsaSrcBufMutex = new Mutex();
 
     //
     // Constructor
@@ -80,38 +79,34 @@ public class CmtHandler : FsoFramework.AbstractObject
     // Private API
     //
 
-    private void handleAlsaSrc( CmtSpeech.FrameBuffer ulbuf )
-    {
-
+    private void * recordThreadFunc(){
+        while (runRecordThread){
+            try{
+                    alsaSrcBufMutex.lock();
+                    /* 160 S16_LE frames == 320 Bytes */
+                    pcmin.readi(alsaSrcBuf, 160 );
+                    alsaSrcBufMutex.unlock();
+                }catch(FsoAudio.SoundError e){
+                    logger.error( @"Error: $(e.message)" );
+                }
+            }
+        return null;
     }
 
     private void handleAlsaSink( CmtSpeech.FrameBuffer dlbuf )
     {
-        pcm.writei( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
-    }
-
-    private void handleLoop( CmtSpeech.FrameBuffer ulbuf, CmtSpeech.FrameBuffer dlbuf )
-    {
-        if ( ulbuf.pcount == dlbuf.pcount )
-        {
-            assert( logger.debug( @"looping DL packet to UL with $(dlbuf.pcount) payload bytes" ) );
-            Memory.copy( ulbuf.payload, dlbuf.payload, dlbuf.pcount );
-        }
-        else
-        {
-            assert( logger.debug( @"ulbuf.pcount($(ulbuf.pcount)) != dlbuf.pcount($(dlbuf.pcount))" ) );
+        try{
+            pcmout.writei( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
+        }catch(FsoAudio.SoundError e){
+            logger.error( @"Error: $(e.message)" );
         }
     }
 
-    private void handleFileSink( CmtSpeech.FrameBuffer dlbuf )
+    private void handleAlsaSrc( CmtSpeech.FrameBuffer ulbuf )
     {
-        Posix.write( data_fd, dlbuf.payload, dlbuf.pcount );
-    }
-
-    private void fileSetup()
-    {
-        assert( logger.debug( @"Initializing File output to $voice_file" ) );
-        data_fd = Posix.open( voice_file, Posix.O_CREAT | Posix.O_WRONLY );
+        alsaSrcBufMutex.lock();
+        Memory.copy(ulbuf.payload, alsaSrcBuf, ulbuf.pcount);
+        alsaSrcBufMutex.unlock();
     }
 
     private void alsaSinkSetup()
@@ -121,13 +116,12 @@ public class CmtHandler : FsoFramework.AbstractObject
         Alsa2.PcmFormat format = Alsa2.PcmFormat.S16_LE;
         Alsa2.PcmAccess access = Alsa2.PcmAccess.RW_INTERLEAVED;
 
-        pcm = new FsoAudio.PcmDevice();
-        assert( logger.debug( @"Setup alsa card for modem audio" ) );
+        pcmout = new FsoAudio.PcmDevice();
+        assert( logger.debug( @"Setup alsa sink for modem audio" ) );
         try
         {
-            //TODO: plug:default plughw:default plughw:0.0 plug:hw:0 could also be tried
-            pcm.open( "plug:dmix" );
-            pcm.setFormat( access, format, rate, channels );
+            pcmout.open( "plug:dmix" );
+            pcmout.setFormat( access, format, rate, channels );
         }
         catch ( Error e )
         {
@@ -135,14 +129,57 @@ public class CmtHandler : FsoFramework.AbstractObject
         }
     }
 
-    private void alsaSinkCleanup()
+    private void alsaSrcSetup()
     {
-        pcm.close();
+        int channels = 1;
+        int rate = 8000;
+        Alsa2.PcmFormat format = Alsa2.PcmFormat.S16_LE;
+        Alsa2.PcmAccess access = Alsa2.PcmAccess.RW_INTERLEAVED;
+
+        pcmin = new FsoAudio.PcmDevice();
+        assert( logger.debug( @"Setup alsa source for modem audio" ) );
+        try
+        {
+            pcmin.open( "plug:dsnoop", Alsa2.PcmStream.CAPTURE );
+            pcmin.setFormat( access, format, rate, channels );
+        }
+        catch ( Error e )
+        {
+            logger.error( @"Error: $(e.message)" );
+        }
+
+        /* start the recording now,
+         * so we push the buffer that are already recorded
+         */
+        if (!Thread.supported()) {
+            stderr.printf("Cannot run without threads.\n");
+        }else {
+            if (recordThread == null){
+                try {
+                    recordThread = Thread.create<void *>(recordThreadFunc, true);
+                } catch (ThreadError e) {
+                    stdout.printf( @"Error: $(e.message)" );
+                    return;
+                }
+            }else{
+                stdout.printf("Thread already launched \n");
+            }
+            runRecordThread = true;
+        }
+
     }
 
-    private void fileCleanup()
+    private void alsaSinkCleanup()
     {
-        Posix.close( data_fd );
+        pcmout.close();
+    }
+
+    private void alsaSrcCleanup()
+    {
+        runRecordThread = false;
+        recordThread.join();
+        recordThread = null;
+        pcmin.close();
     }
 
     private void handleDataEvent()
@@ -157,26 +194,17 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             assert( logger.debug( "received DL packet w/ $(dlbuf.count) bytes" ) );
 
-            if ( file_interface )
-            {
-                handleFileSink( dlbuf );
-            }
-
-            if ( alsa_interface )
-            {
-                handleAlsaSink( dlbuf );
-            }
+            handleAlsaSink( dlbuf );
 
             if ( connection.protocol_state() == CmtSpeech.State.ACTIVE_DLUL )
             {
-                assert( logger.debug( "protocol state is ACTIVE_DLUL, uploading as well..." ) );
                 ok = connection.ul_buffer_acquire( out ulbuf );
-
-                if ( loop_interface )
+                if ( ok == 0 )
                 {
-                    handleLoop( ulbuf, dlbuf );
-                }
+                    assert( logger.debug( "protocol state is ACTIVE_DLUL, uploading as well..." ) );
+                    handleAlsaSrc( ulbuf );
                 connection.ul_buffer_release( ulbuf );
+                }
             }
             connection.dl_buffer_release( dlbuf );
         }
@@ -289,27 +317,13 @@ public class CmtHandler : FsoFramework.AbstractObject
 
         if ( enabled )
         {
-            if ( file_interface )
-            {
-                fileSetup();
-            }
-
-            if ( alsa_interface )
-            {
-                alsaSinkSetup();
-            }
+            alsaSinkSetup();
+            alsaSrcSetup();
         }
         else
         {
-            if ( file_interface )
-            {
-                fileCleanup();
-            }
-
-            if ( alsa_interface )
-            {
-                alsaSinkCleanup();
-            }
+            alsaSinkCleanup();
+            alsaSrcCleanup();
         }
 
         connection.state_change_call_status( enabled );

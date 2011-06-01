@@ -44,7 +44,7 @@ class FsoAudio.GsmVoiceCmtspeechdata.Plugin : FsoFramework.AbstractObject
                 cmthandler.setAudioStatus( true );
                 break;
 
-            case FreeSmartphone.GSM.CallStatus.INCOMING:
+            //case FreeSmartphone.GSM.CallStatus.INCOMING:
             case FreeSmartphone.GSM.CallStatus.RELEASE:
                 cmthandler.setAudioStatus( false );
                 break;
