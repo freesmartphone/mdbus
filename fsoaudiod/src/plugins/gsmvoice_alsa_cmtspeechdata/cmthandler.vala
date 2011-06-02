@@ -79,25 +79,34 @@ public class CmtHandler : FsoFramework.AbstractObject
     // Private API
     //
 
-    private void * recordThreadFunc(){
-        while (runRecordThread){
-            try{
-                    alsaSrcBufMutex.lock();
-                    /* 160 S16_LE frames == 320 Bytes */
-                    pcmin.readi(alsaSrcBuf, 160 );
-                    alsaSrcBufMutex.unlock();
-                }catch(FsoAudio.SoundError e){
-                    logger.error( @"Error: $(e.message)" );
-                }
+    private void * recordThreadFunc()
+    {
+        while ( runRecordThread )
+        {
+            try
+            {
+                alsaSrcBufMutex.lock();
+                /* 160 S16_LE frames == 320 Bytes */
+                pcmin.readi( alsaSrcBuf, 160 );
+                alsaSrcBufMutex.unlock();
             }
+            catch ( FsoAudio.SoundError e )
+            {
+                logger.error( @"Error: $(e.message)" );
+            }
+        }
+
         return null;
     }
 
     private void handleAlsaSink( CmtSpeech.FrameBuffer dlbuf )
     {
-        try{
+        try
+        {
             pcmout.writei( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
-        }catch(FsoAudio.SoundError e){
+        }
+        catch ( FsoAudio.SoundError e )
+        {
             logger.error( @"Error: $(e.message)" );
         }
     }
@@ -105,7 +114,7 @@ public class CmtHandler : FsoFramework.AbstractObject
     private void handleAlsaSrc( CmtSpeech.FrameBuffer ulbuf )
     {
         alsaSrcBufMutex.lock();
-        Memory.copy(ulbuf.payload, alsaSrcBuf, ulbuf.pcount);
+        Memory.copy( ulbuf.payload, alsaSrcBuf, ulbuf.pcount );
         alsaSrcBufMutex.unlock();
     }
 
@@ -151,18 +160,27 @@ public class CmtHandler : FsoFramework.AbstractObject
         /* start the recording now,
          * so we push the buffer that are already recorded
          */
-        if (!Thread.supported()) {
-            stderr.printf("Cannot run without threads.\n");
-        }else {
-            if (recordThread == null){
-                try {
-                    recordThread = Thread.create<void *>(recordThreadFunc, true);
-                } catch (ThreadError e) {
+        if ( !Thread.supported() )
+        {
+            stderr.printf( "Cannot run without threads.\n" );
+        }
+        else
+        {
+            if ( recordThread == null )
+            {
+                try
+                {
+                    recordThread = Thread.create<void *>( recordThreadFunc, true );
+                }
+                catch ( ThreadError e )
+                {
                     stdout.printf( @"Error: $(e.message)" );
                     return;
                 }
-            }else{
-                stdout.printf("Thread already launched \n");
+            }
+            else
+            {
+                stdout.printf( "Thread already launched \n" );
             }
             runRecordThread = true;
         }
@@ -203,7 +221,7 @@ public class CmtHandler : FsoFramework.AbstractObject
                 {
                     assert( logger.debug( "protocol state is ACTIVE_DLUL, uploading as well..." ) );
                     handleAlsaSrc( ulbuf );
-                connection.ul_buffer_release( ulbuf );
+                    connection.ul_buffer_release( ulbuf );
                 }
             }
             connection.dl_buffer_release( dlbuf );
@@ -225,36 +243,37 @@ public class CmtHandler : FsoFramework.AbstractObject
         switch ( transition )
         {
             case CmtSpeech.Transition.INVALID:
-              assert( logger.debug( "ERROR: invalid state transition") );
-              break;
+                assert( logger.debug( "ERROR: invalid state transition") );
+                break;
 
             case CmtSpeech.Transition.1_CONNECTED:
             case CmtSpeech.Transition.2_DISCONNECTED:
             case CmtSpeech.Transition.3_DL_START:
             case CmtSpeech.Transition.4_DLUL_STOP:
             case CmtSpeech.Transition.5_PARAM_UPDATE:
-              assert( logger.debug( @"State transition ok, new state is $transition" ) );
-              break;
+                assert( logger.debug( @"State transition ok, new state is $transition" ) );
+                break;
 
             case CmtSpeech.Transition.6_TIMING_UPDATE:
             case CmtSpeech.Transition.7_TIMING_UPDATE:
-              assert( logger.debug( "WARNING: modem UL timing update ignored" ) );
-              break;
+                assert( logger.debug( "WARNING: modem UL timing update ignored" ) );
+                break;
 
             case CmtSpeech.Transition.10_RESET:
             case CmtSpeech.Transition.11_UL_STOP:
             case CmtSpeech.Transition.12_UL_START:
-              assert( logger.debug( @"State transition ok, new state is $transition" ) );
-              break;
+                assert( logger.debug( @"State transition ok, new state is $transition" ) );
+                break;
 
             default:
-              assert_not_reached();
+                assert_not_reached();
+                break;
         }
     }
 
     private bool onInputFromChannel( IOChannel source, IOCondition condition )
     {
-        assert( logger.debug( "onInputFromChannel, condition = %d".printf( condition ) ) );
+        assert( logger.debug( @"onInputFromChannel, condition = $condition" ) );
 
         assert( condition == IOCondition.HUP || condition == IOCondition.IN );
 
