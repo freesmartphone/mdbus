@@ -22,20 +22,20 @@ namespace FsoInit {
 
 public BaseConfiguration createMachineConfiguration()
 {
-	return new DummyConfiguration();
+    return new DummyConfiguration();
 }
 
 public class DummyConfiguration : BaseConfiguration
 {
-	construct
-	{
-		name = "dummy";
-	}
+    construct
+    {
+        name = "dummy";
+    }
 
-	public override void registerActionsInQueue(IActionQueue queue)
-	{
+    public override void registerActionsInQueue(IActionQueue queue)
+    {
 
-	}
+    }
 }
 
 } // namespace

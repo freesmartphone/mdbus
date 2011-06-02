@@ -21,49 +21,49 @@ namespace FsoInit {
 
 public class SysfsConfigAction : IAction, GLib.Object
 {
-	public string name { get { return "SysfsConfigAction"; } }
-	public string path { get; set; default = ""; }
-	public string valueForWrite { get; set; default = ""; }
+    public string name { get { return "SysfsConfigAction"; } }
+    public string path { get; set; default = ""; }
+    public string valueForWrite { get; set; default = ""; }
 
 
-	public SysfsConfigAction.with_settings(string pathname, string val)
-	{
-		this.path = pathname;
-		this.valueForWrite = val;
-	}
+    public SysfsConfigAction.with_settings(string pathname, string val)
+    {
+        this.path = pathname;
+        this.valueForWrite = val;
+    }
 
-	public string to_string()
-	{
-		return @"[$(name)] :: path='$(path)' valueForWrite='$(valueForWrite)'";
-	}
+    public string to_string()
+    {
+        return @"[$(name)] :: path='$(path)' valueForWrite='$(valueForWrite)'";
+    }
 
-	public bool run()
-	{
-		if (path.length == 0 && valueForWrite.length == 0)
-		{
-			FsoFramework.theLogger.error("Arguments are invalid!");
-			return false;
-		}
+    public bool run()
+    {
+        if (path.length == 0 && valueForWrite.length == 0)
+        {
+            FsoFramework.theLogger.error("Arguments are invalid!");
+            return false;
+        }
 
-		if (FsoFramework.FileHandling.isPresent(path))
-		{
-			FsoFramework.theLogger.debug(@"SysfsConfigAction: '$(valueForWrite)' = '$(path)'");
-			FsoFramework.FileHandling.write(valueForWrite, path);
-		}
-		else
-		{
-			FsoFramework.theLogger.error("Could not sysfs node");
-			return false;
-		}
+        if (FsoFramework.FileHandling.isPresent(path))
+        {
+            FsoFramework.theLogger.debug(@"SysfsConfigAction: '$(valueForWrite)' = '$(path)'");
+            FsoFramework.FileHandling.write(valueForWrite, path);
+        }
+        else
+        {
+            FsoFramework.theLogger.error("Could not sysfs node");
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public bool reset()
-	{
-		// do nothing ...
-		return true;
-	}
+    public bool reset()
+    {
+        // do nothing ...
+        return true;
+    }
 }
 
 } // namespace

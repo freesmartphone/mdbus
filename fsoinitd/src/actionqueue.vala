@@ -25,41 +25,41 @@ namespace FsoInit
 
 public class ActionQueue : IActionQueue, GLib.Object
 {
-	private ArrayList<IAction> actions;
+    private ArrayList<IAction> actions;
 
-	construct
-	{
-		actions = new ArrayList<IAction>();
-	}
+    construct
+    {
+        actions = new ArrayList<IAction>();
+    }
 
-	public void registerAction(IAction action)
-	{
-		actions.add(action);
-	}
+    public void registerAction(IAction action)
+    {
+        actions.add(action);
+    }
 
-	public bool run()
-	{
-		foreach (var action in actions)
-		{
+    public bool run()
+    {
+        foreach (var action in actions)
+        {
 
-			FsoFramework.theLogger.debug(@"run '$(action.name)' action ...");
-			FsoFramework.theLogger.debug(@"ACTION INFO: $(action.to_string())");
+            FsoFramework.theLogger.debug(@"run '$(action.name)' action ...");
+            FsoFramework.theLogger.debug(@"ACTION INFO: $(action.to_string())");
 
-			if (!action.run())
-			{
-				FsoFramework.theLogger.error(@"an error occured while running action '$(action.name)'");
-				FsoFramework.theLogger.error(@"action was executed as the following: ");
-				FsoFramework.theLogger.error(@" -> $(action.to_string())");
-				return false;
-			}
-			else
-			{
-				FsoFramework.theLogger.debug(@"--> finished action'$(action.name)'");
-			}
-		}
+            if (!action.run())
+            {
+                FsoFramework.theLogger.error(@"an error occured while running action '$(action.name)'");
+                FsoFramework.theLogger.error(@"action was executed as the following: ");
+                FsoFramework.theLogger.error(@" -> $(action.to_string())");
+                return false;
+            }
+            else
+            {
+                FsoFramework.theLogger.debug(@"--> finished action'$(action.name)'");
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 }
 
 }

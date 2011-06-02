@@ -23,30 +23,30 @@ namespace FsoInit
 
 public class InitProcessWorker : GLib.Object
 {
-	private IActionQueue actionQueue;
-	private BaseConfiguration configuration;
+    private IActionQueue actionQueue;
+    private BaseConfiguration configuration;
 
-	construct
-	{
-		actionQueue = new ActionQueue();
-	}
+    construct
+    {
+        actionQueue = new ActionQueue();
+    }
 
-	public void setup()
-	{
-		configuration = createMachineConfiguration();
-		FsoFramework.theLogger.info(@"created configuration for machine '$(configuration.name)'");
+    public void setup()
+    {
+        configuration = createMachineConfiguration();
+        FsoFramework.theLogger.info(@"created configuration for machine '$(configuration.name)'");
 
-		FsoFramework.theLogger.info(@"register all actions for machine configuration '$(configuration.name)'");
-		configuration.registerActionsInQueue(actionQueue);
-	}
+        FsoFramework.theLogger.info(@"register all actions for machine configuration '$(configuration.name)'");
+        configuration.registerActionsInQueue(actionQueue);
+    }
 
-	public bool run()
-	{
-		assert(configuration != null);
+    public bool run()
+    {
+        assert(configuration != null);
 
-		FsoFramework.theLogger.info(@"run all actions for machine configuration '$(configuration.name)'");
-		return actionQueue.run();
-	}
+        FsoFramework.theLogger.info(@"run all actions for machine configuration '$(configuration.name)'");
+        return actionQueue.run();
+    }
 }
 
 

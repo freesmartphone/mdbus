@@ -24,52 +24,52 @@ namespace FsoInit
 
 public class ValidateSystemAction : IAction, GLib.Object
 {
-	public string name { get { return "ValidateSystemAction"; } }
+    public string name { get { return "ValidateSystemAction"; } }
 
-	public string to_string()
-	{
-		return @"[$(name)] :: no parameters";
-	}
+    public string to_string()
+    {
+        return @"[$(name)] :: no parameters";
+    }
 
-	public bool run()
-	{
-		/* Assure that we are the number one */
-		var res = (int) Posix.getpid();
-		if (!Util.CHECK( () => { return res > -1; }, "Not being executed as init"))
-			return false;
+    public bool run()
+    {
+        /* Assure that we are the number one */
+        var res = (int) Posix.getpid();
+        if (!Util.CHECK( () => { return res > -1; }, "Not being executed as init"))
+            return false;
 
-		/* Assure that we started as root */
-		res = (int) Posix.getuid();
-		if (!Util.CHECK( () => { return res > -1; }, "Need to be root!"))
-			return false;
+        /* Assure that we started as root */
+        res = (int) Posix.getuid();
+        if (!Util.CHECK( () => { return res > -1; }, "Need to be root!"))
+            return false;
 
-		/* Become the leader of a new session and process group */
-		Posix.setsid();
+        /* Become the leader of a new session and process group */
+        Posix.setsid();
 
-		/* Set root directory to be at the right place if we were
-		 * started from some strange place
-		 */
-		 res = Posix.chdir("/");
-		 if (!Util.CHECK( () => { return res > -1; }, "Cannot set root directory!"))
-			return false;
+        /* Set root directory to be at the right place if we were
+         * started from some strange place
+         */
+         res = Posix.chdir("/");
+         if (!Util.CHECK( () => { return res > -1; }, "Cannot set root directory!"))
+            return false;
 
-		/* Set path for binaries */
-		var path = "/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin";
-		GLib.Environment.set_variable("PATH", path, true);
+        /* Set path for binaries */
+        var path = "/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin";
+        GLib.Environment.set_variable("PATH", path, true);
 
-		/* Change destination of stdout and stderr to the console device and stdin to
-		 * /dev/null */
-		if (!setupConsole(true))
-			return false;
+        /* Change destination of stdout and stderr to the console device and stdin to
+         * /dev/null */
+        if (!setupConsole(true))
+            return false;
 
-		return true;
-	}
+        return true;
+    }
 
-	public bool reset()
-	{
-		/* do nothing */
-		return true;
-	}
+    public bool reset()
+    {
+        /* do nothing */
+        return true;
+    }
 }
 
 } // namespace

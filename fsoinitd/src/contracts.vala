@@ -22,27 +22,27 @@ namespace FsoInit {
 
 public errordomain ActionError
 {
-	COULD_NOT_CREATE_TARGET_DIRECTORY,
-	COULD_NOT_MOUNT_FILESYSTEM,
-	COULD_NOT_UMOUNT_FILESYSTEM,
-	COULD_NOT_FIND_SYSFS_NODE,
-	COULD_NOT_SPAWN_PROCESS,
-	COULD_NOT_SET_HOSTNAME,
-	COULD_NOT_ACTIVATE_DBUS_SERVICE,
+    COULD_NOT_CREATE_TARGET_DIRECTORY,
+    COULD_NOT_MOUNT_FILESYSTEM,
+    COULD_NOT_UMOUNT_FILESYSTEM,
+    COULD_NOT_FIND_SYSFS_NODE,
+    COULD_NOT_SPAWN_PROCESS,
+    COULD_NOT_SET_HOSTNAME,
+    COULD_NOT_ACTIVATE_DBUS_SERVICE,
 }
 
 public interface IAction : GLib.Object
 {
-	public abstract string name { get; }
-	public abstract bool run();
-	public abstract bool reset();
-	public abstract string to_string();
+    public abstract string name { get; }
+    public abstract bool run();
+    public abstract bool reset();
+    public abstract string to_string();
 }
 
 public interface IActionQueue : GLib.Object
 {
-	public abstract void registerAction(IAction action);
-	public abstract bool run();
+    public abstract void registerAction(IAction action);
+    public abstract bool run();
 }
 
 } // namespace

@@ -22,23 +22,23 @@ GLib.MainLoop mainloop;
 
 int main( string[] args )
 {
-	var bin = FsoFramework.Utility.programName();
+    var bin = FsoFramework.Utility.programName();
 
-	FsoFramework.theLogger.info("startup ...");
-	mainloop = new GLib.MainLoop(null, false);
+    FsoFramework.theLogger.info("startup ...");
+    mainloop = new GLib.MainLoop(null, false);
 
-	var worker = new FsoInit.InitProcessWorker();
-	worker.setup();
-	if (!worker.run())
-		return -1;
+    var worker = new FsoInit.InitProcessWorker();
+    worker.setup();
+    if (!worker.run())
+        return -1;
 
-	FsoFramework.theLogger.info( "%s => mainloop".printf( bin ) );
-	mainloop.run();
-	FsoFramework.theLogger.info( "mainloop => %s".printf( bin ) );
+    FsoFramework.theLogger.info( "%s => mainloop".printf( bin ) );
+    mainloop.run();
+    FsoFramework.theLogger.info( "mainloop => %s".printf( bin ) );
 
-	FsoFramework.theLogger.info( "%s exit".printf( bin ) );
+    FsoFramework.theLogger.info( "%s exit".printf( bin ) );
 
-	return 0;
+    return 0;
 }
 
 // vim:ts=4:sw=4:expandtab

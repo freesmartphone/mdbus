@@ -22,9 +22,9 @@ namespace FsoInit {
 
 public abstract class BaseConfiguration : GLib.Object
 {
-	public string name { get; set; default = "default"; }
+    public string name { get; set; default = "default"; }
 
-	public abstract void registerActionsInQueue(IActionQueue queue);
+    public abstract void registerActionsInQueue(IActionQueue queue);
 }
 
 } // namespace
