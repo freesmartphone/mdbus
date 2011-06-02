@@ -23,7 +23,6 @@ VALAC_ARGS = \
 	--vapidir $(top_srcdir)/vapi \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg linux \
-	--pkg uinput \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \
