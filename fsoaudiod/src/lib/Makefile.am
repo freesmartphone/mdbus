@@ -19,7 +19,6 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg alsa \
-	--pkg alsa-ext \
 	--pkg config \
 	--header fsoaudio.h \
 	--library fsoaudio-2.0

@@ -410,11 +410,11 @@ public class FsoAudio.MixerControl
 public class FsoAudio.PcmDevice
 {
     private string name;
-    public Alsa2.PcmDevice device;
-    private Alsa2.PcmHardwareParams hwparams;
+    public Alsa.PcmDevice device;
+    private Alsa.PcmHardwareParams hwparams;
     private int rate;
-    private Alsa2.PcmAccess access;
-    private Alsa2.PcmFormat format;
+    private Alsa.PcmAccess access;
+    private Alsa.PcmFormat format;
     private uint channels;
 
     //
@@ -433,15 +433,15 @@ public class FsoAudio.PcmDevice
     // Public API
     //
 
-    public void open( string devicename = "default", Alsa2.PcmStream mode = Alsa2.PcmStream.PLAYBACK ) throws SoundError
+    public void open( string devicename = "default", Alsa.PcmStream mode = Alsa.PcmStream.PLAYBACK ) throws SoundError
     {
-        checkedCall( @"open PCM device '$devicename'", Alsa2.PcmDevice.open( out device, devicename, mode, 0 ) );
+        checkedCall( @"open PCM device '$devicename'", Alsa.PcmDevice.open( out device, devicename, mode, 0 ) );
         assert( device != null );
         this.name = devicename;
-        Alsa2.PcmHardwareParams.malloc( out hwparams );
+        Alsa.PcmHardwareParams.malloc( out hwparams );
     }
 
-    public void setFormat( Alsa2.PcmAccess access, Alsa2.PcmFormat format, int desiredrate = 44100, uint channels = 2 ) throws SoundError
+    public void setFormat( Alsa.PcmAccess access, Alsa.PcmFormat format, int desiredrate = 44100, uint channels = 2 ) throws SoundError
     {
         this.rate = desiredrate;
         this.access = access;
@@ -467,22 +467,22 @@ public class FsoAudio.PcmDevice
         }
     }
 
-    public Alsa2.PcmSignedFrames writei( uint8[] buf, Alsa2.PcmUnsignedFrames size ) throws SoundError
+    public Alsa.PcmSignedFrames writei( uint8[] buf, Alsa.PcmUnsignedFrames size ) throws SoundError
     {
         return device.writei( buf, size );
     }
 
-    public Alsa2.PcmSignedFrames writen( uint8*[] buf, Alsa2.PcmUnsignedFrames size ) throws SoundError
+    public Alsa.PcmSignedFrames writen( uint8*[] buf, Alsa.PcmUnsignedFrames size ) throws SoundError
     {
         return device.writen( buf, size );
     }
 
-    public Alsa2.PcmSignedFrames readi( uint8[] buf, Alsa2.PcmUnsignedFrames size ) throws SoundError
+    public Alsa.PcmSignedFrames readi( uint8[] buf, Alsa.PcmUnsignedFrames size ) throws SoundError
     {
         return device.readi( buf, size );
     }
 
-    public Alsa2.PcmSignedFrames readn( uint8*[] buf, Alsa2.PcmUnsignedFrames size ) throws SoundError
+    public Alsa.PcmSignedFrames readn( uint8*[] buf, Alsa.PcmUnsignedFrames size ) throws SoundError
     {
         return device.readn( buf, size );
     }

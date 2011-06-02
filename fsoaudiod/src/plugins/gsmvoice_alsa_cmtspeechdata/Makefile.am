@@ -30,8 +30,7 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsoaudio-2.0 \
 	--pkg libcmtspeechdata \
-	--pkg alsa \
-	--pkg alsa-ext
+	--pkg alsa
 
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG

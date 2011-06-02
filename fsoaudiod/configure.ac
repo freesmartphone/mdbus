@@ -1,4 +1,4 @@
-AC_INIT([fsoaudiod], [0.1.0], [smartphones-userland@linuxtogo.org], [fsoaudiod])
+AC_INIT([fsoaudiod], [0.2.0], [smartphones-userland@linuxtogo.org], [fsoaudiod])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -10,7 +10,7 @@ AC_GNU_SOURCE
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-VALA_REQUIRED=0.12.0
+VALA_REQUIRED=0.12.1
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 m4_ifdef([AM_PROG_VALAC], [AM_PROG_VALAC([$VALA_REQUIRED])])
