@@ -97,20 +97,48 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        logger.info("Create Freescale Neptune channels");
+        logger.info( "Create Freescale Neptune channels" );
 
-        var muxnode_prefix = config.stringValue( MODULE_NAME, "muxnode_prefix");
+        if ( modem_transport == "serial" )
+        {
+            var muxnode_prefix = config.stringValue( MODULE_NAME, "muxnode_prefix" );
 
-        for ( int i = 0; i < CHANNEL_NAMES.length; ++i ) {
-            var channel = CHANNEL_NAMES[i];
-            var dlci = config.stringValue( MODULE_NAME, @"dlci_$(channel)" );
-            if ( dlci != "" ) {
-                var muxnode = @"$(muxnode_prefix)$(dlci)";
-                var transport = FsoFramework.Transport.create("serial", muxnode, 115200);
-                new AtChannel( channel, transport, new FsoGsm.StateBasedAtParser() );
-            } else {
-                logger.warning( @"No dlci for channel \"$(channel)\"" );
+            for ( int i = 0; i < CHANNEL_NAMES.length; ++i )
+            {
+                var channel = CHANNEL_NAMES[i];
+                var dlci = config.stringValue( MODULE_NAME, @"dlci_$(channel)" );
+                if ( dlci != "" )
+                {
+                    var muxnode = @"$(muxnode_prefix)$(dlci)";
+                    var transport = FsoFramework.Transport.create( modem_transport, muxnode, modem_speed );
+                    new AtChannel( channel, transport, new FsoGsm.StateBasedAtParser() );
+                }
+                else
+                {
+                    logger.warning( @"No dlci for channel '$(channel)'" );
+                }
             }
+        }
+        else if ( modem_transport == "tcp" )
+        {
+            for ( int i = 0; i < CHANNEL_NAMES.length; ++i )
+            {
+                var channel = CHANNEL_NAMES[i];
+                var dlci = config.intValue( MODULE_NAME, @"dlci_$(channel)" );
+                if ( dlci > 0 )
+                {
+                    var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed + dlci );
+                    new AtChannel( channel, transport, new FsoGsm.StateBasedAtParser() );
+                }
+                else
+                {
+                    logger.warning( @"No dlci for channel '$(channel)'" );
+                }
+            }
+        }
+        else
+        {
+            logger.error( "This modem only supports serial or TCP transports" );
         }
     }
 
