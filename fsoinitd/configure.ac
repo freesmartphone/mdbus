@@ -19,21 +19,29 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
-GLIB_REQUIRED=2.18.0
-DBUS_REQUIRED=1.2.1
-DBUS_GLIB_REQUIRED=0.76
+GLIB_REQUIRED=2.26.0
 FSO_BASICS_REQUIRED=0.2.3
+FSO_SYSTEM_REQUIRED=0.0.0
 GEE_REQUIRED=0.5.0
 
 ##############################################################################
 # glib and friends
+
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
   gobject-2.0 >= $GLIB_REQUIRED
-  gio-2.0 >= $GLIB_REQUIRED
-  fsobasics-2.0 >= $FSO_BASICS_REQUIRED)
+  gio-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
+
+##############################################################################
+# FSO
+
+PKG_CHECK_MODULES(FSO,
+	fsobasics-2.0 >= $FSO_BASICS_REQUIRED
+	fsosystem-2.0 >= $FSO_SYSTEM_REQUIRED)
+AC_SUBST(FSO_CFLAGS)
+AC_SUBST(FSO_LIBS)
 
 ##############################################################################
 # gee
@@ -43,35 +51,21 @@ AC_SUBST(GEE_CFLAGS)
 AC_SUBST(GEE_LIBS)
 
 ##############################################################################
-# dbus and dbus-glib
-PKG_CHECK_MODULES(DBUS,
-  dbus-1 >= $DBUS_REQUIRED
-  dbus-glib-1 >= $DBUS_GLIB_REQUIRED)
-AC_SUBST(DBUS_CFLAGS)
-AC_SUBST(DBUS_LIBS)
-
-##############################################################################
 # check for debugging
+
 AC_ARG_ENABLE(debug,
   [  --enable-debug            Enable debug build (default=disabled)],
   [debug=$enableval],
   [debug="no"])
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
-# check for machine configuration
-AC_ARG_WITH(machine,
-[  --with-machine=BANE              specify the machine],
-[
-  v=$withval;
-  machine=$v
-  echo "  Machine set to "$machine;
-],[
-  machine="dummy"
-])
-AM_CONDITIONAL( [WANT_MACHINE_OPENMOKO_GTA02], [test x"$machine" = x"om-gta02"])
-AM_CONDITIONAL( [WANT_MACHINE_PALMPRE], [test x"$machine" = x"palmpre"])
-AM_CONDITIONAL( [WANT_MACHINE_DUMMY], [test x"$machine" = x"dummy"])
+##############################################################################
+# git version
 
+GITV=`cat ../.git/refs/heads/master || echo "unknown"`
+AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
+
+###############################################################################
 
 # output
 AC_CONFIG_FILES([
@@ -82,8 +76,6 @@ AC_OUTPUT
 
 # info
 echo
-echo
-echo
 echo "------------------------------------------------------------------------"
 echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
 echo "------------------------------------------------------------------------"
@@ -93,8 +85,6 @@ echo
 echo "  debug build.............: $debug"
 echo
 echo "  prefix..................: $prefix"
-echo
-echo "  machine.................: $machine"
 echo
 echo "------------------------------------------------------------------------"
 echo

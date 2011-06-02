@@ -9,7 +9,7 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg posix \
 	--pkg linux \
-	--pkg dbus-glib-1 \
+	--pkg fsosystem-2.0 \
 	--pkg fsobasics-2.0 \
 	--save-temps
 
@@ -18,9 +18,9 @@ VALAC_ARGS += -D DEBUG
 endif
 
 INCLUDES = \
-	$(DBUS_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(FSO_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	$(NULL)
 
@@ -31,31 +31,7 @@ sbin_PROGRAMS = fsoinitd
 fsoinitd_VALASOURCES = \
 	util.vala \
 	main.vala \
-	contracts.vala \
-	actionqueue.vala \
-	initprocessworker.vala \
-	configurations/baseconfiguration.vala \
-	spawnprocessaction.vala \
-	sysfsconfigaction.vala \
-	mountfilesystemaction.vala \
-	configurenetworkinterfaceaction.vala \
-	additionalbootprocessaction.vala \
-	setuphostnameaction.vala \
-	dbusactivatoraction.vala \
-	validatesystemaction.vala \
 	$(NULL)
-
-if WANT_MACHINE_PALMPRE
-fsoinitd_VALASOURCES += configurations/palmpre.vala
-endif
-
-if WANT_MACHINE_OPENMOKO_GTA02
-fsoinitd_VALASOURCES += configurations/om-gta02.vala
-endif
-
-if WANT_MACHINE_DUMMY
-fsoinitd_VALASOURCES += configurations/dummy.vala
-endif
 
 fsoinitd_SOURCES = \
 	$(fsoinitd_VALASOURCES:.vala=.c) \
@@ -72,9 +48,9 @@ $(BUILT_SOURCES): $(fsoinitd_VALASOURCES)
 #	$(NULL)
 
 fsoinitd_LDADD = \
-	$(DBUS_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
+	$(FSO_LIBS) \
 	$(NULL)
 
 EXTRA_DIST += \

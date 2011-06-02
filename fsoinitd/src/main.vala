@@ -1,7 +1,6 @@
 /**
- * -- freesmartphone.org boot utility --
- *
  * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *                         Simon Busch <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,25 +17,59 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  **/
 
+using FsoFramework;
+using FsoInit;
+
 GLib.MainLoop mainloop;
 
 int main( string[] args )
 {
-    var bin = FsoFramework.Utility.programName();
+    var binname = Utility.programName();
 
-    FsoFramework.theLogger.info("startup ...");
+    theLogger.info("Starting system ...");
+
     mainloop = new GLib.MainLoop(null, false);
 
-    var worker = new FsoInit.InitProcessWorker();
-    worker.setup();
-    if (!worker.run())
+    // Assure that we are the number one in the system!
+    var res = (int) Posix.getpid();
+    if (res != 1)
+    {
+        theLogger.error("Aborting ... We are not the first process in the system!");
+        return -1;
+    }
+
+    // Assure that we started as root
+    res = (int) Posix.getuid();
+    if (!Util.CHECK( () => { return res > -1; }, "Need to be root!"))
         return -1;
 
-    FsoFramework.theLogger.info( "%s => mainloop".printf( bin ) );
-    mainloop.run();
-    FsoFramework.theLogger.info( "mainloop => %s".printf( bin ) );
+    // Become the leader of a new session and process group
+    Posix.setsid();
 
-    FsoFramework.theLogger.info( "%s exit".printf( bin ) );
+    // Set root directory to be at the right place if we were
+    // started from some strange place
+    res = Posix.chdir("/");
+    if (!Util.CHECK( () => { return res > -1; }, "Cannot set root directory!"))
+    return -1;
+
+    // Set path for binaries
+    var path = "/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/sbin:/sbin:/bin";
+    GLib.Environment.set_variable("PATH", path, true);
+
+    // Change destination of stdout and stderr to the console device and stdin to
+    // /dev/null
+    if (!Util.setupConsole(true))
+    {
+        return -1;
+    }
+
+    // FIXME Mount relevant filesystems like dev, proc, sysfs, ...
+
+    // FIXME Run machine specific init steps
+
+    mainloop.run();
+
+    theLogger.info("Stopping system ...");
 
     return 0;
 }
