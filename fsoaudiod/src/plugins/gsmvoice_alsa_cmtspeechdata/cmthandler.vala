@@ -122,8 +122,8 @@ public class CmtHandler : FsoFramework.AbstractObject
     {
         int channels = 1;
         int rate = 8000;
-        Alsa2.PcmFormat format = Alsa2.PcmFormat.S16_LE;
-        Alsa2.PcmAccess access = Alsa2.PcmAccess.RW_INTERLEAVED;
+        Alsa.PcmFormat format = Alsa.PcmFormat.S16_LE;
+        Alsa.PcmAccess access = Alsa.PcmAccess.RW_INTERLEAVED;
 
         pcmout = new FsoAudio.PcmDevice();
         assert( logger.debug( @"Setup alsa sink for modem audio" ) );
@@ -149,7 +149,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         assert( logger.debug( @"Setup alsa source for modem audio" ) );
         try
         {
-            pcmin.open( "plug:dsnoop", Alsa2.PcmStream.CAPTURE );
+            pcmin.open( "plug:dsnoop", Alsa.PcmStream.CAPTURE );
             pcmin.setFormat( access, format, rate, channels );
         }
         catch ( Error e )
