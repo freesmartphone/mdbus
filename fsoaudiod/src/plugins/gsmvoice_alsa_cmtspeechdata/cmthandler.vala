@@ -36,7 +36,6 @@ public class CmtHandler : FsoFramework.AbstractObject
     private unowned Thread<void *> recordThread = null;
     private bool runRecordThread = false;
     private uint8 alsaSrcBuf[320];
-    private Mutex alsaSrcBufMutex = new Mutex();
 
     //
     // Constructor
@@ -85,10 +84,8 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             try
             {
-                alsaSrcBufMutex.lock();
                 /* 160 S16_LE frames == 320 Bytes */
                 pcmin.readi( alsaSrcBuf, 160 );
-                alsaSrcBufMutex.unlock();
             }
             catch ( FsoAudio.SoundError e )
             {
@@ -113,9 +110,7 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     private void handleAlsaSrc( CmtSpeech.FrameBuffer ulbuf )
     {
-        alsaSrcBufMutex.lock();
         Memory.copy( ulbuf.payload, alsaSrcBuf, ulbuf.pcount );
-        alsaSrcBufMutex.unlock();
     }
 
     private void alsaSinkSetup()
