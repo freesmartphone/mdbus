@@ -273,7 +273,9 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     private bool onInputFromChannel( IOChannel source, IOCondition condition )
     {
-        assert( logger.debug( @"onInputFromChannel, condition = $condition" ) );
+        //the following line is commented to work arround a vala 0.12.1 bug
+        //with the use of to_string() on an enum, which results in a segmentation fault
+        //assert( logger.debug( @"onInputFromChannel, condition = $condition" ) );
 
         assert( condition == IOCondition.HUP || condition == IOCondition.IN );
 
