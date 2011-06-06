@@ -7,6 +7,7 @@ SUBDIRS = \
 	openmoko_gta \
 	htc_qualcomm_dream \
 	htcleo \
+	nexusone \
 	$(NULL)
 
 MAINTAINERCLEANFILES = Makefile.in

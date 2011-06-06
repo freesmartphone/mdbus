@@ -10,6 +10,7 @@ SUBDIRS = \
 	motorola_ezx \
 	openmoko_gta \
 	palm_pre \
+	nexusone \
 	nokia_n900 \
 	$(NULL)
 

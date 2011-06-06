@@ -8,6 +8,7 @@ SUBDIRS = \
 	htcleo \
 	openmoko_gta \
 	palm_pre \
+	nexusone \
 	$(NULL)
 
 MAINTAINERCLEANFILES = Makefile.in
