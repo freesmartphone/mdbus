@@ -24,19 +24,14 @@ using FsoFramework;
 
 public class MsmChannel : CommandQueue, Channel, AbstractObject
 {
-    public Transport transport { get; set; }
-    public string name;
-
     private FreeSmartphone.Usage usage;
     private bool is_initialized;
     private Msmcomm.ModemStatus currentModemStatus;
-#if 0
-    private bool modem_lock_status;
-    private uint modem_lock_count;
-#endif
+
+    public Transport transport { get; set; }
+    public string name;
 
     public MsmUnsolicitedResponseHandler urc_handler;
-
     public Msmcomm.Management management_service;
     public Msmcomm.State state_service;
     public Msmcomm.Misc misc_service;
@@ -45,33 +40,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     public Msmcomm.Phonebook phonebook_service;
     public Msmcomm.Network network_service;
 
-#if 0
-    public void lockModem()
-    {
-        modem_lock_count++;
-        modem_lock_status = true;
-    }
-
-    public void unlockModem();
-    {
-        if ( modem_lock_count > 0 )
-        {
-            modem_lock_count--;
-        }
-        else
-        {
-            logger.critical( "Someone calls unlockModem functionality without calling lockModem before!" );
-        }
-
-        modem_lock_status = modem_lock_count > 0;
-    }
-
-    public async void waitUntilModemIsUnlocked()
-    {
-    }
-#endif
-
-    private void onModemControlStatusChanged( Msmcomm.ModemStatus status )
+    private async void onModemControlStatusChanged( Msmcomm.ModemStatus status )
     {
         currentModemStatus = status;
 
@@ -88,7 +57,13 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
                  */
                 logger.error( "Modem control was reseted due to internal error; synchronizing with the modem ..." );
 
-                Posix.sleep(2);
+                // Manual sleep necessary before we can proceed to talk to the msmcommd
+                Timeout.add_seconds( 2, () => {
+                    onModemControlStatusChanged.callback();
+                    return false;
+                });
+                yield;
+
                 misc_service.test_alive();
 
                 break;
@@ -128,8 +103,10 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         return true;
     }
 
-    private void registerObjects()
+    private bool registerObjects()
     {
+        bool result = true;
+
         try
         {
             management_service = Bus.get_proxy_sync<Msmcomm.Management>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
@@ -144,18 +121,10 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         catch ( GLib.IOError err )
         {
             logger.error( @"Can't initialize msmcommd proxy objects: $(err.message)" );
+            result = false;
         }
-    }
 
-    private async void releaseModemResource()
-    {
-        try
-        {
-            yield usage.release_resource( "Modem" );
-        }
-        catch ( GLib.Error err )
-        {
-        }
+        return result;
     }
 
     private async void initialize()
@@ -174,11 +143,9 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             charger_info.voltage = Msmcomm.ChargerVoltage.VOLTAGE_1000mA;
             yield misc_service.set_charge( charger_info );
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( GLib.Error err0 )
         {
-        }
-        catch ( GLib.Error err1 )
-        {
+            logger.error( @"Could not initialize modem with initial settings: $(err0.message)" );
         }
     }
 
@@ -212,12 +179,9 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
     public async bool open()
     {
-        if ( management_service == null )
-        {
-            registerObjects();
-        }
+        bool timeout = false;
 
-        if ( management_service == null )
+        if ( management_service == null && !registerObjects() )
         {
             return false;
         }
@@ -249,24 +213,47 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             /* We sent here a test alive command to the modem to retrieve the response of
              * the change operation mode message after this. Never remove the delay! */
             yield misc_service.test_alive();
-            Posix.sleep(2);
+            Timeout.add_seconds( 1, () => { 
+                open.callback();
+                return false;
+            } );
+            yield;
+
 
             /* reset the modem and wait for it to come back */
             logger.debug( "Reseting modem and waiting for it to come back ..." );
             yield state_service.change_operation_mode( Msmcomm.OperationMode.RESET );
-            yield urc_handler.waitForUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND );
-            Posix.sleep(2);
+            yield urc_handler.waitForUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND, 8, () => {
+                // When timeout is reached we need to handle this after the
+                // waitForUnsolicitedResponse call returned
+                timeout = true;
+                return false;
+            });
+
+            if ( timeout )
+            {
+                close();
+                return false;
+            }
+
+            // Wait a little bit until the msmcomm daemon is ready to accept the next
+            // command. If we do not add the manual sleep here we are too fast and will
+            // never get an answer for any further command.
+            Timeout.add_seconds( 1, () => { 
+                open.callback();
+                return false;
+            } );
+            yield;
 
             logger.debug( "Modem is back after reset now; Synchronizing ..." );
             yield misc_service.test_alive();
 
             is_initialized = true;
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( GLib.Error err0 )
         {
-        }
-        catch ( GLib.Error err1 )
-        {
+            close();
+            return false;
         }
 
         return true;
@@ -293,21 +280,22 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         {
             logger.debug( "Shutdown modem controller ..." );
             yield management_service.shutdown();
-            is_initialized = false;
+            logger.debug( "Releasing modem dbus resource ..." );
+            yield usage.release_resource( "Modem" );
+
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( GLib.Error err0 )
         {
-        }
-        catch ( GLib.Error err1 )
-        {
+            // The called method above should not fail in most cases. When they returned
+            // with an error it's often because the msmcomm daemon died and is not
+            // available anymore.
         }
 
-        yield releaseModemResource();
+        is_initialized = false;
     }
 
     public void registerUnsolicitedHandler( FsoFramework.CommandQueue.UnsolicitedHandler urchandler )
     {
-
     }
 
     public async void freeze( bool drain = false )
