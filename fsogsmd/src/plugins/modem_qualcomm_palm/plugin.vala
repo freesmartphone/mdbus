@@ -32,7 +32,6 @@ using FsoGsm;
 class QualcommPalm.Modem : FsoGsm.AbstractModem
 {
     private const string MSM_CHANNEL_NAME = "main";
-    private const string AT_CHANNEL_NAME = "data";
 
     public override string repr()
     {
