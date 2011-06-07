@@ -62,6 +62,7 @@ internal void updateSimPinStatus( MsmPinStatus status )
 public class MsmUnsolicitedResponseHandler : AbstractObject
 {
     private GLib.List<WaitForUnsolicitedResponseData> urc_waiters;
+    private bool already_connected = false;
 
     //
     // public API
@@ -74,6 +75,12 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
 
     public void setup()
     {
+        if ( already_connected )
+        {
+            logger.debug( @"We already have connected to the relevant dbus signals of the msmcomm daemon!" );
+            return;
+        }
+
         var channel = theModem.channel( "main" ) as MsmChannel;
 
         channel.state_service.operation_mode.connect( ( info ) => {
@@ -213,6 +220,8 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
                     break;
             }
         });
+
+        already_connected = true;
     }
 
     public override string repr()

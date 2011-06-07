@@ -23,6 +23,7 @@ using Msmcomm;
 public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.AbstractObject
 {
     public FsoGsm.PhonebookStorage storage { get; set; }
+    private bool initialized = false;
 
     public MsmPhonebookHandler()
     {
@@ -106,29 +107,30 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
 
     public async void initializeStorage()
     {
-        try
+        if ( initialized )
         {
-            var channel = theModem.channel( "main" ) as MsmChannel;
-
-            // Fetch and check imsi from sim
-            var fi = yield channel.sim_service.read_field( SimFieldType.IMSI );
-            string imsi = fi.data;
-            if ( imsi.length == 0 )
-            {
-                logger.warning( "Can't retrieve imsi from SIM for identifying the correct phonebook storage" );
-                return;
-            }
-
-            // create Storage for current IMSI and clean it up
-            storage = new FsoGsm.PhonebookStorage( imsi );
+            // We we are already initialized we just cleanup our storage to not store any
+            // contacts twice!
             storage.clean();
+            return;
         }
-        catch ( Msmcomm.Error err0 )
+
+        var channel = theModem.channel( "main" ) as MsmChannel;
+
+        // Fetch and check imsi from sim
+        var fi = yield channel.sim_service.read_field( SimFieldType.IMSI );
+        string imsi = fi.data;
+        if ( imsi.length == 0 )
         {
+            logger.warning( "Can't retrieve imsi from SIM for identifying the correct phonebook storage" );
+            return;
         }
-        catch ( GLib.Error err1 )
-        {
-        }
+
+        // create Storage for current IMSI and clean it up
+        storage = new FsoGsm.PhonebookStorage( imsi );
+        storage.clean();
+
+        initialized = true;
     }
 }
 
