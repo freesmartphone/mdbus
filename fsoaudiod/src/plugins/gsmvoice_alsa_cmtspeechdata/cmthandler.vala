@@ -80,12 +80,20 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     private void * recordThreadFunc()
     {
+        Alsa.PcmSignedFrames frames;
+
         while ( runRecordThread )
         {
             try
             {
                 /* 160 S16_LE frames == 320 Bytes */
-                pcmin.readi( alsaSrcBuf, 160 );
+                frames = pcmin.readi( alsaSrcBuf, 160 );
+                if (frames == -Posix.EPIPE)
+                {
+                    logger.debug("WARNING: buffer overrun occured with readi\n");
+                    pcmin.recover(-Posix.EPIPE,0);
+                    continue;
+                }
             }
             catch ( FsoAudio.SoundError e )
             {
@@ -96,16 +104,17 @@ public class CmtHandler : FsoFramework.AbstractObject
         return null;
     }
 
-    private void handleAlsaSink( CmtSpeech.FrameBuffer dlbuf )
+    private Alsa.PcmSignedFrames handleAlsaSink( CmtSpeech.FrameBuffer dlbuf )
     {
         try
         {
-            pcmout.writei( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
+            return pcmout.writei( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
         }
         catch ( FsoAudio.SoundError e )
         {
             logger.error( @"Error: $(e.message)" );
         }
+		return 0;
     }
 
     private void handleAlsaSrc( CmtSpeech.FrameBuffer ulbuf )
@@ -157,7 +166,7 @@ public class CmtHandler : FsoFramework.AbstractObject
          */
         if ( !Thread.supported() )
         {
-            stderr.printf( "Cannot run without threads.\n" );
+            logger.debug( "Cannot run without threads.\n" );
         }
         else
         {
@@ -197,6 +206,8 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     private void handleDataEvent()
     {
+        Alsa.PcmSignedFrames AlsaSinkFrames;
+
         assert( logger.debug( @"handleDataEvent during protocol state $(connection.protocol_state())" ) );
 
         CmtSpeech.FrameBuffer dlbuf = null;
@@ -207,8 +218,14 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             assert( logger.debug( "received DL packet w/ $(dlbuf.count) bytes" ) );
 
-            handleAlsaSink( dlbuf );
-
+            AlsaSinkFrames = handleAlsaSink( dlbuf );
+            if ( AlsaSinkFrames == -Posix.EPIPE)
+            {
+                logger.debug( "WARNING: buffer underrun occured with writei\n");
+                pcmout.recover(-Posix.EPIPE,0);
+                connection.dl_buffer_release( dlbuf );
+                return;
+            }
             if ( connection.protocol_state() == CmtSpeech.State.ACTIVE_DLUL )
             {
                 ok = connection.ul_buffer_acquire( out ulbuf );

@@ -486,6 +486,11 @@ public class FsoAudio.PcmDevice
     {
         return device.readn( buf, size );
     }
+    public int recover(int error,int silent)
+    {
+        return device.recover(error,silent);
+    }
+
 }
 
 // vim:ts=4:sw=4:expandtab
