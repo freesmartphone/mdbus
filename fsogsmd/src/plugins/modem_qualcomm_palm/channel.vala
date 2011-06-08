@@ -223,18 +223,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             /* reset the modem and wait for it to come back */
             logger.debug( "Reseting modem and waiting for it to come back ..." );
             yield state_service.change_operation_mode( Msmcomm.OperationMode.RESET );
-            yield urc_handler.waitForUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND, 10, () => {
-                // When timeout is reached we need to handle this after the
-                // waitForUnsolicitedResponse call returned
-                timeout = true;
-                return false;
-            });
-
-            if ( timeout )
-            {
-                close();
-                return false;
-            }
+            yield urc_handler.waitForUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND );
 
             // Wait a little bit until the msmcomm daemon is ready to accept the next
             // command. If we do not add the manual sleep here we are too fast and will
