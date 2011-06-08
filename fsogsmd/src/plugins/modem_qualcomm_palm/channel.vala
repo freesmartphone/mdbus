@@ -127,6 +127,19 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         return result;
     }
 
+    private async void releaseModemResource()
+    {
+        try
+        {
+            logger.debug( "Releasing modem dbus resource ..." );
+            yield usage.release_resource( "Modem" );
+        }
+        catch ( GLib.Error err )
+        {
+            logger.error( @"Could not release Modem resource!" );
+        }
+    }
+
     private async void initialize()
     {
         try
@@ -269,9 +282,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         {
             logger.debug( "Shutdown modem controller ..." );
             yield management_service.shutdown();
-            logger.debug( "Releasing modem dbus resource ..." );
-            yield usage.release_resource( "Modem" );
-
+            yield releaseModemResource();
         }
         catch ( GLib.Error err0 )
         {
