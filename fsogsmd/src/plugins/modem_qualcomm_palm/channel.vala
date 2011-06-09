@@ -58,7 +58,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
                 logger.error( "Modem control was reseted due to internal error; synchronizing with the modem ..." );
 
                 // Manual sleep necessary before we can proceed to talk to the msmcommd
-                sleep(2);
+                Posix.sleep(2);
                 misc_service.test_alive();
 
                 break;
@@ -221,7 +221,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             /* We sent here a test alive command to the modem to retrieve the response of
              * the change operation mode message after this. Never remove the delay! */
             yield misc_service.test_alive();
-            sleep(2);
+            Posix.sleep(2);
 
             /* reset the modem and wait for it to come back */
             logger.debug( "Reseting modem and waiting for it to come back ..." );
@@ -231,7 +231,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             // Wait a little bit until the msmcomm daemon is ready to accept the next
             // command. If we do not add the manual sleep here we are too fast and will
             // never get an answer for any further command.
-            sleep(2);
+            Posix.sleep(2);
 
             logger.debug( "Modem is back after reset now; Synchronizing ..." );
             yield misc_service.test_alive();
