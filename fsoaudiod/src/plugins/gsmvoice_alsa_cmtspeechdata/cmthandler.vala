@@ -33,10 +33,6 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     private bool status;
 
-    private unowned Thread<void *> recordThread = null;
-    private bool runRecordThread = false;
-    private uint8 alsaSrcBuf[320];
-
     //
     // Constructor
     //
@@ -78,32 +74,6 @@ public class CmtHandler : FsoFramework.AbstractObject
     // Private API
     //
 
-    private void * recordThreadFunc()
-    {
-        Alsa.PcmSignedFrames frames;
-
-        while ( runRecordThread )
-        {
-            try
-            {
-                /* 160 S16_LE frames == 320 Bytes */
-                frames = pcmin.readi( alsaSrcBuf, 160 );
-                if (frames == -Posix.EPIPE)
-                {
-                    logger.debug("WARNING: buffer overrun occured with readi\n");
-                    pcmin.recover(-Posix.EPIPE,0);
-                    continue;
-                }
-            }
-            catch ( FsoAudio.SoundError e )
-            {
-                logger.error( @"Error: $(e.message)" );
-            }
-        }
-
-        return null;
-    }
-
     private Alsa.PcmSignedFrames handleAlsaSink( CmtSpeech.FrameBuffer dlbuf )
     {
         try
@@ -114,12 +84,27 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             logger.error( @"Error: $(e.message)" );
         }
-		return 0;
+        return 0;
     }
 
     private void handleAlsaSrc( CmtSpeech.FrameBuffer ulbuf )
     {
-        Memory.copy( ulbuf.payload, alsaSrcBuf, ulbuf.pcount );
+        Alsa.PcmSignedFrames frames;
+        try
+        {
+            /* 160 S16_LE frames == 320 Bytes */
+            frames = pcmin.readi( (uint8[]) ulbuf.payload , 160 );
+            if (frames == -Posix.EPIPE)
+            {
+                logger.debug("WARNING: buffer overrun occured with readi\n");
+                pcmin.recover(-Posix.EPIPE,0);
+               return;
+            }
+        }
+        catch ( FsoAudio.SoundError e )
+        {
+            logger.error( @"Error: $(e.message)" );
+        }
     }
 
     private void alsaSinkSetup()
@@ -160,35 +145,6 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             logger.error( @"Error: $(e.message)" );
         }
-
-        /* start the recording now,
-         * so we push the buffer that are already recorded
-         */
-        if ( !Thread.supported() )
-        {
-            logger.debug( "Cannot run without threads.\n" );
-        }
-        else
-        {
-            if ( recordThread == null )
-            {
-                try
-                {
-                    recordThread = Thread.create<void *>( recordThreadFunc, true );
-                }
-                catch ( ThreadError e )
-                {
-                    stdout.printf( @"Error: $(e.message)" );
-                    return;
-                }
-            }
-            else
-            {
-                stdout.printf( "Thread already launched \n" );
-            }
-            runRecordThread = true;
-        }
-
     }
 
     private void alsaSinkCleanup()
@@ -198,9 +154,6 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     private void alsaSrcCleanup()
     {
-        runRecordThread = false;
-        recordThread.join();
-        recordThread = null;
         pcmin.close();
     }
 
