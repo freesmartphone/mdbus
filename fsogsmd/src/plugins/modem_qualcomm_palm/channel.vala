@@ -254,6 +254,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         }
         catch ( GLib.Error err0 )
         {
+            logger.error( @"Something failed while opening the channel: $(err0.message)" );
             close();
             return false;
         }
