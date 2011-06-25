@@ -30,8 +30,24 @@ public class CmtHandler : FsoFramework.AbstractObject
     private IOChannel channel;
     private FsoAudio.PcmDevice pcmout;
     private FsoAudio.PcmDevice pcmin;
-
     private bool status;
+    private const int FCOUNT = 160;
+
+    /* playback Thread */
+    private unowned Thread<void *> playbackThread = null;
+    private bool runPlaybackThread = false;
+    private uint8 from_modem_to_writei[960]; //3 buffers of 160 frames: 3*(160 * 2)
+    private Mutex playbackMutex = new Mutex();
+    private long writeiWriteptr = 0;
+    private long writeiReadptr = 0;
+
+    /* record Thread */
+    private unowned Thread<void *> recordThread = null;
+    private bool runRecordThread = false;
+    private uint8 from_readi_to_modem[960]; //3 buffers of 160 frames: 3*(160 * 2)
+    private Mutex recordMutex = new Mutex();
+    private long readiWriteptr = 0;
+    private long readiReadptr = 0;
 
     //
     // Constructor
@@ -74,38 +90,199 @@ public class CmtHandler : FsoFramework.AbstractObject
     // Private API
     //
 
-    private Alsa.PcmSignedFrames handleAlsaSink( CmtSpeech.FrameBuffer dlbuf )
+    private int checkReadiPosition(out int readptr,out int writeptr)
     {
-        try
+        if ( readptr - writeptr > (FCOUNT * 2) )
         {
-            return pcmout.writei( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
-        }
-        catch ( FsoAudio.SoundError e )
-        {
-            logger.error( @"Error: $(e.message)" );
+            //buffer underrun
+            recordMutex.lock();
+            if ( readptr + (FCOUNT * 2) > 480 )
+                writeptr = readptr + ( FCOUNT * 2) - 480;
+            else
+                writeptr = readptr + (FCOUNT *2 );
+            recordMutex.unlock();
+            return -Posix.EPIPE;
         }
         return 0;
     }
 
-    private void handleAlsaSrc( CmtSpeech.FrameBuffer ulbuf )
+
+
+    private int checkWriteiPosition(out int readptr,out int writeptr){
+        if ( readptr - writeptr > (FCOUNT * 2) )
+        {
+            //buffer underrun
+            playbackMutex.lock();
+            if ( readptr + (FCOUNT * 2) > 480 )
+                writeptr = readptr + ( FCOUNT * 2) - 480;
+            else
+                writeptr = readptr + (FCOUNT *2 );
+            playbackMutex.unlock();
+            return -Posix.EPIPE;
+        }
+        // else if(writeptr + FCOUNT > readptr)
+        // {
+        //     //
+        //     playbackMutex.Lock();
+        //     if (writeptr + FCOUNT > 480)
+        //         readptr = writeptr + FCOUNT - 480;
+        //     else
+        //         readptr = writeptr + FCOUNT;
+        //     playbackMutex.unlock();
+        //     return -Posix.EIO;
+        // }
+        return 0;
+    }
+
+    private void updatePtr(out long ptr, Alsa.PcmSignedFrames  frames){
+        long num = (long) frames;
+
+        if ( ( ptr + num ) > 480 )
+             ptr += ( ptr + num ) - 480;
+        else
+            ptr += num;
+    }
+
+    private void * playbackThreadFunc()
     {
         Alsa.PcmSignedFrames frames;
-        try
+        int ret;
+
+        while ( runPlaybackThread )
         {
-            /* 160 S16_LE frames == 320 Bytes */
-            frames = pcmin.readi( (uint8[]) ulbuf.payload , 160 );
-            if (frames == -Posix.EPIPE)
+            ret = checkWriteiPosition( out writeiReadptr ,out writeiWriteptr);
+            if (ret == -Posix.EPIPE)
             {
-                logger.debug("WARNING: buffer overrun occured with readi\n");
-                pcmin.recover(-Posix.EPIPE,0);
-               return;
+                stderr.printf("buffer underruns\n");
+                try
+                {
+                    pcmout.prepare();
+                }
+                catch ( FsoAudio.SoundError e )
+                {
+                    //I don't know what to do at this point,
+                    //sound won't work anymore.
+                    //hangup?
+                    logger.error( "Error in snd_pcm_prepare after a buffer underrun!!!!" );
+                    logger.error( @"Error: $(e.message)" );
+                }
+            }
+            else
+            {
+                try
+                {
+                       frames = pcmout.writei(
+                           (uint8[])((int)from_modem_to_writei + (int)writeiReadptr) ,FCOUNT );
+                       frames = frames * 2;
+                       if ( frames == -Posix.EPIPE )
+                       {
+                              //pcmout.recover(-Posix.EPIPE,0);
+                           //frames = FCOUNT;
+                           //updatePtr(out writeiReadptr, FCOUNT);
+                           pcmout.prepare();
+                       }
+                       else
+                       {
+                           updatePtr(out writeiReadptr, frames);
+                       }
+                }
+                catch ( FsoAudio.SoundError e )
+                {
+                    logger.error( @"Error: $(e.message)" );
+                }
+
             }
         }
-        catch ( FsoAudio.SoundError e )
-        {
-            logger.error( @"Error: $(e.message)" );
-        }
+        return null;
     }
+
+
+    private void * recordThreadFunc()
+    {
+        Alsa.PcmSignedFrames frames;
+        int ret;
+
+        while ( runRecordThread )
+        {
+            ret = checkReadiPosition( out readiReadptr ,out readiWriteptr);
+            if (ret == -Posix.EPIPE)
+            {
+                stderr.printf("buffer overruns\n");
+                try
+                {
+                    pcmin.prepare();
+                }
+                catch ( FsoAudio.SoundError e )
+                {
+                    //I don't know what to do at this point,
+                    //sound won't work anymore.
+                    //hangup?
+                    logger.error( "Error in snd_pcm_prepare after a buffer underrun!!!!" );
+                    logger.error( @"Error: $(e.message)" );
+                }
+            }
+            else
+            {
+                try
+                {
+                       frames = pcmin.readi(
+                           (uint8[])((int)from_readi_to_modem + (int)readiWriteptr) ,FCOUNT );
+                       frames = frames * 2;
+                       if ( frames == -Posix.EPIPE )
+                       {
+                              //pcmin.recover(-Posix.EPIPE,0);
+                           //frames = FCOUNT;
+                           //updatePtr(out readiWriteptr, FCOUNT);
+                           pcmin.prepare();
+                       }
+                       else
+                       {
+                           updatePtr(out readiWriteptr, frames);
+                       }
+                }
+                catch ( FsoAudio.SoundError e )
+                {
+                    logger.error( @"Error: $(e.message)" );
+                }
+
+            }
+        }
+        return null;
+    }
+
+
+    // private Alsa.PcmSignedFrames handleAlsaSink( CmtSpeech.FrameBuffer dlbuf )
+    // {
+    //     try
+    //     {
+    //         return pcmout.writei( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
+    //     }
+    //     catch ( FsoAudio.SoundError e )
+    //     {
+    //         logger.error( @"Error: $(e.message)" );
+    //     }
+    //     return 0;
+    // }
+
+    // private void handleAlsaSrc( CmtSpeech.FrameBuffer ulbuf )
+    // {
+    //     Alsa.PcmSignedFrames frames;
+    //     try
+    //     {
+    //         /* 160 S16_LE frames == 320 Bytes */
+    //         frames = pcmin.readi( (uint8[]) ulbuf.payload , FCOUNT );
+    //         if (frames == -Posix.EPIPE)
+    //         {
+    //             logger.debug("WARNING: buffer overrun occured with readi\n");
+    //             pcmin.recover(-Posix.EPIPE,0);
+    //            return;
+    //         }
+    //     }
+    //     catch ( FsoAudio.SoundError e )
+    //     {
+    //         logger.error( @"Error: $(e.message)" );
+    //     }
+    // }
 
     private void alsaSinkSetup()
     {
@@ -125,6 +302,37 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             logger.error( @"Error: $(e.message)" );
         }
+
+        /* start the playback thread now
+         */
+        if ( !Thread.supported() )
+        {
+            logger.debug( "Cannot run without threads.\n" );
+        }
+        else
+        {
+            if ( playbackThread == null )
+            {
+                try
+                {
+                    playbackThread = Thread.create<void *>( playbackThreadFunc, true );
+                }
+                catch ( ThreadError e )
+                {
+                    stdout.printf( @"Error: $(e.message)" );
+                    return;
+               }
+            }
+            else
+            {
+                stdout.printf( "Thread already launched \n" );
+            }
+            runPlaybackThread = true;
+        }
+
+
+
+
     }
 
     private void alsaSrcSetup()
@@ -145,22 +353,55 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             logger.error( @"Error: $(e.message)" );
         }
+
+        /* start the record thread now
+         */
+        if ( !Thread.supported() )
+        {
+            logger.debug( "Cannot run without threads.\n" );
+        }
+        else
+        {
+            if ( recordThread == null )
+            {
+                try
+                {
+                    recordThread = Thread.create<void *>( recordThreadFunc, true );
+                }
+                catch ( ThreadError e )
+                {
+                    stdout.printf( @"Error: $(e.message)" );
+                    return;
+               }
+            }
+            else
+            {
+                stdout.printf( "Thread already launched \n" );
+            }
+            runRecordThread = true;
+        }
+
     }
 
     private void alsaSinkCleanup()
     {
         pcmout.close();
+        runPlaybackThread = false;
+        playbackThread.join();
+        playbackThread = null;
+
     }
 
     private void alsaSrcCleanup()
     {
         pcmin.close();
+        runRecordThread = false;
+        recordThread.join();
+        recordThread = null;
     }
 
     private void handleDataEvent()
     {
-        Alsa.PcmSignedFrames AlsaSinkFrames;
-
         assert( logger.debug( @"handleDataEvent during protocol state $(connection.protocol_state())" ) );
 
         CmtSpeech.FrameBuffer dlbuf = null;
@@ -169,23 +410,20 @@ public class CmtHandler : FsoFramework.AbstractObject
         var ok = connection.dl_buffer_acquire( out dlbuf );
         if ( ok == 0 )
         {
-            assert( logger.debug( "received DL packet w/ $(dlbuf.count) bytes" ) );
+            assert( logger.debug( @"received DL packet w/ $(dlbuf.count) bytes" ) );
 
-            AlsaSinkFrames = handleAlsaSink( dlbuf );
-            if ( AlsaSinkFrames == -Posix.EPIPE)
-            {
-                logger.debug( "WARNING: buffer underrun occured with writei\n");
-                pcmout.recover(-Posix.EPIPE,0);
-                connection.dl_buffer_release( dlbuf );
-                return;
-            }
+            Memory.copy(from_modem_to_writei,dlbuf.payload ,dlbuf.pcount);
+            updatePtr(out writeiWriteptr,dlbuf.pcount);
+
             if ( connection.protocol_state() == CmtSpeech.State.ACTIVE_DLUL )
             {
                 ok = connection.ul_buffer_acquire( out ulbuf );
                 if ( ok == 0 )
                 {
                     assert( logger.debug( "protocol state is ACTIVE_DLUL, uploading as well..." ) );
-                    handleAlsaSrc( ulbuf );
+
+                    Memory.copy(ulbuf.payload,from_readi_to_modem,ulbuf.pcount);
+                    updatePtr(out readiReadptr, dlbuf.pcount);
                     connection.ul_buffer_release( ulbuf );
                 }
             }

@@ -467,6 +467,12 @@ public class FsoAudio.PcmDevice
         }
     }
 
+    public void prepare() throws SoundError
+    {
+	checkedCall( "prepare", device.prepare() );
+    }
+
+
     public Alsa.PcmSignedFrames writei( uint8[] buf, Alsa.PcmUnsignedFrames size ) throws SoundError
     {
         return device.writei( buf, size );
