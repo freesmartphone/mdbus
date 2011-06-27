@@ -96,8 +96,8 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             //buffer underrun
             recordMutex.lock();
-            if ( readptr + (FCOUNT * 2) > 480 )
-                writeptr = readptr + ( FCOUNT * 2) - 480;
+            if ( readptr + (FCOUNT * 2) > 960 )
+                writeptr = readptr + ( FCOUNT * 2) - 960;
             else
                 writeptr = readptr + (FCOUNT *2 );
             recordMutex.unlock();
@@ -113,32 +113,21 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             //buffer underrun
             playbackMutex.lock();
-            if ( readptr + (FCOUNT * 2) > 480 )
-                writeptr = readptr + ( FCOUNT * 2) - 480;
+            if ( readptr + (FCOUNT * 2) > 960 )
+                writeptr = readptr + ( FCOUNT * 2) - 960;
             else
                 writeptr = readptr + (FCOUNT *2 );
             playbackMutex.unlock();
             return -Posix.EPIPE;
         }
-        // else if(writeptr + FCOUNT > readptr)
-        // {
-        //     //
-        //     playbackMutex.Lock();
-        //     if (writeptr + FCOUNT > 480)
-        //         readptr = writeptr + FCOUNT - 480;
-        //     else
-        //         readptr = writeptr + FCOUNT;
-        //     playbackMutex.unlock();
-        //     return -Posix.EIO;
-        // }
         return 0;
     }
 
     private void updatePtr(out long ptr, Alsa.PcmSignedFrames  frames){
         long num = (long) frames;
 
-        if ( ( ptr + num ) > 480 )
-             ptr += ( ptr + num ) - 480;
+        if ( ( ptr + num ) > 960 )
+             ptr += ( ptr + num ) - 960;
         else
             ptr += num;
     }
@@ -156,7 +145,7 @@ public class CmtHandler : FsoFramework.AbstractObject
                 stderr.printf("buffer underruns\n");
                 try
                 {
-                    pcmout.prepare();
+                    pcmout.recover(-Posix.EPIPE,0);
                 }
                 catch ( FsoAudio.SoundError e )
                 {
@@ -173,17 +162,14 @@ public class CmtHandler : FsoFramework.AbstractObject
                 {
                        frames = pcmout.writei(
                            (uint8[])((int)from_modem_to_writei + (int)writeiReadptr) ,FCOUNT );
-                       frames = frames * 2;
                        if ( frames == -Posix.EPIPE )
                        {
-                              //pcmout.recover(-Posix.EPIPE,0);
-                           //frames = FCOUNT;
-                           //updatePtr(out writeiReadptr, FCOUNT);
-                           pcmout.prepare();
+                           pcmout.recover(-Posix.EPIPE,0);
                        }
                        else
                        {
-                           updatePtr(out writeiReadptr, frames);
+                           stderr.printf("frames: %ld \n",(long)frames);
+                           updatePtr(out writeiReadptr, frames * 2);
                        }
                 }
                 catch ( FsoAudio.SoundError e )
@@ -227,17 +213,13 @@ public class CmtHandler : FsoFramework.AbstractObject
                 {
                        frames = pcmin.readi(
                            (uint8[])((int)from_readi_to_modem + (int)readiWriteptr) ,FCOUNT );
-                       frames = frames * 2;
                        if ( frames == -Posix.EPIPE )
                        {
-                              //pcmin.recover(-Posix.EPIPE,0);
-                           //frames = FCOUNT;
-                           //updatePtr(out readiWriteptr, FCOUNT);
                            pcmin.prepare();
                        }
                        else
                        {
-                           updatePtr(out readiWriteptr, frames);
+                           updatePtr(out readiWriteptr, frames * 2 );
                        }
                 }
                 catch ( FsoAudio.SoundError e )
@@ -249,40 +231,6 @@ public class CmtHandler : FsoFramework.AbstractObject
         }
         return null;
     }
-
-
-    // private Alsa.PcmSignedFrames handleAlsaSink( CmtSpeech.FrameBuffer dlbuf )
-    // {
-    //     try
-    //     {
-    //         return pcmout.writei( (uint8[])dlbuf.payload, dlbuf.pcount / 2 );
-    //     }
-    //     catch ( FsoAudio.SoundError e )
-    //     {
-    //         logger.error( @"Error: $(e.message)" );
-    //     }
-    //     return 0;
-    // }
-
-    // private void handleAlsaSrc( CmtSpeech.FrameBuffer ulbuf )
-    // {
-    //     Alsa.PcmSignedFrames frames;
-    //     try
-    //     {
-    //         /* 160 S16_LE frames == 320 Bytes */
-    //         frames = pcmin.readi( (uint8[]) ulbuf.payload , FCOUNT );
-    //         if (frames == -Posix.EPIPE)
-    //         {
-    //             logger.debug("WARNING: buffer overrun occured with readi\n");
-    //             pcmin.recover(-Posix.EPIPE,0);
-    //            return;
-    //         }
-    //     }
-    //     catch ( FsoAudio.SoundError e )
-    //     {
-    //         logger.error( @"Error: $(e.message)" );
-    //     }
-    // }
 
     private void alsaSinkSetup()
     {
@@ -354,8 +302,7 @@ public class CmtHandler : FsoFramework.AbstractObject
             logger.error( @"Error: $(e.message)" );
         }
 
-        /* start the record thread now
-         */
+        /* start the record thread now */
         if ( !Thread.supported() )
         {
             logger.debug( "Cannot run without threads.\n" );
@@ -542,12 +489,12 @@ public class CmtHandler : FsoFramework.AbstractObject
         if ( enabled )
         {
             alsaSinkSetup();
-            alsaSrcSetup();
+            //alsaSrcSetup();
         }
         else
         {
             alsaSinkCleanup();
-            alsaSrcCleanup();
+            //alsaSrcCleanup();
         }
 
         connection.state_change_call_status( enabled );
