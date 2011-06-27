@@ -31,7 +31,8 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
     private int inputnodenumber;
     private int powerkeycode;
-
+    private string screenresumetype;
+    private string screenresumecommand;
     string reason = "unknown";
 
     construct
@@ -50,6 +51,8 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         inputnodenumber = config.intValue( MODULE_NAME, "wakeup_inputnode", -1 );
         // value of the power on key
         powerkeycode = config.intValue( MODULE_NAME, "wakeup_powerkeycode", -1 );
+        screenresumetype = config.stringValue( MODULE_NAME, "screen_resume_type","kernel");
+        screenresumecommand = config.stringValue( MODULE_NAME, "screen_resume_command","");
     }
 
     public override string repr()
@@ -116,6 +119,27 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 
         assert( logger.debug( "Setting power state 'on'" ) );
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
+
+        if (screenresumetype == "userspace")
+        {
+            if ( screenresumecommand != "" )
+            {
+                var ok = Posix.system( screenresumecommand );
+                if ( ok != 0 )
+                {
+                    logger.error( @"Can't execute '$screenresumecommand' - error code $ok" );
+                }else{
+                    logger.debug( @"'$screenresumecommand' executed - return code $ok" );
+                    logger.debug( "resume executed" );
+                }
+            }else{
+                logger.debug(@"empty screen_resume_command");
+            }
+        }else
+        {
+            logger.debug(@"unsupported screen_resume_type: $screenresumetype");
+        }
+
     }
 
 
