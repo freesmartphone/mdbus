@@ -35,11 +35,12 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     /* playback Thread */
     private unowned Thread<void *> playbackThread = null;
-    private bool runPlaybackThread = false;
+    private int runPlaybackThread = 0;
     private uint8 from_modem_to_writei[960]; //3 buffers of 160 frames: 3*(160 * 2)
     private Mutex playbackMutex = new Mutex();
     private long writeiWriteptr = 0;
     private long writeiReadptr = 0;
+    private bool playback_ready = false;
 
     /* record Thread */
     private unowned Thread<void *> recordThread = null;
@@ -137,8 +138,11 @@ public class CmtHandler : FsoFramework.AbstractObject
         Alsa.PcmSignedFrames frames;
         int ret;
 
-        while ( runPlaybackThread )
+        while ( runPlaybackThread > 0 )
         {
+            if (! playback_ready )
+                continue;
+
             ret = checkWriteiPosition( out writeiReadptr ,out writeiWriteptr);
             if (ret == -Posix.EPIPE)
             {
@@ -162,13 +166,16 @@ public class CmtHandler : FsoFramework.AbstractObject
                 {
                        frames = pcmout.writei(
                            (uint8[])((int)from_modem_to_writei + (int)writeiReadptr) ,FCOUNT );
-                       if ( frames == -Posix.EPIPE )
+                       if ( frames != 160)
+                       {
+                           stderr.printf("frames: %ld \n",(long)frames);
+                       }
+                       else if ( frames == -Posix.EPIPE )
                        {
                            pcmout.recover(-Posix.EPIPE,0);
                        }
                        else
                        {
-                           stderr.printf("frames: %ld \n",(long)frames);
                            updatePtr(out writeiReadptr, frames * 2);
                        }
                 }
@@ -188,7 +195,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         Alsa.PcmSignedFrames frames;
         int ret;
 
-        while ( runRecordThread )
+        while ( runRecordThread == true )
         {
             ret = checkReadiPosition( out readiReadptr ,out readiWriteptr);
             if (ret == -Posix.EPIPE)
@@ -275,7 +282,7 @@ public class CmtHandler : FsoFramework.AbstractObject
             {
                 stdout.printf( "Thread already launched \n" );
             }
-            runPlaybackThread = true;
+            AtomicInt.set(ref runPlaybackThread,1);
         }
 
 
@@ -332,19 +339,20 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     private void alsaSinkCleanup()
     {
-        pcmout.close();
-        runPlaybackThread = false;
+        playback_ready = false;
+        AtomicInt.set(ref runPlaybackThread,0);
         playbackThread.join();
         playbackThread = null;
-
+        pcmout.close();
     }
 
     private void alsaSrcCleanup()
     {
-        pcmin.close();
         runRecordThread = false;
         recordThread.join();
         recordThread = null;
+        pcmin.close();
+
     }
 
     private void handleDataEvent()
@@ -361,7 +369,7 @@ public class CmtHandler : FsoFramework.AbstractObject
 
             Memory.copy(from_modem_to_writei,dlbuf.payload ,dlbuf.pcount);
             updatePtr(out writeiWriteptr,dlbuf.pcount);
-
+            playback_ready = true ;
             if ( connection.protocol_state() == CmtSpeech.State.ACTIVE_DLUL )
             {
                 ok = connection.ul_buffer_acquire( out ulbuf );
@@ -484,7 +492,7 @@ public class CmtHandler : FsoFramework.AbstractObject
             return;
         }
 
-        assert( logger.debug( @"Setting call status to $enabled" ) );
+       assert( logger.debug( @"Setting call status to $enabled" ) );
 
         if ( enabled )
         {
