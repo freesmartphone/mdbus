@@ -91,7 +91,7 @@ public class CmtHandler : FsoFramework.AbstractObject
     // Private API
     //
 
-    private int checkReadiPosition(out int readptr,out int writeptr)
+    private int checkReadiPosition(ref long readptr,ref long writeptr)
     {
         if ( readptr - writeptr > (FCOUNT * 2) )
         {
@@ -109,8 +109,10 @@ public class CmtHandler : FsoFramework.AbstractObject
 
 
 
-    private int checkWriteiPosition(out int readptr,out int writeptr){
-        if ( readptr - writeptr > (FCOUNT * 2) )
+    private int checkWriteiPosition(ref long readptr,ref long writeptr){
+        stderr.printf("readptr:%ld|writeptr:%ld|readptr-writeptr:%ld\n",
+                      readptr,writeptr,writeptr - readptr);
+        if (  writeptr - readptr > (FCOUNT * 2) )
         {
             //buffer underrun
             playbackMutex.lock();
@@ -124,13 +126,19 @@ public class CmtHandler : FsoFramework.AbstractObject
         return 0;
     }
 
-    private void updatePtr(out long ptr, Alsa.PcmSignedFrames  frames){
+    private void updatePtr(ref long ptr, Alsa.PcmSignedFrames  frames){
         long num = (long) frames;
+        stderr.printf("updatePtr: frames: %ld\n",frames);
+        stderr.printf("updatePtr: ptr1: %ld\n",ptr);
 
         if ( ( ptr + num ) > 960 )
-             ptr += ( ptr + num ) - 960;
+        {
+            stderr.printf("( ptr + num ) - 960 = %ld\n",( ptr + num ) - 960);
+            ptr = (( ptr + num ) - 960);
+        }
         else
             ptr += num;
+        stderr.printf("updatePtr: ptr2: %ld\n",ptr);
     }
 
     private void * playbackThreadFunc()
@@ -143,7 +151,7 @@ public class CmtHandler : FsoFramework.AbstractObject
             if (! playback_ready )
                 continue;
 
-            ret = checkWriteiPosition( out writeiReadptr ,out writeiWriteptr);
+            ret = checkWriteiPosition( ref writeiReadptr ,ref writeiWriteptr);
             if (ret == -Posix.EPIPE)
             {
                 stderr.printf("buffer underruns\n");
@@ -176,7 +184,8 @@ public class CmtHandler : FsoFramework.AbstractObject
                        }
                        else
                        {
-                           updatePtr(out writeiReadptr, frames * 2);
+                           stderr.printf("playback alsa: update readptr\n");
+                           updatePtr(ref writeiReadptr, frames * 2);
                        }
                 }
                 catch ( FsoAudio.SoundError e )
@@ -197,7 +206,7 @@ public class CmtHandler : FsoFramework.AbstractObject
 
         while ( runRecordThread == true )
         {
-            ret = checkReadiPosition( out readiReadptr ,out readiWriteptr);
+            ret = checkReadiPosition( ref readiReadptr ,ref readiWriteptr );
             if (ret == -Posix.EPIPE)
             {
                 stderr.printf("buffer overruns\n");
@@ -226,7 +235,8 @@ public class CmtHandler : FsoFramework.AbstractObject
                        }
                        else
                        {
-                           updatePtr(out readiWriteptr, frames * 2 );
+                           stderr.printf("record thread updates writeptr\n");
+                           updatePtr(ref readiWriteptr, frames * 2 );
                        }
                 }
                 catch ( FsoAudio.SoundError e )
@@ -368,7 +378,8 @@ public class CmtHandler : FsoFramework.AbstractObject
             assert( logger.debug( @"received DL packet w/ $(dlbuf.count) bytes" ) );
 
             Memory.copy(from_modem_to_writei,dlbuf.payload ,dlbuf.pcount);
-            updatePtr(out writeiWriteptr,dlbuf.pcount);
+            stderr.printf("playback modem: update writeptr\n");
+            updatePtr(ref writeiWriteptr,dlbuf.pcount);
             playback_ready = true ;
             if ( connection.protocol_state() == CmtSpeech.State.ACTIVE_DLUL )
             {
@@ -378,7 +389,8 @@ public class CmtHandler : FsoFramework.AbstractObject
                     assert( logger.debug( "protocol state is ACTIVE_DLUL, uploading as well..." ) );
 
                     Memory.copy(ulbuf.payload,from_readi_to_modem,ulbuf.pcount);
-                    updatePtr(out readiReadptr, dlbuf.pcount);
+                    stderr.printf("record modem update writeptr\n");
+                    updatePtr(ref readiReadptr, dlbuf.pcount);
                     connection.ul_buffer_release( ulbuf );
                 }
             }
