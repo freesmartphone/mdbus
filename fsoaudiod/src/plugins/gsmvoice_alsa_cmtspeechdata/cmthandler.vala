@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  *
  */
-
+extern int snd_pcm_format_set_silence (Alsa.PcmFormat format,void * data, uint samples );
 
 /**
  * @class CmtHandler
@@ -33,23 +33,29 @@ public class CmtHandler : FsoFramework.AbstractObject
     private bool status;
     private const int FCOUNT = 160;
 
+    /* alsa parameters */
+    private Alsa.PcmFormat format = Alsa.PcmFormat.S16_LE;
+    private Alsa.PcmAccess access = Alsa.PcmAccess.RW_INTERLEAVED;
+
+    /* silence buffer */
+    private uint8 silence_buffer[320];
+
     /* playback Thread */
     private unowned Thread<void *> playbackThread = null;
     private int runPlaybackThread = 0;
-    private uint8 from_modem_to_writei[960]; //3 buffers of 160 frames: 3*(160 * 2)
+    private uint8 from_modem_to_writei[961]; //3 buffers of 160 frames: 3*(160 * 2) + 1
     private Mutex playbackMutex = new Mutex();
-    private long writeiWriteptr = 0;
+    private long writeiWriteptr = 1;
     private long writeiReadptr = 0;
     private bool playback_ready = false;
 
     /* record Thread */
     private unowned Thread<void *> recordThread = null;
     private bool runRecordThread = false;
-    private uint8 from_readi_to_modem[960]; //3 buffers of 160 frames: 3*(160 * 2)
+    private uint8 from_readi_to_modem[961]; //3 buffers of 160 frames: 3*(160 * 2) + 1
     private Mutex recordMutex = new Mutex();
     private long readiWriteptr = 0;
     private long readiReadptr = 0;
-
     //
     // Constructor
     //
@@ -97,30 +103,11 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             //buffer underrun
             recordMutex.lock();
-            if ( readptr + (FCOUNT * 2) > 960 )
-                writeptr = readptr + ( FCOUNT * 2) - 960;
+            if ( readptr + (FCOUNT * 2) > from_readi_to_modem.length )
+                writeptr = readptr + ( FCOUNT * 2) - from_readi_to_modem.length;
             else
                 writeptr = readptr + (FCOUNT *2 );
             recordMutex.unlock();
-            return -Posix.EPIPE;
-        }
-        return 0;
-    }
-
-
-
-    private int checkWriteiPosition(ref long readptr,ref long writeptr){
-        stderr.printf("readptr:%ld|writeptr:%ld|readptr-writeptr:%ld\n",
-                      readptr,writeptr,writeptr - readptr);
-        if (  writeptr - readptr > (FCOUNT * 2) )
-        {
-            //buffer underrun
-            playbackMutex.lock();
-            if ( readptr + (FCOUNT * 2) > 960 )
-                writeptr = readptr + ( FCOUNT * 2) - 960;
-            else
-                writeptr = readptr + (FCOUNT *2 );
-            playbackMutex.unlock();
             return -Posix.EPIPE;
         }
         return 0;
@@ -131,68 +118,90 @@ public class CmtHandler : FsoFramework.AbstractObject
         stderr.printf("updatePtr: frames: %ld\n",frames);
         stderr.printf("updatePtr: ptr1: %ld\n",ptr);
 
-        if ( ( ptr + num ) > 960 )
+        if ( ( ptr + num ) > from_modem_to_writei.length )
         {
-            stderr.printf("( ptr + num ) - 960 = %ld\n",( ptr + num ) - 960);
-            ptr = (( ptr + num ) - 960);
+            stderr.printf("( ptr + num ) - buffer_size = %ld\n",( ptr + num ) - from_modem_to_writei.length);
+            ptr = (( ptr + num ) - from_modem_to_writei.length);
         }
         else
             ptr += num;
         stderr.printf("updatePtr: ptr2: %ld\n",ptr);
     }
 
+    private void play_silence(int frames)
+    {
+        int count = frames;
+        int written = 0;
+        while (count > 0)
+        {
+            snd_pcm_format_set_silence( format,silence_buffer,
+                                        (count > silence_buffer.length) ?
+                                        silence_buffer.length :
+                                        (uint8)frames);
+            try{
+                written = (int)pcmout.writei(silence_buffer,
+                                        (count > silence_buffer.length)
+                                        ? silence_buffer.length :
+                                        (uint8)frames);
+                if (count == -Posix.EPIPE)
+                    pcmout.recover(-Posix.EPIPE,0);
+                else{
+                    count -= written;
+                }
+
+
+            }catch(Error e){
+                logger.error( @"Error: $(e.message)" );
+            }
+        }
+
+
+    }
     private void * playbackThreadFunc()
     {
         Alsa.PcmSignedFrames frames;
         int ret;
-
+        long ptrdiff;
         while ( runPlaybackThread > 0 )
         {
-            if (! playback_ready )
-                continue;
+            if ( writeiWriteptr - writeiReadptr < 0)
+                ptrdiff =  writeiWriteptr - writeiReadptr + from_modem_to_writei.length;
+            else
+                ptrdiff = writeiWriteptr - writeiReadptr;
+            stderr.printf("readptr:%ld|writeptr:%ld|ptrdiff:%ld\n",
+                          writeiReadptr,writeiWriteptr,ptrdiff);
 
-            ret = checkWriteiPosition( ref writeiReadptr ,ref writeiWriteptr);
-            if (ret == -Posix.EPIPE)
+            if (! playback_ready || ( ptrdiff < (FCOUNT * 2) ) )
             {
-                stderr.printf("buffer underruns\n");
-                try
+                /*play_silence argument must be tweaked to reflect rougly
+                 *when the modem will be ready and write to the buffer
+                 *that is to say when the next frame is there.
+                 */
+                stderr.printf("playing silence\n");
+                play_silence(FCOUNT);
+                continue;
+            }
+            try
+            {
+                frames = pcmout.writei(
+                    (uint8[])((int)from_modem_to_writei + (int)writeiReadptr) ,FCOUNT );
+                if ( frames != 160)
+                {
+                    stderr.printf("frames: %ld \n",(long)frames);
+                }
+                else if ( frames == -Posix.EPIPE )
                 {
                     pcmout.recover(-Posix.EPIPE,0);
                 }
-                catch ( FsoAudio.SoundError e )
+                else
                 {
-                    //I don't know what to do at this point,
-                    //sound won't work anymore.
-                    //hangup?
-                    logger.error( "Error in snd_pcm_prepare after a buffer underrun!!!!" );
-                    logger.error( @"Error: $(e.message)" );
+                    stderr.printf("playback alsa: update readptr\n");
+                    updatePtr(ref writeiReadptr, frames * 2);
                 }
             }
-            else
+            catch ( FsoAudio.SoundError e )
             {
-                try
-                {
-                       frames = pcmout.writei(
-                           (uint8[])((int)from_modem_to_writei + (int)writeiReadptr) ,FCOUNT );
-                       if ( frames != 160)
-                       {
-                           stderr.printf("frames: %ld \n",(long)frames);
-                       }
-                       else if ( frames == -Posix.EPIPE )
-                       {
-                           pcmout.recover(-Posix.EPIPE,0);
-                       }
-                       else
-                       {
-                           stderr.printf("playback alsa: update readptr\n");
-                           updatePtr(ref writeiReadptr, frames * 2);
-                       }
-                }
-                catch ( FsoAudio.SoundError e )
-                {
-                    logger.error( @"Error: $(e.message)" );
-                }
-
+                logger.error( @"Error: $(e.message)" );
             }
         }
         return null;
@@ -253,8 +262,6 @@ public class CmtHandler : FsoFramework.AbstractObject
     {
         int channels = 1;
         int rate = 8000;
-        Alsa.PcmFormat format = Alsa.PcmFormat.S16_LE;
-        Alsa.PcmAccess access = Alsa.PcmAccess.RW_INTERLEAVED;
 
         pcmout = new FsoAudio.PcmDevice();
         assert( logger.debug( @"Setup alsa sink for modem audio" ) );
@@ -304,8 +311,6 @@ public class CmtHandler : FsoFramework.AbstractObject
     {
         int channels = 1;
         int rate = 8000;
-        Alsa.PcmFormat format = Alsa.PcmFormat.S16_LE;
-        Alsa.PcmAccess access = Alsa.PcmAccess.RW_INTERLEAVED;
 
         pcmin = new FsoAudio.PcmDevice();
         assert( logger.debug( @"Setup alsa source for modem audio" ) );
@@ -377,10 +382,13 @@ public class CmtHandler : FsoFramework.AbstractObject
         {
             assert( logger.debug( @"received DL packet w/ $(dlbuf.count) bytes" ) );
 
-            Memory.copy(from_modem_to_writei,dlbuf.payload ,dlbuf.pcount);
-            stderr.printf("playback modem: update writeptr\n");
-            updatePtr(ref writeiWriteptr,dlbuf.pcount);
-            playback_ready = true ;
+            if ( ( (writeiWriteptr + dlbuf.pcount) - writeiReadptr) > dlbuf.pcount ){
+                Memory.copy(from_modem_to_writei,dlbuf.payload ,dlbuf.pcount);
+                stderr.printf("playback modem: update writeptr\n");
+                updatePtr(ref writeiWriteptr,dlbuf.pcount);
+                playback_ready = true ;
+            }
+        }
             if ( connection.protocol_state() == CmtSpeech.State.ACTIVE_DLUL )
             {
                 ok = connection.ul_buffer_acquire( out ulbuf );
@@ -388,14 +396,13 @@ public class CmtHandler : FsoFramework.AbstractObject
                 {
                     assert( logger.debug( "protocol state is ACTIVE_DLUL, uploading as well..." ) );
 
-                    Memory.copy(ulbuf.payload,from_readi_to_modem,ulbuf.pcount);
-                    stderr.printf("record modem update writeptr\n");
-                    updatePtr(ref readiReadptr, dlbuf.pcount);
+                    // Memory.copy(ulbuf.payload,from_readi_to_modem,ulbuf.pcount);
+                    // stderr.printf("record modem update writeptr\n");
+                    // updatePtr(ref readiReadptr, dlbuf.pcount);
                     connection.ul_buffer_release( ulbuf );
                 }
             }
             connection.dl_buffer_release( dlbuf );
-        }
     }
 
     private void handleControlEvent()
@@ -518,9 +525,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         }
 
         connection.state_change_call_status( enabled );
-
         status = enabled;
     }
 }
-
 // vim:ts=4:sw=4:expandtab
