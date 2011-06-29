@@ -266,7 +266,12 @@ public class Controller : FsoFramework.AbstractObject
         var resourcesAlive = 0;
         foreach ( var r in resources.values )
         {
-            if ( ( r.status != FsoFramework.ResourceStatus.SUSPENDED ) && ( r.status != FsoFramework.ResourceStatus.DISABLED ) )
+            // We also have to check for resources with the UNKNOWN status as when
+            // we're using shadow resources they have UNKNOWN as status until they
+            // get enabled.
+            if ( ( r.status != FsoFramework.ResourceStatus.SUSPENDED ) &&
+                 ( r.status != FsoFramework.ResourceStatus.DISABLED ) &&
+                 ( r.status != FsoFramework.ResourceStatus.UNKNOWN) )
             {
                 logger.warning( @"Resource $(r.name) is not suspended nor disabled" );
                 resourcesAlive++;
