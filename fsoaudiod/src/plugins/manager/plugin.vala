@@ -97,6 +97,9 @@ namespace FsoAudio
 
             switch( sctrlname )
             {
+                case "alsa":
+                    typename = "FsoAudioStreamControlAlsa";
+                    break;
                 default:
                     streamcontrol = new FsoAudio.NullStreamControl();
                     break;
@@ -115,6 +118,8 @@ namespace FsoAudio
                     streamcontrol = (FsoAudio.AbstractStreamControl) GLib.Object.new( sctrltype );
                 }
             }
+
+            streamcontrol.setup();
         }
 
         private void createSessionPolicy()
