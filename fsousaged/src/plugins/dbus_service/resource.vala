@@ -271,6 +271,7 @@ public class Resource : IResource, Object
         try
         {
             yield proxy.enable();
+            assert( instance.logger.debug( @"Enabled resource $name successfully" ) );
             status = FsoFramework.ResourceStatus.ENABLED;
             updateStatus();
         }
@@ -291,6 +292,7 @@ public class Resource : IResource, Object
         try
         {
             yield proxy.disable();
+            assert( instance.logger.debug( @"Disabled resource $name successfully" ) );
             status = FsoFramework.ResourceStatus.DISABLED;
             updateStatus();
         }
@@ -309,6 +311,7 @@ public class Resource : IResource, Object
             try
             {
                 yield proxy.suspend();
+                assert( instance.logger.debug( @"Suspended resource $name successfully" ) );
                 status = FsoFramework.ResourceStatus.SUSPENDED;
                 updateStatus();
             }
@@ -332,6 +335,7 @@ public class Resource : IResource, Object
             try
             {
                 yield proxy.resume();
+                assert( instance.logger.debug( @"Resumed resource $name successfully" ) );
                 status = FsoFramework.ResourceStatus.ENABLED;
                 updateStatus();
             }
