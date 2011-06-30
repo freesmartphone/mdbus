@@ -63,6 +63,7 @@ namespace PalmPre
         private FsoFramework.Subsystem subsystem;
         private string master_node;
         private string slave_node;
+        private string charger_source_node;
         private int _current_capacity = -1;
         private int critical_capacity = -1;
         private FreeSmartphone.Device.PowerStatus _current_power_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
@@ -92,14 +93,6 @@ namespace PalmPre
 
         private void updateCurrentPowerStatus(int new_capacity)
         {
-            if ( _current_capacity < new_capacity )
-            {
-                current_power_status = FreeSmartphone.Device.PowerStatus.CHARGING;
-            }
-            else if ( _current_capacity > new_capacity )
-            {
-                current_power_status = FreeSmartphone.Device.PowerStatus.DISCHARGING;
-            }
             if ( new_capacity == 0 )
             {
                 current_power_status = FreeSmartphone.Device.PowerStatus.EMPTY;
@@ -107,6 +100,10 @@ namespace PalmPre
             else if ( new_capacity < critical_capacity )
             {
                 current_power_status = FreeSmartphone.Device.PowerStatus.CRITICAL;
+            }
+            else if ( new_capacity == 100 )
+            {
+                current_power_status = FreeSmartphone.Device.PowerStatus.FULL;
             }
         }
 
@@ -150,6 +147,34 @@ namespace PalmPre
             return true;
         }
 
+        private bool isChargerConnected()
+        {
+            bool result = false;
+            string charger_source = FsoFramework.FileHandling.read( charger_source_node );
+
+            switch ( charger_source )
+            {
+                case "bus":
+                case "charger":
+                    result = true;
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+        private void updatePowerStatus()
+        {
+            if ( current_power_status != FreeSmartphone.Device.PowerStatus.FULL )
+            {
+                current_power_status = isChargerConnected() ?
+                            FreeSmartphone.Device.PowerStatus.CHARGING :
+                            FreeSmartphone.Device.PowerStatus.DISCHARGING;
+            }
+        }
+
         //
         // public methods
         //
@@ -159,6 +184,8 @@ namespace PalmPre
             this.subsystem = subsystem;
 
             _skip_authentication = FsoFramework.theConfig.boolValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "skip_authentication", false );
+
+            charger_source_node = "%s/devices/platform/usb_gadget/source".printf(sysfs_root);
 
             master_node = "%s/devices/w1_bus_master1".printf(sysfs_root);
             var slave_count_path = Path.build_filename(master_node, "w1_master_slave_count");
@@ -189,14 +216,16 @@ namespace PalmPre
             // Register our provided dbus service on the bus
             subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
 
-
-
             critical_capacity = FsoFramework.theConfig.intValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "critical", 10);
             current_capacity = getCapacity();
 
             var poll_timout = FsoFramework.theConfig.intValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "poll_timeout", 10);
 
-            GLib.Timeout.add (poll_timout, ()=> {current_capacity = getCapacity(); return true;});
+            GLib.Timeout.add (poll_timout, ()=> {
+                current_capacity = getCapacity();
+                updatePowerStatus();
+                return true;
+            });
 
             logger.info( "Created new PowerSupply object." );
         }
