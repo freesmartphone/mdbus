@@ -268,7 +268,7 @@ public class CmtHandler : FsoFramework.AbstractObject
                 playbackMutex.lock();
                 fromModem.read( buf, FCOUNT * FRAMESIZE );
                 playbackMutex.unlock();
-                frames = pcmout.writei( (uint8[])buf, FCOUNT * FRAMESIZE );
+                frames = pcmout.writei( (uint8[])buf, FCOUNT );
                 if ( frames != FCOUNT )
                 {
                     stderr.printf("frames: %ld \n",(long)frames);
