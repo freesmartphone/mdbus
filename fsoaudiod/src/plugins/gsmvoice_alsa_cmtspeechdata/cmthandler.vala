@@ -188,6 +188,9 @@ public class CmtHandler : FsoFramework.AbstractObject
         channel = new IOChannel.unix_new( fd );
         channel.add_watch( IOCondition.IN | IOCondition.HUP, onInputFromChannel );
 
+        silence_buffer = new uint8[ FCOUNT  * FRAMESIZE ];
+        snd_pcm_format_set_silence( format, silence_buffer, FCOUNT );
+
         logger.info( "Created" );
     }
 
@@ -490,8 +493,18 @@ public class CmtHandler : FsoFramework.AbstractObject
                 break;
 
             case CmtSpeech.Transition.3_DL_START:
+                alsaSinkSetup();
+                break;
+
             case CmtSpeech.Transition.12_UL_START:
+                alsaSrcSetup();
+                break;
+
             case CmtSpeech.Transition.4_DLUL_STOP:
+                alsaSinkCleanup();
+                alsaSrcCleanup();
+                break;
+
             case CmtSpeech.Transition.1_CONNECTED:
             case CmtSpeech.Transition.2_DISCONNECTED:
             case CmtSpeech.Transition.5_PARAM_UPDATE:
@@ -570,21 +583,6 @@ public class CmtHandler : FsoFramework.AbstractObject
         }
 
         assert( logger.debug( @"Setting call status to $enabled" ) );
-
-        if ( enabled )
-        {
-            if ( silence_buffer == null )
-                silence_buffer = new uint8[ FCOUNT  * FRAMESIZE ];
-            snd_pcm_format_set_silence( format, silence_buffer, FCOUNT );
-            alsaSinkSetup();
-            alsaSrcSetup();
-        }
-        else
-        {
-            alsaSinkCleanup();
-            alsaSrcCleanup();
-        }
-
         connection.state_change_call_status( enabled );
         status = enabled;
     }
