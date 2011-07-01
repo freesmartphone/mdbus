@@ -135,7 +135,7 @@ public class CmtHandler : FsoFramework.AbstractObject
     private Alsa.PcmAccess access = Alsa.PcmAccess.RW_INTERLEAVED;
 
     /* silence buffer */
-    private uint8 silence_buffer[320];
+    private uint8[] silence_buffer = null;
 
     /* playback Thread */
     private unowned Thread<void *> playbackThread = null;
@@ -195,35 +195,30 @@ public class CmtHandler : FsoFramework.AbstractObject
     // Private API
     //
 
-    private void play_silence(int frames)
+    private void play_silence( int count )
     {
-        int count = frames;
-        int written = 0;
-        while (count > 0)
+        Alsa.PcmSignedFrames ret;
+        int retries = 3;
+
+        while ( count > 0 && retries > 0 )
         {
-            snd_pcm_format_set_silence( format,silence_buffer,
-                                        (count > silence_buffer.length) ?
-                                        silence_buffer.length :
-                                        (uint8)frames);
-            try{
-                written = (int)pcmout.writei(silence_buffer,
-                                        (count > silence_buffer.length)
-                                        ? silence_buffer.length :
-                                        (uint8)frames);
-                if ( count == -Posix.EPIPE )
+            try
+            {
+                ret = pcmout.writei( silence_buffer, FCOUNT );
+                if ( ret == -Posix.EPIPE )
                 {
                     pcmout.recover( -Posix.EPIPE, 0 );
+                    retries--;
                 }
                 else
                 {
-                    count -= written;
+                    count--;
                 }
-
-
             }
-            catch ( Error e )
+            catch ( FsoAudio.SoundError e )
             {
                 logger.error( @"Error: $(e.message)" );
+                return;
             }
         }
     }
@@ -244,11 +239,12 @@ public class CmtHandler : FsoFramework.AbstractObject
                     recordMutex.lock();
                     toModem.read( (uint8[])ulbuf.payload, ulbuf.pcount );
                     recordMutex.unlock();
+                    ulbuf.frame_flags = CmtSpeech.FrameFlags.VALID;
                 }
                 catch ( RingError e )
                 {
                     recordMutex.unlock();
-                    // TODO: feed silence to the modem
+                    Memory.copy( ulbuf.payload, silence_buffer, ulbuf.pcount > FCOUNT * FRAMESIZE ? FCOUNT * FRAMESIZE : ulbuf.pcount );
                 }
                 connection.ul_buffer_release( ulbuf );
             }
@@ -286,7 +282,7 @@ public class CmtHandler : FsoFramework.AbstractObject
             {
                 playbackMutex.unlock();
                 logger.warning( @"RingBuffer error: $(e.message)" );
-                play_silence( FCOUNT );
+                play_silence( 1 );
             }
         }
 
@@ -575,13 +571,16 @@ public class CmtHandler : FsoFramework.AbstractObject
 
         if ( enabled )
         {
+            if ( silence_buffer == null )
+                silence_buffer = new uint8[ FCOUNT  * FRAMESIZE ];
+            snd_pcm_format_set_silence( format, silence_buffer, FCOUNT );
             alsaSinkSetup();
-            // alsaSrcSetup();
+            alsaSrcSetup();
         }
         else
         {
             alsaSinkCleanup();
-            // alsaSrcCleanup();
+            alsaSrcCleanup();
         }
 
         connection.state_change_call_status( enabled );
