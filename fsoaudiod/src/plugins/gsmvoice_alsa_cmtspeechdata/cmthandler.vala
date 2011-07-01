@@ -123,8 +123,8 @@ public class CmtHandler : FsoFramework.AbstractObject
 {
     private CmtSpeech.Connection connection;
     private IOChannel channel;
-    private FsoAudio.PcmDevice pcmout;
-    private FsoAudio.PcmDevice pcmin;
+    private FsoAudio.PcmDevice pcmout = null;
+    private FsoAudio.PcmDevice pcmin = null;
     private bool status;
     private const int FCOUNT = 160;
     private const int FRAMESIZE = 2;
@@ -418,6 +418,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         playbackThread.join();
         playbackThread = null;
         pcmout.close();
+        pcmout = null;
         fromModem.reset();
     }
 
@@ -427,6 +428,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         recordThread.join();
         recordThread = null;
         pcmin.close();
+        pcmin = null;
         toModem.reset();
     }
 
