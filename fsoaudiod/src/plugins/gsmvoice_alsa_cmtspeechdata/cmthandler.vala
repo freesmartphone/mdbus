@@ -242,7 +242,6 @@ public class CmtHandler : FsoFramework.AbstractObject
                     recordMutex.lock();
                     toModem.read( (uint8[])ulbuf.payload, ulbuf.pcount );
                     recordMutex.unlock();
-                    ulbuf.frame_flags = CmtSpeech.FrameFlags.VALID;
                 }
                 catch ( RingError e )
                 {
