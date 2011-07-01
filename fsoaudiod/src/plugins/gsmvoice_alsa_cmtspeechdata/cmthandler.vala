@@ -228,7 +228,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         CmtSpeech.FrameBuffer ulbuf = null;
 
         assert( logger.debug( "feeding from ringbuffer to modem" ) );
-        if ( connection.protocol_state() == CmtSpeech.State.ACTIVE_DLUL )
+        if ( connection.is_active() )
         {
             var ok = connection.ul_buffer_acquire( out ulbuf );
             if ( ok == 0 )
