@@ -64,7 +64,7 @@ namespace PPPD
     [CCode (has_target = false)]
     public delegate void pap_logout_hook_func       ();
     [CCode (has_target = false)]
-    public delegate int  pap_passwd_hook_func       (string user, string passwd);
+    public delegate int  pap_passwd_hook_func       (out string user, out string passwd);
     [CCode (has_target = false)]
     public delegate int  allowed_address_hook_func  (uint32 addr);
     [CCode (has_target = false)]
@@ -76,7 +76,7 @@ namespace PPPD
     [CCode (has_target = false)]
     public delegate int  chap_check_hook_func       ();
     [CCode (has_target = false)]
-    public delegate int  chap_passwd_hook_func      (string user, string passwd);
+    public delegate int  chap_passwd_hook_func      (out string user, out string passwd);
     [CCode (has_target = false)]
     public delegate void multilink_join_hook_func   ();
     [CCode (has_target = false)]
