@@ -32,14 +32,22 @@ namespace PalmPre
     {
         private FsoFramework.Kernel26Module sirloin_wifi_mod;
         private FsoFramework.Subsystem subsystem;
-        private bool is_active;
+        private bool is_active; //interface powered and up
 
         public WifiPowerControl( FsoFramework.Subsystem subsystem )
         {
             base( "WiFi" );
 
             this.subsystem = subsystem;
-            this.is_active = false;
+	    
+    	    try {
+		var iface = new Network.Interface( "eth0" );
+		this.is_active = iface.is_up() ;
+		iface.finish();
+	    }
+	    catch (Error e) {
+		this.is_active = false;
+	    }
 
             sirloin_wifi_mod = new FsoFramework.Kernel26Module( "sirloin_wifi" );
 
@@ -72,13 +80,18 @@ namespace PalmPre
                 }
                 else
                 {
-                    is_active = true;
+		    // after interface is available we need to activate it !BUT the kernel modul needs time(750ms in average)!
+		    Thread.usleep (900*1000); //preffered from Timeout.add( 900, () => {} ); as this does not delay the whole thing but only the {} block
+		    try {
+			    var iface = new Network.Interface( "eth0" );
+			    iface.up();
+			    is_active = iface.is_up();
+			    iface.finish();
+		    }
+		    catch (Error e) {
+			logger.error( "Tried ifup eth0 and catched this : " + e.message );
+		    }
                 }
-
-                // after interface is available we need to activate it
-                var iface = new Network.Interface( "eth0" );
-                iface.up();
-                iface.finish();
             }
             else
             {
