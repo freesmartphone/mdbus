@@ -124,7 +124,7 @@ static int fsogsmd_get_pap_check()
     return 1; // we support PAP
 }
 
-static int fsogsmd_get_credentials( string username, string password )
+static int fsogsmd_get_credentials( out string username, out string password )
 {
     PPPD.info( "get_credentials" );
     if ( username != null && password == null )
