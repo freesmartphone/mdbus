@@ -113,9 +113,42 @@ namespace CmtSpeech
         public State state;
         public State prev_state;
         public int msg_type;
-
-        /* union ... */
+        public EventData msg;
     }
+
+    public struct EventData
+    {
+        public SsiConfigResp ssi_config_resp;
+        public SpeechConfigReq speech_config_req;
+        public TimingConfigNtf timing_config_ntf;
+    }
+
+    public struct SsiConfigResp
+    {
+	    public uint8 layout;
+	    public uint8 version;
+	    public uint8 result;
+    }
+
+    public struct SpeechConfigReq
+    {
+        public uint8 speech_data_stream;
+        public uint8 call_user_connect_ind;
+        public uint8 codec_info;
+        public uint8 cellular_info;
+        public uint8 sample_rate;
+        public uint8 data_format;
+        public bool layout_changed;
+    }
+
+    public struct TimingConfigNtf
+    {
+        uint16 msec;
+        uint16 usec;
+        Posix.timespec tstamp;
+    }
+
+
 
     /* Static */
 
@@ -173,3 +206,5 @@ namespace CmtSpeech
 
 
 } /* namespace CmtSpeech */
+
+// vim:ts=4:sw=4:expandtab
