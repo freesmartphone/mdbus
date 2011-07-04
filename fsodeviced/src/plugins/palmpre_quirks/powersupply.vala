@@ -50,6 +50,86 @@ namespace PalmPre
         }
     }
 
+    private class UsbGadgetListener : FsoFramework.AbstractObject
+    {
+        public enum PowerSource
+        {
+            NONE,
+            BUS
+        }
+
+        public bool host_connected { get; private set; }
+        public PowerSource power_source { get; private set; }
+        public uint power_current_ma { get; private set; }
+
+        construct
+        {
+            FsoFramework.BaseKObjectNotifier.addMatch( "change", "platform", onPlatformChangeEvent );
+        }
+
+        private void onPlatformChangeEvent( GLib.HashTable<string, string> properties )
+        {
+            var modalias = properties.lookup( "MODALIAS" );
+            if ( modalias == null || modalias != "platform:usb_gadget" )
+                return;
+
+            var action = properties.lookup( "G_ACTION" );
+            if ( action == null )
+                return;
+
+            switch ( action )
+            {
+                case "POWER_STATE_CHANGED":
+                    handlePowerStateChanged( properties );
+                    break;
+                case "HOST_STATE_CHANGED":
+                    handleHostStateChanged( properties );
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void handlePowerStateChanged( GLib.HashTable<string, string> properties )
+        {
+            var powersource = properties.lookup( "G_POWER_SOURCE" );
+            if ( powersource != null )
+            {
+                switch ( powersource )
+                {
+                    case "bus":
+                        power_source = PowerSource.BUS;
+                        break;
+                    case "none":
+                        power_source = PowerSource.NONE;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            var currentma = properties.lookup( "G_CURRENT_MA" );
+            if ( currentma != null )
+            {
+                power_current_ma = int.parse( currentma );
+            }
+        }
+
+        private void handleHostStateChanged( GLib.HashTable<string, string> properties )
+        {
+            var hostconnected = properties.lookup( "G_HOST_CONNECTED" );
+            if ( hostconnected == null )
+                return;
+
+            host_connected = ( hostconnected == "1" );
+        }
+
+        public override string repr()
+        {
+            return "<>";
+        }
+    }
+
     /**
      * @class BatteryPowerSupply
      *
@@ -69,6 +149,7 @@ namespace PalmPre
         private FreeSmartphone.Device.PowerStatus _current_power_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
         private bool present;
         private bool _skip_authentication = false;
+        private UsbGadgetListener usbgadget_listener;
 
         //
         // Properties
@@ -241,6 +322,8 @@ namespace PalmPre
             });
 
             FsoFramework.BaseKObjectNotifier.addMatch( "change", "platform", onPlatformChangeEvent );
+
+            usbgadget_listener = new UsbGadgetListener();
 
             logger.info( "Created new PowerSupply object." );
         }
