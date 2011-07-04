@@ -158,6 +158,11 @@ namespace PalmPre
         {
             return "<>";
         }
+
+        public bool get_charger_connected()
+        {
+            return power_source == PowerSource.BUS || power_source == PowerSource.CHARGER;
+        }
     }
 
     /**
@@ -187,23 +192,31 @@ namespace PalmPre
 
         private void updatePowerStatus()
         {
-            var capacity = readRawCapacity();
+            var next_capacity = readRawCapacity();
             var next_powerstatus = FreeSmartphone.Device.PowerStatus.UNKNOWN;
 
-            if ( capacity < current_capacity &&
+            if ( next_capacity < current_capacity &&
                  usbgadget_listener.power_source == UsbGadgetListener.PowerSource.NONE )
             {
                 next_powerstatus = FreeSmartphone.Device.PowerStatus.DISCHARGING;
             }
-            else if ( capacity > current_capacity && 
+            else if ( next_capacity > current_capacity && 
                       ( usbgadget_listener.power_source == UsbGadgetListener.PowerSource.BUS ||
                         usbgadget_listener.power_source == UsbGadgetListener.PowerSource.CHARGER ) )
             {
                 next_powerstatus = FreeSmartphone.Device.PowerStatus.CHARGING;
             }
-            else if ( capacity == 100 )
+            else if ( next_capacity == 100 )
             {
                 next_powerstatus = FreeSmartphone.Device.PowerStatus.FULL;
+            }
+            else if ( next_capacity <= critical_capacity )
+            {
+                next_powerstatus = FreeSmartphone.Device.PowerStatus.CRITICAL;
+            }
+            else if ( next_capacity == 0 )
+            {
+                next_powerstatus = FreeSmartphone.Device.PowerStatus.EMPTY;
             }
             else
             {
@@ -218,9 +231,17 @@ namespace PalmPre
                 }
             }
 
-            if ( next_powerstatus != FreeSmartphone.Device.PowerStatus.UNKNOWN )
+            if ( next_powerstatus != FreeSmartphone.Device.PowerStatus.UNKNOWN &&
+                 next_powerstatus != current_power_status)
             {
                 current_power_status = next_powerstatus;
+                power_status( current_power_status ); // DBUS SIGNAL
+            }
+
+            if ( next_capacity != current_capacity )
+            {
+                current_capacity =  next_capacity;
+                capacity( current_capacity );
             }
         }
 
@@ -271,6 +292,8 @@ namespace PalmPre
             if (slave_count == "0")
             {
                 present = false;
+                current_power_status = FreeSmartphone.Device.PowerStatus.REMOVED;
+                current_capacity = -1;
                 logger.error("there is no battery available ... skipping");
                 return;
             }
@@ -338,6 +361,11 @@ namespace PalmPre
         public async int get_capacity() throws DBusError, IOError
         {
             return current_capacity;
+        }
+
+        public async bool get_charger_connected() throws DBusError, IOError
+        {
+            return usbgadget_listener.get_charger_connected();
         }
     }
 
