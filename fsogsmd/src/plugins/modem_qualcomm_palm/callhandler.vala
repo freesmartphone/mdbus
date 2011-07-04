@@ -85,12 +85,10 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
                 yield channel.call_service.sups_call( Msmcomm.SupsAction.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD, 0 );
             }
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( Error error )
         {
-            handleMsmcommErrorMessage( err0 );
-        }
-        catch ( Error err1 )
-        {
+            var msg = @"Could not process command, got: $(error.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
     }
 
@@ -126,12 +124,10 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
             call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( Error error )
         {
-            handleMsmcommErrorMessage( err0 );
-        }
-        catch ( Error err1 )
-        {
+            var msg = @"Could not process command, got: $(error.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
 
         return num;
@@ -157,12 +153,11 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
  
             yield channel.call_service.sups_call( 0, Msmcomm.SupsAction.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD );
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( Error error )
         {
-            handleMsmcommErrorMessage( err0 );
-        }
-        catch ( Error err1 )
-        {
+            var msg = @"Could not process command, got: $(error.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
+
         }
     }
 
@@ -206,12 +201,10 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
                 yield channel.call_service.sups_call( id, Msmcomm.SupsAction.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD );
             }
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( Error error )
         {
-            handleMsmcommErrorMessage( err0 );
-        }
-        catch ( Error err1 )
-        {
+            var msg = @"Could not process command, got: $(error.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
     }
 
@@ -294,12 +287,10 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             var channel = theModem.channel( "main" ) as MsmChannel;
             yield channel.call_service.end_call( id );
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( Error error )
         {
-            handleMsmcommErrorMessage( err0 );
-        }
-        catch ( Error err1 )
-        {
+            var msg = @"Could not process command, got: $(error.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
     }
 
@@ -317,12 +308,10 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             var cmd_type = Msmcomm.SupsAction.DROP_ALL_OR_SEND_BUSY;
             yield channel.call_service.sups_call( 0, cmd_type );
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( Error error )
         {
-            handleMsmcommErrorMessage( err0 );
-        }
-        catch ( Error err1 )
-        {
+            var msg = @"Could not process command, got: $(error.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
     }
 

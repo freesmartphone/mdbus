@@ -19,12 +19,6 @@
 
 using FsoGsm;
 
-public static void handleMsmcommErrorMessage( Msmcomm.Error error ) throws FreeSmartphone.Error
-{
-    var msg = @"Could not process command, got: $(error.message)";
-    throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
-}
-
 public static string gatherFunctionalityLevel()
 {
     var functionality_level = "minimal";

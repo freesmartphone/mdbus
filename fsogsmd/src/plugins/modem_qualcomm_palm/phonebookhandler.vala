@@ -72,7 +72,7 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
                 catch ( Msmcomm.Error err0 )
                 {
                     // If we get an exception here there is no entry at this position. We
-                    // ignore this an try again at the next position.
+                    // ignore this and try again at the next position.
                 }
                 catch ( GLib.Error err1 )
                 {
