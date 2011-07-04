@@ -189,16 +189,16 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     {
         bool timeout = false;
 
-        if ( management_service == null && !registerObjects() )
-        {
-            return false;
-        }
-
         try
         {
             MsmData.reset();
 
-            yield requestModemResource();
+            var result = yield requestModemResource();
+            if ( !result )
+                return false;
+
+            if ( !registerObjects() )
+                return false;
 
             /* initialize the modem controller itself */
             logger.debug( "Initialize modem controller ..." );
