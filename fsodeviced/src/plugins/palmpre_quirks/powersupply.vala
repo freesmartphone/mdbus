@@ -124,7 +124,7 @@ namespace PalmPre
         }
 
         //
-        // private methods
+        // private
         //
 
         private bool authenticateBattery()
@@ -175,8 +175,21 @@ namespace PalmPre
             }
         }
 
+        private void onPlatformChangeEvent( GLib.HashTable<string, string> properties )
+        {
+            var modalias = properties.lookup( "MODALIAS" );
+            if ( modalias == null || modalias != "platform:usb_gadget" )
+                return;
+
+            var g_action = properties.lookup( "G_ACTION" );
+            if ( g_action == null || g_action != "POWER_STATE_CHANGED" )
+                return;
+
+            updatePowerStatus();
+        }
+
         //
-        // public methods
+        // public
         //
 
         public BatteryPowerSupply( FsoFramework.Subsystem subsystem )
@@ -227,6 +240,8 @@ namespace PalmPre
                 return true;
             });
 
+            FsoFramework.BaseKObjectNotifier.addMatch( "change", "platform", onPlatformChangeEvent );
+
             logger.info( "Created new PowerSupply object." );
         }
 
@@ -242,7 +257,7 @@ namespace PalmPre
 
         public bool isPresent()
         {
-            return true;
+            return present;
         }
 
         public int getCapacity()
