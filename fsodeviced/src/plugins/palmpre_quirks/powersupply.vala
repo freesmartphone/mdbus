@@ -97,9 +97,11 @@ namespace PalmPre
             {
                 case "POWER_STATE_CHANGED":
                     handlePowerStateChanged( properties );
+                    powerStatusChanged();
                     break;
                 case "HOST_STATE_CHANGED":
                     handleHostStateChanged( properties );
+                    hostStatusChanged();
                     break;
                 default:
                     break;
@@ -475,6 +477,18 @@ namespace PalmPre
             return result;
         }
 
+        private async void updatePowerStatus()
+        {
+            var current_status = yield fetchCurrentPowerStatus();
+            power_status( current_status );
+        }
+
+        private async void updateCapacity()
+        {
+            var current_capacity = yield fetchCurrentCapacity();
+            capacity( current_capacity );
+        }
+
         //
         // public
         //
@@ -483,9 +497,16 @@ namespace PalmPre
         {
             /* Create all necessary sub-modules */
             if ( config.hasSection( @"$(POWERSUPPLY_MODULE_NAME)/battery" ) )
+            {
                 battery = new BatteryPowerSupply( subsystem );
+                battery.power_status.connect( updatePowerStatus );
+                battery.capacity.connect( updateCapacity );
+            }
             if ( config.hasSection( @"$(POWERSUPPLY_MODULE_NAME)/usb_gadget" ) )
+            {
                 usbgadget = new UsbGadgetPowerSupply( subsystem );
+                usbgadget.power_status.connect( updatePowerStatus );
+            }
 
             subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName,
                     FsoFramework.Device.PowerSupplyServicePath, this );
