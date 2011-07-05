@@ -39,19 +39,22 @@ namespace PalmPre
             base( "WiFi" );
 
             this.subsystem = subsystem;
-	    
-    	    try {
-		var iface = new Network.Interface( "eth0" );
-		this.is_active = iface.is_up() ;
-		iface.finish();
-	    }
-	    catch (Error e) {
-		this.is_active = false;
-	    }
+
+            try
+            {
+                var iface = new Network.Interface( "eth0" );
+                this.is_active = iface.is_up() ;
+                iface.finish();
+            }
+            catch ( Error e )
+            {
+                this.is_active = false;
+            }
 
             sirloin_wifi_mod = new FsoFramework.Kernel26Module( "sirloin_wifi" );
 
-            subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
+            subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, 
+                FsoFramework.Device.PowerControlServicePath, this );
 
             logger.info( "Created." );
         }
@@ -61,7 +64,7 @@ namespace PalmPre
             return is_active;
         }
 
-        public override void setPower( bool power )
+        private async void _setPower( bool power )
         {
             if ( power )
             {
@@ -80,17 +83,22 @@ namespace PalmPre
                 }
                 else
                 {
-		    // after interface is available we need to activate it !BUT the kernel modul needs time(750ms in average)!
-		    Thread.usleep (900*1000); //preffered from Timeout.add( 900, () => {} ); as this does not delay the whole thing but only the {} block
-		    try {
-			    var iface = new Network.Interface( "eth0" );
-			    iface.up();
-			    is_active = iface.is_up();
-			    iface.finish();
-		    }
-		    catch (Error e) {
-			logger.error( "Tried ifup eth0 and catched this : " + e.message );
-		    }
+                    // after interface is available we need to activate it !BUT the kernel module
+                    // needs time(750ms in average)!
+                    Timeout.add( 900, () => { _setPower.callback(); return false; } );
+                    yield;
+
+                    try
+                    {
+                        var iface = new Network.Interface( "eth0" );
+                        iface.up();
+                        is_active = iface.is_up();
+                        iface.finish();
+                    }
+                    catch ( Error e )
+                    {
+                        logger.error( "Failued to bring interface eth0 up: $(e.message)" );
+                    }
                 }
             }
             else
@@ -113,6 +121,12 @@ namespace PalmPre
                     is_active = false;
                 }
             }
+        }
+
+        public override void setPower( bool power )
+        {
+            // We need a async method for some operations
+            _setPower( power );
         }
     }
 
