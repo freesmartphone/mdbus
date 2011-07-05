@@ -158,11 +158,86 @@ namespace PalmPre
         {
             return "<>";
         }
+    }
 
-        public bool get_charger_connected()
+    private class UsbGadgetPowerSupply :
+        FreeSmartphone.Device.PowerSupply,
+        FsoFramework.AbstractObject
+    {
+        private FsoFramework.Subsystem subsystem;
+        private UsbGadgetListener usbgadget;
+
+        internal FreeSmartphone.Device.PowerStatus status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+
+        private void updatePowerStatus()
         {
-            return power_source == PowerSource.BUS || power_source == PowerSource.CHARGER;
+            var next_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+
+            if ( usbgadget.power_source == UsbGadgetListener.PowerSource.BUS ||
+                 usbgadget.power_source == UsbGadgetListener.PowerSource.CHARGER )
+            {
+                next_status = FreeSmartphone.Device.PowerStatus.ONLINE;
+            }
+            else
+            {
+                next_status = FreeSmartphone.Device.PowerStatus.OFFLINE;
+            }
+
+            if ( next_status != status )
+            {
+                status = next_status;
+                power_status( status ); // DBUS SIGNAL
+            }
         }
+
+        //
+        // public
+        //
+
+        public UsbGadgetPowerSupply( FsoFramework.Subsystem subsystem )
+        {
+            this.subsystem = subsystem;
+
+            usbgadget = new UsbGadgetListener();
+            usbgadget.initialize();
+            usbgadget.hostStatusChanged.connect( () => { updatePowerStatus(); } );
+            usbgadget.powerStatusChanged.connect( () => { updatePowerStatus(); } );
+
+            updatePowerStatus();
+
+            subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName,
+                    "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 1 ), this );
+        }
+
+        public override string repr()
+        {
+            return "<>";
+        }
+
+        //
+        // FreeSmartphone.Info (DBUS API)
+        //
+
+        public async HashTable<string,Value?> get_info() throws DBusError, IOError
+        {
+            var res = new HashTable<string,Value?>( str_hash, str_equal );
+            return res;
+        }
+
+        //
+        // FreeSmartphone.Device.PowerStatus (DBUS API)
+        //
+
+        public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
+        {
+            return status;
+        }
+
+        public async int get_capacity() throws DBusError, IOError
+        {
+            return -1;
+        }
+
     }
 
     /**
@@ -178,13 +253,13 @@ namespace PalmPre
         private FsoFramework.Subsystem subsystem;
         private string master_node;
         private string slave_node;
-        private string charger_source_node;
         private int current_capacity = -1;
         private int critical_capacity = -1;
-        private FreeSmartphone.Device.PowerStatus current_power_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
         private bool present = true;
         private bool _skip_authentication = false;
-        private UsbGadgetListener usbgadget_listener;
+        private UsbGadgetListener usbgadget;
+
+        internal FreeSmartphone.Device.PowerStatus status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
 
         //
         // private
@@ -193,49 +268,49 @@ namespace PalmPre
         private void updatePowerStatus()
         {
             var next_capacity = readRawCapacity();
-            var next_powerstatus = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+            var next_status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
 
             if ( next_capacity < current_capacity &&
-                 usbgadget_listener.power_source == UsbGadgetListener.PowerSource.NONE )
+                 usbgadget.power_source == UsbGadgetListener.PowerSource.NONE )
             {
-                next_powerstatus = FreeSmartphone.Device.PowerStatus.DISCHARGING;
+                next_status = FreeSmartphone.Device.PowerStatus.DISCHARGING;
             }
             else if ( next_capacity > current_capacity && 
-                      ( usbgadget_listener.power_source == UsbGadgetListener.PowerSource.BUS ||
-                        usbgadget_listener.power_source == UsbGadgetListener.PowerSource.CHARGER ) )
+                      ( usbgadget.power_source == UsbGadgetListener.PowerSource.BUS ||
+                        usbgadget.power_source == UsbGadgetListener.PowerSource.CHARGER ) )
             {
-                next_powerstatus = FreeSmartphone.Device.PowerStatus.CHARGING;
+                next_status = FreeSmartphone.Device.PowerStatus.CHARGING;
             }
             else if ( next_capacity == 100 )
             {
-                next_powerstatus = FreeSmartphone.Device.PowerStatus.FULL;
+                next_status = FreeSmartphone.Device.PowerStatus.FULL;
             }
             else if ( next_capacity <= critical_capacity )
             {
-                next_powerstatus = FreeSmartphone.Device.PowerStatus.CRITICAL;
+                next_status = FreeSmartphone.Device.PowerStatus.CRITICAL;
             }
             else if ( next_capacity == 0 )
             {
-                next_powerstatus = FreeSmartphone.Device.PowerStatus.EMPTY;
+                next_status = FreeSmartphone.Device.PowerStatus.EMPTY;
             }
             else
             {
-                if ( usbgadget_listener.power_source == UsbGadgetListener.PowerSource.BUS ||
-                     usbgadget_listener.power_source == UsbGadgetListener.PowerSource.CHARGER )
+                if ( usbgadget.power_source == UsbGadgetListener.PowerSource.BUS ||
+                     usbgadget.power_source == UsbGadgetListener.PowerSource.CHARGER )
                 {
-                    next_powerstatus = FreeSmartphone.Device.PowerStatus.CHARGING;
+                    next_status = FreeSmartphone.Device.PowerStatus.CHARGING;
                 }
                 else
                 {
-                    next_powerstatus = FreeSmartphone.Device.PowerStatus.DISCHARGING;
+                    next_status = FreeSmartphone.Device.PowerStatus.DISCHARGING;
                 }
             }
 
-            if ( next_powerstatus != FreeSmartphone.Device.PowerStatus.UNKNOWN &&
-                 next_powerstatus != current_power_status)
+            if ( next_status != FreeSmartphone.Device.PowerStatus.UNKNOWN &&
+                 next_status != status)
             {
-                current_power_status = next_powerstatus;
-                power_status( current_power_status ); // DBUS SIGNAL
+                status = next_status;
+                power_status( status ); // DBUS SIGNAL
             }
 
             if ( next_capacity != current_capacity )
@@ -272,7 +347,7 @@ namespace PalmPre
                 return -1;
             }
 
-            return FsoFramework.FileHandling.read(Path.build_filename(slave_node, "getpercent")).to_int();
+            return int.parse( FsoFramework.FileHandling.read( Path.build_filename( slave_node, "getpercent" ) ) );
         }
 
         //
@@ -292,7 +367,7 @@ namespace PalmPre
             if (slave_count == "0")
             {
                 present = false;
-                current_power_status = FreeSmartphone.Device.PowerStatus.REMOVED;
+                status = FreeSmartphone.Device.PowerStatus.REMOVED;
                 current_capacity = -1;
                 logger.error("there is no battery available ... skipping");
                 return;
@@ -314,17 +389,18 @@ namespace PalmPre
             }
 
             // Register our provided dbus service on the bus
-            subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerSupplyServicePath, this );
+            subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName,
+                    "%s/%u".printf( FsoFramework.Device.PowerSupplyServicePath, 0 ), this );
 
             critical_capacity = FsoFramework.theConfig.intValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "critical", 10);
             current_capacity = readRawCapacity();
 
             var poll_timout = FsoFramework.theConfig.intValue( @"$(POWERSUPPLY_MODULE_NAME)/battery", "poll_timeout", 10);
 
-            usbgadget_listener = new UsbGadgetListener();
-            usbgadget_listener.initialize();
-            usbgadget_listener.hostStatusChanged.connect( () => { updatePowerStatus(); } );
-            usbgadget_listener.powerStatusChanged.connect( () => { updatePowerStatus(); } );
+            usbgadget = new UsbGadgetListener();
+            usbgadget.initialize();
+            usbgadget.hostStatusChanged.connect( () => { updatePowerStatus(); } );
+            usbgadget.powerStatusChanged.connect( () => { updatePowerStatus(); } );
 
             GLib.Timeout.add (poll_timout, ()=> {
                 updatePowerStatus();
@@ -355,34 +431,64 @@ namespace PalmPre
 
         public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
         {
-            return current_power_status;
+            return status;
         }
 
         public async int get_capacity() throws DBusError, IOError
         {
             return current_capacity;
         }
-
-        public async bool get_charger_connected() throws DBusError, IOError
-        {
-            return usbgadget_listener.get_charger_connected();
-        }
     }
 
     /**
      * @class PowerSupply
      **/
-    public class PowerSupply : FsoFramework.AbstractObject
+    public class PowerSupply : FreeSmartphone.Device.PowerSupply,
+                               FsoFramework.AbstractObject
     {
-        private BatteryPowerSupply battery_powersupply;
+        private BatteryPowerSupply battery;
+        private UsbGadgetPowerSupply usbgadget;
+
+        private async FreeSmartphone.Device.PowerStatus fetchCurrentPowerStatus() throws DBusError, IOError
+        {
+            FreeSmartphone.Device.PowerStatus status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
+
+            // If the charger is connected we set the aggregated status in any case to AC
+            // as we need to indicate that the charger is still connected when we are
+            // already fully charged. Otherwise our current status is the battery status.
+
+            if ( usbgadget != null && usbgadget.status == FreeSmartphone.Device.PowerStatus.ONLINE )
+                status = FreeSmartphone.Device.PowerStatus.AC;
+            else if ( battery != null )
+                status = battery.status;
+
+            return status;
+        }
+
+        private async int fetchCurrentCapacity() throws DBusError, IOError
+        {
+            int result = -1;
+
+            if ( battery != null )
+                result = yield battery.get_capacity();
+
+            return result;
+        }
+
+        //
+        // public
+        //
 
         public PowerSupply( FsoFramework.Subsystem subsystem )
         {
             /* Create all necessary sub-modules */
             if ( config.hasSection( @"$(POWERSUPPLY_MODULE_NAME)/battery" ) )
-            {
-                battery_powersupply = new BatteryPowerSupply( subsystem );
-            }
+                battery = new BatteryPowerSupply( subsystem );
+            if ( config.hasSection( @"$(POWERSUPPLY_MODULE_NAME)/usb_gadget" ) )
+                usbgadget = new UsbGadgetPowerSupply( subsystem );
+
+            subsystem.registerObjectForService<FreeSmartphone.Device.PowerSupply>( FsoFramework.Device.ServiceDBusName,
+                    FsoFramework.Device.PowerSupplyServicePath, this );
         }
 
         public override string repr()
@@ -390,6 +496,21 @@ namespace PalmPre
             return "<PalmPre.PowerSupply @ >";
         }
 
+        //
+        // FreeSmartphone.Device.PowerStatus (DBUS API)
+        //
+
+        public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
+        {
+            var result = yield fetchCurrentPowerStatus();
+            return result;
+        }
+
+        public async int get_capacity() throws DBusError, IOError
+        {
+            var result = yield fetchCurrentCapacity();
+            return result;
+        }
     }
 
 } /* namespace PalmPre */
