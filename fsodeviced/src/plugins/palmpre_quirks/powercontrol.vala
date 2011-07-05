@@ -66,6 +66,8 @@ namespace PalmPre
 
         private async void _setPower( bool power )
         {
+            bool ok = false;
+
             if ( power )
             {
                 if ( is_active )
@@ -76,7 +78,7 @@ namespace PalmPre
 
                 logger.info( "Powering on WiFi ..." );
 
-                var ok = sirloin_wifi_mod.load();
+                ok = sirloin_wifi_mod.load();
                 if ( !ok )
                 {
                     logger.error( "Loading WiFi kernel module failed!!!" );
@@ -111,7 +113,7 @@ namespace PalmPre
 
                 logger.info( "Powering off Wifi ..." );
 
-                var ok = sirloin_wifi_mod.unload();
+                ok = sirloin_wifi_mod.unload();
                 if( !ok )
                 {
                     logger.error( "Unloading WiFi kernel module failed!!!" );
