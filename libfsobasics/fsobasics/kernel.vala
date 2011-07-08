@@ -52,6 +52,8 @@ namespace FsoFramework
         public Kernel26Module(string name)
         {
             this.name = name;
+            var rc = Posix.system( @"/sbin/lsmod | grep $(name)" );
+            active = ( rc == 0 );
         }
 
         /**
