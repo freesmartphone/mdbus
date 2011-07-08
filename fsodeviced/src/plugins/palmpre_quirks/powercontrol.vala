@@ -99,7 +99,7 @@ namespace PalmPre
                     }
                     catch ( Error e )
                     {
-                        logger.error( "Failued to bring interface eth0 up: $(e.message)" );
+                        logger.error( @"Failued to bring interface eth0 up: $(e.message)" );
                     }
                 }
             }
