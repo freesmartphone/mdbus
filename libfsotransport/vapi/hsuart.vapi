@@ -42,7 +42,7 @@ namespace PalmPre.Hsuart
         PARITY_ODD,
         PARITY_EVEN,
     }
-    
+
     /*
      * Specifies target HSUART_IOCTL_CLEAR_FIFO/HSUART_IOCTL_FLUSH
      */
@@ -55,11 +55,11 @@ namespace PalmPre.Hsuart
         RX_QUEUE,
         TX_QUEUE,
     }
-    
+
     /*
      *  Rx flow control
      */
-     
+
     [CCode (cname = "int", has_type_id = false, cprefix = "HSUART_RX_FLOW_", cheader_filename = "hsuart.h")]
     public enum RxFlowControlType
     {
@@ -67,7 +67,7 @@ namespace PalmPre.Hsuart
         AUTO,
         ON,
     }
-    
+
     [CCode (cname = "int", has_type_id = false, cprefix = "HSUART_IOCTL_", cheader_filename = "hsuart.h")]
     public enum IoctlType
     {
@@ -84,14 +84,14 @@ namespace PalmPre.Hsuart
         RX_FLOW,
         FLUSH,
     }
-    
+
     [CCode (cname = "struct hsuart_mode", cheader_filename = "hsuart.h")]
     public struct Mode
     {
         public int speed;
         public int flags;
     }
-    
+
     [CCode (cname = "struct hsuart_stat", cheader_filename = "hsuart.h")]
     public struct Stat
     {
