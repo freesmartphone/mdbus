@@ -178,6 +178,8 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         this.name = name;
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
+
+        FsoGsm.theServiceDependencies.append( "Modem" );
     }
 
     public bool is_ready()
