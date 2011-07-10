@@ -65,12 +65,13 @@ public class Resource : IResource, Object
         this.objectpath = objectpath;
         this.status = FsoFramework.ResourceStatus.UNKNOWN;
         this.policy = FreeSmartphone.UsageResourcePolicy.AUTO;
+        this.busDependencies = new ArrayList<string>();
 
         if ( objectpath != null )
         {
             proxy = Bus.get_proxy_sync<FreeSmartphone.Resource>( BusType.SYSTEM, busname, objectpath );
             assert( FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) created" ) );
-            Idle.add( () => { syncDependencies(); return false; } );
+            syncDependencies();
         }
         else
         {
@@ -95,14 +96,23 @@ public class Resource : IResource, Object
                 return;
             }
 
-            string services = dependenciesFromResource.lookup("services") as string;
+            var services = dependenciesFromResource.lookup( "services" );
             if ( services != null )
             {
-                var parts = services.split(",");
-                foreach ( var service in parts )
+                var servicesStr = services as string;
+                if ( servicesStr != null )
                 {
-                    busDependencies.add( service );
+                    assert( FsoFramework.theLogger.debug( @"Resource '$name' has the following dependencies: $servicesStr" ) );
+                    var parts = servicesStr.split(",");
+                    foreach ( var service in parts )
+                    {
+                        busDependencies.add( service );
+                    }
                 }
+            }
+            else
+            {
+                assert( FsoFramework.theLogger.debug(@"Resource '$name' does not has any dependencies.") );
             }
         }
         catch ( GLib.Error error )
