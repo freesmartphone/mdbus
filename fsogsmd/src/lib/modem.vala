@@ -24,6 +24,9 @@ namespace FsoGsm
     public FsoGsm.Modem theModem;
     public const string CONFIG_SECTION = "fsogsm";
     internal const string PPPD_DEFAULT_COMMAND = "/usr/sbin/pppd";
+
+    // This is used the let the plugins define the services dependencies.
+    public GLib.List<string> theServiceDependencies = new GLib.List<string>();
 }
 
 /**

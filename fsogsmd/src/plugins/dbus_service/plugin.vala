@@ -922,6 +922,26 @@ public class DBusService.Resource : FsoFramework.AbstractDBusResource
         logger.debug( "Resuming GSM resource..." );
         yield device.resume();
     }
+
+    public override async GLib.HashTable<string,GLib.Value?> dependencies()
+    {
+        var dependencies = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+
+        // Service dependencies can be defined dynamically by the plugins with accessing
+        // the theServiceDependencies global variable.
+        string services = "";
+        bool first = true;
+        foreach ( var service in FsoGsm.theServiceDependencies )
+        {
+            if ( !first )
+                services += ",";
+            services += service;
+        }
+
+        dependencies.insert( "services", services );
+
+        return dependencies;
+    }
 }
 
 DBusService.Device device;
