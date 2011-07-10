@@ -263,6 +263,10 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             // suspend otherwise we will wakeup very quickly.
             yield network_service.report_health( false );
             yield network_service.report_rssi( false );
+
+            // Add a little timeout to give msmcommd enough time to process everything
+            Timeout.add_seconds(1, () => { suspend.callback(); return false; });
+            yield;
         }
         catch ( GLib.Error error )
         {
