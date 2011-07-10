@@ -936,6 +936,7 @@ public class DBusService.Resource : FsoFramework.AbstractDBusResource
             if ( !first )
                 services += ",";
             services += service;
+            first = false;
         }
 
         dependencies.insert( "services", services );
