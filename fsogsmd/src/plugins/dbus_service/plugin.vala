@@ -923,9 +923,9 @@ public class DBusService.Resource : FsoFramework.AbstractDBusResource
         yield device.resume();
     }
 
-    public override async GLib.HashTable<string,GLib.Value?> dependencies()
+    public override async GLib.HashTable<string,GLib.Variant?> dependencies()
     {
-        var dependencies = new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        var dependencies = new GLib.HashTable<string,GLib.Variant?>( GLib.str_hash, GLib.str_equal );
 
         // Service dependencies can be defined dynamically by the plugins with accessing
         // the theServiceDependencies global variable.

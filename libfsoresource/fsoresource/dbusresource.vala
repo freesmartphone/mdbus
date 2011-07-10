@@ -89,9 +89,9 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
      * This method has a default implementation for backwards compatibility,
      * subclasses need to override this.
      **/
-    public virtual async GLib.HashTable<string,GLib.Value?> dependencies()
+    public virtual async GLib.HashTable<string,GLib.Variant> dependencies()
     {
-        return new GLib.HashTable<string,GLib.Value?>( GLib.str_hash, GLib.str_equal );
+        return new GLib.HashTable<string,GLib.Variant?>( GLib.str_hash, GLib.str_equal );
     }
 
     //
@@ -121,7 +121,7 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
         yield suspendResource();
     }
 
-    public async GLib.HashTable<string,GLib.Value?> get_dependencies() throws DBusError, IOError
+    public async GLib.HashTable<string,GLib.Variant?> get_dependencies() throws DBusError, IOError
     {
         assert( logger.debug( @"Inquiring dependencies for $classname..." ) );
         var result = yield dependencies();
