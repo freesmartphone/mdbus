@@ -255,12 +255,42 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
     public async bool suspend()
     {
-        return true;
+        bool result = true;
+
+        try
+        {
+            // We need to tell the modem not to send any health or rssi reports during
+            // suspend otherwise we will wakeup very quickly.
+            yield network_service.report_health( false );
+            yield network_service.report_rssi( false );
+        }
+        catch ( GLib.Error error )
+        {
+            logger.error(@"Could not disable health and rssi reports: $(error.message)");
+            result = false;
+        }
+
+        return result;
     }
 
     public async bool resume()
     {
-        return true;
+        bool result = true;
+
+        try
+        {
+            // Enable health and rssi report again after they were disabled before the
+            // devices entered the suspend state.
+            yield network_service.report_health( true );
+            yield network_service.report_rssi( true );
+        }
+        catch ( GLib.Error error )
+        {
+            logger.error(@"Could not enable health and rssi reports: $(error.message)");
+            result = false;
+        }
+
+        return result;
     }
 
     public async void close()
