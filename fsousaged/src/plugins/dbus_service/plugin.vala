@@ -325,10 +325,100 @@ public class Controller : FsoFramework.AbstractObject
         return r;
     }
 
+    /**
+     * This will create a list of all dependent resources for the given resource.
+     */
+    private GLib.List<Resource> resolveResourceDependencies( Resource r )
+    {
+        GLib.List<Resource> resourceWithDependencies = new GLib.List<Resource>();
+
+        foreach ( string dependencyName in r.busDependencies )
+        {
+            if ( resources.contains( dependencyName ) )
+            {
+                resourceWithDependencies.append( resources[dependencyName] );
+            }
+            else
+            {
+                logger.warning(@"Found not registered resource dependency '$(dependencyName)' for resource '$(r.name)'");
+            }
+        }
+
+        return resourceWithDependencies;
+    }
+
+    private void incrementResourcePriority( Gee.HashMap<string,int> resourcesWithPriority, string name )
+    {
+        if ( resourcesWithPriority.contains( name ) )
+        {
+            resourcesWithPriority.set( name, 1 );
+        }
+        else
+        {
+            resourcesWithPriority[name] += 1;
+        }
+    }
+
+    private Resource[] retrievePriorizedResourceList( bool revertOrder = false )
+    {
+        var resourcesWithPriority = new Gee.HashMap<string,int>();
+        var priorizedResources = new Gee.ArrayList<Resource>();
+        var maxPriority = 0;
+        Resource[] result = null;
+
+        foreach ( var r in resources.values )
+        {
+            incrementResourcePriority( resourcesWithPriority, r.name );
+
+            var resourceDependencies = resolveResourceDependencies( r );
+            foreach ( var resourceDependency in resourceDependencies )
+            {
+                incrementResourcePriority( resourcesWithPriority, resourceDependency.name );
+            }
+
+            if ( resourcesWithPriority[r.name] > maxPriority )
+                maxPriority = resourcesWithPriority[r.name];
+
+            priorizedResources.add( r );
+        }
+
+        priorizedResources.sort_with_data( (a, b) => {
+            int rc = 0;
+            Resource ra = a as Resource, rb = b as Resource;
+
+            assert( ra != null );
+            assert( rb != null );
+
+            var priorityRa = resourcesWithPriority[ra.name];
+            var priorityRb = resourcesWithPriority[rb.name];
+
+            if ( priorityRa > priorityRb )
+                rc = 1;
+            else if ( priorityRa < priorityRb )
+                rc = -1;
+
+            return rc;
+        } );
+
+        result = priorizedResources.to_array();
+
+        if ( revertOrder )
+        {
+            result = new Resource[priorizedResources.size];
+            for ( int n = priorizedResources.size - 1, m = 0; n >= 0; n--, m++ )
+            {
+                result[m] = priorizedResources[n];
+            }
+        }
+
+        return priorizedResources.to_array();
+    }
+
     public async void disableAllResources()
     {
         assert( logger.debug( "Disabling all resources..." ) );
-        foreach ( var r in resources.values )
+
+        foreach ( var r in retrievePriorizedResourceList() )
         {
             try
             {
@@ -339,13 +429,15 @@ public class Controller : FsoFramework.AbstractObject
                 logger.warning( @"Error while trying to disable resource $(r.name): $(e.message)" );
             }
         }
+
         assert( logger.debug( "... done" ) );
     }
 
     public async void suspendAllResources()
     {
         assert( logger.debug( "Suspending all resources..." ) );
-        foreach ( var r in resources.values )
+
+        foreach ( var r in retrievePriorizedResourceList() )
         {
             try
             {
@@ -356,13 +448,15 @@ public class Controller : FsoFramework.AbstractObject
                 logger.warning( @"Error while trying to suspend resource $(r.name): $(e.message)" );
             }
         }
+
         assert( logger.debug( "... done disabling." ) );
     }
 
     internal async void resumeAllResources()
     {
         assert( logger.debug( "Resuming all resources..." ) );
-        foreach ( var r in resources.values )
+
+        foreach ( var r in retrievePriorizedResourceList( true ) )
         {
             try
             {
@@ -373,6 +467,7 @@ public class Controller : FsoFramework.AbstractObject
                 logger.warning( @"Error while trying to resume resource $(r.name): $(e.message)" );
             }
         }
+
         assert( logger.debug( "... done resuming." ) );
     }
 

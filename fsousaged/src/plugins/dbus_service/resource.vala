@@ -70,6 +70,7 @@ public class Resource : IResource, Object
         {
             proxy = Bus.get_proxy_sync<FreeSmartphone.Resource>( BusType.SYSTEM, busname, objectpath );
             assert( FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) created" ) );
+            Idle.add( () => { syncDependencies(); return false; } );
         }
         else
         {
@@ -80,6 +81,34 @@ public class Resource : IResource, Object
     ~Resource()
     {
         assert( FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) destroyed" ) );
+    }
+
+    private async void syncDependencies()
+    {
+        try
+        {
+            var dependenciesFromResource = yield proxy.get_dependencies();
+
+            if ( dependenciesFromResource != null )
+            {
+                FsoFramework.theLogger.error(@"Can't retrieve resource dependencies for '$(name)'!");
+                return;
+            }
+
+            string services = dependenciesFromResource.lookup("services") as string;
+            if ( services != null )
+            {
+                var parts = services.split(",");
+                foreach ( var service in parts )
+                {
+                    busDependencies.add( service );
+                }
+            }
+        }
+        catch ( GLib.Error error )
+        {
+            FsoFramework.theLogger.error(@"Can't sync dependencies of resource '$(name)'");
+        }
     }
 
     private void updateStatus()
