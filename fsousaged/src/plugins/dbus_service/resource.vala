@@ -89,9 +89,9 @@ public class Resource : IResource, Object
         {
             var dependenciesFromResource = yield proxy.get_dependencies();
 
-            if ( dependenciesFromResource != null )
+            if ( dependenciesFromResource == null )
             {
-                FsoFramework.theLogger.error(@"Can't retrieve resource dependencies for '$(name)'!");
+                assert( FsoFramework.theLogger.debug(@"There are no dependencies for resource '$(name)'.") );
                 return;
             }
 
@@ -107,7 +107,7 @@ public class Resource : IResource, Object
         }
         catch ( GLib.Error error )
         {
-            FsoFramework.theLogger.error(@"Can't sync dependencies of resource '$(name)'");
+            FsoFramework.theLogger.error(@"Can't sync dependencies of resource '$(name)': $(error.message)" );
         }
     }
 
