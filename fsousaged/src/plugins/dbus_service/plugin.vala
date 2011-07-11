@@ -282,6 +282,7 @@ public class Controller : FsoFramework.AbstractObject
             logger.error( @"$resourcesAlive resources still alive :( Aborting Suspend!" );
             return false;
         }
+
         logger.info( "Entering lowlevel suspend" );
         lowlevel.suspend();
         logger.info( "Leaving lowlevel suspend" );
@@ -474,7 +475,8 @@ public class Controller : FsoFramework.AbstractObject
     //
     // DBUS API (for providers)
     //
-    public void register_resource( GLib.BusName sender, string name, GLib.ObjectPath path ) throws FreeSmartphone.UsageError, DBusError, IOError
+    public void register_resource( GLib.BusName sender, string name, GLib.ObjectPath path ) 
+        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
 #if DEBUG
         debug( "register_resource called with parameters: %s %s %s", sender, name, path );
@@ -505,7 +507,8 @@ public class Controller : FsoFramework.AbstractObject
         onResourceAppearing( r );
     }
 
-    public void unregister_resource( GLib.BusName sender, string name ) throws FreeSmartphone.UsageError, DBusError, IOError
+    public void unregister_resource( GLib.BusName sender, string name )
+        throws FreeSmartphone.Error, FreeSmartphone.UsageError, DBusError, IOError
     {
         var r = getResource( name );
 
@@ -539,7 +542,8 @@ public class Controller : FsoFramework.AbstractObject
     //
     // DBUS API (for consumers)
     //
-    public async string get_resource_policy( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
+    public async string get_resource_policy( string name )
+        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         switch ( getResource( name ).policy )
         {
@@ -556,8 +560,8 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
-    //public void set_resource_policy( string name, FreeSmartphone.UsageResourcePolicy policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
-    public async void set_resource_policy( string name, string policy ) throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
+    public async void set_resource_policy( string name, string policy )
+        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         logger.debug( @"Set resource policy for $name to $policy" );
         var resource = getResource( name );
@@ -579,17 +583,20 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
-    public async bool get_resource_state( string name ) throws FreeSmartphone.UsageError, DBusError, IOError
+    public async bool get_resource_state( string name )
+        throws FreeSmartphone.Error, FreeSmartphone.UsageError, DBusError, IOError
     {
         return getResource( name ).isEnabled();
     }
 
-    public async string[] get_resource_users( string name ) throws FreeSmartphone.UsageError, DBusError, IOError
+    public async string[] get_resource_users( string name )
+        throws FreeSmartphone.Error, FreeSmartphone.UsageError, DBusError, IOError
     {
         return getResource( name ).allUsers();
     }
 
-    public async string[] list_resources() throws DBusError, IOError
+    public async string[] list_resources()
+        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         string[] res = {};
         foreach ( var key in resources.keys )
@@ -597,37 +604,43 @@ public class Controller : FsoFramework.AbstractObject
         return res;
     }
 
-    public async void request_resource( GLib.BusName sender, string name ) throws FreeSmartphone.ResourceError, FreeSmartphone.UsageError, DBusError, IOError
+    public async void request_resource( GLib.BusName sender, string name )
+        throws FreeSmartphone.Error, FreeSmartphone.ResourceError, FreeSmartphone.UsageError, DBusError, IOError
     {
         var cmd = new RequestResource( getResource( name ) );
         yield cmd.run( sender );
     }
 
-    public async void release_resource( GLib.BusName sender, string name ) throws FreeSmartphone.UsageError, DBusError, IOError
+    public async void release_resource( GLib.BusName sender, string name )
+        throws FreeSmartphone.Error, FreeSmartphone.UsageError, DBusError, IOError
     {
         var cmd = new ReleaseResource( getResource( name ) );
         yield cmd.run( sender );
     }
 
-    public async void shutdown() throws DBusError, IOError
+    public async void shutdown()
+        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         var cmd = new Shutdown();
         yield cmd.run();
     }
 
-    public async void reboot() throws DBusError, IOError
+    public async void reboot()
+        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         var cmd = new Reboot();
         yield cmd.run();
     }
 
-    public async void suspend() throws DBusError, IOError
+    public async void suspend()
+        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         var cmd = new Suspend();
         yield cmd.run();
     }
 
-    public async void resume() throws DBusError, IOError
+    public async void resume()
+        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         var cmd = new Resume();
         yield cmd.run();
