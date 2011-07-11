@@ -157,7 +157,7 @@ internal class FsoFramework.DBusServiceNotifierDelegate<T>
  **/
 public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
 {
-    private dynamic Object obj;
+    private DBusService.IDBus obj;
 
     private HashTable<string, List<DBusFuncDelegateHolder>> appear;
     private HashTable<string, List<DBusFuncDelegateHolder>> disappear;
