@@ -155,6 +155,8 @@ public class Resource : IResource, Object
         else
             ( this.policy = policy );
 
+        assert( FsoFramework.theLogger.debug( @"Policy for resource '$name' is now $policy" ) );
+
         /* does not work, bug in vala async */
 #if VALA_BUG_602200_FIXED
         switch ( policy )
@@ -211,8 +213,16 @@ public class Resource : IResource, Object
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 0 )
         {
-            yield enable();
+            try
+            {
+                yield enable();
+            }
+            catch ( GLib.Error error )
+            {
+                throw new FreeSmartphone.ResourceError.UNABLE_TO_ENABLE( @"Could not enable resource '$name': $(error.message)" );
+            }
         }
+
         users.insert( 0, user );
         updateStatus();
     }
