@@ -48,6 +48,8 @@ public class Controller : FsoFramework.AbstractObject
     private FsoUsage.LowLevel lowlevel;
 
     private bool debug_enable_on_startup;
+    private bool debug_do_not_suspend;
+    private bool debug_suspend_user_initiated;
     private bool disable_on_startup;
     private bool disable_on_shutdown;
 
@@ -65,6 +67,9 @@ public class Controller : FsoFramework.AbstractObject
 
         // debug option: should we enable on startup?
         debug_enable_on_startup = config.boolValue( CONFIG_SECTION, "debug_enable_on_startup", false );
+
+        debug_do_not_suspend = config.boolValue( CONFIG_SECTION, "debug_do_not_suspend", false );
+        debug_suspend_user_initiated = config.boolValue( CONFIG_SECTION, "debug_suspend_user_initiated", true );
 
         var sync_resources_with_lifecycle = config.stringValue( CONFIG_SECTION, "sync_resources_with_lifecycle", "always" );
         disable_on_startup = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "startup" );
@@ -264,6 +269,10 @@ public class Controller : FsoFramework.AbstractObject
     internal bool onIdleForSuspend()
     {
         var resourcesAlive = 0;
+        var idleState = FreeSmartphone.Device.IdleState.BUSY;
+        var reason = FsoUsage.ResumeReason.Invalid;
+        bool user_initiated = false;
+
         foreach ( var r in resources.values )
         {
             // We also have to check for resources with the UNKNOWN status as when
@@ -283,20 +292,38 @@ public class Controller : FsoFramework.AbstractObject
             return false;
         }
 
-        logger.info( "Entering lowlevel suspend" );
-        lowlevel.suspend();
-        logger.info( "Leaving lowlevel suspend" );
+        if ( !debug_do_not_suspend )
+        {
+            logger.info( "Entering lowlevel suspend" );
+            lowlevel.suspend();
+            logger.info( "Leaving lowlevel suspend" );
 
-        FsoUsage.ResumeReason reason = lowlevel.resume();
-        logger.info( @"Resume reason seems to be $reason" );
+            reason = lowlevel.resume();
+            logger.info( @"Resume reason seems to be $reason" );
+        }
+        else
+        {
+            logger.debug( @"Not suspending due to configuration. Resuming ..." );
+        }
+
         resumeAllResources();
 
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.RESUME );
 
-        var idlestate = lowlevel.isUserInitiated( reason ) ? FreeSmartphone.Device.IdleState.BUSY : FreeSmartphone.Device.IdleState.IDLE;
+        if ( !debug_do_not_suspend )
+        {
+            user_initiated = lowlevel.isUserInitiated( reason );
+        }
+        else
+        {
+            user_initiated = debug_suspend_user_initiated;
+        }
+
+        idleState = user_initiated ? FreeSmartphone.Device.IdleState.BUSY : FreeSmartphone.Device.IdleState.IDLE;
+
         try
         {
-            idlenotifier.set_state( idlestate );
+            idlenotifier.set_state( idleState );
         }
         catch ( Error e )
         {
@@ -406,14 +433,38 @@ public class Controller : FsoFramework.AbstractObject
         if ( revertOrder )
         {
             result = new Resource[priorizedResources.size];
-            for ( int n = priorizedResources.size - 1, m = 0; n >= 0; n--, m++ )
+            int m = 0;
+            for ( int n = priorizedResources.size - 1; n >= 0; n-- )
             {
                 result[m] = priorizedResources[n];
+                m++;
             }
         }
 
-        return priorizedResources.to_array();
+#if DEBUG
+        dumpResourcesList( result );
+#endif
+
+        return result;
     }
+
+#if DEBUG
+    private void dumpResourcesList( Resource[] resourcesList )
+    {
+        string dumpList = "";
+        bool first = true;
+
+        foreach ( var r in resourcesList )
+        {
+            if ( !first )
+                dumpList += ";";
+            dumpList += r.name;
+            first = false;
+        }
+
+        assert ( logger.debug( @"List of resources: $(dumpList)" ) );
+    }
+#endif
 
     public async void disableAllResources()
     {
@@ -461,6 +512,7 @@ public class Controller : FsoFramework.AbstractObject
         {
             try
             {
+                assert( logger.debug( @"Resuming resource '$(r.name)'" ) );
                 yield r.resume();
             }
             catch ( Error e )
