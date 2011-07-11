@@ -138,7 +138,6 @@ internal class DBusFuncDelegateHolder
     }
 }
 
-#if 0
 /**
  * @class FsoFramework.DBusServiceNotifierDelegate
  */
@@ -168,20 +167,15 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
         appear = new HashTable<string,List<DBusFuncDelegateHolder>>( str_hash, str_equal );
         disappear = new HashTable<string,List<DBusFuncDelegateHolder>>( str_hash, str_equal );
 
-        assert_not_reached();
-
         try
         {
             obj = Bus.get_proxy_sync<DBusService.IDBus>( BusType.SYSTEM, DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
         }
-        catch ( DBusError e )
+        catch ( Error e )
         {
             logger.critical( @"Could not get handle on DBus object at system bus: $(e.message)" );
         }
-        catch ( IOError e )
-        {
-            logger.critical( @"Could not get handle on DBus object at system bus: $(e.message)" );
-        }
+
         obj.NameOwnerChanged.connect( onNameOwnerChanged );
     }
 
@@ -222,7 +216,7 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
         }
         else
         {
-        list.append( new DBusFuncDelegateHolder( callback ) );
+            list.append( new DBusFuncDelegateHolder( callback ) );
         }
     }
 
@@ -241,6 +235,5 @@ public class FsoFramework.DBusServiceNotifier : FsoFramework.AbstractObject
         }
     }
 }
-#endif
 
 // vim:ts=4:sw=4:expandtab
