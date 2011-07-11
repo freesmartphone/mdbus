@@ -354,7 +354,7 @@ public class Controller : FsoFramework.AbstractObject
     }
 
     /**
-     * This will create a list of all dependent resources for the given resource.
+     * This will create a list of all dependency resources for the given resource.
      */
     private GLib.List<Resource> resolveResourceDependencies( Resource r )
     {
@@ -375,6 +375,9 @@ public class Controller : FsoFramework.AbstractObject
         return resourceWithDependencies;
     }
 
+    /**
+     * This will increment the usage number of a resource with the given name by one.
+     **/
     private void incrementResourcePriority( Gee.HashMap<string,int> resourcesWithPriority, string name )
     {
         if ( resourcesWithPriority.contains( name ) )
@@ -387,15 +390,22 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
+    /**
+     * Create a list of priorized resources. The priority is calculated by the
+     * dependencies of each resource. If a resouce is a dependency of another one it get's
+     * a higher priority. The first resource in the returned list is the resource with the
+     * lowest priority.
+     **/
     private Resource[] retrievePriorizedResourceList( bool revertOrder = false )
     {
         var resourcesWithPriority = new Gee.HashMap<string,int>();
         var priorizedResources = new Gee.ArrayList<Resource>();
-        var maxPriority = 0;
         Resource[] result = null;
 
+        // Priorize all resources by use count
         foreach ( var r in resources.values )
         {
+            // For the fact that the resource is only available it gets a priority of 1
             incrementResourcePriority( resourcesWithPriority, r.name );
 
             var resourceDependencies = resolveResourceDependencies( r );
@@ -404,12 +414,10 @@ public class Controller : FsoFramework.AbstractObject
                 incrementResourcePriority( resourcesWithPriority, resourceDependency.name );
             }
 
-            if ( resourcesWithPriority[r.name] > maxPriority )
-                maxPriority = resourcesWithPriority[r.name];
-
             priorizedResources.add( r );
         }
 
+        // Sort all resources in the list by their priority
         priorizedResources.sort_with_data( (a, b) => {
             int rc = 0;
             Resource ra = a as Resource, rb = b as Resource;
@@ -430,6 +438,7 @@ public class Controller : FsoFramework.AbstractObject
 
         result = priorizedResources.to_array();
 
+        // In some cases we need the reverse order of the priorized resources
         if ( revertOrder )
         {
             result = new Resource[priorizedResources.size];
@@ -441,30 +450,8 @@ public class Controller : FsoFramework.AbstractObject
             }
         }
 
-#if DEBUG
-        dumpResourcesList( result );
-#endif
-
         return result;
     }
-
-#if DEBUG
-    private void dumpResourcesList( Resource[] resourcesList )
-    {
-        string dumpList = "";
-        bool first = true;
-
-        foreach ( var r in resourcesList )
-        {
-            if ( !first )
-                dumpList += ";";
-            dumpList += r.name;
-            first = false;
-        }
-
-        assert ( logger.debug( @"List of resources: $(dumpList)" ) );
-    }
-#endif
 
     public async void disableAllResources()
     {
@@ -508,6 +495,7 @@ public class Controller : FsoFramework.AbstractObject
     {
         assert( logger.debug( "Resuming all resources..." ) );
 
+        // We need the reverse order: the resource with the highest priority comes first
         foreach ( var r in retrievePriorizedResourceList( true ) )
         {
             try

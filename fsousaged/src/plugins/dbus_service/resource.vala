@@ -84,6 +84,9 @@ public class Resource : IResource, Object
         assert( FsoFramework.theLogger.debug( @"Resource $name served by $busname ($objectpath) destroyed" ) );
     }
 
+    /**
+     * Sync dependencies of the resource with our local list.
+     **/
     private async void syncDependencies()
     {
         try
@@ -103,6 +106,7 @@ public class Resource : IResource, Object
                 if ( servicesStr != null )
                 {
                     assert( FsoFramework.theLogger.debug( @"Resource '$name' has the following dependencies: $servicesStr" ) );
+
                     var parts = servicesStr.split(",");
                     foreach ( var service in parts )
                     {
