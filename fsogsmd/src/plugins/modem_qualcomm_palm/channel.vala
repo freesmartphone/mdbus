@@ -163,6 +163,22 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         // get here!
     }
 
+    /**
+     * Little asynchronous helper method to let us wait until the modem becomes active.
+     **/
+    private async void waitUntilModemIsActive()
+    {
+        Timeout.add_seconds(1, () => {
+            if ( currentModemStatus == Msmcomm.ModemStatus.ACTIVE )
+            {
+                waitUntilModemIsActive.callback();
+                return false;
+            }
+            return true;
+        });
+        yield;
+    }
+
 
     //
     // public API
@@ -285,6 +301,8 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
         try
         {
+            yield waitUntilModemIsActive();
+
             // Enable health and rssi report again after they were disabled before the
             // devices entered the suspend state.
             yield network_service.report_health( true );
