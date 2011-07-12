@@ -677,7 +677,6 @@ public class Controller : FsoFramework.AbstractObject
                 break;
             default:
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "ResourcePolicy needs to be one of { \"enabled\", \"disabled\", \"auto\" }" );
-                break;
         }
 
         yield resource.setPolicy( policyToSet );
