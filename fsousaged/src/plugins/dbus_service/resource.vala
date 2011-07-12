@@ -317,9 +317,34 @@ public class Resource : IResource, Object
 #if DEBUG
             message( "shadowResourceEnabled" );
 #endif
+
+            // Wait until the resource has registered or registration has timed out
+            int retries = 0;
+            Timeout.add( 1, () => {
+                if ( retries > 10 )
+                {
+                    instance.logger.error( "Can't enable resource '$name' as it has never registered!" );
+                    return false;
+                }
+
+                if ( proxy != null )
+                {
+                    assert( instance.logger.debug( @"DBus proxy for resource '$name' is now available." ) );
+                    enable.callback();
+                    return false;
+                }
+
+                retries++;
+                return true;
+            });
+            yield;
         }
 
-        assert( proxy != null );
+        // Ensure that we have a dbus connection for our resource
+        if ( proxy == null )
+        {
+            throw new FreeSmartphone.ResourceError.UNABLE_TO_ENABLE( @"Can't enable resource '$name'" );
+        }
 
         try
         {
