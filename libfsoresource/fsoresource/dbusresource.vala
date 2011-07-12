@@ -30,12 +30,45 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
     private FreeSmartphone.Usage usage;
     private string name;
     private ObjectPath path;
+    private FsoFramework.DBusServiceNotifier dbusnotifier;
+    private bool resourceRegistrationPending = false;
+    private bool resourceRegistered = false;
+
+    private void onUsageServiceAppearing( string busname )
+    {
+        if (busname != FsoFramework.Usage.ServiceDBusName)
+            return;
+
+        if ( !resourceRegistered && !resourceRegistrationPending )
+        {
+            assert( logger.debug( @"$busname service appeared. Registering resource '$name' ..." ) );
+
+            resourceRegistrationPending = true;
+            Idle.add( () => { registerWithUsage(); return false; });
+        }
+    }
+
+    private void onUsageServiceDisappearing( string busname )
+    {
+        if (busname != FsoFramework.Usage.ServiceDBusName)
+            return;
+
+        resourceRegistered = false;
+    }
 
     public AbstractDBusResource( string name, FsoFramework.Subsystem subsystem )
     {
         this.name = name;
         this.subsystem = subsystem as FsoFramework.DBusSubsystem;
         this.path = new ObjectPath( "%s/%s".printf( FsoFramework.Resource.ServicePathPrefix, name ) );
+
+        this.dbusnotifier = new FsoFramework.DBusServiceNotifier();
+        this.dbusnotifier.notifyAppearing( FsoFramework.Usage.ServiceDBusName, onUsageServiceAppearing );
+        this.dbusnotifier.notifyDisappearing( FsoFramework.Usage.ServiceDBusName, onUsageServiceDisappearing );
+
+        resourceRegistrationPending = true;
+        resourceRegistered = false;
+
         Idle.add( () => {
             registerWithUsage();
             return false;
@@ -57,21 +90,31 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
             conn.register_object<FreeSmartphone.Resource>( this.path, this );
             usage = yield conn.get_proxy<FreeSmartphone.Usage>( FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
             yield usage.register_resource( name, path );
+
             logger.info( "Ok. Registered with org.freesmartphone.ousaged" );
-            return;
+
+            resourceRegistered = true;
         }
         catch ( Error e1 )
         {
             logger.error( @"Could not register $name with ousaged: $(e1.message); trying to enable the resource unconditionally" );
         }
-        try
+
+#if 0
+        // FIXME why do we enable the resource here when fsouage does not told us to do so?
+        if ( resourceRegistered )
         {
-            yield enableResource();
+            try
+            {
+                yield enableResource();
+            }
+            catch ( Error e2 )
+            {
+                logger.error( @"Can't enable the resource: $(e2.message)" );
+            }
         }
-        catch ( Error e2 )
-        {
-            logger.error( @"Can't enable the resource: $(e2.message)" );
-        }
+#endif
+        resourceRegistrationPending = false;
     }
 
     /**
