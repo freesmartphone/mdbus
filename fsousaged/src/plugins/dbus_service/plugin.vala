@@ -2,6 +2,7 @@
  * FSO Resource Controller DBus Service
  *
  * (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *               Simon Busch <morphis@gravedo.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -75,12 +76,28 @@ public class Controller : FsoFramework.AbstractObject
         disable_on_startup = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "startup" );
         disable_on_shutdown = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "shutdown" );
 
-        // start listening for name owner changes
-        dbus = Bus.get_proxy_sync<DBusService.IDBus>( BusType.SYSTEM, DBusService.DBUS_SERVICE_DBUS, DBusService.DBUS_PATH_DBUS );
-        dbus.NameOwnerChanged.connect( onNameOwnerChanged );
+        try
+        {
+            // start listening for name owner changes
+            dbus = Bus.get_proxy_sync<DBusService.IDBus>( BusType.SYSTEM, DBusService.DBUS_SERVICE_DBUS,
+                DBusService.DBUS_PATH_DBUS );
+            dbus.NameOwnerChanged.connect( onNameOwnerChanged );
+        }
+        catch ( GLib.Error err0 )
+        {
+            logger.critical( @"Can't setup up dbus connection for listener of name ownr changes: $(err0.message)" );
+        }
 
-        // get handle to IdleNotifier, don't autostart process
-        idlenotifier = Bus.get_proxy_sync<FreeSmartphone.Device.IdleNotifier>( BusType.SYSTEM, FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH, DBusProxyFlags.DO_NOT_AUTO_START );
+        try
+        {
+            // get handle to IdleNotifier, don't autostart process
+            idlenotifier = Bus.get_proxy_sync<FreeSmartphone.Device.IdleNotifier>( BusType.SYSTEM,
+                FSO_IDLENOTIFIER_BUS, FSO_IDLENOTIFIER_PATH, DBusProxyFlags.DO_NOT_AUTO_START );
+        }
+        catch ( GLib.Error err1 )
+        {
+            logger.error( @"Can't get a dbus connection for the idle notifier. Will lack functionality ..." );
+        }
 
         // init resources and low level helpers
         initResources();
@@ -91,6 +108,7 @@ public class Controller : FsoFramework.AbstractObject
         {
             scanForResourceProviders();
         }
+
         // initial status
         Idle.add( () => {
             updateSystemStatus( FreeSmartphone.UsageSystemAction.ALIVE );
@@ -108,6 +126,9 @@ public class Controller : FsoFramework.AbstractObject
         resources = new HashMap<string,Resource>( str_hash, str_equal );
     }
 
+    /**
+     * Create the lowlevel handler as configuration requests.
+     **/
     private void initLowlevel()
     {
         // check preferred low level suspend/resume plugin and instanciate
@@ -152,46 +173,61 @@ public class Controller : FsoFramework.AbstractObject
         }
     }
 
+    /**
+     * Search for shadow resource providers in the dbus system service dir. Each entry as
+     * a FSO-provides-resources entry if it provides a resource.
+     **/
     private void scanForResourceProviders()
     {
         assert( logger.debug( @"Scanning for resource providers in $(Config.DBUS_SYSTEM_SERVICE_DIR)" ) );
 
-        var dir = GLib.Dir.open( Config.DBUS_SYSTEM_SERVICE_DIR );
-
-        for ( var name = dir.read_name(); name != null; name = dir.read_name() )
+        try
         {
-            if ( name.has_suffix( ".service" ) )
+            var dir = GLib.Dir.open( Config.DBUS_SYSTEM_SERVICE_DIR );
+
+            for ( var name = dir.read_name(); name != null; name = dir.read_name() )
             {
-                var smk = new FsoFramework.SmartKeyFile();
-                if ( smk.loadFromFile( GLib.Path.build_filename( Config.DBUS_SYSTEM_SERVICE_DIR, name ) ) )
+                if ( name.has_suffix( ".service" ) )
                 {
-                    var fsoresources = smk.stringListValue( FSO_DBUS_RESOURCE_PROVIDER_SECTION, FSO_DBUS_RESOURCE_PROVIDER_KEY, {} );
-                    if ( fsoresources.length > 0 )
+                    var smk = new FsoFramework.SmartKeyFile();
+                    if ( smk.loadFromFile( GLib.Path.build_filename( Config.DBUS_SYSTEM_SERVICE_DIR, name ) ) )
                     {
-                        foreach ( var resource in fsoresources )
+                        var fsoresources = smk.stringListValue( FSO_DBUS_RESOURCE_PROVIDER_SECTION, FSO_DBUS_RESOURCE_PROVIDER_KEY, {} );
+                        if ( fsoresources.length > 0 )
                         {
-                            assert( logger.debug( @"Service $name claims to provide FSO resource $resource" ) );
-                            if ( resource in resources.keys )
+                            foreach ( var resource in fsoresources )
                             {
-                                assert( logger.debug( @"Skipping resource $resource which has already been registered" ) );
-                            }
-                            else
-                            {
-                                var r = new Resource( resource, new GLib.BusName( name.replace( ".service", "" ) ), null ); // register as shadow resource
-                                resources[resource] = r;
+                                assert( logger.debug( @"Service $name claims to provide FSO resource $resource" ) );
+                                if ( resource in resources.keys )
+                                {
+                                    assert( logger.debug( @"Skipping resource $resource which has already been registered" ) );
+                                }
+                                else
+                                {
+                                    var r = new Resource( resource, new GLib.BusName( name.replace( ".service", "" ) ), null ); // register as shadow resource
+                                    resources[resource] = r;
+                                }
                             }
                         }
-                    }
-                    else
-                    {
-                        assert( logger.debug( @"Service $name does not provide any FSO resources" ) );
+                        else
+                        {
+                            assert( logger.debug( @"Service $name does not provide any FSO resources" ) );
+                        }
                     }
                 }
             }
         }
+        catch ( GLib.Error error )
+        {
+            logger.error( @"Could not detect all shadow resources from service configuration files: $(error.message)" );
+        }
     }
 
-    private void onResourceAppearing( Resource r )
+    /**
+     * Handle a resource appearing on the bus. This will send out a notification and
+     * enable or disables the resource depending on which debug option is set.
+     **/
+    private async void onResourceAppearing( Resource r )
     {
         assert( logger.debug( @"Resource $(r.name) served by $(r.busname) @ $(r.objectpath) has just been registered" ) );
         this.resource_available( r.name, true ); // DBUS SIGNAL
@@ -200,11 +236,11 @@ public class Controller : FsoFramework.AbstractObject
         {
             try
             {
-                r.enable();
+                yield r.enable();
             }
-            catch ( Error e )
+            catch ( Error e0 )
             {
-                logger.warning( @"Error while trying to (initially) enable resource $(r.name): $(e.message)" );
+                logger.warning( @"Error while trying to (initially) enable resource $(r.name): $(e0.message)" );
             }
         }
 
@@ -213,21 +249,30 @@ public class Controller : FsoFramework.AbstractObject
             // initial status is disabled
             try
             {
-                r.disable();
+                yield r.disable();
             }
-            catch ( Error e )
+            catch ( Error e1 )
             {
-                logger.warning( @"Error while trying to (initially) disable resource $(r.name): $(e.message)" );
+                logger.warning( @"Error while trying to (initially) disable resource $(r.name): $(e1.message)" );
             }
         }
     }
 
+    /**
+     * When a resource is not available on the bus any longer we need to tell this all our
+     * connected clients with sending out a notification.
+     **/
     private void onResourceVanishing( Resource r )
     {
         assert( logger.debug( @"Resource $(r.name) served by $(r.busname) @ $(r.objectpath) has just been unregistered" ) );
         this.resource_available( r.name, false ); // DBUS SIGNAL
     }
 
+    /**
+     * Implements handling of new and old bus owners. If a new owner arrives on a bus we
+     * need to handle this when it provides a resource and vice versa if a owner leaves
+     * its bus.
+     **/
     private void onNameOwnerChanged( string name, string oldowner, string newowner )
     {
 #if DEBUG
@@ -260,12 +305,17 @@ public class Controller : FsoFramework.AbstractObject
                 }
             }
         }
+
         foreach ( var r in resourcesToRemove )
         {
-            resources.remove( r.name );
+            resources.unset( r.name );
         }
     }
 
+    /**
+     * When suspend command is issued this will handle the suspend and resume process
+     * itself by calling into the lowlevel handler and processing the resource handling.
+     **/
     internal bool onIdleForSuspend()
     {
         var resourcesAlive = 0;
@@ -320,21 +370,28 @@ public class Controller : FsoFramework.AbstractObject
         }
 
         idleState = user_initiated ? FreeSmartphone.Device.IdleState.BUSY : FreeSmartphone.Device.IdleState.IDLE;
-
-        try
-        {
-            idlenotifier.set_state( idleState );
-        }
-        catch ( Error e )
-        {
-            logger.error( @"Error while talking to IdleNotifier: $(e.message)" );
-        }
+        updateIdleState( idleState );
 
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.ALIVE );
 
         return false; // MainLoop: Don't call again
     }
 
+    private async void updateIdleState( FreeSmartphone.Device.IdleState state )
+    {
+        try
+        {
+            yield idlenotifier.set_state( state );
+        }
+        catch ( Error e )
+        {
+            logger.error( @"Error while talking to IdleNotifier: $(e.message)" );
+        }
+    }
+
+    /**
+     * Simple helper method to get a resource by its name from our internal storage.
+     **/
     internal Resource getResource( string name ) throws FreeSmartphone.UsageError, FreeSmartphone.Error
     {
         if ( system_status != FreeSmartphone.UsageSystemAction.ALIVE )
@@ -362,7 +419,7 @@ public class Controller : FsoFramework.AbstractObject
 
         foreach ( string dependencyName in r.busDependencies )
         {
-            if ( resources.contains( dependencyName ) )
+            if ( resources.has_key( dependencyName ) )
             {
                 resourceWithDependencies.append( resources[dependencyName] );
             }
@@ -380,7 +437,7 @@ public class Controller : FsoFramework.AbstractObject
      **/
     private void incrementResourcePriority( Gee.HashMap<string,int> resourcesWithPriority, string name )
     {
-        if ( resourcesWithPriority.contains( name ) )
+        if ( resourcesWithPriority.has_key( name ) )
         {
             resourcesWithPriority.set( name, 1 );
         }
@@ -453,7 +510,7 @@ public class Controller : FsoFramework.AbstractObject
         return result;
     }
 
-    public async void disableAllResources()
+    internal async void disableAllResources()
     {
         assert( logger.debug( "Disabling all resources..." ) );
 
@@ -472,7 +529,7 @@ public class Controller : FsoFramework.AbstractObject
         assert( logger.debug( "... done" ) );
     }
 
-    public async void suspendAllResources()
+    internal async void suspendAllResources()
     {
         assert( logger.debug( "Suspending all resources..." ) );
 
@@ -557,7 +614,7 @@ public class Controller : FsoFramework.AbstractObject
 
         onResourceVanishing( r );
 
-        resources.remove( name );
+        resources.unset( name );
     }
 
     internal void shutdownPlugin()
@@ -601,26 +658,29 @@ public class Controller : FsoFramework.AbstractObject
     }
 
     public async void set_resource_policy( string name, string policy )
-        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
+        throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError, Error
     {
         logger.debug( @"Set resource policy for $name to $policy" );
         var resource = getResource( name );
+        var policyToSet = FreeSmartphone.UsageResourcePolicy.AUTO;
 
         switch ( policy )
         {
             case "enabled":
-                yield resource.setPolicy( FreeSmartphone.UsageResourcePolicy.ENABLED );
+                policyToSet = FreeSmartphone.UsageResourcePolicy.ENABLED;
                 break;
             case "disabled":
-                yield resource.setPolicy( FreeSmartphone.UsageResourcePolicy.DISABLED );
+                policyToSet = FreeSmartphone.UsageResourcePolicy.DISABLED;
                 break;
             case "auto":
-                yield resource.setPolicy( FreeSmartphone.UsageResourcePolicy.AUTO );
+                policyToSet = FreeSmartphone.UsageResourcePolicy.AUTO;
                 break;
             default:
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "ResourcePolicy needs to be one of { \"enabled\", \"disabled\", \"auto\" }" );
                 break;
         }
+
+        yield resource.setPolicy( policyToSet );
     }
 
     public async bool get_resource_state( string name )
