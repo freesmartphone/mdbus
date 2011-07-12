@@ -100,9 +100,8 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
             logger.error( @"Could not register $name with ousaged: $(e1.message); trying to enable the resource unconditionally" );
         }
 
-#if 0
-        // FIXME why do we enable the resource here when fsouage does not told us to do so?
-        if ( resourceRegistered )
+        // If we could not register the resource we should enable the resource at least
+        if ( !resourceRegistered )
         {
             try
             {
@@ -113,7 +112,7 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
                 logger.error( @"Can't enable the resource: $(e2.message)" );
             }
         }
-#endif
+
         resourceRegistrationPending = false;
     }
 
