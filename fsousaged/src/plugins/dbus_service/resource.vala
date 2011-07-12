@@ -320,10 +320,10 @@ public class Resource : IResource, Object
 
             // Wait until the resource has registered or registration has timed out
             int retries = 0;
-            Timeout.add( 1, () => {
+            Timeout.add_seconds( 1, () => {
                 if ( retries > 10 )
                 {
-                    instance.logger.error( "Can't enable resource '$name' as it has never registered!" );
+                    instance.logger.error( @"Can't enable resource '$name' as it has never registered!" );
                     return false;
                 }
 
