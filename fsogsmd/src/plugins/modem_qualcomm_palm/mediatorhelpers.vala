@@ -34,7 +34,7 @@ public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
     status.insert( "registration", networkRegistrationStatusToString( MsmData.network_info.reg_status ) );
     status.insert( "mode", "automatic" );
     status.insert( "lac", "unknown" );
-    status.insert( "cid", "unknown" );
+    status.insert( "cid", @"$(MsmData.cell_id)" );
     status.insert( "act", networkDataServiceToActString( MsmData.network_info.data_service ) );
 
     if ( MsmData.network_info.reg_status == Msmcomm.NetworkRegistrationStatus.HOME ||

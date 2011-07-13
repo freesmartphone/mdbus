@@ -97,6 +97,10 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
             notifyUnsolicitedResponse( MsmUrcType.RESET_RADIO_IND, null );
         });
 
+        channel.misc_service.cell_status.connect( ( cell_id, num_cells, active_rat, status ) => {
+            MsmData.cell_id = cell_id;
+        } );
+
         channel.sim_service.sim_status.connect( ( urc_name ) => {
             /* Check if the channel is already ready for processing */
             if (!channel.is_ready())

@@ -46,6 +46,7 @@ public static class MsmData
     public static FreeSmartphone.GSM.SIMAuthStatus sim_auth_status;
     public static Msmcomm.OperationMode operation_mode;
     public static bool sim_available;
+    public static uint cell_id;
 
     public struct NetworkInfo
     {
