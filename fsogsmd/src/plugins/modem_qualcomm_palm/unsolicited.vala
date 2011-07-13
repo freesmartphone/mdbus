@@ -198,20 +198,25 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         });
 
         channel.call_service.call_status.connect( ( name, info ) => {
+#if 0
+            // FIXME should not be enable atm as we can't differ between data and voice
+            // call events due to a some missing information for libmsmcomm about the
+            // protocol.
+
             // we do not handle call urcs with type data here
             if ( info.type == Msmcomm.CallType.DATA )
             {
                 return;
             }
+#endif
 
             // dispatch urc to call handler
             var call_info = createCallInfo( info );
             switch ( name )
             {
+                case "orig-fwd-status":
                 case "orig":
                     notifyUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION, info );
-                    break;
-                case "orig-fwd-status":
                     break;
                 case "end":
                     theModem.callhandler.handleEndingCall( call_info );
