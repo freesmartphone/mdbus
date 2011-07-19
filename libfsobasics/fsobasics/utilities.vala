@@ -32,466 +32,462 @@ internal static GLib.Regex _keyValueRe = null;
 
 internal static GLib.HashTable<string,void*> _hashtable = null;
 
-namespace FsoFramework { namespace DataSharing {
-
-public void setValueForKey( string key, void* val )
+namespace FsoFramework.DataSharing
 {
-    if ( _hashtable == null )
+    public void setValueForKey( string key, void* val )
     {
-        _hashtable = new GLib.HashTable<string,void*>( GLib.str_hash, GLib.str_equal );
-    }
-    _hashtable.insert( key, val );
-}
-
-public void* valueForKey( string key )
-{
-    if ( _hashtable == null )
-    {
-        _hashtable = new GLib.HashTable<string,void*>( GLib.str_hash, GLib.str_equal );
-    }
-    return _hashtable.lookup( key );
-}
-
-} }
-
-namespace FsoFramework { namespace FileHandling {
-
-public bool createDirectory( string filename, Posix.mode_t mode )
-{
-	return ( Posix.mkdir( filename, mode ) != -1 );
-}
-
-public bool removeTree( string path )
-{
-#if DEBUG
-    debug( "removeTree: %s", path );
-#endif
-    var dir = Posix.opendir( path );
-    if ( dir == null )
-    {
-#if DEBUG
-        debug( "can't open dir: %s", path );
-#endif
-        return false;
-    }
-    for ( unowned Posix.DirEnt entry = Posix.readdir( dir ); entry != null; entry = Posix.readdir( dir ) )
-    {
-        if ( ( "." == (string)entry.d_name ) || ( ".." == (string)entry.d_name ) )
+        if ( _hashtable == null )
         {
-#if DEBUG
-            debug( "skipping %s", (string)entry.d_name );
-#endif
-            continue;
+            _hashtable = new GLib.HashTable<string,void*>( GLib.str_hash, GLib.str_equal );
         }
-#if DEBUG
-        debug( "processing %s", (string)entry.d_name );
-#endif
-        var result = Posix.unlink( "%s/%s".printf( path, (string)entry.d_name ) );
-        if ( result == 0 )
+        _hashtable.insert( key, val );
+    }
+
+    public void* valueForKey( string key )
+    {
+        if ( _hashtable == null )
         {
-#if DEBUG
-            debug( "%s removed", (string)entry.d_name );
-#endif
-            continue;
+            _hashtable = new GLib.HashTable<string,void*>( GLib.str_hash, GLib.str_equal );
         }
-        if ( Posix.errno == Posix.EISDIR )
+        return _hashtable.lookup( key );
+    }
+}
+
+namespace FsoFramework.FileHandling
+{
+    public bool createDirectory( string filename, Posix.mode_t mode )
+    {
+        return ( Posix.mkdir( filename, mode ) != -1 );
+    }
+
+    public bool removeTree( string path )
+    {
+    #if DEBUG
+        debug( "removeTree: %s", path );
+    #endif
+        var dir = Posix.opendir( path );
+        if ( dir == null )
         {
-            if ( !removeTree( "%s/%s".printf( path, (string)entry.d_name ) ) )
+    #if DEBUG
+            debug( "can't open dir: %s", path );
+    #endif
+            return false;
+        }
+        for ( unowned Posix.DirEnt entry = Posix.readdir( dir ); entry != null; entry = Posix.readdir( dir ) )
+        {
+            if ( ( "." == (string)entry.d_name ) || ( ".." == (string)entry.d_name ) )
             {
-                return false;
+    #if DEBUG
+                debug( "skipping %s", (string)entry.d_name );
+    #endif
+                continue;
             }
-            continue;
+    #if DEBUG
+            debug( "processing %s", (string)entry.d_name );
+    #endif
+            var result = Posix.unlink( "%s/%s".printf( path, (string)entry.d_name ) );
+            if ( result == 0 )
+            {
+    #if DEBUG
+                debug( "%s removed", (string)entry.d_name );
+    #endif
+                continue;
+            }
+            if ( Posix.errno == Posix.EISDIR )
+            {
+                if ( !removeTree( "%s/%s".printf( path, (string)entry.d_name ) ) )
+                {
+                    return false;
+                }
+                continue;
+            }
+            return false;
         }
-        return false;
+        return true;
     }
-    return true;
-}
 
-public bool isPresent( string filename )
-{
-    Posix.Stat structstat;
-    return ( Posix.stat( filename, out structstat ) != -1 );
-}
-
-public string readIfPresent( string filename )
-{
-    return isPresent( filename ) ? read( filename ) : "";
-}
-
-public string[] listDirectory( string dirname )
-{
-    var result = new string[] {};
-    var dir = Posix.opendir( dirname );
-    if ( dir != null )
+    public bool isPresent( string filename )
     {
-        unowned Posix.DirEnt dirent = Posix.readdir( dir );
-        while ( dirent != null )
+        Posix.Stat structstat;
+        return ( Posix.stat( filename, out structstat ) != -1 );
+    }
+
+    public string readIfPresent( string filename )
+    {
+        return isPresent( filename ) ? read( filename ) : "";
+    }
+
+    public string[] listDirectory( string dirname )
+    {
+        var result = new string[] {};
+        var dir = Posix.opendir( dirname );
+        if ( dir != null )
         {
-            result += (string)dirent.d_name;
-            dirent = Posix.readdir( dir );
+            unowned Posix.DirEnt dirent = Posix.readdir( dir );
+            while ( dirent != null )
+            {
+                result += (string)dirent.d_name;
+                dirent = Posix.readdir( dir );
+            }
         }
+        return result;
     }
-    return result;
-}
 
-public string read( string filename )
-{
-    char[] buf = new char[READ_BUF_SIZE];
+    public string read( string filename )
+    {
+        char[] buf = new char[READ_BUF_SIZE];
 
-    var fd = Posix.open( filename, Posix.O_RDONLY );
-    if ( fd == -1 )
-    {
-        FsoFramework.theLogger.warning( @"Can't read-open $filename: $(Posix.strerror(Posix.errno))" );
-    }
-    else
-    {
-        ssize_t count = Posix.read( fd, buf, READ_BUF_SIZE );
-        if ( count < 1 )
+        var fd = Posix.open( filename, Posix.O_RDONLY );
+        if ( fd == -1 )
         {
-            FsoFramework.theLogger.warning( @"Couldn't read anything from $filename: $(Posix.strerror(Posix.errno))" );
-            Posix.close( fd );
+            FsoFramework.theLogger.warning( @"Can't read-open $filename: $(Posix.strerror(Posix.errno))" );
         }
         else
         {
-            Posix.close( fd );
-            return ( (string)buf ).strip();
+            ssize_t count = Posix.read( fd, buf, READ_BUF_SIZE );
+            if ( count < 1 )
+            {
+                FsoFramework.theLogger.warning( @"Couldn't read anything from $filename: $(Posix.strerror(Posix.errno))" );
+                Posix.close( fd );
+            }
+            else
+            {
+                Posix.close( fd );
+                return ( (string)buf ).strip();
+            }
         }
-    }
-    return "";
-}
-
-public void write( string contents, string filename, bool create = false )
-{
-    Posix.mode_t mode = 0;
-    int flags = Posix.O_WRONLY;
-    if ( create )
-    {
-        mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
-        flags |= Posix.O_CREAT /* | Posix.O_EXCL */ | Posix.O_TRUNC;
-    }
-    var fd = Posix.open( filename, flags, mode );
-    if ( fd == -1 )
-    {
-        FsoFramework.theLogger.warning( @"Can't write-open $filename: $(Posix.strerror(Posix.errno))" );
-    }
-    else
-    {
-        var length = contents.length;
-        ssize_t written = Posix.write( fd, contents, length );
-        if ( written != length )
-        {
-            FsoFramework.theLogger.warning( @"Couldn't write all bytes to $filename ($written of $length)" );
-        }
-        Posix.close( fd );
-    }
-}
-
-public uint8[] readContentsOfFile( string filename ) throws GLib.FileError
-{
-    Posix.Stat structstat;
-    var ok = Posix.stat( filename, out structstat );
-    if ( ok == -1 )
-    {
-        throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
-    }
-
-    var fd = Posix.open( filename, Posix.O_RDONLY );
-    if ( fd == -1 )
-    {
-        throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
-    }
-
-    var buf = new uint8[structstat.st_size];
-    var bread = Posix.read( fd, buf, structstat.st_size );
-    if ( bread != structstat.st_size )
-    {
-        Posix.close( fd );
-        throw new GLib.FileError.FAILED( @"Short read; got only $bread of $(structstat.st_size)" );
-    }
-
-    Posix.close( fd );
-    return buf;
-}
-
-/**
- * Write buffer to file, supports partial writes.
- **/
-public void writeContentsToFile( uint8[] buffer, string filename ) throws GLib.FileError
-{
-    var fd = Posix.open( filename, Posix.O_WRONLY );
-    if ( fd == -1 )
-    {
-        throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
-    }
-
-    var written = 0;
-    uint8* pointer = buffer;
-
-    while ( written < buffer.length )
-    {
-        var wrote = Posix.write( fd, pointer + written, buffer.length - written );
-        if ( wrote <= 0 )
-        {
-            Posix.close( fd );
-            throw new GLib.FileError.FAILED( @"Short write; aborting after writing $written of buffer.length" );
-        }
-        written += (int)wrote;
-    }
-    Posix.close( fd );
-}
-
-public void writeBuffer( void* buffer, ulong length, string filename, bool create = false )
-{
-    Posix.mode_t mode = 0;
-    int flags = Posix.O_WRONLY;
-    if ( create )
-    {
-        mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
-        flags |= Posix.O_CREAT | Posix.O_EXCL;
-    }
-    var fd = Posix.open( filename, flags, mode );
-    if ( fd == -1 )
-    {
-        FsoFramework.theLogger.warning( @"Can't write-open $filename: $(Posix.strerror(Posix.errno))" );
-    }
-    else
-    {
-        ssize_t written = Posix.write( fd, buffer, length );
-        if ( written != length )
-        {
-            FsoFramework.theLogger.warning( @"Couldn't write all bytes to $filename ($written of $length)" );
-        }
-        Posix.close( fd );
-    }
-}
-
-} }
-
-namespace FsoFramework { namespace UserGroupHandling {
-
-public Posix.uid_t uidForUser( string user )
-{
-    Posix.setpwent();
-    unowned Posix.Passwd pw = Posix.getpwent();
-    while ( pw != null )
-    {
-        if ( pw.pw_name == user )
-            return pw.pw_uid;
-        pw = Posix.getpwent();
-    }
-    return -1;
-}
-
-public Posix.gid_t gidForGroup( string group )
-{
-    Posix.setgrent();
-    unowned Posix.Group gr = Posix.getgrent();
-    while ( gr != null )
-    {
-        if ( gr.gr_name == group )
-            return gr.gr_gid;
-        gr = Posix.getgrent();
-    }
-    return -1;
-}
-
-public bool switchToUserAndGroup( string user, string group )
-{
-    var uid = uidForUser( user );
-    var gid = gidForGroup( group );
-    if ( uid == -1 || gid == -1 )
-        return false;
-    var ok = Posix.setgid( gid );
-    if ( ok != 0 )
-    {
-        FsoFramework.theLogger.warning( @"Can't set group id: $(Posix.strerror(Posix.errno))" );
-        return false;
-    }
-    ok = Posix.setuid( uid );
-    if ( ok != 0 )
-    {
-        FsoFramework.theLogger.warning( @"Can't set user id: $(Posix.strerror(Posix.errno))" );
-        return false;
-    }
-    return true;
-}
-
-} }
-
-namespace FsoFramework { namespace StringHandling {
-
-//TODO: make this a generic, once Vala supports it
-public string stringListToString( string[] list )
-{
-    if ( list.length == 0 )
-        return "[]";
-
-    var res = "[ ";
-
-    for( int i = 0; i < list.length; ++i )
-    {
-        res += "\"%s\"".printf( list[i] );
-        if ( i < list.length-1 )
-            res += ", ";
-        else
-            res += " ]";
-    }
-    return res;
-}
-
-public T enumFromString<T>( string value, T default_value )
-{
-    T result = enumFromName<T>( value );
-    if ( ((int) result) == -1 )
-    {
-        result = enumFromNick<T>( value );
-        if ( ((int) result) == -1 )
-        {
-            result = default_value;
-        }
-    }
-    return result;
-}
-
-public string enumToString<T>( T value )
-{
-    EnumClass ec = (EnumClass) typeof( T ).class_ref();
-    unowned EnumValue? ev = ec.get_value( (int)value );
-    return ev == null ? "Unknown Enum value for %s: %i".printf( typeof( T ).name(), (int)value ) : ev.value_name;
-}
-
-public string enumToNick<T>( T value )
-{
-    var ec = (EnumClass) typeof(T).class_ref();
-    var ev = ec.get_value( (int)value );
-    return ev == null ? "Unknown Enum value for %s: %i".printf( typeof( T ).name(), (int)value ) : ev.value_nick;
-}
-
-public T enumFromName<T>( string name )
-{
-    var ec = (EnumClass) typeof(T).class_ref();
-    var ev = ec.get_value_by_name( name );
-    return ev == null ? -1 : ev.value;
-}
-
-public T enumFromNick<T>( string nick )
-{
-    var ec = (EnumClass) typeof(T).class_ref();
-    var ev = ec.get_value_by_nick( nick );
-    return ev == null ? -1 : ev.value;
-}
-
-public T convertEnum<F,T>( F from )
-{
-    var s = FsoFramework.StringHandling.enumToNick<F>( from );
-    return FsoFramework.StringHandling.enumFromNick<T>( s );
-}
-
-public GLib.HashTable<string,string> splitKeyValuePairs( string str )
-{
-    var result = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
-    if ( _keyValueRe == null )
-    {
-        try
-        {
-            _keyValueRe = new GLib.Regex( "(?P<key>[A-Za-z0-9]+)=(?P<value>[A-Za-z0-9.]+)" );
-        }
-        catch ( GLib.RegexError e )
-        {
-            assert_not_reached(); // regex invalid
-        }
-    }
-    GLib.MatchInfo mi;
-    var next = _keyValueRe.match( str, GLib.RegexMatchFlags.NEWLINE_CR, out mi );
-    while ( next )
-    {
-#if DEBUG
-        debug( "got match '%s' = '%s'", mi.fetch_named( "key" ), mi.fetch_named( "value" ) );
-#endif
-        result.insert( mi.fetch_named( "key" ), mi.fetch_named( "value" ) );
-        try
-        {
-            next = mi.next();
-        }
-        catch ( GLib.RegexError e )
-        {
-#if DEBUG
-            debug( @"regex error: $(e.message)" );
-#endif
-            next = false;
-        }
-    }
-    return result;
-}
-
-public string hexdump( uint8[] array, int linelength = 16, string prefix = "", uchar unknownCharacter = '?' )
-{
-    if ( array.length < 1 )
-    {
         return "";
     }
 
-    string result = "";
-
-    int BYTES_PER_LINE = linelength;
-
-    var hexline = new StringBuilder( prefix );
-    var ascline = new StringBuilder();
-    uchar b;
-    int i;
-
-    for ( i = 0; i < array.length; ++i )
+    public void write( string contents, string filename, bool create = false )
     {
-        b = array[i];
-        hexline.append_printf( "%02X ", b );
-        if ( 31 < b && b < 128 )
-            ascline.append_printf( "%c", b );
-        else
-            ascline.append_printf( "." );
-
-        if ( i % BYTES_PER_LINE+1 == BYTES_PER_LINE )
+        Posix.mode_t mode = 0;
+        int flags = Posix.O_WRONLY;
+        if ( create )
         {
+            mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
+            flags |= Posix.O_CREAT /* | Posix.O_EXCL */ | Posix.O_TRUNC;
+        }
+        var fd = Posix.open( filename, flags, mode );
+        if ( fd == -1 )
+        {
+            FsoFramework.theLogger.warning( @"Can't write-open $filename: $(Posix.strerror(Posix.errno))" );
+        }
+        else
+        {
+            var length = contents.length;
+            ssize_t written = Posix.write( fd, contents, length );
+            if ( written != length )
+            {
+                FsoFramework.theLogger.warning( @"Couldn't write all bytes to $filename ($written of $length)" );
+            }
+            Posix.close( fd );
+        }
+    }
+
+    public uint8[] readContentsOfFile( string filename ) throws GLib.FileError
+    {
+        Posix.Stat structstat;
+        var ok = Posix.stat( filename, out structstat );
+        if ( ok == -1 )
+        {
+            throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
+        }
+
+        var fd = Posix.open( filename, Posix.O_RDONLY );
+        if ( fd == -1 )
+        {
+            throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
+        }
+
+        var buf = new uint8[structstat.st_size];
+        var bread = Posix.read( fd, buf, structstat.st_size );
+        if ( bread != structstat.st_size )
+        {
+            Posix.close( fd );
+            throw new GLib.FileError.FAILED( @"Short read; got only $bread of $(structstat.st_size)" );
+        }
+
+        Posix.close( fd );
+        return buf;
+    }
+
+    /**
+     * Write buffer to file, supports partial writes.
+     **/
+    public void writeContentsToFile( uint8[] buffer, string filename ) throws GLib.FileError
+    {
+        var fd = Posix.open( filename, Posix.O_WRONLY );
+        if ( fd == -1 )
+        {
+            throw new GLib.FileError.FAILED( Posix.strerror(Posix.errno) );
+        }
+
+        var written = 0;
+        uint8* pointer = buffer;
+
+        while ( written < buffer.length )
+        {
+            var wrote = Posix.write( fd, pointer + written, buffer.length - written );
+            if ( wrote <= 0 )
+            {
+                Posix.close( fd );
+                throw new GLib.FileError.FAILED( @"Short write; aborting after writing $written of buffer.length" );
+            }
+            written += (int)wrote;
+        }
+        Posix.close( fd );
+    }
+
+    public void writeBuffer( void* buffer, ulong length, string filename, bool create = false )
+    {
+        Posix.mode_t mode = 0;
+        int flags = Posix.O_WRONLY;
+        if ( create )
+        {
+            mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
+            flags |= Posix.O_CREAT | Posix.O_EXCL;
+        }
+        var fd = Posix.open( filename, flags, mode );
+        if ( fd == -1 )
+        {
+            FsoFramework.theLogger.warning( @"Can't write-open $filename: $(Posix.strerror(Posix.errno))" );
+        }
+        else
+        {
+            ssize_t written = Posix.write( fd, buffer, length );
+            if ( written != length )
+            {
+                FsoFramework.theLogger.warning( @"Couldn't write all bytes to $filename ($written of $length)" );
+            }
+            Posix.close( fd );
+        }
+    }
+}
+
+namespace FsoFramework.UserGroupHandling
+{
+    public Posix.uid_t uidForUser( string user )
+    {
+        Posix.setpwent();
+        unowned Posix.Passwd pw = Posix.getpwent();
+        while ( pw != null )
+        {
+            if ( pw.pw_name == user )
+                return pw.pw_uid;
+            pw = Posix.getpwent();
+        }
+        return -1;
+    }
+
+    public Posix.gid_t gidForGroup( string group )
+    {
+        Posix.setgrent();
+        unowned Posix.Group gr = Posix.getgrent();
+        while ( gr != null )
+        {
+            if ( gr.gr_name == group )
+                return gr.gr_gid;
+            gr = Posix.getgrent();
+        }
+        return -1;
+    }
+
+    public bool switchToUserAndGroup( string user, string group )
+    {
+        var uid = uidForUser( user );
+        var gid = gidForGroup( group );
+        if ( uid == -1 || gid == -1 )
+            return false;
+        var ok = Posix.setgid( gid );
+        if ( ok != 0 )
+        {
+            FsoFramework.theLogger.warning( @"Can't set group id: $(Posix.strerror(Posix.errno))" );
+            return false;
+        }
+        ok = Posix.setuid( uid );
+        if ( ok != 0 )
+        {
+            FsoFramework.theLogger.warning( @"Can't set user id: $(Posix.strerror(Posix.errno))" );
+            return false;
+        }
+        return true;
+    }
+}
+
+namespace FsoFramework.StringHandling
+{
+    //TODO: make this a generic, once Vala supports it
+    public string stringListToString( string[] list )
+    {
+        if ( list.length == 0 )
+            return "[]";
+
+        var res = "[ ";
+
+        for( int i = 0; i < list.length; ++i )
+        {
+            res += "\"%s\"".printf( list[i] );
+            if ( i < list.length-1 )
+                res += ", ";
+            else
+                res += " ]";
+        }
+        return res;
+    }
+
+    public T enumFromString<T>( string value, T default_value )
+    {
+        T result = enumFromName<T>( value );
+        if ( ((int) result) == -1 )
+        {
+            result = enumFromNick<T>( value );
+            if ( ((int) result) == -1 )
+            {
+                result = default_value;
+            }
+        }
+        return result;
+    }
+
+    public string enumToString<T>( T value )
+    {
+        EnumClass ec = (EnumClass) typeof( T ).class_ref();
+        unowned EnumValue? ev = ec.get_value( (int)value );
+        return ev == null ? "Unknown Enum value for %s: %i".printf( typeof( T ).name(), (int)value ) : ev.value_name;
+    }
+
+    public string enumToNick<T>( T value )
+    {
+        var ec = (EnumClass) typeof(T).class_ref();
+        var ev = ec.get_value( (int)value );
+        return ev == null ? "Unknown Enum value for %s: %i".printf( typeof( T ).name(), (int)value ) : ev.value_nick;
+    }
+
+    public T enumFromName<T>( string name )
+    {
+        var ec = (EnumClass) typeof(T).class_ref();
+        var ev = ec.get_value_by_name( name );
+        return ev == null ? -1 : ev.value;
+    }
+
+    public T enumFromNick<T>( string nick )
+    {
+        var ec = (EnumClass) typeof(T).class_ref();
+        var ev = ec.get_value_by_nick( nick );
+        return ev == null ? -1 : ev.value;
+    }
+
+    public T convertEnum<F,T>( F from )
+    {
+        var s = FsoFramework.StringHandling.enumToNick<F>( from );
+        return FsoFramework.StringHandling.enumFromNick<T>( s );
+    }
+
+    public GLib.HashTable<string,string> splitKeyValuePairs( string str )
+    {
+        var result = new GLib.HashTable<string,string>( GLib.str_hash, GLib.str_equal );
+        if ( _keyValueRe == null )
+        {
+            try
+            {
+                _keyValueRe = new GLib.Regex( "(?P<key>[A-Za-z0-9]+)=(?P<value>[A-Za-z0-9.]+)" );
+            }
+            catch ( GLib.RegexError e )
+            {
+                assert_not_reached(); // regex invalid
+            }
+        }
+        GLib.MatchInfo mi;
+        var next = _keyValueRe.match( str, GLib.RegexMatchFlags.NEWLINE_CR, out mi );
+        while ( next )
+        {
+    #if DEBUG
+            debug( "got match '%s' = '%s'", mi.fetch_named( "key" ), mi.fetch_named( "value" ) );
+    #endif
+            result.insert( mi.fetch_named( "key" ), mi.fetch_named( "value" ) );
+            try
+            {
+                next = mi.next();
+            }
+            catch ( GLib.RegexError e )
+            {
+    #if DEBUG
+                debug( @"regex error: $(e.message)" );
+    #endif
+                next = false;
+            }
+        }
+        return result;
+    }
+
+    public string hexdump( uint8[] array, int linelength = 16, string prefix = "", uchar unknownCharacter = '?' )
+    {
+        if ( array.length < 1 )
+        {
+            return "";
+        }
+
+        string result = "";
+
+        int BYTES_PER_LINE = linelength;
+
+        var hexline = new StringBuilder( prefix );
+        var ascline = new StringBuilder();
+        uchar b;
+        int i;
+
+        for ( i = 0; i < array.length; ++i )
+        {
+            b = array[i];
+            hexline.append_printf( "%02X ", b );
+            if ( 31 < b && b < 128 )
+                ascline.append_printf( "%c", b );
+            else
+                ascline.append_printf( "." );
+
+            if ( i % BYTES_PER_LINE+1 == BYTES_PER_LINE )
+            {
+                hexline.append( ascline.str );
+                result += hexline.str;
+                result += "\n";
+                hexline = new StringBuilder( prefix );
+                ascline = new StringBuilder();
+            }
+        }
+        if ( i % BYTES_PER_LINE+1 != BYTES_PER_LINE )
+        {
+            while ( hexline.len < 3 * BYTES_PER_LINE )
+            {
+                hexline.append_c( ' ' );
+            }
+
             hexline.append( ascline.str );
             result += hexline.str;
             result += "\n";
-            hexline = new StringBuilder( prefix );
-            ascline = new StringBuilder();
         }
+
+        return result.strip();
     }
-    if ( i % BYTES_PER_LINE+1 != BYTES_PER_LINE )
+
+    public string filterByAllowedCharacters( string input, string allowed )
     {
-        while ( hexline.len < 3 * BYTES_PER_LINE )
+        var output = "";
+
+        for ( var i = 0; i < input.length; ++i )
         {
-            hexline.append_c( ' ' );
+            var str = input[i].to_string();
+            if ( str in allowed )
+            {
+                output += str;
+            }
         }
-
-        hexline.append( ascline.str );
-        result += hexline.str;
-        result += "\n";
+        return output;
     }
-
-    return result.strip();
 }
 
-public string filterByAllowedCharacters( string input, string allowed )
+namespace FsoFramework.Utility
 {
-    var output = "";
-
-    for ( var i = 0; i < input.length; ++i )
-    {
-        var str = input[i].to_string();
-        if ( str in allowed )
-        {
-            output += str;
-        }
-    }
-    return output;
-}
-
-} }
-
-namespace FsoFramework { namespace Utility {
-
     const uint BUF_SIZE = 1024; // should be Posix.PATH_MAX
 
     public string programName()
@@ -616,10 +612,10 @@ namespace FsoFramework { namespace Utility {
 
         return length;
     }
-} }
+}
 
-namespace FsoFramework { namespace Async {
-
+namespace FsoFramework.Async
+{
     /**
      * @class EventFd
      **/
@@ -757,10 +753,10 @@ namespace FsoFramework { namespace Async {
             cancellable.disconnect( cancel );
         }
     }
-} }
+}
 
-namespace FsoFramework { namespace Network {
-
+namespace FsoFramework.Network
+{
     public async string[]? textForUri( string servername, string uri = "/" ) throws GLib.Error
     {
         var result = new string[] {};
@@ -821,7 +817,6 @@ namespace FsoFramework { namespace Network {
         }
         return result;
     }
-
-} }
+}
 
 // vim:ts=4:sw=4:expandtab
