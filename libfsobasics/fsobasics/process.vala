@@ -289,40 +289,40 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
 #if DEBUG
             debug( "Waitpid result %d", pid_result );
 #endif
-			if ( pid_result < 0 )
-			{
-				done = true;
+            if ( pid_result < 0 )
+            {
+                done = true;
 #if DEBUG
-				debug( "Failed to wait for process to exit: waitpid returned %d", pid_result );
+                debug( "Failed to wait for process to exit: waitpid returned %d", pid_result );
 #endif
-			}
-			else if ( pid_result == 0 )
-			{
-				if ( timer.elapsed() >= KILL_SLEEP_TIMEOUT )
-				{
+            }
+            else if ( pid_result == 0 )
+            {
+                if ( timer.elapsed() >= KILL_SLEEP_TIMEOUT )
+                {
 #if DEBUG
-					debug( "Timeout for pid %d elapsed, exiting wait loop", pid );
+                    debug( "Timeout for pid %d elapsed, exiting wait loop", pid );
 #endif
-					done = true;
-				}
-				else
-				{
+                    done = true;
+                }
+                else
+                {
 #if DEBUG
-					debug( "Process %d is still running, waiting...", pid );
+                    debug( "Process %d is still running, waiting...", pid );
 #endif
                     Timeout.add_seconds( 1, _stop.callback );
                     yield;
-				}
-			}
-			else /* pid_result > 0 */
-			{
-				done = true;
+                }
+            }
+            else /* pid_result > 0 */
+            {
+                done = true;
 #if DEBUG
-				debug( "Process %d terminated normally", pid );
+                debug( "Process %d terminated normally", pid );
 #endif
-				GLib.Process.close_pid( pid );
-				pid = 0;
-			}
+                GLib.Process.close_pid( pid );
+                pid = 0;
+            }
         }
 
         if ( pid != 0 )
@@ -370,39 +370,39 @@ public class FsoFramework.GProcessGuard : FsoFramework.IProcessGuard, GLib.Objec
 #if DEBUG
             debug( "Waitpid result %d", pid_result );
 #endif
-			if ( pid_result < 0 )
-			{
-				done = true;
+            if ( pid_result < 0 )
+            {
+                done = true;
 #if DEBUG
-				debug( "Failed to syncwait for process to exit: waitpid returned %d", pid_result );
+                debug( "Failed to syncwait for process to exit: waitpid returned %d", pid_result );
 #endif
-			}
-			else if ( pid_result == 0 )
-			{
-				if ( timer.elapsed() >= KILL_SLEEP_TIMEOUT )
-				{
+            }
+            else if ( pid_result == 0 )
+            {
+                if ( timer.elapsed() >= KILL_SLEEP_TIMEOUT )
+                {
 #if DEBUG
-					debug( "Timeout for pid %d elapsed, exiting syncwait loop", pid );
+                    debug( "Timeout for pid %d elapsed, exiting syncwait loop", pid );
 #endif
-					done = true;
-				}
-				else
-				{
+                    done = true;
+                }
+                else
+                {
 #if DEBUG
-					debug( "Process %d is still running, sync waiting...", pid );
+                    debug( "Process %d is still running, sync waiting...", pid );
 #endif
                     Thread.usleep( KILL_SLEEP_INTERVAL );
-				}
-			}
-			else /* pid_result > 0 */
-			{
-				done = true;
+                }
+            }
+            else /* pid_result > 0 */
+            {
+                done = true;
 #if DEBUG
-				debug( "Process %d terminated normally", pid );
+                debug( "Process %d terminated normally", pid );
 #endif
-				GLib.Process.close_pid( pid );
-				pid = 0;
-			}
+                GLib.Process.close_pid( pid );
+                pid = 0;
+            }
         }
 
         if ( pid != 0 )

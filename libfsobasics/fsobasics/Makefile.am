@@ -51,6 +51,9 @@ libfsobasics_la_VALASOURCES = \
 	threading.vala \
 	types.vala \
 	utilities.vala \
+	filehandling.vala \
+	stringhandling.vala \
+	async.vala \
 	kernel.vala \
 	checksum.vala \
 	$(NULL)
