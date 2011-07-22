@@ -28,6 +28,7 @@ namespace FsoAudio
     {
         private FreeSmartphone.GSM.Call call_service;
         private FreeSmartphone.Audio.Manager audiomanager_service;
+        private DBusServiceNotifier service_notifier;
 
         private bool ready;
 
@@ -38,6 +39,8 @@ namespace FsoAudio
         public SystemIntegrator()
         {
             ready = false;
+            service_notifier = new DBusServiceNotifier();
+
             Idle.add( () => { registerObjects(); return false; } );
         }
 
@@ -85,23 +88,58 @@ namespace FsoAudio
             }
         }
 
+        private async void handleGSMServiceAppearing( string busname )
+        {
+            if ( busname != "org.freesmartphone.ogsmd" )
+                return;
+
+            try
+            {
+                call_service = yield Bus.get_proxy<FreeSmartphone.GSM.Call>( BusType.SYSTEM,
+                    "org.freesmartphone.ogsmd", "/org/freesmartphone/GSM/Device", DBusProxyFlags.DO_NOT_AUTO_START);
+                call_service.call_status.connect( ( id, status, properties ) => { handleCallStatus( status ); } );
+            }
+            catch ( GLib.Error error )
+            {
+                logger.error( @"Could not get proxy object for call service: $(error.message)" );
+            }
+
+            ready = ( call_service != null );
+        }
+
+        private async void handleGSMServiceDisappearing( string busname )
+        {
+            if ( busname != "org.freesmartphone.ogsmd" )
+                return;
+
+            call_service = null;
+            ready = false;
+        }
+
         private async void registerObjects()
         {
             try
             {
-                call_service = Bus.get_proxy_sync<FreeSmartphone.GSM.Call>( BusType.SYSTEM,
-                    "org.freesmartphone.ogsmd", "/org/freesmartphone/GSM/Device" );
+                // NOTE: it should be always possible to connect to the audio manager
+                // service as it is provided by us
+                audiomanager_service = yield Bus.get_proxy<FreeSmartphone.Audio.Manager>( BusType.SYSTEM,
+                    "org.freesmartphone.oaudiod", "/org/freesmartphone/Audio", DBusProxyFlags.DO_NOT_AUTO_START);
+
+                call_service = yield Bus.get_proxy<FreeSmartphone.GSM.Call>( BusType.SYSTEM,
+                    "org.freesmartphone.ogsmd", "/org/freesmartphone/GSM/Device", DBusProxyFlags.DO_NOT_AUTO_START);
                 call_service.call_status.connect( ( id, status, properties ) => { handleCallStatus( status ); } );
 
-                audiomanager_service = Bus.get_proxy_sync<FreeSmartphone.Audio.Manager>( BusType.SYSTEM,
-                    "org.freesmartphone.oaudiod", "/org/freesmartphone/Audio" );
+                // call service is not yet started, we need to wait until it is.
+                service_notifier.notifyAppearing( "org.freesmartphone.ogsmd",
+                    ( busname ) => { handleGSMServiceAppearing( busname ); } );
+                service_notifier.notifyDisappearing( "org.freesmartphone.ogsmd",
+                    ( busname ) => { handleGSMServiceDisappearing( busname ); } );
 
-                ready = true;
-                logger.debug( "Successfully initialized!" );
+                ready = ( call_service != null );
             }
             catch ( GLib.Error error )
             {
-                logger.error( "Could not create dbus proxies for relevant interfaces: $(error.message)" );
+                logger.error( @"Could not create dbus proxies for relevant interfaces: $(error.message)" );
             }
         }
     }
