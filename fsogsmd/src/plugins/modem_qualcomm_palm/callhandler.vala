@@ -244,6 +244,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         {
             var call = calls[ call_info.id ];
             call.update_status( FreeSmartphone.GSM.CallStatus.ACTIVE );
+            setCallAudioStatus( true );
         }
         else
         {
@@ -263,6 +264,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
             var call = calls.get( call_info.id );
             call.update_status( FreeSmartphone.GSM.CallStatus.RELEASE );
             calls.unset( call_info.id );
+            setCallAudioStatus( false );
         }
         else
         {
@@ -348,6 +350,30 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         }
 
         return num;
+    }
+
+    private async void setCallAudioStatus( bool active )
+    {
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        assert( channel != null );
+
+        // We're currently do not supported deactivating call audio. This will maybe
+        // change later as we need to find out a little bit more about the audio routing
+        // in call mode. Anyway everything will work fine if we only activate call audio
+        // and never deactivate it.
+        if ( !active )
+            return;
+
+        try
+        {
+            yield channel.sound_service.set_device( Msmcomm.SoundDeviceClass.HANDSET,
+                Msmcomm.SoundDeviceSubClass.DEFAULT );
+        }
+        catch ( GLib.Error error )
+        {
+            logger.error( @"Can't %s call audio: $(error.message)"
+                .printf( active ? "activate" : "deactivate" ) );
+        }
     }
 }
 

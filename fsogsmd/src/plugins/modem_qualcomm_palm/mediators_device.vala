@@ -169,13 +169,10 @@ public class MsmDeviceSetCurrentTime : DeviceSetCurrentTime
 
             yield channel.misc_service.set_date( info );
         }
-        catch ( Msmcomm.Error err0 )
+        catch ( GLib.Error error )
         {
-            var msg = @"Could not process set_date command, got: $(err0.message)";
+            var msg = @"Could not process set_date command, got: $(error.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
-        }
-        catch ( GLib.Error err1 )
-        {
         }
     }
 }
