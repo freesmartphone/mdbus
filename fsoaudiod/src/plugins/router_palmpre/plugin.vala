@@ -184,7 +184,7 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
         }
         else if ( current_mode == FreeSmartphone.Audio.Mode.CALL )
         {
-            var level = 5; // FIXME
+            var level = volume / 10;
             var script_name = @"$(base_name)_volume_$(level)";
             FsoAudio.KernelScriptInterface.runScript( script_name );
         }
