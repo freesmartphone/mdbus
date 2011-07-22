@@ -136,6 +136,7 @@ AC_CONFIG_FILES([
   src/plugins/router_alsa/Makefile
   src/plugins/streamcontrol_alsa/Makefile
   src/plugins/sessionpolicy_default/Makefile
+  src/plugins/system_integration/Makefile
 ])
 
 ##############################################################################

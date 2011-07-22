@@ -12,6 +12,8 @@ SUBDIRS = \
 	streamcontrol_alsa \
 	sessionpolicy_default \
 	\
+	system_integration \
+	\
 	$(NULL)
 
 if WANT_CMTSPEECHDATA
