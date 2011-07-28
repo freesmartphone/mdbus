@@ -72,6 +72,7 @@ public class Router.PalmPre : FsoAudio.AbstractRouter
         string[] scripts = new string[] {
             "default",
             "dtmf",
+            "dtmf2",
             "media_back_speaker",
             "media_front_speaker",
             "media_headset",
