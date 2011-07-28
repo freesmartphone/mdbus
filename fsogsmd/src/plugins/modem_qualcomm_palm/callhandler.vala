@@ -107,22 +107,22 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
         try 
         {
-            logger.debug( @"Initiating new call with number $number ..." );
+            assert( logger.debug( @"Initiating new call with number $number ..." ) );
 
             // Initiate call to the selected number
             yield channel.call_service.originate_call(number, false);
 
             // Wait until the modem reports the origination of our new call
-            logger.debug( @"Waiting for the call to complete initialization ..." );
+            assert( logger.debug( @"Waiting for the call to complete initialization ..." ) );
             var call_info = ( yield channel.urc_handler.waitForUnsolicitedResponse( MsmUrcType.CALL_ORIGINATION ) ) as Msmcomm.CallStatusInfo;
 
-            logger.debug( @"Call is instatiated; waiting now for the counter part to answer it." );
+            assert( logger.debug( @"Call with id $(call_info.id) is instatiated; waiting now for the counter part to answer it." ) );
 
             // ... and store the new call in our internal list
             var call = new FsoGsm.Call.newFromId( (int) call_info.id );
-            calls.set( (int) call_info.id, call );
-
             call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
+
+            calls.set( (int) call_info.id, call );
         }
         catch ( Error error )
         {
@@ -240,7 +240,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     {
         logger.debug( @"Got a new connecting call with id = $(call_info.id)" );
 
-        if ( !calls.has_key( call_info.id ) )
+        if ( calls.has_key( call_info.id ) )
         {
             var call = calls[ call_info.id ];
             call.update_status( FreeSmartphone.GSM.CallStatus.ACTIVE );
@@ -248,7 +248,7 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         }
         else
         {
-            logger.warning( "callhandler got connecting call which is not known as incomming before!" );
+            logger.warning( "callhandler got connecting call which is not known as incoming or outgoing before!" );
         }
     }
 
