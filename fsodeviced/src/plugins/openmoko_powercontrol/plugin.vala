@@ -24,16 +24,16 @@ namespace Openmoko
     public static const string CONFIG_SECTION = "fsodevice.openmoko_powercontrol";
 
 /**
- * Bluetooth power control for Openmoko GTA01 and Openmoko GTA02
+ * Common device power control for Openmoko GTA01 and Openmoko GTA02
  **/
-class BluetoothPowerControl : FsoDevice.BasePowerControl
+class DevicePowerControl : FsoDevice.BasePowerControl
 {
 
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
     private string name;
 
-    public BluetoothPowerControl( FsoFramework.Subsystem subsystem, string sysfsnode )
+    public DevicePowerControl( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         base( Path.build_filename( sysfsnode, "power_on" ) );
         this.subsystem = subsystem;
@@ -134,21 +134,36 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var drivers = Path.build_filename( sysfs_root, "bus", "platform", "drivers" );
 
     var ignore_bluetooth = config.boolValue( Openmoko.CONFIG_SECTION, "ignore_bluetooth", false );
+    var ignore_gps = config.boolValue( Openmoko.CONFIG_SECTION, "ignore_gps", false );
     var ignore_wifi = config.boolValue( Openmoko.CONFIG_SECTION, "ignore_wifi", false );
     var ignore_usbhost = config.boolValue( Openmoko.CONFIG_SECTION, "ignore_usbhost", false );
 
     if ( !ignore_bluetooth )
     {
-        var bluetooth = Path.build_filename( devices, "neo1973-pm-bt.0" );
+        var bluetooth = Path.build_filename( devices, "gta02-pm-bt.0" );
         if ( FsoFramework.FileHandling.isPresent( bluetooth ) )
         {
-            var o = new Openmoko.BluetoothPowerControl( subsystem, bluetooth );
+            var o = new Openmoko.DevicePowerControl( subsystem, bluetooth );
             instances.append( o );
     #if WANT_FSO_RESOURCE
             resources.append( new FsoDevice.BasePowerControlResource( o, "Bluetooth", subsystem ) );
     #endif
         }
     }
+
+    if ( !ignore_gps )
+    {
+        var gps = Path.build_filename( devices, "gta02-pm-gps.0" );
+        if ( FsoFramework.FileHandling.isPresent( gps ) )
+        {
+            var o = new Openmoko.DevicePowerControl( subsystem, gps );
+            instances.append( o );
+    #if WANT_FSO_RESOURCE
+            resources.append( new FsoDevice.BasePowerControlResource( o, "GPS", subsystem ) );
+    #endif
+        }
+    }
+
 
     if ( !ignore_usbhost )
     {
