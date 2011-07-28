@@ -55,6 +55,8 @@ namespace FsoAudio
 
         private async void switchAudioMode( FreeSmartphone.Audio.Mode mode )
         {
+            assert( logger.debug( @"Switching audio mode to $mode" ) );
+
             try
             {
                 yield audiomanager_service.set_mode( mode );
@@ -76,6 +78,8 @@ namespace FsoAudio
                 logger.warning( @"Not yet ready to handle call status $status" );
                 return;
             }
+
+            assert( logger.debug( @"Got call status $(status)" ) );
 
             switch ( status )
             {
@@ -120,6 +124,8 @@ namespace FsoAudio
         {
             try
             {
+                assert( logger.debug( @"Started registration process with call service ..." ) );
+
                 // NOTE: it should be always possible to connect to the audio manager
                 // service as it is provided by us
                 audiomanager_service = yield Bus.get_proxy<FreeSmartphone.Audio.Manager>( BusType.SYSTEM,
@@ -136,6 +142,11 @@ namespace FsoAudio
                     ( busname ) => { handleGSMServiceDisappearing( busname ); } );
 
                 ready = ( call_service != null );
+
+                if ( ready )
+                {
+                    assert( logger.debug( @"Successfully registered with call service!" ) );
+                }
             }
             catch ( GLib.Error error )
             {
