@@ -118,6 +118,8 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
             assert( logger.debug( @"Call with id $(call_info.id) is instatiated; waiting now for the counter part to answer it." ) );
 
+            setCallAudioStatus( true );
+
             // ... and store the new call in our internal list
             var call = new FsoGsm.Call.newFromId( (int) call_info.id );
             call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
@@ -243,8 +245,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
         if ( calls.has_key( call_info.id ) )
         {
             var call = calls[ call_info.id ];
+
+            // For a outgoing call we already set the audio status on origination
+            if ( call.detail.status != FreeSmartphone.GSM.CallStatus.OUTGOING )
+                setCallAudioStatus( true );
+
             call.update_status( FreeSmartphone.GSM.CallStatus.ACTIVE );
-            setCallAudioStatus( true );
         }
         else
         {
