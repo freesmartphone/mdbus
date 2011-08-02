@@ -83,6 +83,7 @@ namespace FsoAudio
 
             switch ( status )
             {
+                case FreeSmartphone.GSM.CallStatus.OUTGOING:
                 case FreeSmartphone.GSM.CallStatus.ACTIVE:
                     switchAudioMode( FreeSmartphone.Audio.Mode.CALL );
                     break;
