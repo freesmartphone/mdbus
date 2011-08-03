@@ -161,6 +161,10 @@ int main(int argc, char** argv)
                 {
                     type = 2;
                 }
+                else if (!strncmp((char*)optarg, "raw", 3))
+                {
+                    type = 3;
+                }
             default:
                 break;
             }
@@ -174,14 +178,14 @@ int main(int argc, char** argv)
 
     if ( showhelp || network_port == 0 || serial_node[0] == 0 )
     {
-        printf("Usage: ./serial_forward -n <serial node> -p <network port> [-t, --type=(serial|hsuart|cy8mrln)] [-r, --raw]\n");
+        printf("Usage: ./serial_forward -n <serial node> -p <network port> [-t, --type=(serial|hsuart|cy8mrln|raw)] [-r, --raw]\n");
         exit(1);
     }
 
     int modem_fd;
     if (type == 0 || type == 1)
         modem_fd = open(serial_node, O_RDWR | O_NOCTTY);
-    else if (type == 2)
+    else if (type == 2 || type == 3)
         modem_fd = open(serial_node, O_RDONLY);
 
     if (modem_fd < 0)
