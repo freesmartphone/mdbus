@@ -64,6 +64,10 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
         return "<%s (fd %d)>".printf( getName(), fd );
     }
 
+    public override void configure()
+    {
+    }
+
     public override bool open()
     {
         fd = Posix.socket( domain, stype, 0 );
@@ -110,9 +114,6 @@ public class FsoFramework.SocketTransport : FsoFramework.BaseTransport
             fd = -1;
             return false;
         }
-        
-        // FIXME should we really call configure here?
-        // configure();
 
         return base.open();
     }
