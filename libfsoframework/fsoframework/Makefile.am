@@ -35,7 +35,6 @@ lib_LTLIBRARIES = \
 libfsoframework_la_VALASOURCES = \
 	dbus.vala \
 	interfaces.vala \
-	object.vala \
 	plugin.vala \
 	resource.vala \
 	subsystem.vala \

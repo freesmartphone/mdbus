@@ -56,6 +56,7 @@ libfsobasics_la_VALASOURCES = \
 	async.vala \
 	kernel.vala \
 	checksum.vala \
+	object.vala \
 	$(NULL)
 
 libfsobasics_la_SOURCES = \
