@@ -185,8 +185,10 @@ int main(int argc, char** argv)
     int modem_fd;
     if (type == 0 || type == 1)
         modem_fd = open(serial_node, O_RDWR | O_NOCTTY);
-    else if (type == 2 || type == 3)
+    else if (type == 2)
         modem_fd = open(serial_node, O_RDONLY);
+    else if (type == 3)
+        modem_fd = open(serial_node, O_RDWR | O_NONBLOCK);
 
     if (modem_fd < 0)
     {
