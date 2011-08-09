@@ -83,15 +83,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     private bool writeCallback( IOChannel source, IOCondition condition )
     {
         assert( logger.debug( "WriteCallback called with %u bytes in buffer".printf( buffer.len ) ) );
-        /*
-        for( int i = 0; i < buffer.len; ++i )
-        logger.debug( "byte: 0x%02x".printf( buffer.data[i] ) );
-        */
-        int len = 64 > buffer.len? (int)buffer.len : 64;
+        // int len = 64 > buffer.len? (int)buffer.len : 64;
+        int len = (int) buffer.len;
         var byteswritten = _write( buffer.data, len );
         assert( logger.debug( "WriteCallback wrote %d bytes".printf( (int)byteswritten ) ) );
         buffer.remove_range( 0, (int)byteswritten );
-
         return ( buffer.len != 0 );
     }
 
@@ -544,6 +540,15 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     public override void flush()
     {
         Posix.tcflush( fd, Posix.TCIOFLUSH );
+    }
+
+    public override bool suspend()
+    {
+        return true;
+    }
+
+    public override void resume()
+    {
     }
 }
 

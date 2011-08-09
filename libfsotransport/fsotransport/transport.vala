@@ -187,6 +187,15 @@ public abstract class FsoFramework.Transport : Object
      **/
     public abstract void flush();
     /**
+     * Suspend the transport. This is to handle hardware suspend of the underlaying
+     * hardware and not the transport logic itself.
+     **/
+    public abstract bool suspend();
+    /**
+     * Resumse the transport after it was suspended
+     **/
+    public abstract void resume();
+    /**
      * Should not be here, but wants to be accessed from the command queue
      **/
     public FsoFramework.Logger logger;
