@@ -58,7 +58,7 @@ public class FsoFramework.RawTransport : FsoFramework.BaseTransport
      * This will suspend the transport. After it is suspend we can't send any more bytes
      * to the remote side.
      **/
-    public bool suspend()
+    public override bool suspend()
     {
         return true;
     }
@@ -66,7 +66,7 @@ public class FsoFramework.RawTransport : FsoFramework.BaseTransport
     /**
      * Resume the transport so we can send and receive our bytes again.
      **/
-    public void resume()
+    public override void resume()
     {
     }
 }
