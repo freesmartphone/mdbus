@@ -51,6 +51,7 @@ class LowLevel.PalmPre : FsoUsage.LowLevel, FsoFramework.AbstractObject
         eventSources.insert( "POWER_BUTTON", ResumeReason.PowerKey );
         eventSources.insert( "HEADSET_INSERT", ResumeReason.Headphone );
         eventSources.insert( "HEADSET_BUTTON", ResumeReason.Headphone );
+        eventSources.insert( "UNKNOWN", ResumeReason.Invalid );
     }
 
     public override string repr()
@@ -76,10 +77,9 @@ class LowLevel.PalmPre : FsoUsage.LowLevel, FsoFramework.AbstractObject
         {
             var regex = new Regex( """^\[.*\]\s.*\s\((\w*)\)\s.*\s\(.*\)$""" );
 
-            // We want only the last reason !
             if ( reasons != null && reasons.length > 0 )
             {
-                string[] parts = regex.split_full(reasons[reasons.length-1]);
+                string[] parts = regex.split_full(reasons[0]);
                 if ( parts != null && parts.length == 3 )
                 {
                     reasonkey = parts[1];
