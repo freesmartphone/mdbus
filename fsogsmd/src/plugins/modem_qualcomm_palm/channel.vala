@@ -45,7 +45,8 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     {
         currentModemStatus = status;
 
-        if ( theModem.externalStatus() == FreeSmartphone.GSM.DeviceStatus.SUSPENDED )
+        /* ignore status updates as long as we are not initialized */
+        if ( !is_initialized )
             return;
 
         switch ( status )
@@ -201,8 +202,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
     public bool is_ready()
     {
-        return is_initialized &&
-               theModem.externalStatus() != FreeSmartphone.GSM.DeviceStatus.SUSPENDED;
+        return is_initialized;
     }
 
     public async bool open()

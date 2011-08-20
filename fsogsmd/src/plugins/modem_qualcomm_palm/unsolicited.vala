@@ -102,8 +102,11 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         } );
 
         channel.sim_service.sim_status.connect( ( urc_name ) => {
+            /* Check if the channel is already ready for processing */
             if (!channel.is_ready())
+            {
                 return;
+            }
 
             switch ( urc_name )
             {
@@ -154,9 +157,6 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         });
 
         channel.phonebook_service.ready.connect( ( book_type ) => {
-            if (!channel.is_ready())
-                return;
-
             var pbhandler = theModem.pbhandler as MsmPhonebookHandler;
             if ( pbhandler != null)
             {
@@ -165,9 +165,6 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         });
 
         channel.network_service.network_status.connect( ( name, info ) => {
-            if (!channel.is_ready())
-                return;
-
             switch ( name )
             {
                 case "rssi":
@@ -201,8 +198,17 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
         });
 
         channel.call_service.call_status.connect( ( name, info ) => {
-            if (!channel.is_ready())
+#if 0
+            // FIXME should not be enable atm as we can't differ between data and voice
+            // call events due to a some missing information for libmsmcomm about the
+            // protocol.
+
+            // we do not handle call urcs with type data here
+            if ( info.type == Msmcomm.CallType.DATA )
+            {
                 return;
+            }
+#endif
 
             // dispatch urc to call handler
             var call_info = createCallInfo( info );
