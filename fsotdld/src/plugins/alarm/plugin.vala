@@ -61,7 +61,8 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
 
         DBusConnection conn = this.subsystem.dbusConnection();
 
-        rtc = conn.get_proxy_sync<FreeSmartphone.Device.RealtimeClockSync>( "org.freesmartphone.odeviced", "/org/freesmartphone/Device/RTC/0" );
+        rtc = conn.get_proxy_sync<FreeSmartphone.Device.RealtimeClockSync>( "org.freesmartphone.odeviced",
+            "/org/freesmartphone/Device/RTC/0", DBusProxyFlags.DO_NOT_AUTO_START );
 
         logger.info( "created" );
 
