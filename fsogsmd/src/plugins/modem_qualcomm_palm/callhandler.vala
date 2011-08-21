@@ -289,10 +289,23 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
 
+        if ( !calls.has_key( id ) )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Unknown call id $(id)" );
+
+        var call = calls[id];
+
         try
         {
             var channel = theModem.channel( "main" ) as MsmChannel;
-            yield channel.call_service.sups_call( id, Msmcomm.SupsAction.HANGUP_ACTIVE_CALL );
+
+            if ( call.detail.status == FreeSmartphone.GSM.CallStatus.ACTIVE )
+            {
+                yield channel.call_service.sups_call( id, Msmcomm.SupsAction.HANGUP_ACTIVE_CALL );
+            }
+            else if ( call.detail.status == FreeSmartphone.GSM.CallStatus.OUTGOING )
+            {
+                yield channel.call_service.end_call( id );
+            }
         }
         catch ( Error error )
         {
@@ -307,11 +320,12 @@ public class MsmCallHandler : FsoGsm.AbstractCallHandler
 
         var channel = theModem.channel( "main" ) as MsmChannel;
 
+        if ( !calls.has_key( id ) )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Unknown call id $(id)" );
+
         try
         {
-            // var cmd_type = Msmcomm.SupsAction.DROP_ALL_OR_SEND_BUSY;
-            // yield channel.call_service.sups_call( id, cmd_type );
-            yield channel.call_service.end_call( id );
+            yield channel.call_service.sups_call( id, Msmcomm.SupsAction.REJECT_INCOMING_CALL );
         }
         catch ( Error error )
         {
