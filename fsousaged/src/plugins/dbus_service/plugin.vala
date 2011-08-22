@@ -369,7 +369,8 @@ public class Controller : FsoFramework.AbstractObject
             user_initiated = debug_suspend_user_initiated;
         }
 
-        idleState = user_initiated ? FreeSmartphone.Device.IdleState.BUSY : FreeSmartphone.Device.IdleState.IDLE;
+        idleState = user_initiated ? FreeSmartphone.Device.IdleState.BUSY : FreeSmartphone.Device.IdleState.LOCK;
+        assert( logger.debug( @"Resume is initiated by the user: $(user_initiated); switching to $(idleState) idle state ..." ) );
         updateIdleState( idleState );
 
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.ALIVE );
