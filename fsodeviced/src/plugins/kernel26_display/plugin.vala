@@ -77,10 +77,14 @@ class Display : FreeSmartphone.Device.Display,
 
     private void _setBacklightPower( bool on )
     {
+        var value = on ? "0" : "1";
+        FsoFramework.FileHandling.write( value, this.sysfsnode + "/bl_power" );
+
         if ( fb_fd != -1 )
         {
             Linux.ioctl( fb_fd, FBIOBLANK, on ? FB_BLANK_UNBLANK : FB_BLANK_POWERDOWN );
         }
+
         this.backlight_power( on ); // DBUS SIGNAL
     }
 
@@ -238,9 +242,7 @@ class Display : FreeSmartphone.Device.Display,
 
     public async void set_backlight_power( bool power )
     {
-        var value = power ? "0" : "1";
-        FsoFramework.FileHandling.write( value, this.sysfsnode + "/bl_power" );
-        this.backlight_power( power ); // DBUS SIGNAL
+        _setBacklightPower( power );
     }
 }
 
