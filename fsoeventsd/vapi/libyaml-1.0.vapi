@@ -153,6 +153,52 @@ namespace Yaml
         MAPPING_END_EVENT
     }
 
+    public string event_type_to_string(EventType type)
+    {
+        string result = "UNKNOWN";
+
+        switch (type)
+        {
+            case EventType.NO_EVENT:
+                result = "NO_EVENT";
+                break;
+            case EventType.STREAM_START_EVENT:
+                result = "STREAM_START_EVENT";
+                break;
+            case EventType.STREAM_END_EVENT:
+                result = "STREAM_END_EVENT";
+                break;
+            case EventType.DOCUMENT_START_EVENT:
+                result = "DOCUMENT_START_EVENT";
+                break;
+            case EventType.DOCUMENT_END_EVENT:
+                result = "DOCUMENT_END_EVENT";
+                break;
+            case EventType.ALIAS_EVENT:
+                result = "ALIAS_EVENT";
+                break;
+            case EventType.SCALAR_EVENT:
+                result = "SCALAR_EVENT";
+                break;
+            case EventType.SEQUENCE_START_EVENT:
+                result = "SEQUENCE_START_EVENT";
+                break;
+            case EventType.SEQUENCE_END_EVENT:
+                result = "SEQUENCE_END_EVENT";
+                break;
+            case EventType.MAPPING_START_EVENT:
+                result = "MAPPING_START_EVENT";
+                break;
+            case EventType.MAPPING_END_EVENT:
+                result = "MAPPING_END_EVENT";
+                break;
+            default:
+                break;
+        }
+
+        return result;
+    }
+
     [CCode (has_type_id = false)]
     public struct EventAlias
     {
@@ -165,7 +211,7 @@ namespace Yaml
         public string anchor;
         public string tag;
         public int implicity;
-        public YAML.SequenceStyle style;
+        public Yaml.SequenceStyle style;
     }
 
     [CCode (has_type_id = false)]
@@ -174,7 +220,7 @@ namespace Yaml
         public string anchor;
         public string tag;
         public int implicity;
-        public YAML.MappingStyle style;
+        public Yaml.MappingStyle style;
     }
 
     /** 
@@ -201,57 +247,57 @@ namespace Yaml
     [CCode (has_type_id=false)]
     public struct EventData
     {
-        public YAML.EventAlias alias;
-        public YAML.EventScalar scalar;
-        public YAML.EventSequenceStart sequence_start;
-        public YAML.EventMappingStart mapping_start;
+        public Yaml.EventAlias alias;
+        public Yaml.EventScalar scalar;
+        public Yaml.EventSequenceStart sequence_start;
+        public Yaml.EventMappingStart mapping_start;
     }
 
     [CCode (has_type_id = false, cname="yaml_event_t", lower_case_cprefix="yaml_event_", destroy_function="yaml_event_delete")]
     public struct Event
     {
         [CCode (cname="yaml_stream_start_event_initialize")]
-        public static int stream_start_initialize(ref YAML.Event event, YAML.EncodingType encoding);
+        public static int stream_start_initialize(ref Yaml.Event event, Yaml.EncodingType encoding);
 
         [CCode (cname="yaml_stream_end_event_initialize")]
-        public static int stream_end_initialize(ref YAML.Event event);
+        public static int stream_end_initialize(ref Yaml.Event event);
 
         [CCode (cname="yaml_document_start_event_initialize")]
-        public static int document_start_initialize(ref YAML.Event event, void* version_directive = null,
+        public static int document_start_initialize(ref Yaml.Event event, void* version_directive = null,
             void* tag_directive_start = null, void* tag_directive_end = null, bool implicit = true);
 
         [CCode (cname="yaml_document_end_event_initialize")]
-        public static int document_end_initialize(ref YAML.Event event, bool implicit = true);
+        public static int document_end_initialize(ref Yaml.Event event, bool implicit = true);
 
         [CCode (cname="yaml_alias_event_initialize")]
-        public static int alias_initialize(ref YAML.Event event, string anchor);
+        public static int alias_initialize(ref Yaml.Event event, string anchor);
 
         [CCode (cname="yaml_scalar_event_initialize")]
-        public static int scalar_initialize(ref YAML.Event event, string? anchor, string? tag, string value, int length,
+        public static int scalar_initialize(ref Yaml.Event event, string? anchor, string? tag, string value, int length,
                            bool plain_implicit = true, bool quoted_implicity = true,
-                           YAML.ScalarStyle style = YAML.ScalarStyle.ANY_SCALAR_STYLE );
+                           Yaml.ScalarStyle style = Yaml.ScalarStyle.ANY_SCALAR_STYLE );
 
         [CCode (cname="yaml_sequence_start_event_initialize")]
-        public static int sequence_start_initialize(ref YAML.Event event, string? anchor = null,
-            string? tag = null, bool implicit = true, YAML.SequenceStyle style = YAML.SequenceStyle.ANY_SEQUENCE_STYLE);
+        public static int sequence_start_initialize(ref Yaml.Event event, string? anchor = null,
+            string? tag = null, bool implicit = true, Yaml.SequenceStyle style = Yaml.SequenceStyle.ANY_SEQUENCE_STYLE);
 
         [CCode (cname="yaml_sequence_end_event_initialize")]
-        public static int sequence_end_initialize(ref YAML.Event event);
+        public static int sequence_end_initialize(ref Yaml.Event event);
 
         [CCode (cname="yaml_mapping_start_event_initialize")]
-        public static int mapping_start_initialize(ref YAML.Event event, string? anchor = null, 
-            string? tag = null, bool implicit = true, YAML.MappingStyle style = YAML.MappingStyle.ANY_MAPPING_STYLE);
+        public static int mapping_start_initialize(ref Yaml.Event event, string? anchor = null, 
+            string? tag = null, bool implicit = true, Yaml.MappingStyle style = Yaml.MappingStyle.ANY_MAPPING_STYLE);
 
         [CCode (cname="yaml_mapping_end_event_initialize")]
-        public static int mapping_end_initialize(ref YAML.Event event);
+        public static int mapping_end_initialize(ref Yaml.Event event);
 
-        public static void clean(ref YAML.Event event)
+        public static void clean(ref Yaml.Event event)
         {
-            event.type = YAML.EventType.NO_EVENT;
+            event.type = Yaml.EventType.NO_EVENT;
         }
 
         public EventType type;
-        public YAML.EventData data;
+        public Yaml.EventData data;
         public Mark start_mark;
         public Mark end_mark;
 
@@ -299,13 +345,13 @@ namespace Yaml
     [CCode (has_type_id = false, cname="yaml_parser_t", lower_case_cprefix="yaml_parser_", destroy_function="yaml_parser_delete")]
     public struct Parser
     {
-        public YAML.ErrorType error;
+        public Yaml.ErrorType error;
         public string problem;
         public size_t problem_offset;
         public int problem_value;
-        public YAML.Mark problem_mark;
+        public Yaml.Mark problem_mark;
         public string context;
-        public YAML.Mark context_mark;
+        public Yaml.Mark context_mark;
 
         public bool stream_start_produced;
         public bool stream_end_produced;
@@ -331,8 +377,8 @@ namespace Yaml
          * the parser!
          * */
         public void set_input_file(GLib.FileStream file);
-        public void set_encoding(YAML.EncodingType encoding);
-        public bool parse(out YAML.Event event);
+        public void set_encoding(Yaml.EncodingType encoding);
+        public bool parse(out Yaml.Event event);
     }
 
     [CCode (instance_pos = 0, cname="yaml_write_handler_t")]
@@ -365,15 +411,15 @@ namespace Yaml
          * */
         public void set_output_file(GLib.FileStream file);
 
-        public void set_output(YAML.WriteHandler handler);
+        public void set_output(Yaml.WriteHandler handler);
 
-        public void set_encoding(YAML.EncodingType encoding);
+        public void set_encoding(Yaml.EncodingType encoding);
         public void set_canonical(bool canonical);
         public void set_indent(int indent);
         public void set_width(int width);
         public void set_unicode(bool unicode);
-        public void set_break(YAML.BreakType break);
-        public int emit(ref YAML.Event event);
+        public void set_break(Yaml.BreakType break);
+        public int emit(ref Yaml.Event event);
         public int flush();
     }
 }
