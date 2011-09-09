@@ -359,6 +359,7 @@ namespace Sms
             props.insert( "pid", pid );
             props.insert( "dcs", dcs );
             props.insert( "udl", udl );
+            props.insert( "timestamp", scts.to_epoch() );
             if ( udhi )
             {
                 props.insert( "udh", "%02X %02X %02X %04X %04X".printf( ud[0], ud[1], ud[2], ud[4] + (ud[3] << 8), ud[6] + (ud[5] << 8) ) );
