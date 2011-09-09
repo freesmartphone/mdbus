@@ -1,0 +1,28 @@
+
+Rule {
+    name: "TestRule";
+
+    trigger: DBusSignalTrigger {
+        bus: "org.freesmartphone.ogsmd";
+        path: "/org/freesmartphone/GSM/Device";
+        signal: "org.freesmartphone.GSM.Call.CallStatus";
+    }
+
+    filters: Or {
+        HasAttributeWithValue { name: "event"; value: "incoming" }
+        HasAttributeWithValue { name: "event"; value: "outgoing" }
+    }
+
+    action: Script {
+        local myTestVar;
+
+        // We can activate/deactivate our rule here!
+        parent.active = true;
+
+        local function test1(v0)
+            return true;
+        end
+
+        test1(myTestVar);
+    }
+}

@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(GEE_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsoevents.lib\" \
 	$(NULL)
 
@@ -16,6 +17,7 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
+	--pkg gee-1.0 \
 	--header fsoevents.h \
 	--library fsoevents-2.0
 
@@ -26,7 +28,8 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsoevents_la_VALASOURCES = \
-	dummy.vala \
+	rulesparser.vala \
+	jsonreader.vala \
 	$(NULL)
 
 libfsoevents_la_SOURCES = \
@@ -45,6 +48,7 @@ $(BUILT_SOURCES): $(libfsoevents_la_VALASOURCES)
 libfsoevents_la_LIBADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
+	$(GEE_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi
