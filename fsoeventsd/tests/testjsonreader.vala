@@ -22,10 +22,29 @@ using FsoFramework;
 
 void test_jsonreader_all()
 {
-    var file = File.new_for_path( "test-all.json" );
+    var reading = true;
+
+    var file = File.new_for_path( "./test-all.json" );
     var stream = file.read( null );
 
     var reader = new FsoEvents.JsonReader( stream );
+
+    try
+    {
+        while ( reading )
+        {
+            reading = reader.read();
+            stdout.printf( @"test_jsonreader_all: node_type = $(reader.node_type), current_string = " +
+                @"$(reader.current_string == null ? "" : reader.current_string)\n" );
+
+            reading = reader.node_type != FsoEvents.JsonNodeType.END;
+        }
+    }
+    catch (FsoEvents.JsonReaderError error)
+    {
+        stderr.printf(@"ERROR: $(error.message)\n");
+        assert_not_reached();
+    }
 }
 
 void main (string[] args)

@@ -25,12 +25,11 @@ using GLib;
 public enum FsoEvents.JsonTokenType {
     LEFT_BRACE,
     RIGHT_BRACE,
-    LEFT_BRACKET,
-    RIGHT_BRACKET,
     STRING,
     STRING_VALUE,
     NUMBER,
     COMMA,
+    SEMICOLON,
     COLON,
     TRUE,
     FALSE,
@@ -41,8 +40,6 @@ public enum FsoEvents.JsonNodeType {
     START,
     START_OBJECT,
     END_OBJECT,
-    START_ARRAY,
-    END_ARRAY,
     MEMBER,
     STRING,
     NUMBER,
@@ -52,7 +49,14 @@ public enum FsoEvents.JsonNodeType {
     END
 }
 
-public class FsoEvents.JsonReader : GLib.Object {
+public errordomain FsoEvents.JsonReaderError
+{
+    INVALID_ENCODING,
+    PARSING_ERROR,
+}
+
+public class FsoEvents.JsonReader : GLib.Object
+{
     public InputStream stream { get; set; }
 
     private uint8[] buffer;
@@ -66,25 +70,29 @@ public class FsoEvents.JsonReader : GLib.Object {
     private JsonNodeType current_state;
     private Gee.List<int> stack;
 
-    public JsonNodeType node_type {
+    public JsonNodeType node_type
+    {
         get { return current_state; }
     }
 
-    public JsonReader (InputStream stream) {
+    public JsonReader (InputStream stream)
+    {
         this.stream = stream;
     }
 
-    construct {
+    construct
+    {
         buffer = new uint8[512];
         stack = new Gee.ArrayList<int> ();
     }
 
-    private void ensure_buffer (long count) throws IOError {
+    private bool ensure_buffer (long count) throws IOError
+    {
         assert (count >= 1);
 
         if (buffer_pos + count <= buffer_len) {
             // buffer already filled
-            return;
+            return true;
         }
 
         if (buffer_pos >= buffer_len) {
@@ -92,31 +100,36 @@ public class FsoEvents.JsonReader : GLib.Object {
             // refill complete buffer
             buffer_len = stream.read (buffer, null);
             buffer_pos = 0;
-            return;
+            return buffer_len > 0;
         }
 
-        if (buffer_len > buffer.length / 2) {
+        if (buffer_len > buffer.length / 2)
             // more than half of the buffer is filled, double buffer size
             buffer.resize (buffer.length * 2);
-        }
 
         // append data to buffer
-        buffer_len += stream.read ((uint8[]) ((long) buffer + buffer_len), null);
+        var bread = stream.read ((uint8[]) ((long) buffer + buffer_len), null);
+        buffer_len += bread;
+        return bread > 0;
     }
 
-    private void finish_number (int len) {
+    private void finish_number (int len)
+    {
         current_string = ((string) ((long) buffer + buffer_pos)).ndup (len);
         buffer_pos += len;
     }
 
-    private void parse_number () throws IOError {
+    private void parse_number () throws IOError
+    {
         int state = 0;
-        for (int i = 1; true; i++) {
+        for (int i = 1; true; i++)
+        {
             ensure_buffer (i);
-            switch (state) {
-            // at start
+            switch (state)
+            {
             case 0:
-                switch (buffer[buffer_pos + i - 1]) {
+                switch (buffer[buffer_pos + i - 1])
+                {
                 case '-':
                     state = 1;
                     break;
@@ -311,26 +324,28 @@ public class FsoEvents.JsonReader : GLib.Object {
         }
     }
 
-    private void parse_string () throws IOError {
+    private void parse_string() throws IOError, FsoEvents.JsonReaderError
+    {
         int i = 1;
-        while (true) {
-            switch (buffer[buffer_pos + i - 1]) {
+        while (true)
+        {
+            switch (buffer[buffer_pos + i - 1])
+            {
             case '\t':
             case '\n':
-            case '"':
-            case ';':
-            case ':':
-            case ',':
             case ' ':
+            case ':':
+            case ';':
+            case '{':
+            case '}':
                 current_string = ((string) ((long) buffer + buffer_pos)).ndup (i - 1);
-                if (!current_string.validate ()) {
-                    // invalid utf-8
+                if (!current_string.validate ())
+                {
                     current_string = null;
-                    // TODO throw some exception
+                    throw new FsoEvents.JsonReaderError.INVALID_ENCODING("Input stream contains characters with invalid encoding!");
                 }
                 // FIXME strcompress doesn't handle exactly the same escape sequences
                 current_string = current_string.compress ();
-
                 buffer_pos += i - 1;
                 return;
             case '\\':
@@ -359,19 +374,77 @@ public class FsoEvents.JsonReader : GLib.Object {
             }
 
             i++;
-            ensure_buffer (i);
+            ensure_buffer(i);
         }
     }
 
-    private JsonTokenType next_token () throws IOError {
-        current_string = null;
-        do {
-            ensure_buffer (1);
+    private void parse_string_value() throws IOError, FsoEvents.JsonReaderError
+    {
+        int i = 1;
+        do
+        {
+            i++;
+            ensure_buffer (i);
+            switch (buffer[buffer_pos + i - 1])
+            {
+            case '"':
+                current_string = ((string) ((long) buffer + buffer_pos + 1)).ndup (i - 2);
+                if (!current_string.validate ())
+                {
+                    current_string = null;
+                    throw new FsoEvents.JsonReaderError.INVALID_ENCODING("Input stream contains characters with invalid encoding!");
+                }
+                // FIXME strcompress doesn't handle exactly the same escape sequences
+                current_string = current_string.compress ();
+                buffer_pos += i;
+                return;
+            case '\\':
+                i++;
+                ensure_buffer (i);
+                switch (buffer[buffer_pos + i - 1]) {
+                case '"':
+                case '\\':
+                case '/':
+                case 'b':
+                case 'f':
+                case 'n':
+                case 'r':
+                case 't':
+                    break;
+                case 'u':
+                    i += 4;
+                    ensure_buffer (i);
+                    // make sure the 4 bytes are valid hex-digits
+                    break;
+                }
+                break;
+            default:
+                // non-control-character
+                break;
+            }
+        } while (true);
+    }
+
+    private JsonTokenType next_token () throws IOError, FsoEvents.JsonReaderError {
+        current_string = "";
+        do
+        {
+            if (!ensure_buffer(1))
+            {
+                return JsonTokenType.NULL;
+            }
 
             if ( ((char)buffer[buffer_pos]).isalpha() )
             {
-                // stdout.printf(@"maybe string: $((char)buffer[buffer_pos])\n");
                 parse_string();
+
+                if (current_string == "true")
+                    return JsonTokenType.TRUE;
+                else if (current_string == "false")
+                    return JsonTokenType.FALSE;
+                else if (current_string == "null")
+                    return JsonTokenType.NULL;
+
                 return JsonTokenType.STRING;
             }
 
@@ -380,11 +453,10 @@ public class FsoEvents.JsonReader : GLib.Object {
             case '\t':
             case '\r':
             case '\n':
-                // ignore white space
                 buffer_pos++;
                 break;
             case '"':
-                parse_string();
+                parse_string_value();
                 return JsonTokenType.STRING_VALUE;
             case '{':
                 buffer_pos++;
@@ -392,12 +464,6 @@ public class FsoEvents.JsonReader : GLib.Object {
             case '}':
                 buffer_pos++;
                 return JsonTokenType.RIGHT_BRACE;
-            case '[':
-                buffer_pos++;
-                return JsonTokenType.LEFT_BRACKET;
-            case ']':
-                buffer_pos++;
-                return JsonTokenType.RIGHT_BRACKET;
             case '-':
             case '0':
             case '1':
@@ -414,30 +480,12 @@ public class FsoEvents.JsonReader : GLib.Object {
             case ',':
                 buffer_pos++;
                 return JsonTokenType.COMMA;
+            case ';':
+                buffer_pos++;
+                return JsonTokenType.SEMICOLON;
             case ':':
                 buffer_pos++;
                 return JsonTokenType.COLON;
-            case 't':
-                ensure_buffer ("true".len ());
-                if ((string) ((long) buffer + buffer_pos) != "true") {
-                    // TODO throw some exception
-                }
-                buffer_pos += "true".len ();
-                return JsonTokenType.TRUE;
-            case 'f':
-                ensure_buffer ("false".len ());
-                if ((string) ((long) buffer + buffer_pos) != "false") {
-                    // TODO throw some exception
-                }
-                buffer_pos += "false".len ();
-                return JsonTokenType.FALSE;
-            case 'n':
-                ensure_buffer ("null".len ());
-                if ((string) ((long) buffer + buffer_pos) != "null") {
-                    // TODO throw some exception
-                }
-                buffer_pos += "true".len ();
-                return JsonTokenType.NULL;
             default:
                 // TODO throw some exception
                 return JsonTokenType.NULL;
@@ -454,126 +502,32 @@ public class FsoEvents.JsonReader : GLib.Object {
         return ev == null ? "Unknown Enum value for %s: %i".printf( enum_type.name(), value ) : ev.value_name;
     }
 
-    private JsonNodeType node_type_for_token(JsonTokenType token)
+    public bool read() throws FsoEvents.JsonReaderError
     {
-        var node_type = JsonNodeType.NULL;
+        var token = next_token ();
 
-        switch (token)
-        {
-            case JsonTokenType.TRUE:
-                node_type = JsonNodeType.TRUE;
-                break;
-            case JsonTokenType.FALSE:
-                node_type = JsonNodeType.FALSE;
-                break;
-            case JsonTokenType.STRING:
-                node_type = JsonNodeType.STRING;
-                break;
-            case JsonTokenType.NUMBER:
-                node_type = JsonNodeType.NUMBER;
-                break;
-            default:
-                break;
-        }
-
-        return node_type;
-    }
-
-    private bool read_start(JsonTokenType token)
-    {
-        string previous_string = "";
-
-        if (token == JsonTokenType.STRING)
-        {
-            previous_string = current_string;
-
-            var token2 = next_token();
-            switch (token2)
-            {
-                case JsonTokenType.LEFT_BRACE:
-                    current_state = JsonNodeType.START_OBJECT;
-                    current_string = previous_string;
-                    break;
-                case JsonTokenType.COLON:
-                    if (current_state == JsonNodeType.START)
-                        return false;
-
-                    current_state = JsonNodeType.STRING;
-                    current_string = previous_string;
-                    break;
-                default:
-                    return false;
-            }
-        }
-        else if (current_state != JsonNodeType.START)
-        {
-            switch (token)
-            {
-                case JsonTokenType.TRUE:
-                case JsonTokenType.FALSE:
-                case JsonTokenType.NUMBER:
-                    previous_string = current_string;
-
-                    if (next_token() != JsonTokenType.COMMA)
-                        return false;
-
-                    current_state = node_type_for_token(token);
-                    current_string = previous_string;
-                    break;
-                case JsonTokenType.LEFT_BRACKET:
-                    current_state = JsonNodeType.START_ARRAY;
-                    break;
-                case JsonTokenType.NULL:
-                    current_state = JsonNodeType.NULL;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return true;
-    }
-
-    public bool read ()
-    {
-        string previous_string = "";
-        bool result = false;
-        var token = next_token();
+        stdout.printf(@"current token = $(token), current_string = $(current_string), current_state = $(current_state)\n");
 
         switch (current_state)
         {
             case JsonNodeType.START:
-                return read_start(token);
-                break;
+                return read_start (token);
+
             case JsonNodeType.START_OBJECT:
                 switch (token)
                 {
                     case JsonTokenType.STRING:
                         current_state = JsonNodeType.MEMBER;
-                        result = true;
-                        break;
+                        return true;
                     case JsonTokenType.RIGHT_BRACE:
                         current_state = JsonNodeType.END_OBJECT;
                         stack.remove_at (stack.size - 1);
-                        result = true;
-                        break;
+                        return true;
                     default:
-                        break;
+                        // throw some exception
+                        return false;
                 }
-                break;
-            case JsonNodeType.MEMBER:
-                switch (token)
-                {
-                    case JsonTokenType.COLON:
-                        var token2 = next_token ();
-                        result = read_start (token2);
-                        break;
-                    default:
-                        break;
-                }
-                break;
             case JsonNodeType.END_OBJECT:
-            case JsonNodeType.END_ARRAY:
             case JsonNodeType.STRING:
             case JsonNodeType.NUMBER:
             case JsonNodeType.TRUE:
@@ -583,32 +537,101 @@ public class FsoEvents.JsonReader : GLib.Object {
                 {
                     // TODO ensure that we've reached the end of the stream
                     current_state = JsonNodeType.END;
-                    break;
+                    return false;
                 }
-
+                var prev_state = stack.get (stack.size - 1);
+                switch (prev_state)
+                {
+                    case JsonNodeType.START_OBJECT:
+                        switch (token)
+                        {
+                            case JsonTokenType.SEMICOLON:
+                                var token2 = next_token ();
+                                switch (token2)
+                                {
+                                    case JsonTokenType.STRING:
+                                        current_state = JsonNodeType.MEMBER;
+                                        return true;
+                                    case JsonTokenType.RIGHT_BRACE:
+                                        current_state = JsonNodeType.END_OBJECT;
+                                        stack.remove_at(stack.size - 1);
+                                        return true;
+                                    default:
+                                        var msg = @"Got wrong token $token in state $current_state";
+                                        throw new FsoEvents.JsonReaderError.PARSING_ERROR(msg);
+                                    }
+                                current_state = JsonNodeType.MEMBER;
+                                return true;
+                            case JsonTokenType.RIGHT_BRACE:
+                                current_state = JsonNodeType.END_OBJECT;
+                                stack.remove_at (stack.size - 1);
+                                return true;
+                            default:
+                                // throw some exception
+                                return false;
+                        }
+                    default:
+                        // throw some exception
+                        return false;
+                }
+            case JsonNodeType.MEMBER:
                 switch (token)
                 {
-                    case JsonTokenType.STRING:
-                        current_state = JsonNodeType.MEMBER;
-                        result = true;
-                        break;
-                    case JsonTokenType.RIGHT_BRACE:
-                        current_state = JsonNodeType.END_OBJECT;
-                        result = true;
-                        break;
-                    case JsonTokenType.RIGHT_BRACKET:
-                        current_state = JsonNodeType.END_ARRAY;
-                        result = true;
-                        break;
+                    case JsonTokenType.COLON:
+                        var token2 = next_token ();
+                        return read_start (token2);
                     default:
-                        break;
+                        // throw some exception
+                        return false;
                 }
-
-                break;
+            case JsonNodeType.END:
+                return false;
             default:
-                break;
+                // throw some exception
+                return false;
         }
+    }
 
-        return result;
+    private bool read_start (JsonTokenType token) throws FsoEvents.JsonReaderError
+    {
+        stdout.printf(@"read_start with token = $(token), current_string = $(current_string == null ? "" : current_string)\n");
+
+        switch (token)
+        {
+        case JsonTokenType.STRING_VALUE:
+            current_state = JsonNodeType.STRING;
+            return true;
+        case JsonTokenType.STRING:
+            var previous_string = current_string;
+
+            var token2 = next_token();
+            if (token2 != JsonTokenType.LEFT_BRACE)
+            {
+                var msg = @"Got wrong token $token in state $current_state";
+                throw new FsoEvents.JsonReaderError.PARSING_ERROR(msg);
+            }
+
+            current_state = JsonNodeType.START_OBJECT;
+            current_string = previous_string;
+            stack.add((int) current_state);
+            return true;
+        case JsonTokenType.NUMBER:
+            current_state = JsonNodeType.NUMBER;
+            return true;
+        case JsonTokenType.TRUE:
+            current_state = JsonNodeType.TRUE;
+            return true;
+        case JsonTokenType.FALSE:
+            current_state = JsonNodeType.FALSE;
+            return true;
+        case JsonTokenType.NULL:
+            current_state = JsonNodeType.NULL;
+            return true;
+        default:
+            var msg = @"Got wrong token $token in state $current_state";
+            throw new FsoEvents.JsonReaderError.PARSING_ERROR(msg);
+            break;
+        }
+        return false;
     }
 }
