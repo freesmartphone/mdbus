@@ -28,8 +28,14 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsoevents_la_VALASOURCES = \
-	rulesparser.vala \
 	jsonreader.vala \
+	basefilter.vala \
+	logicalfilter.vala \
+	andfilter.vala \
+	orfilter.vala \
+	basetrigger.vala \
+	rule.vala \
+	rulesparser.vala \
 	$(NULL)
 
 libfsoevents_la_SOURCES = \
