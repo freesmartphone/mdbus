@@ -35,7 +35,7 @@ static const string FSOAUDIO_MANAGER_IFNAME = "org.freesmartphone.Audio.Manager"
 
 static const int timeout = 10;
 
-public int fsoaudio_request_session()
+public int fsoaudio_request_session(string pcmname)
 {
     registered = false;
     active_token = "";
@@ -43,10 +43,7 @@ public int fsoaudio_request_session()
     try
     {
         manager = Bus.get_proxy_sync( BusType.SYSTEM, FSOAUDIO_BUSNAME, FSOAUDIO_PATH );
-
-        // FIXME currently we default to media stream type. We should choose the right
-        // stream according to the device the user wants to open
-        active_token = manager.register_session( "media" );
+        active_token = manager.register_session( pcmname );
         registered = true;
     }
     catch ( Error err )

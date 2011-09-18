@@ -27,7 +27,10 @@
 
 static int _hook_hw_params(snd_pcm_hook_t *hook)
 {
-    return fsoaudio_request_session();
+    snd_pcm_t *pcm = snd_pcm_hook_get_pcm(hook);
+    if (!pcm)
+        return -1;
+    return fsoaudio_request_session(snd_pcm_name(pcm));
 }
 
 static int _hook_hw_free(snd_pcm_hook_t *hook)
@@ -81,3 +84,4 @@ error:
 
 SND_DLSYM_BUILD_VERSION(fsoaudio_alsa_hook_request_session_install, SND_PCM_DLSYM_VERSION);
 
+// vim:ts=4:sw=4:expandtab
