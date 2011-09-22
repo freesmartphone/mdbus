@@ -39,6 +39,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     public Msmcomm.Sim sim_service;
     public Msmcomm.Phonebook phonebook_service;
     public Msmcomm.Network network_service;
+    public Msmcomm.Sms sms_service;
 
     private async void onModemControlStatusChanged( Msmcomm.ModemStatus status )
     {
@@ -107,6 +108,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             management_service = Bus.get_proxy_sync<Msmcomm.Management>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             management_service.modem_status.connect( onModemControlStatusChanged );
             misc_service =  Bus.get_proxy_sync<Msmcomm.Misc>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            sms_service = Bus.get_proxy_sync<Msmcomm.Sms>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             state_service =  Bus.get_proxy_sync<Msmcomm.State>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             sim_service = Bus.get_proxy_sync<Msmcomm.Sim>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             phonebook_service = Bus.get_proxy_sync<Msmcomm.Phonebook>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
