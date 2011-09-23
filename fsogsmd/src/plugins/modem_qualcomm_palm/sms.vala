@@ -96,6 +96,7 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
             var tpdulen = 0;
             var hexpdu = msgelement.toHexPdu( out tpdulen );
             assert( tpdulen > 0 );
+            stdout.printf("tpdulen: %i\n", tpdulen);
             hexpdus.add( new WrapHexPdu( hexpdu, tpdulen ) );
         } );
 #if DEBUG
@@ -157,27 +158,23 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 
     public async void handleIncomingSms( string hexpdu, int tpdulen )
     {
-#if 0
-        // acknowledge SMS
-        var cmd = theModem.createAtCommand<PlusCNMA>( "+CNMA" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
-        if ( cmd.validate( response ) != Constants.AtResponse.VALID )
-        {
-            logger.warning( @"Can't acknowledge new SMS" );
-        }
-        yield _handleIncomingSms( hexpdu, tpdulen );
-#endif
+        // TODO: acknowledge SMS
+
+        // Add 0-byte to the beginning, this way newFromHexPdu can parse it.
+        string pdu = "00"+hexpdu;
+        yield _handleIncomingSms( pdu, tpdulen );
     }
 
     public async void _handleIncomingSms( string hexpdu, int tpdulen )
     {
-#if 0
         var sms = Sms.Message.newFromHexPdu( hexpdu, tpdulen );
         if ( sms == null )
         {
             logger.warning( @"Can't parse incoming SMS" );
             return;
         }
+
+        /*
         var result = storage.addSms( sms );
         if ( result == SmsStorage.SMS_ALREADY_SEEN )
         {
@@ -189,14 +186,19 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
             logger.info( @"Got new fragment for still-incomplete concatenated SMS" );
             return;
         }
-        else /* complete */
+        else //complete
         {
             logger.info( @"Got new SMS from $(sms.number())" );
             var msg = storage.message( sms.hash() );
             var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
             obj.incoming_text_message( msg.number, msg.timestamp, msg.contents );
         }
-#endif
+        */
+
+        logger.info( @"Got new SMS from $(sms.number())" );
+        //var msg = storage.message( sms.hash() );
+        var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
+        obj.incoming_text_message( sms.number(), sms.timestamp(), sms.to_string() );
     }
 
     public void _handleIncomingSmsReport( Sms.Message sms )

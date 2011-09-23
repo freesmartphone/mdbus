@@ -84,6 +84,20 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
         }
     }
 
+    private async void onIncomingMessage( Msmcomm.SmsMessage message )
+    {
+        string hexpdu = "";
+        int tpdulen = message.pdu.length;
+
+        for ( int i = 0; i < tpdulen; i++ )
+        {
+            hexpdu += "%02x".printf (message.pdu[i]);
+        }
+
+        var sms_handler = new MsmSmsHandler();
+        sms_handler.handleIncomingSms(hexpdu, tpdulen);
+    }
+
     private async bool requestModemResource()
     {
         try
@@ -110,6 +124,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
             management_service.modem_status.connect( onModemControlStatusChanged );
             misc_service =  Bus.get_proxy_sync<Msmcomm.Misc>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             sms_service = Bus.get_proxy_sync<Msmcomm.Sms>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
+            sms_service.incomming_message.connect( onIncomingMessage );
             state_service =  Bus.get_proxy_sync<Msmcomm.State>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             sim_service = Bus.get_proxy_sync<Msmcomm.Sim>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
             phonebook_service = Bus.get_proxy_sync<Msmcomm.Phonebook>( BusType.SYSTEM, "org.msmcomm", "/org/msmcomm" );
