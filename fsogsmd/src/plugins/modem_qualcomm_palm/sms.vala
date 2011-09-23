@@ -70,7 +70,8 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 
     public Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents, bool requestReport )
     {
-        uint16 inref = nextReferenceNumber();
+        //FIXME: nextReferenceNumber() isn't working, using inref = 0 -- for testing purposes only!
+        uint16 inref = 0;
 #if DEBUG
         debug( @"using reference number $inref" );
 #endif        
