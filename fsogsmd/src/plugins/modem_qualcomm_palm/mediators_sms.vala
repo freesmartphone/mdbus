@@ -78,8 +78,16 @@ public class MsmSmsSendTextMessage : SmsSendTextMessage
         var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report );
 
         var channel = theModem.channel( "main" ) as MsmChannel;
-        Msmcomm.SmsTemplateInfo template_info = yield channel.sms_service.message_read_template( Msmcomm.SmsTemplateType.SMSC_NUMBER );
-        smsc = template_info.smsc_number;
+        try
+        {  
+            Msmcomm.SmsTemplateInfo template_info = yield channel.sms_service.message_read_template( Msmcomm.SmsTemplateType.SMSC_NUMBER );
+            smsc = template_info.smsc_number;
+        }
+        catch ( GLib.Error err0 )
+        {  
+            var msg0 = @"Could not process message_read_template, got: $(err0.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg0 );
+        }
 
         for ( int i = 0; i < hexpdus.size; i++)
         {
@@ -88,7 +96,16 @@ public class MsmSmsSendTextMessage : SmsSendTextMessage
             // stdout.printf( "%i: %s\n", i, curr_pdu );
             // for (int j = 0; j < arr.length; j++) stdout.printf("%i, ", arr[j]);
             // stdout.printf("\n");
-            yield channel.sms_service.send_message( smsc, arr );
+            try
+            {  
+                yield channel.sms_service.send_message( smsc, arr );
+                stdout.printf( @"send_message: $smsc, $recipient_number, $contents\n" );
+            }
+            catch ( GLib.Error err1 )
+            {  
+                var msg1 = @"Could not process send_message, got: $(err1.message)";
+                throw new FreeSmartphone.Error.INTERNAL_ERROR( msg1 );
+            }
         }
 
         //FIXME: fsogsmd crashes if we don't throw this error.
