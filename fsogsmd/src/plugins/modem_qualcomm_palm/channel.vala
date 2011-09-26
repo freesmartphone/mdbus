@@ -89,6 +89,7 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
     {
         string hexpdu = "";
         int tpdulen = message.pdu.length;
+        uint8 nr = message.nr;
 
         for ( int i = 0; i < tpdulen; i++ )
         {
@@ -97,6 +98,18 @@ public class MsmChannel : CommandQueue, Channel, AbstractObject
 
         var sms_handler = new MsmSmsHandler();
         sms_handler.handleIncomingSms(hexpdu, tpdulen);
+
+        var channel = theModem.channel( "main" ) as MsmChannel;
+        try
+        {  
+            yield channel.sms_service.acknowledge_message( nr );
+            logger.info( @"Acknowledged message nr: $(nr)" );
+        }
+        catch ( GLib.Error err0 )
+        {  
+            var msg0 = @"Could not process acknowledge_message, got: $(err0.message)";
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( msg0 );
+        }
     }
 
     private async bool requestModemResource()

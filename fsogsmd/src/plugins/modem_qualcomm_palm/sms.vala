@@ -159,8 +159,6 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 
     public async void handleIncomingSms( string hexpdu, int tpdulen )
     {
-        // TODO: acknowledge SMS
-
         // Add 0-byte to the beginning, this way newFromHexPdu can parse it.
         string pdu = "00"+hexpdu;
         yield _handleIncomingSms( pdu, tpdulen );
