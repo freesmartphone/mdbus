@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *                         Simon Busch <morphis@gravedo.de>
+ *                         Lukas Märdian <lukasmaerdian@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -161,6 +162,23 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
             if ( pbhandler != null)
             {
                 pbhandler.syncPhonebook( book_type );
+            }
+        });
+
+        channel.sms_service.incomming_message.connect( ( message ) => {
+            var smshandler = theModem.smshandler as MsmSmsHandler;
+            if ( smshandler != null)
+            {
+                string hexpdu = "";
+                int tpdulen = message.pdu.length;
+                uint8 nr = message.nr;
+
+                foreach( var byte in message.pdu )
+                {
+                    hexpdu += "%02x".printf (byte);
+                }
+
+                smshandler.handleIncomingSms( hexpdu, tpdulen );
             }
         });
 
