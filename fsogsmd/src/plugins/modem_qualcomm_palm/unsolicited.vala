@@ -165,13 +165,12 @@ public class MsmUnsolicitedResponseHandler : AbstractObject
             }
         });
 
-        channel.sms_service.incomming_message.connect( ( message ) => {
+        channel.sms_service.incoming_message.connect( ( message ) => {
             var smshandler = theModem.smshandler as MsmSmsHandler;
             if ( smshandler != null)
             {
                 string hexpdu = "";
                 int tpdulen = message.pdu.length;
-                uint8 nr = message.nr;
 
                 foreach( var byte in message.pdu )
                 {

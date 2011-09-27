@@ -116,12 +116,12 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 
         // gather IMSI number
         try
-        {  
+        {
             var sim_field_info = yield channel.sim_service.read_field( Msmcomm.SimFieldType.IMSI );
             imsi = sim_field_info.data;
         }
         catch ( GLib.Error err )
-        {  
+        {
             var msg = @"Could not gather IMSI number, got: $(err.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
@@ -162,13 +162,11 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
     public async void handleIncomingSms( string hexpdu, int tpdulen )
     {
         var channel = theModem.channel( "main" ) as MsmChannel;
-        // NOTE: nr doesn't matter -- delete me
-        uint8 nr = 42;
 
         // acknowledge SMS
         try
         {
-            yield channel.sms_service.acknowledge_message( nr );
+            yield channel.sms_service.acknowledge_message();
             logger.info( @"Acknowledged new SMS" );
             stdout.printf( "Acknowledged new SMS\n" ); // delete me
         }

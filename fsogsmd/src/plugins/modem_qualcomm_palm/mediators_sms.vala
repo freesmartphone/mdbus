@@ -79,12 +79,12 @@ public class MsmSmsSendTextMessage : SmsSendTextMessage
 
         // gather SMSC number
         try
-        {  
+        {
             var template_info = yield channel.sms_service.message_read_template( Msmcomm.SmsTemplateType.SMSC_NUMBER );
             smsc = template_info.smsc_number;
         }
         catch ( GLib.Error err )
-        {  
+        {
             var msg = @"Could not gather SMSC number, got: $(err.message)";
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
@@ -95,14 +95,14 @@ public class MsmSmsSendTextMessage : SmsSendTextMessage
             // skip first byte (length of SMSC information), as msmcomm wants just the raw PDU
             byte_pdu = stringToByteArray(pdu.hexpdu[2:len]);
             try
-            {  
+            {
                 yield channel.sms_service.send_message( smsc, byte_pdu );
                 // TODO (from atsmsmediators): hexpdu.transaction_index = cmd.refnum;
                 stdout.printf( @"send_message: $smsc, $recipient_number, $contents\n" );
                 stdout.printf( @"send_message: $(pdu.hexpdu[2:len])\n" );
             }
             catch ( GLib.Error err1 )
-            {  
+            {
                 var msg1 = @"Could not process send_message, got: $(err1.message)";
                 throw new FreeSmartphone.Error.INTERNAL_ERROR( msg1 );
             }
