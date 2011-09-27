@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=org.freesmartphone.ousaged
+Exec=@prefix@/sbin/fsousaged
+User=root

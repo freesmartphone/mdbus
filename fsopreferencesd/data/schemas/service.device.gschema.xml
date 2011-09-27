@@ -1,0 +1,11 @@
+<schemalist>
+	<schema id="service.device" path="/services/device/">
+		<key name="display-brightness" type="i">
+			<default>70</default>
+			<summary>Display Brightness</summary>
+			<description>
+				Brightness of the display in percent (0 - 100).
+			</description>
+		</key>
+	</schema>
+</schemalist>
