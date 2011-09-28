@@ -87,6 +87,7 @@ AC_CONFIG_FILES([
   conf/openmoko_gta/Makefile
   conf/nexusone/Makefile
   conf/palm_pre/Makefile
+  conf/herring/Makefile
   data/org.freesmartphone.ousaged.service
   data/Makefile
   src/Makefile
