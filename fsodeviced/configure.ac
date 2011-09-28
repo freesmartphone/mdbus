@@ -176,6 +176,7 @@ AC_CONFIG_FILES([
   conf/openmoko_gta/alsa-2.6.34/Makefile
   conf/openmoko_gta/alsa-2.6.39/Makefile
   conf/palm_pre/Makefile
+  conf/herring/Makefile
   data/Makefile
   data/org.freesmartphone.odeviced.service
   src/Makefile
