@@ -43,3 +43,8 @@ SUBDIRS += \
 	modem_nokia_isi \
 	pdp_nokia_isi
 endif
+
+if WANT_SAMSUNG
+SUBDIRS += \
+	modem_samsung
+endif

@@ -32,6 +32,7 @@ FSO_FRAMEWORK_REQUIRED=0.2.3
 FSO_TRANSPORT_REQUIRED=0.9.5.9
 FSO_RESOURCE_REQUIRED=0.1.0
 CONNMAN_REQUIRED=0.68
+SAMSUNG_IPC_REQUIRED=0.1
 
 ##############################################################################
 # vala
@@ -160,6 +161,22 @@ fi
 AM_CONDITIONAL( [WANT_ISI], [test x"$isi" = x"yes"])
 
 ##############################################################################
+# optional feature: Samsung modem support as found in Samsung Nexus S / H1
+AC_ARG_ENABLE(modem-samsung,
+  [  --enable-modem-samsung  Enable building the samsung plugin (default=disabled)],
+  [samsung=$enableval],
+  [samsung="no"])
+
+if test x$samsung = "xyes"; then
+    PKG_CHECK_MODULES(SAMSUNG,
+      samsung-ipc-1.0 >= $SAMSUNG_IPC_REQUIRED)
+AC_SUBST(SAMSUNG_CFLAGS)
+AC_SUBST(SAMSUNG_LIBS)
+
+fi
+AM_CONDITIONAL( [WANT_SAMSUNG], [test x"$samsung" = x"yes"])
+
+##############################################################################
 # datadir
 if test "x$prefix" != "xNONE"; then
   pkgdatadir='${prefix}/share/fsogsmd'
@@ -222,6 +239,7 @@ AC_CONFIG_FILES([
   src/plugins/modem_ti_calypso/Makefile
   src/plugins/modem_qualcomm_htc/Makefile
   src/plugins/modem_qualcomm_palm/Makefile
+  src/plugins/modem_samsung/Makefile
   src/plugins/pdp_ppp/Makefile
   src/plugins/pdp_ppp_internal/Makefile
   src/plugins/pdp_ppp_mux/Makefile
@@ -252,6 +270,7 @@ echo "  modem_ti_calypso........: $mux"
 echo "  modem_cinterion_mc75....: $mux"
 echo "  modem_qualcomm_palm.....: $palm"
 echo "  modem_nokia_isi.........: $isi"
+echo "  modem_samsung...........: $samsung"
 echo
 echo "  shared data directory...: $pkgdatadir"
 echo
