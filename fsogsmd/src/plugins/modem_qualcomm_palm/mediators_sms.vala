@@ -98,8 +98,7 @@ public class MsmSmsSendTextMessage : SmsSendTextMessage
             {
                 yield channel.sms_service.send_message( smsc, byte_pdu );
                 // TODO (from atsmsmediators): hexpdu.transaction_index = cmd.refnum;
-                stdout.printf( @"send_message: $smsc, $recipient_number, $contents\n" );
-                stdout.printf( @"send_message: $(pdu.hexpdu[2:len])\n" );
+                // I guess those are needed, to match the sms with it's incoming status reports later
             }
             catch ( GLib.Error err1 )
             {
@@ -107,9 +106,15 @@ public class MsmSmsSendTextMessage : SmsSendTextMessage
                 throw new FreeSmartphone.Error.INTERNAL_ERROR( msg1 );
             }
         }
-
         transaction_index = theModem.smshandler.lastReferenceNumber();
+        //FIXME: What about ACK PDUs?
         timestamp = "now";
+
+        // remember transaction indizes for later
+        if ( want_report )
+        {
+            //theModem.smshandler.storeTransactionIndizesForSentMessage( hexpdus );
+        }
     }
 }
 

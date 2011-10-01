@@ -100,7 +100,6 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 #if DEBUG
         debug( "message encoded in %u hexpdus", hexpdus.size );
 #endif
-        stdout.printf( "message encoded in %u hexpdus\n", hexpdus.size );
         return hexpdus;
     }
 
@@ -168,7 +167,6 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
         {
             yield channel.sms_service.acknowledge_message();
             logger.info( @"Acknowledged new SMS" );
-            stdout.printf( "Acknowledged new SMS\n" ); // delete me
         }
         catch ( GLib.Error err )
         {
@@ -185,7 +183,6 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
         if ( sms == null )
         {
             logger.warning( @"Can't parse incoming SMS" );
-            stdout.printf( "Can't parse incoming SMS\n" ); // delete me
             return;
         }
 
@@ -193,26 +190,22 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
         if ( result == SmsStorage.SMS_ALREADY_SEEN )
         {
             logger.warning( @"Ignoring already seen SMS" );
-            stdout.printf( "Ignoring already seen SMS\n" ); // delete me
             return;
         }
         else if ( result == SmsStorage.SMS_MULTI_INCOMPLETE )
         {
             logger.info( @"Got new fragment for still-incomplete concatenated SMS" );
-            stdout.printf( "Got new fragment for still-incomplete concatenated SMS\n" ); // delete me
             return;
         }
         else //complete
         {
             logger.info( @"Got new SMS from $(sms.number())" );
-            stdout.printf( @"Got new SMS from $(sms.number())\n" ); // delete me
             var msg = storage.message( sms.hash() );
             var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
             obj.incoming_text_message( msg.number, msg.timestamp, msg.contents );
         }
 /*
         logger.info( @"Got new SMS from $(sms.number())" );
-        stdout.printf( @"Got new SMS from $(sms.number())\n" ); // delete me
         var msg = storage.message( sms.hash() );
         var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
         obj.incoming_text_message( sms.number(), sms.timestamp(), sms.to_string() );
