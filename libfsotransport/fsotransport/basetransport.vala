@@ -91,11 +91,16 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return ( buffer.len != 0 );
     }
 
+    protected virtual ssize_t _real_write( int fd, void *data, int len )
+    {
+        return Posix.write( fd, data, len );
+    }
+
     internal int _write( void* data, int len )
     {
         if ( fd != -1 )
         {
-            ssize_t byteswritten = Posix.write( fd, data, len );
+            ssize_t byteswritten = _real_write( fd, data, len );
             return (int)byteswritten;
         }
         else
@@ -404,7 +409,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     {
         assert( fd != -1 );
         assert( data != null );
-        ssize_t bytesread = Posix.read( fd, data, len );
+        ssize_t bytesread = _real_read( fd, data, len );
 #if DEBUG
         assert( logger.debug( @"read $bytesread bytes" ) );
 #endif
@@ -459,7 +464,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         debug( @"writeAndRead: writing $((string)wdata) ($wlength)" );
 #endif
         assert( fd != -1 );
-        ssize_t byteswritten = Posix.write( fd, wdata, wlength );
+        ssize_t byteswritten = _real_write( fd, wdata, wlength );
         assert( byteswritten == wlength ); // FIXME: support partial writes
         Posix.tcdrain( fd );
 
@@ -482,6 +487,11 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return fullRead;
     }
 
+    protected virtual ssize_t _real_read( int fd, void *data, int len )
+    {
+        return Posix.read( fd, data, len );
+    }
+
     public size_t _read( void* rdata, int rlength, int maxWait = 2000 )
     {
         var readfds = Posix.fd_set();
@@ -494,7 +504,7 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         int res = Posix.select( fd+1, readfds, writefds, exceptfds, t );
         if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
             return 0;
-        ssize_t bread = Posix.read( fd, rdata, rlength );
+        ssize_t bread = _real_read( fd, rdata, rlength );
         if ( bread < 0 )
             bread = 0;
         return bread;
