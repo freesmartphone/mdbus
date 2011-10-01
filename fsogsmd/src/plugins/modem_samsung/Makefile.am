@@ -9,7 +9,6 @@ AM_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
-	$(SAMSUNG_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsogsm.modem_samsung\" \
 	$(NULL)
 
@@ -33,7 +32,6 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsogsm-2.0 \
-	--pkg samsung-ipc-1.0 \
 	$(NULL)
 
 if WANT_DEBUG
@@ -49,6 +47,7 @@ modlibexec_LTLIBRARIES = modem_samsung.la
 
 modem_samsung_la_VALASOURCES = \
  plugin.vala \
+ channel.vala \
  $(NULL)
 
 modem_samsung_la_SOURCES = $(modem_samsung_la_VALASOURCES:.vala=.c)
@@ -56,7 +55,7 @@ modem_samsung_la_SOURCES = $(modem_samsung_la_VALASOURCES:.vala=.c)
 $(modem_samsung_la_SOURCES): $(modem_samsung_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
-modem_samsung_la_LIBADD = $(progs_ldadd) $(SAMSUNG_LIBS)
+modem_samsung_la_LIBADD = $(progs_ldadd)
 modem_samsung_la_LDFLAGS = -no-undefined -module -avoid-version
 modem_samsung_la_LIBTOOLFLAGS = --tag=disable-static
 

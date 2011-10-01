@@ -167,13 +167,6 @@ AC_ARG_ENABLE(modem-samsung,
   [samsung=$enableval],
   [samsung="no"])
 
-if test x$samsung = "xyes"; then
-    PKG_CHECK_MODULES(SAMSUNG,
-      samsung-ipc-1.0 >= $SAMSUNG_IPC_REQUIRED)
-AC_SUBST(SAMSUNG_CFLAGS)
-AC_SUBST(SAMSUNG_LIBS)
-
-fi
 AM_CONDITIONAL( [WANT_SAMSUNG], [test x"$samsung" = x"yes"])
 
 ##############################################################################
