@@ -52,6 +52,8 @@ public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
 
         var rc = Linux.ioctl( fd, Crespo.ModemIoctlType.SEND, modem_data );
 
+        assert( logger.debug( @"Send request to modem with size = $(modem_data.size)" ) );
+
         if ( rc < 0 )
         {
             logger.error( @"Can't issue IOCTL_MODEM_SEND ioctl to modem dev node!" );
@@ -78,6 +80,9 @@ public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
             logger.error( @"Can't issue IOCTL_MODEM_RECV ioctl to modem dev node!" );
             return 0; // send HUP signal
         }
+
+        assert( logger.debug( @"Received response from modem with id = $(modem_data.id), " +
+                               "cm = $(modem_data.cmd), size = $(modem_data.size)" ) );
 
         Memory.copy( data, modem_data.data, modem_data.size );
 
