@@ -169,6 +169,14 @@ AC_ARG_ENABLE(modem-samsung,
 
 AM_CONDITIONAL( [WANT_SAMSUNG], [test x"$samsung" = x"yes"])
 
+if test x$samsung = "xyes"; then
+    PKG_CHECK_MODULES(SAMSUNG,
+      samsung-ipc-1.0 >= $SAMSUNG_IPC_REQUIRED)
+AC_SUBST(SAMSUNG_CFLAGS)
+AC_SUBST(SAMSUNG_LIBS)
+
+fi
+
 ##############################################################################
 # datadir
 if test "x$prefix" != "xNONE"; then
@@ -224,6 +232,7 @@ AC_CONFIG_FILES([
   src/plugins/lowlevel_motorola_ezx/Makefile
   src/plugins/lowlevel_openmoko/Makefile
   src/plugins/lowlevel_palmpre/Makefile
+  src/plugins/lowlevel_samsung_crespo/Makefile
   src/plugins/modem_cinterion_mc75/Makefile
   src/plugins/modem_dummy/Makefile
   src/plugins/modem_freescale_neptune/Makefile

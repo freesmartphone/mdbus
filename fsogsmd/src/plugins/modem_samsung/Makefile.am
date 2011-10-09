@@ -9,6 +9,7 @@ AM_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(SAMSUNG_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsogsm.modem_samsung\" \
 	$(NULL)
 
@@ -19,6 +20,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
+	$(SAMSUNG_LIBS) \
 	$(top_srcdir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
@@ -32,6 +34,7 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsogsm-2.0 \
+	--pkg samsung-ipc-1.0 \
 	$(NULL)
 
 if WANT_DEBUG
