@@ -69,6 +69,9 @@ public class FsoFramework.TransportSpec
             case "null":
                 transport = new FsoFramework.NullTransport();
                 break;
+            case "raw":
+                transport = new FsoFramework.RawTransport( name );
+                break;
             default:
                 FsoFramework.theLogger.warning( @"Invalid transport type $type. Using NullTransport" );
                 transport = new FsoFramework.NullTransport();
