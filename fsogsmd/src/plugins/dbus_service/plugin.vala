@@ -75,6 +75,9 @@ class DBusService.Device :
             case "qualcomm_palm":
                 typename = "QualcommPalmModem";
                 break;
+            case "samsung":
+                typename = "SamsungModem";
+                break;
             default:
                 logger.error( @"Unsupported modem_type $modemtype" );
                 return;
