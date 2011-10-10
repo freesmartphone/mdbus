@@ -222,6 +222,7 @@ AC_CONFIG_FILES([
   conf/palm_pre/Makefile
   conf/nexusone/Makefile
   conf/nokia_n900/Makefile
+  conf/herring/Makefile
   data/Makefile
   data/org.freesmartphone.ogsmd.service
   src/Makefile
