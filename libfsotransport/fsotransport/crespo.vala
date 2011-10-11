@@ -44,15 +44,9 @@ public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
 
     protected override ssize_t _real_write( int fd, void *data, int len )
     {
-        var modem_data = Crespo.ModemData();
+        var rc = Linux.ioctl( fd, Crespo.ModemIoctlType.SEND, data );
 
-        modem_data.size = len;
-        modem_data.data = new uint8[len];
-        Memory.copy( modem_data.data, data, len );
-
-        var rc = Linux.ioctl( fd, Crespo.ModemIoctlType.SEND, modem_data );
-
-        assert( logger.debug( @"Send request to modem with size = $(modem_data.size)" ) );
+        assert( logger.debug( @"Send request to modem with size = $(len)" ) );
 
         if ( rc < 0 )
         {
@@ -71,22 +65,12 @@ public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
             return 0; // send HUP signal
         }
 
-        var modem_data = Crespo.ModemData();
-        modem_data.data = new uint8[MAX_BUFFER_SIZE];
-
-        var  rc = Linux.ioctl( fd, Crespo.ModemIoctlType.RECV, modem_data );
+        var  rc = Linux.ioctl( fd, Crespo.ModemIoctlType.RECV, data );
         if ( rc < 0 )
         {
             logger.error( @"Can't issue IOCTL_MODEM_RECV ioctl to modem dev node!" );
             return 0; // send HUP signal
         }
-
-        assert( logger.debug( @"Received response from modem with id = $(modem_data.id), " +
-                               "cm = $(modem_data.cmd), size = $(modem_data.size)" ) );
-
-        Memory.copy( data, modem_data.data, modem_data.size );
-
-        free( modem_data.data );
 
         return (ssize_t) len;
     }
