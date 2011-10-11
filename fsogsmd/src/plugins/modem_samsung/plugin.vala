@@ -53,32 +53,34 @@ class Samsung.Modem : FsoGsm.AbstractModem
         // NOTE: we define our base unsolicited handler in our commandqueue,
         // as the base on is very AT command specific atm. Need to change
         // this somewhere in the future ...
-        return null;
+        return (UnsolicitedResponseHandler) null;
     }
 
     protected override CallHandler createCallHandler()
     {
-        return null;
+        return (CallHandler) null;
     }
 
     protected override SmsHandler createSmsHandler()
     {
-        return null;
+        return (SmsHandler) null;
     }
 
     protected override PhonebookHandler createPhonebookHandler()
     {
-        return null;
+        return (PhonebookHandler) null;
     }
 
     protected override void createChannels()
     {
-        // new SamsungIpc.Channel( IPC_CHANNEL_NAME, new IsiTransport( modem_port ) );
+        // var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+        var transport = new FsoFramework.CrespoModemTransport( modem_port );
+        new Samsung.IpcChannel( MAIN_CHANNEL_NAME, transport );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
-        return null;
+        return (FsoGsm.Channel) null;
     }
 
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )

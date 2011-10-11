@@ -19,6 +19,7 @@
 
 using GLib;
 using FsoGsm;
+using FsoFramework;
 
 public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
 {
@@ -26,9 +27,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
-    private bool is_initialized;
-    private IOChannel iochannel;
-    private int readwatch;
+    private SamsungIpc.Client fmtclient;
 
     private void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
     {
@@ -47,27 +46,58 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     protected override void onReadFromTransport( FsoFramework.Transport t )
     {
+        assert( theLogger.debug( @"Data is available from transport for processing" ) );
+        SamsungIpc.Response resp = SamsungIpc.Response();
+        resp.data = new uint8[0x1000];
+        fmtclient.recv(out resp);
+    }
+
+    protected int modem_read_request(uint8[] data)
+    {
+        return_val_if_fail(data != null, 0);
+        return transport.read(data, data.length);
+    }
+
+    protected int modem_write_request(uint8[] data)
+    {
+        return_val_if_fail(data != null, 0);
+        return transport.write(data, data.length);
     }
 
     //
     // public API
     //
 
-    public IpcChannel( string name, FsoFramework.BaseTransport transport )
+    public IpcChannel( string name, FsoFramework.Transport? transport )
     {
         base( transport );
         this.name = name;
+
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
+
+        fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.CRESPO_FMT ); // FIXME make this a config option
+        fmtclient.set_delegates( modem_write_request, modem_read_request );
     }
 
     public override async bool open()
     {
+        bool result = true;
+
+        result = yield transport.openAsync();
+        if (!result)
+            return false;
+
+        fmtclient.open();
+
+        fmtclient.send_get(0x0102, 0xff);
+
         return true;
     }
 
     public override async void close()
     {
+        fmtclient.close();
     }
 
     public void registerUnsolicitedHandler( UnsolicitedHandler urchandler )
