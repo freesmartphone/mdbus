@@ -20,15 +20,24 @@
 using GLib;
 
 using FsoGsm;
+using FsoFramework;
 
 class LowLevel.SamsungCrespo : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
     public const string MODULE_NAME = "fsogsm.lowlevel_samsung_crespo";
+
     private FsoGsm.AbstractModem modem; // for access to modem properties
+    private SamsungIpc.Client client;
+    private bool powered = false;
+    private string power_mode_node;
 
     construct
     {
         modem = FsoGsm.theModem as FsoGsm.AbstractModem;
+        client = new SamsungIpc.Client(SamsungIpc.ClientType.CRESPO_FMT);
+
+        power_mode_node = config.stringValue( MODULE_NAME, "power_mode_node", "/sys/devices/platform/modemctrl/power_mode" );
+
         logger.info( "Registering Samsung Crespo low level poweron/poweroff handling" );
     }
 
@@ -39,25 +48,41 @@ class LowLevel.SamsungCrespo : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     public bool poweron()
     {
-        debug( "lowlevel_samsung_crespo_poweron()" );
+        assert( logger.debug( "lowlevel_samsung_crespo_poweron()" ) );
+
+        return_val_if_fail(powered, false);
+
+        if (client.bootstrap_modem() != 0)
+        {
+            logger.error( "Modem bootstraping went wrong; cannot power the modem!" );
+            return false;
+        }
+
+        FsoFramework.FileHandling.write( "1", power_mode_node );
+
         return true;
     }
 
     public bool poweroff()
     {
-        debug( "lowlevel_samsung_crespo_poweroff()" );
+        assert( logger.debug( "lowlevel_samsung_crespo_poweroff()" ) );
+
+        return_val_if_fail(!powered, false);
+
+        FsoFramework.FileHandling.write( "0", power_mode_node );
+
         return true;
     }
 
     public bool suspend()
     {
-        debug( "lowlevel_samsung_crespo_suspend()" );
+        assert( logger.debug( "lowlevel_samsung_crespo_suspend()" ) );
         return true;
     }
 
     public bool resume()
     {
-        debug( "lowlevel_samsung_crespo_resume()" );
+        assert( logger.debug( "lowlevel_samsung_crespo_resume()" ) );
         return true;
     }
 }

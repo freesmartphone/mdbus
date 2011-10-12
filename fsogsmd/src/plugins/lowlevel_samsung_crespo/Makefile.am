@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
 	$(FSO_CFLAGS) \
+	$(SAMSUNG_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsogsm.lowlevel_samsung_crespo\" \
 	$(NULL)
 
@@ -14,6 +15,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 progs_ldadd = \
 	$(top_srcdir)/src/lib/libfsogsm.la \
 	$(FSO_LIBS) \
+	$(SAMSUNG_LIBS) \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -21,7 +23,9 @@ VALAC_ARGS = \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \
 	--pkg fsoframework-2.0 \
-	--pkg fsogsm-2.0
+	--pkg fsogsm-2.0 \
+	--pkg samsung-ipc-1.0 \
+	$(NULL)
 
 #
 # plugin
