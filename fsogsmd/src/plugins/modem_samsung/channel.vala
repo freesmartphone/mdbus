@@ -49,7 +49,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         SamsungIpc.Response response = SamsungIpc.Response();
         response.data = new uint8[4096];
 
-        fmtclient.recv(out response);
+        if ( fmtclient.recv(out response) == 0 )
+            return;
 
         assert( theLogger.debug( @"Got response from modem: type = $(response.type_to_string())" ) );
     }
