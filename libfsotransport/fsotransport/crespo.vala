@@ -26,6 +26,7 @@ public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
     public CrespoModemTransport( string portname )
     {
         base( portname );
+        setBuffered( false );
     }
 
     public override bool open()
@@ -68,7 +69,7 @@ public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
         var  rc = Linux.ioctl( fd, Crespo.ModemIoctlType.RECV, data );
         if ( rc < 0 )
         {
-            logger.error( @"Can't issue IOCTL_MODEM_RECV ioctl to modem dev node!" );
+            logger.error( @"Can't issue IOCTL_MODEM_RECV ioctl to modem dev node (rc = $(rc))!" );
             return 0; // send HUP signal
         }
 
