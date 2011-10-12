@@ -36,7 +36,7 @@ class LowLevel.SamsungCrespo : FsoGsm.LowLevel, FsoFramework.AbstractObject
         modem = FsoGsm.theModem as FsoGsm.AbstractModem;
         client = new SamsungIpc.Client(SamsungIpc.ClientType.CRESPO_FMT);
 
-        power_mode_node = config.stringValue( MODULE_NAME, "power_mode_node", "/sys/devices/platform/modemctrl/power_mode" );
+        power_mode_node = config.stringValue( MODULE_NAME, "power_mode_node", "/sys/devices/platform/modemctl/power_mode" );
 
         logger.info( "Registering Samsung Crespo low level poweron/poweroff handling" );
     }
