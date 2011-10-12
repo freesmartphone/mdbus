@@ -46,10 +46,12 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     protected override void onReadFromTransport( FsoFramework.Transport t )
     {
-        assert( theLogger.debug( @"Data is available from transport for processing" ) );
-        SamsungIpc.Response resp = SamsungIpc.Response();
-        resp.data = new uint8[0x1000];
-        fmtclient.recv(out resp);
+        SamsungIpc.Response response = SamsungIpc.Response();
+        response.data = new uint8[4096];
+
+        fmtclient.recv(out response);
+
+        assert( theLogger.debug( @"Got response from modem: type = $(response.type_to_string())" ) );
     }
 
     protected int modem_read_request(uint8[] data)
@@ -76,7 +78,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
 
-        fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.CRESPO_FMT ); // FIXME make this a config option
+        fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.CRESPO_FMT );
         fmtclient.set_delegates( modem_write_request, modem_read_request );
     }
 
@@ -89,8 +91,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
             return false;
 
         fmtclient.open();
-
-        fmtclient.send_get(0x0102, 0xff);
 
         return true;
     }
