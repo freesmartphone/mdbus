@@ -51,6 +51,7 @@ modlibexec_LTLIBRARIES = modem_samsung.la
 modem_samsung_la_VALASOURCES = \
  plugin.vala \
  channel.vala \
+ unsolicited.vala \
  $(NULL)
 
 modem_samsung_la_SOURCES = $(modem_samsung_la_VALASOURCES:.vala=.c)
