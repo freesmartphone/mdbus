@@ -50,7 +50,8 @@ class LowLevel.SamsungCrespo : FsoGsm.LowLevel, FsoFramework.AbstractObject
     {
         assert( logger.debug( "lowlevel_samsung_crespo_poweron()" ) );
 
-        return_val_if_fail(powered, false);
+        if ( powered )
+            return false;
 
         if (client.bootstrap_modem() != 0)
         {
@@ -69,7 +70,8 @@ class LowLevel.SamsungCrespo : FsoGsm.LowLevel, FsoFramework.AbstractObject
     {
         assert( logger.debug( "lowlevel_samsung_crespo_poweroff()" ) );
 
-        return_val_if_fail(!powered, false);
+        if ( !powered )
+            return false;
 
         FsoFramework.FileHandling.write( "0", power_mode_node );
 
