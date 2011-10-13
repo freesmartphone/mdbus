@@ -55,6 +55,9 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
+    /**
+     * Generating a new request id. A valid request is in the range of 1 - 255.
+     **/
     private uint8 next_request_id()
     {
         current_request_id = current_request_id >= 255 ? 1 : current_request_id++;
