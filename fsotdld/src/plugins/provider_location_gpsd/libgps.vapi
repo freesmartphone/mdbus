@@ -202,7 +202,7 @@ namespace Gps {
         public DeviceConfig dev;
         public StreamingPolicy policy;
 
-        [CCode (instance_pos = -1)]
+        [CCode (cname = "gps_open_r",instance_pos = -1)]
         public int open( string server = "localhost", string port = "2947" );
 
         public void close();
