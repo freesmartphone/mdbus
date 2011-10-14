@@ -194,6 +194,7 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
 
     private FreeSmartphone.Device.PowerStatus status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
     private int energy = -1;
+    private string[] supported_chargers = { "usb", "mains" }; // FIXME make this a config option
 
     public AggregatePowerSupply( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
@@ -361,7 +362,7 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
     {
         var statusForAll = true;
         PowerSupply battery = null;
-        PowerSupply charger = null;
+        PowerSupply[] chargers = { };
 
         // first, check whether we have enough information to compute the status at all
         foreach ( var supply in instances )
@@ -381,8 +382,11 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
             }
             else
             {
-                if ( supply.status == FreeSmartphone.Device.PowerStatus.ONLINE ) // FIXME: revisit to handle multiple chargers
-                    charger = supply;
+                if ( supply.status == FreeSmartphone.Device.PowerStatus.ONLINE )
+                {
+                    if ( supply.typ in supported_chargers )
+                        chargers += supply;
+                }
             }
         }
 
@@ -390,6 +394,19 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
         {
             assert( logger.debug( "^^^ not enough information present to compute overall status" ) );
             return;
+        }
+
+        // if we have charger inserted and present, AC is our status
+        if ( chargers.length > 0 )
+        {
+            foreach ( var charger in chargers )
+            {
+                if ( charger.status == FreeSmartphone.Device.PowerStatus.ONLINE )
+                {
+                    sendStatusIfChanged( FreeSmartphone.Device.PowerStatus.AC );
+                    return;
+                }
+            }
         }
 
         // if we have a battery and it is inserted, this is our aggregate status
@@ -403,14 +420,6 @@ class AggregatePowerSupply : FreeSmartphone.Device.PowerSupply, FsoFramework.Abs
         {
             sendStatusIfChanged( FreeSmartphone.Device.PowerStatus.AC );
         }
-#if WHAT_WAS_THIS_SECTION_FOR
-        // if we have charger inserted and present, AC is our status
-        if ( charger != null && charger.status == FreeSmartphone.Device.PowerStatus.ONLINE )
-        {
-            sendStatusIfChanged( FreeSmartphone.Device.PowerStatus.AC );
-            return;
-        }
-#endif
     }
 
     public void sendStatusIfChanged( FreeSmartphone.Device.PowerStatus status )
