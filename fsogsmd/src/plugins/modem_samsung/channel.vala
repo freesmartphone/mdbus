@@ -82,7 +82,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     protected override void onReadFromTransport( FsoFramework.Transport t )
     {
         SamsungIpc.Response response = SamsungIpc.Response();
-        response.data = new uint8[4096];
 
         if ( fmtclient.recv(out response) == 0 )
             return;
