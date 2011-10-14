@@ -32,8 +32,9 @@ public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
 
     public override void writeToTransport( FsoFramework.Transport t )
     {
+        var message_type = (SamsungIpc.MessageType) command;
         assert( theLogger.debug( @"Sending request with id = $(id), type = $(SamsungIpc.request_type_to_string(type)), " +
-                                 @"command = $(SamsungIpc.command_type_to_string(command)), size = $(data.length)" ) );
+                                 @"command = $(SamsungIpc.message_type_to_string(message_type)), size = $(data.length)" ) );
 
         client.send( command, type, data, id );
     }
@@ -93,7 +94,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         }
 
         var message_type = (SamsungIpc.MessageType) response.command;
-        assert( theLogger.debug( @"Got response from modem: type = $(SamsungIpc.response_type_to_string(response.type)) " +
+        var response_type = (SamsungIpc.ResponseType) response.type;
+        assert( theLogger.debug( @"Got response from modem: type = $(SamsungIpc.response_type_to_string(response_type)) " +
                                  @"command = $(SamsungIpc.message_type_to_string(message_type))" ) );
 
         switch ( response.type )
