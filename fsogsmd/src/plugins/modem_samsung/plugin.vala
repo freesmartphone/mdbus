@@ -19,7 +19,6 @@
 
 using GLib;
 using Gee;
-using FsoGsm;
 
 /**
  * @class Samsung
@@ -48,27 +47,27 @@ class Samsung.Modem : FsoGsm.AbstractModem
         base.powerOff();
     }
 
-    protected override UnsolicitedResponseHandler createUnsolicitedHandler()
+    protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
     {
         // NOTE: we define our base unsolicited handler in our commandqueue,
         // as the base on is very AT command specific atm. Need to change
         // this somewhere in the future ...
-        return (UnsolicitedResponseHandler) null;
+        return (FsoGsm.UnsolicitedResponseHandler) null;
     }
 
-    protected override CallHandler createCallHandler()
+    protected override FsoGsm.CallHandler createCallHandler()
     {
-        return (CallHandler) null;
+        return (FsoGsm.CallHandler) null;
     }
 
-    protected override SmsHandler createSmsHandler()
+    protected override FsoGsm.SmsHandler createSmsHandler()
     {
-        return (SmsHandler) null;
+        return (FsoGsm.SmsHandler) null;
     }
 
-    protected override PhonebookHandler createPhonebookHandler()
+    protected override FsoGsm.PhonebookHandler createPhonebookHandler()
     {
-        return (PhonebookHandler) null;
+        return (FsoGsm.PhonebookHandler) null;
     }
 
     protected override void createChannels()

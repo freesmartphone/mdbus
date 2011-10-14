@@ -49,7 +49,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     public string name;
 
     private SamsungIpc.Client fmtclient;
-    private new SamsungUnsolicitedResponseHandler urchandler;
+    private new Samsung.UnsolicitedResponseHandler urchandler;
     private uint8 current_request_id = 0;
     private Gee.LinkedList<CommandHandler> pending_requests;
 
@@ -176,6 +176,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         this.name = name;
         this.pending_requests = new Gee.LinkedList<CommandHandler>();
+        this.urchandler = new Samsung.UnsolicitedResponseHandler();
 
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );

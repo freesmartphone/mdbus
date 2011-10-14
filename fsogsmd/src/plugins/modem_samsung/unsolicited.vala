@@ -20,7 +20,7 @@
 using GLib;
 using FsoGsm;
 
-public class SamsungUnsolicitedResponseHandler : FsoFramework.AbstractObject
+public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 {
     /**
      * Handling the various possible unsolicited responses we get from the modem
