@@ -44,6 +44,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
     FsoFramework.Subsystem subsystem;
 
     private string sysfsnode;
+    private uint8 charging_mode = 0x08;
 
     // internal (accessible for aggregate power supply)
     internal string name;
@@ -65,6 +66,8 @@ class N900 : FreeSmartphone.Device.PowerSupply,
             logger.warning( @"Can't open $N900_CHARGER_I2C_FILE: $(strerror(errno)). Powersupply will not available." );
             return;
         }
+
+        FsoFramework.BaseKObjectNotifier.addMatch( "change", "power_supply", onPowerSupplyChangeNotification );
 
         Idle.add( onIdle );
 
@@ -156,6 +159,37 @@ class N900 : FreeSmartphone.Device.PowerSupply,
         return true; // mainloop: call us again
     }
 
+    public void onPowerSupplyChangeNotification( HashTable<string,string> properties )
+    {
+        var name = properties.lookup( "POWER_SUPPLY_NAME" );
+        if ( name != "isp1704" )
+        {
+            /* we ignore it since there is also a battery gauge(bq27200-0) */
+            return;
+        }
+        string current_max = properties.lookup( "POWER_SUPPLY_CURRENT_MAX" );
+
+        switch ( current_max )
+        {
+            case "1800":
+                charging_mode = 0xc8;
+                break;
+            case "800":
+                charging_mode = 0x88;
+                break;
+            case "500":
+                charging_mode = 0x48;
+                break;
+            case "100":
+            default:
+                /* default to 100mA */
+                charging_mode = 0x08;
+                break;
+       }
+       logger.info(@"charging mode $(current_max) -> $(charging_mode)" );
+       Idle.add( onIdle );
+    }
+
     public bool onIdle()
     {
         logger.info( "Disabling charger for configuration" );
@@ -212,7 +246,7 @@ class N900 : FreeSmartphone.Device.PowerSupply,
             # 1: boost
             i2cset -y 2 0x6b 0x01 0xc8;
             */
-            pushByteToI2C( fd, 0x6b, 0x01, 0xc8 );
+            pushByteToI2C( fd, 0x6b, 0x01, charging_mode);
 
             /*
             # Register 0x00
