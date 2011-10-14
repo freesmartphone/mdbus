@@ -86,14 +86,13 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         assert( theLogger.debug( @"Received data from modem; start processing ..." ) );
 
         var rc = fmtclient.recv(out response);
-        assert( theLogger.debug( @"ipc_client_recv = $(rc)" ) );
         if ( rc != 0 )
         {
             theLogger.error( @"Something went wrong while receiving data from the modem ... discarding this request!" );
             return;
         }
 
-        assert( theLogger.debug( @"Got response from modem: type = $(SamsungIpc.request_type_to_string(response.type)) " +
+        assert( theLogger.debug( @"Got response from modem: type = $(SamsungIpc.response_type_to_string(response.type)) " +
                                  @"command = $(SamsungIpc.command_type_to_string(response.command))" ) );
 
         switch ( response.type )
