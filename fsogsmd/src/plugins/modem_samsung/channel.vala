@@ -107,6 +107,10 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
                 break;
         }
 
+        // libsamsung-ipc allocates some memory for the response data which is not being
+        // freed otherwise
+        free(response.data);
+
         assert( theLogger.debug( @"Handled response from modem successfully!" ) );
     }
 
