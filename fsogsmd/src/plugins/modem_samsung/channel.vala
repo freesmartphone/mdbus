@@ -106,6 +106,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
                 handle_solicited_response( response );
                 break;
         }
+
+        assert( theLogger.debug( @"Handled response from modem successfully!" ) );
     }
 
     private void handle_solicited_response( SamsungIpc.Response response )
