@@ -92,8 +92,9 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
             return;
         }
 
+        var message_type = (SamsungIpc.MessageType) response.command;
         assert( theLogger.debug( @"Got response from modem: type = $(SamsungIpc.response_type_to_string(response.type)) " +
-                                 @"command = $(SamsungIpc.command_type_to_string(response.command))" ) );
+                                 @"command = $(SamsungIpc.message_type_to_string(message_type))" ) );
 
         switch ( response.type )
         {

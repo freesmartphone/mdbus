@@ -29,7 +29,7 @@ public class SamsungUnsolicitedResponseHandler : FsoFramework.AbstractObject
     {
         switch ( response.command )
         {
-            case SamsungIpc.PowerMessageType.PHONE_PWR_UP:
+            case SamsungIpc.MessageType.PWR_PHONE_PWR_UP:
                 break;
         }
     }
