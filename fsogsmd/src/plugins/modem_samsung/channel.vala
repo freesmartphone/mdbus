@@ -182,6 +182,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         theModem.signalStatusChanged.connect( onModemStatusChanged );
 
         fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.CRESPO_FMT );
+        fmtclient.set_log_handler( ( message ) => { theLogger.info( message ); } );
         fmtclient.set_delegates( modem_write_request, modem_read_request );
     }
 
