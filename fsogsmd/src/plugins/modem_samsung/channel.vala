@@ -34,7 +34,8 @@ public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
     {
         var message_type = (SamsungIpc.MessageType) command;
         assert( theLogger.debug( @"Sending request with id = $(id), type = $(SamsungIpc.request_type_to_string(type)), " +
-                                 @"command = $(SamsungIpc.message_type_to_string(message_type)), size = $(data.length)" ) );
+                                 @"command = $(SamsungIpc.message_type_to_string(message_type)) (0x%04x), ".printf( command ) +
+                                 @"size = $(data.length)" ) );
 
         client.send( command, type, data, id );
     }
@@ -96,7 +97,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         var message_type = (SamsungIpc.MessageType) response.command;
         var response_type = (SamsungIpc.ResponseType) response.type;
         assert( theLogger.debug( @"Got response from modem: type = $(SamsungIpc.response_type_to_string(response_type)) " +
-                                 @"command = $(SamsungIpc.message_type_to_string(message_type))" ) );
+                                 @"command = $(SamsungIpc.message_type_to_string(message_type)) (0x%04x), ".printf( response.command )) );
 
         switch ( response.type )
         {
