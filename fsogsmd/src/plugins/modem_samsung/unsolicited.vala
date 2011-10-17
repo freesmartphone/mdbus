@@ -31,12 +31,29 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         {
             case SamsungIpc.MessageType.PWR_PHONE_PWR_UP:
                 break;
+            case SamsungIpc.MessageType.NET_REGIST:
+                handle_network_registration( response );
+                break;
         }
     }
 
     public override string repr()
     {
         return @"<>";
+    }
+
+    //
+    // private
+    //
+
+    private void handle_network_registration( SamsungIpc.Response response )
+    {
+        SamsungIpc.Network.RegistrationMessage* reginfo = (SamsungIpc.Network.RegistrationMessage*) response.data;
+
+        assert( logger.debug( @"Got network registration information from modem:" ) );
+        assert( logger.debug( @" act = $(reginfo.act), domain = $(reginfo.domain)" ) );
+        assert( logger.debug( @" status = $(reginfo.status), edge = $(reginfo.edge)" ) );
+        assert( logger.debug( @" lac = $(reginfo.lac), cid = $(reginfo.lac), rej_cause = $(reginfo.rej_cause)" ) );
     }
 }
 
