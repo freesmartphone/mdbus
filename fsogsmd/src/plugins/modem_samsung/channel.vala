@@ -138,6 +138,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
             return;
         }
 
+        request.response = response;
         request.callback();
     }
 
