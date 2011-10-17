@@ -55,6 +55,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private new Samsung.UnsolicitedResponseHandler urchandler;
     private uint8 current_request_id = 0;
     private Gee.LinkedList<CommandHandler> pending_requests;
+    private bool initialized = false;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
@@ -174,12 +175,11 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     private async void initialize()
     {
-        bool result = false;
         SamsungIpc.Response response;
 
         // First we need to power on the modem so we can start working with it
-        result = yield enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.PWR_PHONE_STATE,
-                                      new uint8[] { 0x2, 0x2 }, out response );
+        var result = yield enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.PWR_PHONE_STATE,
+                                          new uint8[] { 0x2, 0x2 }, out response );
         if ( !result )
         {
             theLogger.error( @"Can't power up modem, could not send the command action for this!" );
@@ -188,6 +188,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         }
 
         assert( theLogger.debug( @"Powered up modem successfully!" ) );
+
+        initialized = true;
     }
 
     //
@@ -266,10 +268,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     public void registerUnsolicitedHandler( UnsolicitedHandler urchandler ) { }
 
-    public void injectResponse( string response )
-    {
-        assert_not_reached();
-    }
+    public void injectResponse( string response ) { assert_not_reached(); }
 
     public async bool suspend()
     {
