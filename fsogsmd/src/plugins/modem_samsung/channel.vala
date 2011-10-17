@@ -29,6 +29,7 @@ public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
     public int command;
     public uint8[] data;
     public SamsungIpc.Response response;
+    public bool timed_out = false;
 
     public override void writeToTransport( FsoFramework.Transport t )
     {
@@ -71,6 +72,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         switch ( status )
         {
             case FsoGsm.Modem.Status.INITIALIZING:
+                initialize();
                 break;
             case FsoGsm.Modem.Status.ALIVE_SIM_READY:
                 break;
@@ -147,6 +149,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         Samsung.CommandHandler handler = (Samsung.CommandHandler) ach;
 
         theLogger.warning( @"Command with id = $(handler.id) timed out while trying to send it to the modem!" );
+        handler.timed_out = true;
 
         // We're just telling the user about this as he will not receive any
         // response message for his enqueue_async call.
@@ -169,6 +172,23 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         return transport.write(data, data.length);
     }
 
+    private async void initialize()
+    {
+        bool result = false;
+        SamsungIpc.Response response;
+
+        // First we need to power on the modem so we can start working with it
+        result = yield enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.PWR_PHONE_STATE,
+                                      new uint8[] { 0x2, 0x2 }, out response );
+        if ( !result )
+        {
+            theLogger.error( @"Can't power up modem, could not send the command action for this!" );
+            theModem.close();
+            return;
+        }
+
+        assert( theLogger.debug( @"Powered up modem successfully!" ) );
+    }
 
     //
     // public API
@@ -218,7 +238,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
      * @param timeout Time to wait until the request receives (zero means an unlimited timeout)
      * @return Response message received for the request or null if sending is not possible or a timeout occured
      **/
-    public async void enqueue_async( int type, int command, uint8[] data, out SamsungIpc.Response response, int retry = 0, int timeout = 0 )
+    public async bool enqueue_async( int type, int command, uint8[] data, out SamsungIpc.Response response, int retry = 0, int timeout = 0 )
     {
         var handler = new Samsung.CommandHandler();
 
@@ -236,7 +256,12 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         yield;
 
+        if ( handler.timed_out )
+            return false;
+
         response = handler.response;
+
+        return true;
     }
 
     public void registerUnsolicitedHandler( UnsolicitedHandler urchandler ) { }
