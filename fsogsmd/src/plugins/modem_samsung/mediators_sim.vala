@@ -45,14 +45,14 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
         message.type = SamsungIpc.Security.PinType.PIN1;
         Memory.copy(message.pin1, pin, pin.length);
 
+        unowned uint8[] data = (uint8[]) (&message);
+        data.length = (int) sizeof( SamsungIpc.Security.PinStatusSetMessage );
+
         var result = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SEC_PIN_STATUS,
-                                                  (uint8[]) (&message), out response );
+                                                  data, out response );
 
         var phoneresp = (SamsungIpc.Generic.PhoneResponseMessage*) (&response);
         if ( phoneresp.code != 0x8000 )
             throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"SIM card authentication failed" );
     }
 }
-
-
-
