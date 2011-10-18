@@ -19,6 +19,7 @@
 
 using GLib;
 using Gee;
+using FsoGsm;
 
 /**
  * @class Samsung
@@ -85,6 +86,9 @@ class Samsung.Modem : FsoGsm.AbstractModem
     protected override void registerCustomMediators( HashMap<Type,Type> mediators )
     {
         mediators.clear(); // we don't need the default AT mediators
+
+        mediators[ typeof(SimGetAuthStatus) ]  = typeof( SamsungSimGetAuthStatus );
+        mediators[ typeof(SimSendAuthCode) ]   = typeof( SamsungSimSendAuthCode );
     }
 }
 
