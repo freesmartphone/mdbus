@@ -53,6 +53,7 @@ modem_samsung_la_VALASOURCES = \
  channel.vala \
  unsolicited.vala \
  modemstate.vala \
+ mediators_sim.vala \
  $(NULL)
 
 modem_samsung_la_SOURCES = $(modem_samsung_la_VALASOURCES:.vala=.c)

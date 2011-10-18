@@ -20,6 +20,54 @@
 using GLib;
 using FsoGsm;
 
+public void updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
+{
+    theModem.logger.info( @"SIM Auth status now $status" );
+
+    // send the dbus signal
+    var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
+    obj.auth_status( status );
+
+    // check whether we need to advance the modem state
+    var data = theModem.data();
+    if ( status != data.simAuthStatus )
+    {
+        data.simAuthStatus = status;
+
+        // advance global modem state
+        var modemStatus = theModem.status();
+        if ( modemStatus == Modem.Status.INITIALIZING )
+        {
+            if ( status == FreeSmartphone.GSM.SIMAuthStatus.READY )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+            }
+            else
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
+            }
+        }
+        else if ( modemStatus == Modem.Status.ALIVE_SIM_LOCKED )
+        {
+            if ( status == FreeSmartphone.GSM.SIMAuthStatus.READY )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+            }
+        }
+        // NOTE: If we're registered to a network and we unregister then we need to
+        // re-authenticate with the sim card and the correct pin. We are in REGISTERED or
+        // UNLOCKED state before this, so we move to LOCKED sim state in this case.
+        else if ( modemStatus == Modem.Status.ALIVE_REGISTERED || modemStatus == Modem.Status.ALIVE_SIM_UNLOCKED  )
+        {
+            if ( status == FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED, true );
+            }
+        }
+    }
+}
+
+
 public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 {
     /**
@@ -84,21 +132,33 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         switch ( message.status )
         {
             case SamsungIpc.Security.SimStatus.INIT_COMPLETE:
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_LOCKED );
+                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
                 break;
 
-            case SamsungIpc.Security.SimStatus.CARD_NOT_PRESENT:
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_NO_SIM );
-                break;
-
-            case SamsungIpc.Security.SimStatus.CARD_ERROR:
-                logger.error( @"Modem reports SIM card has an error; not advancing modem state!" );
+            case SamsungIpc.Security.SimStatus.LOCK_SC:
+                switch ( message.lock_status )
+                {
+                    case SamsungIpc.Security.SimLockStatus.PIN1_REQ:
+                        updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+                        break;
+                    case SamsungIpc.Security.SimLockStatus.PUK_REQ:
+                        updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
+                        break;
+                    case SamsungIpc.Security.SimLockStatus.CARD_BLOCKED:
+                        // FIXME we need a modem status for a blocked sim card!
+                        theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_NO_SIM );
+                        break;
+                }
                 break;
 
             case SamsungIpc.Security.SimStatus.PB_INIT_COMPLETE:
                 break;
 
+            case SamsungIpc.Security.SimStatus.LOCK_FD:
             case SamsungIpc.Security.SimStatus.SIM_LOCK_REQUIRED:
+            case SamsungIpc.Security.SimStatus.CARD_ERROR:
+            case SamsungIpc.Security.SimStatus.CARD_NOT_PRESENT:
+                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_NO_SIM );
                 break;
         }
     }
