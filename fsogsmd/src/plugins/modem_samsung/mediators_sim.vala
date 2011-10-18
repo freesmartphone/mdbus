@@ -38,7 +38,7 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
         SamsungIpc.Response response;
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
 
-        if ( pin.length != 4 || pin.length != 8 )
+        if ( pin.length != 4 && pin.length != 8 )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Got pin with invalid length of $(pin.length)" );
 
         var message = SamsungIpc.Security.PinStatusSetMessage();
