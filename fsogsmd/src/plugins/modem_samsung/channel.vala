@@ -53,7 +53,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     private SamsungIpc.Client fmtclient;
     private new Samsung.UnsolicitedResponseHandler urchandler;
-    private uint8 current_request_id = 0;
+    private uint8 current_request_id = 1;
     private Gee.LinkedList<CommandHandler> pending_requests;
     private bool initialized = false;
 
