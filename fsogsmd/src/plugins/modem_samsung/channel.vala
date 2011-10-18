@@ -38,6 +38,9 @@ public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
                                  @"command = $(SamsungIpc.message_type_to_string(message_type)) (0x%04x), ".printf( command ) +
                                  @"size = $(data.length)" ) );
 
+        assert( theLogger.debug( @"request data (length = $(data.length)):" ) );
+        assert( theLogger.debug( FsoFramework.StringHandling.hexdump( data ) ) );
+
         client.send( command, type, data, id );
     }
 
