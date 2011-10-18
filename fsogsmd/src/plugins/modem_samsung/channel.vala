@@ -269,6 +269,9 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         response = handler.response;
 
+        // reset current command handler so we're able to send more commands
+        current = null;
+
         return true;
     }
 
