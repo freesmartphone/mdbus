@@ -132,7 +132,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         switch ( message.status )
         {
             case SamsungIpc.Security.SimStatus.INIT_COMPLETE:
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+                updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
                 break;
 
             case SamsungIpc.Security.SimStatus.LOCK_SC:
