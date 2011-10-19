@@ -43,6 +43,7 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
 
         var message = SamsungIpc.Security.PinStatusSetMessage();
         message.type = SamsungIpc.Security.PinType.PIN1;
+        message.length1 = (uint8) pin.length;
         Memory.copy(message.pin1, pin, pin.length);
 
         unowned uint8[] data = (uint8[]) (&message);
