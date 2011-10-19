@@ -62,8 +62,6 @@ class LowLevel.SamsungCrespo : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         FsoFramework.FileHandling.write( "1", power_mode_node );
 
-        Posix.sleep( 1 );
-
         return true;
     }
 
