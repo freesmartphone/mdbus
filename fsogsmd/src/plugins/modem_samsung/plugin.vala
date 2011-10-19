@@ -87,8 +87,24 @@ class Samsung.Modem : FsoGsm.AbstractModem
     {
         mediators.clear(); // we don't need the default AT mediators
 
-        mediators[ typeof(SimGetAuthStatus) ]  = typeof( SamsungSimGetAuthStatus );
-        mediators[ typeof(SimSendAuthCode) ]   = typeof( SamsungSimSendAuthCode );
+        mediators[ typeof(SimGetAuthCodeRequired) ]       = typeof( SamsungSimGetAuthCodeRequired );
+        mediators[ typeof(SimGetAuthStatus) ]             = typeof( SamsungSimGetAuthStatus );
+        mediators[ typeof(SimSendAuthCode) ]              = typeof( SamsungSimSendAuthCode );
+        mediators[ typeof(SimGetInformation) ]            = typeof( SamsungSimGetInformation );
+        mediators[ typeof(SimDeleteEntry) ]               = typeof( SamsungSimDeleteEntry );
+        mediators[ typeof(SimGetPhonebookInfo) ]          = typeof( SamsungSimGetPhonebookInfo );
+        mediators[ typeof(SimWriteEntry) ]                = typeof( SamsungSimWriteEntry );
+        mediators[ typeof(SimRetrievePhonebook) ]         = typeof( SamsungSimRetrievePhonebook );
+        mediators[ typeof(SimWriteEntry) ]                = typeof( SamsungSimWriteEntry );
+        mediators[ typeof(SimDeleteMessage) ]             = typeof( SamsungSimDeleteMessage );
+        mediators[ typeof(SimGetServiceCenterNumber) ]    = typeof( SamsungSimGetServiceCenterNumber );
+        mediators[ typeof(SimGetUnlockCounters) ]         = typeof( SamsungSimGetUnlockCounters );
+        mediators[ typeof(SimRetrieveMessage) ]           = typeof( SamsungSimRetrieveMessage );
+        mediators[ typeof(SimSendStoredMessage) ]         = typeof( SamsungSimSendStoredMessage );
+        mediators[ typeof(SimSetServiceCenterNumber) ]    = typeof( SamsungSimSetServiceCenterNumber );
+        mediators[ typeof(SimStoreMessage) ]              = typeof( SamsungSimStoreMessage );
+        mediators[ typeof(SimUnlock) ]                    = typeof( SamsungSimUnlock );
+        mediators[ typeof(SimChangeAuthCode) ]            = typeof( SamsungSimChangeAuthCode );
     }
 }
 

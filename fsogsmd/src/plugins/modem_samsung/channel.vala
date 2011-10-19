@@ -78,6 +78,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
                 initialize();
                 break;
             case FsoGsm.Modem.Status.ALIVE_SIM_READY:
+                poweron();
                 break;
             case FsoGsm.Modem.Status.CLOSING:
                 break;
@@ -184,7 +185,37 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         assert( theLogger.debug( @"Powered up modem successfully!" ) );
 
+        yield retrieveAndStoreBasebandSoftwareVersion();
+
         initialized = true;
+    }
+
+    private async void retrieveAndStoreBasebandSoftwareVersion()
+    {
+        unowned SamsungIpc.Response? response;
+
+        response = yield enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_VERSION,
+                                            new uint8[] { 0xff } );
+        if ( response == null )
+        {
+            theLogger.error( @"Can't get baseband software version from modem!");
+            return;
+        }
+
+        var message = (SamsungIpc.Misc.VersionMessage*) (response.data);
+
+        assert( theLogger.debug( @"Baseband software version info:" ) );
+        assert( theLogger.debug( @" sw_version = $((string) message.sw_version), hw_version = $((string) message.hw_version)" ) );
+        assert( theLogger.debug( @" cal_date = $((string) message.cal_date)") );
+        assert( theLogger.debug( @" misc = $((string) message.misc)") );
+    }
+
+    private async void poweron()
+    {
+        unowned SamsungIpc.Response? response;
+
+        // FIXME why we send this requst is still unknown but we send it :)
+        response = yield enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SMS_DEVICE_READY, new uint8[] { } );
     }
 
     //
@@ -234,7 +265,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
      * @param timeout Time to wait until the request receives (zero means an unlimited timeout)
      * @return Response message received for the request or null if sending is not possible or a timeout occured
      **/
-    public async unowned SamsungIpc.Response? enqueue_async( int type, int command, uint8[] data, int retry = 0, int timeout = 0 )
+    public async unowned SamsungIpc.Response? enqueue_async( int type, int command, uint8[] data = new uint8[] { },
+                                                             int retry = 0, int timeout = 0 )
     {
         var handler = new Samsung.CommandHandler();
 

@@ -18,6 +18,7 @@
  */
 
 using FsoGsm;
+using FsoFramework;
 
 public class SamsungSimGetAuthStatus : SimGetAuthStatus
 {
@@ -60,3 +61,145 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
             throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"SIM card authentication failed" );
     }
 }
+public class SamsungSimGetInformation : SimGetInformation
+{
+    private const int DEFAULT_IMSI_LENGTH = 15;
+
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        unowned SamsungIpc.Response? response;
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+
+        info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_IMSI, new uint8[] { } );
+        if ( response == null || response.data.length != DEFAULT_IMSI_LENGTH + 1)
+        {
+            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Could not retrieve IMSI number from modem" );
+            return;
+        }
+
+        string imsi = SamsungIpc.Misc.parse_imsi( response.data );
+
+        info.insert( "imsi", imsi );
+        info.insert( "phonebooks", "" );
+    }
+}
+
+public class SamsungSimGetAuthCodeRequired : SimGetAuthCodeRequired
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class SamsungSimChangeAuthCode : SimChangeAuthCode
+{
+    public override async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class SamsungSimDeleteEntry : SimDeleteEntry
+{
+    public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class SamsungSimGetPhonebookInfo : SimGetPhonebookInfo
+{
+    public override async void run( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class SamsungSimRetrievePhonebook : SimRetrievePhonebook
+{
+    public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class SamsungSimWriteEntry : SimWriteEntry
+{
+    public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+    }
+}
+
+public class SamsungSimDeleteMessage : SimDeleteMessage
+{
+    public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
+    }
+}
+
+
+public class SamsungSimGetServiceCenterNumber : SimGetServiceCenterNumber
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
+    }
+}
+
+public class SamsungSimGetUnlockCounters : SimGetUnlockCounters
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
+    }
+}
+
+public class SamsungSimRetrieveMessage : SimRetrieveMessage
+{
+    public override async void run( int index, out string status, out string number, out string contents, out GLib.HashTable<string,GLib.Variant> properties ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+       throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
+    }
+}
+
+public class SamsungSimSendStoredMessage : SimSendStoredMessage
+{
+    public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
+    }
+}
+
+public class SamsungSimSetServiceCenterNumber : SimSetServiceCenterNumber
+{
+    public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
+    }
+}
+
+public class SamsungSimStoreMessage : SimStoreMessage
+{
+    public override async void run( string recipient_number, string contents, bool want_report ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
+    }
+}
+
+public class SamsungSimUnlock : SimUnlock
+{
+    public override async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented" );
+    }
+}
+
+// vim:ts=4:sw=4:expandtab
