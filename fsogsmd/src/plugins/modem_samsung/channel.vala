@@ -57,7 +57,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private SamsungIpc.Client fmtclient;
     private new Samsung.UnsolicitedResponseHandler urchandler;
     private uint8 current_request_id = 1;
-    private Gee.LinkedList<CommandHandler> pending_requests;
     private bool initialized = false;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
@@ -129,26 +128,17 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     private void handle_solicited_response( SamsungIpc.Response response )
     {
-        CommandHandler? request = null;
+        var ch  = (Samsung.CommandHandler) current;
 
-        foreach ( var preq in pending_requests )
-        {
-            if ( preq.id == response.aseq )
-            {
-                request = preq;
-                break;
-            }
-        }
-
-        if ( request == null )
+        if ( current == null || ch.id != response.aseq )
         {
             theLogger.warning( @"Got response with id = $(response.aseq) which does not belong to any pending request!" );
             theLogger.warning( @"Ignoring response ..." );
             return;
         }
 
-        request.response = response;
-        request.callback();
+        ch.response = response;
+        ch.callback();
     }
 
     protected override void onResponseTimeout( AbstractCommandHandler ach )
@@ -207,7 +197,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         base( transport );
 
         this.name = name;
-        this.pending_requests = new Gee.LinkedList<CommandHandler>();
         this.urchandler = new Samsung.UnsolicitedResponseHandler();
 
         theModem.registerChannel( name, this );
@@ -260,8 +249,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         handler.data = data;
 
         enqueueCommand( handler );
-        pending_requests.offer_tail( handler );
-
         yield;
 
         if ( handler.timed_out )
