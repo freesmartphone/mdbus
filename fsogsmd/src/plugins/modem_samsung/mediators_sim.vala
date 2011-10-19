@@ -35,7 +35,7 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
 {
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        SamsungIpc.Response response;
+        unowned SamsungIpc.Response? response;
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
 
         if ( theModem.data().simAuthStatus == FreeSmartphone.GSM.SIMAuthStatus.READY )
@@ -52,10 +52,10 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
         unowned uint8[] data = (uint8[]) (&message);
         data.length = (int) sizeof( SamsungIpc.Security.PinStatusSetMessage );
 
-        var result = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SEC_PIN_STATUS,
-                                                  data, out response );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SEC_PIN_STATUS, data );
 
-        var phoneresp = (SamsungIpc.Generic.PhoneResponseMessage*) (&response);
+        var phoneresp = (SamsungIpc.Generic.PhoneResponseMessage*) (response.data);
+        assert( FsoFramework.theLogger.debug( "code = 0x%04x".printf( phoneresp.code ) ) );
         if ( phoneresp.code != 0x8000 )
             throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"SIM card authentication failed" );
     }

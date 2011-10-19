@@ -28,7 +28,7 @@ public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
     public int type;
     public int command;
     public uint8[] data;
-    public SamsungIpc.Response response;
+    public unowned SamsungIpc.Response response;
     public bool timed_out = false;
 
     public override void writeToTransport( FsoFramework.Transport t )
@@ -171,12 +171,11 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     private async void initialize()
     {
-        SamsungIpc.Response response;
+        unowned SamsungIpc.Response? response;
 
         // First we need to power on the modem so we can start working with it
-        var result = yield enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.PWR_PHONE_STATE,
-                                          new uint8[] { 0x2, 0x2 }, out response );
-        if ( !result )
+        response = yield enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.PWR_PHONE_STATE, new uint8[] { 0x2, 0x2 } );
+        if ( response == null )
         {
             theLogger.error( @"Can't power up modem, could not send the command action for this!" );
             theModem.close();
@@ -235,7 +234,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
      * @param timeout Time to wait until the request receives (zero means an unlimited timeout)
      * @return Response message received for the request or null if sending is not possible or a timeout occured
      **/
-    public async bool enqueue_async( int type, int command, uint8[] data, out SamsungIpc.Response response, int retry = 0, int timeout = 0 )
+    public async unowned SamsungIpc.Response? enqueue_async( int type, int command, uint8[] data, int retry = 0, int timeout = 0 )
     {
         var handler = new Samsung.CommandHandler();
 
@@ -252,14 +251,12 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         yield;
 
         if ( handler.timed_out )
-            return false;
-
-        response = handler.response;
+            return null;
 
         // reset current command handler so we're able to send more commands
         current = null;
 
-        return true;
+        return handler.response;
     }
 
     public void registerUnsolicitedHandler( UnsolicitedHandler urchandler ) { }

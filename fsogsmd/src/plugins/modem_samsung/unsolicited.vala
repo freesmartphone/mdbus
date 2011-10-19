@@ -165,7 +165,6 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
     private void handle_power_state( uint8 power_state )
     {
-
         if ( power_state == ModemState.power_state )
             return;
 
