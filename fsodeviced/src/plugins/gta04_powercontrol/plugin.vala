@@ -65,7 +65,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
     var gpio = Path.build_filename( sysfs_root, "class", "gpio" );
 
-    var gps_gpio = Path.build_filename( gpio, "gpio145", "value");
+    var gps_gpio = Path.build_filename( gpio, "gpio145" );
     if ( FsoFramework.FileHandling.isPresent( gps_gpio ) )
     {
         var o = new GTA04.GpioPowerControl( subsystem, gps_gpio );
