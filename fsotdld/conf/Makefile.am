@@ -5,6 +5,7 @@ NULL=
 SUBDIRS = \
 	default \
 	openmoko_gta \
+	GTA04 \
 	htc_qualcomm_dream \
 	htcleo \
 	nexusone \

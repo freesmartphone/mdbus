@@ -116,6 +116,7 @@ AC_CONFIG_FILES([
   conf/Makefile
   conf/default/Makefile
   conf/openmoko_gta/Makefile
+  conf/GTA04/Makefile
   conf/htc_qualcomm_dream/Makefile
   conf/htcleo/Makefile
   conf/nexusone/Makefile
