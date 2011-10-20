@@ -31,6 +31,7 @@ SUBDIRS = \
 	\
 	n900_powercontrol \
 	openmoko_powercontrol \
+	gta04_powercontrol \
 	thinkpad_powercontrol \
 	\
 	powercontrol_ifconfig \
