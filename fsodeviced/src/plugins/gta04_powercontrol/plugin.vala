@@ -26,14 +26,14 @@ namespace GTA04
 /**
  * Common device power control for Openmoko GTA04
  **/
-class GpioPowerControl : FsoDevice.BasePowerControl
+class GpsPowerControl : FsoDevice.BasePowerControl
 {
 
     private FsoFramework.Subsystem subsystem;
     private string sysfsnode;
     private string name;
 
-    public GpioPowerControl( FsoFramework.Subsystem subsystem, string sysfsnode )
+    public GpsPowerControl( FsoFramework.Subsystem subsystem, string sysfsnode )
     {
         base( Path.build_filename( sysfsnode, "value" ) );
         this.subsystem = subsystem;
@@ -43,6 +43,23 @@ class GpioPowerControl : FsoDevice.BasePowerControl
         subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
 
         logger.info( "created." );
+    }
+
+    public override void setPower( bool on )
+    {
+        if ( on )
+        {
+            // on - off - on to properly reset the GPS
+            base.setPower( true );
+            Posix.usleep( 200 );
+            base.setPower( false );
+            Posix.usleep( 200 );
+            base.setPower( true );
+        }
+        else
+        {
+            base.setPower( false );
+        }
     }
 }
 
@@ -68,7 +85,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var gps_gpio = Path.build_filename( gpio, "gpio145" );
     if ( FsoFramework.FileHandling.isPresent( gps_gpio ) )
     {
-        var o = new GTA04.GpioPowerControl( subsystem, gps_gpio );
+        var o = new GTA04.GpsPowerControl( subsystem, gps_gpio );
         instances.append( o );
 #if WANT_FSO_RESOURCE
         resources.append( new FsoDevice.BasePowerControlResource( o, "GPS", subsystem ) );
