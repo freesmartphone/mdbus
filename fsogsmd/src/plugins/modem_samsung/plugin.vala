@@ -105,6 +105,12 @@ class Samsung.Modem : FsoGsm.AbstractModem
         mediators[ typeof(SimStoreMessage) ]              = typeof( SamsungSimStoreMessage );
         mediators[ typeof(SimUnlock) ]                    = typeof( SamsungSimUnlock );
         mediators[ typeof(SimChangeAuthCode) ]            = typeof( SamsungSimChangeAuthCode );
+
+        mediators[ typeof(DeviceGetFeatures) ]            = typeof( SamsungDeviceGetFeatures );
+        mediators[ typeof(DeviceGetInformation) ]         = typeof( SamsungDeviceGetInformation );
+        mediators[ typeof(DeviceGetFunctionality) ]       = typeof( SamsungDeviceGetFunctionality );
+        mediators[ typeof(DeviceGetPowerStatus) ]         = typeof( SamsungDeviceGetPowerStatus );
+        mediators[ typeof(DeviceSetFunctionality) ]       = typeof( SamsungDeviceSetFunctionality );
     }
 }
 
