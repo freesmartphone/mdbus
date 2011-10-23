@@ -18,6 +18,7 @@
  */
 
 using FsoGsm;
+using FsoFramework;
 
 static bool inTriggerUpdateNetworkStatus;
 
@@ -165,6 +166,9 @@ public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
  **/
 public async void triggerUpdateNetworkStatus()
 {
+    unowned SamsungIpc.Response? response;
+    SamsungIpc.Network.RegistrationState reg_state = Samsung.ModemState.network_reg_state;
+
     if ( inTriggerUpdateNetworkStatus )
     {
         assert( theModem.logger.debug( "already gathering network status... ignoring additional trigger" ) );
@@ -172,6 +176,21 @@ public async void triggerUpdateNetworkStatus()
     }
 
     inTriggerUpdateNetworkStatus = true;
+
+    var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+
+    // We requst the network registration state so we can decide on the on the last state
+    // what we have to update and don't rely on a old state we saved a long time ago.
+    response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_REGIST, new uint8[] { 0xff, 0x02 } );
+    if ( response == null )
+    {
+        assert( theLogger.error( @"Can't retrieve network registration state from modem!" ) );
+    }
+    else
+    {
+        var netresp = (SamsungIpc.Network.RegistrationMessage*) (response.data);
+        reg_state = (SamsungIpc.Network.RegistrationState) netresp.reg_state;
+    }
 
     var mstat = theModem.status();
 
