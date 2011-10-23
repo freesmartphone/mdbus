@@ -192,6 +192,15 @@ public async void triggerUpdateNetworkStatus()
             theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
         }
     }
+    else
+    {
+        // If we are not registered with a network but our status indicates a network
+        // registration we should change the modem state
+        if ( mstat == Modem.Status.ALIVE_REGISTERED )
+        {
+            theModem.advanceToState( Modem.Status.ALIVE_SIM_READY );
+        }
+    }
 
     // Send network status signal to connected clients
     var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
