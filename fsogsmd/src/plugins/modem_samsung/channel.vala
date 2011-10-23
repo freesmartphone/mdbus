@@ -25,23 +25,22 @@ public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
 {
     public unowned SamsungIpc.Client client;
     public uint8 id;
-    public int type;
-    public int command;
+    public SamsungIpc.RequestType request_type;
+    public SamsungIpc.MessageType message_type;
     public uint8[] data;
     public unowned SamsungIpc.Response response;
     public bool timed_out = false;
 
     public override void writeToTransport( FsoFramework.Transport t )
     {
-        var message_type = (SamsungIpc.MessageType) command;
-        assert( theLogger.debug( @"Sending request with id = $(id), type = $(SamsungIpc.request_type_to_string(type)), " +
-                                 @"command = $(SamsungIpc.message_type_to_string(message_type)) (0x%04x), ".printf( command ) +
+        assert( theLogger.debug( @"Sending request with id = $(id), request_type = $(request_type), " +
+                                 @"message_type = $(message_type)" +
                                  @"size = $(data.length)" ) );
 
         assert( theLogger.debug( @"request data (length = $(data.length)):" ) );
         assert( theLogger.debug( FsoFramework.StringHandling.hexdump( data ) ) );
 
-        client.send( command, type, data, id );
+        client.send( message_type, request_type, data, id );
     }
 
     public override string to_string()
@@ -100,10 +99,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
             return;
         }
 
-        var message_type = (SamsungIpc.MessageType) response.command;
-        var response_type = (SamsungIpc.ResponseType) response.type;
-        assert( theLogger.debug( @"Got response from modem: type = $(SamsungIpc.response_type_to_string(response_type)) " +
-                                 @"command = $(SamsungIpc.message_type_to_string(message_type)) (0x%04x), ".printf( response.command )) );
+        assert( theLogger.debug( @"Got response from modem: type = $(response.type) " +
+                                 @"command = $(response.command))" ) );
 
         assert( theLogger.debug( @"response data (length = $(response.data.length)):" ) );
         assert( theLogger.debug( FsoFramework.StringHandling.hexdump( response.data ) ) );
@@ -265,7 +262,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
      * @param timeout Time to wait until the request receives (zero means an unlimited timeout)
      * @return Response message received for the request or null if sending is not possible or a timeout occured
      **/
-    public async unowned SamsungIpc.Response? enqueue_async( int type, int command, uint8[] data = new uint8[] { },
+    public async unowned SamsungIpc.Response? enqueue_async( SamsungIpc.RequestType type, SamsungIpc.MessageType command, uint8[] data = new uint8[] { },
                                                              int retry = 0, int timeout = 0 )
     {
         var handler = new Samsung.CommandHandler();
@@ -275,8 +272,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         handler.callback = enqueue_async.callback;
         handler.retry = retry;
         handler.timeout = timeout;
-        handler.type = type;
-        handler.command = command;
+        handler.message_type = command;
+        handler.request_type = type;
         handler.data = data;
 
         enqueueCommand( handler );

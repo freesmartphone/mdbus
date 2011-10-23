@@ -21,6 +21,8 @@ namespace Samsung
     public static class ModemState
     {
         public static uint8 signal_strength = 0;
+        public static uint32 cid;
+        public static uint16 lac;
         public static uint8 power_state = 0;
         public static uint8 sim_icc_type = 0;
         public static SamsungIpc.Security.SimStatus sim_status = SamsungIpc.Security.SimStatus.INITIALIZING;

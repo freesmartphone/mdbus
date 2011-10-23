@@ -20,54 +20,6 @@
 using GLib;
 using FsoGsm;
 
-public void updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
-{
-    theModem.logger.info( @"SIM Auth status now $status" );
-
-    // send the dbus signal
-    var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
-    obj.auth_status( status );
-
-    // check whether we need to advance the modem state
-    var data = theModem.data();
-    if ( status != data.simAuthStatus )
-    {
-        data.simAuthStatus = status;
-
-        // advance global modem state
-        var modemStatus = theModem.status();
-        if ( modemStatus == Modem.Status.INITIALIZING )
-        {
-            if ( status == FreeSmartphone.GSM.SIMAuthStatus.READY )
-            {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
-            }
-            else
-            {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
-            }
-        }
-        else if ( modemStatus == Modem.Status.ALIVE_SIM_LOCKED )
-        {
-            if ( status == FreeSmartphone.GSM.SIMAuthStatus.READY )
-            {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
-            }
-        }
-        // NOTE: If we're registered to a network and we unregister then we need to
-        // re-authenticate with the sim card and the correct pin. We are in REGISTERED or
-        // UNLOCKED state before this, so we move to LOCKED sim state in this case.
-        else if ( modemStatus == Modem.Status.ALIVE_REGISTERED || modemStatus == Modem.Status.ALIVE_SIM_UNLOCKED  )
-        {
-            if ( status == FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED )
-            {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED, true );
-            }
-        }
-    }
-}
-
-
 public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 {
     /**
@@ -176,9 +128,15 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         SamsungIpc.Network.RegistrationMessage* reginfo = (SamsungIpc.Network.RegistrationMessage*) response.data;
 
         assert( logger.debug( @"Got updated network registration information from modem:" ) );
+
+        var reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
+        assert( logger.debug( @"reg_state = $(reg_state)" ) );
+
+        /*
         assert( logger.debug( @" act = $(reginfo.act), domain = $(reginfo.domain)" ) );
         assert( logger.debug( @" status = $(reginfo.status), edge = $(reginfo.edge)" ) );
         assert( logger.debug( @" lac = $(reginfo.lac), cid = $(reginfo.lac), rej_cause = $(reginfo.rej_cause)" ) );
+        */
     }
 }
 
