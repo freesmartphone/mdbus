@@ -167,7 +167,6 @@ public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
 public async void triggerUpdateNetworkStatus()
 {
     unowned SamsungIpc.Response? response;
-    SamsungIpc.Network.RegistrationState reg_state = Samsung.ModemState.network_reg_state;
 
     if ( inTriggerUpdateNetworkStatus )
     {
@@ -189,7 +188,7 @@ public async void triggerUpdateNetworkStatus()
     else
     {
         var netresp = (SamsungIpc.Network.RegistrationMessage*) (response.data);
-        reg_state = (SamsungIpc.Network.RegistrationState) netresp.reg_state;
+        Samsung.ModemState.network_reg_state = netresp.reg_state;
     }
 
     var mstat = theModem.status();
