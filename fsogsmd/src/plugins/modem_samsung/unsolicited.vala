@@ -53,6 +53,10 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 break;
 
             case SamsungIpc.MessageType.DISP_RSSI_INFO:
+                // Don't report signal strength when we are not registered
+                if ( theModem.status() != FsoGsm.Modem.Status.ALIVE_REGISTERED )
+                    break;
+
                 ModemState.network_signal_strength = response.data[0];
                 // notify the user about the change of signal strength
                 var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
