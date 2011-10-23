@@ -56,6 +56,7 @@ modem_samsung_la_VALASOURCES = \
  mediators_sim.vala \
  mediators_device.vala \
  mediators_network.vala \
+ mediators_pdp.vala \
  utils.vala \
  $(NULL)
 
