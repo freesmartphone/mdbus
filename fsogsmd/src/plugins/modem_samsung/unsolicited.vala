@@ -53,10 +53,10 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 break;
 
             case SamsungIpc.MessageType.DISP_RSSI_INFO:
-                ModemState.signal_strength = response.data[0];
+                ModemState.network_signal_strength = response.data[0];
                 // notify the user about the change of signal strength
                 var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-                obj.signal_strength( ModemState.signal_strength );
+                obj.signal_strength( ModemState.network_signal_strength );
                 break;
         }
     }
@@ -129,14 +129,15 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
         assert( logger.debug( @"Got updated network registration information from modem:" ) );
 
-        var reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
-        assert( logger.debug( @"reg_state = $(reg_state)" ) );
+        ModemState.network_reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
+        ModemState.network_act = (SamsungIpc.Network.AccessTechnology) reginfo.act;
+        ModemState.network_lac = reginfo.lac;
+        ModemState.network_cid = reginfo.cid;
 
-        /*
-        assert( logger.debug( @" act = $(reginfo.act), domain = $(reginfo.domain)" ) );
-        assert( logger.debug( @" status = $(reginfo.status), edge = $(reginfo.edge)" ) );
-        assert( logger.debug( @" lac = $(reginfo.lac), cid = $(reginfo.lac), rej_cause = $(reginfo.rej_cause)" ) );
-        */
+        assert( logger.debug( @"network_reg_state = $(ModemState.network_reg_state), network_act = $(ModemState.network_act)" ) );
+        assert( logger.debug( @" lac = $(reginfo.lac), cid = $(reginfo.lac), rej_cause = $(reginfo.rej_cause), edge = $(reginfo.edge)" ) );
+
+        triggerUpdateNetworkStatus();
     }
 }
 

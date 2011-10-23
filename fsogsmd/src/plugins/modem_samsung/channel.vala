@@ -99,11 +99,9 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
             return;
         }
 
-        assert( theLogger.debug( @"Got response from modem: type = $(response.type) " +
-                                 @"command = $(response.command))" ) );
-
+        assert( theLogger.debug( @"Got response from modem: type = $(response.type), command = $(response.command)" ) );
         assert( theLogger.debug( @"response data (length = $(response.data.length)):" ) );
-        assert( theLogger.debug( FsoFramework.StringHandling.hexdump( response.data ) ) );
+        assert( theLogger.debug( "\n" + FsoFramework.StringHandling.hexdump( response.data ) ) );
 
         switch ( response.type )
         {

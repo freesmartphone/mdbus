@@ -16,16 +16,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
+using SamsungIpc;
+
 namespace Samsung
 {
     public static class ModemState
     {
-        public static uint8 signal_strength = 0;
-        public static uint32 cid;
-        public static uint16 lac;
         public static uint8 power_state = 0;
+
         public static uint8 sim_icc_type = 0;
-        public static SamsungIpc.Security.SimStatus sim_status = SamsungIpc.Security.SimStatus.INITIALIZING;
+        public static Security.SimStatus sim_status = Security.SimStatus.INITIALIZING;
+
+        public static uint8 network_signal_strength = 0;
+        public static uint16 network_lac = 0;
+        public static uint32 network_cid = 0;
+        public static Network.RegistrationState network_reg_state = Network.RegistrationState.NONE;
+        public static Network.AccessTechnology network_act = Network.AccessTechnology.UNKNOWN;
     }
 }
-

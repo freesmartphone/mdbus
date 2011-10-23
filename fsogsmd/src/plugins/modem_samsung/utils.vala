@@ -90,6 +90,76 @@ public static string gatherFunctionalityLevel()
     return functionality_level;
 }
 
+public string networkRegistrationStateToString( SamsungIpc.Network.RegistrationState reg_state )
+{
+    string result = "unknown";
+
+    switch ( reg_state )
+    {
+        case SamsungIpc.Network.RegistrationState.HOME:
+            result = "home";
+            break;
+        case SamsungIpc.Network.RegistrationState.SEARCHING:
+            result = "busy";
+            break;
+        case SamsungIpc.Network.RegistrationState.EMERGENCY:
+            result = "denied";
+            break;
+        case SamsungIpc.Network.RegistrationState.ROAMING:
+            result = "roaming";
+            break;
+    }
+
+    return result;
+}
+
+public string networkAccessTechnologyToString( SamsungIpc.Network.AccessTechnology act )
+{
+    string result = "unknown";
+
+    switch ( act )
+    {
+        case SamsungIpc.Network.AccessTechnology.GSM:
+        case SamsungIpc.Network.AccessTechnology.GSM2:
+            result = "GSM";
+            break;
+        case SamsungIpc.Network.AccessTechnology.GPRS:
+            result = "GPRS";
+            break;
+        case SamsungIpc.Network.AccessTechnology.EDGE:
+            result = "EDGE";
+            break;
+        case SamsungIpc.Network.AccessTechnology.UMTS:
+            result = "UMTS";
+            break;
+    }
+
+    return result;
+}
+
+public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
+{
+    status.insert( "strength", @"$(Samsung.ModemState.network_signal_strength)" );
+
+    // status.insert( "provider", MsmData.network_info.operator_name );
+    // status.insert( "network", MsmData.network_info.operator_name );
+    // status.insert( "display", MsmData.network_info.operator_name );
+
+    // status.insert( "mode", FIXME );
+
+    status.insert( "registration", networkRegistrationStateToString( Samsung.ModemState.network_reg_state ) );
+    status.insert( "mode", "automatic" );
+    status.insert( "lac", @"$(Samsung.ModemState.network_lac)" );
+    status.insert( "cid", @"$(Samsung.ModemState.network_cid)" );
+    status.insert( "act", networkAccessTechnologyToString( Samsung.ModemState.network_act ) );
+
+    if ( Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
+         Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
+    {
+        // status.insert( "code", "%03u%02u".printf( MsmData.network_info.mcc, MsmData.network_info.mnc ) );
+    }
+}
+
 /**
  * Update network status if something in network state has changed
  **/
@@ -113,10 +183,9 @@ public async void triggerUpdateNetworkStatus()
         return;
     }
 
-#if 0
     // Advance modem status, if necessary
-    if ( MsmData.network_info.reg_status == Msmcomm.NetworkRegistrationStatus.HOME  ||
-         MsmData.network_info.reg_status == Msmcomm.NetworkRegistrationStatus.ROAMING )
+    if ( Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
+         Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
     {
         if ( mstat != Modem.Status.ALIVE_REGISTERED )
         {
@@ -129,8 +198,6 @@ public async void triggerUpdateNetworkStatus()
     fillNetworkStatusInfo( status );
     var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
     network.status( status );
-    network.signal_strength( convertRawRssiToPercentage(MsmData.network_info.rssi) );
-#endif
 
     inTriggerUpdateNetworkStatus = false;
 }
