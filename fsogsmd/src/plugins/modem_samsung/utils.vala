@@ -193,14 +193,6 @@ public async void triggerUpdateNetworkStatus()
 
     var mstat = theModem.status();
 
-    // Ignore, if we don't have proper status to issue networking commands yet
-    if ( mstat != Modem.Status.ALIVE_SIM_READY && mstat != Modem.Status.ALIVE_REGISTERED )
-    {
-        assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() ignored while modem is in status $mstat" ) );
-        inTriggerUpdateNetworkStatus = false;
-        return;
-    }
-
     // Advance modem status, if necessary
     if ( Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
          Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.ROAMING )

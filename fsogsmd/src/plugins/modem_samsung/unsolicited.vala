@@ -141,7 +141,8 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         assert( logger.debug( @"network_reg_state = $(ModemState.network_reg_state), network_act = $(ModemState.network_act)" ) );
         assert( logger.debug( @" lac = $(reginfo.lac), cid = $(reginfo.lac), rej_cause = $(reginfo.rej_cause), edge = $(reginfo.edge)" ) );
 
-        triggerUpdateNetworkStatus();
+        if ( theModem.status() >= FsoGsm.Modem.Status.ALIVE_SIM_READY )
+            triggerUpdateNetworkStatus();
     }
 }
 
