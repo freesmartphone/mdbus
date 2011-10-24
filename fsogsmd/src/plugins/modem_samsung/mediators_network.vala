@@ -19,6 +19,7 @@
 
 using FsoGsm;
 using Samsung;
+using FsoFramework;
 
 public class SamsungNetworkRegister : NetworkRegister
 {
@@ -63,6 +64,8 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         var plmn = new uint8[6];
         Memory.copy( plmn, plmnresp.plmn, 6 );
         ModemState.network_plmn = plmnFromDataToString( plmn );
+
+        assert( theLogger.debug( @"current network plmn = $(ModemState.network_plmn)" ) );
 
         fillNetworkStatusInfo( status );
     }

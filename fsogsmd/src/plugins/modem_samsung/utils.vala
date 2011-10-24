@@ -142,9 +142,9 @@ public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
 {
     status.insert( "strength", @"$(Samsung.ModemState.network_signal_strength)" );
 
-    // status.insert( "provider", MsmData.network_info.operator_name );
+    status.insert( "provider", Samsung.ModemState.sim_provider_name );
     // status.insert( "network", MsmData.network_info.operator_name );
-    // status.insert( "display", MsmData.network_info.operator_name );
+    status.insert( "display", Samsung.ModemState.sim_provider_name );
 
     status.insert( "plmn", Samsung.ModemState.network_plmn );
 
@@ -225,10 +225,10 @@ public async void triggerUpdateNetworkStatus()
 
 public string plmnFromDataToString( uint8[] data )
 {
-    string result = "";
+    string result = "unknown";
     for ( var n = 0; n < data.length; n++ )
     {
-        if ( data[n] == 0xff )
+        if ( data[n] < 0x30 || data[n] > 0x39 )
             continue;
         result += "%c".printf( data[n] );
     }
