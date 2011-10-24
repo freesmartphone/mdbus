@@ -62,13 +62,6 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
                 obj.signal_strength( ModemState.network_signal_strength );
                 break;
-
-            case SamsungIpc.MessageType.NET_CURRENT_PLMN:
-                var urc = (SamsungIpc.Network.CurrentPlmnMessage*) response.data;
-                uint8[] plmn = new uint8[6];
-                Memory.copy(plmn, urc.plmn, 6);
-                ModemState.network_plmn = plmnFromDataToString( plmn );
-                break;
         }
     }
 

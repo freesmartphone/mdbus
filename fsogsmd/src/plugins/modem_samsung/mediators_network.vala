@@ -60,10 +60,10 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         if ( response == null )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network operator from modem!" );
 
-        var plmnresp = (SamsungIpc.Network.CurrentPlmnMessage*) response;
-        var plmn = new uint8[6];
-        Memory.copy( plmn, plmnresp.plmn, 6 );
-        ModemState.network_plmn = plmnFromDataToString( plmn );
+        var pr = (SamsungIpc.Network.CurrentPlmnMessage*) response.data;
+        ModemState.network_plmn = "";
+        for ( int n = 0; n < 5; n++)
+            ModemState.network_plmn += "%c".printf( pr.plmn[n] );
 
         assert( theLogger.debug( @"current network plmn = $(ModemState.network_plmn)" ) );
 
