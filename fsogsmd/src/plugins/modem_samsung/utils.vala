@@ -146,6 +146,8 @@ public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
     // status.insert( "network", MsmData.network_info.operator_name );
     // status.insert( "display", MsmData.network_info.operator_name );
 
+    status.insert( "plmn", Samsung.ModemState.network_plmn );
+
     // status.insert( "mode", FIXME );
 
     status.insert( "registration", networkRegistrationStateToString( Samsung.ModemState.network_reg_state ) );
@@ -219,6 +221,18 @@ public async void triggerUpdateNetworkStatus()
     network.status( status );
 
     inTriggerUpdateNetworkStatus = false;
+}
+
+public string plmnFromDataToString( uint8[] data )
+{
+    string result = "";
+    for ( var n = 0; n < data.length; n++ )
+    {
+        if ( data[n] == 0xff )
+            continue;
+        result += "%c".printf( data[n] );
+    }
+    return result;
 }
 
 // vim:ts=4:sw=4:expandtab

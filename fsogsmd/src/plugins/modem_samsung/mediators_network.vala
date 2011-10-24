@@ -18,6 +18,7 @@
  */
 
 using FsoGsm;
+using Samsung;
 
 public class SamsungNetworkRegister : NetworkRegister
 {
@@ -46,7 +47,23 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        unowned SamsungIpc.Response? response;
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+
         status = new GLib.HashTable<string, Variant>( str_hash, str_equal );
+
+        // retrieve current network operator plmn
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET,
+            SamsungIpc.MessageType.NET_CURRENT_PLMN, new uint8[] { } );
+
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network operator from modem!" );
+
+        var plmnresp = (SamsungIpc.Network.CurrentPlmnMessage*) response;
+        var plmn = new uint8[6];
+        Memory.copy( plmn, plmnresp.plmn, 6 );
+        ModemState.network_plmn = plmnFromDataToString( plmn );
+
         fillNetworkStatusInfo( status );
     }
 }

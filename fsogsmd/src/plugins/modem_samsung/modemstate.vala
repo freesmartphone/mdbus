@@ -32,5 +32,6 @@ namespace Samsung
         public static uint32 network_cid = 0;
         public static Network.RegistrationState network_reg_state = Network.RegistrationState.NONE;
         public static Network.AccessTechnology network_act = Network.AccessTechnology.UNKNOWN;
+        public static string network_plmn = "unknown";
     }
 }
