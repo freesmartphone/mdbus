@@ -102,10 +102,10 @@ class Samsung.Modem : FsoGsm.AbstractModem
         mediators[ typeof(NetworkGetStatus) ]             = typeof( SamsungNetworkGetStatus );
         mediators[ typeof(NetworkGetSignalStrength) ]     = typeof( SamsungNetworkGetSignalStrength );
 
-        mediators[ typeof(PdpActivateContext) ]           = typeof( SamsungPdpActivateContext );
-        mediators[ typeof(PdpDeactivateContext) ]         = typeof( SamsungPdpDeactivateContext );
+        mediators[ typeof(PdpActivateContext) ]           = typeof( AtPdpActivateContext );
+        mediators[ typeof(PdpDeactivateContext) ]         = typeof( AtPdpDeactivateContext );
         mediators[ typeof(PdpSetCredentials) ]            = typeof( SamsungPdpSetCredentials );
-        mediators[ typeof(PdpGetCredentials) ]            = typeof( SamsungPdpGetCredentials );
+        mediators[ typeof(PdpGetCredentials) ]            = typeof( AtPdpGetCredentials );
     }
 }
 

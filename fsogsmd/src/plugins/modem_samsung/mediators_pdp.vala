@@ -22,29 +22,6 @@ using FsoGsm;
 /**
  * PDP Mediators
  **/
-public class SamsungPdpActivateContext : PdpActivateContext
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented yet!" );
-    }
-}
-
-public class SamsungPdpDeactivateContext : PdpDeactivateContext
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented yet!" );
-    }
-}
-
-public class SamsungPdpGetCredentials : PdpGetCredentials
-{
-    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented yet!" );
-    }
-}
 
 public class SamsungPdpSetCredentials : PdpSetCredentials
 {
