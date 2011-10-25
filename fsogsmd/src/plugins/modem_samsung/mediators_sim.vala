@@ -45,15 +45,12 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
         if ( pin.length != 4 && pin.length != 8 )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Got pin with invalid length of $(pin.length)" );
 
-        var message = SamsungIpc.Security.PinStatusSetMessage();
-        message.type = SamsungIpc.Security.PinType.PIN1;
-        message.length1 = (uint8) pin.length;
-        Memory.copy(message.pin1, pin, pin.length);
+        var pinStatusMessage = SamsungIpc.Security.PinStatusSetMessage();
+        pinStatusMessage.type = SamsungIpc.Security.PinType.PIN1;
+        pinStatusMessage.length1 = (uint8) pin.length;
+        Memory.copy(pinStatusMessage.pin1, pin, pin.length);
 
-        unowned uint8[] data = (uint8[]) (&message);
-        data.length = (int) sizeof( SamsungIpc.Security.PinStatusSetMessage );
-
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SEC_PIN_STATUS, data );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SEC_PIN_STATUS, pinStatusMessage.data );
 
         var phoneresp = (SamsungIpc.Generic.PhoneResponseMessage*) (response.data);
         assert( FsoFramework.theLogger.debug( "code = 0x%04x".printf( phoneresp.code ) ) );
@@ -72,7 +69,7 @@ public class SamsungSimGetInformation : SimGetInformation
 
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_IMSI, new uint8[] { } );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_IMSI );
         if ( response == null || response.data.length != DEFAULT_IMSI_LENGTH + 1)
         {
             throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Could not retrieve IMSI number from modem" );

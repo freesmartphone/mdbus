@@ -54,8 +54,7 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         status = new GLib.HashTable<string, Variant>( str_hash, str_equal );
 
         // retrieve current network operator plmn
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET,
-            SamsungIpc.MessageType.NET_CURRENT_PLMN, new uint8[] { } );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_CURRENT_PLMN );
 
         if ( response == null )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network operator from modem!" );
