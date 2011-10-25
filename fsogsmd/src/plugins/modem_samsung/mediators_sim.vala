@@ -46,9 +46,7 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Got pin with invalid length of $(pin.length)" );
 
         var pinStatusMessage = SamsungIpc.Security.PinStatusSetMessage();
-        pinStatusMessage.type = SamsungIpc.Security.PinType.PIN1;
-        pinStatusMessage.length1 = (uint8) pin.length;
-        Memory.copy(pinStatusMessage.pin1, pin, pin.length);
+        pinStatusMessage.setup( SamsungIpc.Security.PinType.PIN1, pin, "" );
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SEC_PIN_STATUS, pinStatusMessage.data );
 
