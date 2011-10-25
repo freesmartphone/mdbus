@@ -34,8 +34,7 @@ public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
     public override void writeToTransport( FsoFramework.Transport t )
     {
         assert( theLogger.debug( @"Sending request with id = $(id), request_type = $(request_type), " +
-                                 @"message_type = $(message_type)" +
-                                 @"size = $(data.length)" ) );
+                                 @"message_type = $(message_type) " ) );
 
         assert( theLogger.debug( @"request data (length = $(data.length)):" ) );
         assert( theLogger.debug( FsoFramework.StringHandling.hexdump( data ) ) );
