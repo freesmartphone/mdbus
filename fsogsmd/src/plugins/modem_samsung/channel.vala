@@ -37,14 +37,14 @@ public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
                                  @"message_type = $(message_type) " ) );
 
         assert( theLogger.debug( @"request data (length = $(data.length)):" ) );
-        assert( theLogger.debug( FsoFramework.StringHandling.hexdump( data ) ) );
+        assert( theLogger.debug( "\n" + FsoFramework.StringHandling.hexdump( data ) ) );
 
         client.send( message_type, request_type, data, id );
     }
 
     public override string to_string()
     {
-        return @"";
+        return @"<>";
     }
 }
 
@@ -123,6 +123,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     private void handle_solicited_response( SamsungIpc.Response response )
     {
+        resetTimeout();
+
         var ch  = (Samsung.CommandHandler) current;
 
         if ( current == null || ch.id != response.aseq )
@@ -145,7 +147,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         // We're just telling the user about this as he will not receive any
         // response message for his enqueue_async call.
-        handler.callback();
+        Idle.add( () => { handler.callback(); return false; } );
     }
 
     protected int modem_read_request(uint8[] data)
@@ -277,7 +279,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
      * @return Response message received for the request or null if sending is not possible or a timeout occured
      **/
     public async unowned SamsungIpc.Response? enqueue_async( SamsungIpc.RequestType type, SamsungIpc.MessageType command, uint8[] data = new uint8[] { },
-                                                             int retry = 0, int timeout = 0 )
+                                                             int retry = 0, int timeout = 5 )
     {
         var handler = new Samsung.CommandHandler();
 
