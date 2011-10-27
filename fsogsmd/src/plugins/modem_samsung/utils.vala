@@ -224,4 +224,11 @@ public async void triggerUpdateNetworkStatus()
     inTriggerUpdateNetworkStatus = false;
 }
 
+private string ipAddrFromByteArray( uint8* data, int size )
+{
+    if ( size != 4 )
+        return "0.0.0.0";
+    return "%i.%i.%i.%i".printf( data[0], data[1], data[2], data[3] );
+}
+
 // vim:ts=4:sw=4:expandtab

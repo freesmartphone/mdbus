@@ -62,6 +62,10 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
                 obj.signal_strength( ModemState.network_signal_strength );
                 break;
+
+            case SamsungIpc.MessageType.GPRS_IP_CONFIGURATION:
+                handle_gprs_ip_configuration( response );
+                break;
         }
     }
 
@@ -143,6 +147,23 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
         if ( theModem.status() >= FsoGsm.Modem.Status.ALIVE_SIM_READY )
             triggerUpdateNetworkStatus();
+    }
+
+    private void handle_gprs_ip_configuration( SamsungIpc.Response response )
+    {
+        var pdphandler = theModem.pdphandler as Samsung.PdpHandler;
+        if (pdphandler == null)
+            return;
+
+        var ipresp = (SamsungIpc.Gprs.IpConfigurationMessage*) response.data;
+
+        string local = ipAddrFromByteArray( ipresp.ip, 4 );
+        string gateway = ipAddrFromByteArray( ipresp.gateway, 4 );
+        string subnetmask = ipAddrFromByteArray( ipresp.subnet_mask, 4 );
+        string dns1 = ipAddrFromByteArray( ipresp.dns1, 4 );
+        string dns2 = ipAddrFromByteArray( ipresp.dns2, 4 );
+
+        pdphandler.handleIpConfiguration( local, subnetmask, gateway, dns1, dns2 );
     }
 }
 

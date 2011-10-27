@@ -74,6 +74,20 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Did not receive a response for PDP context activation" );
     }
 
+    /**
+     * We need to wait a little bit until the modem sends us the IP configuration for
+     * acccess the packet switched network. If we finally receive the configuration data
+     * we setup the IP connection locally.
+     **/
+    public async void handleIpConfiguration( string local, string subnetmask, string gateway, string dns1, string dns2 )
+    {
+        assert( logger.debug( @"Got IP configuration from modem:" ) );
+        assert( logger.debug( @"local = $(local), subnetmask = $(subnetmask)" ) );
+        assert( logger.debug( @"gateway = $(gateway), dns1 = $(dns1), dns2 = $(dns2)" ) );
+
+        connectedWithNewDefaultRoute( RMNET_IFACE, local, "255.255.255.0", local, dns1, dns2 );
+    }
+
     //
     // protected
     //
@@ -94,9 +108,6 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
 
         yield setupPdpContext( theModem.data().contextParams );
         yield activatePdpContext( theModem.data().contextParams );
-
-        // FIXME we now have to wait for the SamsungIpc.Message.GPRS_IP_CONFIGURATION
-        // notification to arrive
     }
 
     protected override async void sc_deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
