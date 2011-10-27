@@ -159,7 +159,8 @@ namespace FsoFramework.StringHandling
                 ascline = new StringBuilder();
             }
         }
-        if ( i % BYTES_PER_LINE+1 != BYTES_PER_LINE )
+
+        if ( i % BYTES_PER_LINE  != BYTES_PER_LINE )
         {
             while ( hexline.len < 3 * BYTES_PER_LINE )
             {
