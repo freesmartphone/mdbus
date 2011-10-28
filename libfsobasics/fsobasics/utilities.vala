@@ -226,6 +226,18 @@ namespace FsoFramework.Utility
 
         return length;
     }
+
+    public T[] listToArray<T>(GLib.List<T> list)
+    {
+        T[] a = new T[list.length()];
+        var n = 0;
+        foreach ( var element in list )
+        {
+            a[n] = element;
+            n++;
+        }
+        return a;
+    }
 }
 
 namespace FsoFramework.Network
