@@ -51,6 +51,7 @@ public class SamsungDeviceGetInformation : DeviceGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        unowned SamsungIpc.Response? response = null;
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
 
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
@@ -58,7 +59,21 @@ public class SamsungDeviceGetInformation : DeviceGetInformation
         info.insert( "model", "Samsung Nexus S" );
         info.insert( "manufacturer", "Samsung" );
 
-        // TODO: add hw/sw version + IMEI
+        // Retrieve hardware and software version from baseband
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_VERSION,
+                                                new uint8[] { 0xff } );
+        if ( response != null )
+        {
+            var message = (SamsungIpc.Misc.VersionMessage*) (response.data);
+
+            assert( theLogger.debug( @"Baseband software version info:" ) );
+            assert( theLogger.debug( @" sw_version = $((string) message.sw_version), hw_version = $((string) message.hw_version)" ) );
+            assert( theLogger.debug( @" cal_date = $((string) message.cal_date)") );
+            assert( theLogger.debug( @" misc = $((string) message.misc)") );
+
+            info.insert( "sw-version", (string) message.sw_version );
+            info.insert( "hw-version", (string) message.hw_version );
+        }
     }
 }
 

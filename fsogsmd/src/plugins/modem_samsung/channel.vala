@@ -181,29 +181,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         assert( theLogger.debug( @"Powered up modem successfully!" ) );
 
-        yield retrieveAndStoreBasebandSoftwareVersion();
-
         initialized = true;
-    }
-
-    private async void retrieveAndStoreBasebandSoftwareVersion()
-    {
-        unowned SamsungIpc.Response? response;
-
-        response = yield enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_VERSION,
-                                            new uint8[] { 0xff } );
-        if ( response == null )
-        {
-            theLogger.error( @"Can't get baseband software version from modem!");
-            return;
-        }
-
-        var message = (SamsungIpc.Misc.VersionMessage*) (response.data);
-
-        assert( theLogger.debug( @"Baseband software version info:" ) );
-        assert( theLogger.debug( @" sw_version = $((string) message.sw_version), hw_version = $((string) message.hw_version)" ) );
-        assert( theLogger.debug( @" cal_date = $((string) message.cal_date)") );
-        assert( theLogger.debug( @" misc = $((string) message.misc)") );
     }
 
     private async void poweron()
