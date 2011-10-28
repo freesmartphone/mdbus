@@ -58,7 +58,7 @@ class Samsung.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.CallHandler createCallHandler()
     {
-        return (FsoGsm.CallHandler) null;
+        return (FsoGsm.CallHandler) new Samsung.CallHandler();
     }
 
     protected override FsoGsm.SmsHandler createSmsHandler()
@@ -106,6 +106,14 @@ class Samsung.Modem : FsoGsm.AbstractModem
         mediators[ typeof(PdpDeactivateContext) ]         = typeof( AtPdpDeactivateContext );
         mediators[ typeof(PdpSetCredentials) ]            = typeof( SamsungPdpSetCredentials );
         mediators[ typeof(PdpGetCredentials) ]            = typeof( AtPdpGetCredentials );
+
+        mediators[ typeof(CallActivate) ]                 = typeof( SamsungCallActivate );
+        mediators[ typeof(CallHoldActive) ]               = typeof( SamsungCallHoldActive );
+        mediators[ typeof(CallInitiate) ]                 = typeof( SamsungCallInitiate );
+        mediators[ typeof(CallListCalls) ]                = typeof( SamsungCallListCalls );
+        mediators[ typeof(CallReleaseAll) ]               = typeof( SamsungCallReleaseAll );
+        mediators[ typeof(CallRelease) ]                  = typeof( SamsungCallRelease );
+        mediators[ typeof(CallSendDtmf) ]                 = typeof( SamsungCallSendDtmf );
     }
 }
 
