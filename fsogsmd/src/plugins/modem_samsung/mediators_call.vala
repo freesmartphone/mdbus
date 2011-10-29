@@ -65,7 +65,7 @@ public class SamsungCallListCalls : CallListCalls
 
         for ( var n = 0; n < numberOfCalls; n++ )
         {
-            var currentCallEntry = callListResponse.get_entry( n );
+            SamsungIpc.Call.ListEntry* currentCallEntry = callListResponse.get_entry( n );
 
             // We're not interested in DATA calls here as we do only VOICE call processing!
             if ( currentCallEntry.type == SamsungIpc.Call.Type.DATA )
