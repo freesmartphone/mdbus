@@ -104,12 +104,12 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         switch ( response.type )
         {
-            case SamsungIpc.ResponseType.NOTIFICATION:
+            case SamsungIpc.ResponseType.NOTI:
                 urchandler.process( response );
                 break;
-            case SamsungIpc.ResponseType.INDICATION:
+            case SamsungIpc.ResponseType.INDI:
                 break;
-            case SamsungIpc.ResponseType.RESPONSE:
+            case SamsungIpc.ResponseType.RESP:
                 handle_solicited_response( response );
                 break;
         }
@@ -204,7 +204,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
             return;
         }
 
-        ModemState.sim_provider_name = response.sec_rsim_access_response_get_file_data();
+        ModemState.sim_provider_name = SamsungIpc.Security.RSimAccessResponseMessage.get_file_data( response );
         assert( theLogger.debug( @"Got the following provider name from SIM card spn = $(ModemState.sim_provider_name)" ) );
 
     }
@@ -223,9 +223,9 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
 
-        fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.CRESPO_FMT );
+        fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.FMT );
         fmtclient.set_log_handler( ( message ) => { theLogger.info( message ); } );
-        fmtclient.set_delegates( modem_write_request, modem_read_request );
+        fmtclient.set_io_handlers( modem_write_request, modem_read_request );
     }
 
     public override async bool open()

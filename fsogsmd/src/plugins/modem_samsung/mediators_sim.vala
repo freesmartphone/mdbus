@@ -74,7 +74,7 @@ public class SamsungSimGetInformation : SimGetInformation
             return;
         }
 
-        string imsi = response.misc_me_imsi_response_get_imsi();
+        string imsi = SamsungIpc.Misc.MeResponseMessage.get_imsi( response );
 
         info.insert( "imsi", imsi );
         info.insert( "phonebooks", "" );
