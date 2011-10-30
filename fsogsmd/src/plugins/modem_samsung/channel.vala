@@ -225,7 +225,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.FMT );
         fmtclient.set_log_handler( ( message ) => { theLogger.info( message ); } );
-        fmtclient.set_io_handlers( modem_write_request, modem_read_request );
+        fmtclient.set_io_handlers( modem_read_request, modem_write_request );
     }
 
     public override async bool open()
