@@ -28,6 +28,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
     public void process( SamsungIpc.Response response )
     {
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var callhandler = theModem.callhandler as Samsung.CallHandler;
 
         switch ( response.command )
         {
@@ -65,6 +66,13 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
             case SamsungIpc.MessageType.GPRS_IP_CONFIGURATION:
                 handle_gprs_ip_configuration( response );
+                break;
+
+            case SamsungIpc.MessageType.CALL_INCOMING:
+            case SamsungIpc.MessageType.CALL_RELEASE:
+            case SamsungIpc.MessageType.CALL_STATUS:
+            case SamsungIpc.MessageType.CALL_OUTGOING:
+                callhandler.syncCallStatusAsync();
                 break;
         }
     }

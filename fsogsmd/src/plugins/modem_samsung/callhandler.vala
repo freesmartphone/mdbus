@@ -174,6 +174,11 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         return @"<>";
     }
 
+    public async void syncCallStatusAsync()
+    {
+        startTimeoutIfNecessary();
+    }
+
     //
     // protected
     //
