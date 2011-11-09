@@ -103,9 +103,9 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         }
 
         string[] commands = {
-            "iptables -I INPUT  1           -s 192.168.0.0/24 -j ACCEPT",
-            "iptables -I OUTPUT 1           -s %s             -j ACCEPT".printf( ip ),
-            "iptables -A POSTROUTING -t nat -s 192.168.0.0/24 -j MASQUERADE"
+            "/usr/sbin/iptables -I INPUT  1           -s 192.168.0.0/24 -j ACCEPT",
+            "/usr/sbin/iptables -I OUTPUT 1           -s %s             -j ACCEPT".printf( ip ),
+            "/usr/sbin/iptables -A POSTROUTING -t nat -s 192.168.0.0/24 -j MASQUERADE"
         };
 
         foreach( string command in commands )
@@ -128,8 +128,8 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         /* Re-launch udhcpd */
         try
         {
-            Posix.system( "killall udhcpd" );
-            Posix.system( "udhcpd" );
+            Posix.system( "/usr/bin/killall udhcpd" );
+            Posix.system( "/usr/sbin/udhcpd" );
         }
         catch ( GLib.SpawnError e )
         {
@@ -151,9 +151,9 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         }
 
         string[] commands = {
-            "iptables -D INPUT                             -s 192.168.0.0/24 -j ACCEPT",
-            "iptables -D OUTPUT                            -s %s             -j ACCEPT".printf( ip ),
-            "iptables -D POSTROUTING -t nat                -s 192.168.0.0/24 -j MASQUERADE"
+            "/usr/sbin/iptables -D INPUT                             -s 192.168.0.0/24 -j ACCEPT",
+            "/usr/sbin/iptables -D OUTPUT                            -s %s             -j ACCEPT".printf( ip ),
+            "/usr/sbin/iptables -D POSTROUTING -t nat                -s 192.168.0.0/24 -j MASQUERADE"
         };
 
         try
@@ -171,7 +171,7 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
             FsoFramework.FileHandling.write( "0", IP_FORWARD );
 
             /* Stop udhcpd */
-            Posix.system( "killall udhcpd" );
+            Posix.system( "/usr/bin/killall udhcpd" );
         }
         catch ( GLib.SpawnError e )
         {
@@ -189,15 +189,15 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
     {
         logger.info( @"Setting new default as offered by $technology: $iface=$ipv4address/$ipv4mask via $ipv4gateway" );
         // Quick and dirty, this is really just for testing and demonstration purposes
-        var ok = Posix.system( @"ifconfig $iface $ipv4address netmask $ipv4mask up" );
+        var ok = Posix.system( @"/sbin/ifconfig $iface $ipv4address netmask $ipv4mask up" );
         if ( ok != 0 )
         {
             logger.error( @"Can't ifconfig $iface $ipv4address netmask $ipv4mask up" );
         }
-        var routecmd = @"route add default gw $ipv4gateway $iface";
+        var routecmd = @"/sbin/route add default gw $ipv4gateway $iface";
         if ( ipv4gateway == "0.0.0.0" )
         {
-            routecmd = @"route add default $iface";
+            routecmd = @"/sbin/route add default $iface";
         }
 
         ok = Posix.system( routecmd );
