@@ -223,15 +223,13 @@ public class Suspend : SystemCommand
  **/
 public class Shutdown : SystemCommand
 {
-    private string cmd;
-
     public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
-        cmd = FsoFramework.theConfig.stringValue( "fsousage", "shutdown_command", "/sbin/shutdown -h now" );
         yield enqueue();
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.SHUTDOWN );
         yield instance.disableAllResources();
         Idle.add( () => {
+            var cmd = FsoFramework.theConfig.stringValue( "fsousage", "shutdown_command", "/sbin/shutdown -h now" );
             Posix.system( cmd );
             return false;
         } );
@@ -243,15 +241,13 @@ public class Shutdown : SystemCommand
  **/
 public class Reboot : SystemCommand
 {
-    private string cmd;
-
     public async void run() throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
-        cmd = FsoFramework.theConfig.stringValue( "fsousage", "reboot_command", "/sbin/shutdown -r now" );
         yield enqueue();
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.REBOOT );
         yield instance.disableAllResources();
         Idle.add( () => {
+            var cmd = FsoFramework.theConfig.stringValue( "fsousage", "reboot_command", "/sbin/shutdown -r now" );
             Posix.system( cmd );
             return false;
         } );
