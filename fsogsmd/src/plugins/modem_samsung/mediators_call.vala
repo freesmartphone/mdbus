@@ -52,7 +52,7 @@ public class SamsungCallListCalls : CallListCalls
     {
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
-        var callList = new GLib.List<FreeSmartphone.GSM.CallDetail?>();
+        var _calls = new FreeSmartphone.GSM.CallDetail[] { };
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.CALL_LIST );
 
@@ -71,20 +71,23 @@ public class SamsungCallListCalls : CallListCalls
             if ( currentCallEntry.type == SamsungIpc.Call.Type.DATA )
                 continue;
 
-            var ci = FreeSmartphone.GSM.CallDetail(
-                currentCallEntry.idx,
-                Constants.instance().callStatusToEnum( (int) currentCallEntry.state ),
-                new GLib.HashTable<string,Variant>( str_hash, str_equal )
-            );
+            var ci = FreeSmartphone.GSM.CallDetail((int) currentCallEntry.idx,
+                Constants.instance().callStatusToEnum( (int) currentCallEntry.state ), new GLib.HashTable<string,Variant>( str_hash, str_equal ) );
+
+            assert( theLogger.debug( @"Retrieved call with id = $(ci.id) from modem" ) );
 
             string number = callListResponse.get_entry_number( n );
             if ( number != null )
                 ci.properties.insert( "peer", number);
 
-            callList.append( ci );
+            // FIXME Vala Compiler dies currently when trying to append to the public calls
+            // array directly with the following error message:
+            // ERROR:valaccodearraymodule.c:933:vala_ccode_array_module_real_get_array_length_cvalue:
+            // assertion failed: (_tmp19_)
+            _calls += ci;
         }
 
-        calls = listToArray<FreeSmartphone.GSM.CallDetail?>( callList );
+        calls = _calls;
     }
 }
 

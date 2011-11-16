@@ -229,6 +229,14 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
             var visited = new bool[Constants.CALL_INDEX_MAX+1];
             foreach ( var call in m.calls )
             {
+                assert( logger.debug( @"Updating call with id = $(call.id) ..." ) );
+
+                if ( call.id < 0 || call.id > Constants.CALL_INDEX_MAX )
+                {
+                    logger.warning( @"Got call with invalid id = $(call.id); discarding this one!" );
+                    continue;
+                }
+
                 calls[call.id].update( call );
                 visited[call.id] = true;
             }
