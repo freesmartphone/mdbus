@@ -121,6 +121,7 @@ AC_CONFIG_FILES([
   conf/Makefile
   conf/default/Makefile
   conf/palm_pre/Makefile
+  conf/palm_pre/audio-scripts/Makefile
   conf/nokia_n900/Makefile
   conf/openmoko_gta/Makefile
   data/Makefile

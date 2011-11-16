@@ -1,0 +1,86 @@
+# Modified 090215 by Ron Horowitz
+# Anamic gain change from 0x02 to 0x03
+# modified 080923 by Mike Carnes
+# changed routing and gains to match JPGs
+# 9/23 - changed gains for mic
+# modified 090120 by Mike Carnes
+# added sidetone mute/unmute functions to eliminate
+# clicks from headset mic mute button press.
+# modified 090122 by Mike Carnes
+# scaled volume for 10 steps instead of 6
+#   vol is now at 2dB/step instead of 3dB/step
+begin phone_headset
+# enable RXR2, RXL2, VRX, TXL2
+    setreg 0x02 0xd4
+    setreg 0x04 0x01
+    setreg 0x05 0x11
+    setreg 0x06 0x00
+    setreg 0x07 0x08
+    setreg 0x08 0x00
+    setreg 0x09 0x30
+# TXL2=0dB
+    setreg 0x0c 0x00
+    setreg 0x0f 0x63
+# RXR2=0dB
+    setreg 0x12 0x3f
+# RXL2=0dB
+    setreg 0x13 0x3f
+# VRX=0dB
+    setreg 0x14 0x25
+# sidetone=-30dB
+    setreg 0x15 0x15
+    setreg 0x16 0x19
+# R2 and L2 DACs
+    setreg 0x17 0x0c
+# 0dB
+    setreg 0x1b 0x33
+# 0dB
+    setreg 0x1c 0x33
+    setreg 0x1e 0x00
+    setreg 0x21 0x00
+# input=RXL2 +6dB
+    setreg 0x25 0x14
+# input=RXR2 +6dB
+    setreg 0x26 0x14
+    setreg 0x2A 0x00
+    setreg 0x3f 0x00
+    setreg 0x43 0x0a
+# ANAMIC_GAIN=+18dB
+    setreg 0x48 0x03
+end
+begin phone_headset_mute
+    setreg 0x15 0x00
+end
+begin phone_headset_unmute
+    setreg 0x05 0x11
+end
+begin phone_headset_volume_0
+    setreg 0x14 0x13
+end
+begin phone_headset_volume_1
+    setreg 0x14 0x15
+end
+begin phone_headset_volume_2
+    setreg 0x14 0x17
+end
+begin phone_headset_volume_3
+    setreg 0x14 0x19
+end
+begin phone_headset_volume_4
+    setreg 0x14 0x1b
+end
+begin phone_headset_volume_5
+    setreg 0x14 0x1d
+end
+begin phone_headset_volume_6
+    setreg 0x14 0x1f
+end
+begin phone_headset_volume_7
+    setreg 0x14 0x21
+end
+begin phone_headset_volume_8
+    setreg 0x14 0x23
+end
+begin phone_headset_volume_9
+    setreg 0x14 0x25
+end

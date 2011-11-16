@@ -1,6 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 
-NULL=
+NULL =
+SUBDIRS = audio-scripts
 
 THISDIR = `basename $$PWD`
 

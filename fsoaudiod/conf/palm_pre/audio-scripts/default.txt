@@ -1,0 +1,9 @@
+begin init init
+    clrbit 0x01 0x09
+end
+begin call_started
+    codec 1
+end
+begin call_ended
+    codec 0
+end

@@ -1,0 +1,98 @@
+# *** UMTS ONLY ***
+#
+# Modified 090501 by Ron Horowitz
+# Revised gains for higher EU TMOS
+# Changed AVTXL2PGA to 0x01 +1dB
+# Changed ANAMIC_GAIN to 0x02 +12dB
+# modified: 090214 by Ron Horowitz
+# Corrected volume steps to 2dB per click
+# Reduced by 0x1b 6dB from 0x1b(6dB) to 0x2b(2dB)
+# modified: 090206 by Ron Horowitz
+# modify Rx gain
+# disabled back speaker
+# modified: 081025 by Ron Horowitz
+# changed routing and gains to match JPG files
+# incresed sidetone
+begin phone_front_speaker
+# enable RXL2, RXR2, VRX, TXL2
+    setreg 0x02 0xd4
+    setreg 0x04 0x01
+    setreg 0x05 0x11
+    setreg 0x06 0x00
+    setreg 0x07 0x08
+    setreg 0x08 0x00
+# mix VDX with RXL2
+    setreg 0x09 0x10
+# TXL2=0dB
+    setreg 0x0c 0x01
+    setreg 0x0e 0x01
+    setreg 0x0f 0x61
+# L2=0dB
+    setreg 0x13 0x3f
+# R2=0dB
+    setreg 0x12 0x3f
+    setreg 0x16 0x19
+    setreg 0x17 0x0c
+# RXL2=2dB
+    setreg 0x1b 0x2b
+# RXR2=+6dB
+    setreg 0x1c 0x13
+    setreg 0x1e 0x00
+# EAR_GAIN=+6dB, input=L2
+    setreg 0x21 0x24
+# disable back spkeaer
+    setreg 0x2a 0x00
+# h-bridge input=R2
+    setreg 0x3a 0x16
+    setreg 0x3f 0x00
+# L2=R2=SDRL2+SDRR2
+    setreg 0x43 0x30
+# ANAMIC_GAIN=+12dB
+    setreg 0x48 0x02
+end
+begin phone_front_speaker_mute
+    setreg 0x05 0x00
+end
+begin phone_front_speaker_unmute
+    setreg 0x05 0x11
+end
+begin phone_front_speaker_volume_0
+    setreg 0x14 0x13
+    setreg 0x15 0x1e
+end
+begin phone_front_speaker_volume_1
+    setreg 0x14 0x15
+    setreg 0x15 0x1e
+end
+begin phone_front_speaker_volume_2
+    setreg 0x14 0x17
+    setreg 0x15 0x09
+end
+begin phone_front_speaker_volume_3
+    setreg 0x14 0x19
+    setreg 0x15 0x1e
+end
+begin phone_front_speaker_volume_4
+    setreg 0x14 0x1b
+    setreg 0x15 0x1e
+end
+begin phone_front_speaker_volume_5
+    setreg 0x14 0x1d
+    setreg 0x15 0x1e
+end
+begin phone_front_speaker_volume_6
+    setreg 0x14 0x1f
+    setreg 0x15 0x1e
+end
+begin phone_front_speaker_volume_7
+    setreg 0x14 0x21
+    setreg 0x15 0x1e
+end
+begin phone_front_speaker_volume_8
+    setreg 0x14 0x23
+    setreg 0x15 0x1e
+end
+begin phone_front_speaker_volume_9
+    setreg 0x14 0x25
+    setreg 0x15 0x1e
+end

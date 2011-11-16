@@ -1,0 +1,98 @@
+# Modified 090521 by Damian Kowalewski
+# removing executable flag
+# Modifed 090415 by Ron Horowitz
+# VSTPGA changed to 0x16 on un-mute
+# Modified 090329 by Ron Horowitz
+# UMTS NA / EU
+# Increase anamic gain to 0x5 +30dB
+# Increase AVTXL2PGA to 0xC +12dB
+# Reduce VSTPGA to 0x16 -29dB
+# Modified 090214 by Ron Horowitz
+# VRXPGA 0x14 = 0x24
+# VSTPGA 0x15 = 0x21
+# AVTXL2PGA 0xc = 0x9
+# modified 081026 by Ron Horowitz
+# changed routing and gains to match JPGs
+# changed uplink, downlink, and sidetone gains
+# BTIF in high Z mode (?)
+# modified 090120 by Mike Carnes
+#   added sidetone mute/unmute functions to eliminate
+#   clicks from headset mic mute button press.
+# modified 090122 by Mike Carnes
+#   changed volume scaling for 10 steps, not 6
+#   now 2dB/step, not 3dB/step
+begin phone_headset_mic
+# enable RXR2, RXL2, VRX, TXL2
+    setreg 0x02 0xd4
+    setreg 0x04 0x04
+    setreg 0x05 0x12
+    setreg 0x06 0x00
+    setreg 0x07 0x08
+    setreg 0x08 0x00
+    setreg 0x09 0x30
+# TXL2=+9dB
+    setreg 0x0c 0x0c
+    setreg 0x0f 0x63
+# RXR2=0dB
+    setreg 0x12 0x3f
+# RXL2=0dB
+    setreg 0x13 0x3f
+# sidetone=-29dB
+    setreg 0x15 0x16
+    setreg 0x16 0x19
+# R2 and L2 DACs  
+    setreg 0x17 0x0c
+# 0dB
+    setreg 0x1b 0x33
+# 0dB
+    setreg 0x1c 0x33
+    setreg 0x1e 0x04
+    setreg 0x21 0x00
+# input=RXL2, +6dB
+    setreg 0x25 0x14
+# input=RXR2, +6dB
+    setreg 0x26 0x14
+    setreg 0x2A 0x00
+    setreg 0x3f 0x00
+    setreg 0x43 0x0a
+# ANAMIC_GAIN=+30
+    setreg 0x48 0x05
+end
+begin phone_headset_mic_mute
+    setreg 0x15 0x00
+    setreg 0x05 0x00
+end
+begin phone_headset_mic_unmute
+    setreg 0x05 0x12
+    setreg 0x15 0x16
+end
+begin phone_headset_mic_volume_0
+    setreg 0x14 0x12
+end
+begin phone_headset_mic_volume_1
+    setreg 0x14 0x14
+end
+begin phone_headset_mic_volume_2
+    setreg 0x14 0x16
+end
+begin phone_headset_mic_volume_3
+    setreg 0x14 0x18
+end
+begin phone_headset_mic_volume_4
+    setreg 0x14 0x1a
+end
+begin phone_headset_mic_volume_5
+    setreg 0x14 0x1c
+end
+begin phone_headset_mic_volume_6
+    setreg 0x14 0x1e
+end
+begin phone_headset_mic_volume_7
+    setreg 0x14 0x20
+end
+begin phone_headset_mic_volume_8
+    setreg 0x14 0x22
+end
+begin phone_headset_mic_volume_9
+    setreg 0x14 0x24
+end
