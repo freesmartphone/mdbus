@@ -33,12 +33,15 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
     protected FsoGsm.Call[] calls;
 
     protected FsoFramework.Pair<string,string> supplementary;
+    private Samsung.SoundHandler _soundhandler;
 
     construct
     {
         calls = new FsoGsm.Call[Constants.CALL_INDEX_MAX+1] {};
         for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
             calls[i] = new Call.newFromId( i );
+
+        _soundhandler = new Samsung.SoundHandler();
     }
 
     //
@@ -54,6 +57,8 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         if ( num == 0 )
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "System busy" );
 
+        yield _soundhandler.mute_microphone( false );
+
         var initiateMessage = SamsungIpc.Call.OutgoingMessage();
         var callType = ctype == "voice" ? SamsungIpc.Call.Type.VOICE : SamsungIpc.Call.Type.DATA;
         initiateMessage.setup( callType, SamsungIpc.Call.Identity.DEFAULT, SamsungIpc.Call.Prefix.NONE, number );
@@ -67,6 +72,10 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         var gr = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
         if ( gr.code != 0x8000 )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Modem told us it can not initialize call with number $(number)" );
+
+        yield _soundhandler.mute_microphone( false );
+        yield _soundhandler.set_speaker_volume();
+        yield _soundhandler.set_audio_path();
 
         startTimeoutIfNecessary();
 
@@ -94,6 +103,8 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
 
         if ( numberOfBusyCalls() == 0 )
         {
+            yield _soundhandler.execute_clock_control();
+
             response = yield channel.enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.CALL_ANSWER );
 
             if ( response == null )
@@ -102,17 +113,9 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
             var gr = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
             if ( gr.code != 0x8000 )
                 throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Something went wrong when trying to answer an incoming call" );
-        }
-        /*
-        else
-        {
-            // call is present and incoming or held
-            var cmd2 = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-            var response2 = yield theModem.processAtCommandAsync( cmd2, cmd2.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
-            checkResponseOk( cmd2, response2 );
-        }
-        */
 
+            yield _soundhandler.mute_microphone( false );
+        }
     }
 
     public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -125,7 +128,6 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating" );
         }
-
     }
 
     public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
@@ -141,27 +143,14 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to release found" );
         }
-        if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.OUTGOING )
-        {
-            yield cancelOutgoingWithId( id );
-            return;
-        }
-        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.INCOMING ) == 1 && calls[id].detail.status == FreeSmartphone.GSM.CallStatus.INCOMING )
-        {
-            yield rejectIncomingWithId( id );
-            return;
-        }
-        else
-        {
-            // samsung has named this requestHangupForegroundResumeBackground
-            response = yield channel.enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.CALL_RELEASE );
-            if ( response == null )
-                throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Didn't receive a response for our request from the modem!" );
 
-            var gr = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
-            if ( gr.code != 0x8000 )
-                throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Could not release call with id = $(id)" );
-        }
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.CALL_RELEASE );
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Didn't receive a response for our request from the modem!" );
+
+        var gr = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
+        if ( gr.code != 0x8000 )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Could not release call with id = $(id)" );
     }
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
