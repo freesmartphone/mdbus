@@ -143,6 +143,12 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
     {
         SamsungIpc.Network.RegistrationMessage* reginfo = (SamsungIpc.Network.RegistrationMessage*) response.data;
 
+        if ( reginfo.domain == SamsungIpc.Network.ServiceDomain.GPRS )
+        {
+            assert( logger.debug( @"Got network status update for GPRS domain; ignoring this for now ..." ) );
+            return;
+        }
+
         assert( logger.debug( @"Got updated network registration information from modem:" ) );
 
         ModemState.network_reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
@@ -155,7 +161,13 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         assert( logger.debug( @"rej_cause = $(reginfo.rej_cause), edge = $(reginfo.edge)" ) );
 
         if ( theModem.status() >= FsoGsm.Modem.Status.ALIVE_SIM_READY )
+        {
             triggerUpdateNetworkStatus();
+        }
+        else
+        {
+            assert( logger.debug( @"Didn't triggered a network status as we're not authenticated against the SIM card yet!" ) );
+        }
     }
 
     private void handle_gprs_ip_configuration( SamsungIpc.Response response )

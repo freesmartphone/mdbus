@@ -190,7 +190,9 @@ public async void triggerUpdateNetworkStatus()
 
     // We requst the network registration state so we can decide on the on the last state
     // what we have to update and don't rely on a old state we saved a long time ago.
-    response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_REGIST, new uint8[] { 0xff, 0x02 } );
+    response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_REGIST,
+        new uint8[] { 0xff, SamsungIpc.Network.ServiceDomain.GSM } );
+
     if ( response == null )
     {
         assert( theLogger.error( @"Can't retrieve network registration state from modem!" ) );
