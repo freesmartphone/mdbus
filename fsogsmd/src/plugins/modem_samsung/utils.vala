@@ -142,9 +142,16 @@ public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
 {
     status.insert( "strength", @"$(Samsung.ModemState.network_signal_strength)" );
 
-    status.insert( "provider", Samsung.ModemState.sim_provider_name );
-    // status.insert( "network", MsmData.network_info.operator_name );
-    status.insert( "display", Samsung.ModemState.sim_provider_name );
+    if (Samsung.ModemState.sim_provider_name != null)
+    {
+        status.insert( "provider", Samsung.ModemState.sim_provider_name );
+        status.insert( "display", Samsung.ModemState.sim_provider_name );
+    }
+    else
+    {
+        status.insert( "provider", "unknown" );
+        status.insert( "display", "unknown" );
+    }
 
     if ( Samsung.ModemState.network_plmn != null && Samsung.ModemState.network_plmn.length > 0 )
         status.insert( "plmn", Samsung.ModemState.network_plmn );
