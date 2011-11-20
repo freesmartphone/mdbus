@@ -188,20 +188,7 @@ public async void triggerUpdateNetworkStatus()
 
     var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
 
-    // We requst the network registration state so we can decide on the on the last state
-    // what we have to update and don't rely on a old state we saved a long time ago.
-    response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_REGIST,
-        new uint8[] { 0xff, SamsungIpc.Network.ServiceDomain.GSM } );
-
-    if ( response == null )
-    {
-        assert( theLogger.error( @"Can't retrieve network registration state from modem!" ) );
-    }
-    else
-    {
-        var netresp = (SamsungIpc.Network.RegistrationMessage*) (response.data);
-        Samsung.ModemState.network_reg_state = netresp.reg_state;
-    }
+    assert( theLogger.debug( @"Start syncing network registration state with modem ..." ) );
 
     var mstat = theModem.status();
 
@@ -224,11 +211,15 @@ public async void triggerUpdateNetworkStatus()
         }
     }
 
+    assert( theLogger.debug( @"Sending network status update signal to connected clients ..." ) );
+
     // Send network status signal to connected clients
     var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
     fillNetworkStatusInfo( status );
     var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
     network.status( status );
+
+    assert( theLogger.debug( @"Finished syncing network registration state!" ) );
 
     inTriggerUpdateNetworkStatus = false;
 }

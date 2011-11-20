@@ -64,7 +64,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
      **/
     private uint8 next_request_id()
     {
-        current_request_id = current_request_id >= 255 ? 1 : current_request_id++;
+        current_request_id = current_request_id >= 255 ? 1 : current_request_id + 1;
         return current_request_id;
     }
 
@@ -129,8 +129,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         if ( current == null || ch.id != response.aseq )
         {
-            theLogger.warning( @"Got response with id = $(response.aseq) which does not belong to any pending request!" );
-            theLogger.warning( @"Ignoring response ..." );
+            theLogger.error( @"Got response with id = $(response.aseq) which does not belong to any pending request!" );
             return;
         }
 
@@ -206,7 +205,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         ModemState.sim_provider_name = SamsungIpc.Security.RSimAccessResponseMessage.get_file_data( response );
         assert( theLogger.debug( @"Got the following provider name from SIM card spn = $(ModemState.sim_provider_name)" ) );
-
     }
 
     //
@@ -274,9 +272,12 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         yield;
 
         if ( handler.timed_out )
+        {
+            theLogger.error( @"Received a timeout while sending command $(command)!" );
             return null;
+        }
 
-        // reset current command handler so we're able to send more commands
+        // reset current command handler so we're able to send more commands again
         current = null;
 
         return handler.response;
