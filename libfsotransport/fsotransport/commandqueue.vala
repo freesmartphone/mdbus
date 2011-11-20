@@ -94,18 +94,13 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
     protected bool checkRestartingQ()
     {
         if ( current == null && q.size > 0 )
-        {
             writeNextCommand();
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (q.size > 0);
     }
 
     protected void writeNextCommand()
     {
+        assert( transport.logger.debug( @"Attemping to write next command to transport; we have $(q.size) commands pending!" ) );
         current = q.poll_head();
         current.writeToTransport( transport );
         assert( transport.logger.debug( @"Wrote '$current'. Waiting ($(current.timeout)s) for answer..." ) );
