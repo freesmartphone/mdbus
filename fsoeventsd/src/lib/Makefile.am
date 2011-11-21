@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
@@ -19,7 +19,13 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg gee-1.0 \
 	--header fsoevents.h \
-	--library fsoevents-2.0
+	--library fsoevents-2.0 \
+	$(NULL)
+
+if WANT_DEBUG
+VALAC_ARGS += -g -D DEBUG
+AM_CFLAGS += -ggdb -O0
+endif
 
 BUILT_SOURCES = .vala.stamp fsoevents-2.0.vapi
 
