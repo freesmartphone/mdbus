@@ -1,0 +1,9 @@
+[Unit]
+Description=FSO daemon implementing the time/date/location API
+After=dbus.socket
+
+[Service]
+ExecStart=/usr/sbin/fsotdld
+
+[Install]
+WantedBy=basic.target
