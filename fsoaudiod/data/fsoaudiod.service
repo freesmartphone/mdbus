@@ -1,0 +1,9 @@
+[Unit]
+Description=FSO daemon implementing the audio API
+After=dbus.socket
+
+[Service]
+ExecStart=/usr/sbin/fsoaudiod
+
+[Install]
+WantedBy=basic.target
