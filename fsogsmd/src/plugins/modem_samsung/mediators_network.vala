@@ -70,4 +70,45 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
     }
 }
 
+public class SamsungNetworkListProviders : NetworkListProviders
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        unowned SamsungIpc.Response? response;
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        FreeSmartphone.GSM.NetworkProvider[] _providers = { };
+
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_PLMN_LIST );
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network providers from modem!" );
+
+        var pr = (SamsungIpc.Network.PlmnEntriesMessage*) response.data;
+        for ( var n = 0; n < pr.num; n++ )
+        {
+            unowned SamsungIpc.Network.PlmnEntryMessage? currentNetwork = pr.get_entry( response, n );
+            var mccmnc = "";
+
+            for ( int m = 0; m < 5; m++ )
+                mccmnc += "%c".printf( currentNetwork.plmn[m] );
+
+            // FIXME whats with currentNetwork.type?
+
+            var p = FreeSmartphone.GSM.NetworkProvider(
+                Constants.instance().networkProviderStatusToString( (int) currentNetwork.status - 1 ),
+                // NOTE: We currently don't provide the name of the network provider here as
+                // we don't get it directly from the modem and we do not want to access
+                // fsodatad within fsogsmd. Maybe we should make reading from the mbn database
+                // a library function so we can use it in fsogsmd too ...
+                "unknown", "unknown",
+                mccmnc,
+                "");
+
+            _providers += p;
+        }
+
+        providers = _providers;
+    }
+}
+
+
 // vim:ts=4:sw=4:expandtab
