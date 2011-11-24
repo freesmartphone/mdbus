@@ -6,6 +6,7 @@ AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(LIBNL_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsobasics\" \
+	-D_GNU_SOURCE \
 	$(NULL)
 
 VALAC_ARGS = \
