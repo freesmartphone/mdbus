@@ -17,6 +17,7 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg config \
+	--pkg misc \
 	--header fsobasics.h \
 	--library fsobasics-2.0
 

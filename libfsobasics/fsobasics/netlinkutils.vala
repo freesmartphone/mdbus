@@ -53,9 +53,19 @@ public string ipv4AddressForInterface( string iface )
         {
 
             uint32 binaddress = *( (uint32*) addr.get_binary_addr() );
-            binaddress = Posix.ntohl( binaddress );
-            var inaddr = Posix.InAddr() { s_addr = Posix.ntohl( binaddress ) };
-            ipv4 = Posix.inet_ntoa( inaddr );
+
+            // NOTE: We're using here our own InAddr structure as if we use the default
+            // one vala ships we get the following compilation error:
+            //
+            // netlinkutils.vala:58.35-58.48: error: `Posix.InAddr' does not have a default constructor
+            //     Posix.InAddr inaddr = Posix.InAddr();
+            //
+            // When this bug is fixed upstream we should use Posix.InAddr instead of
+            // Posix.InAddr2 again.
+            var inaddr = Posix.InAddr2();
+            inaddr.s_addr = Posix.ntohl( binaddress );
+
+            ipv4 = Posix.inet_ntoa( (Posix.InAddr) inaddr );
         }
     } );
 
