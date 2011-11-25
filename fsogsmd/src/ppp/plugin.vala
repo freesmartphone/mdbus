@@ -144,9 +144,9 @@ static int fsogsmd_get_credentials( string? username, string? password )
 static void plugin_init()
 {
     PPPD.info( "fsogsmd plugin init" );
-    PPPD.add_notifier( PPPD.phasechange, fsogsmd_on_phase_change );
-    PPPD.add_notifier( PPPD.exitnotify, fsogsmd_on_exit );
-    PPPD.add_notifier( PPPD.ip_up_notifier, fsogsmd_on_ip_up );
+    PPPD.add_notifier( &PPPD.phasechange, fsogsmd_on_phase_change );
+    PPPD.add_notifier( &PPPD.exitnotify, fsogsmd_on_exit );
+    PPPD.add_notifier( &PPPD.ip_up_notifier, fsogsmd_on_ip_up );
 
     PPPD.chap_passwd_hook = fsogsmd_get_credentials;
     PPPD.chap_check_hook = fsogsmd_get_chap_check;

@@ -123,7 +123,7 @@ namespace Sms
 {
     public const int CBS_MAX_GSM_CHARS;
 
-    [CCode (cname = "sms_language", cprefix = "SMS_TYPE_", has_type_id = false, cheader_filename = "smsutil.h")]
+    [CCode (cname = "enum sms_type", cprefix = "SMS_TYPE_", has_type_id = false, cheader_filename = "smsutil.h")]
     public enum Type
     {
         DELIVER,

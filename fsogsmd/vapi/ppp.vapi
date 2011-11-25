@@ -108,8 +108,11 @@ namespace PPPD
     // Global Variables
     extern int          hungup;		    /* Physical layer has disconnected */
     extern int	        ifunit;		    /* Interface unit number */
+    [CCode (array_length = false)]
     extern char[]	    ifname;	        /* Interface name */
+    [CCode (array_length = false)]
     extern char[]       hostname;	    /* Our hostname */
+    [CCode (array_length = false)]
     extern char[]	    outpacket_buf;  /* Buffer for outgoing packets */
     extern int	        devfd;		    /* fd of underlying device */
     extern int	        fd_ppp;		    /* fd for talking PPP */
@@ -117,13 +120,17 @@ namespace PPPD
     extern int	        baud_rate;	    /* Current link speed in bits/sec */
     extern string	    progname;   	/* Name of this program */
     extern int	        redirect_stderr;/* Connector's stderr should go to file */
+    [CCode (array_length = false)]
     extern char[]	    peer_authname;  /* Authenticated name of peer */
+    [CCode (array_length = false)]
     extern int[]	    auth_done;      /* Methods actually used for auth */
     extern int	        privileged;	    /* We were run by real-uid root */
     extern int	        need_holdoff;	/* Need holdoff period after link terminates */
+    [CCode (array_length = false)]
     extern string[]	    script_env;	    /* Environment variables for scripts */
     extern int	        detached;	    /* Have detached from controlling tty */
-    extern Posix.gid_t[]groups;	        /* groups the user is in */
+    [CCode (array_length = false)]
+    extern Posix.gid_t[] groups;	        /* groups the user is in */
     extern int	        ngroups;	    /* How many groups valid in groups */
     extern pppd_stats   link_stats;     /* byte/packet counts etc. for link */
     extern int	        link_stats_valid; /* set if link_stats is valid */
@@ -138,7 +145,9 @@ namespace PPPD
     extern int	        do_callback;	/* set if we want to do callback next */
     extern int	        doing_callback;	/* set if this is a callback */
     extern int	        error_count;	/* # of times error() has been called */
+    [CCode (array_length = false)]
     extern char[]	    ppp_devnam;
+    [CCode (array_length = false)]
     extern char[]       remote_number;  /* Remote telephone number, if avail. */
     extern int          ppp_session_number; /* Session number (eg PPPoE session) */
     extern int	        fd_devnull;	    /* fd open to /dev/null */
@@ -150,19 +159,19 @@ namespace PPPD
     extern bool	        bundle_terminating;
 
     // Notifiers to register with
-    extern notifier pidchange;   /* for notifications of pid changing */
-    extern notifier phasechange; /* for notifications of phase changes */
-    extern notifier exitnotify;  /* for notification that we're exiting */
-    extern notifier sigreceived; /* notification of received signal */
-    extern notifier ip_up_notifier; /* IPCP has come up */
-    extern notifier ip_down_notifier; /* IPCP has gone down */
-    extern notifier auth_up_notifier; /* peer has authenticated */
-    extern notifier link_down_notifier; /* link has gone down */
-    extern notifier fork_notifier;  /* we are a new child process */
+    extern notifier *pidchange;   /* for notifications of pid changing */
+    extern notifier *phasechange; /* for notifications of phase changes */
+    extern notifier *exitnotify;  /* for notification that we're exiting */
+    extern notifier *sigreceived; /* notification of received signal */
+    extern notifier *ip_up_notifier; /* IPCP has come up */
+    extern notifier *ip_down_notifier; /* IPCP has gone down */
+    extern notifier *auth_up_notifier; /* peer has authenticated */
+    extern notifier *link_down_notifier; /* link has gone down */
+    extern notifier *fork_notifier;  /* we are a new child process */
 
     // Procedures exported from main.c
-    public void add_notifier           (notifier n, notify_func func);
-    public void remove_notifier        (notifier n, notify_func func);
+    public void add_notifier           (notifier **n, notify_func func);
+    public void remove_notifier        (notifier **n, notify_func func);
 
     // Procedures exported from utils.c
     public void dbglog (string format, ...);      /* log a debug message */
@@ -211,14 +220,19 @@ namespace PPPD
             public bool cflag;
             public uint32 ouraddr;             /* Our address in NETWORK BYTE ORDER */
             public uint32 hisaddr;             /* His address in NETWORK BYTE ORDER */
+            [CCode (array_length = false)]
             public uint32[] dnsaddr;          /* Primary and secondary MS DNS entries */
+            [CCode (array_length = false)]
             public uint32[] winsaddr;         /* Primary and secondary MS WINS entries */
         }
 
-        [CCode (cname = "ipcp_wantoptions")]
+        [CCode (cname = "ipcp_wantoptions", array_length = false)]
         extern Options[] wantoptions;
+        [CCode (array_length = false)]
         extern Options[] gotoptions;
+        [CCode (array_length = false)]
         extern Options[] allowoptions;
+        [CCode (array_length = false)]
         extern Options[] hisoptions;
     }
 

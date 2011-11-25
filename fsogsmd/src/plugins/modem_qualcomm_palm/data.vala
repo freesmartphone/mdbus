@@ -30,7 +30,7 @@ public enum MsmPinStatus
  * only accessible through the incomming urc messages so we have the save it at some place
  * for later access.
  **/
-public static class MsmData
+public class MsmData
 {
     public static void reset()
     {

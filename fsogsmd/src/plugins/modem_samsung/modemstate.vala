@@ -20,7 +20,7 @@ using SamsungIpc;
 
 namespace Samsung
 {
-    public static class ModemState
+    public class ModemState
     {
         public static uint8 power_state = 0;
 
