@@ -3,6 +3,7 @@ NULL =
 
 AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
+	-I$(top_srcdir)/vapi \
 	$(CMTSPEECHDATA_CFLAGS) \
 	$(FSO_GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \

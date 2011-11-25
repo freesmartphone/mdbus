@@ -436,8 +436,9 @@ public class CmtHandler : FsoFramework.AbstractObject
 
     private void handleTimingUpdate( CmtSpeech.Event event )
     {
-        assert( logger.debug( @"modem UL timing update: msec = $(event.msg.timing_config_ntf.msec) usec = $(event.msg.timing_config_ntf.usec)" ) );
-        timing = event.msg.timing_config_ntf.msec;
+        CmtSpeech.EventData* msg = (CmtSpeech.EventData*) (&event.msg);
+        assert( logger.debug( @"modem UL timing update: msec = $(msg.timing_config_ntf.msec) usec = $(msg.timing_config_ntf.usec)" ) );
+        timing = msg.timing_config_ntf.msec;
     }
 
     private void handleDataEvent()

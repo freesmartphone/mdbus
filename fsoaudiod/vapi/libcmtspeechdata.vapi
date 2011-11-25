@@ -2,10 +2,8 @@
  * (C) 2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  */
 
-[CCode (cprefix = "CMTSPEECH_", lower_case_cprefix = "cmtspeech_", cheader_filename = "cmtspeech.h")]
 namespace CmtSpeech
 {
-
     /* Enums */
 
     [CCode (cname = "gint", cprefix = "CMTSPEECH_STATE_", has_type_id = false, cheader_filename = "cmtspeech.h")]
@@ -107,7 +105,7 @@ namespace CmtSpeech
         public uint8* payload;         /**< pointer to frame payload */
     }
 
-    [CCode (cname = "struct cmtspeech_event_s", destroy_function = "", cheader_filename = "cmtspeech.h")]
+    [CCode (cname = "struct cmtspeech_event_s", destroy_function = "", cheader_filename = "cmtspeech.h,libcmtspeechdata.h")]
     public struct Event
     {
         public State state;
@@ -116,6 +114,7 @@ namespace CmtSpeech
         public EventData msg;
     }
 
+    [CCode (destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
     public struct EventData
     {
         public SsiConfigResp ssi_config_resp;
@@ -123,13 +122,15 @@ namespace CmtSpeech
         public TimingConfigNtf timing_config_ntf;
     }
 
+    [CCode (destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
     public struct SsiConfigResp
     {
-	    public uint8 layout;
-	    public uint8 version;
-	    public uint8 result;
+        public uint8 layout;
+        public uint8 version;
+        public uint8 result;
     }
 
+    [CCode (destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
     public struct SpeechConfigReq
     {
         public uint8 speech_data_stream;
@@ -141,14 +142,13 @@ namespace CmtSpeech
         public bool layout_changed;
     }
 
+    [CCode (destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
     public struct TimingConfigNtf
     {
         uint16 msec;
         uint16 usec;
         Posix.timespec tstamp;
     }
-
-
 
     /* Static */
 
