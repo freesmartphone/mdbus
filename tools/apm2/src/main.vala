@@ -24,41 +24,39 @@ using GLib;
 //=========================================================================//
 const string FSO_USAGE_BUS   = "org.freesmartphone.ousaged";
 const string FSO_USAGE_PATH  = "/org/freesmartphone/Usage";
-const string FSO_USAGE_IFACE = "org.freesmartphone.Usage";
 
 const string FSO_DEVICE_BUS  = "org.freesmartphone.odeviced";
 const string FSO_DEVICE_PATH = "/org/freesmartphone/Device/PowerSupply";
-const string FSO_DEVICE_IFACE = "org.freesmartphone.Device.PowerSupply";
 
 //=========================================================================//
 MainLoop mainloop;
 
 //=========================================================================//
+
+[DBus (timeout = 120000, name = "org.freesmartphone.Usage")]
+public interface IUsage : GLib.Object
+{
+    public abstract void suspend () throws GLib.DBusError, GLib.IOError, GLib.Error;
+}
+
+[DBus (timeout = 120000, name = "org.freesmartphone.Device.PowerSupply")]
+public interface IPowerSupply : GLib.Object
+{
+    public abstract int get_capacity () throws GLib.DBusError, GLib.IOError;
+    public abstract string get_power_status () throws GLib.DBusError, GLib.IOError;
+}
+
+//=========================================================================//
 class Commands : Object
 {
-    DBus.Connection bus;
-    dynamic DBus.Object obj;
-
-    public Commands()
-    {
-        try
-        {
-            bus = DBus.Bus.get( DBus.BusType.SYSTEM );
-        }
-        catch ( DBus.Error e )
-        {
-            critical( "dbus error: %s", e.message );
-        }
-    }
-
     public void suspend()
     {
-        obj = bus.get_object( FSO_USAGE_BUS, FSO_USAGE_PATH, FSO_USAGE_IFACE );
         try
         {
-            obj.Suspend();
+            IUsage usage = Bus.get_proxy_sync<IUsage>( BusType.SYSTEM, FSO_USAGE_BUS, FSO_USAGE_PATH );
+            usage.suspend();
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             stderr.printf( "%s\n", e.message );
         }
@@ -66,14 +64,14 @@ class Commands : Object
 
     public void showPowerStatus()
     {
-        obj = bus.get_object( FSO_DEVICE_BUS, FSO_DEVICE_PATH, FSO_DEVICE_IFACE );
         try
         {
-            int capacity = obj.GetCapacity();
-            string stats = obj.GetPowerStatus();
+            IPowerSupply powersupply = Bus.get_proxy_sync<IPowerSupply>( BusType.SYSTEM, FSO_DEVICE_BUS, FSO_DEVICE_PATH );
+            int capacity = powersupply.get_capacity();
+            string stats = powersupply.get_power_status();
             stdout.printf( "%d%% - %s\n", capacity, stats );
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             stderr.printf( "%s\n", e.message );
         }

@@ -4,10 +4,11 @@ NULL =
 
 VALAC_ARGS = \
 	-C --vapidir vapi \
-        --pkg posix \
-        --pkg dbus-glib-1 \
-        --save-temps \
-        --basedir $(top_srcdir)
+		--pkg posix \
+		--pkg gio-2.0 \
+		--save-temps \
+		--basedir $(top_srcdir) \
+		$(NULL)
 
 INCLUDES = \
 	$(DBUS_CFLAGS) \
