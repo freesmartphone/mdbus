@@ -24,25 +24,31 @@ using GLib;
 //=========================================================================//
 const string FSO_USAGE_BUS   = "org.freesmartphone.ousaged";
 const string FSO_USAGE_PATH  = "/org/freesmartphone/Usage";
-const string FSO_USAGE_IFACE = "org.freesmartphone.Usage";
 
 //=========================================================================//
 MainLoop mainloop;
 
 //=========================================================================//
+
+[DBus (timeout = 120000, name = "org.freesmartphone.Usage")]
+public interface IUsage : GLib.Object
+{
+    public abstract string[] list_resources () throws GLib.Error, GLib.DBusError, GLib.IOError;
+    public abstract void request_resource (string name) throws GLib.Error, GLib.DBusError, GLib.IOError;
+}
+
+//=========================================================================//
 class Commands : Object
 {
-    DBus.Connection bus;
-    dynamic DBus.Object usage;
+    private IUsage usage;
 
     public Commands()
     {
         try
         {
-            bus = DBus.Bus.get( DBus.BusType.SYSTEM );
-            usage = bus.get_object( FSO_USAGE_BUS, FSO_USAGE_PATH, FSO_USAGE_IFACE );
+            Bus.get_proxy_sync<IUsage>( BusType.SYSTEM, FSO_USAGE_BUS, FSO_USAGE_PATH );
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             critical( "dbus error: %s", e.message );
         }
@@ -52,11 +58,11 @@ class Commands : Object
     {
         try
         {
-            string[] res = usage.ListResources();
+            string[] res = usage.list_resources();
             foreach ( var r in res )
                 stdout.printf( "%s\n", r );
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             stderr.printf( "%s\n", e.message );
         }
@@ -68,9 +74,9 @@ class Commands : Object
         {
             try
             {
-                usage.RequestResource( resource );
+                usage.request_resource( resource );
             }
-            catch ( DBus.Error e )
+            catch ( GLib.Error e )
             {
                 if (force)
                     warning( "Could not request resource '%s': %s", resource, e.message );
@@ -85,9 +91,7 @@ class Commands : Object
 static bool listresources;
 static bool force;
 static bool timeout;
-[NoArrayLength()]
 static string[] resources;
-[NoArrayLength()]
 static string[] command;
 
 const OptionEntry[] options =

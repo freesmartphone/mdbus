@@ -4,13 +4,13 @@ NULL =
 
 VALAC_ARGS = \
 	-C --vapidir vapi \
-        --pkg posix \
-        --pkg dbus-glib-1 \
-        --save-temps \
-        --basedir $(top_srcdir)
+		--pkg posix \
+		--pkg gio-2.0 \
+		--save-temps \
+		--basedir $(top_srcdir)
+		$(NULL)
 
 INCLUDES = \
-	$(DBUS_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	$(NULL)
@@ -32,7 +32,6 @@ $(BUILT_SOURCES): $(fso_raw_VALASOURCES)
 	touch $@
 
 fso_raw_LDADD = \
-	$(DBUS_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 
