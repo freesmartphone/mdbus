@@ -34,6 +34,41 @@ const string DBUS_INTERFACE = "org.freedesktop.DBus";
 const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectable";
 
 //=========================================================================//
+
+[DBus (name = "org.freedesktop.DBus")]
+public interface IDBusSync : GLib.Object
+{
+    public abstract void           AddMatch( string match ) throws GLib.DBusError, GLib.IOError;
+    public abstract uint8[]        GetAdtAuditSessionData( string type ) throws GLib.DBusError, GLib.IOError;
+    public abstract uint8[]        GetConnectionSELinuxSecurityContext( string type ) throws GLib.DBusError, GLib.IOError;
+    public abstract uint32         GetConnectionUnixProcessID( string conn ) throws GLib.DBusError, GLib.IOError;
+    public abstract uint32         GetConnectionUnixUser( string conn ) throws GLib.DBusError, GLib.IOError;
+    public abstract string         GetId() throws GLib.DBusError, GLib.IOError;
+    public abstract string         GetNameOwner( string name ) throws GLib.DBusError, GLib.IOError;
+    public abstract string         Hello() throws GLib.DBusError, GLib.IOError;
+    public abstract string[]       ListActivatableNames() throws GLib.DBusError, GLib.IOError;
+    public abstract string[]       ListNames() throws GLib.DBusError, GLib.IOError;
+    public abstract string[]       ListQueuedOwners( string None ) throws GLib.DBusError, GLib.IOError;
+    public abstract bool           NameHasOwner( string name ) throws GLib.DBusError, GLib.IOError;
+    public abstract uint32         ReleaseName( string name ) throws GLib.DBusError, GLib.IOError;
+    public abstract void           ReloadConfig() throws GLib.DBusError, GLib.IOError;
+    public abstract void           RemoveMatch( string match ) throws GLib.DBusError, GLib.IOError;
+    public abstract uint32         RequestName( string name, uint32 flags ) throws GLib.DBusError, GLib.IOError;
+    public abstract uint32         StartServiceByName( string name, uint32 flags ) throws GLib.DBusError, GLib.IOError;
+    public abstract void           UpdateActivationEnvironment( GLib.HashTable<string,string> environment ) throws GLib.DBusError, GLib.IOError;
+
+    public signal void             NameAcquired( string name );
+    public signal void             NameLost( string name );
+    public signal void             NameOwnerChanged( string name, string oldowner, string newowner );
+}
+
+[DBus (name = "org.freedesktop.DBus.Introspectable")]
+public interface IIntrospectable : GLib.Object
+{
+    public abstract string Introspect () throws GLib.DBusError, GLib.IOError;
+}
+
+//=========================================================================//
 Commands commands;
 List<string> completions;
 //=========================================================================//
@@ -642,16 +677,16 @@ public class Introspection : Object
 class Commands : Object
 {
     DBus.Connection bus;
-    dynamic DBus.Object busobj;
+    IDBusSync busobj;
 
     public Commands( DBus.BusType bustype )
     {
         try
         {
             bus = DBus.Bus.get( bustype );
-            busobj = bus.get_object( DBUS_BUS_NAME, DBUS_OBJ_PATH, DBUS_INTERFACE );
+            busobj = Bus.get_proxy_sync<IDBusSync>( BusType.SYSTEM, DBUS_BUS_NAME, DBUS_OBJ_PATH );
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             stderr.printf( @"Can't hook to DBus %s bus: $(e.message)\n".printf( useSystemBus ? "system" : "session" ) );
             Posix.exit( -1 );
@@ -765,7 +800,7 @@ class Commands : Object
 
     public void _listObjects( string busname, string path, ref List<string> result, string prefix = "", bool with_interfaces = false )
     {
-        dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
+        IIntrospectable o = Bus.get_proxy_sync<IIntrospectable>( BusType.SYSTEM, busname, path );
 
         try
         {
@@ -783,7 +818,7 @@ class Commands : Object
                 _listObjects( busname.strip(), nextnode.strip(), ref result, prefix, with_interfaces );
             }
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             stderr.printf( @"[ERR]: $(e.message)\n" );
             return;
@@ -809,7 +844,7 @@ class Commands : Object
     public List<string> _listInterfaces( string busname, string path, string? prefix = null, bool stripPropertiesAndSignals = false )
     {
         var result = new List<string>();
-        dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
+        IIntrospectable o = Bus.get_proxy_sync<IIntrospectable>( BusType.SYSTEM, busname, path );
 
         try
         {
@@ -838,7 +873,7 @@ class Commands : Object
                 }
             }
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             stderr.printf( "[ERR]: %s\n", e.message );
         }
@@ -914,7 +949,7 @@ class Commands : Object
             return callMethodWithoutIntrospection( busname, path, method );
         }
 
-        dynamic DBus.Object o = bus.get_object( busname, path, DBUS_INTERFACE_INTROSPECTABLE );
+        IIntrospectable o = Bus.get_proxy_sync<IIntrospectable>( BusType.SYSTEM, busname, path );
 
         try
         {

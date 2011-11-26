@@ -8,6 +8,7 @@ VALAC_ARGS = \
 	--pkg posix \
 	--pkg readline \
 	--pkg dbus-glib-1 \
+	--pkg gio-2.0 \
 	--save-temps
 
 if WANT_DEBUG
