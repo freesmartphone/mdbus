@@ -1,4 +1,4 @@
-AC_INIT([mdbus], [2.0.2], [smartphones-userland@linuxtogo.org], [mdbus])
+AC_INIT([mdbus], [2.1.0], [smartphones-userland@linuxtogo.org], [mdbus])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
