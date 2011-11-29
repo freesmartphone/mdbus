@@ -1,1 +1,6 @@
+Overview of changes for mdbus 2.1.0
+===============================================================================
 
+* ported to use gdbus instead of dbus-glib (no dependency on dbus-glib is needed anymore)
+* due to the port to gdbus parameters for methods needs to be written in GVariant syntax
+  (see glib documentation for more information)
