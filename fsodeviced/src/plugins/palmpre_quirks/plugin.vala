@@ -29,6 +29,10 @@ namespace PalmPre
 internal static PalmPre.PowerSupply power_supply;
 internal static PalmPre.PowerControl power_control;
 internal static PalmPre.AmbientLight ambient_light;
+internal static PalmPre.Proximity proximity;
+internal static PalmPre.ProximityResource proximity_resource;
+
+
 
 /**
  * This function gets called on plugin initialization time.
@@ -65,6 +69,16 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         else
         {
             FsoFramework.theLogger.error( "No ambient light device found; ambient light object will not be available" );
+        }
+    }
+
+    if ( config.hasSection( @"$(PalmPre.MODULE_NAME)/proximity" ) )
+    {
+        var dirname = GLib.Path.build_filename( PalmPre.sysfs_root, "devices", "platform", "hsdl9100_proximity", "input", "input3" );
+        if ( FsoFramework.FileHandling.isPresent( dirname ) )
+        {
+            proximity = new PalmPre.Proximity( subsystem, dirname );
+            proximity_resource = new PalmPre.ProximityResource( subsystem, proximity );
         }
     }
 

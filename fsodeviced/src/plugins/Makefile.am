@@ -44,7 +44,6 @@ SUBDIRS = \
 	\
 	palmpre_quirks \
 	\
-	proximity_palmpre \
 	proximity_n900 \
 	\
 	gpio_input \

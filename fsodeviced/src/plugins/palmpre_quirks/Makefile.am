@@ -45,6 +45,7 @@ palmpre_quirks_la_VALASOURCES = \
 	powersupply.vala \
 	powercontrol.vala \
 	ambientlight.vala \
+	proximity.vala \
 	$(NULL)
 palmpre_quirks_la_SOURCES = $(palmpre_quirks_la_VALASOURCES:.vala=.c)
 $(palmpre_quirks_la_SOURCES): $(palmpre_quirks_la_VALASOURCES)
