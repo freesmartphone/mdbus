@@ -1,7 +1,23 @@
-mdbus 2.0
-=========
- * Vala port of mdbus in Python w/ interactive commandline
+===========================================================
+mdbus 2.1.0
+===========================================================
 
-Todo:
- * argument validation, since dbus is finnicky and fragile
+This utility helps you to explore and interact with DBus
+services on your system bus and session bus. Called without
+any parameters, it will show the available services on the
+selected bus. Given a service name, it will show the avail-
+able objects exported by the service. Given a service name
+and an object path, it will show the exposed methods, sig-
+nals, and properties of that object.
 
+mdbus2 -i drops you into a shell mode, where you can inter-
+actively explore services and call methods using readline
+command line completion and history.
+
+mdbus2 -l drops you into the listener mode, where everything
+that happens on the bus is monitored.
+
+NOTE: Mickey's DBus Utility requires well-behaved services,
+i.e. those which implement the DBus introspection protocol.
+
+mdbus2: DBus has never been that much fun!
