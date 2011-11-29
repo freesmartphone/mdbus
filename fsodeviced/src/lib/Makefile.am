@@ -35,7 +35,6 @@ libfsodevice_la_VALASOURCES = \
 	alsa.vala \
 	audioplayer.vala \
 	audiorouter.vala \
-	dispatcher.vala \
 	input.vala \
 	powercontrol.vala \
 	resource.vala \
