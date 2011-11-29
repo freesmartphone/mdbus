@@ -4,7 +4,7 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	-I$(top_srcdir)/3rdparty \
+	-I$(top_srcdir)/src/3rdparty \
 	$(FSO_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsodevice.powersupply_n900\" \
 	$(NULL)
