@@ -31,7 +31,6 @@ SUBDIRS = \
 	\
 	n900_powercontrol \
 	openmoko_powercontrol \
-	gta04_powercontrol \
 	thinkpad_powercontrol \
 	\
 	powercontrol_ifconfig \
@@ -43,6 +42,7 @@ SUBDIRS = \
 	vibrator_timedoutputclass \
 	\
 	palmpre_quirks \
+	gta04_quirks \
 	\
 	proximity_n900 \
 	\
