@@ -2,6 +2,8 @@
  * -- Mickey's DBus Utility V2 --
  *
  * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *                         Frederik 'playya' Sdun <frederik.sdun@googlemail.com>
+ *                         Simon Busch <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +34,7 @@ const string DBUS_BUS_NAME  = "org.freedesktop.DBus";
 const string DBUS_OBJ_PATH  = "/";
 const string DBUS_INTERFACE = "org.freedesktop.DBus";
 const string DBUS_INTERFACE_INTROSPECTABLE = "org.freedesktop.DBus.Introspectable";
+
 [DBus (name="org.freedesktop.DBus.Introspectable")]
 public interface Introspectable : GLib.Object
 {
