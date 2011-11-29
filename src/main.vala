@@ -253,19 +253,24 @@ class Commands : Object
         try
         {
             var nodeinfo = getNodeInfo( busname, path );
-            if( nodeinfo == null)
+            if( nodeinfo == null )
                 return result;
-            string method_prefix = null;
-            var i = splitInterfaceMethod( prefix, out method_prefix );
-            var ifaceinfo = nodeinfo.lookup_interface( i );
-            if( ifaceinfo != null)
+
+            if ( prefix != null )
             {
-                foreach( var m in ifaceinfo.methods)
+                string method_prefix = null;
+                var i = splitInterfaceMethod( prefix, out method_prefix );
+                var ifaceinfo = nodeinfo.lookup_interface( i );
+                if( ifaceinfo != null)
                 {
-                    if( m.name.has_prefix( method_prefix ) )
-                        result.append( i + "." + m.name );
+                    foreach( var m in ifaceinfo.methods)
+                    {
+                        if( m.name.has_prefix( method_prefix ) )
+                            result.append( i + "." + m.name );
+                    }
                 }
             }
+
             foreach ( var iface in nodeinfo.interfaces )
             {
 #if DEBUG
@@ -319,22 +324,6 @@ class Commands : Object
         }
     }
 
-    private bool callMethodWithoutIntrospection( string busname, string path, string method )
-    {
-        string baseMethod = null;
-        var iface = splitInterfaceMethod( method, out baseMethod );
-        try
-        {
-            var v = bus.call_sync( busname, path, iface, baseMethod, null, VariantType.ANY, 0, 100000);
-            stdout.printf( @"$(v.print(annotateTypes))\n");
-        }
-        catch (GLib.Error e)
-        {
-            stdout.printf(@"$(e.message)");
-        }
-        return true;
-    }
-
     public bool callMethod( string busname, string path, string method, string[] args )
     {
         if ( !isValidBusName( busname ) )
@@ -348,12 +337,6 @@ class Commands : Object
             stderr.printf( @"[ERR]: Unknown object path $path for $busname\n" );
             return false;
         }
-
-        // skip introspection if we don't have any arguments
-        //if ( args.length == 0 )
-        //{
-            //return callMethodWithoutIntrospection( busname, path, method );
-        //}
 
         try
         {
@@ -373,6 +356,11 @@ class Commands : Object
                 }
             }
 
+            if ( methodinfo == null )
+            {
+                stderr.printf( @"[ERR]: There is no method with name $method on path $path!\n" );
+                return false;
+            }
 
             if ( methodinfo != null && args.length != methodinfo.in_args.length )
             {
@@ -390,6 +378,7 @@ class Commands : Object
             if( propinfo != null )
             {
                 var tmparg = args[0];
+                stdout.printf(@"tmparg = $tmparg\n");
                 vargs_builder.add_value( iface );
                 vargs_builder.add_value( baseMethod );
                 if( args.length == 1 )
@@ -397,7 +386,7 @@ class Commands : Object
                     Variant v = null;
                     try
                     {
-                        v = new Variant.variant( Variant.parse( new VariantType( propinfo.signature ), tmparg ) );
+                        v = new Variant.variant( Variant.parse( new VariantType( propinfo.signature ), @"'$tmparg'" ) );
                     }
                     catch (GLib.VariantParseError e)
                     {
@@ -425,7 +414,7 @@ class Commands : Object
                     try
                     {
                         unowned VariantType? vt = (methodinfo == null) ? null : new VariantType( methodinfo.in_args[i].signature );
-                        var v = Variant.parse( vt, args[i] );
+                        var v = Variant.parse( vt, @"'$(args[i])'" );
                         vargs_builder.add_value( v );
                     }
                     catch (GLib.VariantParseError e)
@@ -446,9 +435,10 @@ class Commands : Object
             }
 
             var parameters = vargs_builder.end();
-            unowned VariantType? full_vt = (methodinfo == null || methodinfo.out_args.length <= 0) ? null :  new VariantType( "(" + buildSignature( methodinfo.out_args )  + ")" );
+            unowned VariantType? full_vt = (methodinfo == null || methodinfo.out_args.length <= 0) ?
+                null :  new VariantType( "(" + buildSignature( methodinfo.out_args )  + ")" );
             var result = bus.call_sync( busname, path, iface, baseMethod, parameters, full_vt, DBusCallFlags.NONE, 100000 );
-            stdout.printf( @"$(result.print(annotateTypes))\n" );
+            stdout.printf( @"$(result.print(false))\n" );
         }
         catch ( Error e )
         {
