@@ -14,7 +14,8 @@ VALAC_ARGS = \
 	--enable-experimental
 
 if WANT_DEBUG
-VALAC_ARGS += -D DEBUG
+VALAC_ARGS += -g -D DEBUG
+AM_CFLAGS = -ggdb -O0
 endif
 
 INCLUDES = \
