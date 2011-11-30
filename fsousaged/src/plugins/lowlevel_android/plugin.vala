@@ -83,11 +83,11 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             var readfds = Posix.fd_set();
             var writefds = Posix.fd_set();
             var exceptfds = Posix.fd_set();
-            Posix.FD_SET( fd, readfds );
+            Posix.FD_SET( fd, ref readfds );
             Posix.timeval t = { 1, 0 };
-            int res = Posix.select( fd+1, readfds, writefds, exceptfds, t );
+            int res = Posix.select( fd+1, ref readfds, ref writefds, ref exceptfds, t );
 
-            if ( res < 0 || Posix.FD_ISSET( fd, readfds ) == 0 )
+            if ( res < 0 || Posix.FD_ISSET( fd, ref readfds ) == 0 )
             {
                 assert( logger.debug( "No action on input device node; continuing to sleep" ) );
                 continue;
