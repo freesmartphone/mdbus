@@ -211,7 +211,6 @@ AC_CONFIG_FILES([
   src/plugins/player_canberra/Makefile
   src/plugins/player_gstreamer/Makefile
   src/plugins/powersupply_n900/Makefile
-  src/plugins/proximity_palmpre/Makefile
   src/plugins/proximity_n900/Makefile
   src/plugins/router_alsa/Makefile
   src/plugins/router_qdsp5/Makefile
