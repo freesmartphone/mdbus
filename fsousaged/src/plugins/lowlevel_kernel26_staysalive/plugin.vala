@@ -53,9 +53,9 @@ class LowLevel.Kernel26_StaysAlive : FsoUsage.LowLevel, FsoFramework.AbstractObj
         var readfds = Posix.fd_set();
         var writefds = Posix.fd_set();
         var exceptfds = Posix.fd_set();
-        Posix.FD_SET( fd, readfds );
+        Posix.FD_SET( fd, ref readfds );
         Posix.timeval t = { 60*60*24, 0 };
-        int res = Posix.select( fd+1, readfds, writefds, exceptfds, t ); // block indefinitely
+        int res = Posix.select( fd+1, ref readfds, ref writefds, ref exceptfds, t ); // block indefinitely
 
         assert( logger.debug( "ACTION! Ungrabbing input nodes" ) );
         Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
