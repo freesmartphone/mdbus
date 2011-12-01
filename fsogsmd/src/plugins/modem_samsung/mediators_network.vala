@@ -78,7 +78,7 @@ public class SamsungNetworkListProviders : NetworkListProviders
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
         FreeSmartphone.GSM.NetworkProvider[] _providers = { };
 
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_PLMN_LIST );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_PLMN_LIST, new uint8[] { }, 0, -1 );
         if ( response == null )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network providers from modem!" );
 
