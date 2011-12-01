@@ -34,5 +34,9 @@ namespace Samsung
         public static Network.RegistrationState network_reg_state = Network.RegistrationState.NONE;
         public static Network.AccessTechnology network_act = Network.AccessTechnology.UNKNOWN;
         public static string network_plmn = "unknown";
+
+        public static Network.RegistrationState pdp_reg_state = Network.RegistrationState.NONE;
+        public static uint16 pdp_lac = 0;
+        public static uint32 pdp_cid = 0;
     }
 }

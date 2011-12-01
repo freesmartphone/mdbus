@@ -163,6 +163,9 @@ public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
     status.insert( "lac", @"$(Samsung.ModemState.network_lac)" );
     status.insert( "cid", @"$(Samsung.ModemState.network_cid)" );
     status.insert( "act", networkAccessTechnologyToString( Samsung.ModemState.network_act ) );
+    status.insert( "pdp.registration", networkRegistrationStateToString( Samsung.ModemState.pdp_reg_state ) );
+    status.insert( "pdp.lac", @"$(Samsung.ModemState.pdp_lac)" );
+    status.insert( "pdp.cid", @"$(Samsung.ModemState.pdp_cid)" );
 
     if ( Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
          Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.ROAMING )

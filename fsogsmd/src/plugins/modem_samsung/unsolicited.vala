@@ -143,30 +143,37 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
     {
         SamsungIpc.Network.RegistrationMessage* reginfo = (SamsungIpc.Network.RegistrationMessage*) response.data;
 
-        if ( reginfo.domain == SamsungIpc.Network.ServiceDomain.GPRS )
+        if ( reginfo.domain == SamsungIpc.Network.ServiceDomain.GSM )
         {
-            assert( logger.debug( @"Got network status update for GPRS domain; ignoring this for now ..." ) );
-            return;
+            assert( logger.debug( @"Got updated network registration information from modem:" ) );
+
+            ModemState.network_reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
+            ModemState.network_act = (SamsungIpc.Network.AccessTechnology) reginfo.act;
+            ModemState.network_lac = reginfo.lac;
+            ModemState.network_cid = reginfo.cid;
+
+            assert( logger.debug( @"domain = $(reginfo.domain), network_reg_state = $(ModemState.network_reg_state)" ) );
+            assert( logger.debug( @"network_act = $(ModemState.network_act), lac = $(reginfo.lac), cid = $(reginfo.lac)" ) );
+            assert( logger.debug( @"rej_cause = $(reginfo.rej_cause), edge = $(reginfo.edge)" ) );
+
+            if ( theModem.status() >= FsoGsm.Modem.Status.ALIVE_SIM_READY )
+            {
+                triggerUpdateNetworkStatus();
+            }
+            else
+            {
+                assert( logger.debug( @"Didn't triggered a network status as we're not authenticated against the SIM card yet!" ) );
+            }
         }
-
-        assert( logger.debug( @"Got updated network registration information from modem:" ) );
-
-        ModemState.network_reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
-        ModemState.network_act = (SamsungIpc.Network.AccessTechnology) reginfo.act;
-        ModemState.network_lac = reginfo.lac;
-        ModemState.network_cid = reginfo.cid;
-
-        assert( logger.debug( @"domain = $(reginfo.domain), network_reg_state = $(ModemState.network_reg_state)" ) );
-        assert( logger.debug( @"network_act = $(ModemState.network_act), lac = $(reginfo.lac), cid = $(reginfo.lac)" ) );
-        assert( logger.debug( @"rej_cause = $(reginfo.rej_cause), edge = $(reginfo.edge)" ) );
-
-        if ( theModem.status() >= FsoGsm.Modem.Status.ALIVE_SIM_READY )
+        else if ( reginfo.domain == SamsungIpc.Network.ServiceDomain.GPRS )
         {
-            triggerUpdateNetworkStatus();
+            ModemState.pdp_reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
+            ModemState.pdp_lac = reginfo.lac;
+            ModemState.pdp_cid = reginfo.cid;
         }
         else
         {
-            assert( logger.debug( @"Didn't triggered a network status as we're not authenticated against the SIM card yet!" ) );
+            logger.warning( @"Got unknown network service domain type: 0x%02x".printf( reginfo.domain ) );
         }
     }
 
