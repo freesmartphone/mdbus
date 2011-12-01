@@ -95,7 +95,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
         ModemState.sim_status = message.status;
 
-        assert( logger.debug( @"sim status changed to status = 0x%02x".printf( ModemState.sim_status ) ) );
+        assert( logger.debug( @"sim status changed to status = 0x%02x".printf( message.status ) ) );
 
         switch ( message.status )
         {
