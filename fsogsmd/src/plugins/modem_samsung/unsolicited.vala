@@ -97,7 +97,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
         assert( logger.debug( @"sim status changed to status = 0x%02x".printf( message.status ) ) );
 
-        switch ( message.status )
+        switch ( (uint8) message.status )
         {
             case SamsungIpc.Security.SimStatus.INIT_COMPLETE:
                 updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
