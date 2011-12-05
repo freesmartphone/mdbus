@@ -1,4 +1,0 @@
-[D-BUS Service]
-Name=org.freesmartphone.otestd
-Exec=@prefix@/sbin/fsotestd
-User=root
