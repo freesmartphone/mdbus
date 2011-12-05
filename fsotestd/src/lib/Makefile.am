@@ -34,7 +34,6 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsotest_la_VALASOURCES = \
-	baseservice.vala \
 	$(NULL)
 
 libfsotest_la_SOURCES = \
