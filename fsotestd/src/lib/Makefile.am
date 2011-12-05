@@ -34,6 +34,7 @@ lib_LTLIBRARIES = \
 	$(NULL)
 
 libfsotest_la_VALASOURCES = \
+	basetest.vala \
 	$(NULL)
 
 libfsotest_la_SOURCES = \
