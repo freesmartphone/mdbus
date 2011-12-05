@@ -4,4 +4,5 @@ NULL =
 AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = \
+	manager \
 	$(NULL)

@@ -102,6 +102,7 @@ AC_CONFIG_FILES([
   src/lib/Makefile
   src/bin/Makefile
   src/plugins/Makefile
+  src/plugins/manager/Makefile
 ])
 
 ##############################################################################
