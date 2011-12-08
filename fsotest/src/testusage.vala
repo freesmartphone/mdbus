@@ -55,6 +55,11 @@ public class FsoTest.TestUsage : FsoTest.Fixture
     private FreeSmartphone.Usage usage;
     private DummyResource resource;
 
+    public TestUsage()
+    {
+        name = "Usage";
+    }
+
     public override async void setup()
     {
         try
@@ -75,22 +80,29 @@ public class FsoTest.TestUsage : FsoTest.Fixture
         }
     }
 
-    public override void run( TestManager test_manager )
+    public override bool run( TestManager test_manager )
     {
-        test_manager.run_test_method( "/org/freesmartphone/Usage/ResourceRegistration", () => {
+        bool result = false;
+
+        result = test_manager.run_test_method( "/org/freesmartphone/Usage/ResourceRegistration", () => {
             wait_for_async( 200, cb => test_resource_registration( cb ),
                 res => test_resource_registration.end( res ) );
         } );
+        return_val_if_fail( result, false );
 
-        test_manager.run_test_method( "/org/freesmartphone/Usage/RequestReleaseResource", () => {
+        result = test_manager.run_test_method( "/org/freesmartphone/Usage/RequestReleaseResource", () => {
             wait_for_async( 200, cb => test_request_release_resource(cb),
                 res => test_request_release_resource.end( res ) );
         } );
+        return_val_if_fail( result, false );
 
-        test_manager.run_test_method( "/org/freesmartphone/Usage/ResurceDeregistration", () => {
+        result = test_manager.run_test_method( "/org/freesmartphone/Usage/ResourceDeregistration", () => {
             wait_for_async( 200, cb => test_resource_unregister(cb),
                 res => test_resource_unregister.end( res ) );
         } );
+        return_val_if_fail( result, false );
+
+        return true;
     }
 
     public async void test_resource_registration() throws GLib.Error, AssertError

@@ -82,7 +82,10 @@ namespace FsoTest
          */
         public virtual async void setup() {}
 
-        public virtual void run( TestManager test_manager ) {}
+        public virtual bool run( TestManager test_manager )
+        {
+            return true;
+        }
 
         /**
          * Called after a test is run before the object is destroyed.
@@ -99,5 +102,7 @@ namespace FsoTest
          * default to 5000ms.
          */
         public int timeout { get; set; default = 5000; }
+
+        public string name { get; set; default = ""; }
     }
 }

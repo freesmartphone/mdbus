@@ -30,6 +30,11 @@ public class FsoTest.TestGSM : FsoTest.Fixture
     private FreeSmartphone.GSM.CB gsm_cb;
     private FreeSmartphone.GSM.VoiceMail gsm_voicemail;
 
+    public TestGSM()
+    {
+        name = "GSM";
+    }
+
     public override async void setup()
     {
         try
@@ -67,17 +72,23 @@ public class FsoTest.TestGSM : FsoTest.Fixture
         }
     }
 
-    public override void run( TestManager test_manager )
+    public override bool run( TestManager test_manager )
     {
-        test_manager.run_test_method( "/org/freesmartphone/GSM/RequestResource", () => {
+        bool result = false;
+
+        result = test_manager.run_test_method( "/org/freesmartphone/GSM/RequestResource", () => {
             wait_for_async( 200, cb => test_request_gsm_resource( cb ),
                 res => test_request_gsm_resource.end( res ) );
         } );
+        return_val_if_fail( result, false );
 
-        test_manager.run_test_method( "/org/freesmartphone/GSM/Releaseresource", () => {
+        result = test_manager.run_test_method( "/org/freesmartphone/GSM/Releaseresource", () => {
             wait_for_async( 200, cb => test_release_gsm_resource( cb ),
                 res => test_release_gsm_resource.end( res ) );
         } );
+        return_val_if_fail( result, false );
+
+        return true;
     }
 
     /**

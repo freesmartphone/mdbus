@@ -32,7 +32,7 @@ public class FsoTest.TestManager : GLib.Object
         fixtures.append( fixture );
     }
 
-    public void run_test_method( string test_name, TestMethodFunc test_method )
+    public bool run_test_method( string test_name, TestMethodFunc test_method )
     {
         try
         {
@@ -42,15 +42,31 @@ public class FsoTest.TestManager : GLib.Object
         catch ( GLib.Error err )
         {
             FsoFramework.theLogger.error( @"$test_name :: FAILED: $(err.message)" );
+            return false;
         }
+
+        return true;
     }
 
     public void run_all()
     {
         foreach ( var fixture in fixtures )
         {
+            FsoFramework.theLogger.info( @"================================================" );
+            FsoFramework.theLogger.info( @" Fixture $(fixture.name)" );
+            FsoFramework.theLogger.info( @"================================================" );
+
             fixture.setup();
-            fixture.run( this );
+
+            if ( fixture.run( this ) )
+            {
+                FsoFramework.theLogger.info( @"==> SUCCESSFULL" );
+            }
+            else
+            {
+                FsoFramework.theLogger.error( @"==> FAILED" );
+            }
+
             fixture.teardown();
         }
     }
