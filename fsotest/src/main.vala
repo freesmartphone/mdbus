@@ -28,6 +28,7 @@ public static int main( string[] args )
     } );
 
     tm.add_fixture( new FsoTest.TestUsage() );
+    tm.add_fixture( new FsoTest.TestGSM() );
     tm.run_all();
 
     return 0;

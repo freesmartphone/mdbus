@@ -34,6 +34,7 @@ fsotest_VALASOURCES = \
 	testutils.vala \
 	testmanager.vala \
 	testusage.vala \
+	testgsm.vala \
 	$(NULL)
 
 fsotest_SOURCES = \
