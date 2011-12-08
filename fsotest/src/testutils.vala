@@ -20,7 +20,8 @@ using GLib;
 
 public errordomain FsoTest.AssertError
 {
-    UNEXPECTED_VALUE
+    UNEXPECTED_VALUE,
+    UNEXPECTED_STATE,
 }
 
 public class FsoTest.Assert : GLib.Object
@@ -47,6 +48,11 @@ public class FsoTest.Assert : GLib.Object
     {
         if ( actual )
             throw new AssertError.UNEXPECTED_VALUE( @"Supplied value is not false" );
+    }
+
+    public static void fail( string message ) throws GLib.Error
+    {
+        throw new AssertError.UNEXPECTED_STATE( message );
     }
 }
 

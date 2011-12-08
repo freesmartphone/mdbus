@@ -82,7 +82,13 @@ public class FsoTest.TestGSM : FsoTest.Fixture
         } );
         return_val_if_fail( result, false );
 
-        result = test_manager.run_test_method( "/org/freesmartphone/GSM/Releaseresource", () => {
+        result = test_manager.run_test_method( "/org/freesmartphone/GSM/ValidateInitialStatus", () => {
+            wait_for_async( 200, cb => test_validate_initial_status( cb ),
+                res => test_validate_initial_status.end( res ) );
+        } );
+        return_val_if_fail( result, false );
+
+        result = test_manager.run_test_method( "/org/freesmartphone/GSM/ReleaseResource", () => {
             wait_for_async( 200, cb => test_release_gsm_resource( cb ),
                 res => test_release_gsm_resource.end( res ) );
         } );
@@ -107,6 +113,38 @@ public class FsoTest.TestGSM : FsoTest.Fixture
 
         resources = yield usage.list_resources();
         Assert.is_true( "GSM" in resources );
+    }
+
+    /**
+     * Check the various status bits of the GSM service. All should be in a well definied
+     * initial state. If state is not correct the cause is either wrong preconditions or
+     * a real bug in the service implementation.
+     */
+    public async void test_validate_initial_status() throws GLib.Error, AssertError
+    {
+        var device_status = yield gsm_device.get_device_status();
+        if ( device_status == FreeSmartphone.GSM.DeviceStatus.ALIVE_NO_SIM )
+            Assert.fail( "No SIM is plugged into the device; can not continue" );
+        else if ( device_status == FreeSmartphone.GSM.DeviceStatus.UNKNOWN )
+            Assert.fail( "Can not continue as GSM device is in a unknown state" );
+        else if ( device_status == FreeSmartphone.GSM.DeviceStatus.ALIVE_SIM_UNLOCKED ||
+                  device_status == FreeSmartphone.GSM.DeviceStatus.ALIVE_REGISTERED )
+            Assert.fail( "SIM card is already unlocked or modem registered to network" );
+        else if ( device_status != FreeSmartphone.GSM.DeviceStatus.INITIALIZING &&
+                  device_status != FreeSmartphone.GSM.DeviceStatus.ALIVE_SIM_LOCKED )
+            Assert.fail( @"GSM device is in a unexpected state $device_status" );
+
+        var sim_status = yield gsm_sim.get_auth_status();
+        if ( sim_status != FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED &&
+             sim_status != FreeSmartphone.GSM.SIMAuthStatus.PIN2_REQUIRED )
+            Assert.fail( @"SIM card has an unexpected state $sim_status" );
+
+        var network_status = yield gsm_network.get_status();
+        Assert.is_true( network_status.lookup( "mode" ) != null );
+        Assert.is_true( network_status.lookup( "registration" ) != null );
+        Assert.is_true( network_status.lookup( "act" ) != null );
+        Assert.is_true( network_status.lookup( "strength" ) != null );
+        Assert.is_true( network_status.lookup( "provider" ) != null );
     }
 
     public async void test_release_gsm_resource() throws GLib.Error, AssertError
