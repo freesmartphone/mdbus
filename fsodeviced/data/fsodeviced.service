@@ -1,7 +1,6 @@
 [Unit]
 Description=FSO daemon implementing the device API
-#After=local-fs.target
-#Before=systemd-modules-load.service shutdown.service
+After=dbus.socket
 
 [Service]
 Type=dbus
@@ -9,6 +8,4 @@ BusName=org.freesmartphone.odeviced
 ExecStart=/usr/sbin/fsodeviced
 
 [Install]
-# we have to start very early to be able to respond to
-# firmware requests
 WantedBy=basic.target
