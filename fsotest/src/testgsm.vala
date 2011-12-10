@@ -140,11 +140,12 @@ public class FsoTest.TestGSM : FsoTest.Fixture
             Assert.fail( @"SIM card has an unexpected state $sim_status" );
 
         var network_status = yield gsm_network.get_status();
+        // NOTE we're only checking for the following three entries as the spec defines
+        // them as mandatory and all other are optional for the modem protocol
+        // implementation.
         Assert.is_true( network_status.lookup( "mode" ) != null );
         Assert.is_true( network_status.lookup( "registration" ) != null );
         Assert.is_true( network_status.lookup( "act" ) != null );
-        Assert.is_true( network_status.lookup( "strength" ) != null );
-        Assert.is_true( network_status.lookup( "provider" ) != null );
     }
 
     public async void test_release_gsm_resource() throws GLib.Error, AssertError
