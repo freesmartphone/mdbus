@@ -1,6 +1,7 @@
 NULL =
 
 SUBDIRS = \
+	conf \
 	data \
 	src \
 	$(NULL)

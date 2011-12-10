@@ -68,6 +68,8 @@ AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
 AC_OUTPUT([
 	Makefile
+	conf/Makefile
+	conf/default/Makefile
 	data/Makefile
 	src/Makefile
 ])
