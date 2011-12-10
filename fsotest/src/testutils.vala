@@ -54,6 +54,23 @@ public class FsoTest.Assert : GLib.Object
     {
         throw new AssertError.UNEXPECTED_STATE( message );
     }
+
+    public static void should_throw_async( AsyncBegin fbegin, AsyncFinish ffinish, string domain ) throws GLib.Error
+    {
+        try
+        {
+            if ( !wait_for_async( 200, fbegin, ffinish ) )
+                throw new AssertError.UNEXPECTED_VALUE( @"Execution of async method didn't returns the expected value" );
+        }
+        catch ( GLib.Error err )
+        {
+            if ( err.domain.to_string() != domain )
+                throw new AssertError.UNEXPECTED_VALUE( @"Didn't receive the expected exception of type $domain" );
+            return;
+        }
+
+        throw new AssertError.UNEXPECTED_STATE( @"Function didn't throw expected exception" );
+    }
 }
 
 // vim:ts=4:sw=4:expandtab

@@ -18,6 +18,11 @@
 
 using GLib;
 
+namespace FsoTest
+{
+    public const string FREESMARTPHONE_ERROR_DOMAIN = "free_smartphone_error-quark";
+}
+
 public class FsoTest.TestGSM : FsoTest.Fixture
 {
     private FreeSmartphone.Usage usage;
@@ -146,6 +151,14 @@ public class FsoTest.TestGSM : FsoTest.Fixture
         Assert.is_true( network_status.lookup( "mode" ) != null );
         Assert.is_true( network_status.lookup( "registration" ) != null );
         Assert.is_true( network_status.lookup( "act" ) != null );
+
+        Assert.should_throw_async( cb => gsm_network.get_signal_strength( cb ),
+                                   res => gsm_network.get_signal_strength.end( res ),
+                                   FREESMARTPHONE_ERROR_DOMAIN );
+        // FIXME This should be not available in this state too but is not; need to talk
+        // to mickeyl about this.
+        // Assert.should_throw_async( cb => gsm_network.list_providers( cb ),
+        //                           res => gsm_network.list_providers.end( res ) );
     }
 
     public async void test_release_gsm_resource() throws GLib.Error, AssertError
