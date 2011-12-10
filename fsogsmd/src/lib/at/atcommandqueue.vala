@@ -176,7 +176,7 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
         resetTimeout();
 
         bundle.response = response;
-        transport.logger.info( @"SRC: $bundle" );
+        assert( transport.logger.debug( @"SRC: $bundle" ) );
         assert( bundle.callback != null );
         bundle.callback();
     }
