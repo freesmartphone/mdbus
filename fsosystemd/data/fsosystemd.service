@@ -1,0 +1,8 @@
+[Unit]
+Description=FSO daemon implementing the basic system API
+
+[Service]
+ExecStart=/usr/sbin/fsosystemd
+
+[Install]
+WantedBy=basic.target
