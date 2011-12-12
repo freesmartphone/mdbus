@@ -56,6 +56,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     public new Samsung.UnsolicitedResponseHandler urchandler;
     private uint8 current_request_id = 1;
     private bool initialized = false;
+    private bool suspended = false;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
@@ -257,6 +258,12 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     public async unowned SamsungIpc.Response? enqueue_async( SamsungIpc.RequestType type, SamsungIpc.MessageType command, uint8[] data = new uint8[] { },
                                                              int retry = 0, int timeout = 5 )
     {
+        if ( !initialized || suspended )
+        {
+            theLogger.error( @"We can not send a request to the modem when we're suspended!" );
+            return null;
+        }
+
         var handler = new Samsung.CommandHandler();
 
         handler.client = fmtclient;
@@ -289,11 +296,25 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     public async bool suspend()
     {
+        // we need to wait until all pending requests are finished otherwise we can't
+        // acknowledge the suspend
+        Idle.add( () => {
+            if ( is_busy() )
+            {
+                suspend.callback();
+                return false;
+            }
+            return true;
+        } );
+        yield;
+
+        suspended = true;
         return true;
     }
 
     public async bool resume()
     {
+        suspended = false;
         return true;
     }
 }
