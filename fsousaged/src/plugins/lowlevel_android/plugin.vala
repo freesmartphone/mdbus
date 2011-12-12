@@ -44,6 +44,8 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         // grab procfs paths
         proc_wakelocks_suspend_resume = "/proc/wakelocks_suspend_resume";
         proc_wakelocks_resume_reason = "/proc/wakelocks_resume_reason";
+        // resume reason names may differ between different devices
+        resume_reason_modem = config.stringValue( MODULE_NAME, "resume_reason_modem", "SMD_RPCCALL" );
         // ensure on status
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
 
@@ -151,7 +153,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         {
             return ResumeReason.PowerKey;
         }
-        else if ( reason == "SMD_RPCCALL" )
+        else if ( reason == resume_reason_modem )
         {
             return ResumeReason.PMU;
         }
@@ -163,6 +165,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 internal string sys_power_state;
 internal string proc_wakelocks_suspend_resume;
 internal string proc_wakelocks_resume_reason;
+internal string resume_reason_modem;
 
 /**
  * This function gets called on plugin initialization time.
