@@ -57,10 +57,37 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         screenresumecommand = config.stringValue( MODULE_NAME, "screen_resume_command","");
     }
 
-    public override string repr()
+    private void process_screen_resume()
     {
-        return "<>";
+        if (screenresumetype == "userspace")
+        {
+            if ( screenresumecommand != "" )
+            {
+                var ok = Posix.system( screenresumecommand );
+                if ( ok != 0 )
+                {
+                    logger.error( @"Can't execute '$screenresumecommand' - error code $ok" );
+                }
+                else
+                {
+                    assert( logger.debug( @"'$screenresumecommand' executed - return code $ok" ) );
+                    assert( logger.debug( "resume executed" ) );
+                }
+            }
+            else
+            {
+                assert( logger.debug(@"empty screen_resume_command") );
+            }
+        }
+        else
+        {
+            assert( logger.debug(@"unsupported screen_resume_type: $screenresumetype") );
+        }
     }
+
+    //
+    // public API
+    //
 
     /**
      * Android/Linux specific suspend function to cope with Android/Linux differences:
@@ -122,33 +149,8 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         assert( logger.debug( "Setting power state 'on'" ) );
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
 
-        if (screenresumetype == "userspace")
-        {
-            if ( screenresumecommand != "" )
-            {
-                var ok = Posix.system( screenresumecommand );
-                if ( ok != 0 )
-                {
-                    logger.error( @"Can't execute '$screenresumecommand' - error code $ok" );
-                }
-                else
-                {
-                    assert( logger.debug( @"'$screenresumecommand' executed - return code $ok" ) );
-                    assert( logger.debug( "resume executed" ) );
-                }
-            }
-            else
-            {
-                assert( logger.debug(@"empty screen_resume_command") );
-            }
-        }
-        else
-        {
-            assert( logger.debug(@"unsupported screen_resume_type: $screenresumetype") );
-        }
-
+        process_screen_resume();
     }
-
 
     public ResumeReason resume()
     {
@@ -166,6 +168,10 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         */
     }
 
+    public override string repr()
+    {
+        return "<>";
+    }
 }
 
 internal string sys_power_state;
