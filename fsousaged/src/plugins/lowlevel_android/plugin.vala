@@ -33,7 +33,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
     private int powerkeycode;
     private string screenresumetype;
     private string screenresumecommand;
-    string reason = "unknown";
+    // private string reason = "unknown";
 
     construct
     {
@@ -130,16 +130,21 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
                 if ( ok != 0 )
                 {
                     logger.error( @"Can't execute '$screenresumecommand' - error code $ok" );
-                }else{
-                    logger.debug( @"'$screenresumecommand' executed - return code $ok" );
-                    logger.debug( "resume executed" );
                 }
-            }else{
-                logger.debug(@"empty screen_resume_command");
+                else
+                {
+                    assert( logger.debug( @"'$screenresumecommand' executed - return code $ok" ) );
+                    assert( logger.debug( "resume executed" ) );
+                }
             }
-        }else
+            else
+            {
+                assert( logger.debug(@"empty screen_resume_command") );
+            }
+        }
+        else
         {
-            logger.debug(@"unsupported screen_resume_type: $screenresumetype");
+            assert( logger.debug(@"unsupported screen_resume_type: $screenresumetype") );
         }
 
     }
@@ -148,7 +153,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
     public ResumeReason resume()
     {
         return ResumeReason.PowerKey;
-
+        /*
         if ( reason.has_prefix( "event" ) )
         {
             return ResumeReason.PowerKey;
@@ -158,6 +163,7 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
             return ResumeReason.PMU;
         }
         return ResumeReason.Unknown;
+        */
     }
 
 }
