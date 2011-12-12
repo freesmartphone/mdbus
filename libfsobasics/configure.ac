@@ -69,7 +69,7 @@ AM_CONDITIONAL([HAVE_VALA], [test "x$enable_vala" = "xyes"])
 #########################################################################################
 
 GLIB_REQUIRED=2.26.0
-LIBNL_REQUIRED=2.0
+LIBNL_REQUIRED=3.2
 
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
@@ -80,7 +80,8 @@ AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
 PKG_CHECK_MODULES(LIBNL,
-  libnl-2.0 >= $LIBNL_REQUIRED)
+  libnl-3.0 >= $LIBNL_REQUIRED
+  libnl-route-3.0 >= $LIBNL_REQUIRED)
 AC_SUBST(LIBNL_CFLAGS)
 AC_SUBST(LIBNL_LIBS)
 

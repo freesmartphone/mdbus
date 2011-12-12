@@ -93,7 +93,7 @@ public void dump( string typ )
         BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.GETANYCAST, (properties) => { onNetlinkEvent( "GETANYCAST", properties ); } );
         BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.NEWNEIGHTBL, (properties) => { onNetlinkEvent( "NEWNEIGHTBL", properties ); } );
         BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.GETNEIGHTBL, (properties) => { onNetlinkEvent( "GETNEIGHTBL", properties ); } );
-        BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.    SETNEIGHTBL, (properties) => { onNetlinkEvent( "SETNEIGHTBL", properties ); } );
+        BaseNetlinkNotifier.addMatch( Linux.Netlink.RtMessageType.SETNEIGHTBL, (properties) => { onNetlinkEvent( "SETNEIGHTBL", properties ); } );
         stdout.printf( "Listening for netlink notifications...\n" );
     }
 }

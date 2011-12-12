@@ -25,7 +25,7 @@ AM_VALAFLAGS = \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg posix \
 	--pkg linux \
-	--pkg libnl-2.0 \
+	--pkg libnl-3.0 \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg fsobasics-2.0

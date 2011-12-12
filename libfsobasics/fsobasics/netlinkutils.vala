@@ -25,7 +25,7 @@ public string ipv4AddressForInterface( string iface )
     socket.connect( Linux.Netlink.NETLINK_ROUTE );
 
     Netlink.LinkCache link_cache;
-    socket.link_alloc_cache( out link_cache );
+    socket.link_alloc_cache( Linux.Socket.AF_UNSPEC, out link_cache );
     Netlink.AddrCache addr_cache;
     socket.addr_alloc_cache( out addr_cache );
 
