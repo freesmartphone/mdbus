@@ -158,6 +158,11 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
         q.clear();
     }
 
+    protected bool is_busy()
+    {
+        return q.size > 0;
+    }
+
     //
     // public API
     //
