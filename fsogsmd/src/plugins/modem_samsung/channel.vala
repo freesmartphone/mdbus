@@ -57,6 +57,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private uint8 current_request_id = 1;
     private bool initialized = false;
     private bool suspended = false;
+    private FsoFramework.Wakelock wakelock;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
@@ -90,6 +91,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     {
         SamsungIpc.Response response = SamsungIpc.Response();
 
+        wakelock.acquire();
+
         assert( theLogger.debug( @"Received data from modem; start processing ..." ) );
 
         var rc = fmtclient.recv(out response);
@@ -120,6 +123,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         free(response.data);
 
         assert( theLogger.debug( @"Handled response from modem successfully!" ) );
+
+        wakelock.release();
     }
 
     private void handle_solicited_response( SamsungIpc.Response response )
@@ -218,6 +223,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         this.name = name;
         this.urchandler = new Samsung.UnsolicitedResponseHandler();
+        this.wakelock = new FsoFramework.Wakelock( "fsogsmd-modem-samsung" );
 
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
