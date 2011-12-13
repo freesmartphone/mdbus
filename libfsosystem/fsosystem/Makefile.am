@@ -32,6 +32,7 @@ libfsosystem_la_VALASOURCES = \
 	network.vala \
 	filesystem.vala \
 	path.vala \
+	wakelock.vala \
 	$(NULL)
 
 libfsosystem_la_SOURCES = \
