@@ -58,6 +58,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private bool initialized = false;
     private bool suspended = false;
     private FsoFramework.Wakelock wakelock;
+    private FreeSmartphone.Usage usage;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
@@ -106,6 +107,13 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         assert( theLogger.debug( @"response data (length = $(response.data.length)):" ) );
         assert( theLogger.debug( "\n" + FsoFramework.StringHandling.hexdump( response.data ) ) );
 
+        if ( suspended )
+        {
+            handle_response_in_suspend_mode( response );
+            assert( theLogger.debug( @"Handled response from modem while being suspended!" ) );
+            return;
+        }
+
         switch ( response.type )
         {
             case SamsungIpc.ResponseType.NOTI:
@@ -125,6 +133,52 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         assert( theLogger.debug( @"Handled response from modem successfully!" ) );
 
         wakelock.release();
+    }
+
+    /**
+     * When the system is suspended and we're running a kernel with android extensions
+     * things are a bit ... what should I say: different :)
+     * The usage subsystem disables all resources but each resource can decide on it's own
+     * if it accepts the the suspend action internally.
+     * In our case we're disabling as much as possible but still watching for incoming
+     * messages from the modem. If the modems sends a notification for an incoming call
+     * we will wake up the system first and then process the message.
+     **/
+    private async void handle_response_in_suspend_mode( SamsungIpc.Response response )
+    {
+        if ( response.type == SamsungIpc.ResponseType.NOTI )
+        {
+            switch ( response.command )
+            {
+                case SamsungIpc.MessageType.CALL_INCOMING:
+                    yield wakeup_system( "incoming-call" );
+                    // FIXME maybe this is too fast as the usage service needs to resume
+                    // all connected resources first so the signals followed by this are
+                    // lost ...
+                    urchandler.process( response );
+                    break;
+                default:
+                    assert( theLogger.debug( @"Got $(response.command) urc which is not evaluate while we're suspended" ) );
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Waking up the system from suspend or alive state to fully awake we need to run
+     * several steps like telling the usage subsystem to resume all suspended resources.
+     * When this method returns the system should be completely awake.
+     */
+    private async void wakeup_system( string reason )
+    {
+        try
+        {
+            yield usage.resume( "Modem", reason );
+        }
+        catch ( GLib.Error err )
+        {
+            theLogger.error( @"Can't wake up the system; assuming we're already alive: $(err.message)" );
+        }
     }
 
     private void handle_solicited_response( SamsungIpc.Response response )
@@ -211,6 +265,19 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         ModemState.sim_provider_name = SamsungIpc.Security.RSimAccessResponseMessage.get_file_data( response );
         assert( theLogger.debug( @"Got the following provider name from SIM card spn = $(ModemState.sim_provider_name)" ) );
+    }
+
+    private async void request_usage_service()
+    {
+        try
+        {
+            usage = yield Bus.get_proxy<FreeSmartphone.Usage>( BusType.SYSTEM, FsoFramework.Usage.ServiceDBusName,
+                FsoFramework.Usage.ServicePathPrefix );
+        }
+        catch ( GLib.Error err )
+        {
+            theLogger.error( @"Can't request proxy for usage subsystem; suspend handling will be not available!" );
+        }
     }
 
     //
