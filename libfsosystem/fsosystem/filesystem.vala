@@ -49,4 +49,35 @@ namespace FsoFramework.FileSystem
         return mountFilesystem( source, target, type, flags );
     }
 
+    /**
+     * FIXME: This method is currently available in both libfsobasics and libfsosystem;
+     * We need to fix this as fast as possible!
+     */
+    public void write( string contents, string filename, bool create = false )
+    {
+        Posix.mode_t mode = 0;
+        int flags = Posix.O_WRONLY;
+        if ( create )
+        {
+            mode = Posix.S_IRUSR | Posix.S_IWUSR | Posix.S_IRGRP | Posix.S_IROTH;
+            flags |= Posix.O_CREAT /* | Posix.O_EXCL */ | Posix.O_TRUNC;
+        }
+        var fd = Posix.open( filename, flags, mode );
+        if ( fd == -1 )
+        {
+            warning( @"Can't write-open $filename: $(Posix.strerror(Posix.errno))" );
+        }
+        else
+        {
+            var length = contents.length;
+            ssize_t written = Posix.write( fd, contents, length );
+            if ( written != length )
+            {
+                warning( @"Couldn't write all bytes to $filename ($written of $length)" );
+            }
+            Posix.close( fd );
+        }
+    }
 }
+
+// vim:ts=4:sw=4:expandtab
