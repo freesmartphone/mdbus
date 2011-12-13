@@ -739,7 +739,7 @@ public class Controller : FsoFramework.AbstractObject
         yield cmd.run();
     }
 
-    public async void resume()
+    public async void resume( string source, string reason )
         throws FreeSmartphone.UsageError, FreeSmartphone.Error, DBusError, IOError
     {
         var cmd = new Resume();
