@@ -263,7 +263,7 @@ public class Resume : SystemCommand
     {
         yield enqueue();
         instance.updateSystemStatus( FreeSmartphone.UsageSystemAction.RESUME );
-        yield instance.resumeAllResources();
+        Idle.add( instance.onIdleForResume );
     }
 }
 
