@@ -38,6 +38,18 @@ public class FsoTest.TestGSM : FsoTest.Fixture
     public TestGSM()
     {
         name = "GSM";
+
+        add_async_test( "/org/freesmartphone/GSM/RequestResource",
+                        cb => test_request_gsm_resource( cb ),
+                        res => test_request_gsm_resource.end( res ) );
+
+        add_async_test( "/org/freesmartphone/GSM/ValidateInitialStatus",
+                        cb => test_validate_initial_status( cb ),
+                        res => test_validate_initial_status.end( res ) );
+
+        add_async_test( "/org/freesmartphone/GSM/RequestResource",
+                        cb => test_release_gsm_resource( cb ),
+                        res => test_release_gsm_resource.end( res ) );
     }
 
     public override async void setup()
@@ -75,31 +87,6 @@ public class FsoTest.TestGSM : FsoTest.Fixture
         {
             critical( @"Could not create proxy objects for GSM services: $(err.message)" );
         }
-    }
-
-    public override bool run( TestManager test_manager )
-    {
-        bool result = false;
-
-        result = test_manager.run_test_method( "/org/freesmartphone/GSM/RequestResource", () => {
-            wait_for_async( 200, cb => test_request_gsm_resource( cb ),
-                res => test_request_gsm_resource.end( res ) );
-        } );
-        return_val_if_fail( result, false );
-
-        result = test_manager.run_test_method( "/org/freesmartphone/GSM/ValidateInitialStatus", () => {
-            wait_for_async( 200, cb => test_validate_initial_status( cb ),
-                res => test_validate_initial_status.end( res ) );
-        } );
-        return_val_if_fail( result, false );
-
-        result = test_manager.run_test_method( "/org/freesmartphone/GSM/ReleaseResource", () => {
-            wait_for_async( 200, cb => test_release_gsm_resource( cb ),
-                res => test_release_gsm_resource.end( res ) );
-        } );
-        return_val_if_fail( result, false );
-
-        return true;
     }
 
     /**

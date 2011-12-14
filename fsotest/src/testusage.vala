@@ -58,6 +58,18 @@ public class FsoTest.TestUsage : FsoTest.Fixture
     public TestUsage()
     {
         name = "Usage";
+
+        add_async_test( "/org/freesmartphone/Usage/ResourceRegistration",
+                        cb => test_resource_registration( cb ),
+                        res => test_resource_registration.end( res ) );
+
+        add_async_test( "/org/freesmartphone/Usage/RequestReleaseResource",
+                        cb => test_request_release_resource( cb ),
+                        res => test_request_release_resource.end( res ) );
+
+        add_async_test( "/org/freesmartphone/Usage/ResourceDeregistration",
+                        cb => test_resource_unregister( cb ),
+                        res => test_resource_unregister.end( res ) );
     }
 
     public override async void setup()
@@ -78,31 +90,6 @@ public class FsoTest.TestUsage : FsoTest.Fixture
         {
             critical( @"Can't register dummy resource on the system bus: $(err.message)" );
         }
-    }
-
-    public override bool run( TestManager test_manager )
-    {
-        bool result = false;
-
-        result = test_manager.run_test_method( "/org/freesmartphone/Usage/ResourceRegistration", () => {
-            wait_for_async( 200, cb => test_resource_registration( cb ),
-                res => test_resource_registration.end( res ) );
-        } );
-        return_val_if_fail( result, false );
-
-        result = test_manager.run_test_method( "/org/freesmartphone/Usage/RequestReleaseResource", () => {
-            wait_for_async( 200, cb => test_request_release_resource(cb),
-                res => test_request_release_resource.end( res ) );
-        } );
-        return_val_if_fail( result, false );
-
-        result = test_manager.run_test_method( "/org/freesmartphone/Usage/ResourceDeregistration", () => {
-            wait_for_async( 200, cb => test_resource_unregister(cb),
-                res => test_resource_unregister.end( res ) );
-        } );
-        return_val_if_fail( result, false );
-
-        return true;
     }
 
     public async void test_resource_registration() throws GLib.Error, AssertError

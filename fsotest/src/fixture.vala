@@ -74,35 +74,86 @@ namespace FsoTest
      */
     public abstract class Fixture : Object
     {
+        private class TestInfo : GLib.Object
+        {
+            public string name { get; set; default = "unknown"; }
+            public bool is_async { get; set; default = false; }
+            public AsyncBegin async_func { get; set; }
+            public AsyncFinish async_end { get; set; }
+            public TestMethod sync_func { get; set; }
+        }
+
+        private GLib.List<TestInfo> tests = new GLib.List<TestInfo>();
+
+        /**
+         * Add a asynchronous test method for execution. Each test method will be executed
+         * separately when calling the run method of this class.
+         */
+        protected void add_async_test( string name, AsyncBegin async_func, AsyncFinish async_end )
+        {
+            tests.append( new TestInfo() {
+                name = name,
+                is_async = true,
+                async_func = async_func,
+                async_end = async_end
+            } );
+        }
+
+        protected void add_test( string name, TestMethod func )
+        {
+            tests.append( new TestInfo() {
+                name = name,
+                sync_func = func
+            } );
+        }
+
+        private bool run_async_test( TestManager test_manager, TestInfo test )
+        {
+            return test_manager.run_test_method( test.name,
+                () => wait_for_async( 200, test.async_func, test.async_end ) );
+        }
+
+        private bool run_test( TestManager test_manager, TestInfo test )
+        {
+            return test_manager.run_test_method( test.name, test.sync_func );
+        }
+
+        //
+        // public API
+        //
+
+        /**
+         * Timeout for async tests.
+         */
+        public int timeout { get; set; default = 5000; }
+
+        /**
+         * Name for this test fixture.
+         */
+        public string name { get; protected set; default = ""; }
+
         /**
          * Called after construction before a test is run.
-         *
-         * You can use construct block (but not constructor) to the
-         * same effect.
          */
         public virtual async void setup() {}
 
-        public virtual bool run( TestManager test_manager )
+        /**
+         * Execute all tests while collecting their results.
+         */
+        public bool run( TestManager test_manager )
         {
+            foreach ( var test in tests )
+            {
+                if ( test.is_async )
+                    run_async_test( test_manager, test );
+                else run_test( test_manager, test );
+            }
             return true;
         }
 
         /**
          * Called after a test is run before the object is destroyed.
-         *
-         * You can use destructor to the same effect.
          */
         public virtual void teardown() {}
-
-        /**
-         * Timeout for async tests.
-         *
-         * You can change this in constructor or set_up to define the timeout
-         * for async tests in this class. Value is in milliseconds and
-         * default to 5000ms.
-         */
-        public int timeout { get; set; default = 5000; }
-
-        public string name { get; set; default = ""; }
     }
 }

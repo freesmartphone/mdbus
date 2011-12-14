@@ -20,7 +20,7 @@ using GLib;
 
 namespace FsoTest
 {
-    public delegate void TestMethodFunc() throws GLib.Error;
+    public delegate void TestMethod() throws GLib.Error;
 }
 
 public class FsoTest.TestManager : GLib.Object
@@ -32,7 +32,7 @@ public class FsoTest.TestManager : GLib.Object
         fixtures.append( fixture );
     }
 
-    public bool run_test_method( string test_name, TestMethodFunc test_method )
+    public bool run_test_method( string test_name, TestMethod test_method )
     {
         try
         {
