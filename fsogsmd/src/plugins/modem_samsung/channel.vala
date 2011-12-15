@@ -291,6 +291,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         this.name = name;
         this.urchandler = new Samsung.UnsolicitedResponseHandler();
         this.wakelock = new FsoFramework.Wakelock( "fsogsmd-modem-samsung" );
+        Idle.add( () => { request_usage_service(); return false; } );
 
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
