@@ -55,7 +55,7 @@ public class Controller : FsoFramework.AbstractObject
     private bool disable_on_shutdown;
     private bool wakelock_support;
 
-    private HashMap<string,Resource> resources;
+    private HashMap<string,Resource> resources = new HashMap<string,Resource>( str_hash, str_equal );
 
     private DBusService.IDBus dbus;
     private FreeSmartphone.Device.IdleNotifier idlenotifier;
@@ -127,7 +127,7 @@ public class Controller : FsoFramework.AbstractObject
 
     private void initResources()
     {
-        resources = new HashMap<string,Resource>( str_hash, str_equal );
+        resources.clear();
     }
 
     /**
