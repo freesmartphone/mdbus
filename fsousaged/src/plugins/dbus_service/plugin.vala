@@ -73,6 +73,8 @@ public class Controller : FsoFramework.AbstractObject
         debug_suspend_user_initiated = config.boolValue( CONFIG_SECTION, "debug_suspend_user_initiated", true );
 
         wakelock_support = config.boolValue( CONFIG_SECTION, "wakelock_support", false );
+        if ( wakelock_support )
+            logger.info( @"Running with wakelock support enabled" );
 
         var sync_resources_with_lifecycle = config.stringValue( CONFIG_SECTION, "sync_resources_with_lifecycle", "always" );
         disable_on_startup = ( sync_resources_with_lifecycle == "always" || sync_resources_with_lifecycle == "startup" );
