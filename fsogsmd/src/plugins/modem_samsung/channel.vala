@@ -264,7 +264,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     public async unowned SamsungIpc.Response? enqueue_async( SamsungIpc.RequestType type, SamsungIpc.MessageType command, uint8[] data = new uint8[] { },
                                                              int retry = 0, int timeout = 5 )
     {
-        if ( !initialized || suspended )
+        if ( initialized && suspended )
         {
             theLogger.error( @"We can not send a request to the modem when we're suspended!" );
             return null;
