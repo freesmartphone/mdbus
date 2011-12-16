@@ -125,6 +125,7 @@ AC_CONFIG_FILES([
   conf/nokia_n900/Makefile
   conf/openmoko_gta/Makefile
   conf/herring/Makefile
+  conf/herring/alsa-default/Makefile
   data/Makefile
   data/org.freesmartphone.oaudiod.service
   src/Makefile
