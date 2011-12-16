@@ -7,6 +7,7 @@ SUBDIRS = \
 	palm_pre \
 	nokia_n900 \
 	openmoko_gta \
+	herring \
 	$(NULL)
 
 confdir = $(sysconfdir)

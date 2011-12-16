@@ -124,6 +124,7 @@ AC_CONFIG_FILES([
   conf/palm_pre/audio-scripts/Makefile
   conf/nokia_n900/Makefile
   conf/openmoko_gta/Makefile
+  conf/herring/Makefile
   data/Makefile
   data/org.freesmartphone.oaudiod.service
   src/Makefile
