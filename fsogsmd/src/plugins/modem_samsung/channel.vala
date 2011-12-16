@@ -59,6 +59,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private bool suspended = false;
     private FsoFramework.Wakelock wakelock;
     private FreeSmartphone.Usage usage;
+    private uint suspend_lock = 0;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
@@ -349,8 +350,10 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         handler.request_type = type;
         handler.data = data;
 
+        suspend_lock++;
         enqueueCommand( handler );
         yield;
+        suspend_lock--;
 
         if ( handler.timed_out )
         {
@@ -372,12 +375,16 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     {
         // we need to wait until all pending requests are finished otherwise we can't
         // acknowledge the suspend
-        Idle.add( () => {
-            if ( is_busy() )
+        Timeout.add( 100, () => {
+            assert( theLogger.debug( @"Checking wether we have pending requests to send to the modem ..." ) );
+            assert( theLogger.debug( @"suspend_lock = $(suspend_lock)" ) );
+            if ( suspend_lock == 0 )
             {
+                assert( theLogger.debug( @"We have no pending requests; suspending ..." ) );
                 suspend.callback();
                 return false;
             }
+            assert( theLogger.debug( @"We have pending requests; can't suspend now!" ) );
             return true;
         } );
         yield;
