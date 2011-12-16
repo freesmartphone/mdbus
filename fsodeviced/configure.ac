@@ -206,6 +206,7 @@ AC_CONFIG_FILES([
   src/plugins/openmoko_powercontrol/Makefile
   src/plugins/gta04_quirks/Makefile
   src/plugins/palmpre_quirks/Makefile
+  src/plugins/herring_quirks/Makefile
   src/plugins/powercontrol_ifconfig/Makefile
   src/plugins/player_alsa/Makefile
   src/plugins/player_canberra/Makefile
