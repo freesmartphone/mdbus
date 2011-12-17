@@ -74,8 +74,8 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Modem told us it can not initialize call with number $(number)" );
 
         yield _soundhandler.mute_microphone( false );
-        yield _soundhandler.set_speaker_volume();
-        yield _soundhandler.set_audio_path();
+        yield _soundhandler.set_speaker_volume( SamsungIpc.Sound.VolumeType.SPEAKER, 0x4 );
+        yield _soundhandler.set_audio_path( SamsungIpc.Sound.AudioPath.HANDSET );
 
         startTimeoutIfNecessary();
 

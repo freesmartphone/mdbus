@@ -22,38 +22,42 @@ using FsoGsm;
 
 public class Samsung.SoundHandler : FsoFramework.AbstractObject
 {
-    public async void mute_microphone(bool mute) throws FreeSmartphone.Error
+    public async void mute_microphone( bool mute ) throws FreeSmartphone.Error
     {
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SND_MIC_MUTE_CTRL, new uint8[] { 0x0 } );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SND_MIC_MUTE_CTRL, new uint8[] { mute ? 0x1 : 0x0 } );
 
         var gr = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
         if ( gr.code != 0x8000 )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"We can't %s the microphone together with the modem!".printf( mute ? "mute" : "unmute" ) );
     }
 
-    public async void set_speaker_volume() throws FreeSmartphone.Error
+    public async void set_speaker_volume( SamsungIpc.Sound.VolumeType type, uint8 volume ) throws FreeSmartphone.Error
     {
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
+        var cmd = SamsungIpc.Sound.SpeakerVolumeControlMessage();
+        cmd.type = type;
+        cmd.volume = volume;
+
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
-            SamsungIpc.MessageType.SND_SPKR_VOLUME_CTRL, new uint8[] { 0x4, 0x11 } );
+            SamsungIpc.MessageType.SND_SPKR_VOLUME_CTRL, cmd.data );
 
         var gr = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
         if ( gr.code != 0x8001 )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Can't set speaker volume together with the modem!" );
     }
 
-    public async void set_audio_path() throws FreeSmartphone.Error
+    public async void set_audio_path( SamsungIpc.Sound.AudioPath path ) throws FreeSmartphone.Error
     {
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
-            SamsungIpc.MessageType.SND_AUDIO_PATH_CTRL, new uint8[] { 0x1 } );
+            SamsungIpc.MessageType.SND_AUDIO_PATH_CTRL, new uint8[] { path } );
 
         var gr = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
         if ( gr.code != 0x8000 )
