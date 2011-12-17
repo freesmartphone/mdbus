@@ -114,7 +114,9 @@ public class FsoFramework.BaseKObjectNotifier : Object
         var properties = new HashTable<string, string>( str_hash, str_equal );
         foreach ( var part in parts )
         {
-            message( "%s", part );
+#if DEBUG
+            debug( @"$part" );
+#endif
             var elements = part.split( "=" );
             if ( elements.length == 2 )
             {
