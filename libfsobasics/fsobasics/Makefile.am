@@ -6,6 +6,7 @@ AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(LIBNL_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsobasics\" \
+	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-D_GNU_SOURCE \
 	$(NULL)
 
@@ -19,6 +20,7 @@ VALAC_ARGS = \
 	--pkg gio-2.0 \
 	--pkg config \
 	--pkg misc \
+	-D SYSCONFDIR="$(sysconfdir)" \
 	--header fsobasics.h \
 	--library fsobasics-2.0
 
