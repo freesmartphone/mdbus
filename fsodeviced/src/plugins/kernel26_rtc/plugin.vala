@@ -148,14 +148,7 @@ class Rtc : FreeSmartphone.Device.RealtimeClock, FsoFramework.AbstractObject
         var res = Linux.ioctl( rtc_fd, Linux.Rtc.RTC_WKALM_RD, &alarm );
         closeRtc( res == -1 );
         GLib.Time t = {};
-        t.second = alarm.time.tm_sec;
-        t.minute = alarm.time.tm_min;
-        t.hour = alarm.time.tm_hour;
-        t.day = alarm.time.tm_mday;
-        t.month = alarm.time.tm_mon;
-        t.year = alarm.time.tm_year;
-        //t.isdst = alarm.time.tm_isdst;
-
+        Memory.copy( &alarm.time, &t, sizeof( GLib.Time ) );
         logger.info( "RTC alarm equals %s. Enabled=%s, Pending=%s".printf( t.to_string(), ((bool)alarm.enabled).to_string(), ((bool)alarm.pending).to_string() ) );
 
         return ( alarm.enabled == 1 ) ? (int) Linux.timegm( t ) : 0;
