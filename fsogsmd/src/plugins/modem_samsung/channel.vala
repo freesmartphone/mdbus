@@ -58,7 +58,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private bool initialized = false;
     private bool suspended = false;
     private FsoFramework.Wakelock wakelock;
-    private FreeSmartphone.Usage usage;
+    private FreeSmartphone.UsageSync usage_sync;
     private uint suspend_lock = 0;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
@@ -110,8 +110,11 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         if ( suspended )
         {
+            // NOTE the following steps we be all done in-sync as we don't need to be
+            // async here cause it's the most important thing now to check if we got some
+            // message we should take as indicator to wake up completely and nothing else!
             handle_response_in_suspend_mode( response );
-            assert( theLogger.debug( @"Handled response from modem while being suspended!" ) );
+            wakelock.release();
             return;
         }
 
@@ -145,21 +148,23 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
      * messages from the modem. If the modems sends a notification for an incoming call
      * we will wake up the system first and then process the message.
      **/
-    private async void handle_response_in_suspend_mode( SamsungIpc.Response response )
+    private void handle_response_in_suspend_mode( SamsungIpc.Response response )
     {
+        assert( theLogger.debug( @"Got message from modem while in suspend mode: type = $(response.type), command = $(response.command)" ) );
+
         if ( response.type == SamsungIpc.ResponseType.NOTI )
         {
             switch ( response.command )
             {
                 case SamsungIpc.MessageType.CALL_INCOMING:
-                    yield wakeup_system( "incoming-call" );
-                    // FIXME maybe this is too fast as the usage service needs to resume
-                    // all connected resources first so the signals followed by this are
-                    // lost ...
+                    assert( theLogger.debug( @"Got notification for incoming call; leaving suspend ..." ) );
+                    // FIXME supply correct usage resume reason here so the usage daemon
+                    // can figure out the correct one for the modem.
+                    wakeup_system( "incoming-call" );
                     urchandler.process( response );
                     break;
                 default:
-                    assert( theLogger.debug( @"Got $(response.command) urc which is not evaluate while we're suspended" ) );
+                    assert( theLogger.debug( @"Got $(response.command) urc which is not evaluated while we're suspended" ) );
                     break;
             }
         }
@@ -170,11 +175,11 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
      * several steps like telling the usage subsystem to resume all suspended resources.
      * When this method returns the system should be completely awake.
      */
-    private async void wakeup_system( string reason )
+    private void wakeup_system( string reason )
     {
         try
         {
-            yield usage.resume( "Modem", reason );
+            usage_sync.resume( "Modem", reason );
         }
         catch ( GLib.Error err )
         {
@@ -272,7 +277,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     {
         try
         {
-            usage = yield Bus.get_proxy<FreeSmartphone.Usage>( BusType.SYSTEM, FsoFramework.Usage.ServiceDBusName,
+            usage_sync = yield Bus.get_proxy<FreeSmartphone.UsageSync>( BusType.SYSTEM, FsoFramework.Usage.ServiceDBusName,
                 FsoFramework.Usage.ServicePathPrefix );
         }
         catch ( GLib.Error err )
@@ -377,7 +382,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         // acknowledge the suspend
         Timeout.add( 100, () => {
             assert( theLogger.debug( @"Checking wether we have pending requests to send to the modem ..." ) );
-            assert( theLogger.debug( @"suspend_lock = $(suspend_lock)" ) );
             if ( suspend_lock == 0 )
             {
                 assert( theLogger.debug( @"We have no pending requests; suspending ..." ) );
