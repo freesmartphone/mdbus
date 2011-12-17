@@ -57,7 +57,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 // Don't report signal strength when we are not registered
                 if ( theModem.status() != FsoGsm.Modem.Status.ALIVE_REGISTERED )
                     break;
-
+                handle_signal_strength( response.data[0] );
                 ModemState.network_signal_strength = response.data[0];
                 // notify the user about the change of signal strength
                 var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
@@ -85,6 +85,27 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
     //
     // private
     //
+
+    private void handle_signal_strength( uint8 rssi )
+    {
+        // NOTE the following is taken from samsung-ril which is found here:
+        // git://gitorious.org/replicant/samsung-ril.git
+        if ( rssi > 0x6f )
+        {
+            ModemState.network_signal_strength = 0;
+        }
+        else
+        {
+            ModemState.network_signal_strength = (((rssi - 0x71) * -1) - ((rssi - 0x71) * -1) % 2) / 2;
+            if ( ModemState.network_signal_strength > 31 )
+                ModemState.network_signal_strength = 31;
+        }
+
+        // notify the user about the change of signal strength
+        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        obj.signal_strength( ModemState.network_signal_strength );
+
+    }
 
     private void handle_sim_status( SamsungIpc.Response response )
     {
