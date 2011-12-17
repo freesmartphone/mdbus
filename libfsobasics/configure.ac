@@ -57,8 +57,6 @@ AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 GITV=`cat ../.git/refs/heads/master || echo "unknown"`
 AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
 
-AC_DEFINE_UNQUOTED([SYSCONFDIR], ["${sysconfdir}"], [systemwide configuration directory])
-
 # output
 AC_CONFIG_FILES([Makefile
   fsobasics-2.0.pc
