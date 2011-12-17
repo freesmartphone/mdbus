@@ -133,11 +133,7 @@ public class AlarmController : FreeSmartphone.Time.Alarm, FsoFramework.AbstractO
         {
             rtc.set_wakeup_time( t );
         }
-        catch ( DBusError e )
-        {
-            logger.error( @"Can't program RTC wakeup time: $(e.message)" );
-        }
-        catch ( IOError e )
+        catch ( Error e )
         {
             logger.error( @"Can't program RTC wakeup time: $(e.message)" );
         }
