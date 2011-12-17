@@ -36,8 +36,8 @@ VALAC_ARGS = \
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_option_gtm601.la
-modem_option_gtm601_la_SOURCES = plugin.c commands.c mediators.c
-modem_option_gtm601_la_VALASOURCES = plugin.vala commands.vala mediators.vala
+modem_option_gtm601_la_SOURCES = plugin.c commands.c mediators.c unsolicited.c
+modem_option_gtm601_la_VALASOURCES = plugin.vala commands.vala mediators.vala unsolicited.vala
 $(modem_option_gtm601_la_SOURCES): $(modem_option_gtm601_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@

@@ -36,6 +36,17 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         return "<>";
     }
 
+    public override void configureData()
+    {
+        assert( modem_data != null );
+        modem_data.simHasReadySignal = true; // $QCSIMSTAT
+        modem_data.simReadyTimeout = 5; /* seconds */
+        
+        theModem.atCommandSequence( "MODEM", "init" ).append( {
+            "$QCSIMSTAT=1"
+        } );
+    }
+
     protected override void createChannels()
     {
         var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
@@ -54,6 +65,11 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         Gtm601.registerCustomMediators( mediators );
     }
 
+    protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
+    {
+        return new Gtm601.UnsolicitedResponseHandler();
+    }
+    
     protected override void registerCustomAtCommands( HashMap<string,FsoGsm.AtCommand> commands )
     {
         Gtm601.registerCustomAtCommands( commands );
