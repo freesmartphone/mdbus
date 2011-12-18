@@ -210,7 +210,7 @@ namespace Gps {
         [PrintfFormat]
         public size_t send( string format, ... );
         public size_t read();
-        public bool waiting();
+        public bool waiting( int timeout );
         public int stream( StreamingPolicy flags, void* data = null );
         public void set_raw_hook( RawHookFunc func );
     }

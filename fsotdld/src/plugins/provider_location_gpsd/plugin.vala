@@ -42,7 +42,7 @@ class Location.Gpsd : FsoTdl.AbstractLocationProvider
     //
     private bool onTimeout()
     {
-        if ( gps.waiting() )
+        if ( gps.waiting( 10000 ) )
         {
             assert( logger.debug( "GPS data waiting... reading" ) );
             var bytesRead = gps.read();
