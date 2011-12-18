@@ -51,14 +51,14 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
         }
 
-        var cmd = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
+        var cmd = FsoFramework.DataSharing.valueForKey( "Gtm601.OWANCALL") as FsoGsm.SimpleAtCommand<bool>;
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( true ) );
         checkResponseConnect( cmd, response );
     }
 
     public async override void sc_deactivate()
     {
-        var cmd = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANDATA" );
+        var cmd = FsoFramework.DataSharing.valueForKey( "Gtm601.OWANDATA") as FsoGsm.SimpleAtCommand<bool>;
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( false ) );
         checkResponseConnect( cmd, response );
     }

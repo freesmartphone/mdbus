@@ -32,7 +32,7 @@ VALAC_ARGS = \
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = pdp_option_gtm601.la
 pdp_option_gtm601_la_SOURCES = plugin.c 
-pdp_option_gtm601_la_VALASOURCES = plugin.vala ../modem_option_gtm601/commands.vala
+pdp_option_gtm601_la_VALASOURCES = plugin.vala
 $(pdp_option_gtm601_la_SOURCES): $(pdp_option_gtm601_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
