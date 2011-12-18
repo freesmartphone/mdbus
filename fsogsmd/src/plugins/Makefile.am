@@ -18,6 +18,7 @@ SUBDIRS = \
 	modem_freescale_neptune \
 	\
 	pdp_qmi \
+	pdp_option_gtm601 \
 	$(NULL)
 
 if WANT_PPP
