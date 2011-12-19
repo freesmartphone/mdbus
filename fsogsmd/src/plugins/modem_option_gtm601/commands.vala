@@ -160,7 +160,7 @@ public class UnderscoreOWANDATA : AbstractAtCommand
     {
         // some modems strip the leading zero for one-digit chars
 
-        var str = """\_OWANDATA: "(?P<connected>[01]), (?P<ip>[0-9\.]+), (?P<gw>[0-9\.]+), (?P<dns1>[0-9\.]+), (?P<dns2>[0-9\.]+), (?P<nbns1>[0-9\.]+), (?P<nbns2>[0-9\.]+), (?P<speed>\d+))""";
+        var str = """_OWANDATA: "(?P<connected>[01]), (?P<ip>[0-9.]+), (?P<gw>[0-9.]+), (?P<dns1>[0-9.]+), (?P<dns2>[0-9.]+), (?P<nbns1>[0-9.]+), (?P<nbns2>[0-9.]+), (?P<speed>\d+)""";
         try
         {
             re = new Regex( str );
