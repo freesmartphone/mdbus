@@ -35,6 +35,7 @@
 * Remember certain parameters (i.e. GSM timezone) and augment GSM.Network.Status() signal and method
 * Open/Close logic is suboptimal; it would be better to remove channels on shutdown and install them
   on startup, i.e. _not_ in the object constructor
+* Remove some of the ATisms in the core
 ===Init Phase===
 * Inquire more parameters, e.g. value of EFspn to use later in implementation of get network status
 ===Error Handling===
