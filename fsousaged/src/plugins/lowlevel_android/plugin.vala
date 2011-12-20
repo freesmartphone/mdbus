@@ -24,16 +24,9 @@ using FsoUsage;
 class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 {
     internal const string MODULE_NAME = "fsousage.lowlevel_android";
-    internal const int MAX_WAIT_FOR_SLEEP = 2000; /* ms */
-    internal const int ERESTARTNOHAND = 514;
 
-    private int fd;
-
-    private int inputnodenumber;
-    private int powerkeycode;
     private string screenresumetype;
     private string screenresumecommand;
-    // private string reason = "unknown";
 
     construct
     {
@@ -41,18 +34,9 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
         // grab sysfs paths
         var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
         sys_power_state = Path.build_filename( sysfs_root, "power", "state" );
-        // grab procfs paths
-        proc_wakelocks_suspend_resume = "/proc/wakelocks_suspend_resume";
-        proc_wakelocks_resume_reason = "/proc/wakelocks_resume_reason";
-        // resume reason names may differ between different devices
-        resume_reason_modem = config.stringValue( MODULE_NAME, "resume_reason_modem", "SMD_RPCCALL" );
         // ensure on status
         FsoFramework.FileHandling.write( "on\n", sys_power_state );
 
-        // which input node to observe for power on key
-        inputnodenumber = config.intValue( MODULE_NAME, "wakeup_inputnode", -1 );
-        // value of the power on key
-        powerkeycode = config.intValue( MODULE_NAME, "wakeup_powerkeycode", -1 );
         screenresumetype = config.stringValue( MODULE_NAME, "screen_resume_type","kernel");
         screenresumecommand = config.stringValue( MODULE_NAME, "screen_resume_command","");
     }
@@ -100,72 +84,18 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
      **/
     public void suspend()
     {
-        assert( logger.debug( "Grabbing input node" ) );
-        fd = Posix.open( @"/dev/input/event$inputnodenumber", Posix.O_RDONLY );
-        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 1 );
-
         assert( logger.debug( "Setting power state 'mem'" ) );
         FsoFramework.FileHandling.write( "mem\n", sys_power_state );
-
-        while ( true )
-        {
-            var readfds = Posix.fd_set();
-            var writefds = Posix.fd_set();
-            var exceptfds = Posix.fd_set();
-            Posix.FD_SET( fd, ref readfds );
-            Posix.timeval t = { 1, 0 };
-            int res = Posix.select( fd+1, ref readfds, ref writefds, ref exceptfds, t );
-
-            if ( res < 0 || Posix.FD_ISSET( fd, ref readfds ) == 0 )
-            {
-                assert( logger.debug( "No action on input device node; continuing to sleep" ) );
-                continue;
-            }
-
-            Linux.Input.Event ev = {};
-            var bytesread = Posix.read( fd, &ev, sizeof(Linux.Input.Event) );
-            if ( bytesread == 0 )
-            {
-                assert( logger.debug( @"Action on input node, but can't read from fd $fd; waking up!" ) );
-                break;
-            }
-
-            if ( ev.code == powerkeycode )
-            {
-                assert( logger.debug( @"Power key; waking up!" ) );
-                break;
-            }
-            else
-            {
-                assert( logger.debug( @"Some other key w/ value $(ev.code); NOT waking up!" ) );
-                continue;
-            }
-        }
-
-        assert( logger.debug( "Ungrabbing input node" ) );
-        Linux.ioctl( fd, Linux.Input.EVIOCGRAB, 0 );
-        Posix.close( fd );
-
-        assert( logger.debug( "Setting power state 'on'" ) );
-        FsoFramework.FileHandling.write( "on\n", sys_power_state );
-
-        process_screen_resume();
     }
 
     public ResumeReason resume()
     {
-        return ResumeReason.PowerKey;
-        /*
-        if ( reason.has_prefix( "event" ) )
-        {
-            return ResumeReason.PowerKey;
-        }
-        else if ( reason == resume_reason_modem )
-        {
-            return ResumeReason.PMU;
-        }
+        assert( logger.debug( "Setting power state 'on'" ) );
+        FsoFramework.FileHandling.write( "on\n", sys_power_state );
+        process_screen_resume();
+        // FIXME who differentiates between the reason the user supplies with
+        // org.freesmartphone.Usage.Resume and this one?
         return ResumeReason.Unknown;
-        */
     }
 
     public override string repr()
@@ -175,9 +105,6 @@ class LowLevel.Android : FsoUsage.LowLevel, FsoFramework.AbstractObject
 }
 
 internal string sys_power_state;
-internal string proc_wakelocks_suspend_resume;
-internal string proc_wakelocks_resume_reason;
-internal string resume_reason_modem;
 
 /**
  * This function gets called on plugin initialization time.

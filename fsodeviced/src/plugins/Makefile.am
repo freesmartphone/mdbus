@@ -43,6 +43,7 @@ SUBDIRS = \
 	\
 	palmpre_quirks \
 	gta04_quirks \
+	herring_quirks \
 	\
 	proximity_n900 \
 	\

@@ -58,6 +58,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private bool initialized = false;
     private bool suspended = false;
     private FsoFramework.Wakelock wakelock;
+    private FreeSmartphone.UsageSync usage_sync;
     private uint suspend_lock = 0;
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
@@ -107,6 +108,16 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         assert( theLogger.debug( @"response data (length = $(response.data.length)):" ) );
         assert( theLogger.debug( "\n" + FsoFramework.StringHandling.hexdump( response.data ) ) );
 
+        if ( suspended )
+        {
+            // NOTE the following steps we be all done in-sync as we don't need to be
+            // async here cause it's the most important thing now to check if we got some
+            // message we should take as indicator to wake up completely and nothing else!
+            handle_response_in_suspend_mode( response );
+            wakelock.release();
+            return;
+        }
+
         switch ( response.type )
         {
             case SamsungIpc.ResponseType.NOTI:
@@ -126,6 +137,54 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         assert( theLogger.debug( @"Handled response from modem successfully!" ) );
 
         wakelock.release();
+    }
+
+    /**
+     * When the system is suspended and we're running a kernel with android extensions
+     * things are a bit ... what should I say: different :)
+     * The usage subsystem disables all resources but each resource can decide on it's own
+     * if it accepts the the suspend action internally.
+     * In our case we're disabling as much as possible but still watching for incoming
+     * messages from the modem. If the modems sends a notification for an incoming call
+     * we will wake up the system first and then process the message.
+     **/
+    private void handle_response_in_suspend_mode( SamsungIpc.Response response )
+    {
+        assert( theLogger.debug( @"Got message from modem while in suspend mode: type = $(response.type), command = $(response.command)" ) );
+
+        if ( response.type == SamsungIpc.ResponseType.NOTI )
+        {
+            switch ( response.command )
+            {
+                case SamsungIpc.MessageType.CALL_INCOMING:
+                    assert( theLogger.debug( @"Got notification for incoming call; leaving suspend ..." ) );
+                    // FIXME supply correct usage resume reason here so the usage daemon
+                    // can figure out the correct one for the modem.
+                    wakeup_system( "incoming-call" );
+                    urchandler.process( response );
+                    break;
+                default:
+                    assert( theLogger.debug( @"Got $(response.command) urc which is not evaluated while we're suspended" ) );
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Waking up the system from suspend or alive state to fully awake we need to run
+     * several steps like telling the usage subsystem to resume all suspended resources.
+     * When this method returns the system should be completely awake.
+     */
+    private void wakeup_system( string reason )
+    {
+        try
+        {
+            usage_sync.resume( "Modem", reason );
+        }
+        catch ( GLib.Error err )
+        {
+            theLogger.error( @"Can't wake up the system; assuming we're already alive: $(err.message)" );
+        }
     }
 
     private void handle_solicited_response( SamsungIpc.Response response )
@@ -214,6 +273,19 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         assert( theLogger.debug( @"Got the following provider name from SIM card spn = $(ModemState.sim_provider_name)" ) );
     }
 
+    private async void request_usage_service()
+    {
+        try
+        {
+            usage_sync = yield Bus.get_proxy<FreeSmartphone.UsageSync>( BusType.SYSTEM, FsoFramework.Usage.ServiceDBusName,
+                FsoFramework.Usage.ServicePathPrefix );
+        }
+        catch ( GLib.Error err )
+        {
+            theLogger.error( @"Can't request proxy for usage subsystem; suspend handling will be not available!" );
+        }
+    }
+
     //
     // public API
     //
@@ -225,6 +297,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         this.name = name;
         this.urchandler = new Samsung.UnsolicitedResponseHandler();
         this.wakelock = new FsoFramework.Wakelock( "fsogsmd-modem-samsung" );
+        Idle.add( () => { request_usage_service(); return false; } );
 
         theModem.registerChannel( name, this );
         theModem.signalStatusChanged.connect( onModemStatusChanged );
@@ -309,7 +382,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         // acknowledge the suspend
         Timeout.add( 100, () => {
             assert( theLogger.debug( @"Checking wether we have pending requests to send to the modem ..." ) );
-            assert( theLogger.debug( @"suspend_lock = $(suspend_lock)" ) );
             if ( suspend_lock == 0 )
             {
                 assert( theLogger.debug( @"We have no pending requests; suspending ..." ) );
