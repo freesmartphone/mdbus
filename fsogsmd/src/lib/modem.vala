@@ -412,6 +412,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             case "samsung_ipc":
                 typename = "SamsungPdpHandler";
                 break;
+            case "option_gtm601":
+                typename = "PdpOptionGtm601";
+                break;
             default:
                 logger.warning( @"Invalid pdp_type $pdphandlertype; data connectivity will NOT be available" );
                 //pdphandler = new FsoGsm.Nullpdphandler();
