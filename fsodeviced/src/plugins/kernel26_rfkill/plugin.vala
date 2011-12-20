@@ -38,7 +38,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
     private bool hardoff;
 
     /* not forking into background gives a reliable pid(and also prints to stderr/stdout). */
-    private const string[] bluetoothd = { "bluetoothd", "-n" };
+    private const string[] bluetoothd = { "/usr/sbin/bluetoothd", "-n" };
     private int bluetoothd_pid = 0;
     private string bluetoothd_startup_handler;
 
@@ -169,7 +169,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         GLib.Process.spawn_async( GLib.Environment.get_variable( "PWD" ),
                                   bluetoothd,
                                   null,
-                                  GLib.SpawnFlags.SEARCH_PATH,
+                                  0,
                                   null,
                                   out this.bluetoothd_pid );
         logger.debug(@"bluetoothd pid: $(this.bluetoothd_pid)");
