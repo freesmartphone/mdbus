@@ -43,7 +43,8 @@ public interface Introspectable : GLib.Object
 
 //=========================================================================//
 [DBus (name = "org.freedesktop.DBus", timeout = 120000)]
-public interface DBusSync : GLib.Object {
+public interface DBusSync : GLib.Object
+{
     public abstract string hello() throws DBusError, IOError;
     public abstract uint request_name(string param0, uint param1) throws DBusError, IOError;
     public abstract uint release_name(string param0) throws DBusError, IOError;
@@ -64,10 +65,10 @@ public interface DBusSync : GLib.Object {
     public signal void name_lost(string param0);
     public signal void name_acquired(string param0);
 }
+
 //=========================================================================//
 Commands commands;
 List<string> completions;
-//=========================================================================//
 
 //=========================================================================//
 class Commands : Object
@@ -377,69 +378,17 @@ class Commands : Object
                 return false;
             }
 
-            var vargs_builder = new VariantBuilder( VariantType.TUPLE );
-            if( propinfo != null )
+            var vbuilder = new VariantBuilder( VariantType.TUPLE );
+            for ( var n = 0; n < methodinfo.out_args.length; n++ )
             {
-                var tmparg = args[0];
-                stdout.printf(@"tmparg = $tmparg\n");
-                vargs_builder.add_value( iface );
-                vargs_builder.add_value( baseMethod );
-                if( args.length == 1 )
-                {
-                    Variant v = null;
-                    try
-                    {
-                        v = new Variant.variant( Variant.parse( new VariantType( propinfo.signature ), @"'$tmparg'" ) );
-                    }
-                    catch (GLib.VariantParseError e)
-                    {
-                        stderr.printf( @"[ERR]: parsing '$tmparg': $(e.message)\n" );
-                        var range = e.message.split( ":", 1 );
-                        var ranges = range[0].split( "-" );
-                        var from = ranges[0].to_int();
-                        int to = from + 1;
-                        if( ranges.length == 2)
-                            to = ranges[1].to_int();
-                        var indent = string.nfill ( /* "[ERR]: parsing '".length */ 16 + from, ' ' );
-                        var arrows = string.nfill ( to - from, '^' );
-                        stderr.printf( @"$indent$arrows\n" );
-                        return false;
-                    }
-                    vargs_builder.add_value( v );
-                }
-                iface = "org.freedesktop.DBus.Properties";
-                baseMethod = (args.length == 1) ? "Set" : "Get";
-            }
-            else
-            {
-                for( int i = 0; i < args.length; i++ )
-                {
-                    try
-                    {
-                        unowned VariantType? vt = (methodinfo == null) ? null : new VariantType( methodinfo.in_args[i].signature );
-                        var v = Variant.parse( vt, @"'$(args[i])'" );
-                        vargs_builder.add_value( v );
-                    }
-                    catch (GLib.VariantParseError e)
-                    {
-                        stderr.printf( @"[ERR]: parsing '$(args[i])': $(e.message)\n" );
-                        var range = e.message.split( ":", 1 );
-                        var ranges = range[0].split( "-" );
-                        var from = ranges[0].to_int();
-                        int to = from + 1;
-                        if( ranges.length == 2)
-                            to = ranges[1].to_int();
-                        var indent = string.nfill ( /* "[ERR]: parsing '".length */ 16 + from, ' ' );
-                        var arrows = string.nfill ( to - from, '^' );
-                        stderr.printf( @"$indent$arrows\n" );
-                        return false;
-                    }
-                }
+                var method_arg = methodinfo.out_args[n];
+                var argument = new Argument( method_arg.name, method_arg.signature, vbuilder );
+                argument.append( args[n] );
             }
 
-            var parameters = vargs_builder.end();
             unowned VariantType? full_vt = (methodinfo == null || methodinfo.out_args.length <= 0) ?
                 null :  new VariantType( "(" + buildSignature( methodinfo.out_args )  + ")" );
+            var parameters = vbuilder.end();
             var result = bus.call_sync( busname, path, iface, baseMethod, parameters, full_vt, DBusCallFlags.NONE, 100000 );
             stdout.printf( @"$(result.print(false))\n" );
         }
