@@ -188,7 +188,7 @@ public class UnderscoreOWANDATA : AbstractAtCommand
 
     public string issue()
     {
-        return "_OWANDATA";
+        return "_OWANDATA?";
     }
 
 //    public string query()
