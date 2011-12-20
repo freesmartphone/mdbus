@@ -436,6 +436,64 @@ class Commands : Object
         mainloop.run();
     }
 
+    private bool parseCmdlineForCallMethod( string commandline, out string[] args )
+    {
+        var n = 0;
+        var depth = 0;
+        var current_argument = "";
+        var arguments = new GLib.List<string>();
+
+        while ( n < commandline.size() )
+        {
+            switch ( commandline[n] )
+            {
+                case ' ':
+                    if ( depth == 0 )
+                    {
+                        arguments.append( current_argument );
+                        current_argument = "";
+                    }
+                    else current_argument += @"$(commandline[n])";
+                    break;
+                case '\"':
+                    if ( ( n + 1 < commandline.size() && commandline[n+1] == ' ' ) || ( n + 1 >= commandline.size() ) )
+                        depth--;
+                    else depth++;
+                    current_argument += "\"";
+                    break;
+                case '{':
+                case '[':
+                case '(':
+                    current_argument += @"$(commandline[n])";
+                    depth++;
+                    break;
+                case '}':
+                case ')':
+                case ']':
+                    current_argument += @"$(commandline[n])";
+                    depth--;
+                    break;
+                default:
+                    current_argument += @"$(commandline[n])";
+                    break;
+            }
+            n++;
+        }
+
+        if ( current_argument.size() > 0 )
+            arguments.append( current_argument );
+
+        if ( arguments.length() == 0 || depth > 0 )
+            return false;
+
+        var tmpargs = new string[] { };
+        foreach ( var argument in arguments )
+            tmpargs += argument;
+        args = tmpargs;
+
+        return true;
+    }
+
     private void performCommandFromShell( string commandline )
     {
         if ( commandline.strip() == "" )
@@ -446,13 +504,9 @@ class Commands : Object
 
         string[] args;
 
-        try
+        if ( !parseCmdlineForCallMethod( commandline, out args ) )
         {
-            GLib.Shell.parse_argv( commandline, out args );
-        }
-        catch ( GLib.ShellError e )
-        {
-            stderr.printf( @"[ERR]: Can't parse cmdline: $(e.message)\n" );
+            stdout.printf( @"[ERR] Got unbalanced commadline for method execution:\n$commandline\n" );
             return;
         }
 
