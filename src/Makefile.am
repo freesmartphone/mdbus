@@ -29,6 +29,7 @@ bin_PROGRAMS = mdbus2
 
 mdbus2_VALASOURCES = \
 	main.vala \
+	argument.vala \
 	$(NULL)
 
 mdbus2_SOURCES = \
