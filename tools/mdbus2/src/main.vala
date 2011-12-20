@@ -473,13 +473,6 @@ class Commands : Object
         }
     }
 
-    /*
-    private static unowned string? wordBreakCharacters()
-    {
-        return " ";
-    }
-    */
-
     private static string? completion( string prefix, int state )
     {
         if ( state == 0 )
