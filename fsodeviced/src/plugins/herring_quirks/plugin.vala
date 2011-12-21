@@ -24,8 +24,7 @@ namespace Herring
     public static const string MODULE_NAME = "fsodevice.herring_powercontrol";
 }
 
-internal List<FsoDevice.BasePowerControlResource> resources;
-internal List<FsoDevice.BasePowerControl> instances;
+Herring.ResumeHandler resumehandler = null;
 
 /**
  * This function gets called on plugin initialization time.
@@ -37,6 +36,8 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 {
     var config = FsoFramework.theConfig;
     var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
+
+    resumehandler = new Herring.ResumeHandler();
 
     return Herring.MODULE_NAME;
 }
