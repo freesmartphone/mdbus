@@ -114,6 +114,8 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     private Gee.HashMap<int,string> stateIgnoreById;
 
     private FreeSmartphone.Device.IdleState displayResourcePreventState;
+    private FreeSmartphone.Usage usage;
+    private FreeSmartphone.UsageSystemAction lastSystemAction;
 
     static construct
     {
@@ -158,6 +160,9 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
             n++;
         }
 
+        lastSystemAction = FreeSmartphone.UsageSystemAction.ALIVE;
+        Idle.add( () => { request_usage_service(); return false; } );
+
         Idle.add( () => {
             idlestatus.onState( FreeSmartphone.Device.IdleState.AWAKE );
             return false;
@@ -167,6 +172,25 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
     public override string repr()
     {
         return @"<$sysfsnode>";
+    }
+
+    private async void request_usage_service()
+    {
+        try
+        {
+            usage = yield Bus.get_proxy<FreeSmartphone.Usage>( BusType.SYSTEM,
+                FsoFramework.Usage.ServiceDBusName, FsoFramework.Usage.ServicePathPrefix );
+            usage.system_action.connect( onUsageSystemAction );
+        }
+        catch ( GLib.Error err )
+        {
+            logger.error( @"Could not request proxy object for usage service: $(err.message)" );
+        }
+    }
+
+    private void onUsageSystemAction( FreeSmartphone.UsageSystemAction action )
+    {
+        lastSystemAction = action;
     }
 
     private void hookToExternalModules()
@@ -390,7 +414,8 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
 
     private void handleInputEvent( ref Linux.Input.Event ev )
     {
-        idlestatus.onState( FreeSmartphone.Device.IdleState.BUSY );
+        if ( lastSystemAction != FreeSmartphone.UsageSystemAction.SUSPEND )
+            idlestatus.onState( FreeSmartphone.Device.IdleState.BUSY );
     }
 
     public bool onInputEvent( IOChannel source, IOCondition condition )
