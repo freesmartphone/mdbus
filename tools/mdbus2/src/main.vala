@@ -379,9 +379,9 @@ class Commands : Object
             }
 
             var vbuilder = new VariantBuilder( VariantType.TUPLE );
-            for ( var n = 0; n < methodinfo.out_args.length; n++ )
+            for ( var n = 0; n < methodinfo.in_args.length; n++ )
             {
-                var method_arg = methodinfo.out_args[n];
+                var method_arg = methodinfo.in_args[n];
                 var argument = new Argument( method_arg.name, method_arg.signature, vbuilder );
                 argument.append( args[n] );
             }
