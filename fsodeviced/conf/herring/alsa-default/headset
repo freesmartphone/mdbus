@@ -1,0 +1,9 @@
+# scenario for cardname default (8 controls)
+1:'Playback Volume':2:57,57
+2:'Playback Spkr Volume':2:63,0
+3:'Playback Headset Volume':2:56,56
+4:'Capture Volume':1:192
+5:'Playback Path':1:3
+6:'Voice Call Path':1:3
+7:'Capture MIC Path':1:3
+8:'Input Source':1:0

@@ -178,6 +178,7 @@ AC_CONFIG_FILES([
   conf/GTA04/Makefile
   conf/palm_pre/Makefile
   conf/herring/Makefile
+  conf/herring/alsa-default/Makefile
   data/Makefile
   data/org.freesmartphone.odeviced.service
   src/Makefile
