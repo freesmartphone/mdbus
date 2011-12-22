@@ -21,7 +21,7 @@ using GLib;
 
 namespace Herring
 {
-    public static const string MODULE_NAME = "fsodevice.herring_powercontrol";
+    public static const string MODULE_NAME = "fsodevice.herring_quirks";
 }
 
 Herring.ResumeHandler resumehandler = null;
