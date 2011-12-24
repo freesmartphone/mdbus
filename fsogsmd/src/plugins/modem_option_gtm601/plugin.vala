@@ -36,16 +36,19 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         return "<>";
     }
 
-    //public override void configureData()
-    //{
-    //    assert( modem_data != null );
-    //    modem_data.simHasReadySignal = true; // $QCSIMSTAT
-    //    modem_data.simReadyTimeout = 5; /* seconds */
-    //    
-    //    theModem.atCommandSequence( "MODEM", "init" ).append( {
-    //        "$QCSIMSTAT=1"
-    //    } );
-    //}
+    public override void configureData()
+    {
+        return;
+
+        assert( modem_data != null );
+
+        modem_data.simHasReadySignal = true; // $QCSIMSTAT
+        modem_data.simReadyTimeout = 5; /* seconds */
+
+        theModem.atCommandSequence( "MODEM", "init" ).append( {
+            "$QCSIMSTAT=1"
+        } );
+    }
 
     protected override void createChannels()
     {
@@ -69,9 +72,13 @@ class Gtm601.Modem : FsoGsm.AbstractModem
     {
         return new Gtm601.UnsolicitedResponseHandler();
     }
-    
+
     protected override void registerCustomAtCommands( HashMap<string,FsoGsm.AtCommand> commands )
     {
+
+        var plusCops = theModem.createAtCommand<PlusCOPS>( "+COPS" );
+        PlusCOPS.providerNameDeliveredInConfiguredCharset = true;
+
         Gtm601.registerCustomAtCommands( commands );
         var cmd = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
         FsoFramework.DataSharing.setValueForKey( "Gtm601.OWANCALL", cmd );
