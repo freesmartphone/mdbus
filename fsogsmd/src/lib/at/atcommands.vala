@@ -930,6 +930,8 @@ public class PlusCOPN : AbstractAtCommand
 
 public class PlusCOPS : AbstractAtCommand
 {
+    public static bool providerNameDeliveredInConfiguredCharset;
+
     public int format;
     public int mode;
     public string oper;
@@ -973,6 +975,10 @@ public class PlusCOPS : AbstractAtCommand
         mode = to_int( "mode" );
         format = to_int( "format" );
         oper = to_string( "oper" );
+        if ( format != Format.NUMERIC && PlusCOPS.providerNameDeliveredInConfiguredCharset )
+        {
+            oper = decodeString( oper );
+        }
         act = Constants.instance().networkProviderActToString( to_int( "act" ) );
     }
 
