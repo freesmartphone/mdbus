@@ -81,8 +81,8 @@ namespace FsoAudio
 
         construct
         {
-            resetStreamUsage();
             stream_usage = new uint[STREAM_COUNT];
+            resetStreamUsage();
         }
 
         public override void handleConnectingStream( Stream stream )
