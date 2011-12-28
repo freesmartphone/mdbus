@@ -344,6 +344,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
             return null;
         }
 
+        assert( theLogger.debug( @"Enqueue a new command: type = $(type), command = $(command)" ) );
+
         var handler = new Samsung.CommandHandler();
 
         handler.client = fmtclient;
