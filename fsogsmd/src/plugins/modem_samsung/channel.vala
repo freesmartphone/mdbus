@@ -362,14 +362,14 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         yield;
         suspend_lock--;
 
+        // reset current command handler so we're able to send more commands again
+        current = null;
+
         if ( handler.timed_out )
         {
             theLogger.error( @"Received a timeout while sending command $(command)!" );
             return null;
         }
-
-        // reset current command handler so we're able to send more commands again
-        current = null;
 
         return handler.response;
     }
