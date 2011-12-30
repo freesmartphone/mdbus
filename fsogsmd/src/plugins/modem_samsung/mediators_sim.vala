@@ -67,6 +67,7 @@ public class SamsungSimGetInformation : SimGetInformation
 
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
+        /*
         response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_IMSI );
         if ( response == null || response.data.length != DEFAULT_IMSI_LENGTH + 1)
         {
@@ -75,7 +76,9 @@ public class SamsungSimGetInformation : SimGetInformation
         }
 
         string imsi = SamsungIpc.Misc.MeResponseMessage.get_imsi( response );
+        */
 
+        string imsi = "";
         info.insert( "imsi", imsi );
         info.insert( "phonebooks", "" );
     }
