@@ -43,6 +43,7 @@ modlibexec_LTLIBRARIES = herring_quirks.la
 herring_quirks_la_VALASOURCES = \
 	plugin.vala \
 	resumehandler.vala \
+	alsa.vala \
 	$(NULL)
 herring_quirks_la_SOURCES = $(herring_quirks_la_VALASOURCES:.vala=.c)
 $(herring_quirks_la_SOURCES): $(herring_quirks_la_VALASOURCES)

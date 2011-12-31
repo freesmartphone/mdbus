@@ -25,6 +25,7 @@ namespace Herring
 }
 
 Herring.ResumeHandler resumehandler = null;
+Herring.AlsaStreamKeeper streamkeeper = null;
 
 /**
  * This function gets called on plugin initialization time.
@@ -38,6 +39,7 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
     var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
 
     resumehandler = new Herring.ResumeHandler();
+    streamkeeper = new Herring.AlsaStreamKeeper();
 
     return Herring.MODULE_NAME;
 }
