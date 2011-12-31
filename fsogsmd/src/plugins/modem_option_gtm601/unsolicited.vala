@@ -38,7 +38,10 @@ public class Gtm601.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHan
         if ( rhs.has_suffix( "SIM INIT COMPLETED" ) )
         {
             theModem.logger.info( "GTM 601 SIM now ready" );
-            theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+            Timeout.add_seconds( 2, () => {
+                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+                return false; // don't call again
+            } );
         }
     }
 }

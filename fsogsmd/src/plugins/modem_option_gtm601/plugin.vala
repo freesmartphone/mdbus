@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2011 Klaus 'mrmoku' Kurzmann
+ * Copyright (C) 2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,16 +39,33 @@ class Gtm601.Modem : FsoGsm.AbstractModem
 
     public override void configureData()
     {
-        return;
-
         assert( modem_data != null );
 
         modem_data.simHasReadySignal = true; // $QCSIMSTAT
         modem_data.simReadyTimeout = 5; /* seconds */
 
         theModem.atCommandSequence( "MODEM", "init" ).append( {
-            "$QCSIMSTAT=1"
+            "$QCSIMSTAT=1"          /* enable sim status report */
         } );
+
+        registerAtCommandSequence( "main", "init", new AtCommandSequence( {
+            """+CGEREP=2,1""",
+            """+CGREG=2""",
+            """+CLIP=1""",
+            """+CREG=2""",
+            """+COLP=0""",
+            """+CSSN=1,1""",
+            """+CTZU=1""",
+            """+CTZR=1"""
+        } ) );
+
+        var cnmiCommand = modem_data.simBuffersSms ? """+CNMI=2,1,2,1,1""" : """+CNMI=2,2,2,1,1""";
+
+        // sequence for when the modem is registered
+        registerAtCommandSequence( "main", "registered", new AtCommandSequence( {
+            cnmiCommand,
+            """+CSMS=1""" /* enable SMS phase 2 */
+        } ) );
     }
 
     protected override void createChannels()
