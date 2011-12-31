@@ -665,12 +665,31 @@ public class FsoGsm.TwoParamsAtCommand<T1,T2> : FsoGsm.AbstractAtCommand
  **/
 public class FsoGsm.CustomAtCommand : FsoGsm.AbstractAtCommand
 {
+    protected string name;
+
     public CustomAtCommand( string name = "", bool prefixoptional = false )
     {
+        this.name = name;
+
         if ( !prefixoptional )
         {
             prefix = { name + ": " };
         }
+    }
+
+    public virtual string execute()
+    {
+        return name;
+    }
+
+    public virtual string query()
+    {
+        return name + "?";
+    }
+
+    public virtual string test()
+    {
+        return name + "=?";
     }
 }
 
