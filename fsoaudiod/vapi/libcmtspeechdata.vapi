@@ -1,7 +1,8 @@
 /*
- * (C) 2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * (C) 2011-2012 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  */
 
+[CCode (cprefix = "", lower_case_cprefix = "cmtspeech_")]
 namespace CmtSpeech
 {
     /* Enums */
