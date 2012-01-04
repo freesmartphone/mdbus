@@ -79,9 +79,9 @@ public static FsoGsm.CallInfo createCallInfo( Msmcomm.CallStatusInfo info )
     return result;
 }
 
-public int convertRawRssiToPercentage( uint raw_rssi )
+public int32 convertRawRssiToPercentage( uint raw_rssi )
 {
-    int result = 0;
+    int32 result = 0;
 
     // NOTE this conversation is based on meassured values from logs of the
     // TelephonyInterfaceLayer daemon from webOS. We don't know the exact formular to
