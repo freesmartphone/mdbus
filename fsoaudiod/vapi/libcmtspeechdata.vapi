@@ -115,7 +115,7 @@ namespace CmtSpeech
         public EventData msg;
     }
 
-    [CCode (destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
+    [CCode (cname = "CmtSpeechEventData", destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
     public struct EventData
     {
         public SsiConfigResp ssi_config_resp;
@@ -123,7 +123,7 @@ namespace CmtSpeech
         public TimingConfigNtf timing_config_ntf;
     }
 
-    [CCode (destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
+    [CCode (cname = "CmtSpeechSsiConfigResp", destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
     public struct SsiConfigResp
     {
         public uint8 layout;
@@ -131,7 +131,7 @@ namespace CmtSpeech
         public uint8 result;
     }
 
-    [CCode (destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
+    [CCode (cname = "CmtSpeechConfigReq", destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
     public struct SpeechConfigReq
     {
         public uint8 speech_data_stream;
@@ -143,7 +143,7 @@ namespace CmtSpeech
         public bool layout_changed;
     }
 
-    [CCode (destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
+    [CCode (cname = "CmtSpeechTimingConfigNtf", destroy_function = "", cheader_filename = "libcmtspeechdata.h")]
     public struct TimingConfigNtf
     {
         uint16 msec;
