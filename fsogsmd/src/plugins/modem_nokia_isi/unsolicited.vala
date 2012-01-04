@@ -44,7 +44,7 @@ public class IsiUnsolicitedHandler : FsoFramework.AbstractObject
     private void onSignalStrengthUpdate( uint8 rssi )
     {
         var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-        obj.signal_strength( rssi );
+        obj.signal_strength( (int32) rssi );
     }
 
     private void onRegistrationStatusUpdate( Network.ISI_RegStatus istatus )
