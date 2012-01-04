@@ -58,7 +58,6 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 if ( theModem.status() != FsoGsm.Modem.Status.ALIVE_REGISTERED )
                     break;
                 handle_signal_strength( response.data[0] );
-                ModemState.network_signal_strength = response.data[0];
                 // notify the user about the change of signal strength
                 var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
                 obj.signal_strength( ModemState.network_signal_strength );
@@ -170,8 +169,8 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
             ModemState.network_reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
             ModemState.network_act = (SamsungIpc.Network.AccessTechnology) reginfo.act;
-            ModemState.network_lac = reginfo.lac;
-            ModemState.network_cid = reginfo.cid;
+            ModemState.network_lac = (int32) reginfo.lac;
+            ModemState.network_cid = (int32) reginfo.cid;
 
             assert( logger.debug( @"domain = $(reginfo.domain), network_reg_state = $(ModemState.network_reg_state)" ) );
             assert( logger.debug( @"network_act = $(ModemState.network_act), lac = $(reginfo.lac), cid = $(reginfo.lac)" ) );
@@ -189,8 +188,8 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         else if ( reginfo.domain == SamsungIpc.Network.ServiceDomain.GPRS )
         {
             ModemState.pdp_reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
-            ModemState.pdp_lac = reginfo.lac;
-            ModemState.pdp_cid = reginfo.cid;
+            ModemState.pdp_lac = (int32) reginfo.lac;
+            ModemState.pdp_cid = (int32) reginfo.cid;
         }
         else
         {
