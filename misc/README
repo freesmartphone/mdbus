@@ -4,4 +4,5 @@ freesmartphone.org misc vapi files
 
 This package contains Vala bindings to misc. libraries
 that are under construction and have not been submitted
-upstream yet.
+upstream yet. Basically, it's a playground, so don't
+expect it to compile/run/work ;)

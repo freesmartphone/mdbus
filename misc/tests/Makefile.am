@@ -45,6 +45,17 @@ $(testalsapcm_SOURCES): $(testalsapcm_VALASOURCES)
 testalsapcm_LDADD = $(GLIB_LIBS) $(ALSA_LIBS)
 EXTRA_DIST += $(testalsapcm_VALASOURCES)
 
+#
+# linux.vapi tests
+#
+TEST_PROGS += testlinux
+testlinux_VALASOURCES = testlinux.vala
+testlinux_SOURCES = testlinux.c
+$(testlinux_SOURCES): $(testlinux_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testlinux_LDADD = $(GLIB_LIBS) $(ALSA_LIBS)
+EXTRA_DIST += $(testlinux_VALASOURCES)
 
 CLEANFILES = \
     $(TEST_PROGS) \
