@@ -17,6 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+extern void forwarder_start();
+extern void forwarder_stop();
+
 namespace FsoAudio.GsmVoiceForwarder
 {
     public const string MODULE_NAME = "fsoaudio.gsmvoice_alsa_forwarder";
@@ -27,7 +30,7 @@ class FsoAudio.GsmVoiceForwarder.Plugin : FsoFramework.AbstractObject
     private FsoFramework.Subsystem subsystem;
     private FreeSmartphone.GSM.Call gsmcallproxy;
     /* TODO: configure the values */
-    private PlaybackFromModem modemSourceCodecSink = new PlaybackFromModem(8000,2);
+//    private PlaybackFromModem modemSourceCodecSink = new PlaybackFromModem(8000,2);
 
     //
     // Private API
@@ -39,11 +42,11 @@ class FsoAudio.GsmVoiceForwarder.Plugin : FsoFramework.AbstractObject
         {
             case FreeSmartphone.GSM.CallStatus.OUTGOING:
             case FreeSmartphone.GSM.CallStatus.ACTIVE:
-                this.modemSourceCodecSink.setAudioStatus(true);
+                forwarder_start();
                 break;
 
             case FreeSmartphone.GSM.CallStatus.RELEASE:
-                this.modemSourceCodecSink.setAudioStatus(false);
+                forwarder_stop();
                 break;
 
             default:

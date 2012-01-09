@@ -821,7 +821,7 @@ static void signal_handler_ignore(int sig)
 	signal(sig, signal_handler_ignore);
 }
 
-int main(int argc, char *argv[])
+void forwarder_start()
 {
 	snd_output_t *output;
 	int i, j, k, l, err;
@@ -831,20 +831,7 @@ int main(int argc, char *argv[])
 		logit(LOG_CRIT, "Output failed: %s\n", snd_strerror(err));
 		exit(EXIT_FAILURE);
 	}
-	err = parse_config(argc, argv, output, 1);
-	if (err < 0) {
-		logit(LOG_CRIT, "Unable to parse arguments or configuration...\n");
-		exit(EXIT_FAILURE);
-	}
-	while (my_argc > 0)
-		free(my_argv[--my_argc]);
-	free(my_argv);
-
-	if (loopbacks_count <= 0) {
-		logit(LOG_CRIT, "No loopback defined...\n");
-		exit(EXIT_FAILURE);
-	}
-
+#if 0
 	if (daemonize) {
 		if (daemon(0, 0) < 0) {
 			logit(LOG_CRIT, "daemon() failed: %s\n", strerror(errno));
@@ -860,7 +847,7 @@ int main(int argc, char *argv[])
 			exit(EXIT_SUCCESS);
 		}
 	}
-
+#endif
 	/* we must sort thread IDs */
 	j = -1;
 	do {
@@ -920,4 +907,9 @@ int main(int argc, char *argv[])
 	if (use_syslog)
 		closelog();
 	exit(EXIT_SUCCESS);
+}
+
+void forwarder_stop()
+{
+
 }

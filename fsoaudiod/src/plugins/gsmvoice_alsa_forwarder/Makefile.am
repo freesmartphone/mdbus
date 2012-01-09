@@ -7,6 +7,7 @@ AM_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	-lsamplerate -D_GNU_SOURCE \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -26,8 +27,7 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
-	--pkg fsoaudio-2.0 \
-	--pkg alsa
+	--pkg fsoaudio-2.0
 
 if WANT_DEBUG
 VALAC_ARGS += -g -D DEBUG
@@ -39,18 +39,17 @@ endif
 #
 modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
 modlibexec_LTLIBRARIES = gsmvoice_alsa_forwarder.la
-gsmvoice_alsa_forwarder_la_SOURCES = plugin.c
+gsmvoice_alsa_forwarder_la_SOURCES = plugin.c alsaloop.c pcmjob.c control.c
 gsmvoice_alsa_forwarder_la_VALASOURCES = plugin.vala
 $(gsmvoice_alsa_forwarder_la_SOURCES): $(gsmvoice_alsa_forwarder_la_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
 gsmvoice_alsa_forwarder_la_LIBADD = $(progs_ldadd)
-gsmvoice_alsa_forwarder_la_LDFLAGS = -no-undefined -module -avoid-version
+gsmvoice_alsa_forwarder_la_LDFLAGS = -no-undefined -module -avoid-version -lm
 gsmvoice_alsa_forwarder_la_LIBTOOLFLAGS = --tag=disable-static
 
 CLEANFILES = \
-    *.c \
-    *.h \
+    plugin.c \
     *.la \
     *.lo \
     $(NULL)
