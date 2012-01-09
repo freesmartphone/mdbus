@@ -18,7 +18,6 @@
  *
  */
 
-#include "aconfig.h"
 #ifdef HAVE_SAMPLERATE_H
 #define USE_SAMPLERATE
 #include <samplerate.h>

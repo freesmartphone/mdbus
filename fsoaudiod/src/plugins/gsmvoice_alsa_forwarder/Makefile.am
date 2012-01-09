@@ -8,6 +8,7 @@ AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	-lsamplerate -D_GNU_SOURCE \
+	-DHAVE_SAMPLERATE_H \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
