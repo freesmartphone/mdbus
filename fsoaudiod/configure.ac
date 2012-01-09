@@ -135,6 +135,7 @@ AC_CONFIG_FILES([
   src/alsa_hooks/session/Makefile
   src/plugins/Makefile
   src/plugins/gsmvoice_alsa_cmtspeechdata/Makefile
+  src/plugins/gsmvoice_alsa_forwarder/Makefile
   src/plugins/manager/Makefile
   src/plugins/router_palmpre/Makefile
   src/plugins/router_alsa/Makefile

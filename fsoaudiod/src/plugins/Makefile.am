@@ -9,6 +9,8 @@ SUBDIRS = \
 	router_palmpre \
 	router_alsa \
 	\
+	gsmvoice_alsa_forwarder \
+	\
 	streamcontrol_alsa \
 	sessionpolicy_default \
 	\
