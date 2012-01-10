@@ -821,17 +821,29 @@ static void signal_handler_ignore(int sig)
 	signal(sig, signal_handler_ignore);
 }
 
-void forwarder_start()
+void forwarder_start(char * conf_path)
 {
 	snd_output_t *output;
 	int i, j, k, l, err;
+
+	char *arg_config = strdup(conf_path);
 
 	err = snd_output_stdio_attach(&output, stdout, 0);
 	if (err < 0) {
 		logit(LOG_CRIT, "Output failed: %s\n", snd_strerror(err));
 		exit(EXIT_FAILURE);
 	}
-#if 0
+
+	err = parse_config_file(arg_config, output);
+	if (err < 0) {
+		logit(LOG_CRIT, "Unable to parse arguments or configuration...\n");
+		exit(EXIT_FAILURE);
+	}
+	if (loopbacks_count <= 0) {
+		logit(LOG_CRIT, "No loopback defined...\n");
+		exit(EXIT_FAILURE);
+	}
+
 	if (daemonize) {
 		if (daemon(0, 0) < 0) {
 			logit(LOG_CRIT, "daemon() failed: %s\n", strerror(errno));
@@ -847,7 +859,7 @@ void forwarder_start()
 			exit(EXIT_SUCCESS);
 		}
 	}
-#endif
+
 	/* we must sort thread IDs */
 	j = -1;
 	do {
@@ -911,5 +923,5 @@ void forwarder_start()
 
 void forwarder_stop()
 {
-
+	signal_handler(SIGTERM);
 }
