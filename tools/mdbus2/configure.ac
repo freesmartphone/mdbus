@@ -80,6 +80,12 @@ AC_CONFIG_FILES([
 ])
 AC_OUTPUT
 
+##############################################################################
+# git version
+GITV=`cat ../../.git/refs/heads/master || echo "unknown"`
+AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
+
+##############################################################################
 # info
 echo
 echo
