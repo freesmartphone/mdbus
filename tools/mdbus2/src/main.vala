@@ -448,12 +448,15 @@ class Commands : Object
             switch ( commandline[n] )
             {
                 case ' ':
-                    if ( depth == 0 )
+                    if ( depth == 0 && current_argument.length > 0 )
                     {
                         arguments.append( current_argument );
                         current_argument = "";
                     }
-                    else current_argument += @"$(commandline[n])";
+                    else if (current_argument.length > 0)
+                    {
+                        current_argument += @"$(commandline[n])";
+                    }
                     break;
                 case '\"':
                     if ( ( n + 1 < commandline.size() && commandline[n+1] == ' ' ) || ( n + 1 >= commandline.size() ) )
