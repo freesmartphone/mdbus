@@ -25,11 +25,53 @@ namespace FsoAudio.GsmVoiceForwarder
     public const string MODULE_NAME = "fsoaudio.gsmvoice_alsa_forwarder";
 }
 
+class AlsaloopForwarder : FsoFramework.AbstractObject
+{
+    private char *  configFilePath;
+    private unowned Thread<void *> alsaloopThread = null;
+
+    public AlsaloopForwarder(char * path)
+    {
+        this.configFilePath = path;
+    }
+
+    private void * startWrapper()
+    {
+        forwarder_start(this.configFilePath);
+        return null;
+    }
+
+    public void start()
+    {
+        try
+        {
+            if (alsaloopThread == null)
+                alsaloopThread = Thread.create<void *>( this.startWrapper, false );
+            else
+                assert ( logger.error( @"FIXME: Are multiple calls at the same time supported by the modem driver?" ) );
+        }
+        catch ( ThreadError e )
+        {
+            assert ( logger.error( @"Error: $(e.message)" ) );
+            return;
+        }
+    }
+
+    public void stop(){
+        forwarder_stop();
+    }
+
+    public override string repr()
+    {
+        return "<>";
+    }
+}
+
 class FsoAudio.GsmVoiceForwarder.Plugin : FsoFramework.AbstractObject
 {
     private FsoFramework.Subsystem subsystem;
     private FreeSmartphone.GSM.Call gsmcallproxy;
-    private string configurationPath;
+    private AlsaloopForwarder forwarder;
 
     //
     // Private API
@@ -41,11 +83,11 @@ class FsoAudio.GsmVoiceForwarder.Plugin : FsoFramework.AbstractObject
         {
             case FreeSmartphone.GSM.CallStatus.OUTGOING:
             case FreeSmartphone.GSM.CallStatus.ACTIVE:
-                forwarder_start(this.configurationPath);
+                this.forwarder.start();
                 break;
 
             case FreeSmartphone.GSM.CallStatus.RELEASE:
-                forwarder_stop();
+                this.forwarder.stop();
                 break;
 
             default:
@@ -59,8 +101,9 @@ class FsoAudio.GsmVoiceForwarder.Plugin : FsoFramework.AbstractObject
     //
     public Plugin( FsoFramework.Subsystem subsystem )
     {
+        char * configurationPath = FsoFramework.Utility.machineConfigurationDir() + "/alsaloop.conf";
         this.subsystem = subsystem;
-        this.configurationPath = FsoFramework.Utility.machineConfigurationDir() + "/alsaloop.conf";
+        this.forwarder = new AlsaloopForwarder(configurationPath);
 
         try
         {
