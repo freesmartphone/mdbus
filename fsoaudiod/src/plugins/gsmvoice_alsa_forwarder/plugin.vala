@@ -39,8 +39,13 @@ class AlsaloopForwarder : FsoFramework.AbstractObject
     private void * startWrapper()
     {
         assert ( logger.info( "Alsaloop started" ) );
+
         forwarder_start(this.configFilePath);
+
+        /* At that point the forwarder_start thread exited  */
+        this.alsaloopThread = null;
         assert ( logger.info( "Alsaloop exited" ) );
+
         return null;
     }
 
@@ -63,10 +68,7 @@ class AlsaloopForwarder : FsoFramework.AbstractObject
     }
 
     public void stop(){
-        mutex.lock();
         forwarder_stop();
-        this.alsaloopThread = null;
-        mutex.unlock();
     }
 
     public override string repr()
