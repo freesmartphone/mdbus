@@ -68,7 +68,6 @@ static void my_exit(struct loopback_thread *thread, int exitcode)
 		thread->exitcode = exitcode;
 		pthread_exit(0);
 	}
-	exit(exitcode);
 }
 
 static int create_loopback_handle(struct loopback_handle **_handle,
@@ -918,7 +917,6 @@ void forwarder_start(char * conf_path)
 
 	if (use_syslog)
 		closelog();
-	exit(EXIT_SUCCESS);
 }
 
 void forwarder_stop()
