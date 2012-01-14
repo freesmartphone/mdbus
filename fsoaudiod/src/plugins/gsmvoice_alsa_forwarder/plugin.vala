@@ -29,6 +29,7 @@ class AlsaloopForwarder : FsoFramework.AbstractObject
 {
     private char *  configFilePath;
     private unowned Thread<void *> alsaloopThread = null;
+    private Mutex mutex = new  Mutex();
 
     public AlsaloopForwarder(char * path)
     {
@@ -37,12 +38,15 @@ class AlsaloopForwarder : FsoFramework.AbstractObject
 
     private void * startWrapper()
     {
+        assert ( logger.info( "Alsaloop started" ) );
         forwarder_start(this.configFilePath);
+        assert ( logger.info( "Alsaloop exited" ) );
         return null;
     }
 
     public void start()
     {
+        mutex.lock();
         try
         {
             if (alsaloopThread == null)
@@ -55,10 +59,14 @@ class AlsaloopForwarder : FsoFramework.AbstractObject
             assert ( logger.error( @"Error: $(e.message)" ) );
             return;
         }
+        mutex.unlock();
     }
 
     public void stop(){
+        mutex.lock();
         forwarder_stop();
+        this.alsaloopThread = null;
+        mutex.unlock();
     }
 
     public override string repr()
