@@ -828,6 +828,8 @@ int forwarder_start(char * conf_path)
 
 	char *arg_config = strdup(conf_path);
 
+	quit = 0; //else quit is always 1 after the first call
+
 	err = snd_output_stdio_attach(&output, stdout, 0);
 	if (err < 0) {
 		logit(LOG_CRIT, "Output failed: %s\n", snd_strerror(err));
