@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-extern void forwarder_start(char * conf_path);
+extern int forwarder_start(char * conf_path);
 extern void forwarder_stop();
 
 namespace FsoAudio.GsmVoiceForwarder
@@ -38,13 +38,15 @@ class AlsaloopForwarder : FsoFramework.AbstractObject
 
     private void * startWrapper()
     {
+        int ret = 0;
+
         assert ( logger.info( "Alsaloop started" ) );
 
-        forwarder_start(this.configFilePath);
+        ret = forwarder_start(this.configFilePath);
 
         /* At that point the forwarder_start thread exited  */
         this.alsaloopThread = null;
-        assert ( logger.info( "Alsaloop exited" ) );
+        assert ( logger.info( @"Alsaloop exited with status $(ret)" ) );
 
         return null;
     }

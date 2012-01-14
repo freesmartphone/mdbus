@@ -68,6 +68,7 @@ static void my_exit(struct loopback_thread *thread, int exitcode)
 		thread->exitcode = exitcode;
 		pthread_exit(0);
 	}
+	return exitcode;
 }
 
 static int create_loopback_handle(struct loopback_handle **_handle,
@@ -230,7 +231,7 @@ static void add_loop(struct loopback *loop)
 						sizeof(struct loopback *));
 	if (loopbacks == NULL) {
 		logit(LOG_CRIT, "No enough memory\n");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 	loopbacks[loopbacks_count++] = loop;
 }
@@ -528,14 +529,14 @@ static int parse_config(int argc, char *argv[], snd_output_t *output,
 		case 'm':
 			if (arg_mixers_count >= MAX_MIXERS) {
 				logit(LOG_CRIT, "Maximum redirected mixer controls reached (max %i)\n", (int)MAX_MIXERS);
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			}
 			arg_mixers[arg_mixers_count++] = optarg;
 			break;
 		case 'O':
 			if (arg_ossmixers_count >= MAX_MIXERS) {
 				logit(LOG_CRIT, "Maximum redirected mixer controls reached (max %i)\n", (int)MAX_MIXERS);
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			}
 			arg_ossmixers[arg_ossmixers_count++] = optarg;
 			break;
@@ -561,7 +562,7 @@ static int parse_config(int argc, char *argv[], snd_output_t *output,
 
 	if (morehelp) {
 		help();
-		exit(EXIT_SUCCESS);
+		return EXIT_SUCCESS;
 	}
 	if (arg_config == NULL) {
 		struct loopback_handle *play;
@@ -569,17 +570,17 @@ static int parse_config(int argc, char *argv[], snd_output_t *output,
 		err = create_loopback_handle(&play, arg_pdevice, arg_pctl, "playback");
 		if (err < 0) {
 			logit(LOG_CRIT, "Unable to create playback handle.\n");
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 		err = create_loopback_handle(&capt, arg_cdevice, arg_cctl, "capture");
 		if (err < 0) {
 			logit(LOG_CRIT, "Unable to create capture handle.\n");
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 		err = create_loopback(&loop, play, capt, output);
 		if (err < 0) {
 			logit(LOG_CRIT, "Unable to create loopback handle.\n");
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 		play->format = capt->format = arg_format;
 		play->rate = play->rate_req = capt->rate = capt->rate_req = arg_rate;
@@ -598,12 +599,12 @@ static int parse_config(int argc, char *argv[], snd_output_t *output,
 		err = add_mixers(loop, arg_mixers, arg_mixers_count);
 		if (err < 0) {
 			logit(LOG_CRIT, "Unable to add mixer controls.\n");
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 		err = add_oss_mixers(loop, arg_ossmixers, arg_ossmixers_count);
 		if (err < 0) {
 			logit(LOG_CRIT, "Unable to add ossmixer controls.\n");
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 #ifdef USE_SAMPLERATE
 		loop->src_enable = arg_samplerate > 0;
@@ -612,7 +613,7 @@ static int parse_config(int argc, char *argv[], snd_output_t *output,
 #else
 		if (arg_samplerate > 0) {
 			logit(LOG_CRIT, "No libsamplerate support.\n");
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 #endif
 		set_loop_time(loop, arg_loop_time);
@@ -759,7 +760,7 @@ static void thread_job1(void *_data)
 				err = pcmjob_pollfds_handle(loop, &pfds[j]);
 				if (err < 0) {
 					logit(LOG_CRIT, "pcmjob failed.\n");
-					exit(EXIT_FAILURE);
+					return EXIT_FAILURE;
 				}
 			}
 			j += loop->active_pollfd_count;
@@ -820,7 +821,7 @@ static void signal_handler_ignore(int sig)
 	signal(sig, signal_handler_ignore);
 }
 
-void forwarder_start(char * conf_path)
+int forwarder_start(char * conf_path)
 {
 	snd_output_t *output;
 	int i, j, k, l, err;
@@ -830,32 +831,32 @@ void forwarder_start(char * conf_path)
 	err = snd_output_stdio_attach(&output, stdout, 0);
 	if (err < 0) {
 		logit(LOG_CRIT, "Output failed: %s\n", snd_strerror(err));
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	err = parse_config_file(arg_config, output);
 	if (err < 0) {
 		logit(LOG_CRIT, "Unable to parse arguments or configuration...\n");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 	if (loopbacks_count <= 0) {
 		logit(LOG_CRIT, "No loopback defined...\n");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	if (daemonize) {
 		if (daemon(0, 0) < 0) {
 			logit(LOG_CRIT, "daemon() failed: %s\n", strerror(errno));
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 		i = fork();
 		if (i < 0) {
 			logit(LOG_CRIT, "fork() failed: %s\n", strerror(errno));
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 		if (i > 0) {
 			/* wait(&i); */
-			exit(EXIT_SUCCESS);
+			return EXIT_SUCCESS;
 		}
 	}
 
@@ -883,7 +884,7 @@ void forwarder_start(char * conf_path)
 	threads = calloc(1, sizeof(struct loopback_thread) * j);
 	if (threads == NULL) {
 		logit(LOG_CRIT, "No enough memory\n");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 	/* sort all threads */
 	for (k = 0; k < j; k++) {
@@ -917,6 +918,7 @@ void forwarder_start(char * conf_path)
 
 	if (use_syslog)
 		closelog();
+	return EXIT_SUCCESS;
 }
 
 void forwarder_stop()
