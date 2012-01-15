@@ -8,6 +8,7 @@ SUBDIRS = \
 	nokia_n900 \
 	openmoko_gta \
 	herring \
+	GTA04 \
 	$(NULL)
 
 confdir = $(sysconfdir)

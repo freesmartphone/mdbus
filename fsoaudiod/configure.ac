@@ -126,6 +126,7 @@ AC_CONFIG_FILES([
   conf/openmoko_gta/Makefile
   conf/herring/Makefile
   conf/herring/alsa-default/Makefile
+  conf/GTA04/Makefile
   data/Makefile
   data/org.freesmartphone.oaudiod.service
   src/Makefile
