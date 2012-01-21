@@ -176,6 +176,7 @@ AC_CONFIG_FILES([
   conf/openmoko_gta/alsa-2.6.34/Makefile
   conf/openmoko_gta/alsa-2.6.39/Makefile
   conf/GTA04/Makefile
+  conf/GTA04/alsa-3.2/Makefile
   conf/palm_pre/Makefile
   conf/herring/Makefile
   conf/herring/alsa-default/Makefile
