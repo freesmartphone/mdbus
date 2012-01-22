@@ -93,20 +93,36 @@ public class SamsungNetworkListProviders : NetworkListProviders
 
             // FIXME whats with currentNetwork.type?
 
+            var providerInfo = findProviderForMccMnc( mccmnc );
+
             var p = FreeSmartphone.GSM.NetworkProvider(
                 Constants.instance().networkProviderStatusToString( (int) currentNetwork.status - 1 ),
-                // NOTE: We currently don't provide the name of the network provider here as
-                // we don't get it directly from the modem and we do not want to access
-                // fsodatad within fsogsmd. Maybe we should make reading from the mbn database
-                // a library function so we can use it in fsogsmd too ...
-                "unknown", "unknown",
-                mccmnc,
-                "");
+                providerInfo.name, providerInfo.name, mccmnc, "");
 
             _providers += p;
         }
 
         providers = _providers;
+    }
+
+    private FsoData.MBPI.Provider findProviderForMccMnc( string mccmnc )
+    {
+        FsoData.MBPI.Provider? result = new FsoData.MBPI.Provider() { name = "unkown" };
+        var mbpi = FsoData.MBPI.Database.instance();
+
+        foreach ( var country in FsoData.MBPI.Database.instance().allCountries().values )
+        {
+            foreach ( var provider in country.providers.values )
+            {
+                foreach ( var code in provider.codes )
+                {
+                    if ( code == mccmnc )
+                        result = provider;
+                }
+            }
+        }
+
+        return result;
     }
 }
 
