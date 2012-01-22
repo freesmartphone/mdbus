@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-confdir = $(sysconfdir)/freesmartphone/conf/openmoko_gta/alsa-2.6.39
+confdir = $(sysconfdir)/freesmartphone/conf/GTA04/alsa-3.2
 dist_conf_DATA = \
 	gsmhandset \
 	stereoout \
