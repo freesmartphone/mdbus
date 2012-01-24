@@ -192,6 +192,12 @@ namespace FsoFramework.Utility
                     _hardware = ( parts.length == 2 ) ? parts[1].strip().replace( " ", "" ) : "unknown";
                     break;
                 }
+                if ( line.has_prefix( "vendor_id" ) )
+                {
+                    var parts = line.split( ": " );
+                    _hardware = ( parts.length == 2 ) ? parts[1].strip().replace( " ", "" ) : "unknown";
+                    break;
+                }
             }
         }
         return _hardware;
