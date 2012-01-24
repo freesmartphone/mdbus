@@ -48,10 +48,13 @@ public class Argument : Object
     private bool append_type( string arg, string type )
     {
 #if DEBUG
-        debug( @"trying to parse argument $name of type $type delivered as $arg" );
+        stdout.printf( @"trying to parse argument $name of type $type delivered as $arg\n" );
 #endif
         switch ( type.substring(0,1) )
         {
+            case "v":
+                vbuilder.add_value( new Variant.variant( new Variant.parsed( arg ) ) );
+                break;
             case "y":
                 uint8 value = (uint8) arg.to_int();
                 vbuilder.add_value( new Variant.byte( value ) );
