@@ -72,6 +72,9 @@ public class FsoFramework.TransportSpec
             case "raw":
                 transport = new FsoFramework.RawTransport( name );
                 break;
+            case "crespo":
+                transport = new FsoFramework.CrespoModemTransport( name );
+                break;
             default:
                 FsoFramework.theLogger.warning( @"Invalid transport type $type. Using NullTransport" );
                 transport = new FsoFramework.NullTransport();
@@ -118,6 +121,8 @@ public abstract class FsoFramework.Transport : Object
                 return new FsoFramework.NgsmBasicMuxTransport( name, speed );
             case "ngsmadvanced":
                 return new FsoFramework.NgsmAdvancedMuxTransport( name, speed );
+            case "crespo":
+                return new FsoFramework.CrespoModemTransport( name );
             default:
                 return null;
         }
