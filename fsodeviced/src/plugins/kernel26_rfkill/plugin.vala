@@ -30,7 +30,7 @@ namespace Kernel26
 class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.PowerControl, FsoFramework.AbstractObject
 {
     const string[] opValue = { "Add", "Del", "Change", "ChangeAll", "unknown:4", "unknown:5", "unknown:6" };
-    const string[] typeValue = { "All", "WiFi", "Bluetooth", "UWB", "WiMax", "WWan", "unknown:6", "unknown:7" };
+    const string[] typeValue = { "All", "WiFi", "Bluetooth", "UWB", "WiMax", "WWan", "GPS", "FM" };
 
     private uint id;
     private string type;
@@ -41,6 +41,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
     private const string[] bluetoothd = { "/usr/sbin/bluetoothd", "-n" };
     private int bluetoothd_pid = 0;
     private string bluetoothd_startup_handler;
+    private string wifi_iface;
 
     private FsoDevice.BasePowerControlResource resource;
 
@@ -50,6 +51,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         switch ( type )
         {
             case Linux.RfKillType.WLAN:
+                this.wifi_iface = config.stringValue( "fsodevice.kernel26_rfkill", "wifi_interface", "wlan0" );
                 this.type = "WiFi"; break;
             case Linux.RfKillType.BLUETOOTH:
                 bluetoothd_startup_handler = config.stringValue( "fsodevice.kernel26_rfkill", "bluetoothd_startup_handler","fsodeviced" );
@@ -60,6 +62,10 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
                 this.type = "WiMax"; break;
             case Linux.RfKillType.WWAN:
                 this.type = "WWan"; break;
+            case 0x6:
+                this.type = "GPS"; break;
+            case 0x7:
+                this.type = "FM"; break;
             default:
                 logger.warning( "Unknown RfKillType %u - please report" );
                 this.type = "unknown:%u".printf( (uint)type );
@@ -163,6 +169,17 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         }
     }
 
+    protected void ifconfig(bool on)
+    {
+        string arg;
+        if (on)
+            arg = "up";
+        else
+            arg = "down";
+        exec("/sbin/ifconfig", wifi_iface, arg);
+        if (on) exec("/sbin/iwconfig", wifi_iface, "power", "on"); // TODO: add config option for that
+    }
+
     protected void start_bluetoothd()
     {
         logger.info("bluetoothd starting...");
@@ -173,6 +190,35 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
                                   null,
                                   out this.bluetoothd_pid );
         logger.debug(@"bluetoothd pid: $(this.bluetoothd_pid)");
+    }
+
+    protected void exec( string app, string iface, string arg, string arg2 = "" )
+    {
+        string[] argv = new string[4];
+        argv[0] = app;
+        argv[1] = iface;
+        argv[2] = arg;
+        argv[3] = arg2;
+
+        Pid child_pid;
+        int input_fd;
+        int output_fd;
+        int error_fd;
+        try {
+            Process.spawn_async_with_pipes(
+            ".",
+            argv, //argv
+            null,   // environment
+            SpawnFlags.SEARCH_PATH,
+            null,   // child_setup
+            out child_pid,
+            out input_fd,
+            out output_fd,
+            out error_fd);
+        }
+        catch (Error e) {
+            FsoFramework.theLogger.error ( @"Could not call $app $iface $arg!" );
+        }
     }
 
     protected void stop_bluetoothd()
@@ -218,8 +264,11 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         {
             logger.error( @"Could not write rfkill event: $(strerror(errno))" );
         }
-
-        if ( ( bluetoothd_startup_handler == "fsodeviced" ) && ( this.type == "Bluetooth" )
+        if (this.type == "WiFi")
+        {
+            this.ifconfig(on);
+        }
+        else if ( ( bluetoothd_startup_handler == "fsodeviced" ) && ( this.type == "Bluetooth" )
              && ( on == true ) )
         {
             start_bluetoothd();
