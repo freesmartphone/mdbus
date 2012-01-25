@@ -9,8 +9,6 @@ SUBDIRS = \
 	router_palmpre \
 	router_alsa \
 	\
-	gsmvoice_alsa_forwarder \
-	\
 	streamcontrol_alsa \
 	sessionpolicy_default \
 	\
@@ -22,4 +20,6 @@ if WANT_CMTSPEECHDATA
 SUBDIRS += gsmvoice_alsa_cmtspeechdata
 endif
 
-
+if WANT_SAMPLERATE
+SUBDIRS += gsmvoice_alsa_forwarder
+endif

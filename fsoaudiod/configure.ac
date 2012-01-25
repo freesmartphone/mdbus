@@ -94,6 +94,22 @@ fi
 AM_CONDITIONAL( [WANT_CMTSPEECHDATA], [test x"$cmtspeechdata" = x"yes"])
 
 ##############################################################################
+# optional feature: GSM voice call audio forwarding using libsamplerate
+AC_ARG_ENABLE(samplerate,
+  [  --enable-samplerate  Enable building the gsm voicecall plugin using libsamplerate (default=disabled)],
+  [samplerate=$enableval],
+  [samplerate="no"])
+
+if test x$samplerate = "xyes"; then
+    PKG_CHECK_MODULES(SAMPLERATE,
+      [samplerate])
+AC_SUBST(SAMPLERATE_CFLAGS)
+AC_SUBST(SAMPLERATE_LIBS)
+
+fi
+AM_CONDITIONAL( [WANT_SAMPLERATE], [test x"$samplerate" = x"yes"])
+
+##############################################################################
 # check for debugging
 AC_ARG_ENABLE(debug,
   [  --enable-debug            Enable debug build (default=disabled)],
@@ -158,6 +174,8 @@ echo
 echo "Configuration Options:"
 echo
 echo "  gsmvoice_alsa_cmtspeechdata:.........: $cmtspeechdata"
+echo
+echo "  gsmvoice_alsa_forwarder:.............: $samplerate"
 echo
 echo "  debug build..........................: $debug"
 echo
