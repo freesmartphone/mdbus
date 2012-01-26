@@ -67,12 +67,12 @@ AC_ARG_ENABLE(ngsm,
   [ngsm="yes"])
 AM_CONDITIONAL( [WANT_NGSM], [test x"$ngsm" = x"yes"])
 
-# check for disabling the crespo modem transport support
-AC_ARG_ENABLE(crespo-modem-control,
-  AS_HELP_STRING([--disable-crespo-modem-control], [Disable support for the crespo modem transport (default=yes)]),
-  [crespo="$enableval"],
-  [crespo="yes"])
-AM_CONDITIONAL( [WANT_CRESPO_MODEM_CONTROL], [test x"$crespo" = x"yes"])
+# check for disabling the samsung transport support
+AC_ARG_ENABLE(samsung,
+  AS_HELP_STRING([--disable-samsung], [Disable support for the samsung modem transport (default=yes)]),
+  [samsung="$enableval"],
+  [samsung="yes"])
+AM_CONDITIONAL( [WANT_SAMSUNG], [test x"$samsung" = x"yes"])
 
 # git version
 GITV=`cat ../.git/refs/heads/master || echo "unknown"`
@@ -101,7 +101,7 @@ echo
 echo "  fast baud rates................: $fastbaud"
 echo "  palm pre hsuart support........: $palmprehsuart"
 echo "  n_gsm line discipline support..: $ngsm"
-echo "  crespo modem support...........: $crespo"
+echo "  samsung modem support...........: $samsung"
 echo
 echo "  prefix.........................: $prefix"
 echo

@@ -61,10 +61,10 @@ AM_CPPFLAGS += -I$(top_srcdir)/linux
 libfsotransport_la_VALASOURCES += ngsm.vala
 endif
 
-if WANT_CRESPO_MODEM_CONTROL
-VALAC_ARGS += --pkg crespo-modem-ctl
+if WANT_SAMSUNG
+VALAC_ARGS += --pkg samsung
 AM_CPPFLAGS += -I$(top_srcdir)/3rdparty
-libfsotransport_la_VALASOURCES += crespo.vala
+libfsotransport_la_VALASOURCES += samsung.vala
 endif
 
 libfsotransport_la_SOURCES = \
