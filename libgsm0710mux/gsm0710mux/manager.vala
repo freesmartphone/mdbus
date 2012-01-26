@@ -23,8 +23,6 @@
 using GLib;
 using CONST;
 
-extern MainLoop loop;
-
 namespace Gsm0710mux {
 
 //===========================================================================
@@ -117,8 +115,6 @@ public class Manager : Object
             muxer.closeSession();
             muxer = null;
         }
-        if ( ( Environment.get_prgname() == "fso-abyss" ) && autoexit )
-             loop.quit();
     }
 
     internal void channelsHaveBeenClosed( int num )
