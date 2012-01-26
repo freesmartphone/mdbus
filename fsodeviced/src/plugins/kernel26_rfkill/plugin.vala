@@ -307,10 +307,10 @@ internal static IOChannel channel;
  **/
 public static string fso_factory_function( FsoFramework.Subsystem system ) throws Error
 {
+    instances = new HashTable<int,Kernel26.RfKillPowerControl>( direct_hash, direct_equal );
+
     subsystem = system;
-    // grab devfs paths
-    var config = FsoFramework.theConfig;
-    devfs_root = config.stringValue( "cornucopia", "devfs_root", "/dev" );
+    devfs_root = FsoFramework.theConfig.stringValue( "cornucopia", "devfs_root", "/dev" );
 
     fd = Posix.open( Path.build_filename( devfs_root, "rfkill" ), Posix.O_RDWR );
     if ( fd == -1 )
@@ -319,10 +319,10 @@ public static string fso_factory_function( FsoFramework.Subsystem system ) throw
     }
     else
     {
-        instances = new HashTable<int,Kernel26.RfKillPowerControl>( direct_hash, direct_equal );
         channel = new IOChannel.unix_new( fd );
         watch = channel.add_watch( IOCondition.IN | IOCondition.HUP, Kernel26.RfKillPowerControl.onActionFromRfKill );
     }
+
     return "fsodevice.kernel26_rfkill";
 }
 
