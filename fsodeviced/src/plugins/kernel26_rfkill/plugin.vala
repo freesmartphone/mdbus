@@ -48,33 +48,43 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
     private RfKillPowerControl( uint id, Linux.RfKillType type, bool softoff, bool hardoff )
     {
         this.id = id;
+
         switch ( type )
         {
             case Linux.RfKillType.WLAN:
                 this.wifi_iface = config.stringValue( "fsodevice.kernel26_rfkill", "wifi_interface", "wlan0" );
-                this.type = "WiFi"; break;
+                this.type = "WiFi";
+                break;
             case Linux.RfKillType.BLUETOOTH:
                 bluetoothd_startup_handler = config.stringValue( "fsodevice.kernel26_rfkill", "bluetoothd_startup_handler","fsodeviced" );
-                this.type = "Bluetooth"; break;
+                this.type = "Bluetooth";
+                break;
             case Linux.RfKillType.UWB:
-                this.type = "UWB"; break;
+                this.type = "UWB";
+                break;
             case Linux.RfKillType.WIMAX:
-                this.type = "WiMax"; break;
+                this.type = "WiMax";
+                break;
             case Linux.RfKillType.WWAN:
-                this.type = "WWan"; break;
+                this.type = "WWan";
+                break;
             case 0x6:
-                this.type = "GPS"; break;
+                this.type = "GPS";
+                break;
             case 0x7:
-                this.type = "FM"; break;
+                this.type = "FM";
+                break;
             default:
                 logger.warning( "Unknown RfKillType %u - please report" );
                 this.type = "unknown:%u".printf( (uint)type );
                 break;
         }
+
         this.softoff = softoff;
         this.hardoff = hardoff;
 
-        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
+        subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>( FsoFramework.Device.ServiceDBusName,
+            FsoFramework.Device.PowerControlServicePath, this );
 
 #if WANT_FSO_RESOURCE
         Idle.add( () => {
@@ -169,15 +179,21 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         }
     }
 
-    protected void ifconfig(bool on)
+    protected void setup_wifi_interface( bool on )
     {
-        string arg;
-        if (on)
-            arg = "up";
+        var iface = new Network.WextInterface( wifi_iface );
+
+        if ( on )
+        {
+            iface.up();
+            iface.set_power( true ); // TODO: add config option for that
+        }
         else
-            arg = "down";
-        exec("/sbin/ifconfig", wifi_iface, arg);
-        if (on) exec("/sbin/iwconfig", wifi_iface, "power", "on"); // TODO: add config option for that
+        {
+            iface.down();
+        }
+
+        iface.finish();
     }
 
     protected void start_bluetoothd()
@@ -190,35 +206,6 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
                                   null,
                                   out this.bluetoothd_pid );
         logger.debug(@"bluetoothd pid: $(this.bluetoothd_pid)");
-    }
-
-    protected void exec( string app, string iface, string arg, string arg2 = "" )
-    {
-        string[] argv = new string[4];
-        argv[0] = app;
-        argv[1] = iface;
-        argv[2] = arg;
-        argv[3] = arg2;
-
-        Pid child_pid;
-        int input_fd;
-        int output_fd;
-        int error_fd;
-        try {
-            Process.spawn_async_with_pipes(
-            ".",
-            argv, //argv
-            null,   // environment
-            SpawnFlags.SEARCH_PATH,
-            null,   // child_setup
-            out child_pid,
-            out input_fd,
-            out output_fd,
-            out error_fd);
-        }
-        catch (Error e) {
-            FsoFramework.theLogger.error ( @"Could not call $app $iface $arg!" );
-        }
     }
 
     protected void stop_bluetoothd()
@@ -264,9 +251,10 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         {
             logger.error( @"Could not write rfkill event: $(strerror(errno))" );
         }
+
         if (this.type == "WiFi")
         {
-            this.ifconfig(on);
+            this.setup_wifi_interface( on );
         }
         else if ( ( bluetoothd_startup_handler == "fsodeviced" ) && ( this.type == "Bluetooth" )
              && ( on == true ) )
