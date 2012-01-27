@@ -35,8 +35,8 @@ namespace FsoFramework.Network
      **/
     public class Interface
     {
-        private int fd;
-        private string name;
+        protected int fd;
+        protected string name;
 
         private bool check_flags( uint flags ) throws FsoFramework.Network.Error
         {
@@ -139,6 +139,16 @@ namespace FsoFramework.Network
         public WextInterface( string name ) throws FsoFramework.Network.Error
         {
             base( name );
+        }
+
+        public void set_power( bool on ) throws FsoFramework.Network.Error
+        {
+            var req = LinuxExt.WirelessExtensions.IwReq();
+            req.u.power.disabled = on ? 0 : 1;
+            var rc = Posix.ioctl( fd, Linux.WirelessExtensions.SIOCSIWPOWER, &req );
+            if ( rc < 0 )
+                throw new FsoFramework.Network.Error.INTERNAL_ERROR(
+                    @"Could not process ioctl for setting wireless power status of interface $(name)" );
         }
     }
 }

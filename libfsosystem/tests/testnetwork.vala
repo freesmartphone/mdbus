@@ -43,6 +43,20 @@ void test_network_interface_updown()
     }
 }
 
+void test_wireless_network_power_status()
+{
+    try
+    {
+        var iface = new FsoFramework.Network.WextInterface( "eth1" );
+        iface.up();
+        iface.set_power( true );
+    }
+    catch ( Error err )
+    {
+        error( @"test_wireless_network_power_status failed: $(err.message)" );
+    }
+}
+
 //===========================================================================
 void main( string[] args )
 //===========================================================================
@@ -50,6 +64,7 @@ void main( string[] args )
     Test.init( ref args );
 
     Test.add_func( "/Network/Interface/UpDown", test_network_interface_updown );
+    Test.add_func( "/Network/WextInterface/PowerStatus", test_wireless_network_power_status );
 
     Test.run();
 }

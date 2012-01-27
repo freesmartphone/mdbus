@@ -13,6 +13,7 @@ VALAC_ARGS = \
 	--pkg linux \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
+	--pkg linuxext \
 	--header fsosystem.h \
 	--library fsosystem-2.0
 
