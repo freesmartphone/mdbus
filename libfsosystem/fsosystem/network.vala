@@ -85,6 +85,11 @@ namespace FsoFramework.Network
             }
         }
 
+        ~Interface()
+        {
+            finish();
+        }
+
         /**
          * Will bring the interface up if it is down before.
          **/

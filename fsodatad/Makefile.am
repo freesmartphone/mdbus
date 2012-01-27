@@ -9,6 +9,14 @@ SUBDIRS = \
 	tests \
 	$(NULL)
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = fsodata-2.0.pc
+
+EXTRA_DIST += \
+  MAINTAINERS \
+  fsodata-2.0.pc.in \
+  $(NULL)
+
 MAINTAINERCLEANFILES = \
 	aclocal.m4 compile config.guess config.sub \
 	configure depcomp install-sh ltmain.sh     \

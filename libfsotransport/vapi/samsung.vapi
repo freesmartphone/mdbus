@@ -17,9 +17,9 @@
  *
  **/
 
-namespace Crespo
+namespace Samsung
 {
-    [CCode (cname = "int", has_type_id = false, cprefix = "IOCTL_MODEM_", cheader_filename = "crespo_modem_ctl.h")]
+    [CCode (cname = "int", has_type_id = false, cprefix = "IOCTL_MODEM_", cheader_filename = "samsung_modem_ctl.h")]
     public enum ModemIoctlType
     {
         SEND,

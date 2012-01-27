@@ -20,7 +20,7 @@ PKG_PROG_PKG_CONFIG
 
 ###############################################################################
 # vala
-VALA_REQUIRED=0.14.0
+VALA_REQUIRED=0.14.1
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 m4_ifdef([AM_PROG_VALAC], [AM_PROG_VALAC([$VALA_REQUIRED])])

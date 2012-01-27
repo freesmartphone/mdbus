@@ -10,7 +10,7 @@ AC_GNU_SOURCE
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-VALA_REQUIRED=0.14.0
+VALA_REQUIRED=0.14.1
 AC_PATH_PROG(VALAC, valac, valac)
 AC_SUBST(VALAC)
 m4_ifdef([AM_PROG_VALAC], [AM_PROG_VALAC([$VALA_REQUIRED])])
@@ -114,6 +114,7 @@ AC_CONFIG_FILES([
   src/plugins/Makefile
   src/plugins/world/Makefile
   tests/Makefile
+  fsodata-2.0.pc
 ])
 
 AC_OUTPUT

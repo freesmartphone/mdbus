@@ -116,8 +116,14 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
 
     public async void connectedWithNewDefaultRoute( string iface, string ipv4addr, string ipv4mask, string ipv4gateway, string dns1, string dns2 )
     {
-        // FIXME: use libfsosystem
-        Posix.system( @"ifconfig $iface up" );
+        try
+        {
+            new FsoFramework.Network.Interface( iface ).up();
+        }
+        catch ( FsoFramework.Network.Error err )
+        {
+            logger.error( @"Could not activate network interface $iface; still setting context status to ACTIVE" );
+        }
 
         updateStatus( FreeSmartphone.GSM.ContextStatus.ACTIVE, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
 

@@ -73,8 +73,7 @@ class Samsung.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        // var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
-        var transport = new FsoFramework.CrespoModemTransport( modem_port );
+        var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
         new Samsung.IpcChannel( MAIN_CHANNEL_NAME, transport );
     }
 

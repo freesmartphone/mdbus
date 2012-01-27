@@ -19,11 +19,11 @@
 
 using GLib;
 
-public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
+public class FsoFramework.SamsungModemTransport : FsoFramework.BaseTransport
 {
     private const uint MAX_BUFFER_SIZE = 0x1000;
 
-    public CrespoModemTransport( string portname )
+    public SamsungModemTransport( string portname )
     {
         base( portname );
         setBuffered( false );
@@ -45,7 +45,7 @@ public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
 
     protected override ssize_t _real_write( int fd, void *data, int len )
     {
-        var rc = Linux.ioctl( fd, Crespo.ModemIoctlType.SEND, data );
+        var rc = Linux.ioctl( fd, Samsung.ModemIoctlType.SEND, data );
 
         assert( logger.debug( @"Send request to modem with size = $(len)" ) );
 
@@ -66,7 +66,7 @@ public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
             return 0; // send HUP signal
         }
 
-        var  rc = Linux.ioctl( fd, Crespo.ModemIoctlType.RECV, data );
+        var  rc = Linux.ioctl( fd, Samsung.ModemIoctlType.RECV, data );
         if ( rc < 0 )
         {
             logger.error( @"Can't issue IOCTL_MODEM_RECV ioctl to modem dev node: %s".printf( Posix.strerror( Posix.errno ) ) );
@@ -83,7 +83,7 @@ public class FsoFramework.CrespoModemTransport : FsoFramework.BaseTransport
 
     public override string repr()
     {
-        return "<Crespo %s (fd %d)>".printf( name, fd );
+        return "<Samsung %s (fd %d)>".printf( name, fd );
     }
 
     /**

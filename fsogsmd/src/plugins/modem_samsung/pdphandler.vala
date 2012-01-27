@@ -65,13 +65,31 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
         unowned SamsungIpc.Response? response = null;
 
         var contextActMessage = SamsungIpc.Gprs.PdpContextMessage();
-        contextActMessage.setup( contextParams.username, contextParams.password );
+        contextActMessage.setup( true, contextParams.username, contextParams.password );
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
             SamsungIpc.MessageType.GPRS_PDP_CONTEXT, contextActMessage.data );
 
         if ( response == null )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Did not receive a response for PDP context activation" );
+    }
+
+    /**
+     * This will deactivate the currently active PDP context
+     **/
+    private async void deactivatePdpContext() throws FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        unowned SamsungIpc.Response? response = null;
+
+        var contextDeactMessage = SamsungIpc.Gprs.PdpContextMessage();
+        contextDeactMessage.setup( false, null, null );
+
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
+            SamsungIpc.MessageType.GPRS_PDP_CONTEXT, contextDeactMessage.data );
+
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Did not receive a reponse for PDP context deactivation" );
     }
 
     /**
@@ -112,7 +130,7 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
 
     protected override async void sc_deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main") as Samsung.IpcChannel;
+        yield deactivatePdpContext();
     }
 
     //
