@@ -43,9 +43,21 @@ public class FsoTest.TestGSM : FsoTest.Fixture
                         cb => test_request_gsm_resource( cb ),
                         res => test_request_gsm_resource.end( res ) );
 
-        add_async_test( "/org/freesmartphone/GSM/ValidateInitialStatus",
-                        cb => test_validate_initial_status( cb ),
-                        res => test_validate_initial_status.end( res ) );
+        add_async_test( "/org/freesmartphone/GSM/ValidateInitialDeviceStatus",
+                        cb => test_validate_initial_device_status( cb ),
+                        res => test_validate_initial_device_status.end( res ) );
+
+        add_async_test( "/org/freesmartphone/GSM/ValidateInitialSimAuthStatus",
+                        cb => test_validate_initial_sim_auth_status( cb ),
+                        res => test_validate_initial_sim_auth_status.end( res ) );
+
+        add_async_test( "/org/freesmartphone/GSM/ValidateInitialNetworkStatus",
+                        cb => test_validate_initial_network_status( cb ),
+                        res => test_validate_initial_network_status.end( res ) );
+
+        add_async_test( "/org/freesmartphone/GSM/ValidateInitialDeviceFunctionality",
+                        cb => test_validate_initial_device_functionality( cb ),
+                        res => test_validate_initial_device_functionality.end( res ) );
 
         add_async_test( "/org/freesmartphone/GSM/RequestResource",
                         cb => test_release_gsm_resource( cb ),
@@ -112,7 +124,7 @@ public class FsoTest.TestGSM : FsoTest.Fixture
      * initial state. If state is not correct the cause is either wrong preconditions or
      * a real bug in the service implementation.
      */
-    public async void test_validate_initial_status() throws GLib.Error, AssertError
+    public async void test_validate_initial_device_status() throws GLib.Error, AssertError
     {
         var device_status = yield gsm_device.get_device_status();
         if ( device_status == FreeSmartphone.GSM.DeviceStatus.ALIVE_NO_SIM )
@@ -125,12 +137,20 @@ public class FsoTest.TestGSM : FsoTest.Fixture
         else if ( device_status != FreeSmartphone.GSM.DeviceStatus.INITIALIZING &&
                   device_status != FreeSmartphone.GSM.DeviceStatus.ALIVE_SIM_LOCKED )
             Assert.fail( @"GSM device is in a unexpected state $device_status" );
+    }
 
+    public async void test_validate_initial_sim_auth_status() throws GLib.Error, AssertError
+    {
         var sim_status = yield gsm_sim.get_auth_status();
         if ( sim_status != FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED &&
              sim_status != FreeSmartphone.GSM.SIMAuthStatus.PIN2_REQUIRED )
+        {
             Assert.fail( @"SIM card has an unexpected state $sim_status" );
+        }
+    }
 
+    public async void test_validate_initial_network_status() throws GLib.Error, AssertError
+    {
         var network_status = yield gsm_network.get_status();
         // NOTE we're only checking for the following three entries as the spec defines
         // them as mandatory and all other are optional for the modem protocol
@@ -142,10 +162,22 @@ public class FsoTest.TestGSM : FsoTest.Fixture
         Assert.should_throw_async( cb => gsm_network.get_signal_strength( cb ),
                                    res => gsm_network.get_signal_strength.end( res ),
                                    FREESMARTPHONE_ERROR_DOMAIN );
+
         // FIXME This should be not available in this state too but is not; need to talk
         // to mickeyl about this.
         // Assert.should_throw_async( cb => gsm_network.list_providers( cb ),
         //                           res => gsm_network.list_providers.end( res ) );
+    }
+
+    public async void test_validate_initial_device_functionality() throws GLib.Error, AssertError
+    {
+        string level = "", pin = "";
+        bool autoregister = false;
+
+        yield gsm_device.get_functionality( out level, out autoregister, out pin );
+        Assert.are_equal<string>( level, "minimal" );
+        Assert.are_equal<bool>( autoregister, false );
+        Assert.are_equal<string>( pin, "" );
     }
 
     public async void test_release_gsm_resource() throws GLib.Error, AssertError
