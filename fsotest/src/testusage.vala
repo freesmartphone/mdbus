@@ -63,9 +63,13 @@ public class FsoTest.TestUsage : FsoTest.Fixture
                         cb => test_resource_registration( cb ),
                         res => test_resource_registration.end( res ) );
 
-        add_async_test( "/org/freesmartphone/Usage/RequestReleaseResource",
-                        cb => test_request_release_resource( cb ),
-                        res => test_request_release_resource.end( res ) );
+        add_async_test( "/org/freesmartphone/Usage/RequestResource",
+                        cb => test_request_resource( cb ),
+                        res => test_request_resource.end( res ) );
+
+        add_async_test( "/org/freesmartphone/Usage/ReleaseResource",
+                        cb => test_release_resource( cb ),
+                        res => test_release_resource.end( res ) );
 
         add_async_test( "/org/freesmartphone/Usage/ResourceDeregistration",
                         cb => test_resource_unregister( cb ),
@@ -105,12 +109,15 @@ public class FsoTest.TestUsage : FsoTest.Fixture
         Assert.are_equal( false, resource.suspended );
     }
 
-    public async void test_request_release_resource() throws GLib.Error, AssertError
+    public async void test_request_resource() throws GLib.Error, AssertError
     {
         yield usage.request_resource( "Dummy" );
         Assert.are_equal( true, resource.enabled );
         Assert.are_equal( false, resource.suspended );
+    }
 
+    public async void test_release_resource() throws GLib.Error, AssertError
+    {
         yield usage.release_resource( "Dummy" );
         Assert.are_equal( false, resource.enabled );
         Assert.are_equal( false, resource.suspended );
