@@ -181,7 +181,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
 
     protected void setup_wifi_interface( bool on )
     {
-        var iface = new Network.WextInterface( wifi_iface );
+        var iface = new FsoFramework.Network.WextInterface( wifi_iface );
 
         if ( on )
         {

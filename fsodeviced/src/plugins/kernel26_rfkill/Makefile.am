@@ -24,7 +24,9 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
-	--pkg fsodevice-2.0
+	--pkg fsodevice-2.0 \
+	--pkg fsosystem-2.0 \
+	$(NULL)
 
 if WANT_FSORESOURCE
 VALAC_ARGS += -D WANT_FSO_RESOURCE
