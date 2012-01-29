@@ -443,6 +443,7 @@ class Commands : Object
     {
         var n = 0;
         var depth = 0;
+        var depth_changed = false;
         var current_argument = "";
         var arguments = new GLib.List<string>();
 
@@ -451,27 +452,35 @@ class Commands : Object
             switch ( commandline[n] )
             {
                 case ' ':
-                    if ( depth == 0 && current_argument.length > 0 )
+                    if ( depth == 0 && ( current_argument.length > 0 || depth_changed ) )
                     {
                         arguments.append( current_argument );
                         current_argument = "";
+                        depth_changed = false;
                     }
                     else if (current_argument.length > 0)
                     {
                         current_argument += @"$(commandline[n])";
                     }
                     break;
+                case '\'':
                 case '\"':
                     if ( ( n + 1 < commandline.size() && commandline[n+1] == ' ' ) || ( n + 1 >= commandline.size() ) )
+                    {
                         depth--;
-                    else depth++;
-                    current_argument += "\"";
+                    }
+                    else
+                    {
+                        depth++;
+                        depth_changed = true;
+                    }
                     break;
                 case '{':
                 case '[':
                 case '(':
                     current_argument += @"$(commandline[n])";
                     depth++;
+                    depth_changed = true;
                     break;
                 case '}':
                 case ')':
@@ -486,7 +495,7 @@ class Commands : Object
             n++;
         }
 
-        if ( current_argument.size() > 0 )
+        if ( current_argument.size() > 0 || depth_changed )
             arguments.append( current_argument );
 
         if ( arguments.length() == 0 || depth > 0 )
