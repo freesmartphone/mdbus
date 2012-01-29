@@ -215,6 +215,9 @@ class Commands : Object
                 result.append( path );
             }
 
+            if( nodeinfo == null )
+                return;
+
             foreach ( var node in nodeinfo.nodes )
             {
                 _listObjects( busname, Path.build_filename( path, node.path ), ref result, prefix, with_interfaces );
