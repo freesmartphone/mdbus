@@ -9,7 +9,7 @@ AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(SAMSUNG_CFLAGS) \
-	-DDEVICE_CRESPO \
+	-DDEVICE_IPC_V4 \
 	-DG_LOG_DOMAIN=\"fsogsm.modem_samsung\" \
 	$(NULL)
 
