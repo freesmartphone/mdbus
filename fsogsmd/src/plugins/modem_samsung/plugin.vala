@@ -126,6 +126,7 @@ class Samsung.Modem : FsoGsm.AbstractModem
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     FsoFramework.theLogger.debug( "samsung fso_factory_function" );
+    SamsungIpc.init();
     return "fsogsm.modem_samsung";
 }
 
