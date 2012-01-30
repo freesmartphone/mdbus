@@ -46,7 +46,7 @@ class Commands : Object
     {
         try
         {
-            Bus.get_proxy_sync<IUsage>( BusType.SYSTEM, FSO_USAGE_BUS, FSO_USAGE_PATH );
+            usage = Bus.get_proxy_sync<IUsage>( BusType.SYSTEM, FSO_USAGE_BUS, FSO_USAGE_PATH );
         }
         catch ( GLib.Error e )
         {
