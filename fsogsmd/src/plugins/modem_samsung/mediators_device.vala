@@ -82,8 +82,6 @@ public class SamsungDeviceGetPowerStatus : DeviceGetPowerStatus
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
-
-        // FIXME how do we retrieve the current power state from the modem?
         status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
     }
 }
@@ -92,19 +90,30 @@ public class SamsungDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+
         switch ( level )
         {
             case "minimal":
-            case "full":
-                var mreg = theModem.createMediator<FsoGsm.NetworkRegister>();
-                yield mreg.run();
-                break;
+                // FIXME we current not supporting any mode that sets the modem into a
+                // minimal state were even SIM access is not possible as we can't do this
+                // with the current version of the IPC protocol (as far as we know).
             case "airplane":
-                var munreg = theModem.createMediator<FsoGsm.NetworkUnregister>();
-                yield munreg.run();
+                channel.update_modem_power_state( SamsungIpc.Power.PhoneState.LPM );
+                break;
+            case "full":
+                channel.update_modem_power_state( SamsungIpc.Power.PhoneState.NORMAL );
                 break;
             default:
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
+        }
+
+        var data = theModem.data();
+        data.keepRegistration = autoregister;
+        if ( pin != "" )
+        {
+            data.simPin = pin;
+            theModem.watchdog.resetUnlockMarker();
         }
     }
 }

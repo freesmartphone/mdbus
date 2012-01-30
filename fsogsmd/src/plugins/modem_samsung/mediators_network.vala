@@ -25,7 +25,14 @@ public class SamsungNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        // FIXME how do we register to the network?
+        SamsungIpc.Response? response = null;
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
+            SamsungIpc.MessageType.NET_MODE_SEL, new uint8[] { 0x1 } );
+
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could set network selection mode!" );
     }
 }
 
@@ -33,9 +40,10 @@ public class SamsungNetworkUnregister : NetworkUnregister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        // FIXME how do we unregister from the network?
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
     }
 }
+
 public class SamsungNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

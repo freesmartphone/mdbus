@@ -61,6 +61,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private FreeSmartphone.UsageSync usage_sync;
     private uint suspend_lock = 0;
 
+    public SamsungIpc.Power.PhoneState phone_pwr_state { get; private set; default = SamsungIpc.Power.PhoneState.LPM; }
+
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
 
     /**
@@ -233,20 +235,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     private async void initialize()
     {
-        unowned SamsungIpc.Response? response;
-
-        // First we need to power on the modem so we can start working with it
-        response = yield enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.PWR_PHONE_STATE, new uint8[] { 0x2, 0x2 } );
-        if ( response == null )
-        {
-            theLogger.error( @"Can't power up modem, could not send the command action for this!" );
-            theModem.close();
-            return;
-        }
-
-        assert( theLogger.debug( @"Powered up modem successfully!" ) );
-
-        initialized = true;
+        initialized = yield set_modem_power_state( SamsungIpc.Power.PhoneState.LPM );
     }
 
     private async void poweron()
@@ -284,6 +273,27 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         {
             theLogger.error( @"Can't request proxy for usage subsystem; suspend handling will be not available!" );
         }
+    }
+
+    private async bool set_modem_power_state( SamsungIpc.Power.PhoneState state )
+    {
+        unowned SamsungIpc.Response? response = null;
+        phone_pwr_state = state;
+
+        // state is a 16 bit number we need to convert here into a uint8 array before we
+        // can pass it to the queue
+        var sb = new uint8[2];
+        sb[0] = (state & 0xff00) >> 8;
+        sb[1] = (state & 0x00ff);
+
+        response = yield enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.PWR_PHONE_STATE, sb );
+        if ( response == null )
+        {
+            theLogger.error( @"Could not put modem into $(state) power state!" );
+            return false;
+        }
+
+        return true;
     }
 
     //
@@ -402,6 +412,13 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     public async bool resume()
     {
         suspended = false;
+        return true;
+    }
+
+    public async bool update_modem_power_state( SamsungIpc.Power.PhoneState state )
+    {
+        if ( state != phone_pwr_state )
+            return yield set_modem_power_state( state );
         return true;
     }
 }

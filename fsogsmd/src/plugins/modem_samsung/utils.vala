@@ -76,10 +76,12 @@ public void updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
  **/
 public static string gatherFunctionalityLevel()
 {
+    var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
     var functionality_level = "minimal";
 
     // Check if SIM access is possible, then we have basic functionality
-    if ( theModem.status() == Modem.Status.ALIVE_SIM_READY )
+    if ( theModem.status() == Modem.Status.ALIVE_SIM_READY &&
+         channel.phone_pwr_state == SamsungIpc.Power.PhoneState.LPM )
     {
         functionality_level = "airplane";
     }
