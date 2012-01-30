@@ -103,7 +103,16 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
         assert( logger.debug( @"local = $(local), subnetmask = $(subnetmask)" ) );
         assert( logger.debug( @"gateway = $(gateway), dns1 = $(dns1), dns2 = $(dns2)" ) );
 
-        connectedWithNewDefaultRoute( RMNET_IFACE, local, "255.255.255.0", local, dns1, dns2 );
+        var route = new FsoGsm.RouteInfo() {
+            iface = RMNET_IFACE,
+            ipv4addr = local,
+            ipv4mask = "255.255.255.0",
+            ipv4gateway = local,
+            dns1 = dns1,
+            dns2 = dns2
+        };
+
+        connectedWithNewDefaultRoute( route );
     }
 
     //

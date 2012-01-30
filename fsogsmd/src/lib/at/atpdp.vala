@@ -219,7 +219,16 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
 
         if ( viface != null && vlocal != null && vgateway != null )
         {
-            this.connectedWithNewDefaultRoute( viface.get_string(), local, "255.255.255.0", gateway, dns1, dns2 );
+            var route = new FsoGsm.RouteInfo() {
+                iface = viface.get_string(),
+                ipv4addr = local,
+                ipv4mask = "255.255.255.0",
+                ipv4gateway = gateway,
+                dns1 = dns1,
+                dns2 = dns2
+            };
+
+            this.connectedWithNewDefaultRoute( route );
         }
         else
         {
