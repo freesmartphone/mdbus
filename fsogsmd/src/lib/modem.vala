@@ -144,6 +144,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public string pppPort;
         public string[] pppOptions;
         public ContextParams contextParams;
+        public bool roamingAllowed;
 
         // Common AT extensions
         public string? atCommandCancelOutgoing;
@@ -492,6 +493,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             "proxyarp",
             //"silent",     /* Wait for the modem to send the first LCP packet */
             "usepeerdns" } );
+        modem_data.roamingAllowed = false;
 
         // add some basic init/exit/suspend/resume sequences
         var seq = modem_data.cmdSequences;

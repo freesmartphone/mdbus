@@ -50,6 +50,8 @@ public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
  **/
 public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObject
 {
+    private string lastNetworkRegistrationStatus = "unknown";
+
     public FreeSmartphone.GSM.ContextStatus status { get; set; }
     public GLib.HashTable<string,Variant> properties { get; set; }
 
@@ -57,6 +59,8 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
     {
         status = FreeSmartphone.GSM.ContextStatus.RELEASED;
         properties = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+        var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        network.status.connect( ( status ) => { syncStatus(); } );
     }
 
     //
@@ -165,6 +169,46 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
     {
         var status = new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal );
         updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
+    }
+
+    public async void syncStatus()
+    {
+        var networkRegistrationStatus = "unknown";
+        var roamingAllowed = theModem.data().roamingAllowed;
+
+        var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        var networkStatus = yield network.get_status();
+
+        if ( networkStatus.lookup( "registration" ) != null )
+            networkRegistrationStatus = lastNetworkRegistrationStatus;
+
+        // FIXME maybe we should add a flag like reconnectAuto to let the context be
+        // reactivated automatically whenever roamingAllowed or networkStatus changed
+        // again.
+        if ( this.status == FreeSmartphone.GSM.ContextStatus.RELEASED )
+            return;
+
+        var registered = ( networkRegistrationStatus == "registered" );
+        var nextContextStatus = status;
+
+        if ( registered || ( roamingAllowed && networkRegistrationStatus == "roaming" ) )
+                nextContextStatus = FreeSmartphone.GSM.ContextStatus.ACTIVE;
+        else nextContextStatus = FreeSmartphone.GSM.ContextStatus.RELEASED;
+
+        if ( nextContextStatus != status )
+        {
+            switch ( nextContextStatus )
+            {
+                case FreeSmartphone.GSM.ContextStatus.ACTIVE:
+                    activate();
+                    break;
+                case FreeSmartphone.GSM.ContextStatus.RELEASED:
+                    deactivate();
+                    break;
+            }
+        }
+
+        lastNetworkRegistrationStatus = networkRegistrationStatus;
     }
 }
 
