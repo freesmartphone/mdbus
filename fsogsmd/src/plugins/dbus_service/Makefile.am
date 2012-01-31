@@ -8,7 +8,12 @@ AM_VALAFLAGS =
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = dbus_service.la
-dbus_service_la_SOURCES = plugin.vala
+dbus_service_la_SOURCES = \
+	plugin.vala \
+	service.vala \
+	servicemanager.vala \
+	gsm_device_service.vala \
+	$(NULL)
 dbus_service_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
