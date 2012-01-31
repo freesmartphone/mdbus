@@ -192,8 +192,13 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         var nextContextStatus = status;
 
         if ( registered || ( roamingAllowed && networkRegistrationStatus == "roaming" ) )
-                nextContextStatus = FreeSmartphone.GSM.ContextStatus.ACTIVE;
-        else nextContextStatus = FreeSmartphone.GSM.ContextStatus.RELEASED;
+        {
+            nextContextStatus = FreeSmartphone.GSM.ContextStatus.ACTIVE;
+        }
+        else if ( networkRegistrationStatus != "home" && networkRegistrationStatus != "roaming" )
+        {
+            nextContextStatus = FreeSmartphone.GSM.ContextStatus.SUSPENDED;
+        }
 
         if ( nextContextStatus != status )
         {
@@ -204,6 +209,9 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
                     break;
                 case FreeSmartphone.GSM.ContextStatus.RELEASED:
                     deactivate();
+                    break;
+                case FreeSmartphone.GSM.ContextStatus.SUSPENDED:
+                    updateStatus( nextContextStatus, new GLib.HashTable<string, Variant>( str_hash, str_equal ) );
                     break;
             }
         }
