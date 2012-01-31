@@ -181,19 +181,26 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
 
     protected void setup_wifi_interface( bool on )
     {
-        var iface = new FsoFramework.Network.WextInterface( wifi_iface );
-
-        if ( on )
+        try
         {
-            iface.up();
-            iface.set_power( true ); // TODO: add config option for that
-        }
-        else
-        {
-            iface.down();
-        }
+            var iface = new FsoFramework.Network.WextInterface( wifi_iface );
 
-        iface.finish();
+            if ( on )
+            {
+                iface.up();
+                iface.set_power( true ); // TODO: add config option for that
+            }
+            else
+            {
+                iface.down();
+            }
+
+            iface.finish();
+        }
+        catch ( FsoFramework.Network.Error err )
+        {
+            logger.error( @"%s network interface $(wifi_iface) failed!".printf( on ? "Enabling" : "Disabling" ) );
+        }
     }
 
     protected void start_bluetoothd()
