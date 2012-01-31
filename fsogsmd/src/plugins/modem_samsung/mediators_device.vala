@@ -96,8 +96,9 @@ public class SamsungDeviceSetFunctionality : DeviceSetFunctionality
         {
             case "minimal":
                 // FIXME we current not supporting any mode that sets the modem into a
-                // minimal state were even SIM access is not possible as we can't do this
+                // minimal state were SIM access is not possible. We can't do this
                 // with the current version of the IPC protocol (as far as we know).
+                throw new FreeSmartphone.Error.UNSUPPORTED( "Setting functionality to minimal is not supported" );
             case "airplane":
                 channel.update_modem_power_state( SamsungIpc.Power.PhoneState.LPM );
                 break;
