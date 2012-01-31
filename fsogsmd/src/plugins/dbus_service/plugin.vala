@@ -25,7 +25,20 @@ public class FsoGsm.DeviceServiceManager : FsoGsm.AbstractServiceManager
     {
         base( subsystem, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath );
 
+        base.registerService<FreeSmartphone.Info>( new FsoGsm.InfoService() );
+        base.registerService<FreeSmartphone.Device.RealtimeClock>( new FsoGsm.DeviceRtcService() );
+        base.registerService<FreeSmartphone.Device.PowerSupply>( new FsoGsm.DevicePowerSupplyService() );
         base.registerService<FreeSmartphone.GSM.Device>( new FsoGsm.GsmDeviceService() );
+        base.registerService<FreeSmartphone.GSM.Debug>( new FsoGsm.GsmDebugService() );
+        base.registerService<FreeSmartphone.GSM.Call>(new FsoGsm.GsmCallService() );
+        base.registerService<FreeSmartphone.GSM.CB>( new FsoGsm.GsmCbService() );
+        base.registerService<FreeSmartphone.GSM.HZ>( new FsoGsm.GsmHzService() );
+        base.registerService<FreeSmartphone.GSM.Monitor>( new FsoGsm.GsmMonitorService() );
+        base.registerService<FreeSmartphone.GSM.Network>( new FsoGsm.GsmNetworkService() );
+        base.registerService<FreeSmartphone.GSM.PDP>( new FsoGsm.GsmPdpService() );
+        base.registerService<FreeSmartphone.GSM.SIM>( new FsoGsm.GsmSimService() );
+        base.registerService<FreeSmartphone.GSM.SMS>( new FsoGsm.GsmSmsService() );
+        base.registerService<FreeSmartphone.GSM.VoiceMail>( new FsoGsm.GsmVoiceMailService() );
     }
 }
 
