@@ -92,7 +92,16 @@ class Pdp.Qmi : FsoGsm.PdpHandler
             var dns1 = properties.lookup( "DNS1" ) ?? "unknown";
             var dns2 = properties.lookup( "DNS2" ) ?? "unknown";
 
-            this.connectedWithNewDefaultRoute( RMNET_IFACE, addr, mask, gway, dns1, dns2 );
+            var route = new FsoGsm.RouteInfo() {
+                iface = RMNET_IFACE,
+                ipv4addr = addr,
+                ipv4mask = mask,
+                ipv4gateway = gway,
+                dns1 = dns1,
+                dns2 = dns2
+            };
+
+            this.connectedWithNewDefaultRoute( route );
         }
     }
 
