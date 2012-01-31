@@ -51,7 +51,17 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
     public void onConnectFromAtPPPP( string iface, string local, string peer, string dns1, string dns2 )
     {
         logger.info( @"PPP stack now online via $iface. Local IP is $local, remote IP is $peer, DNS1 is $dns1, DNS2 is $dns2" );
-        connectedWithNewDefaultRoute( iface, local, "255.255.255.0", peer, dns1, dns2 );
+
+        var route = new FsoGsm.RouteInfo() {
+            iface = iface,
+            ipv4addr = local,
+            ipv4mask = "255.255.255.0",
+            ipv4gateway = peer,
+            dns1 = dns1,
+            dns2 = dns2
+        };
+
+        connectedWithNewDefaultRoute( route );
     }
 
     public void onDisconnectFromAtPPP( ThirdParty.At.PPP.DisconnectReason reason )
