@@ -57,6 +57,7 @@ modem_samsung_la_VALASOURCES = \
  mediators_device.vala \
  mediators_network.vala \
  mediators_pdp.vala \
+ mediators_sms.vala \
  pdphandler.vala \
  mediators_call.vala \
  callhandler.vala \
