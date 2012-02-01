@@ -77,7 +77,16 @@ class Pdp.NokiaIsi : FsoGsm.PdpHandler
 
     private void onContextActivated( string iface, string ip, string dns1, string dns2 )
     {
-        this.connectedWithNewDefaultRoute( iface, ip, "255.255.255.255", "0.0.0.0", dns1, dns2 );
+        var route = new FsoGsm.RouteInfo() {
+            iface = iface,
+            ipv4addr = ip,
+            ipv4mask = "255.255.255.255",
+            ipv4gateway = "0.0.0.0",
+            dns1 = dns1,
+            dns2 = dns2
+        };
+
+        this.connectedWithNewDefaultRoute( route );
     }
 
     private void onContextDeactivated()
