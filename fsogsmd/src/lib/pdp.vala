@@ -148,6 +148,12 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         }
 
         var status = new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal );
+        status.insert( "ipv4addr", route.ipv4addr );
+        status.insert( "ipv4mask", route.ipv4mask );
+        status.insert( "ipv4gateway", route.ipv4gateway );
+        status.insert( "dns1", route.dns1 );
+        status.insert( "dns2", route.dns2 );
+
         updateStatus( FreeSmartphone.GSM.ContextStatus.ACTIVE, status );
 
         try
