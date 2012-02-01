@@ -93,6 +93,7 @@ libfsogsm_la_VALASOURCES = \
 	phonebook.vala \
 	pdp.vala \
 	sms.vala \
+	smsstorage.vala \
 	watchdog.vala \
 	$(NULL)
 
