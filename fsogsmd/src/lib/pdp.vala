@@ -156,18 +156,22 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
 
         updateStatus( FreeSmartphone.GSM.ContextStatus.ACTIVE, status );
 
-        try
+        var setupNetworkRoute = FsoFramework.theConfig.boolValue( "fsogsm", "pdp_setup_network_route", true );
+        if ( setupNetworkRoute )
         {
-            // FIXME: change to async
-            var network = Bus.get_proxy_sync<FreeSmartphone.Network>( BusType.SYSTEM, FsoFramework.Network.ServiceDBusName,
-                FsoFramework.Network.ServicePathPrefix );
+            try
+            {
+                // FIXME: change to async
+                var network = Bus.get_proxy_sync<FreeSmartphone.Network>( BusType.SYSTEM, FsoFramework.Network.ServiceDBusName,
+                    FsoFramework.Network.ServicePathPrefix );
 
-            yield network.offer_default_route( "cellular", route.iface, route.ipv4addr, route.ipv4mask,
-                route.ipv4gateway, route.dns1, route.dns2 );
-        }
-        catch ( GLib.Error e )
-        {
-            logger.error( @"Can't call offer_default_route on onetworkd: $(e.message)" );
+                yield network.offer_default_route( "cellular", route.iface, route.ipv4addr, route.ipv4mask,
+                    route.ipv4gateway, route.dns1, route.dns2 );
+            }
+            catch ( GLib.Error e )
+            {
+                logger.error( @"Can't call offer_default_route on onetworkd: $(e.message)" );
+            }
         }
     }
 
