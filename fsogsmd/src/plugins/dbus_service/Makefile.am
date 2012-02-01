@@ -12,6 +12,8 @@ dbus_service_la_SOURCES = \
 	plugin.vala \
 	service.vala \
 	servicemanager.vala \
+	modemfactory.vala \
+	resource.vala \
 	info_service.vala \
 	device_powersupply_service.vala \
 	device_rtc_service.vala \

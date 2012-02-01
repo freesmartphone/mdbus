@@ -20,14 +20,15 @@
 
 using GLib;
 
-public abstract class FsoGsm.AbstractServiceManager : FsoFramework.AbstractObject
+public abstract class FsoGsm.ServiceManager : FsoFramework.AbstractObject
 {
+    // FIXME do we really need a list of all registered services?
     private GLib.List<Service> services;
     private FsoFramework.Subsystem subsystem;
     private string serviceName;
     private string servicePath;
 
-    protected AbstractServiceManager( FsoFramework.Subsystem subsystem, string serviceName, string servicePath )
+    protected ServiceManager( FsoFramework.Subsystem subsystem, string serviceName, string servicePath )
     {
         this.services = new GLib.List<Service>();
         this.subsystem = subsystem;
@@ -45,6 +46,11 @@ public abstract class FsoGsm.AbstractServiceManager : FsoFramework.AbstractObjec
     {
         return @"<>";
     }
+
+    public abstract async bool enable();
+    public abstract async void disable();
+    public abstract async void suspend();
+    public abstract async void resume();
 }
 
 // vim:ts=4:sw=4:expandtab

@@ -19,11 +19,48 @@
 
 using GLib;
 
-public class FsoGsm.DeviceServiceManager : FsoGsm.AbstractServiceManager
+public class FsoGsm.DeviceServiceManager : FsoGsm.ServiceManager
 {
+    private static FsoGsm.Modem modem;
+
+    public bool initialized { get; private set; default = false; }
+
+    //
+    // private
+    //
+
+    private void onModemHangup()
+    {
+        logger.warning( "Modem no longer responding; trying to reopen in 5 seconds" );
+        Timeout.add_seconds( 5, () => {
+            onModemHangupAsync();
+            return false;
+        } );
+    }
+
+    private async void onModemHangupAsync()
+    {
+        var ok = yield enable();
+        if ( !ok )
+        {
+            onModemHangup();
+        }
+    }
+
+    //
+    // public API
+    //
+
     public DeviceServiceManager( FsoFramework.Subsystem subsystem )
     {
         base( subsystem, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath );
+
+        var modemtype = config.stringValue( "fsogsm", "modem_type", "none" );
+        if ( !FsoGsm.ModemFactory.validateModemType( modemtype ) )
+        {
+            logger.error( @"Can't find modem for modem_type $modemtype; corresponding modem plugin loaded?" );
+            return;
+        }
 
         base.registerService<FreeSmartphone.Info>( new FsoGsm.InfoService() );
         base.registerService<FreeSmartphone.Device.RealtimeClock>( new FsoGsm.DeviceRtcService() );
@@ -39,6 +76,61 @@ public class FsoGsm.DeviceServiceManager : FsoGsm.AbstractServiceManager
         base.registerService<FreeSmartphone.GSM.SIM>( new FsoGsm.GsmSimService() );
         base.registerService<FreeSmartphone.GSM.SMS>( new FsoGsm.GsmSmsService() );
         base.registerService<FreeSmartphone.GSM.VoiceMail>( new FsoGsm.GsmVoiceMailService() );
+
+        modem = FsoGsm.ModemFactory.createFromTypeName( modemtype );
+        // FIXME validate modem is a valid one now
+        modem.parent = this;
+        modem.hangup.connect( onModemHangup );
+
+        initialized = true;
+        logger.info( @"Ready. Configured for modem $modemtype" );
+    }
+
+    public override async bool enable()
+    {
+        var ok = yield modem.open();
+        if ( !ok )
+        {
+            logger.error( "Can't open modem" );
+            return false;
+        }
+        else
+        {
+            logger.info( "Modem opened successfully" );
+            return true;
+        }
+    }
+
+    public override async void disable()
+    {
+        yield modem.close();
+        logger.info( "Modem closed successfully" );
+    }
+
+    public override async void suspend()
+    {
+        var ok = yield modem.suspend();
+        if ( ok )
+        {
+            logger.info( "Modem suspended successfully" );
+        }
+        else
+        {
+            logger.warning( "Modem not suspended; prepare yourself for spurious wakeups" );
+        }
+    }
+
+    public override async void resume()
+    {
+        var ok = yield modem.resume();
+        if ( ok )
+        {
+            logger.info( "Modem resumed successfully" );
+        }
+        else
+        {
+            logger.warning( "Modem did not resume correctly" );
+        }
     }
 }
 
@@ -46,6 +138,7 @@ namespace DBusService
 {
     const string MODULE_NAME = "fsogsm.dbus_service";
     FsoGsm.DeviceServiceManager deviceServiceManager = null;
+    DBusService.Resource resource = null;
 }
 
 /**
@@ -56,12 +149,9 @@ namespace DBusService
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    /*
-    if ( DBusService.Device.modemclass != Type.INVALID )
-        resource = new DBusService.Resource( subsystem );
-    */
-
     DBusService.deviceServiceManager = new FsoGsm.DeviceServiceManager( subsystem );
+    if ( DBusService.deviceServiceManager.initialized )
+        DBusService.resource = new DBusService.Resource( subsystem, DBusService.deviceServiceManager );
 
     return DBusService.MODULE_NAME;
 }
