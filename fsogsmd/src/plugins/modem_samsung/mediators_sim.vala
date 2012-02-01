@@ -58,8 +58,6 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
 }
 public class SamsungSimGetInformation : SimGetInformation
 {
-    private const int DEFAULT_IMSI_LENGTH = 15;
-
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         unowned SamsungIpc.Response? response;
@@ -67,18 +65,14 @@ public class SamsungSimGetInformation : SimGetInformation
 
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-        /*
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_IMSI );
-        if ( response == null || response.data.length != DEFAULT_IMSI_LENGTH + 1)
-        {
-            throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( "Could not retrieve IMSI number from modem" );
-            return;
-        }
+        var rsimreq = SamsungIpc.Security.RSimAccessRequestMessage();
+        rsimreq.command = SamsungIpc.Security.RSimCommandType.READ_BINARY;
+        rsimreq.fileid = (uint16) Constants.instance().simFilesystemEntryNameToCode( "EFimsi" );
 
-        string imsi = SamsungIpc.Misc.MeResponseMessage.get_imsi( response );
-        */
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.SEC_RSIM_ACCESS, rsimreq.data );
 
-        string imsi = "";
+        var imsi = response != null ? SamsungIpc.Security.RSimAccessResponseMessage.get_file_data( response ) : "unknown";
+
         info.insert( "imsi", imsi );
         info.insert( "phonebooks", "" );
     }
