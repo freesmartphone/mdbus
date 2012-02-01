@@ -25,7 +25,7 @@ public class FsoGsm.DevicePowerSupplyService : FreeSmartphone.Device.PowerSupply
     // DBUS (org.freesmartphone.Device.PowerSupply.*)
     //
 
-    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError
+    public async FreeSmartphone.Device.PowerStatus get_power_status() throws DBusError, IOError, FreeSmartphone.Error
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetPowerStatus>();
@@ -40,7 +40,7 @@ public class FsoGsm.DevicePowerSupplyService : FreeSmartphone.Device.PowerSupply
         }
     }
 
-    public async int get_capacity() throws DBusError, IOError
+    public async int get_capacity() throws DBusError, IOError, FreeSmartphone.Error
     {
         checkAvailability();
         var m = modem.createMediator<FsoGsm.DeviceGetPowerStatus>();
