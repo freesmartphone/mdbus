@@ -211,7 +211,7 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
                     deactivate();
                     break;
                 case FreeSmartphone.GSM.ContextStatus.SUSPENDED:
-                    updateStatus( nextContextStatus, new GLib.HashTable<string, Variant>( str_hash, str_equal ) );
+                    updateStatus( nextContextStatus, this.properties );
                     break;
             }
         }
