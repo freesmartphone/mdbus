@@ -24,11 +24,6 @@ public class FsoGsm.Service : FsoFramework.AbstractObject
 {
     protected FsoGsm.Modem modem;
 
-    protected Service()
-    {
-        this.modem = theModem;
-    }
-
     protected void checkAvailability( FsoGsm.Modem.Status required = FsoGsm.Modem.Status.ALIVE_NO_SIM ) throws FreeSmartphone.Error
     {
         if ( modem == null )
@@ -36,6 +31,11 @@ public class FsoGsm.Service : FsoFramework.AbstractObject
 
         if ( ( modem.status() < required ) || ( modem.status() >= FsoGsm.Modem.Status.SUSPENDING ) )
             throw new FreeSmartphone.Error.UNAVAILABLE( @"This function is not available while modem is in state $(modem.status())" );
+    }
+
+    public void assignModem( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
     }
 
     public override string repr()

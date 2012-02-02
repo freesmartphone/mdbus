@@ -82,6 +82,8 @@ public class FsoGsm.DeviceServiceManager : FsoGsm.ServiceManager
         modem.parent = this;
         modem.hangup.connect( onModemHangup );
 
+        this.assignModem( modem );
+
         initialized = true;
         logger.info( @"Ready. Configured for modem $modemtype" );
     }

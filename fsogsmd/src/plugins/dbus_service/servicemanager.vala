@@ -42,6 +42,12 @@ public abstract class FsoGsm.ServiceManager : FsoFramework.AbstractObject
         subsystem.registerObjectForService<T>( serviceName, servicePath, serviceObject );
     }
 
+    public void assignModem( FsoGsm.Modem modem )
+    {
+        foreach ( var service in services )
+            service.assignModem( modem );
+    }
+
     public override string repr()
     {
         return @"<>";
