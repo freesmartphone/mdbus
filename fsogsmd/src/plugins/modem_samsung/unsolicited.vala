@@ -89,16 +89,8 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
     {
         // NOTE the following is taken from samsung-ril which is found here:
         // git://gitorious.org/replicant/samsung-ril.git
-        if ( rssi > 0x6f )
-        {
-            ModemState.network_signal_strength = 0;
-        }
-        else
-        {
-            ModemState.network_signal_strength = (((rssi - 0x71) * -1) - ((rssi - 0x71) * -1) % 2) / 2;
-            if ( ModemState.network_signal_strength > 31 )
-                ModemState.network_signal_strength = 31;
-        }
+        var r = rssi < 0x6f ? ((((rssi - 0x71) * -1) - ((rssi - 0x71) * -1) % 2) / 2) : 0;
+        ModemState.network_signal_strength = Constants.instance().networkSignalToPercentage( r );
 
         // notify the user about the change of signal strength
         var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
