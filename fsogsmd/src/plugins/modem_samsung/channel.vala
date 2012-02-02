@@ -283,8 +283,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         // state is a 16 bit number we need to convert here into a uint8 array before we
         // can pass it to the queue
         var sb = new uint8[2];
-        sb[0] = (state & 0xff00) >> 8;
-        sb[1] = (state & 0x00ff);
+        sb[0] = (state & 0x00ff);
+        sb[1] = (state & 0xff00) >> 8;
 
         response = yield enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.PWR_PHONE_STATE, sb );
         if ( response == null )
