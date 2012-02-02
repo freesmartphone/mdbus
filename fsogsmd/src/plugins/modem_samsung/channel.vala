@@ -333,6 +333,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     public override async void close()
     {
         fmtclient.close();
+        transport.close();
     }
 
     /**
