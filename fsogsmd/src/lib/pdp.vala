@@ -59,8 +59,14 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
     {
         status = FreeSmartphone.GSM.ContextStatus.RELEASED;
         properties = new GLib.HashTable<string,Variant>( str_hash, str_equal );
-        var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
-        network.status.connect( ( status ) => { syncStatus(); } );
+
+        // defer registration for network status updates a little bit as modem device is
+        // not ready at this time (currently it's modem construction time).
+        Idle.add( () => {
+            var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            network.status.connect( ( status ) => { syncStatus(); } );
+            return false;
+        } );
     }
 
     //
