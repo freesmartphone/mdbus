@@ -65,6 +65,8 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         Idle.add( () => {
             var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
             network.status.connect( ( status ) => { syncStatus(); } );
+            var device = theModem.theDevice<FreeSmartphone.GSM.Device>();
+            device.device_status.connect( ( status ) => { syncStatus(); } );
             return false;
         } );
     }
@@ -128,7 +130,8 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
 
     public async void deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        if ( this.status != FreeSmartphone.GSM.ContextStatus.ACTIVE )
+        if ( this.status != FreeSmartphone.GSM.ContextStatus.ACTIVE &&
+             this.status != FreeSmartphone.GSM.ContextStatus.SUSPENDED )
         {
             throw new FreeSmartphone.Error.UNAVAILABLE( @"Can't deactivate context while in status $status" );
         }
@@ -189,14 +192,19 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
 
     public async void syncStatus()
     {
-        var networkRegistrationStatus = "unknown";
+        var networkRegistrationStatus = lastNetworkRegistrationStatus;
         var roamingAllowed = theModem.data().roamingAllowed;
+        var nextContextStatus = status;
+
+        if ( !theModem.isAlive() )
+            return;
 
         var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
         var networkStatus = yield network.get_status();
 
-        if ( networkStatus.lookup( "registration" ) != null )
-            networkRegistrationStatus = lastNetworkRegistrationStatus;
+        if ( ( networkRegistrationStatus = (string) networkStatus.lookup( "pdp.registration" ) ) == null &&
+             ( networkRegistrationStatus = (string) networkStatus.lookup( "registration" ) ) == null )
+             networkRegistrationStatus = lastNetworkRegistrationStatus;
 
         // FIXME maybe we should add a flag like reconnectAuto to let the context be
         // reactivated automatically whenever roamingAllowed or networkStatus changed
@@ -205,7 +213,6 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
             return;
 
         var registered = ( networkRegistrationStatus == "registered" );
-        var nextContextStatus = status;
 
         if ( registered || ( roamingAllowed && networkRegistrationStatus == "roaming" ) )
         {

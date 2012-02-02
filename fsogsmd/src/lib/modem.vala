@@ -230,6 +230,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract FreeSmartphone.GSM.DeviceStatus externalStatus();
     public abstract FsoGsm.Modem.Data data();
     public abstract void registerAtCommandSequence( string channel, string purpose, AtCommandSequence sequence );
+    public abstract bool isAlive();
 }
 
 /**
@@ -761,6 +762,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         GLib.Timeout.add_seconds( 3, close.callback );
         yield;
 
+        assert( logger.debug( @"Check wether we have to deactivate the PDP context ..." ) );
+        if ( pdphandler.status == FreeSmartphone.GSM.ContextStatus.ACTIVE ||
+             pdphandler.status == FreeSmartphone.GSM.ContextStatus.SUSPENDED )
+        {
+            yield pdphandler.deactivate();
+        }
+
         // close all channels
         var channels = this.channels.values;
         foreach( var channel in channels )
@@ -1077,6 +1085,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             default:
                 return FreeSmartphone.GSM.DeviceStatus.UNKNOWN;
         }
+    }
+
+    public bool isAlive()
+    {
+        return modem_status == Status.ALIVE_NO_SIM ||
+               modem_status == Status.ALIVE_SIM_LOCKED ||
+               modem_status == Status.ALIVE_SIM_UNLOCKED ||
+               modem_status == Status.ALIVE_SIM_READY ||
+               modem_status == Status.ALIVE_REGISTERED;
     }
 }
 
