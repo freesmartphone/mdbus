@@ -20,8 +20,6 @@
 using FsoGsm;
 using FsoFramework;
 
-static bool inTriggerUpdateNetworkStatus;
-
 public void updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
 {
     theModem.logger.info( @"SIM Auth status now $status" );
@@ -68,8 +66,6 @@ public void updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
         }
     }
 }
-
-
 
 /**
  * Determine functionality level according to modem state
@@ -174,59 +170,6 @@ public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
     {
         // status.insert( "code", "%03u%02u".printf( MsmData.network_info.mcc, MsmData.network_info.mnc ) );
     }
-}
-
-/**
- * Update network status if something in network state has changed
- **/
-public async void triggerUpdateNetworkStatus()
-{
-    unowned SamsungIpc.Response? response;
-
-    if ( inTriggerUpdateNetworkStatus )
-    {
-        assert( theModem.logger.debug( "already gathering network status... ignoring additional trigger" ) );
-        return;
-    }
-
-    inTriggerUpdateNetworkStatus = true;
-
-    var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
-
-    assert( theLogger.debug( @"Start syncing network registration state with modem ..." ) );
-
-    var mstat = theModem.status();
-
-    // Advance modem status, if necessary
-    if ( Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
-         Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
-    {
-        if ( mstat != Modem.Status.ALIVE_REGISTERED )
-        {
-            theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
-        }
-    }
-    else
-    {
-        // If we are not registered with a network but our status indicates a network
-        // registration we should change the modem state
-        if ( mstat == Modem.Status.ALIVE_REGISTERED )
-        {
-            theModem.advanceToState( Modem.Status.ALIVE_SIM_READY );
-        }
-    }
-
-    assert( theLogger.debug( @"Sending network status update signal to connected clients ..." ) );
-
-    // Send network status signal to connected clients
-    var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
-    fillNetworkStatusInfo( status );
-    var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
-    network.status( status );
-
-    assert( theLogger.debug( @"Finished syncing network registration state!" ) );
-
-    inTriggerUpdateNetworkStatus = false;
 }
 
 private string ipAddrFromByteArray( uint8* data, int size )

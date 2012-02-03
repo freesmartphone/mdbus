@@ -50,17 +50,18 @@ public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
 
 public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
 {
-    public string name;
-
     private SamsungIpc.Client fmtclient;
-    public new Samsung.UnsolicitedResponseHandler urchandler;
     private uint8 current_request_id = 1;
     private bool initialized = false;
     private bool suspended = false;
     private FsoFramework.Wakelock wakelock;
     private FreeSmartphone.UsageSync usage_sync;
     private uint suspend_lock = 0;
+    private FsoGsm.Modem.Status last_modem_status = FsoGsm.Modem.Status.UNKNOWN;
 
+    public new Samsung.UnsolicitedResponseHandler urchandler { get; private set; }
+    public string name { get; private set; }
+    public  Samsung.NetworkStatus network_status { get; private set; }
     public SamsungIpc.Power.PhoneState phone_pwr_state { get; private set; default = SamsungIpc.Power.PhoneState.LPM; }
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
@@ -89,6 +90,19 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
             default:
                 break;
         }
+
+        if ( status == FsoGsm.Modem.Status.ALIVE_REGISTERED &&
+             last_modem_status != FsoGsm.Modem.Status.ALIVE_REGISTERED )
+        {
+            network_status.start();
+        }
+        else if ( status != FsoGsm.Modem.Status.ALIVE_REGISTERED &&
+                  last_modem_status == FsoGsm.Modem.Status.ALIVE_REGISTERED )
+        {
+            network_status.stop();
+        }
+
+        last_modem_status = status;
     }
 
     protected override void onReadFromTransport( FsoFramework.Transport t )
@@ -312,6 +326,8 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.FMT );
         fmtclient.set_log_handler( ( message ) => { theLogger.info( message ); } );
         fmtclient.set_io_handlers( modem_read_request, modem_write_request );
+
+        network_status = new Samsung.NetworkStatus();
     }
 
     public override async bool open()

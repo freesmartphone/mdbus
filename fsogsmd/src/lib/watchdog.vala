@@ -34,6 +34,7 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
 {
     private bool unlockFailed;
     private Modem.Status lastStatus;
+    private bool inCampNetwork = false;
 
     public override string repr()
     {
@@ -105,6 +106,11 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
 
     private async void campNetwork()
     {
+        if ( inCampNetwork )
+            return;
+
+        inCampNetwork = true;
+
         try
         {
             var m = theModem.createMediator<FsoGsm.NetworkRegister>();
@@ -114,7 +120,10 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
         {
             logger.error( @"Could not register: $(e.message)" );
         }
+
         triggerUpdateNetworkStatus();
+
+        inCampNetwork = false;
     }
 
     //

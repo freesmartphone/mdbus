@@ -44,7 +44,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 break;
 
             case SamsungIpc.MessageType.NET_REGIST:
-                handle_network_registration( response );
+                channel.network_status.update( response );
                 break;
 
             case SamsungIpc.MessageType.PWR_PHONE_STATE:
@@ -153,44 +153,6 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
             return;
 
         assert( logger.debug( @"phone state changed to state = 0x%02x".printf( power_state ) ) );
-    }
-
-    private void handle_network_registration( SamsungIpc.Response response )
-    {
-        SamsungIpc.Network.RegistrationMessage* reginfo = (SamsungIpc.Network.RegistrationMessage*) response.data;
-
-        if ( reginfo.domain == SamsungIpc.Network.ServiceDomain.GSM )
-        {
-            assert( logger.debug( @"Got updated network registration information from modem:" ) );
-
-            ModemState.network_reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
-            ModemState.network_act = (SamsungIpc.Network.AccessTechnology) reginfo.act;
-            ModemState.network_lac = (int32) reginfo.lac;
-            ModemState.network_cid = (int32) reginfo.cid;
-
-            assert( logger.debug( @"domain = $(reginfo.domain), network_reg_state = $(ModemState.network_reg_state)" ) );
-            assert( logger.debug( @"network_act = $(ModemState.network_act), lac = $(reginfo.lac), cid = $(reginfo.lac)" ) );
-            assert( logger.debug( @"rej_cause = $(reginfo.rej_cause), edge = $(reginfo.edge)" ) );
-
-            if ( theModem.status() >= FsoGsm.Modem.Status.ALIVE_SIM_READY )
-            {
-                triggerUpdateNetworkStatus();
-            }
-            else
-            {
-                assert( logger.debug( @"Didn't triggered a network status as we're not authenticated against the SIM card yet!" ) );
-            }
-        }
-        else if ( reginfo.domain == SamsungIpc.Network.ServiceDomain.GPRS )
-        {
-            ModemState.pdp_reg_state = (SamsungIpc.Network.RegistrationState) reginfo.reg_state;
-            ModemState.pdp_lac = (int32) reginfo.lac;
-            ModemState.pdp_cid = (int32) reginfo.cid;
-        }
-        else
-        {
-            logger.warning( @"Got unknown network service domain type: 0x%02x".printf( reginfo.domain ) );
-        }
     }
 
     private void handle_gprs_ip_configuration( SamsungIpc.Response response )

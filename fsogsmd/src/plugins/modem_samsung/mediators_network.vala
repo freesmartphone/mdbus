@@ -61,11 +61,21 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
 
         status = new GLib.HashTable<string, Variant>( str_hash, str_equal );
 
+        // retrieve network status
+        var req = SamsungIpc.Network.RegistrationGetMessage();
+        req.setup( SamsungIpc.Network.ServiceDomain.GSM );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_REGIST, req.data );
+
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve network status from modem" );
+
+        channel.network_status.update( response );
+
         // retrieve current network operator plmn
         response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_CURRENT_PLMN );
 
         if ( response == null )
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network operator from modem!" );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network operator from modem" );
 
         var pr = (SamsungIpc.Network.CurrentPlmnMessage*) response.data;
         ModemState.network_plmn = "";
