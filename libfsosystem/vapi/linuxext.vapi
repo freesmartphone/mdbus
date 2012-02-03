@@ -70,7 +70,7 @@ namespace LinuxExt
         public struct IwReq
         {
             [CCode (array_length = false)]
-            public string ifr_ifrn;
+            public char[] ifr_name;
             public IwReqData u;
         }
     }

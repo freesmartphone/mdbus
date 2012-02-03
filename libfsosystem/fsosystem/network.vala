@@ -37,17 +37,27 @@ namespace FsoFramework.Network
     {
         protected int fd;
         protected string name;
+        protected int index;
+
+        //
+        // private
+        //
 
         private bool check_flags( uint flags ) throws FsoFramework.Network.Error
         {
             var ifr = Linux.Network.IfReq();
-            strncpy( (string) ifr.ifr_name, this.name, Linux.Network.INTERFACE_NAME_SIZE );
-            ifr.ifr_name[ Linux.Network.INTERFACE_NAME_SIZE - 1 ] = '\0';
+            ifr.ifr_ifindex = this.index;
 
-            var rc = ioctl( fd, Linux.Network.SIOCGIFFLAGS, &ifr);
-            if ( rc == -1 )
+            if ( ioctl( fd, Linux.Network.SIOCGIFNAME, &ifr ) < 0 )
             {
-                throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not process ioctl to gather interface status: $(Posix.strerror(Posix.errno))" );
+                throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not set interface name " +
+                                                                      "for request: $(Posix.strerror(Posix.errno))" );
+            }
+
+            if ( ioctl( fd, Linux.Network.SIOCGIFFLAGS, &ifr ) < 0 )
+            {
+                throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not process ioctl to gather " +
+                                                                      "interface status: $(Posix.strerror(Posix.errno))" );
             }
 
             return (bool) ( ifr.ifr_flags & flags );
@@ -56,23 +66,51 @@ namespace FsoFramework.Network
         /**
          * Set flags for interface. With @param set you specify the flag you want to set
            and with @param clr the flag you want to unset.
-         **/
+         **/ 
         private bool set_flags( uint set, uint clr )
         {
             var ifr = Linux.Network.IfReq();
-            strncpy( (string) ifr.ifr_name, this.name, Linux.Network.INTERFACE_NAME_SIZE );
-            ifr.ifr_name[ Linux.Network.INTERFACE_NAME_SIZE - 1 ] = '\0';
+            ifr.ifr_ifindex = this.index;
 
-            var rc = ioctl( fd, Linux.Network.SIOCSIFFLAGS, &ifr);
-            if ( rc == -1 )
+            if ( ioctl( fd, Linux.Network.SIOCGIFNAME, &ifr ) < 0 )
             {
-                return false;
+                throw new FsoFramework.Network.Error.INTERNAL_ERROR( @"Could not set interface name " +
+                                                                      "for request: $(Posix.strerror(Posix.errno))" );
             }
 
+            if ( ioctl( fd, Linux.Network.SIOCSIFFLAGS, &ifr) < 0 )
+                return false;
+
             ifr.ifr_flags = ( ifr.ifr_flags & ( ~clr ) ) | set;
-            rc = ioctl( fd, Linux.Network.SIOCSIFFLAGS, &ifr );
-            return rc != -1;
+            if ( ioctl( fd, Linux.Network.SIOCSIFFLAGS, &ifr ) < 0 )
+                return false;
+
+            return true;
         }
+
+        private void setup_interface_index() throws FsoFramework.Network.Error
+        {
+            var ifr = Linux.Network.IfReq();
+
+            // FIXME we need to use a pointer here as otherwise vala compiles this to
+            // something like this:
+            // struct ifreq ifr;
+            // struct ifreq _tmp11_;
+            // _tmp11_ = ifr; // no reference, direct copy ...
+            // strncpy( _tmp11_.ifr_name, name, ...);
+            var ifrp = (Linux.Network.IfReq*)(&ifr);
+            strncpy( (string) ifrp->ifr_name, name, Linux.Network.INTERFACE_NAME_SIZE );
+
+            var rc = ioctl( fd, Linux.Network.SIOCGIFINDEX, &ifr);
+            if ( rc < 0 )
+                throw new Error.INTERNAL_ERROR( @"Could not get index for interface $name: $(Posix.strerror(Posix.errno))" );
+
+            this.index = ifr.ifr_ifindex;
+        }
+
+        //
+        // public API
+        //
 
         public Interface( string name ) throws FsoFramework.Network.Error
         {
@@ -80,9 +118,9 @@ namespace FsoFramework.Network
 
             fd = socket( AF_INET, SOCK_DGRAM, 0 );
             if ( fd < 0 )
-            {
                 throw new Error.INTERNAL_ERROR( @"Could not create socket for interface configuration: $(Posix.strerror(Posix.errno))" );
-            }
+
+            setup_interface_index();
         }
 
         ~Interface()
@@ -149,6 +187,16 @@ namespace FsoFramework.Network
         public void set_power( bool on ) throws FsoFramework.Network.Error
         {
             var req = LinuxExt.WirelessExtensions.IwReq();
+
+            // FIXME we need to use a pointer here as otherwise vala compiles this to
+            // something like this:
+            // struct iwreq wr;
+            // struct iwreq _tmp11_;
+            // _tmp11_ = iwr; // no reference, direct copy ...
+            // strncpy( _tmp11_.ifrn_name, name, ...);
+            var reqp = (LinuxExt.WirelessExtensions.IwReq*)(&req);
+            strncpy( (string) reqp->ifr_name, name, Linux.Network.INTERFACE_NAME_SIZE );
+
             req.u.power.disabled = on ? 0 : 1;
             var rc = Posix.ioctl( fd, Linux.WirelessExtensions.SIOCSIWPOWER, &req );
             if ( rc < 0 )
