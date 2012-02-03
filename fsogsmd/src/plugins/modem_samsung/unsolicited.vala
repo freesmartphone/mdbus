@@ -73,6 +73,10 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
             case SamsungIpc.MessageType.CALL_OUTGOING:
                 callhandler.syncCallStatusAsync();
                 break;
+
+            case SamsungIpc.MessageType.SMS_DEVICE_READY:
+                Idle.add( () => { handle_sms_device_ready(); return false; } );
+                break;
         }
     }
 
@@ -204,6 +208,16 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         string dns2 = ipAddrFromByteArray( ipresp.dns2, 4 );
 
         pdphandler.handleIpConfiguration( local, subnetmask, gateway, dns1, dns2 );
+    }
+
+    private async void handle_sms_device_ready()
+    {
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        unowned SamsungIpc.Response? response;
+
+        // When we get the SMS_DEVICE_READY urc we're already ready for processing
+        // incoming SMS message
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SMS_DEVICE_READY );
     }
 }
 

@@ -242,9 +242,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     {
         unowned SamsungIpc.Response? response;
 
-        // FIXME why we send this requst is still unknown but we send it :)
-        response = yield enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SMS_DEVICE_READY );
-
         // We need to read the name of our network provider from the SIM card
         var rsimreq = SamsungIpc.Security.RSimAccessRequestMessage();
         rsimreq.command = SamsungIpc.Security.RSimCommandType.READ_BINARY;
