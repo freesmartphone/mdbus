@@ -57,7 +57,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private FsoFramework.Wakelock wakelock;
     private FreeSmartphone.UsageSync usage_sync;
     private uint suspend_lock = 0;
-    private FsoGsm.Modem.Status last_modem_status = FsoGsm.Modem.Status.UNKNOWN;
 
     public new Samsung.UnsolicitedResponseHandler urchandler { get; private set; }
     public string name { get; private set; }
@@ -87,22 +86,15 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
                 break;
             case FsoGsm.Modem.Status.CLOSING:
                 break;
+            case FsoGsm.Modem.Status.ALIVE_REGISTERED:
+                network_status.start();
+                break;
             default:
                 break;
         }
 
-        if ( status == FsoGsm.Modem.Status.ALIVE_REGISTERED &&
-             last_modem_status != FsoGsm.Modem.Status.ALIVE_REGISTERED )
-        {
-            network_status.start();
-        }
-        else if ( status != FsoGsm.Modem.Status.ALIVE_REGISTERED &&
-                  last_modem_status == FsoGsm.Modem.Status.ALIVE_REGISTERED )
-        {
+        if ( status != FsoGsm.Modem.Status.ALIVE_REGISTERED && network_status.active )
             network_status.stop();
-        }
-
-        last_modem_status = status;
     }
 
     protected override void onReadFromTransport( FsoFramework.Transport t )

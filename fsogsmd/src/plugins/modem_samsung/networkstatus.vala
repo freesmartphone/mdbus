@@ -35,10 +35,17 @@ public class Samsung.NetworkStatus : FsoFramework.AbstractObject
 
     private async void syncNetworkStatus()
     {
-        // we're just executing the mediator here as the mediator will automatically send
-        // the updated network status back to us.
-        var m = theModem.createMediator<NetworkGetStatus>();
-        yield m.run();
+        try
+        {
+            // we're just executing the mediator here as the mediator will automatically send
+            // the updated network status back to us.
+            var m = theModem.createMediator<NetworkGetStatus>();
+            yield m.run();
+        }
+        catch ( GLib.Error err )
+        {
+            logger.error( @"Something went wrong while receiving network status: $(err.message)" );
+        }
     }
 
     private async void advanceNetworkStatus()
@@ -120,11 +127,11 @@ public class Samsung.NetworkStatus : FsoFramework.AbstractObject
             logger.warning( @"Got unknown network service domain type: 0x%02x".printf( reginfo.domain ) );
         }
 
-        // assert( theLogger.debug( @"Sending network status update signal to connected clients ..." ) );
-        // var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
-        // fillNetworkStatusInfo( status );
-        // var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
-        // network.status( status );
+        assert( theLogger.debug( @"Sending network status update signal to connected clients ..." ) );
+        var status = new GLib.HashTable<string,Variant>( str_hash, str_equal );
+        fillNetworkStatusInfo( status );
+        var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        network.status( status );
     }
 
     public void start()
@@ -137,6 +144,8 @@ public class Samsung.NetworkStatus : FsoFramework.AbstractObject
             syncNetworkStatus();
             return true;
         } );
+
+        active = true;
     }
 
     public void stop()
