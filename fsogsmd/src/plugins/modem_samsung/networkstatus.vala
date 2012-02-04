@@ -155,6 +155,7 @@ public class Samsung.NetworkStatus : FsoFramework.AbstractObject
 
         assert( logger.debug( @"Stop polling network status ..." ) );
         Source.remove( id );
+        active = false;
     }
 
     public override string repr()
