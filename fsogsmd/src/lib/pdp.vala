@@ -51,6 +51,7 @@ public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
 public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObject
 {
     private string lastNetworkRegistrationStatus = "unknown";
+    private bool inSyncStatus = false;
 
     public FreeSmartphone.GSM.ContextStatus status { get; set; }
     public GLib.HashTable<string,Variant> properties { get; set; }
@@ -192,11 +193,16 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
 
     public async void syncStatus()
     {
+        if ( inSyncStatus )
+            return;
+
+        inSyncStatus = true;
+
         var networkRegistrationStatus = lastNetworkRegistrationStatus;
         var roamingAllowed = theModem.data().roamingAllowed;
         var nextContextStatus = status;
 
-        if ( !theModem.isAlive() )
+        if ( !theModem.isAlive() || this.status == FreeSmartphone.GSM.ContextStatus.RELEASED )
             return;
 
         var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
@@ -205,12 +211,6 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         if ( ( networkRegistrationStatus = (string) networkStatus.lookup( "pdp.registration" ) ) == null &&
              ( networkRegistrationStatus = (string) networkStatus.lookup( "registration" ) ) == null )
              networkRegistrationStatus = lastNetworkRegistrationStatus;
-
-        // FIXME maybe we should add a flag like reconnectAuto to let the context be
-        // reactivated automatically whenever roamingAllowed or networkStatus changed
-        // again.
-        if ( this.status == FreeSmartphone.GSM.ContextStatus.RELEASED )
-            return;
 
         var registered = ( networkRegistrationStatus == "registered" );
 
@@ -240,6 +240,7 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         }
 
         lastNetworkRegistrationStatus = networkRegistrationStatus;
+        inSyncStatus = false;
     }
 }
 
