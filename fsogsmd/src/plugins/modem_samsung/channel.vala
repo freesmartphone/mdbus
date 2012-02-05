@@ -60,7 +60,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
     public new Samsung.UnsolicitedResponseHandler urchandler { get; private set; }
     public string name { get; private set; }
-    public  Samsung.NetworkStatus network_status { get; private set; }
     public SamsungIpc.Power.PhoneState phone_pwr_state { get; private set; default = SamsungIpc.Power.PhoneState.LPM; }
 
     public delegate void UnsolicitedHandler( string prefix, string response, string? pdu = null );
@@ -84,17 +83,9 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
             case FsoGsm.Modem.Status.ALIVE_SIM_READY:
                 poweron();
                 break;
-            case FsoGsm.Modem.Status.CLOSING:
-                break;
-            case FsoGsm.Modem.Status.ALIVE_REGISTERED:
-                network_status.start();
-                break;
             default:
                 break;
         }
-
-        if ( status != FsoGsm.Modem.Status.ALIVE_REGISTERED && network_status.active )
-            network_status.stop();
     }
 
     protected override void onReadFromTransport( FsoFramework.Transport t )
@@ -318,8 +309,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.FMT );
         fmtclient.set_log_handler( ( message ) => { theLogger.info( message ); } );
         fmtclient.set_io_handlers( modem_read_request, modem_write_request );
-
-        network_status = new Samsung.NetworkStatus();
     }
 
     public override async bool open()

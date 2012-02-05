@@ -63,7 +63,6 @@ modem_samsung_la_VALASOURCES = \
  callhandler.vala \
  soundhandler.vala \
  utils.vala \
- networkstatus.vala \
  $(NULL)
 
 modem_samsung_la_SOURCES = $(modem_samsung_la_VALASOURCES:.vala=.c)
