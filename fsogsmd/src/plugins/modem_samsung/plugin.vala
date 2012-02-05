@@ -63,7 +63,7 @@ class Samsung.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.SmsHandler createSmsHandler()
     {
-        return (FsoGsm.SmsHandler) null;
+        return (FsoGsm.SmsHandler) new Samsung.SmsHandler();
     }
 
     protected override FsoGsm.PhonebookHandler createPhonebookHandler()
