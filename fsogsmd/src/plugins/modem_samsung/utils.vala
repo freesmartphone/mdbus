@@ -136,42 +136,6 @@ public string networkAccessTechnologyToString( SamsungIpc.Network.AccessTechnolo
     return result;
 }
 
-public void fillNetworkStatusInfo(GLib.HashTable<string,Variant> status)
-{
-    status.insert( "strength", @"$(Samsung.ModemState.network_signal_strength)" );
-
-    if (Samsung.ModemState.sim_provider_name != null)
-    {
-        status.insert( "provider", Samsung.ModemState.sim_provider_name );
-        status.insert( "display", Samsung.ModemState.sim_provider_name );
-    }
-    else
-    {
-        status.insert( "provider", "unknown" );
-        status.insert( "display", "unknown" );
-    }
-
-    if ( Samsung.ModemState.network_plmn != null && Samsung.ModemState.network_plmn.length > 0 )
-        status.insert( "plmn", Samsung.ModemState.network_plmn );
-
-    // status.insert( "mode", FIXME );
-
-    status.insert( "registration", networkRegistrationStateToString( Samsung.ModemState.network_reg_state ) );
-    status.insert( "mode", "automatic" );
-    status.insert( "lac", @"$(Samsung.ModemState.network_lac)" );
-    status.insert( "cid", @"$(Samsung.ModemState.network_cid)" );
-    status.insert( "act", networkAccessTechnologyToString( Samsung.ModemState.network_act ) );
-    status.insert( "pdp.registration", networkRegistrationStateToString( Samsung.ModemState.pdp_reg_state ) );
-    status.insert( "pdp.lac", @"$(Samsung.ModemState.pdp_lac)" );
-    status.insert( "pdp.cid", @"$(Samsung.ModemState.pdp_cid)" );
-
-    if ( Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
-         Samsung.ModemState.network_reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
-    {
-        // status.insert( "code", "%03u%02u".printf( MsmData.network_info.mcc, MsmData.network_info.mnc ) );
-    }
-}
-
 private string ipAddrFromByteArray( uint8* data, int size )
 {
     if ( size != 4 )

@@ -44,7 +44,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 break;
 
             case SamsungIpc.MessageType.NET_REGIST:
-                channel.network_status.update( response );
+                triggerUpdateNetworkStatus();
                 break;
 
             case SamsungIpc.MessageType.PWR_PHONE_STATE:

@@ -61,7 +61,15 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
 
         status = new GLib.HashTable<string, Variant>( str_hash, str_equal );
 
-        // retrieve network status
+        // signal strength and provider name only when available
+        status.insert( "strength", @"$(Samsung.ModemState.network_signal_strength)" );
+        if (Samsung.ModemState.sim_provider_name != null)
+        {
+            status.insert( "provider", Samsung.ModemState.sim_provider_name );
+            status.insert( "display", Samsung.ModemState.sim_provider_name );
+        }
+
+        // query telephony registration status
         var req = SamsungIpc.Network.RegistrationGetMessage();
         req.setup( SamsungIpc.Network.ServiceDomain.GSM );
         response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_REGIST, req.data );
@@ -69,9 +77,35 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         if ( response == null )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve network status from modem" );
 
-        channel.network_status.update( response );
+        SamsungIpc.Network.RegistrationMessage* reginfo = (SamsungIpc.Network.RegistrationMessage*) response.data;
 
-        // retrieve current network operator plmn
+        status.insert( "registration", networkRegistrationStateToString( reginfo.reg_state ) );
+        status.insert( "mode", "automatic" );
+        status.insert( "act", networkAccessTechnologyToString( reginfo.act ) );
+        status.insert( "lac", @"$(reginfo.lac)" );
+        status.insert( "cid", @"$(reginfo.cid)" );
+
+        if ( reginfo.reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
+             reginfo.reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
+        {
+            // status.insert( "code", "%03u%02u".printf( MsmData.network_info.mcc, MsmData.network_info.mnc ) );
+        }
+
+        // query PDP registration status
+        req = SamsungIpc.Network.RegistrationGetMessage();
+        req.setup( SamsungIpc.Network.ServiceDomain.GSM );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_REGIST, req.data );
+
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve PDP network status from modem" );
+
+        reginfo = (SamsungIpc.Network.RegistrationMessage*) response.data;
+
+        status.insert( "pdp.registration", networkRegistrationStateToString( reginfo.reg_state ) );
+        status.insert( "pdp.lac", @"$(reginfo.lac)" );
+        status.insert( "pdp.cid", @"$(reginfo.cid)" );
+
+        // query current network operator plmn
         response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_CURRENT_PLMN );
 
         if ( response == null )
@@ -81,10 +115,6 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         ModemState.network_plmn = "";
         for ( int n = 0; n < 5; n++)
             ModemState.network_plmn += "%c".printf( pr.plmn[n] );
-
-        assert( theLogger.debug( @"current network plmn = $(ModemState.network_plmn)" ) );
-
-        fillNetworkStatusInfo( status );
     }
 }
 
