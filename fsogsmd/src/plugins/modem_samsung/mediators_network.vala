@@ -26,6 +26,40 @@ public class SamsungNetworkRegister : NetworkRegister
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        SamsungIpc.Response? response = null;
+
+        // register with default network by setting PLMN selection to automatic
+        var req = SamsungIpc.Network.PlmnSelectionMessage();
+        req.setup( SamsungIpc.Network.PlmnSelectionMode.AUTO, null );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.NET_PLMN_SEL, req.data );
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could set network selection mode!" );
+    }
+}
+
+public class SamsungNetworkRegisterWithProvider : NetworkRegisterWithProvider
+{
+    public override async void run( string operator_code ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var succeeded = false;
+        SamsungIpc.Response? response = null;
+
+        if ( operator_code.length != 5 )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Got invalid operator code: $(operator_code)" );
+
+        var req = SamsungIpc.Network.PlmnSelectionMessage();
+        req.setup( SamsungIpc.Network.PlmnSelectionMode.MANUAL, operator_code );
+
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.NET_PLMN_SEL, req.data );
+        if ( response != null )
+        {
+            var genresp = (SamsungIpc.Generic.PhoneResponseMessage*) response;
+            succeeded = ( genresp.code == 0x80 );
+        }
+
+        if ( !succeeded )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Could not register with network $(operator_code)" );
     }
 }
 
@@ -33,7 +67,7 @@ public class SamsungNetworkUnregister : NetworkUnregister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        throw new FreeSmartphone.Error.UNSUPPORTED( @"Unregistering from a network is unsupported with this modem type!" );
     }
 }
 

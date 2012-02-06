@@ -107,6 +107,7 @@ class Samsung.Modem : FsoGsm.AbstractModem
         mediators[ typeof(DeviceSetFunctionality) ]       = typeof( SamsungDeviceSetFunctionality );
 
         mediators[ typeof(NetworkRegister) ]              = typeof( SamsungNetworkRegister );
+        mediators[ typeof(NetworkRegisterWithProvider) ]  = typeof( SamsungNetworkRegisterWithProvider );
         mediators[ typeof(NetworkUnregister) ]            = typeof( SamsungNetworkUnregister );
         mediators[ typeof(NetworkGetStatus) ]             = typeof( SamsungNetworkGetStatus );
         mediators[ typeof(NetworkGetSignalStrength) ]     = typeof( SamsungNetworkGetSignalStrength );
