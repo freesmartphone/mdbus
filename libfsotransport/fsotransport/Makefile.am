@@ -57,7 +57,7 @@ libfsotransport_la_VALASOURCES += hsuart.vala
 endif
 
 if WANT_NGSM
-AM_CPPFLAGS += -I$(top_srcdir)/linux
+AM_CPPFLAGS += -I$(top_srcdir)/3rdparty
 libfsotransport_la_VALASOURCES += ngsm.vala
 endif
 
