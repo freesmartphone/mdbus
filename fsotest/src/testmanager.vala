@@ -17,6 +17,7 @@
  */
 
 using GLib;
+using FsoFramework;
 
 namespace FsoTest
 {
@@ -26,6 +27,7 @@ namespace FsoTest
 public class FsoTest.TestManager : GLib.Object
 {
     private List<Fixture> fixtures = new List<Fixture>();
+    private List<TestResult> results = new List<TestResult>();
 
     public void add_fixture( Fixture fixture )
     {
@@ -37,11 +39,11 @@ public class FsoTest.TestManager : GLib.Object
         try
         {
             test_method();
-            FsoFramework.theLogger.info( @"$test_name :: OK" );
+            results.append( new TestResult( test_name, true ) );
         }
         catch ( GLib.Error err )
         {
-            FsoFramework.theLogger.error( @"$test_name :: FAILED: $(err.message)" );
+            results.append( new TestResult( test_name, false, err.message ) );
             return false;
         }
 
@@ -52,22 +54,19 @@ public class FsoTest.TestManager : GLib.Object
     {
         foreach ( var fixture in fixtures )
         {
-            FsoFramework.theLogger.info( @"================================================" );
-            FsoFramework.theLogger.info( @" Fixture $(fixture.name)" );
-            FsoFramework.theLogger.info( @"================================================" );
-
             fixture.setup();
-
-            if ( fixture.run( this ) )
-            {
-                FsoFramework.theLogger.info( @"==> SUCCESSFULL" );
-            }
-            else
-            {
-                FsoFramework.theLogger.error( @"==> FAILED" );
-            }
-
+            fixture.run( this );
             fixture.teardown();
+        }
+    }
+
+    public void finish()
+    {
+        foreach ( var r in results )
+        {
+            if ( r.success )
+                theLogger.info( @"...[$(r.test_name)] : OK" );
+            else theLogger.error( @"...[$(r.test_name)] : FAILED : $(r.message)" );
         }
     }
 }

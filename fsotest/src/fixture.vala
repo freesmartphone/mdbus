@@ -140,7 +140,7 @@ namespace FsoTest
         /**
          * Execute all tests while collecting their results.
          */
-        public bool run( TestManager test_manager )
+        public void run( TestManager test_manager )
         {
             foreach ( var test in tests )
             {
@@ -148,7 +148,6 @@ namespace FsoTest
                     run_async_test( test_manager, test );
                 else run_test( test_manager, test );
             }
-            return true;
         }
 
         /**

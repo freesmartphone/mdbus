@@ -33,6 +33,7 @@ fsotest_VALASOURCES = \
 	wait.vala \
 	signalwatcher.vala \
 	testutils.vala \
+	testresult.vala \
 	testmanager.vala \
 	testusage.vala \
 	testgsm.vala \

@@ -16,24 +16,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  */
 
-using GLib;
-
-public static int main( string[] args )
+namespace FsoTest
 {
-    var tm = new FsoTest.TestManager();
+    public class TestResult : GLib.Object
+    {
+        public string test_name { get; private set; }
+        public bool success { get; private set; }
+        public string message { get; private set; }
 
-    Test.log_set_fatal_handler( ( domain, log_levels, message ) => {
-        FsoFramework.theLogger.critical( @"Fatal: $domain -> $message" );
-        return false;
-    } );
-
-    tm.add_fixture( new FsoTest.TestUsage() );
-    tm.add_fixture( new FsoTest.TestGSM() );
-
-    tm.run_all();
-    tm.finish();
-
-    return 0;
+        public TestResult( string test_name, bool success, string message = "" )
+        {
+            this.test_name = test_name;
+            this.success = success;
+            this.message = message;
+        }
+    }
 }
 
 // vim:ts=4:sw=4:expandtab
