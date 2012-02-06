@@ -25,14 +25,7 @@ public class SamsungNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        SamsungIpc.Response? response = null;
         var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
-
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
-            SamsungIpc.MessageType.NET_MODE_SEL, new uint8[] { 0x1 } );
-
-        if ( response == null )
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could set network selection mode!" );
     }
 }
 
