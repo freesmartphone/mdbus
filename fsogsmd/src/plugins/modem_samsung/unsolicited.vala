@@ -49,7 +49,6 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
             case SamsungIpc.MessageType.PWR_PHONE_STATE:
                 uint8 power_state = response.data[0];
-                assert( logger.debug( @"phone state changed to state = 0x%02x".printf( power_state ) ) );
                 handle_power_state( power_state );
                 break;
 
