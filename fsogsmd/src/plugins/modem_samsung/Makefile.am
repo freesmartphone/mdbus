@@ -5,6 +5,7 @@ NULL =
 AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
+	-I$(top_srcdir)/src/plugins/modem_samsung/include \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
@@ -24,6 +25,7 @@ progs_ldadd = \
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/src/plugins/modem_samsung \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
@@ -35,6 +37,7 @@ VALAC_ARGS = \
 	--pkg fsogsm-2.0 \
 	--pkg fsodata-2.0 \
 	--pkg samsung-ipc-1.0 \
+	--pkg samsung-modemctl \
 	$(NULL)
 
 if WANT_DEBUG
@@ -49,6 +52,7 @@ modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_samsung.la
 
 modem_samsung_la_VALASOURCES = \
+ samsungtransport.vala \
  plugin.vala \
  channel.vala \
  unsolicited.vala \

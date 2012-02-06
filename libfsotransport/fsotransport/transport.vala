@@ -72,9 +72,6 @@ public class FsoFramework.TransportSpec
             case "raw":
                 transport = new FsoFramework.RawTransport( name );
                 break;
-            case "samsung":
-                transport = new FsoFramework.SamsungModemTransport( name );
-                break;
             default:
                 FsoFramework.theLogger.warning( @"Invalid transport type $type. Using NullTransport" );
                 transport = new FsoFramework.NullTransport();
@@ -121,8 +118,6 @@ public abstract class FsoFramework.Transport : Object
                 return new FsoFramework.NgsmBasicMuxTransport( name, speed );
             case "ngsmadvanced":
                 return new FsoFramework.NgsmAdvancedMuxTransport( name, speed );
-            case "samsung":
-                return new FsoFramework.SamsungModemTransport( name );
             default:
                 return null;
         }

@@ -19,7 +19,7 @@
 
 using GLib;
 
-public class FsoFramework.SamsungModemTransport : FsoFramework.BaseTransport
+public class FsoGsm.SamsungModemTransport : FsoFramework.BaseTransport
 {
     private const uint MAX_BUFFER_SIZE = 0x1000;
 
