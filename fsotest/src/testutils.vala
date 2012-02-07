@@ -26,28 +26,34 @@ public errordomain FsoTest.AssertError
 
 public class FsoTest.Assert : GLib.Object
 {
-    public static void are_equal<T>( T expected, T actual ) throws GLib.Error
+
+    private static void throw_unexpected_value( string info, string message ) throws GLib.Error
+    {
+        throw new AssertError.UNEXPECTED_VALUE( info +  ( message.length > 0 ? @" : $(message)" : "" ) );
+    }
+
+    public static void are_equal<T>( T expected, T actual, string message = "" ) throws GLib.Error
     {
         if ( expected != actual )
-            throw new AssertError.UNEXPECTED_VALUE( @"Actual value is not the same as the expected one" );
+            throw_unexpected_value( "Actual value is not the same as the expected one", message );
     }
 
-    public static void are_not_equal<T>( T not_expected, T actual ) throws GLib.Error
+    public static void are_not_equal<T>( T not_expected, T actual, string message = "" ) throws GLib.Error
     {
         if ( not_expected == actual )
-            throw new AssertError.UNEXPECTED_VALUE( @"Actual value is the same as the not expected one" );
+            throw_unexpected_value( "Actual value is the same as the not expected one", message );
     }
 
-    public static void is_true( bool actual ) throws GLib.Error
+    public static void is_true( bool actual, string message = "" ) throws GLib.Error
     {
         if ( !actual )
-            throw new AssertError.UNEXPECTED_VALUE( @"Supplied value is not true" );
+            throw_unexpected_value( "Supplied value is not true", message );
     }
 
-    public static void is_false( bool actual ) throws GLib.Error
+    public static void is_false( bool actual, string message = "" ) throws GLib.Error
     {
         if ( actual )
-            throw new AssertError.UNEXPECTED_VALUE( @"Supplied value is not false" );
+            throw_unexpected_value( "Supplied value is not false", message );
     }
 
     public static void fail( string message ) throws GLib.Error
@@ -55,17 +61,17 @@ public class FsoTest.Assert : GLib.Object
         throw new AssertError.UNEXPECTED_STATE( message );
     }
 
-    public static void should_throw_async( AsyncBegin fbegin, AsyncFinish ffinish, string domain ) throws GLib.Error
+    public static void should_throw_async( AsyncBegin fbegin, AsyncFinish ffinish, string domain, string message = "" ) throws GLib.Error
     {
         try
         {
             if ( !wait_for_async( 200, fbegin, ffinish ) )
-                throw new AssertError.UNEXPECTED_VALUE( @"Execution of async method didn't returns the expected value" );
+                throw_unexpected_value( "Execution of async method didn't returns the expected value", message );
         }
         catch ( GLib.Error err )
         {
             if ( err.domain.to_string() != domain )
-                throw new AssertError.UNEXPECTED_VALUE( @"Didn't receive the expected exception of type $domain" );
+                throw_unexpected_value( @"Didn't receive the expected exception of type $domain", message );
             return;
         }
 
