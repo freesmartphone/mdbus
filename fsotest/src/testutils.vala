@@ -26,6 +26,31 @@ public errordomain FsoTest.AssertError
 
 public class FsoTest.Assert : GLib.Object
 {
+    private static string typed_value_to_string<T>( T value )
+    {
+        string result = "";
+
+        Type value_type = typeof(T);
+        if ( value_type.is_value_type() )
+        {
+            if ( value_type.is_a( typeof(string) ) )
+                result = @"$((string) value)";
+            else if ( value_type.is_a( typeof(int32) ) )
+                result = @"$((int32) value)";
+            else if ( value_type.is_a( typeof(uint32) ) )
+                result = @"$((uint32) value)";
+            else if ( value_type.is_a( typeof(int16) ) )
+                result = @"$((int16) value)";
+            else if ( value_type.is_a( typeof(uint16) ) )
+                result = @"$((uint16) value)";
+            else if ( value_type.is_a( typeof(int8) ) )
+                result = @"$((int8) value)";
+            else if ( value_type.is_a( typeof(uint8) ) )
+                result = @"$((uint8) value)";
+        }
+
+        return result;
+    }
 
     private static void throw_unexpected_value( string info, string message ) throws GLib.Error
     {
@@ -35,13 +60,19 @@ public class FsoTest.Assert : GLib.Object
     public static void are_equal<T>( T expected, T actual, string message = "" ) throws GLib.Error
     {
         if ( expected != actual )
-            throw_unexpected_value( "Actual value is not the same as the expected one", message );
+        {
+            var msg = "$(typed_value_to_string(expected)) != $(typed_value_to_string(actual))";
+            throw_unexpected_value<T>( "Actual value is not the same as the expected one: $(msg)", message );
+        }
     }
 
     public static void are_not_equal<T>( T not_expected, T actual, string message = "" ) throws GLib.Error
     {
         if ( not_expected == actual )
-            throw_unexpected_value( "Actual value is the same as the not expected one", message );
+        {
+            var msg = "$(typed_value_to_string(expected)) == $(typed_value_to_string(actual))";
+            throw_unexpected_value( "Actual value is the same as the not expected one: $(msg)", message );
+        }
     }
 
     public static void is_true( bool actual, string message = "" ) throws GLib.Error
