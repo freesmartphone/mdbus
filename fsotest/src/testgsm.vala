@@ -213,6 +213,18 @@ public class FsoTest.TestGSM : FsoTest.Fixture
         Assert.are_equal<string>( pin, pin_from_config );
     }
 
+    public async void test_validate_device_features() throws GLib.Error, AssertError
+    {
+        var features = yield gsm_device.get_features();
+        Assert.is_true( features.lookup( "voice" ) != null, "Device does not mention voice feature" );
+        Assert.is_true( features.lookup( "csd" ) != null, "Device does not mention csd feature" );
+        Assert.is_true( features.lookup( "gsm" ) != null, "Device does not mention gsm feature" );
+        Assert.is_true( features.lookup( "cdma" ) != null, "Device does not mention cdma feature" );
+        Assert.is_true( features.lookup( "pdp" ) != null, "Device does not mention pdp feature" );
+        Assert.is_true( features.lookup( "fax" ) != null, "Device does not mention fax feature" );
+        Assert.is_true( features.lookup( "facilities" ) != null, "Device does not mention facilities feature" );
+    }
+
     public async void test_set_airplane_device_functionality() throws GLib.Error, AssertError
     {
         string level = "", pin = "";
