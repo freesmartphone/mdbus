@@ -36,16 +36,24 @@ public class FsoTest.TestManager : GLib.Object
 
     public bool run_test_method( string test_name, TestMethod test_method )
     {
+        FsoTest.TestResult tr;
+
         try
         {
             test_method();
-            results.append( new TestResult( test_name, true ) );
+            tr = new TestResult( test_name, true );
         }
         catch ( GLib.Error err )
         {
-            results.append( new TestResult( test_name, false, err.message ) );
+            tr = new TestResult( test_name, false, err.message );
             return false;
         }
+
+        results.append( tr );
+
+        if ( tr.success )
+            theLogger.info( @"...[$(tr.test_name)] : OK" );
+        else theLogger.error( @"...[$(tr.test_name)] : FAILED : $(tr.message)" );
 
         return true;
     }
@@ -57,16 +65,6 @@ public class FsoTest.TestManager : GLib.Object
             fixture.setup();
             fixture.run( this );
             fixture.teardown();
-        }
-    }
-
-    public void finish()
-    {
-        foreach ( var r in results )
-        {
-            if ( r.success )
-                theLogger.info( @"...[$(r.test_name)] : OK" );
-            else theLogger.error( @"...[$(r.test_name)] : FAILED : $(r.message)" );
         }
     }
 }

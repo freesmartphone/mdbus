@@ -31,7 +31,6 @@ public static int main( string[] args )
     tm.add_fixture( new FsoTest.TestGSM() );
 
     tm.run_all();
-    tm.finish();
 
     return 0;
 }
