@@ -68,11 +68,11 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         } ) );
 
         registerAtCommandSequence( "main", "suspend", new AtCommandSequence( {
-            """+CSQI=0""" /* disable signal strength updates */
+            """_OSQI=0""" /* disable signal strength updates */
         } ) );
 
         registerAtCommandSequence( "main", "resume", new AtCommandSequence( {
-            """+CSQI=1""" /* enable signal strength updates */
+            """_OSQI=1""" /* enable signal strength updates */
         } ) );
     }
 
