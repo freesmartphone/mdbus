@@ -66,6 +66,14 @@ class Gtm601.Modem : FsoGsm.AbstractModem
             cnmiCommand,
             """+CSMS=1""" /* enable SMS phase 2 */
         } ) );
+
+        registerAtCommandSequence( "main", "suspend", new AtCommandSequence( {
+            """+CSQI=0""" /* disable signal strength updates */
+        } ) );
+
+        registerAtCommandSequence( "main", "resume", new AtCommandSequence( {
+            """+CSQI=1""" /* enable signal strength updates */
+        } ) );
     }
 
     protected override void createChannels()
