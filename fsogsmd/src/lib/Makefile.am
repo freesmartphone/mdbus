@@ -89,6 +89,7 @@ libfsogsm_la_VALASOURCES = \
 	channel.vala \
 	lowlevel.vala \
 	mediator.vala \
+	mediatorhelpers.vala \
 	modem.vala \
 	phonebook.vala \
 	pdp.vala \
