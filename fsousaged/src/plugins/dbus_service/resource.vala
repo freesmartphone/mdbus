@@ -215,7 +215,9 @@ public class Resource : IResource, Object
         if ( policy == FreeSmartphone.UsageResourcePolicy.DISABLED )
             throw new FreeSmartphone.UsageError.POLICY_DISABLED( @"Resource $name cannot be requested by $user per policy" );
 
-        if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 0 )
+        users.insert( 0, user );
+
+        if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 1 )
         {
             try
             {
@@ -226,9 +228,10 @@ public class Resource : IResource, Object
                 throw new FreeSmartphone.ResourceError.UNABLE_TO_ENABLE( @"Could not enable resource '$name': $(error.message)" );
             }
         }
-
-        users.insert( 0, user );
-        updateStatus();
+        else
+        {
+            updateStatus();
+        }
     }
 
     public async void delUser( string user ) throws FreeSmartphone.UsageError
@@ -239,7 +242,13 @@ public class Resource : IResource, Object
         users.remove( user );
 
         if ( policy == FreeSmartphone.UsageResourcePolicy.AUTO && users.size == 0 )
+        {
             yield disable();
+        }
+        else
+        {
+            updateStatus();
+        }
     }
 
     public void syncUsers()
