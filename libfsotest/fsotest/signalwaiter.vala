@@ -26,9 +26,11 @@ namespace FsoFramework.Test
         public string signame { get; set; default = ""; }
         public ulong id { get; set; }
         public int timeout { get; set; }
+        public int catch_count { get; set; }
 
         public int callback()
         {
+            catch_count++;
             triggered();
             return 0;
         }
@@ -36,6 +38,7 @@ namespace FsoFramework.Test
         public void setup()
         {
             id = Signal.connect_swapped( emitter, signame, (Callback) SignalWrapper.callback, this );
+            catch_count = 0;
         }
 
         public void release()
@@ -80,11 +83,16 @@ namespace FsoFramework.Test
             while ( mainloop.is_running() )
                 mainloop.run();
 
+            bool succeeded = true;
             foreach ( var s in signals )
+            {
                 s.release();
-            Source.remove( t1 );
+                if ( s.catch_count == 0 )
+                    succeeded = false;
+            }
 
-            return ( succeeded_count == signals.length() );
+            Source.remove( t1 );
+            return succeeded;
         }
     }
 }

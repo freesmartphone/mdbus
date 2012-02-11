@@ -4,14 +4,13 @@ NULL =
 
 AM_CFLAGS = \
 	-I$(top_srcdir) \
-	-I../fsoframework \
+	-I../fsotest \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
 	$(NULL)
 
-INCLUDES = \
-	-I../fsoframework
+INCLUDES = -I../fsotest
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
@@ -19,29 +18,27 @@ progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
 	$(FSOBASICS_LIBS) \
-	../fsoframework/libfsoframework.la
+	../fsotest/libfsotest.la
 
 VALAC_ARGS = \
 	-C \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/fsoframework \
+	--vapidir $(top_srcdir)/fsotest \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg dbus-glib-1 \
-	--pkg fsoframework-2.0
+	--pkg fsotest-2.0 \
+	$(NULL)
 
-#
-# dbus test
-#
-# TEST_PROGS += testdbus
-# testdbus_VALASOURCES = testdbus.vala
-# testdbus_SOURCES = testdbus.c
-# $(testdbus_SOURCES): $(testdbus_VALASOURCES)
-#	$(VALAC) $(VALAC_ARGS) $^
-#	touch $@
-# testdbus_LDADD = $(progs_ldadd)
-# EXTRA_DIST += $(testdbus_VALASOURCES)
+TEST_PROGS += testsignalwaiter
+testsignalwaiter_VALASOURCES = testsignalwaiter.vala
+testsignalwaiter_SOURCES = testsignalwaiter.c
+$(testsignalwaiter_SOURCES): $(testsignalwaiter_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testsignalwaiter_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testsignalwaiter_VALASOURCES)
 
 CLEANFILES = \
     $(TEST_PROGS) \
