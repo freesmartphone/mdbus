@@ -54,12 +54,12 @@ namespace FsoFramework.Test
             return result;
         }
 
-        private static void throw_unexpected_value( string info, string message ) throws GLib.Error
+        private static void throw_unexpected_value( string info, string message ) throws AssertError
         {
             throw new AssertError.UNEXPECTED_VALUE( info +  ( message.length > 0 ? @" : $(message)" : "" ) );
         }
 
-        public static void are_equal<T>( T expected, T actual, string message = "" ) throws GLib.Error
+        public static void are_equal<T>( T expected, T actual, string message = "" ) throws AssertError
         {
             if ( expected != actual )
             {
@@ -68,7 +68,7 @@ namespace FsoFramework.Test
             }
         }
 
-        public static void are_not_equal<T>( T not_expected, T actual, string message = "" ) throws GLib.Error
+        public static void are_not_equal<T>( T not_expected, T actual, string message = "" ) throws AssertError
         {
             if ( not_expected == actual )
             {
@@ -77,24 +77,24 @@ namespace FsoFramework.Test
             }
         }
 
-        public static void is_true( bool actual, string message = "" ) throws GLib.Error
+        public static void is_true( bool actual, string message = "" ) throws AssertError
         {
             if ( !actual )
                 throw_unexpected_value( "Supplied value is not true", message );
         }
 
-        public static void is_false( bool actual, string message = "" ) throws GLib.Error
+        public static void is_false( bool actual, string message = "" ) throws AssertError
         {
             if ( actual )
                 throw_unexpected_value( "Supplied value is not false", message );
         }
 
-        public static void fail( string message ) throws GLib.Error
+        public static void fail( string message ) throws AssertError
         {
             throw new AssertError.UNEXPECTED_STATE( message );
         }
 
-        public static void should_throw_async( AsyncBegin fbegin, AsyncFinish ffinish, string domain, string message = "" ) throws GLib.Error
+        public static void should_throw_async( AsyncBegin fbegin, AsyncFinish ffinish, string domain, string message = "" ) throws AssertError
         {
             try
             {
