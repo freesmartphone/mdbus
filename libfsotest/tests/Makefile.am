@@ -40,6 +40,15 @@ $(testsignalwaiter_SOURCES): $(testsignalwaiter_VALASOURCES)
 testsignalwaiter_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testsignalwaiter_VALASOURCES)
 
+TEST_PROGS += testassert
+testassert_VALASOURCES = testassert.vala
+testassert_SOURCES = testassert.c
+$(testassert_SOURCES): $(testassert_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testassert_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testassert_VALASOURCES)
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \
