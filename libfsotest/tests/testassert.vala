@@ -24,14 +24,14 @@ void test_are_equal()
         FsoFramework.Test.Assert.are_equal<string>( "Test1", "Test2", "Should not be equal" );
         assert( false ); // Should only reached when test failed
     }
-    catch ( FsoFramework.Test.AssertError err ) { }
+    catch ( GLib.Error err ) { }
 
     try
     {
         FsoFramework.Test.Assert.are_equal<int>( 101, 102, "Should not be equal" );
         assert( false ); // Should only reached when test failed
     }
-    catch ( FsoFramework.Test.AssertError err ) { }
+    catch ( GLib.Error err ) { }
 
     try
     {
@@ -51,14 +51,14 @@ void test_are_not_equal()
         FsoFramework.Test.Assert.are_not_equal<string>( "Test1", "Test1", "Should not be equal" );
         assert( false ); // Should only reached when test failed
     }
-    catch ( FsoFramework.Test.AssertError err ) { }
+    catch ( GLib.Error err ) { }
 
     try
     {
         FsoFramework.Test.Assert.are_not_equal<int>( 101, 101, "Should not be equal" );
         assert( false ); // Should only reached when test failed
     }
-    catch ( FsoFramework.Test.AssertError err ) { }
+    catch ( GLib.Error err ) { }
 
 
     try
@@ -79,7 +79,7 @@ void test_is_true()
         FsoFramework.Test.Assert.is_true( false );
         assert( false ); // Should only reached when test failed
     }
-    catch ( FsoFramework.Test.AssertError err ) { }
+    catch ( GLib.Error err ) { }
 
     try
     {
@@ -98,7 +98,7 @@ void test_is_false()
         FsoFramework.Test.Assert.is_false( true );
         assert( false ); // Should only reached when test failed
     }
-    catch ( FsoFramework.Test.AssertError err ) { }
+    catch ( GLib.Error err ) { }
 
     try
     {
@@ -117,7 +117,7 @@ void test_fail()
         FsoFramework.Test.Assert.fail( "fail" );
         assert( false );
     }
-    catch ( FsoFramework.Test.AssertError err )
+    catch ( GLib.Error err )
     {
     }
 }
