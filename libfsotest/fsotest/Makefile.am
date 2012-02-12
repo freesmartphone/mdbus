@@ -5,7 +5,6 @@ NULL =
 AM_CFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
-	$(FSOBASICS_CFLAGS) \
 	-D G_LOG_DOMAIN=\"fsotest\" \
 	$(NULL)
 
@@ -15,7 +14,6 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
-	--pkg fsobasics-2.0 \
 	--pkg config \
 	--header fsotest.h \
 	--library fsotest-2.0
@@ -52,7 +50,6 @@ fsotest-2.0.vapi fsotest.vala.stamp: $(libfsotest_la_VALASOURCES)
 
 libfsotest_la_LIBADD = \
 	$(GLIB_LIBS) \
-	$(FSOBASICS_LIBS) \
 	$(NULL)
 
 vapidir = $(datadir)/vala/vapi

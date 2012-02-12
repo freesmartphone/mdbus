@@ -7,7 +7,6 @@ AM_CFLAGS = \
 	-I../fsotest \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
-	$(FSOBASICS_CFLAGS) \
 	$(NULL)
 
 INCLUDES = -I../fsotest
@@ -17,7 +16,6 @@ noinst_PROGRAMS = $(TEST_PROGS)
 progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
-	$(FSOBASICS_LIBS) \
 	../fsotest/libfsotest.la
 
 VALAC_ARGS = \
