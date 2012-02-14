@@ -49,12 +49,31 @@ namespace FsoFramework.Test
         public signal void triggered();
     }
 
+    /**
+     * Wait for one or more signals to arrived when executing a operation which causes
+     * this signals to be triggered. The waiter will return a failure when a timeout is
+     * reached and no or not all signals has triggered.
+     *
+     * Example:
+     *  var waiter = new MultiSignalWaiter();
+     *  waiter.add_signal( emitter, "signal0" );
+     *  var result = waiter.run( () => { triggerSignal0(); } );
+     **/
     public class MultiSignalWaiter : GLib.Object
     {
         private GLib.List<SignalWrapper> signals = new GLib.List<SignalWrapper>();
         private uint succeeded_count = 0;
         private MainLoop mainloop;
 
+        /**
+         * Add a signal of an object called emitter to listen for until a timeout is
+         * reached.
+         *
+         * @param emitter Object which emits the signal
+         * @param signame Name of the signal
+         * @param timeout Timeout Specifies the maximum amount of time to wait for the
+         *                signal to be triggerd.
+         **/
         public void add_signal( Object emitter, string signame, int timeout = 200 )
         {
             var s = new SignalWrapper() { emitter = emitter, signame = signame, timeout = 200 };
@@ -66,6 +85,16 @@ namespace FsoFramework.Test
             signals.append( s );
         }
 
+        /**
+         * Run the code block which causes the added signals to be triggered. After block
+         * is executed and timeout is reached or all signals has arrived the result is
+         * returned to the caller.
+         *
+         * @param block Code block to execute
+         * @param timeout Timeout to wait before returning to caller
+         * @return True, if all signals has been triggered. False, if timeout is reached
+         *         and not all signals has been triggered.
+         **/
         public bool run( Block block, int timeout = 200 )
         {
             mainloop = new MainLoop(MainContext.default(), true);

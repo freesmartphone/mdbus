@@ -59,6 +59,14 @@ namespace FsoFramework.Test
             throw new AssertError.UNEXPECTED_VALUE( info +  ( message.length > 0 ? @" : $(message)" : "" ) );
         }
 
+        /**
+         * Check wether two values of type T are the same. If both values are different an
+         * exception of type AssertError is thrown.
+         *
+         * @param expected Expected value
+         * @param actual Actual value to compare with the expected one
+         * @param message Extra description message if both values are different
+         **/
         public static void are_equal<T>( T expected, T actual, string message = "" ) throws AssertError
         {
             if ( expected != actual )
@@ -68,6 +76,14 @@ namespace FsoFramework.Test
             }
         }
 
+        /**
+         * Check wether two values of type T are not the same. If both values are the same an
+         * exception of type AssertError is thrown.
+         *
+         * @param not_expected Not expected value
+         * @param actual Actual value to compare with the not expected one
+         * @param message Extra description message if both values are not different
+         **/
         public static void are_not_equal<T>( T not_expected, T actual, string message = "" ) throws AssertError
         {
             if ( not_expected == actual )
@@ -77,23 +93,50 @@ namespace FsoFramework.Test
             }
         }
 
+        /**
+         * Check wether a boolean value is true and throw an exception otherwise.
+         *
+         * @param actual Value to check if it's true or not
+         * @param message Text message to append to error message when assert failed
+         **/
         public static void is_true( bool actual, string message = "" ) throws AssertError
         {
             if ( !actual )
                 throw_unexpected_value( "Supplied value is not true", message );
         }
 
+        /**
+         * Check wether a boolean value is false and throw an exception otherwise.
+         *
+         * @param actual Value to check if it's false or not
+         * @param message Text message to append to error message when assert failed
+         **/
         public static void is_false( bool actual, string message = "" ) throws AssertError
         {
             if ( actual )
                 throw_unexpected_value( "Supplied value is not false", message );
         }
 
+        /**
+         * Let test execution fail regardless any condition.
+         *
+         * @param message Text to append to error message
+         **/
         public static void fail( string message ) throws AssertError
         {
             throw new AssertError.UNEXPECTED_STATE( message );
         }
 
+        /**
+         * Check wether an async operation throws a specific exception.
+         *
+         * @param fbegin Method to start execution of async operation
+         * @param ffinish Method to finish execution of async operation
+         * @param domain Error domain of the exception which should be thrown by the async
+                         operation.
+         * @param message Text message to append to error message when specific exception
+         *                is not thrown.
+         **/
         public static void should_throw_async( AsyncBegin fbegin, AsyncFinish ffinish, string domain, string message = "" ) throws AssertError
         {
             try
