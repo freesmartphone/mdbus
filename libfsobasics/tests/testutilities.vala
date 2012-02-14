@@ -148,7 +148,7 @@ void test_utilities_utility_hardware()
 //===========================================================================
 {
     var hardware = Utility.hardware();
-    assert( hardware == "default" );
+    assert( hardware == "default" || hardware == "GenuineIntel" );
 }
 
 //===========================================================================
