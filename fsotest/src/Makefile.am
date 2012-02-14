@@ -11,6 +11,7 @@ VALAC_ARGS = \
 	--vapidir ../vapi \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
+	--pkg fsotest-2.0 \
 	--pkg fsobasics-2.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsoresource-2.0 \
@@ -29,12 +30,6 @@ sbin_PROGRAMS = fsotest
 
 fsotest_VALASOURCES = \
 	main.vala \
-	fixture.vala \
-	wait.vala \
-	signalwatcher.vala \
-	testutils.vala \
-	testresult.vala \
-	testmanager.vala \
 	testusage.vala \
 	testgsm.vala \
 	$(NULL)
