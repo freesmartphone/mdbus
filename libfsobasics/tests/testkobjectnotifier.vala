@@ -25,12 +25,25 @@ void test_kobjectnotifier_add_match()
 //===========================================================================
 {
     var loop = new MainLoop();
-    BaseKObjectNotifier.addMatch( "add", "net", ( properties ) => { loop.quit(); } );
-    Timeout.add_seconds( 1, () => {
-        FsoFramework.FileHandling.write( " ", "/sys/class/net/lo/uevent" );
-        return false;
+    var success = false;
+    var count = 0;
+
+    BaseKObjectNotifier.addMatch( "add", "net", ( properties ) => {
+        success = true;
+        loop.quit();
     } );
+
+    Timeout.add_seconds( 1, () => {
+        if ( count == 10 )
+            loop.quit();
+        FsoFramework.FileHandling.write( " ", "/sys/class/net/lo/uevent" );
+        count++;
+        return true;
+    } );
+
     loop.run();
+
+    assert( success == true );
 }
 
 //===========================================================================
