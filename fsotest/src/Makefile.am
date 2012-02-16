@@ -31,7 +31,6 @@ sbin_PROGRAMS = fsotest
 fsotest_VALASOURCES = \
 	main.vala \
 	testusage.vala \
-	testgsm.vala \
 	$(NULL)
 
 fsotest_SOURCES = \

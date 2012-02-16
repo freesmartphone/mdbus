@@ -17,6 +17,7 @@
  */
 
 using GLib;
+using FsoFramework.Test;
 
 public class DummyResource : GLib.Object, FreeSmartphone.Resource
 {
@@ -50,33 +51,34 @@ public class DummyResource : GLib.Object, FreeSmartphone.Resource
     }
 }
 
-public class FsoTest.TestUsage : FsoTest.Fixture
+public class FsoTest.TestUsage : FsoFramework.Test.TestCase
 {
     private FreeSmartphone.Usage usage;
     private DummyResource resource;
 
     public TestUsage()
     {
-        name = "Usage";
+        base("FreeSmartphone.Usage");
 
-        add_async_test( "/org/freesmartphone/Usage/ResourceRegistration",
+        add_async_test( "ResourceRegistration",
                         cb => test_resource_registration( cb ),
                         res => test_resource_registration.end( res ) );
 
-        add_async_test( "/org/freesmartphone/Usage/RequestResource",
+        add_async_test( "RequestResource",
                         cb => test_request_resource( cb ),
                         res => test_request_resource.end( res ) );
 
-        add_async_test( "/org/freesmartphone/Usage/ReleaseResource",
+        add_async_test( "ReleaseResource",
                         cb => test_release_resource( cb ),
                         res => test_release_resource.end( res ) );
 
-        add_async_test( "/org/freesmartphone/Usage/ResourceDeregistration",
+        add_async_test( "ResourceDeregistration",
                         cb => test_resource_unregister( cb ),
                         res => test_resource_unregister.end( res ) );
+
     }
 
-    public override async void setup()
+    public override void set_up()
     {
         try
         {
@@ -85,18 +87,22 @@ public class FsoTest.TestUsage : FsoTest.Fixture
             resource = new DummyResource();
             resource.path = "/org/freesmartphone/Test/Usage";
 
-            var systembus = yield Bus.get( BusType.SYSTEM );
+            var systembus = Bus.get_sync( BusType.SYSTEM );
 
             Bus.own_name_on_connection( systembus, "org.freesmartphone.otestd", BusNameOwnerFlags.REPLACE );
             systembus.register_object<FreeSmartphone.Resource>( resource.path, resource );
         }
         catch ( GLib.Error err )
         {
-            critical( @"Can't register dummy resource on the system bus: $(err.message)" );
+            // critical( @"Can't register dummy resource on the system bus: $(err.message)" );
         }
     }
 
-    public async void test_resource_registration() throws GLib.Error, AssertError
+    public override void tear_down()
+    {
+    }
+
+    public async void test_resource_registration() throws GLib.Error
     {
         // FIXME we need to find some way to access the parameters supplied with the signal
         Assert.is_true( wait_for_signal( 200, usage, "resource_available", () => {
@@ -105,25 +111,25 @@ public class FsoTest.TestUsage : FsoTest.Fixture
 
         var resources = yield usage.list_resources();
         Assert.is_true( "Dummy" in resources );
-        Assert.are_equal( false, resource.enabled );
-        Assert.are_equal( false, resource.suspended );
+        Assert.is_false( resource.enabled, "Resource is enabled but should not" );
+        Assert.is_false( resource.suspended, "Resource is suspended but should not" );
     }
 
-    public async void test_request_resource() throws GLib.Error, AssertError
+    public async void test_request_resource() throws GLib.Error
     {
         yield usage.request_resource( "Dummy" );
-        Assert.are_equal( true, resource.enabled );
-        Assert.are_equal( false, resource.suspended );
+        Assert.is_true( resource.enabled, @"Resource is not enabled but should" );
+        Assert.is_false( resource.suspended, "Resource is suspended but should not" );
     }
 
-    public async void test_release_resource() throws GLib.Error, AssertError
+    public async void test_release_resource() throws GLib.Error
     {
         yield usage.release_resource( "Dummy" );
-        Assert.are_equal( false, resource.enabled );
-        Assert.are_equal( false, resource.suspended );
+        Assert.is_false( resource.enabled );
+        Assert.is_false( resource.suspended );
     }
 
-    public async void test_resource_unregister() throws GLib.Error, AssertError
+    public async void test_resource_unregister() throws GLib.Error
     {
         // FIXME we need to find some way to access the parameters supplied with the signal
         Assert.is_true( wait_for_signal( 200, usage, "resource_available", () => {
@@ -132,12 +138,8 @@ public class FsoTest.TestUsage : FsoTest.Fixture
 
         var resources = yield usage.list_resources();
         Assert.is_false( "Dummy" in resources );
-        Assert.are_equal( false, resource.enabled );
-        Assert.are_equal( false, resource.suspended );
-    }
-
-    public override void teardown()
-    {
+        Assert.is_false( resource.enabled );
+        Assert.is_false( resource.suspended );
     }
 }
 

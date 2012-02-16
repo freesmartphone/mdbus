@@ -20,17 +20,12 @@ using GLib;
 
 public static int main( string[] args )
 {
-    var tm = new FsoTest.TestManager();
+    Test.init( ref args );
 
-    Test.log_set_fatal_handler( ( domain, log_levels, message ) => {
-        FsoFramework.theLogger.critical( @"Fatal: $domain -> $message" );
-        return false;
-    } );
+    TestSuite root = TestSuite.get_root();
+    root.add_suite( new FsoTest.TestUsage().get_suite() );
 
-    tm.add_fixture( new FsoTest.TestUsage() );
-    tm.add_fixture( new FsoTest.TestGSM() );
-
-    tm.run_all();
+    Test.run();
 
     return 0;
 }
