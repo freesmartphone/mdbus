@@ -24,39 +24,28 @@ VALAC_ARGS += -g -D DEBUG
 AM_CFLAGS += -ggdb -O0
 endif
 
-BUILT_SOURCES = .vala.stamp
-
-sbin_PROGRAMS = fsotest
-
-fsotest_VALASOURCES = \
-	main.vala \
-	testusage.vala \
-	$(NULL)
-
-fsotest_SOURCES = \
-	$(fsotest_VALASOURCES:.vala=.c) \
-	$(NULL)
-
-$(BUILT_SOURCES): $(fsotest_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-
-fsotest_LDADD = \
+progs_ldadd = \
 	$(FSOFRAMEWORK_LIBS) \
 	$(NULL)
 
-EXTRA_DIST += \
-	$(fsotest_VALASOURCES) \
-	$(BUILT_SOURCES) \
-	$(NULL)
+noinst_PROGRAMS = $(TEST_PROGS)
+
+TEST_PROGS += testusage
+testusage_VALASOURCES = testusage.vala
+testusage_SOURCES = testusage.c
+$(testusage_SOURCES): $(testusage_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testusage_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testusage_VALASOURCES)
 
 CLEANFILES = \
-	*.c \
-	*.h \
-	$(BUILT_SOURCES) \
-	$(NULL)
+    $(TEST_PROGS) \
+    *.? \
+    $(NULL)
 
 MAINTAINERCLEANFILES = \
-	Makefile.in \
-	$(NULL)
-
+  Makefile.in \
+  *.la \
+  *.lo \
+  $(NULL)

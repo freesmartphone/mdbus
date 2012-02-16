@@ -143,4 +143,16 @@ public class FsoTest.TestUsage : FsoFramework.Test.TestCase
     }
 }
 
+public static int main( string[] args )
+{
+    Test.init( ref args );
+
+    TestSuite root = TestSuite.get_root();
+    root.add_suite( new FsoTest.TestUsage().get_suite() );
+
+    Test.run();
+
+    return 0;
+}
+
 // vim:ts=4:sw=4:expandtab
