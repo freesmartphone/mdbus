@@ -73,7 +73,7 @@ AC_OUTPUT([
 	conf/Makefile
 	conf/default/Makefile
 	data/Makefile
-	src/Makefile
+	tests/Makefile
 ])
 
 ###############################################################################

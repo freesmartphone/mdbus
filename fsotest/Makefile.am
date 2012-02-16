@@ -5,7 +5,7 @@ NULL =
 SUBDIRS = \
 	conf \
 	data \
-	src \
+	tests \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \

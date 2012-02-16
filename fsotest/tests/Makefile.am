@@ -28,7 +28,7 @@ progs_ldadd = \
 	$(FSOFRAMEWORK_LIBS) \
 	$(NULL)
 
-noinst_PROGRAMS = $(TEST_PROGS)
+bin_PROGRAMS = $(TEST_PROGS)
 
 TEST_PROGS += testusage
 testusage_VALASOURCES = testusage.vala
