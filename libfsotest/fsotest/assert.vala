@@ -49,6 +49,8 @@ namespace FsoFramework.Test
                     result = @"$((int8) value)";
                 else if ( value_type.is_a( typeof(uint8) ) )
                     result = @"$((uint8) value)";
+                else if ( value_type.is_a( typeof(bool) ) )
+                    result = @"$((bool) value)";
             }
 
             return result;

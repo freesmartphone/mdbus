@@ -35,8 +35,17 @@ void test_are_equal()
 
     try
     {
+        FsoFramework.Test.Assert.are_equal<bool>( true, false, "Should not be equal" );
+        assert( false ); // Should only reached when test failed
+    }
+    catch ( GLib.Error err ) { }
+
+    try
+    {
         FsoFramework.Test.Assert.are_equal<string>( "Test1", "Test1", "Should be equal" );
         FsoFramework.Test.Assert.are_equal<int>( 101, 101, "Should be equal" );
+        FsoFramework.Test.Assert.are_equal<bool>( true, true, "Should be equal" );
+        FsoFramework.Test.Assert.are_equal<bool>( false, false, "Should be equal" );
     }
     catch ( GLib.Error err )
     {
@@ -60,11 +69,18 @@ void test_are_not_equal()
     }
     catch ( GLib.Error err ) { }
 
+    try
+    {
+        FsoFramework.Test.Assert.are_not_equal<bool>( true, true, "Should not be equal" );
+        assert( false ); // Should only reached when test failed
+    }
+    catch ( GLib.Error err ) { }
 
     try
     {
         FsoFramework.Test.Assert.are_not_equal<string>( "Test1", "Test2", "Should be not equal" );
         FsoFramework.Test.Assert.are_not_equal<int>( 101, 102, "Should be not equal" );
+        FsoFramework.Test.Assert.are_not_equal<bool>( true, false, "Should be not equal" );
     }
     catch ( GLib.Error err )
     {
