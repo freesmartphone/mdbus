@@ -39,7 +39,18 @@ public abstract class FsoFramework.Test.TestCase : Object
         var adaptor = new Adaptor (name, test, this);
         this._adaptors += adaptor;
 
-        this._suite.add (new GLib.TestCase (adaptor.name, adaptor.set_up, adaptor.run, adaptor.tear_down));
+        this._suite.add (new GLib.TestCase (adaptor.name, adaptor.set_up, adaptor.run, adaptor.tear_down, sizeof(Adaptor)));
+    }
+
+    public void add_async_test (string name, AsyncBegin async_begin, AsyncFinish async_finish)
+    {
+        var adaptor = new Adaptor (name, () => { }, this);
+        adaptor.is_async = true;
+        adaptor.async_begin = async_begin;
+        adaptor.async_finish = async_finish;
+        this._adaptors += adaptor;
+
+        this._suite.add (new GLib.TestCase (adaptor.name, adaptor.set_up, adaptor.run, adaptor.tear_down, sizeof(Adaptor)));
     }
 
     public virtual void set_up ()
@@ -60,6 +71,10 @@ public abstract class FsoFramework.Test.TestCase : Object
         public string name { get; private set; }
         private unowned TestMethod _test;
         private TestCase _test_case;
+
+        public bool is_async = false;
+        public unowned AsyncBegin async_begin;
+        public unowned AsyncFinish async_finish;
 
         public Adaptor (string name, TestMethod test, TestCase test_case)
         {
@@ -100,7 +115,21 @@ public abstract class FsoFramework.Test.TestCase : Object
 
         public void run (void* fixture)
         {
-            this._test ();
+            if (this.is_async)
+            {
+                try
+                {
+                    assert( wait_for_async (200, this.async_begin, this.async_finish) );
+                }
+                catch (GLib.Error err)
+                {
+                    critical(@"Got exception while excuting asynchronous test: $(err.message)");
+                }
+            }
+            else
+            {
+                this._test ();
+            }
         }
 
         public void tear_down (void* fixture)
