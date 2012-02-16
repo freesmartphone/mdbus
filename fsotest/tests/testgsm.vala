@@ -18,13 +18,14 @@
 
 using GLib;
 using FsoFramework;
+using FsoFramework.Test;
 
 namespace FsoTest
 {
     public const string FREESMARTPHONE_ERROR_DOMAIN = "free_smartphone_error-quark";
 }
 
-public class FsoTest.TestGSM : FsoTest.Fixture
+public class FsoTest.TestGSM : FsoFramework.Test.TestCase
 {
     private FreeSmartphone.Usage usage;
     private FreeSmartphone.GSM.Device gsm_device;
@@ -39,44 +40,44 @@ public class FsoTest.TestGSM : FsoTest.Fixture
 
     public TestGSM()
     {
-        name = "GSM";
+        base("FreeSmartphone.GSM");
 
-        add_async_test( "/org/freesmartphone/GSM/RequestResource",
+        add_async_test( "RequestResource",
                         cb => test_request_gsm_resource( cb ),
                         res => test_request_gsm_resource.end( res ) );
 
-        add_async_test( "/org/freesmartphone/GSM/ValidateInitialDeviceStatus",
+        add_async_test( "ValidateInitialDeviceStatus",
                         cb => test_validate_initial_device_status( cb ),
                         res => test_validate_initial_device_status.end( res ) );
 
-        add_async_test( "/org/freesmartphone/GSM/ValidateInitialSimAuthStatus",
+        add_async_test( "ValidateInitialSimAuthStatus",
                         cb => test_validate_initial_sim_auth_status( cb ),
                         res => test_validate_initial_sim_auth_status.end( res ) );
 
-        add_async_test( "/org/freesmartphone/GSM/ValidateInitialNetworkStatus",
+        add_async_test( "ValidateInitialNetworkStatus",
                         cb => test_validate_initial_network_status( cb ),
                         res => test_validate_initial_network_status.end( res ) );
 
-        add_async_test( "/org/freesmartphone/GSM/ValidateInitialDeviceFunctionality",
+        add_async_test( "ValidateInitialDeviceFunctionality",
                         cb => test_validate_initial_device_functionality( cb ),
                         res => test_validate_initial_device_functionality.end( res ) );
 
-        add_async_test( "/org/freesmartphone/GSM/SetFullDeviceFunctionality",
+        add_async_test( "SetFullDeviceFunctionality",
                         cb => test_set_full_device_functionality( cb ),
                         res => test_set_full_device_functionality.end( res ) );
 
-        add_async_test( "/org/freesmartphone/GSM/SetAirplaneDeviceFunctionality",
+        add_async_test( "SetAirplaneDeviceFunctionality",
                         cb => test_set_airplane_device_functionality( cb ),
                         res => test_set_airplane_device_functionality.end( res ) );
 
-        add_async_test( "/org/freesmartphone/GSM/RequestResource",
+        add_async_test( "RequestResource",
                         cb => test_release_gsm_resource( cb ),
                         res => test_release_gsm_resource.end( res ) );
 
         pin_from_config = theConfig.stringValue( "test-gsm", "pin", "1234" );
     }
 
-    public override async void setup()
+    public override void set_up()
     {
         try
         {
@@ -243,12 +244,18 @@ public class FsoTest.TestGSM : FsoTest.Fixture
     {
         yield usage.release_resource( "GSM" );
     }
-
-    public override void teardown()
-    {
-    }
 }
 
+public static int main( string[] args )
+{
+    GLib.Test.init( ref args );
 
+    TestSuite root = TestSuite.get_root();
+    root.add_suite( new FsoTest.TestGSM().get_suite() );
+
+    GLib.Test.run();
+
+    return 0;
+}
 
 // vim:ts=4:sw=4:expandtab

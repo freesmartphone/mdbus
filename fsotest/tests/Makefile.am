@@ -39,6 +39,15 @@ $(testusage_SOURCES): $(testusage_VALASOURCES)
 testusage_LDADD = $(progs_ldadd)
 EXTRA_DIST += $(testusage_VALASOURCES)
 
+TEST_PROGS += testgsm
+testgsm_VALASOURCES = testgsm.vala
+testgsm_SOURCES = testgsm.c
+$(testgsm_SOURCES): $(testgsm_VALASOURCES)
+	$(VALAC) $(VALAC_ARGS) $^
+	touch $@
+testgsm_LDADD = $(progs_ldadd)
+EXTRA_DIST += $(testgsm_VALASOURCES)
+
 CLEANFILES = \
     $(TEST_PROGS) \
     *.? \
