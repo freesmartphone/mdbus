@@ -76,10 +76,6 @@ public class FsoTest.TestUsage : FsoFramework.Test.TestCase
                         cb => test_resource_unregister( cb ),
                         res => test_resource_unregister.end( res ) );
 
-    }
-
-    public override void set_up()
-    {
         try
         {
             usage = Bus.get_proxy_sync<FreeSmartphone.Usage>( BusType.SYSTEM, FsoFramework.Usage.ServiceDBusName,
@@ -94,8 +90,12 @@ public class FsoTest.TestUsage : FsoFramework.Test.TestCase
         }
         catch ( GLib.Error err )
         {
-            // critical( @"Can't register dummy resource on the system bus: $(err.message)" );
+            critical( @"Can't register dummy resource on the system bus: $(err.message)" );
         }
+    }
+
+    public override void set_up()
+    {
     }
 
     public override void tear_down()

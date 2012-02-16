@@ -75,10 +75,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
                         res => test_release_gsm_resource.end( res ) );
 
         pin_from_config = theConfig.stringValue( "test-gsm", "pin", "1234" );
-    }
 
-    public override void set_up()
-    {
         try
         {
             usage = Bus.get_proxy_sync<FreeSmartphone.Usage>( BusType.SYSTEM, FsoFramework.Usage.ServiceDBusName,
