@@ -21,33 +21,6 @@ using GLib;
 using FsoGsm;
 using FsoFramework;
 
-public class Samsung.CommandHandler : FsoFramework.AbstractCommandHandler
-{
-    public unowned SamsungIpc.Client client;
-    public uint8 id;
-    public SamsungIpc.RequestType request_type;
-    public SamsungIpc.MessageType message_type;
-    public uint8[] data;
-    public unowned SamsungIpc.Response response;
-    public bool timed_out = false;
-
-    public override void writeToTransport( FsoFramework.Transport t )
-    {
-        assert( theLogger.debug( @"Sending request with id = $(id), request_type = $(request_type), " +
-                                 @"message_type = $(message_type) " ) );
-
-        assert( theLogger.debug( @"request data (length = $(data.length)):" ) );
-        assert( theLogger.debug( "\n" + FsoFramework.StringHandling.hexdump( data ) ) );
-
-        client.send( message_type, request_type, data, id );
-    }
-
-    public override string to_string()
-    {
-        return @"<>";
-    }
-}
-
 public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
 {
     private SamsungIpc.Client fmtclient;
