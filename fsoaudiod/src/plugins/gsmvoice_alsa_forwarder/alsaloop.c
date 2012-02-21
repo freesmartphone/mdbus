@@ -904,10 +904,6 @@ int forwarder_start(char * conf_path)
 	threads_count = j;
 	main_job = pthread_self();
  
-	signal(SIGINT, signal_handler);
-	signal(SIGTERM, signal_handler);
-	signal(SIGABRT, signal_handler);
-	signal(SIGUSR1, signal_handler_state);
 	signal(SIGUSR2, signal_handler_ignore);
 
 	for (k = 0; k < threads_count; k++)
