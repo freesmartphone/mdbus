@@ -65,15 +65,13 @@ public class SamsungSimGetInformation : SimGetInformation
 
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-        var rsimreq = SamsungIpc.Security.RSimAccessRequestMessage();
-        rsimreq.command = SamsungIpc.Security.RSimCommandType.READ_BINARY;
-        rsimreq.fileid = (uint16) Constants.instance().simFilesystemEntryNameToCode( "EFimsi" );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_IMSI );
+        if ( response != null )
+        {
+            string imsi = SamsungIpc.Misc.MeResponseMessage.get_imsi( response );
+            info.insert( "imsi", imsi );
+        }
 
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.SEC_RSIM_ACCESS, rsimreq.data );
-
-        var imsi = response != null ? SamsungIpc.Security.RSimAccessResponseMessage.get_file_data( response ) : "unknown";
-
-        info.insert( "imsi", imsi );
         info.insert( "phonebooks", "" );
     }
 }
