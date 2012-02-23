@@ -29,8 +29,8 @@ public class SamsungNetworkRegister : NetworkRegister
         SamsungIpc.Response? response = null;
 
         // register with default network by setting PLMN selection to automatic
-        var req = SamsungIpc.Network.PlmnSelectionMessage();
-        req.setup( SamsungIpc.Network.PlmnSelectionMode.AUTO, null );
+        var req = SamsungIpc.Network.PlmnSelectionSetMessage();
+        req.setup( SamsungIpc.Network.PlmnSelectionMode.AUTO, null, SamsungIpc.Network.AccessTechnology.UMTS );
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.NET_PLMN_SEL, req.data );
         if ( response == null )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could set network selection mode!" );
@@ -48,8 +48,8 @@ public class SamsungNetworkRegisterWithProvider : NetworkRegisterWithProvider
         if ( operator_code.length != 5 )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Got invalid operator code: $(operator_code)" );
 
-        var req = SamsungIpc.Network.PlmnSelectionMessage();
-        req.setup( SamsungIpc.Network.PlmnSelectionMode.MANUAL, operator_code );
+        var req = SamsungIpc.Network.PlmnSelectionSetMessage();
+        req.setup( SamsungIpc.Network.PlmnSelectionMode.MANUAL, operator_code, SamsungIpc.Network.AccessTechnology.UMTS );
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.NET_PLMN_SEL, req.data );
         if ( response != null )
