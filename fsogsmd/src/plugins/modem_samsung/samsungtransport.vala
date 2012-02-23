@@ -31,7 +31,7 @@ public class FsoGsm.SamsungModemTransport : FsoFramework.BaseTransport
 
     public override bool open()
     {
-        fd = Posix.open( name, Posix.O_RDWR ) ; // | Posix.O_NDELAY );
+        fd = Posix.open( name, Posix.O_RDWR | Posix.O_NOCTTY | Posix.O_NONBLOCK );
         if ( fd == -1 )
         {
             logger.warning( "could not open %s: %s".printf( name, Posix.strerror( Posix.errno ) ) );
