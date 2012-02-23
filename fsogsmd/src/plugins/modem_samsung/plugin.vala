@@ -27,6 +27,7 @@ using FsoGsm;
 class Samsung.Modem : FsoGsm.AbstractModem
 {
     private const string MAIN_CHANNEL_NAME = "main";
+    private const string RFS_CHANNEL_NAME = "rfs";
 
     construct
     {
@@ -73,18 +74,16 @@ class Samsung.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        FsoFramework.Transport transport;
+        var fmt_transport = ( modem_transport == "samsung" ) ?
+            new FsoGsm.SamsungModemTransport( modem_port ) :
+            FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+        new Samsung.IpcChannel( MAIN_CHANNEL_NAME, fmt_transport );
 
-        if ( modem_transport == "samsung" )
-        {
-            transport = new FsoGsm.SamsungModemTransport( modem_port );
-        }
-        else
-        {
-            transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
-        }
-
-        new Samsung.IpcChannel( MAIN_CHANNEL_NAME, transport );
+        var rfs_modem_port = config.stringValue( "fsogsm.modem_samsung", "modem_rfs_access", "/dev/modem_rfs" );
+        // FIXME evaluate rfs_modem_port the same way as the default modem access
+        // configuration does.
+        var rfs_transport = new FsoGsm.SamsungModemTransport( rfs_modem_port );
+        new Samsung.RfsChannel( RFS_CHANNEL_NAME, rfs_transport );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
