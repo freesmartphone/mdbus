@@ -102,6 +102,21 @@ namespace FsoGsm
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Number contains invalid character '%c' at position %u", number[i], i );
         }
     }
+
+    public void validateDtmfTones( string tones )
+    {
+        if ( tones == "" )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid DTMF tones" );
+
+        for ( var n = 0; n < tones.length; n++ )
+        {
+            var c = tones[n];
+            if ( !c.isdigit() && c != 'p' && c !=  'P' && c != '*' && c != '#' && ( c < 'A' || c > 'D' ) )
+            {
+                throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid DTMF tones" );
+            }
+        }
+    }
 }
 
 // vim:ts=4:sw=4:expandtab
