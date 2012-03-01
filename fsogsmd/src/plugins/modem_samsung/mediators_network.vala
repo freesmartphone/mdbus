@@ -89,7 +89,7 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         status = new GLib.HashTable<string, Variant>( str_hash, str_equal );
 
         // signal strength and provider name only when available
-        status.insert( "strength", @"$(Samsung.ModemState.network_signal_strength)" );
+        status.insert( "strength", Samsung.ModemState.network_signal_strength );
         if (Samsung.ModemState.sim_provider_name != null)
         {
             status.insert( "provider", Samsung.ModemState.sim_provider_name );
