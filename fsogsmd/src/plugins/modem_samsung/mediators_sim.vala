@@ -73,6 +73,8 @@ public class SamsungSimGetInformation : SimGetInformation
         }
 
         info.insert( "phonebooks", "" );
+        info.insert( "slots", "0" );
+        info.insert( "used", "0" );
     }
 }
 
