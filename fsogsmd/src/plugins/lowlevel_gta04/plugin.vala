@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2012 Lukas 'Slyon' Märdian <lukasmaerdian@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,24 +21,17 @@ using GLib;
 
 using FsoGsm;
 
-class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
+class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
-    public const string MODULE_NAME = "fsogsm.lowlevel_openmoko";
-    private string powerNode;
-    private string fcNode;
-    private FsoGsm.AbstractModem modem; // for access to modem properties
-    private const uint POWERUP_RETRIES = 5;
+    public const string MODULE_NAME = "fsogsm.lowlevel_gta04";
+    private string modemToggle;
 
     construct
     {
-        // power node
-        powerNode = config.stringValue( MODULE_NAME, "power_node", "unknown" );
-        // flow control node
-        fcNode = config.stringValue( MODULE_NAME, "fc_node", "unknown" );
-        // modem
-        modem = FsoGsm.theModem as FsoGsm.AbstractModem;
+        // modem toggle
+        modemToggle = config.stringValue( MODULE_NAME, "modem_toggle", "/sys/class/gpio/gpio186/value" );
 
-        logger.info( "Registering openmoko low level poweron/poweroff handling" );
+        logger.info( "Registering gta04 low level modem toggle" );
     }
 
     public override string repr()
@@ -46,110 +39,59 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
         return "<>";
     }
 
+    /*
+     * Toggling the modem is needed since revision GTA04a4.
+     * The GPIO node will not exist on GTA04a3, the modem is always powered there.
+     */
+    public bool toggle()
+    {
+#if DEBUG
+        debug( "lowlevel_gta04_toggle()" );
+#endif
+        //TODO: check if the modem is powered on or off, e.g. via lsusb:
+        //      Bus 001 Device 002: ID 0af0:8800 Option
+
+        // 0,1,0 (duration: at least 200ms) toggles from on->off and from off->on
+        Thread.usleep( 1000 * 100 );
+        FsoFramework.FileHandling.write( "0\n", modemToggle );
+        Thread.usleep( 1000 * 100 );
+        FsoFramework.FileHandling.write( "1\n", modemToggle );
+        Thread.usleep( 1000 * 100 );
+        FsoFramework.FileHandling.write( "0\n", modemToggle );
+
+        return true;
+    }
+
     public bool poweron()
     {
-        if ( powerNode == "unknown" )
-        {
-            logger.error( "power_node not defined. Can't poweron." );
-            return false;
-        }
-
-        // always turn off first
-        poweroff();
 #if DEBUG
-        debug( "lowlevel_openmoko_poweron()" );
+        debug( "lowlevel_gta04_poweron()" );
 #endif
-        Thread.usleep( 1000 * 1000 );
-
-        FsoFramework.FileHandling.write( "1\n", powerNode );
-        Thread.usleep( 1000 * 1000 );
-
-        var transport = FsoFramework.Transport.create( modem.modem_transport, modem.modem_port, modem.modem_speed );
-        transport.open();
-        assert( transport.isOpen() );
-
-        var buf = new char[512];
-        var bread = transport.writeAndRead( "AT\r\n", 4, buf, 512, 0 );
-        bread = transport.writeAndRead( "AT\r\n", 4, buf, 512, 0 );
-        uint i = 0;
-
-        while ( i++ < POWERUP_RETRIES )
-        {
-            transport.drain();
-            transport.flush();
-
-            debug( @" --- while loop ENTER; i = $i" );
-            bread = transport.writeAndRead( "ATE0Q0V1\r\n", 10, buf, 512 );
-            buf[bread] = '\0';
-
-            var displayString = ((string)buf).escape( "" );
-#if DEBUG
-            debug( @"setPower: 1) got '$displayString'" );
-#endif
-            if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
-            {
-#if DEBUG
-                debug( "setPower: answer OK, ready to send first command" );
-#endif
-                bread = transport.writeAndRead( "AT%SLEEP=2\r\n", 12, buf, 512 );
-                buf[bread] = '\0';
-
-                displayString = ((string)buf).escape( "" );
-#if DEBUG
-                debug( @"setPower: 2) got '$displayString'" );
-#endif
-
-                if ( bread > 3 && buf[bread-1] == '\n' && buf[bread-2] == '\r' && buf[bread-3] == 'K' && buf[bread-4] == 'O' )
-                {
-#if DEBUG
-                    debug( "setPower: answer OK, ready to send MUX command" );
-#endif
-                    transport.close();
-                    return true;
-                }
-            }
-        }
-#if DEBUG
-        debug( "NOTHING WORKS :/ returning false" );
-#endif
-        transport.close();
-        return false;
+        bool ret = toggle();
+        return ret;
     }
 
     public bool poweroff()
     {
 #if DEBUG
-        debug( "lowlevel_openmoko_poweroff()" );
+        debug( "lowlevel_gta04_poweroff()" );
 #endif
-        FsoFramework.FileHandling.write( "0\n", powerNode );
         return true;
     }
 
     public bool suspend()
     {
 #if DEBUG
-        debug( "lowlevel_openmoko_suspend()" );
+        debug( "lowlevel_gta04_suspend()" );
 #endif
-        if ( fcNode == "unknown" )
-        {
-            logger.error( "fc_node not defined. Can't prepare for suspend." );
-            return false;
-        }
-        FsoFramework.FileHandling.write( "1", fcNode );
         return true;
     }
 
     public bool resume()
     {
 #if DEBUG
-        debug( "lowlevel_openmoko_resume()" );
+        debug( "lowlevel_gta04_resume()" );
 #endif
-        if ( fcNode == "unknown" )
-        {
-            logger.error( "fc_node not defined. Can't recover from suspend." );
-            return false;
-        }
-        FsoFramework.FileHandling.write( "0", fcNode );
         return true;
     }
 }
@@ -162,8 +104,8 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    FsoFramework.theLogger.debug( "lowlevel_openmoko fso_factory_function" );
-    return LowLevel.Openmoko.MODULE_NAME;
+    FsoFramework.theLogger.debug( "lowlevel_gta04 fso_factory_function" );
+    return LowLevel.GTA04.MODULE_NAME;
 }
 
 [ModuleInit]
