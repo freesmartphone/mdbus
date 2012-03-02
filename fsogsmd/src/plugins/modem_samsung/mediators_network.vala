@@ -75,7 +75,16 @@ public class SamsungNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        signal = Samsung.ModemState.network_signal_strength;
+        unowned SamsungIpc.Response? response;
+        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.DISP_RSSI_INFO );
+
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve signal strength from modem" );
+
+        var info = (SamsungIpc.Display.RssiInfoMessage*) response;
+        signal = convertRssiToSignalStrength( info.rssi );
     }
 }
 

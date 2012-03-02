@@ -143,4 +143,12 @@ private string ipAddrFromByteArray( uint8* data, int size )
     return "%i.%i.%i.%i".printf( data[0], data[1], data[2], data[3] );
 }
 
+int convertRssiToSignalStrength( uint8 rssi )
+{
+    // NOTE the following is taken from samsung-ril which is found here:
+    // git://gitorious.org/replicant/samsung-ril.git
+    var r = rssi < 0x6f ? ((((rssi - 0x71) * -1) - ((rssi - 0x71) * -1) % 2) / 2) : 0;
+    return Constants.instance().networkSignalToPercentage( r );
+}
+
 // vim:ts=4:sw=4:expandtab
