@@ -73,6 +73,8 @@ public class SamsungDeviceGetInformation : DeviceGetInformation
 
             info.insert( "sw-version", (string) message.sw_version );
             info.insert( "hw-version", (string) message.hw_version );
+            info.insert( "cal-date", (string) message.cal_date );
+            info.insert( "misc", (string) message.misc );
         }
     }
 }
