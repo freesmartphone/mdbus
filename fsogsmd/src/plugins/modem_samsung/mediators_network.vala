@@ -97,13 +97,18 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
 
         status = new GLib.HashTable<string, Variant>( str_hash, str_equal );
 
-        // signal strength and provider name only when available
-        status.insert( "strength", Samsung.ModemState.network_signal_strength );
+        // use cached SIM provider name as they are read from modem whenever the SIM card
+        // is exchanged and are not changing while operating with the same card
         if (Samsung.ModemState.sim_provider_name != null)
         {
             status.insert( "provider", Samsung.ModemState.sim_provider_name );
             status.insert( "display", Samsung.ModemState.sim_provider_name );
         }
+
+        // query signal strength from modem
+        var m = theModem.createMediator<NetworkGetSignalStrength>();
+        yield m.run();
+        status.insert( "strength", m.signal );
 
         // query telephony registration status
         var req = SamsungIpc.Network.RegistrationGetMessage();
@@ -120,12 +125,6 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         status.insert( "act", networkAccessTechnologyToString( reginfo.act ) );
         status.insert( "lac", @"$(reginfo.lac)" );
         status.insert( "cid", @"$(reginfo.cid)" );
-
-        if ( reginfo.reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
-             reginfo.reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
-        {
-            // status.insert( "code", "%03u%02u".printf( MsmData.network_info.mcc, MsmData.network_info.mnc ) );
-        }
 
         // query PDP registration status
         req = SamsungIpc.Network.RegistrationGetMessage();
@@ -148,9 +147,15 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network operator from modem" );
 
         var pr = (SamsungIpc.Network.CurrentPlmnMessage*) response.data;
-        ModemState.network_plmn = "";
+        string plmn = "";
         for ( int n = 0; n < 5; n++)
-            ModemState.network_plmn += "%c".printf( pr.plmn[n] );
+            plmn += "%c".printf( pr.plmn[n] );
+
+        if ( reginfo.reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
+             reginfo.reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
+        {
+            status.insert( "code", plmn );
+        }
     }
 }
 
@@ -209,6 +214,5 @@ public class SamsungNetworkListProviders : NetworkListProviders
         return result;
     }
 }
-
 
 // vim:ts=4:sw=4:expandtab
