@@ -60,14 +60,15 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         yield _soundhandler.mute_microphone( false );
 
         var initiateMessage = SamsungIpc.Call.OutgoingMessage();
-        var callType = ctype == "voice" ? SamsungIpc.Call.Type.VOICE : SamsungIpc.Call.Type.DATA;
-        initiateMessage.setup( callType, SamsungIpc.Call.Identity.DEFAULT, SamsungIpc.Call.Prefix.NONE, number );
+        var callType = ( ctype == "voice" ) ? SamsungIpc.Call.Type.VOICE : SamsungIpc.Call.Type.DATA;
+        var callPrefix = ( number.length >= 1 && number[0] == '+' ) ? SamsungIpc.Call.Prefix.INTL : SamsungIpc.Call.Prefix.NONE;
+        initiateMessage.setup( callType, SamsungIpc.Call.Identity.DEFAULT, callPrefix, number );
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.EXEC,
             SamsungIpc.MessageType.CALL_OUTGOING, initiateMessage.data );
 
         if ( response == null )
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"The modem failed to initiate a call with number $(number)!" );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"The modem failed to initiate a call with number $(number)" );
 
         var gr = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
         if ( gr.code != 0x8000 )
