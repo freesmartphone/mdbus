@@ -54,6 +54,8 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         var num = lowestOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.RELEASE );
         unowned SamsungIpc.Response? response = null;
 
+        validatePhoneNumber( number );
+
         if ( num == 0 )
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "System busy" );
 
