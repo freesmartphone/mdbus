@@ -142,7 +142,7 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
         }
-        if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.RELEASE )
+        else if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.RELEASE )
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to release found" );
         }
@@ -158,7 +158,14 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
+       for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
+        {
+            if ( calls[i].detail.status != FreeSmartphone.GSM.CallStatus.RELEASE &&
+                 calls[i].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING )
+            {
+                release( i );
+            }
+        }
     }
 
     public override string repr()
@@ -309,7 +316,8 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         var num = 0;
         for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
         {
-            if ( calls[i].detail.status != FreeSmartphone.GSM.CallStatus.RELEASE && calls[i].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING )
+            if ( calls[i].detail.status != FreeSmartphone.GSM.CallStatus.RELEASE &&
+                 calls[i].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING )
             {
                 num++;
             }
