@@ -9,6 +9,7 @@ SUBDIRS = \
 	dbus_service \
 	\
 	lowlevel_openmoko \
+	lowlevel_gta04 \
 	lowlevel_motorola_ezx \
 	\
 	modem_dummy \
