@@ -65,6 +65,22 @@ public class SamsungSimGetInformation : SimGetInformation
 
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
+        // Read name of our SIM Card issuer from the modem
+        var rsimreq = SamsungIpc.Security.RSimAccessRequestMessage();
+        rsimreq.command = SamsungIpc.Security.RSimCommandType.READ_BINARY;
+        rsimreq.fileid = (uint16) Constants.instance().simFilesystemEntryNameToCode( "EFspn" );
+
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.SEC_RSIM_ACCESS, rsimreq.data );
+
+        if ( response == null )
+        {
+            theLogger.error( @"Could not retrieve provider name from SIM!" );
+            return;
+        }
+
+        info.insert( "issuer", SamsungIpc.Security.RSimAccessResponseMessage.get_file_data( response ) );
+
+        // Retrieve IMSI from modem
         response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_IMSI );
         if ( response != null )
         {

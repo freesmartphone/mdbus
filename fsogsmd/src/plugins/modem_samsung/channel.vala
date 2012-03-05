@@ -56,9 +56,12 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
                 break;
             case FsoGsm.Modem.Status.ALIVE_SIM_READY:
                 if ( current_modem_status == FsoGsm.Modem.Status.ALIVE_REGISTERED )
+                {
                     ModemState.reset_network_data();
-
-                poweron();
+                    // Force update of the signal strength for all connected clients
+                    var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+                    obj.signal_strength( ModemState.network_signal_strength );
+                }
                 break;
             default:
                 break;
@@ -212,31 +215,6 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private async void initialize()
     {
         initialized = yield set_modem_power_state( SamsungIpc.Power.PhoneState.LPM );
-    }
-
-    private async void poweron()
-    {
-        unowned SamsungIpc.Response? response;
-
-        // We need to read the name of our network provider from the SIM card
-        var rsimreq = SamsungIpc.Security.RSimAccessRequestMessage();
-        rsimreq.command = SamsungIpc.Security.RSimCommandType.READ_BINARY;
-        rsimreq.fileid = (uint16) Constants.instance().simFilesystemEntryNameToCode( "EFspn" );
-
-        response = yield enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.SEC_RSIM_ACCESS, rsimreq.data );
-
-        if ( response == null )
-        {
-            theLogger.error( @"Could not retrieve provider name from SIM!" );
-            return;
-        }
-
-        ModemState.sim_provider_name = SamsungIpc.Security.RSimAccessResponseMessage.get_file_data( response );
-        assert( theLogger.debug( @"Got the following provider name from SIM card spn = $(ModemState.sim_provider_name)" ) );
-
-        // Force update of the signal strength for all connected clients
-        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-        obj.signal_strength( ModemState.network_signal_strength );
     }
 
     private async void request_usage_service()
