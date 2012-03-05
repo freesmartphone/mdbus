@@ -28,6 +28,11 @@ namespace Samsung
         public static Security.SimStatus sim_status = Security.SimStatus.INITIALIZING;
         public static string sim_provider_name = "unknown";
 
+        public static void reset_network_data()
+        {
+            network_signal_strength = 0;
+        }
+
         public static int32 network_signal_strength = 0;
         public static int32 network_lac = 0;
         public static int32 network_cid = 0;

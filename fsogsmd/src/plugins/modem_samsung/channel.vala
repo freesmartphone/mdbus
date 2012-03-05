@@ -30,6 +30,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private FsoFramework.Wakelock wakelock;
     private FreeSmartphone.UsageSync usage_sync;
     private uint suspend_lock = 0;
+    private FsoGsm.Modem.Status current_modem_status = FsoGsm.Modem.Status.UNKNOWN;
 
     public new Samsung.UnsolicitedResponseHandler urchandler { get; private set; }
     public string name { get; private set; }
@@ -54,11 +55,16 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
                 initialize();
                 break;
             case FsoGsm.Modem.Status.ALIVE_SIM_READY:
+                if ( current_modem_status == FsoGsm.Modem.Status.ALIVE_REGISTERED )
+                    ModemState.reset_network_data();
+
                 poweron();
                 break;
             default:
                 break;
         }
+
+        current_modem_status = status;
     }
 
     protected override void onReadFromTransport( FsoFramework.Transport t )
@@ -227,6 +233,10 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 
         ModemState.sim_provider_name = SamsungIpc.Security.RSimAccessResponseMessage.get_file_data( response );
         assert( theLogger.debug( @"Got the following provider name from SIM card spn = $(ModemState.sim_provider_name)" ) );
+
+        // Force update of the signal strength for all connected clients
+        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        obj.signal_strength( ModemState.network_signal_strength );
     }
 
     private async void request_usage_service()
