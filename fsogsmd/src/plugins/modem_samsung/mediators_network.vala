@@ -164,10 +164,12 @@ public class SamsungNetworkListProviders : NetworkListProviders
             unowned SamsungIpc.Network.PlmnEntryMessage? currentNetwork = pr.get_entry( response, n );
             var mccmnc = "";
 
+            // Ignore "Emergency only" networks
+            if ( currentNetwork.type == 0x01 )
+                continue;
+
             for ( int m = 0; m < 5; m++ )
                 mccmnc += "%c".printf( currentNetwork.plmn[m] );
-
-            // FIXME whats with currentNetwork.type?
 
             var providerInfo = findProviderForMccMnc( mccmnc );
 
