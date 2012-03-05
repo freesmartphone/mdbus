@@ -109,6 +109,29 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         status.insert( "lac", @"$(reginfo.lac)" );
         status.insert( "cid", @"$(reginfo.cid)" );
 
+        var reg_state = reginfo.reg_state;
+
+        // query current network operator plmn
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_CURRENT_PLMN );
+
+        if ( response == null )
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network operator from modem" );
+
+        var pr = (SamsungIpc.Network.CurrentPlmnMessage*) response.data;
+        string plmn = "";
+        for ( int n = 0; n < 5; n++)
+            plmn += "%c".printf( pr.plmn[n] );
+
+        if ( reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
+             reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
+        {
+            status.insert( "code", plmn );
+
+            var provider_info = findProviderForMccMnc( plmn );
+            status.insert( "provider", provider_info.name );
+            status.insert( "display", provider_info.name );
+        }
+
         // query PDP registration status
         req = SamsungIpc.Network.RegistrationGetMessage();
         req.setup( SamsungIpc.Network.ServiceDomain.GSM );
@@ -122,27 +145,6 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         status.insert( "pdp.registration", networkRegistrationStateToString( reginfo.reg_state ) );
         status.insert( "pdp.lac", @"$(reginfo.lac)" );
         status.insert( "pdp.cid", @"$(reginfo.cid)" );
-
-        // query current network operator plmn
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.NET_CURRENT_PLMN );
-
-        if ( response == null )
-            throw new FreeSmartphone.Error.INTERNAL_ERROR( "Could not retrieve current network operator from modem" );
-
-        var pr = (SamsungIpc.Network.CurrentPlmnMessage*) response.data;
-        string plmn = "";
-        for ( int n = 0; n < 5; n++)
-            plmn += "%c".printf( pr.plmn[n] );
-
-        if ( reginfo.reg_state == SamsungIpc.Network.RegistrationState.HOME  ||
-             reginfo.reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
-        {
-            status.insert( "code", plmn );
-
-            var provider_info = findProviderForMccMnc( plmn );
-            status.insert( "provider", provider_info.name );
-            status.insert( "display", provider_info.name );
-        }
     }
 }
 
