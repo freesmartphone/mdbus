@@ -81,12 +81,14 @@ public class SamsungSimGetInformation : SimGetInformation
         info.insert( "issuer", SamsungIpc.Security.RSimAccessResponseMessage.get_file_data( response ) );
 
         // Retrieve IMSI from modem
+        /*
         response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.MISC_ME_IMSI );
         if ( response != null )
         {
             string imsi = SamsungIpc.Misc.MeResponseMessage.get_imsi( response );
             info.insert( "imsi", imsi );
         }
+        */
 
         info.insert( "phonebooks", "" );
         info.insert( "slots", "0" );
