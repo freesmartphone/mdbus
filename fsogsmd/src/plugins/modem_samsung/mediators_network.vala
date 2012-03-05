@@ -88,14 +88,6 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
 
         status = new GLib.HashTable<string, Variant>( str_hash, str_equal );
 
-        // use cached SIM provider name as they are read from modem whenever the SIM card
-        // is exchanged and are not changing while operating with the same card
-        if (Samsung.ModemState.sim_provider_name != null)
-        {
-            status.insert( "provider", Samsung.ModemState.sim_provider_name );
-            status.insert( "display", Samsung.ModemState.sim_provider_name );
-        }
-
         // query signal strength from modem
         var m = theModem.createMediator<NetworkGetSignalStrength>();
         yield m.run();
@@ -146,6 +138,10 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
              reginfo.reg_state == SamsungIpc.Network.RegistrationState.ROAMING )
         {
             status.insert( "code", plmn );
+
+            var provider_info = findProviderForMccMnc( plmn );
+            status.insert( "provider", provider_info.name );
+            status.insert( "display", provider_info.name );
         }
     }
 }
