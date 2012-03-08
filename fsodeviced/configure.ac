@@ -1,4 +1,4 @@
-AC_INIT([fsodeviced], [0.9.5], [smartphones-userland@linuxtogo.org], [fsodeviced])
+AC_INIT([fsodeviced], [0.10.0], [smartphones-userland@linuxtogo.org], [fsodeviced])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -24,10 +24,7 @@ AC_SUBST(LDFLAGS)
 GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 FSO_GLIB_REQUIRED=2012.02.14.1
-FSO_FRAMEWORK_REQUIRED=0.2.4
-FSO_TRANSPORT_REQUIRED=0.9.7
-FSO_RESOURCE_REQUIRED=0.1.0
-FSO_SYSTEM_REQUIRED=0.1.0
+FSO_REQUIRED=0.10.0
 ALSA_REQUIRED=0.20
 CANBERRA_REQUIRED=0.17
 GSTREAMER_REQUIRED=0.10.20
@@ -63,11 +60,11 @@ AC_SUBST(DBUS_SERVICE_DIR)
 ##############################################################################
 # fso-glib and framework
 PKG_CHECK_MODULES(FSO,
-  fso-glib-1.0 >= $FSO_GLIB_REQUIRED
-  fsoresource-2.0 >= $FSO_RESOURCE_REQUIRED
-  fsotransport-2.0 >= $FSO_TRANSPORT_REQUIRED
-  fsoframework-2.0 >= $FSO_FRAMEWORK_REQUIRED
-  fsosystem-2.0 >= $FSO_SYSTEM_REQUIRED)
+  fso-glib-1.0 >= $FSO_REQUIRED
+  fsoresource-2.0 >= $FSO_REQUIRED
+  fsotransport-2.0 >= $FSO_REQUIRED
+  fsoframework-2.0 >= $FSO_REQUIRED
+  fsosystem-2.0 >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 

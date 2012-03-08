@@ -1,4 +1,4 @@
-AC_INIT([fsosystemd], [0.0.1], [smartphones-userland@linuxtogo.org], [fsosystemd])
+AC_INIT([fsosystemd], [0.10.0], [smartphones-userland@linuxtogo.org], [fsosystemd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -20,9 +20,7 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
 GLIB_REQUIRED=2.26.0
-FSO_BASICS_REQUIRED=0.2.3
-FSO_FRAMEWORK_REQUIRED=0.0.0
-FSO_SYSTEM_REQUIRED=0.0.0
+FSO_REQUIRED=0.10.0
 GEE_REQUIRED=0.5.0
 
 ##############################################################################
@@ -39,9 +37,9 @@ AC_SUBST(GLIB_LIBS)
 # FSO
 
 PKG_CHECK_MODULES(FSO,
-	fsobasics-2.0 >= $FSO_BASICS_REQUIRED
-	fsoframework-2.0 >= $FSO_FRAMEWORK_REQUIRED
-	fsosystem-2.0 >= $FSO_SYSTEM_REQUIRED)
+	fsobasics-2.0 >= $FSO_REQUIRED
+	fsoframework-2.0 >= $FSO_REQUIRED
+	fsosystem-2.0 >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 

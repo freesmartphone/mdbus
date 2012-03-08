@@ -1,4 +1,4 @@
-AC_INIT([libfsoresource], [0.9.0], [smartphones-userland@linuxtogo.org], [libfsoresource])
+AC_INIT([libfsoresource], [0.10.0], [smartphones-userland@linuxtogo.org], [libfsoresource])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -18,8 +18,7 @@ PKG_PROG_PKG_CONFIG
 
 VALA_REQUIRED=0.14.2
 GLIB_REQUIRED=2.26.0
-FSO_BASICS_REQUIRED=0.8.9.9
-FSO_FRAMEWORK_REQUIRED=0.2.3.1
+FSO_REQUIRED=0.10.0
 FSO_GLIB_REQUIRED=2012.02.14.1
 
 # vala
@@ -32,8 +31,8 @@ PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
   gobject-2.0 >= $GLIB_REQUIRED
   gio-2.0 >= $GLIB_REQUIRED
-  fsobasics-2.0 >= $FSO_BASICS_REQUIRED
-  fsoframework-2.0 >= $FSO_FRAMEWORK_REQUIRED
+  fsobasics-2.0 >= $FSO_REQUIRED
+  fsoframework-2.0 >= $FSO_REQUIRED
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)

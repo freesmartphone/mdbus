@@ -1,4 +1,4 @@
-AC_INIT([fsodatad], [0.2.0], [smartphones-userland@linuxtogo.org], [fsodatad])
+AC_INIT([fsodatad], [0.10.0], [smartphones-userland@linuxtogo.org], [fsodatad])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -23,7 +23,7 @@ GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 XML_REQUIRED=2.7.3
 FSO_GLIB_REQUIRED=2012.02.14.1
-FSO_REQUIRED=0.2.3
+FSO_REQUIRED=0.10.0
 MBPI_REQUIRED=20090918
 
 # glib and friends

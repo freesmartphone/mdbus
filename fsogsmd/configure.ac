@@ -1,4 +1,4 @@
-AC_INIT([fsogsmd], [0.5.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
+AC_INIT([fsogsmd], [0.10.0], [smartphones-userland@linuxtogo.org], [fsogsmd])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 #AC_CONFIG_MACRO_DIR([m4]
@@ -28,11 +28,7 @@ GSMMUX_REQUIRED=0.3.4
 GISICOMM_REQUIRED=0.0.0
 MSMCOMM_SPECS_REQUIRED=0.6.0
 FSO_GLIB_REQUIRED=2012.02.14.1
-FSO_SYSTEM_REQUIRED=0.1.0
-FSO_FRAMEWORK_REQUIRED=0.2.3
-FSO_TRANSPORT_REQUIRED=0.9.5.9
-FSO_RESOURCE_REQUIRED=0.1.0
-FSO_DATA_REQUIRED=0.2.0
+FSO_REQUIRED=0.10.0
 CONNMAN_REQUIRED=0.68
 SAMSUNG_IPC_REQUIRED=0.1
 
@@ -80,11 +76,11 @@ AC_SUBST(DBUS_SERVICE_DIR)
 # fso-glib and framework
 PKG_CHECK_MODULES(FSO,
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED
-  fsosystem-2.0 >= $FSO_SYSTEM_REQUIRED
-  fsoframework-2.0 >= $FSO_FRAMEWORK_REQUIRED
-  fsotransport-2.0 >= $FSO_TRANSPORT_REQUIRED
-  fsoresource-2.0 >= $FSO_RESOURCE_REQUIRED
-  fsodata-2.0 >= $FSO_DATA_REQUIRED)
+  fsosystem-2.0 >= $FSO_REQUIRED
+  fsoframework-2.0 >= $FSO_REQUIRED
+  fsotransport-2.0 >= $FSO_REQUIRED
+  fsoresource-2.0 >= $FSO_REQUIRED
+  fsodata-2.0 >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 

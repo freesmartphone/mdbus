@@ -1,4 +1,4 @@
-AC_INIT([fsotdld], [0.3.1], [smartphones-userland@linuxtogo.org], [fsotdld])
+AC_INIT([fsotdld], [0.10.0], [smartphones-userland@linuxtogo.org], [fsotdld])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -24,10 +24,7 @@ GEE_REQUIRED=0.5.0
 SOUP_REQUIRED=2.29
 JSON_REQUIRED=0.10.2
 FSO_GLIB_REQUIRED=2012.02.14.1
-FSO_BASICS_REQUIRED=0.9.10
-FSO_FRAMEWORK_REQUIRED=0.2.3
-FSO_TRANSPORT_REQUIRED=0.9.6
-FSO_RESOURCE_REQUIRED=0.1.0
+FSO_REQUIRED=0.10.0
 
 ##############################################################################
 # glib and friends
@@ -96,10 +93,10 @@ AC_SUBST(DBUS_SERVICE_DIR)
 ##############################################################################
 # framework
 PKG_CHECK_MODULES(FSO,
-  fsobasics-2.0 >= $FSO_BASICS_REQUIRED
-  fsoframework-2.0 >= $FSO_FRAMEWORK_REQUIRED
-  fsotransport-2.0 >= $FSO_TRANSPORT_REQUIRED
-  fsoresource-2.0  >= $FSO_RESOURCE_REQUIRED)
+  fsobasics-2.0 >= $FSO_REQUIRED
+  fsoframework-2.0 >= $FSO_REQUIRED
+  fsotransport-2.0 >= $FSO_REQUIRED
+  fsoresource-2.0  >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 

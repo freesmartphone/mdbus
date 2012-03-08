@@ -1,4 +1,4 @@
-AC_INIT([libgsm0710mux], [0.9.2], [mlauer@vanille-media.de], [libgsm0710mux])
+AC_INIT([libgsm0710mux], [0.10.0], [mlauer@vanille-media.de], [libgsm0710mux])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -19,8 +19,7 @@ PKG_PROG_PKG_CONFIG
 
 VALA_REQUIRED=0.14.2
 GLIB_REQUIRED=2.12.0
-FSO_BASICS_REQUIRED=0.8.3
-FSO_TRANSPORT_REQUIRED=0.9.5
+FSO_REQUIRED=0.10.0
 GSM_REQUIRED=1.2.0
 
 # vala
@@ -32,8 +31,8 @@ PKG_CHECK_MODULES(DEPS,
   glib-2.0 >= $GLIB_REQUIRED
   gobject-2.0 >= $GLIB_REQUIRED
   gsm0710-1.0 >= $GSM_REQUIRED
-  fsotransport-2.0 >= $FSO_TRANSPORT_REQUIRED
-  fsobasics-2.0 >= $FSO_BASICS_REQUIRED)
+  fsotransport-2.0 >= $FSO_REQUIRED
+  fsobasics-2.0 >= $FSO_REQUIRED)
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 

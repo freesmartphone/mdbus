@@ -1,4 +1,4 @@
-AC_INIT([fsoaudiod], [0.2.0], [smartphones-userland@linuxtogo.org], [fsoaudiod])
+AC_INIT([fsoaudiod], [0.10.0], [smartphones-userland@linuxtogo.org], [fsoaudiod])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
@@ -24,7 +24,7 @@ AC_SUBST(LDFLAGS)
 GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 FSO_GLIB_REQUIRED=2012.02.14.1
-FSO_REQUIRED=0.2.3
+FSO_REQUIRED=0.10.0
 ALSA_REQUIRED=0.20
 CMTSPEECHDATA_REQUIRED=2.1.1
 
