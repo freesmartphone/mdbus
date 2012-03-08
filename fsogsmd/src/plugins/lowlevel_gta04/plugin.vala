@@ -24,12 +24,11 @@ using FsoGsm;
 class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
     public const string MODULE_NAME = "fsogsm.lowlevel_gta04";
-    private string modemToggle;
+    private string sysfs_modem_gpio;
 
     construct
     {
-        // modem toggle
-        modemToggle = config.stringValue( MODULE_NAME, "modem_toggle", "/sys/class/gpio/gpio186/value" );
+        sysfs_modem_gpio = config.stringValue( MODULE_NAME, "modem_toggle", "/sys/class/gpio/gpio186/value" );
 
         logger.info( "Registering gta04 low level modem toggle" );
     }
@@ -51,13 +50,16 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         //TODO: check if the modem is powered on or off, e.g. via lsusb:
         //      Bus 001 Device 002: ID 0af0:8800 Option
 
-        // 0,1,0 (duration: at least 200ms) toggles from on->off and from off->on
-        Thread.usleep( 1000 * 100 );
-        FsoFramework.FileHandling.write( "0\n", modemToggle );
-        Thread.usleep( 1000 * 100 );
-        FsoFramework.FileHandling.write( "1\n", modemToggle );
-        Thread.usleep( 1000 * 100 );
-        FsoFramework.FileHandling.write( "0\n", modemToggle );
+        if ( FsoFramework.FileHandling.isPresent( sysfs_modem_gpio ) )
+        {
+            // 0,1,0 (duration: at least 200ms) toggles from on->off and from off->on
+            Thread.usleep( 1000 * 100 );
+            FsoFramework.FileHandling.write( "0\n", sysfs_modem_gpio );
+            Thread.usleep( 1000 * 100 );
+            FsoFramework.FileHandling.write( "1\n", sysfs_modem_gpio );
+            Thread.usleep( 1000 * 100 );
+            FsoFramework.FileHandling.write( "0\n", sysfs_modem_gpio );
+        }
 
         return true;
     }
