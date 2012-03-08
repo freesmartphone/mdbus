@@ -47,7 +47,7 @@ public class Samsung.SoundHandler : FsoFramework.AbstractObject
             SamsungIpc.MessageType.SND_SPKR_VOLUME_CTRL, cmd.data );
 
         var gr = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
-        if ( gr.code != 0x8001 )
+        if ( gr.code != 0x8000 )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Can't set speaker volume together with the modem!" );
     }
 
