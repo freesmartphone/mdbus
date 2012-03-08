@@ -58,10 +58,6 @@ AC_SUBST(DBUS_DIR)
 ###############################################################################
 # Other things
 
-# git version
-GITV=`cat ../.git/refs/heads/master || echo "unknown"`
-AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
-
 # check for debugging
 AC_ARG_ENABLE(debug,
   [  --enable-debug            Enable debug build (default=disabled)],

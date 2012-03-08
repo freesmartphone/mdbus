@@ -41,10 +41,6 @@ AC_ARG_ENABLE(debug,
   [debug="no"])
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
-# git version
-GITV=`cat ../.git/refs/heads/master || echo "unknown"`
-AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
-
 # output
 AC_CONFIG_FILES([Makefile
   fsotest-2.0.pc
@@ -55,7 +51,7 @@ AC_OUTPUT
 
 # info
 echo "------------------------------------------------------------------------"
-echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
+echo "$PACKAGE_NAME $PACKAGE_VERSION"
 echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"

@@ -67,10 +67,6 @@ AC_ARG_ENABLE(ngsm,
   [ngsm="yes"])
 AM_CONDITIONAL( [WANT_NGSM], [test x"$ngsm" = x"yes"])
 
-# git version
-GITV=`cat ../.git/refs/heads/master || echo "unknown"`
-AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
-
 # output
 AC_CONFIG_FILES([Makefile
   fsotransport-2.0.pc
@@ -84,7 +80,7 @@ echo
 echo
 echo
 echo "------------------------------------------------------------------------"
-echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
+echo "$PACKAGE_NAME $PACKAGE_VERSION"
 echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"

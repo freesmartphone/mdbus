@@ -57,10 +57,6 @@ AC_SUBST(FSO_LIBS)
 PKG_CHECK_MODULES(FSO_GLIB,
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED)
 
-# git version
-GITV=`cat ../.git/refs/heads/master || echo "unknown"`
-AC_DEFINE_UNQUOTED([PACKAGE_GITV], ["${GITV}"], [git version])
-
 AC_CONFIG_FILES([
   Makefile
   conf/Makefile
@@ -80,7 +76,7 @@ echo
 echo
 echo
 echo "------------------------------------------------------------------------"
-echo "$PACKAGE_NAME $PACKAGE_VERSION-$GITV"
+echo "$PACKAGE_NAME $PACKAGE_VERSION"
 echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options:"
