@@ -1,4 +1,4 @@
-AC_INIT([libgsm0710mux], [0.10.0], [mlauer@vanille-media.de], [libgsm0710mux])
+AC_INIT([libgsm0710mux], [0.10.0], [smartphones-userland@linuxtogo.org], [libgsm0710mux])
 AC_CONFIG_SRCDIR([Makefile.am])
 AC_CONFIG_HEADERS(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
