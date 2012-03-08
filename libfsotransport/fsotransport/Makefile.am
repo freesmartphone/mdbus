@@ -48,6 +48,7 @@ libfsotransport_la_VALASOURCES = \
 	socket.vala \
 	transport.vala \
 	raw.vala \
+	combined.vala \
 	$(NULL)
 
 if WANT_PALMPRE_HSUART
