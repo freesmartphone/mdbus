@@ -5,14 +5,12 @@ NULL =
 AM_CFLAGS = \
 	-I$(top_srcdir)/fsosystem \
 	$(GLIB_CFLAGS) \
-	$(DBUS_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
 	$(GLIB_LIBS) \
-	$(DBUS_LIBS) \
 	../fsosystem/libfsosystem.la \
 	$(NULL)
 
