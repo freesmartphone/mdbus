@@ -6,6 +6,7 @@ SUBDIRS = \
 	conf \
 	data \
 	tests \
+	fsosystem \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \

@@ -33,10 +33,12 @@ FSOBASICS_REQUIRED=0.9.99
 FSOFRAMEWORK_REQUIRED=0.8.2
 FSO_GLIB_REQUIRED=2012.02.14.1
 FSORESOURCE_REQUIRED=0.0
+FSOSYSTEM_REQUIRED=0.1.0
 
 PKG_CHECK_MODULES(FSOFRAMEWORK,
 	fsotest-2.0 >= $FSOTEST_REQUIRED
 	fsobasics-2.0 >= $FSOBASICS_REQUIRED
+	fsosystem-2.0 >= $FSOSYSTEM_REQUIRED
 	fsoframework-2.0 >= $FSOFRAMEWORK_REQUIRED
 	fsoresource-2.0 >= $FSORESOURCE_REQUIRED
 	fso-glib-1.0 >= $FSO_GLIB_REQUIRED)
@@ -74,6 +76,7 @@ AC_OUTPUT([
 	conf/default/Makefile
 	data/Makefile
 	tests/Makefile
+	fsosystem/Makefile
 ])
 
 ###############################################################################
