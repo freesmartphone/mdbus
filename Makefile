@@ -31,6 +31,9 @@ test:
 maintainer-clean:
 	for i in $(SUBDIRS); do $(MAKE) maintainer-clean -C $$i; done
 
+update-changelog:
+	for i in $(SUBDIRS); do scripts/gitlog-to-changelog $$i > $$i/ChangeLog; done
+
 rebuild:
 	pushd libfsobasics; $(SUDO) make uninstall; ./autogen.sh; $(SUDO) make install; popd
 	pushd libfsotransport; $(SUDO) make uninstall; ./autogen.sh; $(SUDO) make install; popd
