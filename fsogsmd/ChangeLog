@@ -1,2 +1,3512 @@
-See NEWS for large-scale changes and git log for details.
+2012-03-10  Simon Busch  <morphis@gravedo.de>
 
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-03-08  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: fix checking of return code for IPC_SND_SPKR_VOLUME_CTRL message
+
+2012-03-05  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: temporarily disable IMSI querying as it causes fsogsmd to die
+
+	fsogsmd: modem_samsung: set network provider name before querying pdp registration status
+
+	fsogsmd: modem_samsung: retrieve SIM card issuer when it is needed
+
+	fsogsmd: modem_samsung: exclude emergency-only networks from available network list
+
+	fsogsmd: modem_samsung: set network type to "GSM" as default for org.freesmartphone.GSM.ListProviders
+
+	fsogsmd: modem_samsung: gather network provider name by taking mcc/mnc into account
+
+	fsogsmd: modem_samsung: convert findProviderForMccMnc to be a common utility method
+
+	fsogsmd: modem_samsung: remove unused fields from modem state
+
+	fsogsmd: modem_samsung: reset network signal strength when lost registration
+
+2012-03-02  Simon Busch  <morphis@gravedo.de>
+
+	Revert "fsogsmd: modem_samsung: read signal strength from modem when user wants to retrieve it's value"
+	This reverts commit a2088cd81d94b001d4bd08f7ba2ab9067fef6000.
+
+	fsogsmd: modem_samsung: provide cal-date and misc fields in result of DeviceGetInformation mediator
+
+	fsogsmd: modem_samsung: cleanup network status gathering from modem
+
+	fsogsmd: modem_samsung: read signal strength from modem when user wants to retrieve it's value
+
+	fsogsmd: modem_samsung: implement release of all active or held calls
+
+	fsogsmd: modem_samsung: validate phone number before trying to initiate a new call
+
+	fsogsmd: modem_samsung: differ between phone numbers in international format and other
+
+2012-03-01  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: lib: add validation method for DTMF tones
+
+	fsogsmd: modem_samsung: include slots and used fields in result of org.freesmartphone.GSM.SIM.GetSimInfo()
+	On SHR phonefsod calls org.freesmartphone.GSM.SIM.GetSimInfo() every three seconds when
+	slots and used fields are not filled. To avoid this we include both fields with a default
+	value until we can retrieve their correct value from the modem.
+
+	fsogsmd: modem_samsung: report signal strength as int32 and not as string
+
+2012-02-23  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: update for recent changes to libsamsung-ipc
+
+	fsogsmd: modem_samsung: use MISC_ME_IMSI instead of RSIM_ACCESS message type to get IMSI
+
+	fsogsmd: modem_samsung: implement RFS interface to process NV data modifcation requests
+
+	fsogsmd: modem_samsung: open device nodes with O_NOCTTY and O_NONBLOCK flags set
+
+	fsogsmd: modem_samsung: move commandhandler class into a own source file
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required fso-glib version of all components to 2012.14.1
+
+	Bump required vala version of all components to 0.14.2
+
+	fsogsmd: lib: move triggerUpdateNetworkStatus/validatePhoneNumber methods out of AT-command domain
+
+	fsogsmd: modem_samsung: implement network registration mediators (automatic and manual)
+
+	fsogsmd: modem_samsung: don't do anything on network registration for now
+
+	fsogsmd: modem_samsung: mention power state change only once
+
+	libfsotransport: move samsung specific transport class to fsogsmd modem_samsung plugin
+
+	fsogsmd: modem_samsung: first but incomplete version of the SMS message handler
+
+	fsogsmd: modem_samsung: remove network status poll handler
+
+	fsogsmd: modem_samsung: rework network status handling again so we share now more code with the core
+
+	fsogsmd: modem_samsung: really deactivate network status updater when modem is closed
+
+	fsogsmd: modem_samsung: cleanup network status synchronization handling
+
+	fsogsmd: lib: asure that pdp handler is not triggered by itself when syncing status
+
+	fsogsmd: modem_samsung: libsamsung-ipc dont' needs to be initialized anymore
+
+	fsogsmd: modem_samsung: implement polling mechanism for network status
+
+	fsogsmd: modem_samsung: tell the modem that we're ready to received SMS messages
+
+	fsogsmd: modem_samsung: correct byte order for phone power set message
+
+	fsogsmd: pdp: fix several bugs with our PDP handler
+	* deactivate an active PDP context when modem is closing
+	* evaluate pdp.registration and registration fields from network status
+	* fail to deactivate a PDP context when status is not ACTIVE or SUSPENDED
+	* check wether modem is alive before synchronizing PDP context status
+
+	fsogsmd: modem_samsung: correct calculation of signal strength based on rssi value
+
+	fsogsmd: modem_samsung: close transport when modem is going into CLOSING state
+
+	fsogsmd: pdp: defer registration for network status updates after modem construction is done
+
+	fsogsmd: dbus_service: add possible thrown exception type FreeSmartphone.Error for two methods
+
+	fsogsmd: pdp_nokia_isi: adjust for recent changes to PDP handler class
+
+	fsogsmd: lib: implement an abstract SMS handler class based on the AT commandset one
+	This abstract command class should be used in the future by all modem specific SMS
+	handlers as it abstracts the common functionality of handling incoming and outgoing SMS
+	message and only requires the specific handler to implement actions like acknowledge a
+	message with a specific id.
+
+	fsogsmd: modem_samsung: reimplement functionality to retrieve IMSI from SIM card
+
+	fsogsmd: modem_samsung: implement and register stub mediators for SMS domain
+
+	fsogsmd: lib: move sms storage class out of AT command space
+
+	fsogsmd: pdp: add config option to disable network route setup with fsonetworkd
+	In the near future it will be possible to use fsogsmd together with connman for setting up
+	a PDP connection. In this case connman is responsible for setting the default route on the
+	correct interface and not fsogsmd. To handle both cases for the moment there is now a
+	config option "pdp_setup_network_route" which has "true" as default value so if you don't
+	change anything PDP connection setup will work as before. Maybe default value will be
+	switched to "false" when connman integration is done.
+
+	fsogsmd: pdp: make network configuration available as part of context status
+
+	fsogsmd: pdp: when suspending keep context properties
+
+	fsogsmd: pdp_ppp_internal: adjust for recent changes to PDP handler class
+
+	fsogsmd: pdp_qmi: adjust for recent changes to PDP handler class
+
+	fsogsmd: pdp: mark context as suspended when there is no network connectivity
+
+	fsogsmd: pdp: take new roaming allowed setting and network status into advance for contex status updates
+
+	fsogsmd: modem_samsung: report minimal functionality level as unsupported
+
+	fsogsmd: lib: cleanup and refactor code of our pdp handler base class a bit
+
+	fsogsmd: modem_samsung: handle different functionality modes (full, airplane)
+
+	fsogsmd: modem_samsung: initialize samsung ipc library on module loading
+
+	fsogsmd: modem_samsung: extra define for libsamsung-ipc is not needed here anymore
+
+2012-02-08  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsogsmd: modem_option_gtm601: fix signal strength command
+	* Fix it to use the correct AT-commands.
+
+2012-02-08  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_option_gtm601: enable/disable signal strength updates on resume/suspend
+	As reported by GNUtoo; more information found here:
+	http://lists.goldelico.com/pipermail/gta04-owner/2012-January/001393.html
+
+2012-01-29  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: modem_samsung: fix compilation
+	Without that fix we have:
+	  unsolicited.c:508:8: error: 'IPC_NET_ACCESS_TECHNOLOGY_UNKNOWN' undeclared (first use in this function)
+	  unsolicited.c:508:8: note: each undeclared identifier is reported only once for each function it appears in
+	  unsolicited.c:510:8: error: 'IPC_NET_ACCESS_TECHNOLOGY_GSM' undeclared (first use in this function)
+	  unsolicited.c:512:8: error: 'IPC_NET_ACCESS_TECHNOLOGY_GSM2' undeclared (first use in this function)
+	  unsolicited.c:514:8: error: 'IPC_NET_ACCESS_TECHNOLOGY_GPRS' undeclared (first use in this function)
+	  unsolicited.c:516:8: error: 'IPC_NET_ACCESS_TECHNOLOGY_EDGE' undeclared (first use in this function)
+	  unsolicited.c:518:8: error: 'IPC_NET_ACCESS_TECHNOLOGY_UMTS' undeclared (first use in this function)
+
+	Thanks to paulk-desktop on #openmoko-cdevel Freenode IRC channel:
+	  Jan 29 16:16:04 <paulk-desktop>	GNUtoo, fsogsmd / src / plugins / modem_samsung / Makefile.am
+	  Jan 29 16:16:09 <paulk-desktop>	line 12
+	  Jan 29 16:16:09 <paulk-desktop>	is wrong
+	  Jan 29 16:16:21 <GNUtoo>	let me look
+	  Jan 29 16:16:29 <paulk-desktop>	should be -DDEVICE_IPC_V4
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: implement deactivation of an active pdp context
+
+	fsogsmd: pdp: use libfsosystem for network interface setup
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+	fsogsmd: modem_samsung: choose transport type by taking config value in advance
+
+	fsogsmd: modem_samsung: gather network operator names when listing available providers
+
+2012-01-04  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: use int32 as type for signal strength, lac and cid
+
+	fsogsmd: modem_qualcomm_palm: use int32 as type for signal strength report
+
+	fsogsmd: modem_nokia_isi: use int32 as type for signal strength report
+
+2011-12-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_option_gtm601: misc fixes for registration
+
+	fsogsmd: add more functionality to custom at command class
+
+2011-12-30  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: reset current command everytime even if we have a timeout
+
+	fsogsmd: modem_samsung: disable imsi retrievale as it is broken somehow
+
+2011-12-28  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: be more verbose when enqueue commands to channel
+
+2011-12-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_option_gtm601: remove custom +COPS implementation in favor of configuring the standard one properly
+
+	fsogsmd: lib/atcommands: add static setting for +COPS for modems that deliver the alphanumerical status code in the configured charset - as opposed to GSM charset
+
+2011-12-20  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'morphis/android-system-wakeup'
+	Conflicts:
+		fsogsmd/src/plugins/modem_samsung/channel.vala
+
+	fsogsmd: modem_samsung: improve check for pending modem requests before going into suspend mode
+
+2011-12-20  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_option_gtm601: disable configureData()
+	Looks like this somehow hinders device state propagation
+	from sim_ready to alive_registered.
+
+	fsogsmd: add the needed ? to _OWANDATA
+
+	fsogsmd: make the pdp_option_gtm601 a known pdp type
+
+2011-12-20  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: while we're initializing it is allowed to send commans to the modem
+
+2011-12-19  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_option_gtm601: fix regex for _OWANDATA at command
+
+2011-12-19  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: be synchronous when checking if we need to wake up the system
+
+2011-12-18  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: improve check for pending modem requests before going into suspend mode
+
+	fsogsmd: modem_samsung: while we're initializing it is allowed to send commans to the modem
+
+	fsogsmd: modem_samsung: request usage service while initializing
+
+	fsogsmd: modem_samsung: if we're suspended we need to tell the system to wake up on important events
+
+	fsogsmd: modem_samsung: acquire a wakelock while we're processing incoming messages
+
+	fsogsmd: add libfsosystem as dependency and use it in modem_samsung plugin
+
+	fsogsmd: modem_samsung: remove leftover dependencies of modem_qualcomm_palm plugin
+
+	fsogsmd: modem_samsung: rework sending sound related messages regarding to changes in libsamsung-ipc
+
+	fsogsmd: modem_samsung: correct handling of incoming signal strength updates
+
+2011-12-18  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: set the correct pdp plugin for gta04 in config
+
+	fsogsmd: get the atcommands via DataSharing to fix unresolved symbols on runtime
+
+	fsogsmd: actually really add the pdp plugin for option gtm601
+
+	fsogsmd: implement ppd_option_gtm601 plugin - untested
+
+2011-12-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: option_gtm601: handle $QCSIMSTAT, introduce class for custom unsolicited commands
+
+2011-12-12  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'master' of ssh://git.freesmartphone.org/cornucopia
+
+	fsogsmd: modem_samsung: defer suspend as long as we have pending requests with no responses
+
+2011-12-11  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_nokia_isi: set USE_LEGACY_SUBSCRIBE flag
+	Looks like without it indications do not work properly with
+	update libgisi.
+
+2011-12-10  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: at: never write AT commands in plain text to log file when not in debug mode
+	This fixes bug report #602 (http://trac.freesmartphone.org/ticket/602)
+
+2011-12-08  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	modem_option_gtm601: make call hangup work
+	* we have to overwrite ATH with AT+CHUP to make hangup work on the GTA04's Option GTM601
+
+2011-12-01  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: report network pdp state as part of network status update too
+
+	fsogsmd: modem_samsung: wait as long as network provider listing need instead of only five seconds
+	Retrieving the list of available network providers from the modem can take some time
+	depending on the network signal so we don't know how long it takes to finish. Because of
+	this we're wainting until it is finished and not only for the little amount of five
+	seconds.
+
+	fsogsmd: modem_samsung: explicitly cast sim status byte to uint8 to let the switch succeed
+	Without casting the status before taking it into account within the switch as a uint8 the
+	switch will fail. While debuging this I saw that modem.status changed to 0xffffff82
+	somewhere. Thats some indicator for the switch failing when comparing 0xffffff82 and 0x82
+	but I don't know why the leading bytes are changing to 0xff ...
+
+	Until we found out why this happens we have here an explicit cast of the status byte to an
+	uint8.
+
+	fsogsmd: modem_samsung: show source status byte to be sure we have the correct one
+
+2011-11-29  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: 3rdparty: add missing prototypes
+	This is based on a patch from Colin Watson <cjwatson@ubuntu.com> attached to FSO bug
+	report #656. It's also tracked in debian bug report system as #648447. Both bugs are fixed
+	with this commit.
+
+2011-11-25  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: fix some parts so it compiles fine with vala 0.14
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-23  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: implement network mediator to retrieve available network providers
+
+2011-11-20  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: be more verbose and use correct value for message ids
+
+	fsogsmd: modem_samsung: make network status update functionaly robust against unexpected behaviour
+
+2011-11-19  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: last bits to get call handling working
+
+	fsogsmd: modem_samsung: only provide provider and network display name when value is not null
+	This fixes a problem with SHR as phonefsod requests a network status update already when
+	SIM card is not in active state. This lets fsogsmd segfault causes it tries to add a null
+	value to the hash map.
+
+	fsogsmd: modem_samsung: fix two bugs in call status sync logic
+	* we need to be sure we don't access an array with invalid indexes (which the modem can
+	  send if it wants to); so we have to check each call id if it's valid for the range of
+	  our internal call array
+	* there are some problems with the GLib.ArrayList -> simple array conversion methods.
+	  Somehow it doesn't transfer the content of array items correctly. We're using now a
+	  temporary array we pass later to the public one of our mediator class.
+
+2011-11-09  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_ti_calypso: do *NOT* register for waiting call notifications
+	Looks like +CCWA is not working correctly on calypso and causing it to
+	go into unrecoverable CME ERROR +512 state.
+
+2011-11-07  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: start with processing call unsolicited responses from modem
+
+2011-11-07  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsogsmd: modem_qualcomm_palm: cleanup and TODOs
+	* with the response (refnum) we can match a sms to it's status report
+
+2011-10-30  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: herring configuration: set samsung_ipc as pdp handler
+
+	fsogsmd: modem_samsung: supply read/write delegates in the correct order for libsamsung-ipc
+
+	fsogsmd: lowlevel_samsung_crespo: adjust for latest changed to libsamsung-ipc
+
+	fsogsmd: modem_samsung: adjust for recent changes to libsamsung-ipc API
+
+2011-10-29  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: fix compilation error; needs latest libsamsung-ipc
+
+2011-10-28  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: request baseband version information in the correct mediator
+
+	fsogsmd: modem_samsung: reorder debug statements for network registration urc message
+
+	fsogsmd: modem_samsung: implement most stuff for call handling; still untested ...
+	I implemented this in the train so I didn't have the possiblity to test everything; I just
+	verified that everything compiles fine and integrates in the FSO architecture.
+
+2011-10-27  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: complete pdp connection setup; should now work completely
+
+2011-10-26  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: print out serivce domain of network registration urc
+
+	fsogsmd: modem_samsung: handle timeout of send request messages correctly
+	We're using now a default timeout of five seconds for every send request message.
+
+2011-10-25  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: implement first steps to setup a PDP connection
+
+	fsogsmd: modem_samsung: fix warning about null parameter for method which does not support it
+
+	fsogsmd: modem_samsung: use new data property from message structures of libsamsung-ipc
+
+	fsogsmd: modem_samsung: remove unnecessary debug output statement
+
+2011-10-24  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: fix buggy network plmn handling; it works now!
+
+	fsogsmd: modem_samsung: access sim card to retrieve network provider name
+
+	fsogsmd: modem_samsung: catch up with recent changes to libsamsung-ipc
+
+	fsogsmd: modem_samsung: retrieve current network plmn from modem
+
+	fsogsmd: modem_samsung: only set network status to registered when authenticated with SIM
+
+2011-10-24  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_option_gtm601: make PlusCOPS work
+
+	fsogsmd: fix conf for GTA04
+
+	fsogsmd: modem_option_gtm601: override PlusCOPS
+	The gtm601 reports oper UCS2 encode too. We need to decode it.
+
+	fsogsmd: make option_gtm601 a know modem type
+
+	fsogsmd: add config for GTA04
+
+2011-10-23  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: don't report signal strength update when not registered with network
+
+	fsogsmd: modem_samsung: save network reg state in global modem state
+
+	fsogsmd: modem_samsung: when updating network status retrieve status from modem
+
+	fsogsmd: modem_samsung: if we lost network registration change modem state accordingly
+
+	fsogsmd: modem_samsung: add mediators for pdp subsystem
+
+	fsogsmd: modem_samsung: implement network mediators
+
+	fsogsmd: modem_samsung: remove sim mediators we currently not support
+
+	fsogsmd: modem_samsung: register our device subsystem mediators
+
+	fsogsmd: modem_samsung: use network state information for user information and state update
+
+	Revert "fsogsmd: lowlevel_samsung_crepso: remove unnecessary sleep phase"
+	Without a sleep we're sending commands to the modem but the modem is not ready set to
+	receive and process them.
+
+	This reverts commit 5130de4552c1c1b597a3ab48cb6430284a7faec0.
+
+	fsogsmd: modem_samsung: several updates
+
+2011-10-22  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: add skeleton for the modem_option_gtm601 plugin
+
+2011-10-22  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: more work on getting most sim related mediators supported
+
+	fsogsmd: modem_samsung: update sim auth status too when updating modem status
+
+	fsogsmd: lowlevel_samsung_crepso: remove unnecessary sleep phase
+
+	fsogsmd: modem_samsung: restructure response handling within the channel so it works correct
+
+	fsogsmd: modem_samsung: don't authenticate again when we're already authenticated with SIM
+
+	fsogsmd: modem_samsung: don't use an extra list to track current send requests
+
+	fsogsmd: modem_samsung: set length of pin in request message too
+
+	fsogsmd: modem_samsung: mark command as finished when we got the response
+
+2011-10-18  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: dump request message when sending it to the modem
+
+	fsogsmd: modem_samsung: set correct length of data array for message we want to send
+
+	fsogsmd: modem_samsung: fix pin validation
+
+	fsogsmd: modem_samsung: register the first two mediators for sim commands
+
+	fsogsmd: modem_samsung: first send request message should have id 1 not 0
+
+	fsogsmd: modem_samsung: huge steps towards working sim card authentication
+
+2011-10-17  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: dump response data when receiving it for debugging
+
+	fsogsmd: modem_samsung: more work for getting modem initialization phase done Signed-off-by: Simon Busch <morphis@gravedo.de>
+
+	fsogsmd: lowlevel_samsung_crespo: register log handler for samsung-ipc library
+
+	fsogsmd: modem_samsung: power up modem in initialization phase
+
+	fsogsmd: modem_samsung: handle network registration unsolicited response message
+
+	fsogsmd: modem_samsung: send response for correct request when response is received
+
+	fsogsmd: modem_samsung: dump command id in hexadecimal form too for better debugging
+
+2011-10-14  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: catch up with recent changes to libsamsung-ipc
+
+	fsogsmd: modem_samsung: use new logging functionality from libsamsung-ipc
+
+	fsogsmd: modem_samsung: we need to instantiate our unsolicited response handler
+
+	fsogsmd: modem_samsung: catch up with changes to message types in libsamsung-ipc
+
+	fsogsmd: modem_samsung: free memory used for response data but not allocated by us
+
+	fsogsmd: modem_samsung: be more verbose when receiving a message from the modem is done
+
+	fsogsmd: modem_samsung: use correct to_string method for response message type
+
+	fsogsmd: modem_samsung: be more verbose in case that receiving data from modem fails
+
+	fsogsmd: modem_samsung: we don't need to allocate memory space for the response message
+
+2011-10-13  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: add some more documentation
+
+	fsogsmd: modem_samsung: implement command queue handling and unsolicited response handler
+
+	fsogsmd: lowlevel_samsung_crespo: refactor return_val_if_fail into a if construct
+
+2011-10-12  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: lowlevel_samsung_crespo: add a sleep of one second after modem boostrap
+
+	fsogsmd: modem_samsung: when recv returns zero bytes don't continue
+
+	fsogsmd: lowlevel_samsung_crespo: fix path to power mode sysfs node
+
+	fsogsmd: modem_samsung: print type of incoming responses to debug log
+
+	fsogsmd: lowlevel_samsung_crespo: implement power up and power down sequence
+
+2011-10-11  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: initial bits for integrating samsung-ipc
+
+2011-10-10  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: add configuration for herring machine also known as nexus s
+
+	fsogsmd: add lowlevel type samsung_crespo to the list of known types
+
+	fsogsmd: dbus_service: mark modem type samsung as a known one
+
+2011-10-09  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: add lowlevel plugin for samsung crespo machine and bring back libsamsung-ipc dependency
+
+2011-10-01  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: remove dependency on libsamsung-ipc and add channel class
+
+2011-09-29  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_samsung: add initial version of this new modem support plugin
+
+2011-09-27  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsogsmd: modem_qualcomm_palm: adapt to msmcomm API
+	* incomming_message( ... ) -> incoming_message( ... )
+	* acknowledge_message( nr ) -> acknowledge_message()
+	* some cleanup
+
+	fsogsmd: modem_qualcomm_palm: fixes and cleanup
+	* Now we don't need to throw an error anymore in the SmsSendTextMessage mediator
+	 and it returns correct values.
+
+	* We now use the SmsStorage class with the real IMSI nr gathered from msmcomm,
+	  to store our incoming messages.
+
+	* The handling of incoming SMS was moved from the MsmChannel into the
+	  MsmUnsolicitedResponseHandler. This is the correct place.
+
+	* Some cleanup, comments and beautification throughout the files.
+
+2011-09-26  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsogsmd: modem_qualcomm_palm acknowledge SMS
+	With this changeset incoming SMSs (from msmcommd) will get acknowledged
+	automatically, after they arrived at the FSO layer.
+
+	Add myself as author
+
+2011-09-24  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsogsmd: modem_qualcomm_palm: handle incoming sms
+	With this changes fsogsmd can handle incoming SMS signals
+	sent by msmcommd ([SIGNAL] org.msmcomm.Sms.IncommingMessage)
+	and send itself a signal with the decoded SMS ([SIGNAL]
+	org.freesmartphone.GSM.SMS.IncomingTextMessage).
+
+	The incoming SMSs aren't ack'ed, yet. So the SMS will arrive
+	multiple times.
+
+2011-09-23  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsogsmd: modem_qualcomm_palm: catch errors
+	This catches 2 uncatched errors in the SendTextMessage mediator.
+
+2011-09-23  Simon Busch  <morphis@gravedo.de>
+
+	Merge remote-tracking branch 'origin/palmpre/sms-support'
+	Conflicts:
+		fsogsmd/src/plugins/modem_qualcomm_palm/channel.vala
+
+2011-09-22  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsogsmd: modem_qualcomm_palm: use msmcomm for SMS
+	This doesn't fully work yet!
+
+	You can send basic SMS with it, but if we throw no error in the
+	"SmsSendTextMessage" mediator fsogsmd will crash.
+
+2011-09-12  Radek Polak  <psonek2@seznam.cz>
+
+	fsogsmd: dump SMS timestamp as string
+	...to be consistent with the rest of FSO GSM api - e.g. with
+	IncomingTextMessage event or RetrieveTextMessages()
+
+2011-09-09  Radek Polak  <psonek2@seznam.cz>
+
+	fsogsmd: dump SMS timestamp
+
+2011-08-21  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: a call needs to be ended in different ways depending on it's state
+
+2011-08-20  Simon Busch  <morphis@gravedo.de>
+
+	Revert "fsogsmd: modem_qualcomm_palm: when channel or msmcomm daemon are not ready do nothing"
+	This reverts commit c85e57dba304aea110a19b9e0ff72fa97056cc10.
+
+2011-08-19  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: catch up with recent changes to msmcomm
+
+	fsogsmd: modem_qualcomm_palm: when channel or msmcomm daemon are not ready do nothing
+
+2011-08-02  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: also switch audio status on call origination to get a dial tone
+
+2011-07-28  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: fix handling of initiated calls when they become active
+
+2011-07-22  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: activate modem handset audio device when a new call connects
+
+2011-07-13  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: take originate and orig forward status urc's as the same
+
+	fsogsmd: modem_qualcomm_palm: forward cell id from msmcommd with network status update
+
+2011-07-11  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: wait until modem is active when resuming
+
+2011-07-10  Simon Busch  <morphis@gravedo.de>
+
+	libfsoresource: we're using gdbus only so we should use GVariant instead of GValue
+
+	fsogsmd: dbus_service: set variable first to false after first loop iteration
+
+	fsogsmd: modem_qualcomm_palm: we depend on the modem resource
+
+	fsogsmd: dbus_service: set resource dependencies for GSM resource
+
+	fsogsmd: modem_qualcomm_palm: give msmcommd a bit more time to process everything
+
+	fsogsmd: modem_qualcomm_palm: disable/enable sending health and rssi reports on suspend/resume
+
+2011-07-04  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: rework error handling in callhandler
+
+	fsogsmd: modem_qualcomm_palm: request dbus interfaces only when resource is available
+
+2011-07-03  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: ppp: fix the fix for empty username/password in the ppp plugin
+	The correct fix is of course to use string? to tell vala
+	that it is ok for the string to be null.
+
+2011-07-02  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: ppp: mark username and password as out params
+	With newer vala this seems to be necessary as without
+	it it will assert on one of those two being null.
+	fixes GPRS on GTA02 :-)
+
+2011-06-09  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: add missing posix namespace name
+
+	fsogsmd: modem_qualcomm_palm: use plain sleep again as otherwise it does not work probably
+
+	fsogsmd: modem_qualcomm_palm: be more verbose in error case within channel opening
+
+2011-06-08  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: move release resource code back into a own method
+
+	fsogsmd: modem_qualcomm_palm: remove timeout for RESET_RADIO_IND urc messsage
+	It turns out that the timeout is not reliable on the device.
+
+2011-06-07  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: use higher timeout to wait for URC_TYPE_RESET_RADIO_IND
+
+	fsogsmd: modem_qualcomm_palm: remove unused name of at channel
+
+	fsogsmd: modem_qualcomm_palm: a lot of cleanups for the modem initialization code
+
+	fsogsmd: modem: convert tabs to spaces
+
+	fsogsmd: modem_qualcomm_palm: fix several critical bugs in modem plugin
+	* When connecting again after a closed connection to the fsogsmd daemon the dbus signal
+	  handlers for the msmcomm daemon gets connected again. This leads to handling the
+	  incomming signals n times (n = how often a client has reconnected).
+	* When a client reconnects after a closed connection the phonebook handler should not be
+	  reinitialized just clean it up!
+	* Don't hide exception messages!
+
+2011-06-07  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	Add nexusone configurations files.
+
+2011-06-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: remove posix-ext vapi; has been applied upstream. bump vala requirement to 0.12.1
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-31  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_dummy: don't report non-working handlers for phonebook, sms and call
+
+2011-05-15  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_nokia_isi: cast the callhandler for listCalls
+
+2011-05-14  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_nokia_isi: actually commit the mediator (list calls) too
+
+	fsogsmd: modem_nokia_isi: implement CallListCalls and CallReleaseAll
+
+	fsogsmd: modem_nokia_isi: throw an error when trying to release an already released call
+
+2011-05-13  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_nokia_isi: finish mediator split and filename consistency rework
+
+	fsogsmd: modem_nokia_isi: we _must_ always use callback
+
+	fsogsmd: modem_nokia_isi: fix control flow in IsiSimChangeAuthCode
+
+	fsogsmd: modem_nokia_isi: start splitting the mediators in different files
+
+	fsogsmd: modem_nokia_isi: handle outgoing calls via the status indication of gisi too
+
+2011-05-12  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_nokia_isi: work on the call handler
+
+	fsogsmd: modem_nokia_isi: listen to call status updates and send signals for them
+
+	fsogsmd: modem_nokia_isi: implement SimGetAuthCodeRequired mediator
+
+2011-05-08  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_nokia_isi: implement SetFunctionality
+
+	fsogsmd: modem_nokia_isi: remove override of createWatchDog
+
+2011-05-06  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	Revert "fsogsmd: pdp_nokia_isi: debug++"
+	This reverts commit fa3fb3a7fc51afe2e7c937e0c2e50b1eacaa09cd.
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: pdp_nokia_isi: debug++
+
+	fsogsmd: add vim tags for correct indentation with 4 spaces
+
+2011-05-03  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: pdp_nokia_isi give it the ISI_LIBS
+
+	fsogsmd: lib/modem: add nokia_isi pdp typename
+
+2011-05-02  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: implement IsiPdpSetCredentials
+
+	fsogsmd: pdp_nokia_isi: actually activate/deactivate the context via gisicomm
+
+	fsogsmd: modem_nokia_isi: use the new DataSharing to deposit the isimodem
+	This will be used by the pdp plugin to get access to it.
+
+	fsogsmd: modem_nokia_isi: restore the default mediators for Pdp
+
+2011-05-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: vapi: add posix-ext.vapi w/ inet_ntop scheduled for upstream inclusion
+
+2011-04-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: start sanitizing the startup sequence (more work necessary)
+
+2011-04-30  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: add stub for a new plugin pdp_nokia_isi
+
+2011-04-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: dbus_service: set proper status check for every dbus method
+
+2011-04-27  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: dbus_service: GetSignalStrength requires being registered
+	On nokia900 it would segfault otherwise due to the network subsystem
+	not being reachable yet. And without being registered it does not make
+	sense anyway.
+
+2011-04-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: dbus_service: implement checkAvailability() which has been an empty stub
+
+2011-04-25  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_nokia_isi: don't segfault when name is missing in the regstatus
+
+2011-04-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: debug--
+
+2011-04-21  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: modem_nokia_isi: power off again before power on
+
+	fsogsmd: modem_nokia_isi: add config to make power handling of the modem optional
+
+	fsogsmd: modem_nokia_isi: don't release the power key twice
+
+	fsogsmd: modem_nokia_isi: override powerOn / powerOff
+
+	fsogsmd: disable the vanished lowlevel plugin for nokia900
+
+	modem_nokia_isi: only reset cmt_rst_rq once per poweron on netlink changes
+
+	modem_nokia_isi: add a destructor to poweroff the modem
+
+	modem_nokia_isi: add missing call to gpio_prope
+
+2011-04-20  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	modem_nokia_isi: assimilate lowlevel_nokia900
+	having it in a module on its own is just an unneeded extra
+	complication.
+
+2011-04-18  Antonio Ospite  <ospite@studenti.unina.it>
+
+	fsogmsd: modem_freescale_neptune, move +EPOM to MODEM init
+	The +EPOM command is used to "Power On Modem" on some EZX phones, move
+	it to the modem init sequence where it belongs.
+
+	fsogsmd: modem_freescale_neptune, store the bluetooth address
+	The bluetooth address on the first generation of EZX devices is stored
+	on the BP, acquire it when the modem initialize by listening for the
+	+EBAD URC.
+
+	Store it as a modem property so eventually a bluetooth plugin can use it
+	to actually configure the bluetooth adapter.
+
+	fsogsmd: modem_freescale_neptune, improve DeviceGetInformation
+	Implement the +EBPV URC, this way we can store the BP revision as a
+	MODEM property and return it when DeviceGetInformation() is called.
+
+	fsogsmd: atchannel.vala, fix a typo s/save/safe/
+
+2011-04-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: rewrite startup sequence again
+
+2011-04-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: misc changes in startup sequence
+
+2011-04-06  Antonio Ospite  <ospite@studenti.unina.it>
+
+	fsogsmd: remove reference to PALM in modem_freescale_neptune plugin
+	Remove reference to PALM_CFLAGS and PALM_LIBS from
+	fsogsmd/src/plugins/modem_freescale_neptune/Makefile.am
+	they must be leftovers from the copied Makefile.am
+
+	Reported-by: Martin Jansa <martin.jansa@gmail.com>
+
+2011-04-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: dbus_service: limit access to certain commands depending on status
+	Closes FSO #604
+
+2011-04-05  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: connman plugin: activate pdp connection when network is connecting
+
+	fsogsmd: modem_qualcomm_palm: format mcc/mnc correct when printing them together
+
+	fsogsmd: modem_qualcomm_palm: report network status update only once and include mcc/mnc
+
+	fsogsmd: connman plugin: implement network registration on correct modem status
+
+2011-04-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: lower connman requirement to 0.68
+
+2011-04-05  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: connman plugin: add modemhandler which requests GSM resource at startup
+
+	fsogsmd: switch to internal ppp stack for palmpre machine
+
+	fsogsmd: connman plugin: register network device driver on initialization
+
+	fsogsmd: connman: use correct version for plugin definition
+
+2011-04-04  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: depend on connman version 0.68 rather than unreleased 0.72
+
+	fsogsmd: connmann: register the network driver to the connman core
+
+2011-04-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: configure: fix help for connman check
+
+2011-04-04  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: add initial connman plugin
+
+	fsogsmd: add connman as build dependency
+
+2011-04-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: dbus_service: implement RegisterWithProvider
+
+	fsogsmd: modem_nokia_isi: add RegisterWithProvider
+
+	fsogsmd: modem_qualcomm_palm: remove traces of AT channel, no need for it with ippp
+
+	fsogsmd: modem_qualcomm_palm: fix operation without fsousaged
+	register proxy objects on demand only in open()
+
+2011-04-02  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: pdp_ppp_internal: deactivate sending AT+CGACT for now while initializing ppp
+
+2011-04-01  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: pdp_ppp_internal: send modem line reset command when initializing channel
+
+	fsogsmd: pdp_ppp_internal: use cycle dtr option of serial transport if config option is set
+
+	fsogsmd: modem_qualcomm_palm: use our own at channel implementation as data channel
+
+2011-03-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_cinterion_mc75: support using this modem via kernel MUXing
+
+	fsogsmd: pdp_ppp_internal: don't disable echo mode for now, allow custom delay between transport opening and connect phases
+
+	fsogsmd: modem_dummy: reuse AT PDP mediators
+
+	fsogsmd: modem_qualcomm_palm: reuse AT PDP mediators for this modem
+
+2011-03-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: pdp_ppp_internal: set status to disconnected, if we don't succeed in establishing the context
+
+2011-03-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: lowlevel_openmoko: enclose debug statements in #if DEBUG
+
+2011-03-25  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: implement dummy sms handler
+
+	fsogsmd: modem_qualcomm_palm: calculate signal strength correct based on measured values
+
+2011-03-24  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: several fixes to improve sim authentication process
+
+	fsogsmd: modem_qualcomm_palm: initialize time and charger settings while modem is being initialized
+
+2011-03-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: lib: internal pdp stack starts to work
+
+	fsogsmd: pdp_ppp_internal: more work on internal ppp stack
+
+	fsogsmd: lib: fix enum in vapi
+
+	fsogsmd: lib: make sure the atcommandqueue doesn't vanish too early when a channel is being removed
+
+	fsogsmd: lib: allow anonymous (temporary) channels that don't get registered with the modem
+
+2011-03-22  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: adjust for recent changes to msmcomm-specs
+
+2011-03-21  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: add dummy alsa hooks
+
+2011-03-17  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: adjust for recent changes to msmcomm-specs
+
+2011-03-14  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: make it possible to set a timeout for urc waiters
+
+	fsogsmd: modem_qualcomm_palm: wait until we get a verification when sending sim auth cmd
+
+2011-03-13  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: react differently on channel hangup depending on the channel type
+
+2011-03-11  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: try to handle modem power off correctly
+
+2011-03-07  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: reset network informations on network unregister
+
+2011-03-07  Lukas-David Gorris  <lukas.gorris@gmail.com>
+
+	htcleo: add all configs in the make system
+	Tested-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+	Acked-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+
+2011-03-06  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	Move htcleo's config
+	I carefully reviewed the commit c65d801ba4abfd09ee49f3c4a89823679c090bf9
+	  But I looked at the content, not at the pathes.
+	This fixes the pathes.
+
+	Note that the config is not activated yet in the autotools build system.
+
+2011-03-06  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: even report signal strength on network status update
+
+2011-03-06  Lukas-David Gorris  <lukas.gorris@gmail.com>
+
+	Add htcleo (HTC HD2) config
+	Based on GNUtoo's nexus one config. Tested and working on the device.
+	Known problem: Non working audio routing.
+	Without alsa as recommended by GNUtoo.
+
+	Acked-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+
+2011-03-04  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: be more verbose in callhandler and fix call status announcement
+
+2011-03-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_ti_calypso: enable SMS phase 2
+
+	fsogsmd: at: use SIM_COMM_TIMEOUT for +CFUN
+
+	fsogsmd: modem_nokia_isi: tweak registration sequence, move to background for now
+
+	fsogsmd: fix 7b3116b475b5af6dd4442aacf18e1b3f23dddd03; please always wrap logger.debug in assert(), so we can get rid of it completely
+
+	fsogsmd: conf/htc_qualcom_dream: fix last commit; AT is being sent implicitly, don't repeat it
+
+2011-03-01  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: conf/htc_qualcomm_dream: make the modem work in USA too.
+	This fix makes the modem work in USA, and was briefly tested in USA:
+	  Without that fix we have a CME error 100 when trying to call someone.
+
+2011-03-01  Simon Busch  <morphis@gravedo.de>
+
+	Revert "fsogsmd: palmpre conf: enable data transport per default"
+	This reverts commit 84570f5f46a0e09c80e14e17283cc8f28ddaf3de.
+
+	fsogsmd: modem_qualcomm_palm: override default AtPdp mediators for now
+
+	fsogsmd: palmpre conf: enable data transport per default
+
+2011-02-28  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: use register/unregister within set functionality
+	The DeviceSetFunctionality mediator is not finished yet and needs some work to be work
+	completly as expected.
+
+2011-02-27  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: reset internal data structure on modem opening
+
+	fsogsmd: modem_qualcomm_palm: read channel configuration when it is needed
+
+	fsogsmd: modem_qualcomm_palm: be more verbose according to our data channel
+
+	fsogsmd: modem: add debug info when creating a mediator
+
+	fsogsmd: modem_qualcomm_palm: do unregistering from a network correctly
+
+	fsogsmd: modem_qualcomm_palm: fix compilation errors and mark two call mediators as unsupported
+
+	fsogsmd: modem_qualcomm_palm: fix logic for initiating a new call
+
+2011-02-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: more work on pdp_ppp_internal
+
+	fsogsmd: 3rdparty: bind more of PPP stack
+
+2011-02-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: pdp_ppp_internal: add stub for new pdp plugin
+
+	fsogsmd: 3rdparty: import code to use for an internal ppp stack
+
+	fsogsmd: lib: fix yet another oversight from the libdbus -> gdbus conversion NOTE: Funny bug in gdbus... if you try to serialize a HashTable<string,Variant>, but actually deliver a HashTable<string,Value>, then gdbus moves into an endless loop and your programs hangs without any error message...
+
+	fsogsmd: modem_cinterion_mc75: reorder channels, apparantly you can only issue SIM commands on the first VC
+
+	fsogsmd: modem_cinterion_mc75: enable SMS phase 2 and activate delivery after registration
+
+	fsogsmd: lib/at: secure against undecodable SMS read from SIM
+
+	fsogsmd: modem_nokia_isi: listen and forward signal strength changes and network registration status changes
+
+	fsogsmd: modem_nokia_isi: deliver (real) network name in getstatus(), if present
+
+2011-02-25  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: implement all missing mediators as stubs
+
+	fsogsmd: modem_qualcomm_palm: initialize result parameter of ListProviders mediator correctly
+
+	fsogsmd: modem_qualcomm_palm: register implemented but not working mediators
+	This avoids that the modem class uses the At mediators we don't support with our modem
+	type.
+
+	fsogsmd: modem_qualcomm_palm: do sim auth status handling correct
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: fix bogus SimAuth error
+
+	fsogsmd: modem_nokia_isi: fix GetStatus in case we're not registered (yet)
+
+	bump copyright notices for 2011
+
+	fsogsmd: sms-handling: don't use service center as hash for concatenated messages. Obviously some providers use round-robin for service centers, so different fragments of one concatenated message can have a non-matching service center number.
+
+	fsogsmd: move default timeout to 5 seconds; allow longer timeouts for specific commands accessing the SIM card or the network NOTE: Please report if commands now timeout for you, we might add longer timeouts for some more commands
+
+2011-02-21  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: update TODO list
+
+	fsogsmd: modem_qualcomm_palm: check if in channelForCommand method for enabled data transport
+
+2011-02-20  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: add config option to enable/disable data transport
+
+	fsogsmd: modem_qualcomm_palm: only send pin to modem when pin is enabled
+
+	fsogsmd: modem_qualcomm_palm: only require pin when pin authentication is enabled
+
+2011-02-15  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: limit the lowlevel_nokia900 to just power on/off the modem no more freaking state machine or netlink handling ;)
+
+2011-02-15  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: AtChannel: if we're not the mainchannel detect modem status correctly
+
+	fsogsmd: palm_pre conf: load lowlevel_palmpre plugin on startup
+
+2011-02-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: implement org.freesmartphone.GSM.DebugMessage() NOTE: This is handy for sending arbitrary ISI messages via DBus, e.g.:
+	>>> print gsmdebug.DebugCommand("NET","e5 0 a 0 0 0 0")
+	00 00 00 00 00 02 0C 08 62 F2 70 02 00 00 E7 14 ........b.p.....
+	00 07 00 6F 00 32 00 20 00 2D 00 20 00 64 00 65 ...o.2. .-. .d.e
+	00 00                                           ..
+
+	fsogsmd: modem_nokia_isi: debug++
+
+	fsogsmd: modem_nokia_isi: add debug code for bootstrapping phase
+
+2011-02-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add Constants.phonenumberStringToRealTuple() and use it in modem_nokia_isi
+
+	fsogsmd: modem_nokia_isi: implement org.freesmartphone.GSM.Call.SendDtmf()
+
+	fsogsmd: modem_nokia_isi: implement answering a call
+
+	fsogsmd: modem_nokia_isi: implement releasing a call
+
+	fsogsmd: modem_nokia_isi: connect call mediators to call handling
+
+	fsogsmd: add IsiCallHandler stub and instanciate from modem plugin
+
+2011-02-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: implement org.freesmartphone.GSM.Call.Initiate() NOTE: data calls don't seem to be supported at all by this modem
+
+2011-02-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: implement org.freesmartphone.GSM.Network.ListProviders() NOTE: The N900 does not report operators operating(sic!) on various networks as distinct ones. Also, it _forcefully_ overrides the real provider names with the one found in the SIM mapping table.
+
+2011-02-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: implement org.freesmartphone.GSM.Network.Register()
+
+	fsogsmd: modem_nokia_isi: add org.freesmartphone.GSM.Network.GetSignalStrength()
+
+	fsogsmd: modem_nokia_isi: add more fields for org.freesmartphone.GSM.Network.GetStatus
+
+	fsogsmd: modem_nokia_isi: first half of org.freesmartphone.GSM.Network.GetStatus done
+
+	fsogsmd: modem_nokia_isi: implement first half of org.freesmartphone.GSM.SIM.GetSimInfo
+
+2011-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: implement set pin
+
+	fsogsmd: modem_nokia_isi: bring back sim auth and device info mediators
+
+	fsogmsd: modem_nokia_isi: start with modem bringup
+
+2011-02-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: convert first mediator to use libgisicomm
+
+	fsogsmd: define C99, since we include some headers that need it
+
+	fsogsmd: modem_nokia_isi: prepare for switching from libisi to libgisi / libgisicomm
+
+2011-02-05  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: trigger callhandler on incomming call unsolicited responses
+
+	fsogsmd: modem_qualcomm_palm: report network time if available
+
+	fsogsmd: modem_qualcomm_palm: Device GetTime mediator is now unimplemented
+
+	fsogsmd: modem_qualcomm_palm: request msmcomm call service at modem startup
+
+2011-02-01  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: move modem initialization/shutdown to open/close methods
+
+	fsogsmd: modem_qualcomm_palm: report network access type on network status update
+
+	fsogsmd: modem_qualcomm_palm: simplify sim pin handling
+
+	fsogsmd: modem_qualcomm_palm: enable call handler and mediators
+
+2011-01-28  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: register data channel in modem class again
+
+	fsogsmd: conf palmpre: use palmpre lowlevel provider
+
+2011-01-26  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: add lowlevel plugin for palmpre machine
+
+	fsogsmd: modem_qualcomm_palm: remove data channel registration ...
+	Hmpf ... thing about anything before you are going to implement it before you see
+	afterwards that it cannot work ...
+
+	fsogsmd: modem_qualcomm_palm: move data channel initialization to channel class
+
+2011-01-25  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: create at channel for data use
+
+	fsogsmd: palm_pre conf: default loglevel to DEBUG
+
+	fsogsmd: modem_qualcomm_palm: initial work for network register/unregister mediators
+
+2011-01-24  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: add short list of things which needs to be done
+
+	fsogsmd: modem_qualcomm_palm: more fine tuning of the phonebook handler
+
+2011-01-23  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: implement most phonebook functionality
+
+	fsogsmd: modem_qualcomm_palm: adjust for latest changes in msmcomm-specs
+
+2011-01-22  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: implement set/get current time mediators
+
+	fsogsmd: modem_qualcomm_palm: cleanup and reactivate some mediators
+
+2011-01-21  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsogsmd: Catch up with enumToString changes
+
+2011-01-21  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: fix build depenency in Makefile
+
+2011-01-20  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: implement handling of sim urc messages
+
+2011-01-19  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: fix modem initialization
+
+2011-01-18  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: port to newer version of msmcomm suite
+	Most things are currently untested and not supposed to work. Further changes to adjust
+	anything to be back in the old state are needed.
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsogsmd: set G_LOG_DOMAIN
+
+2011-01-17  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: modem_nokia_isi: fix white spaces / Tab issues
+	The correct format is 4 white spaces and no Tabs
+
+2011-01-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: always throw an error, if ISI callbacks fail
+
+2011-01-17  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: modem_nokia_isi: add automatic network registration
+
+2011-01-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: get rid of empty commandqueue class
+
+	fsogsmd: modem_nokia_isi: fix reachability warnings
+
+	fsogsmd: really secure against missing modem_access configuration
+
+2011-01-16  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: nokia_n900 configuration: add modem_transport
+	Without that fix fsogsmd can't start on the nokia n900:
+	  1970-01-01T00:01:03.088317Z [DEBUG] LowLevelNokia900 <>: gpio_probe: rapu is LOW_LEVEL_NOKIA900_RAPU_TYPE_TYPE_1
+	  1970-01-01T00:01:03.089233Z [CRITICAL] fsogsmd : GLib <>: string_to_string: assertion `self != NULL' failed
+	  1970-01-01T00:01:03.495086Z [INFO]  fsogsmd : Binary launched successful (FsoFrameworkFileLogger created as theLogger)
+
+	fsogsmd: modem_nokia_isi: implement NetworkGetSignalStrength
+
+	fsogsmd: modem_nokia_isi: fix Unhandled ISI SIMAuth.Status ISI_SIM_AUTH_STATUS_AUTHORIZED
+	Without this commit we have the following warning:
+	1970-01-01T00:09:34.027221Z [WARN]  NokiaIsiModem <phonet:phonet0>: Unhandled ISI SIMAuth.Status ISI_SIM_AUTH_STATUS_AUTHORIZED
+	Which resulted in the modem staying in FSO_GSM_MODEM_STATUS_INITIALIZING state:
+	  root@nokia900 ~ # mdbus2 -s org.freesmartphone.ogsmd  /org/freesmartphone/GSM/Device org.freesmartphone.GSM.Network.GetStatus
+	  org.freesmartphone.Unavailable: This function is not available while modem is in state FSO_GSM_MODEM_STATUS_INITIALIZING
+
+2011-01-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: warn only, if several subsystems are not reachable (yet?)
+
+	fsogsmd: modem_nokia_isi: use dedicated IsiTransport; refactor libisi client initialization
+
+2011-01-16  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: use the correct inteface index for phonet in lowlevel_nokia900
+
+	fsogsmd: fix indentation in lowlevel_nokia900/netlink.c
+
+2011-01-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: don't bail out on invalid modem_access line
+
+2011-01-16  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: wrap all logger.debug in assert within lowlevel_nokia900
+
+	fsogsmd: use the correct names for extern netlink.c functions :P
+
+2011-01-15  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: use c code for the netlink stuff in lowlevel_nokia900
+
+2011-01-04  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: rework channel initialization
+
+2011-01-02  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: convert property to plain member due to bug in vala
+
+	fsogsmd: modem_qualcomm_palm: add missing yield statement before calling async method
+
+	fsogsmd: modem_qualcomm_palm: update copyright dates as we have a new year
+
+2010-12-31  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: muxtransport: move #endif statement added before to the right position
+
+	fsogsmd: muxtransport: add missing #endif statement
+
+2010-12-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: muxtransport: debug--
+
+	fsogsmd: fail more gracefully when using MUX transpots
+
+2010-12-30  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: port to gdbus
+
+2010-12-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: handle technology field from ISI in NetListOperators
+
+2010-12-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_nokia_isi: IsiNetworkGetStatus works now. Still missing a couple of fields, but we take what we get from libisi
+
+	fsogsmd: modem_nokia_isi: start with NetworkGetStatus, further work pending a vala/gdbus bug
+
+	fsogsmd: modem_nokia_isi: add network provider availability status in NetworkListProviders
+
+	fsogsmd: modem_nokia_isi: implement NetworkListProviders (partially)
+
+	fsogsmd: files have moved to at/ subdir
+
+	fsogsmd: split atmediators into seperate files and put into at subdirectory
+
+	fsogsmd: modem_nokia_isi: implement SimSendAuthCode
+
+2010-12-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: warnings--
+
+	fsogsmd: modem_nokia_isi: remove stinky AT mediators
+
+	fsogsmd: AbstractModem: instead of bailing out, create a proper DBus error, when a mediator can't be found
+
+	fsogsmd: modem_nokia_isi: implement GetSimAuthStatus and hook to modem state logic
+
+	fsogsmd: modem_nokia_isi: first mediator implemented
+
+	modem_nokia_isi: create mediators file
+
+	fsogsmd: add new configuration switch for enabling modem_nokia_isi
+
+2010-12-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: lowlevel_nokia_n900: convert more netlink stuff
+
+2010-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala and glib-2.0 requirements
+
+2010-12-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: more gdbus conversion
+
+	Merge remote branch 'origin/gdbus'
+
+	fsodeviced: lowlevel_n900: convert more netlink code to vala. still WIP and needs latest Vala GIT to compile
+
+2010-12-23  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd/lowlevel_nokia900: implement nokia-gpio in the plugin itself - WIP
+
+	fsogsmd/conf/nokia900: default to DEBUG for now
+
+2010-12-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	Merge remote branch 'origin/gdbus' into gdbus
+	Conflicts:
+		fsodeviced/src/plugins/kernel_idle/Makefile.am
+		fsodeviced/src/plugins/palmpre_quirks/Makefile.am
+		fsodeviced/src/plugins/powercontrol_ifconfig/plugin.vala
+		fsogsmd/src/plugins/modem_qualcomm_palm/mediators_network.vala
+		fsogsmd/src/plugins/modem_qualcomm_palm/mediators_sim.vala
+
+	fsogsmd: (gdbus) convert *phew*
+
+2010-12-14  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: nokia900: fsogsmd.conf: change from dummy modem to isi modem(and use n900 lowlevel plugin)
+	Before the configuration for the nokia n900 used the dummy modem,
+	  but it had several issues, such as not beeing able to close
+	  the SHR pin dialog(despite typing the correct pin)
+
+	Also, the nokia900 lowlevel plugin is used in this configuration
+	  file and is expected to work,the isi modem plugin is just a stub
+	  for now (hopefully it will change later).
+
+2010-12-11  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: only advance modem state when we have a real state change
+
+	fsogsmd: modem_qualcomm_palm: disable GetSimInfo mediator for now
+	When calling the GetSimInfo mediator the msmcomm daemon segfaults when handling the
+	response it gets from the modem. As I don't have the time right now to look into the
+	details the mediator is now deactivated.
+
+	fsogsmd: conf: palm_pre: remove unused lowlevel_palmpre plugin
+
+	Merge branch 'master' of ssh://git.freesmartphone.org/cornucopia
+
+	fsogsmd: modem_qualcomm_palm: implement handling of network service/registration status the right way
+
+2010-12-05  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: modem_nokia_isi: make channel initialize/shutdown
+	Thanks to modphis(#openmoko-cdevel on Freenode on irc) for pointing this out(and explaining it too):
+	  <morphis> GNUtoo|laptop: initialize/shutdown of your channel gets called when you are running fsogsmd?
+	  [long code]
+	  <morphis> which you register right after the channel registration with
+	  <morphis> theModem.signalStatusChanged.connect( onModemStatusChanged );
+	  <morphis> initialize and shutdown are no overriden methods from the base modem class
+	  <morphis> so they never get called
+
+	This commit fixes that issue.
+
+2010-12-05  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: fix compilation issues
+
+	fsogsmd: modem_qualcomm_palm: fix various issues with the resource/initialization/shutdown handling
+
+2010-12-05  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: add new nokia isi modem stub plugin for the nokia900 device
+	We needed a stub plugin that didn't depend on AT commands,so I did as
+	  advised on IRC(#openmoko-cdevel on freenode) by morphis and mickey
+	  and implemented it.
+
+	The stub plugin is the first step to the implementation of the
+	  nokia isi modem plugin.(the implementation should follow)
+
+	Thanks a lot for the help!
+
+2010-12-05  leitner  <leitner@leitner-laptop.(none)>
+
+	fsogsmd: configure device to have a broken MUX mode that can't close
+
+2010-12-05  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: lowlevel_nokia900: restore vala usings
+	In 4bae125c4e2d3c387e4797234f6f939ec1fb83c8
+	( fsogsmd: lowlevel_nokia900: enable/fix compilation and runtime loading )
+	I removed the following usings:
+	  -using GLib;
+	  -
+	  -using FsoGsm;
+	  -
+	Because it failed to compile.
+	They should not have been removed, but moved instead
+	  (moved at the beginning of the source file,
+	  not after the extern declarations)
+
+2010-12-04  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: lowlevel_nokia900: enable/fix compilation and runtime loading
+	*Added the lowlevel plugin to the autotools build system.
+	*fixed some minor compilations errors
+	*Activated lowlevel_nokia900 in lib/modem.vala(thanks mickeyl for telling
+	  me where to look)
+
+	Note that to be able to run the plugin, the fsogsmd config must be changed,
+	  And it was not done in that commit
+
+2010-12-04  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'master' of ssh://git.freesmartphone.org/cornucopia
+
+	fsogsmd: modem_qualcomm_palm: fix resource handling of msmcomm daemon
+
+2010-12-04  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: new lowlevel_nokia900 plugin for enabling/disabling the n900 modem
+	The code was adapted from ofono at commit 2f9af8c105d05f3dea2d6d549ec6a0f778d122cc
+	  and taken from plugins/nokia-gpio.h and plugins/nokia-gpio.c
+
+	Note that I was unable to test this code at compilation or runtime
+	  because of a libgee compilation issue with oe_runmake(from
+	  the openembedded devshell)
+
+	Thanks to Sebastian Reichel for the tip on #DBG (that is to say using g_debug),
+	  for information on the ofono dependencies(how to deal with
+	  parts depending on ofono),and for general help
+
+	Acked-by: Michael 'Mickey' Lauer <mickey@vanille-media.de>
+
+2010-12-02  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: disable using modem resource
+
+2010-12-02  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: make the license headers consistent with COPYING
+	The COPYING file is the GPLv2, but the copyright headers
+	  state that the source files are LGPLv2.1 or later
+	According to Michael Lauer fsogsmd is GPLv2:
+	  http://lists.linuxtogo.org/pipermail/smartphones-userland/2010-November/002848.html
+
+	I got the permission from Michael Lauer(in #openmoko-cdevel on freenode on irc) to push without review
+	  Dec 01 15:58:37 <GNUtoo|laptop> anyway should I sumbit a patch for sed-ing the licenses?
+	  Dec 01 15:58:43 <GNUtoo|laptop> s/licenses/harders/
+	  Dec 01 15:58:44 <apt>   GNUtoo|laptop meant: anyway should I sumbit a patch for sed-ing the harders?
+	  Dec 01 15:58:48 <GNUtoo|laptop> *headers
+	  Dec 01 16:01:15 <mickey|office> yes, that'd be cool
+	  Dec 01 16:01:27 <mickey|office> no need to submit a patch, just apply that, btw.
+	  Dec 01 16:03:16 <GNUtoo|laptop> nice, thatnks a lot
+
+	PS: fsogsmd needs to be GPLv2 as ofono is GPLv2 and some ofono parts are imported
+	  in src/3rdparty
+
+2010-12-01  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: fix bug in resource handling functionality
+
+2010-11-30  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: fix modem resource request on modem agent
+
+2010-11-30  Lukas Märdian  <lukasmaerdian@googlemail.com>
+
+	fsogsmd: remove lowlevel_palmpre from Makefile and configure.ac to make it compile again (only affected palmpre)
+
+2010-11-30  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: remove old and obsolete lowlevel_palmpre plugin
+	All functionality provided by lowlevel_palmpre is now available through the msmcommd
+	daemon.
+
+2010-11-25  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: evaluate network registration status
+
+	fsogsmd: modem_qualcomm_palm: use GenericWatchdog as watchdog implementation
+
+	fsogsmd: modem_qualcomm_palm: if sim is ready advance modem state to alive-sim-ready
+
+2010-11-24  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: fix some oops to work with latest msmcomm
+
+	fsogsmd: modem_qualcomm_palm: compile with latest msmcomm version
+
+2010-11-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: (gdbus) convert *phew*
+
+2010-10-26  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palmpre: more work on call/network/sim functionality
+
+2010-10-17  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcom_palm: activate call and phonebook handler
+
+	fsogsmd: modem_qualcomm_palm: initial work on call handler
+
+	fsogsmd: make validatePhoneNumber method available for modem plugins
+
+2010-10-16  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: add utils.vala to source file list
+
+2010-10-15  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: restructure the code a second time ...
+
+	fsogsmd: modem_qualcomm_palm: split mediators in different files to get an better overview
+
+	fsogsmd: modem_qualcomm_palm: more work on mediators + cleanup
+	Currently nothing is working really fine ... Next commits will cleanup some more stuff and
+	implement more functionality.
+
+2010-10-15  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsogasmd: Palm Pre config: load lowlevel before modem
+
+2010-10-12  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	modem_qualcomm_palm: make repr() public
+
+2010-10-06  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsogsmd: make repr and MODULE_NAME public to build with new vala
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-09-15  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsogsmd: use dummy modem on n900
+
+2010-09-12  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsogsmd: configuration: add nokia n900 entry in configure.ac
+	If the entry is absent it produce the following issue at compilation:
+	  | Making all in nokia_n900
+	  | make[3]: Entering directory `/home/gnutoo/embedded/oe/oetmps/nokia900/work/armv7a-oe-linux-gnueabi/fsogsmd-1_0.5.0+gitr4+bf0fd1adf336cfd2a9fac8480e09633106f55196-r2.4/git/fsogsmd/conf/nokia_n900'
+	  | make[3]: *** No rule to make target `all'.  Stop.
+	  | make[3]: Leaving directory `/home/gnutoo/embedded/oe/oetmps/nokia900/work/armv7a-oe-linux-gnueabi/fsogsmd-1_0.5.0+gitr4+bf0fd1adf336cfd2a9fac8480e09633106f55196-r2.4/git/fsogsmd/conf/nokia_n900'
+	  | make[2]: *** [all-recursive] Error 1
+	  | make[2]: Leaving directory `/home/gnutoo/embedded/oe/oetmps/nokia900/work/armv7a-oe-linux-gnueabi/fsogsmd-1_0.5.0+gitr4+bf0fd1adf336cfd2a9fac8480e09633106f55196-r2.4/git/fsogsmd/conf'
+	  | make[1]: *** [all-recursive] Error 1
+	  | make[1]: Leaving directory `/home/gnutoo/embedded/oe/oetmps/nokia900/work/armv7a-oe-linux-gnueabi/fsogsmd-1_0.5.0+gitr4+bf0fd1adf336cfd2a9fac8480e09633106f55196-r2.4/git/fsogsmd'
+	  | make: *** [all] Error 2
+	  | FATAL: oe_runmake failed
+
+2010-09-12  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsogsmd: add nokia_n900 config
+
+2010-09-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: conf/htc_qualcomm_dream: log fsotransport into same file as fsogsmd
+
+2010-09-02  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: compile with latest msmcomm version
+
+2010-08-30  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: update msmcommd dbus communication stuff ...
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-08-27  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: first draft of the plugin driving the msmcomm daemon via dbus
+
+2010-08-13  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: implement NetworkGetSignalStrength mediator
+
+	fsogsmd: modem_qualcomm_palm: restructure runtime data class (no singleton anymore)
+
+	fsogsmd: modem_qualcomm_palm: rename namespace Msm -> Msmcomm
+
+2010-08-12  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: implement missing mediator SimDeleteEntry for SIM api
+
+	fsogsmd: modem_qualcomm_palm: implement dummy mediators for network related functionality
+
+	fsogsmd: modem_qualcomm_palm: implement most mediators for sim/phonebook access
+	This implements mostly all necessary mediators for the sim/phonebook access. There are
+	some untested parts which will be tested and verified later. Also there is a new method
+	named 'waitForUnsolicitedResponse' which lets your current method wait for recieving a
+	specified unsolicitied response. For some commands like the the SimWriteEntry the result
+	of the command is not supplied by the solicited response. It is part of the deffered send
+	unsolicited response PhonebookModified which will recieve a bit later than the solicited
+	response. There are even some more parts in the msmcomm protocol which has the same
+	behaviour.
+
+2010-08-07  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: implement first bunch of mediators/urcs for device and sim functionality
+
+2010-08-06  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_qualcomm_palm: small fixes on the way to a working modem plugin ...
+
+	Merge remote branch 'origin/master'
+
+2010-08-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: atcommands: fix +CMGS reply
+
+	fsogsmd: modem_ti_calypso: enable incoming voice mail URC NOTE: If you see an unhandled %CVWI message in the logs, please holler!
+
+	fsogsmd: modem_ti_calypso: enable CPHS phase 2 when in status alive_registered
+
+	fsogsmd: modem: don't close twice
+
+2010-07-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem: give mainloop, channels, and transports a chance to handle the closing commands
+
+2010-07-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_ti_calypso: implement org.freesmartphone.GSM.VoiceMail.GetVoiceMailboxNumber()
+
+	fsogsmd: first bunch of stubs for voicemail support
+
+	fsogsmd: remove warning in Constants()
+
+2010-07-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: improve modem state logic in order to fix #580 - do nothing, if we are already in the requested state (not even with 'force') - go 'back' only if forced
+
+	fsogsmd: set modem status back to ALIVE_SIM_READY when we are no longer registered.
+
+	fsogsmd: modem_ti_calypso: GetSimUnlockCounters: include SIM PIN2 and SIM PUK2 in output
+
+	fsogsmd: modem_ti_calypso: implement org.freesmartphone.GSM.SIM.GetUnlockCounters()
+
+2010-07-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: more stub implementation for GetSimUnlockCounters
+
+	fsogsmd: add stub implementation for org.freesmartphone.GSM.SIM.GetUnlockCounters()
+
+2010-07-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: try to gather SIM issuer also from EF_SPN_CPHS, if EFspn fails
+
+	fsogsmd: add SIM elementary file definitions from CPHS phase 2
+
+2010-07-24  Michael Kurz  <betheg@bitcloner.org>
+
+	modem_ti_calypso/plugin.vala: +CLIR must issue in the call channel. see docs/fsogsmd/ti_calypso/modem ;)
+
+2010-07-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_cinterion_mc75: handle custom +CIEV format
+
+	fsogsmd: modem_cinterion_mc75: fix +CMER initialization
+
+	fsogsmd: atmediators: triggerNetworkUpdate() has multiple function exit points
+
+	fsogsmd: reset init data after closing modem; this should fix consecutive requesting / releaseing the GSM resource
+
+	fsogsmd: muxtransport: fix closing channels
+
+	fsogsmd: cosmetics
+
+2010-07-22  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: qualcomm_palm: remove code for starting the msmcomm daemon
+	As the msmcomm daemon was written due to the last weeks it can be started through dbus
+	activation in the near future. We will use that and power up/down the daemon in the modem
+	plugin through dbus.
+
+2010-07-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: fix DebugCommand after removing CUSTOM from AT command table
+
+	fsogsmd: modem_ti_calypso: silence %CSSN warning
+
+	fsogsmd: atmediators: prohibit reentrancy for sim and network gathering methods
+
+2010-07-21  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: atmediators: allow state transition from REGISTERED back to SIM_LOCKED etc.
+
+2010-07-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_ti_calypso: send initial +CFUN on main channel
+
+2010-07-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: change custom command to gather a sensible expected prefix by name
+
+	fsogsmd: modem_cinterion_mc75: set functionality to full by default
+
+	fsogsmd: SetFunctionality: don't overwrite SIM PIN with "" if it has been previously given by SendAuthCode
+
+	fsogsmd: provide shadow resource GSM
+
+	fsogsmd: more work on SMS report mapping
+
+2010-07-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: first sketch at SMS reference number matching
+
+	fsogsmd: add groundwork for proper SMS delivery report mappings
+
+	fsogsmd: sms: increasing reference number is now persistent per IMSI
+
+2010-07-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: atmediators: save SIM PIN if it has been used successfully
+
+	fsogsmd: modem_cinterion_mc75: register ^SIND
+
+	fsogsmd: modem_ti_calypso: turn modem on after URC has been initialized
+
+2010-07-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_ti_calypso: fix %CSQ misdetection by catching up with 27d36a824c87dcac1e396ba69863d463d21f0c56
+
+	fsogsmd: atcall: don't reenter call synchronization method
+
+	fsogsmd: clear timeout if solicited result code comes in in-time
+
+	fsogsmd: support command timeouts
+
+2010-07-15  Michael 'Mickey' Lauer  <mlauer@vanille-media.de>
+
+	fsogsmd: prepare for reintroducing command timeouts
+
+	fsogsmd: modem_qualcomm_palm: yielding the super-class is supposed to be fixed now
+
+2010-07-13  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsogsmd: update sysfs node in config for openmoko_gta and 2.6.32+ kernel
+
+2010-07-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: atcommands: bring back custom command, since the command sequence uses the factory method to grab it.
+
+	fsogsmd: allow cancelling the MODEM initialization phase
+
+2010-07-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: dbus_service: don't accept commands from the outside while we're initializing the modem
+
+	fsogsmd: custom at commands now set their prefix to make sure unsolicited responses are correctly detected
+
+2010-07-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: ensure that the MODEM initialization commands are fully processed before the !main channels start their activity. This should fix OpenEZX +EPOM in lowlevel_openezx.
+
+	fsogsmd: debug--
+
+2010-07-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: sync htcparser with generic atparser
+
+2010-07-08  Paul Fertser  <fercerpav@gmail.com>
+
+	fsogsmd: distinguish between pending unsolicited and solicited PDUs
+	If we tried to send a command between receiving an unsol and its PDU,
+	we should still assume what comes next from the modem is unsolicited
+	PDU (approximate description).
+
+2010-07-08  Antonio Ospite  <ospite@studenti.unina.it>
+
+	fsogsmd: fix handling URCs of the form PREFIX:SUFFIX
+	The current code assumes that the first character after the ':'
+	separator can be discarded because it is usually a whitespace, but some
+	modems can send URCs without a whitespace after the separator and this
+	would lead to discard some info from the actual SUFFIX.
+
+	Use .strip() in place of .offset( 1 ) to cleanup the SUFFIX.
+
+	Acked-by: Michael 'Mickey' Lauer <mickey@vanille-media.de>
+
+2010-07-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add +COPN
+
+	fsogsmd: implement org.freesmartphone.GSM.SIM.SendStoredMessage()
+
+	fsogsmd: implement org.freesmartphone.GSM.SIM.StoreMessage()
+
+2010-07-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_freescale_neptune: document enhanced version of +CIEV used by this modem
+
+	fsogsmd: const: add networkSignalIndicatorToPercentage()
+
+	fsogsmd: add default +CIEV handler
+
+	fsogsmd: add PlusCIEV as command
+
+2010-07-04  Antonio Ospite  <ospite@studenti.unina.it>
+
+	fsogsmd: add lowlevel plugin for Motorola EZX phones
+
+	fsogsmd: add preliminary support for Motorola EZX phones
+
+	fsogsmd: make atmediators.vala::checkResponseOk() public
+	We can now use it in overridden mediators.
+
+	Acked-by: Michael 'Mickey' Lauer <mickey@vanille-media.de>
+
+	fsogsmd: make atmediators.vala::checkResponseExpected public
+	We can now use it in overridden mediators.
+
+	Acked-by: Michael 'Mickey' Lauer <mickey@vanille-media.de>
+
+	fsogsmd: fix deprecated signal connections syntax
+
+	fsogmsd: remove trailing space
+
+2010-07-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: atcommands: clean phone number before dialling based on TAsn's suggestion
+
+2010-06-27  Paul Fertser  <fercerpav@gmail.com>
+
+	fsogsmd: fix suspend/resume issue surfaced after introduction of OM flow control
+	Modem's suspend() should wait for the channels' suspend() to complete
+	before calling lowlevel suspend and changing state. Without that
+	flowcontrol gets activated too early and the device immediately
+	resumes. Do the same for resume() for consistency and cleanness.
+
+2010-06-27  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: lowlevel_palmpre: implement missing suspend/resume methods
+
+2010-06-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: fix deprecated signal connections to use the fashion-of-the-week syntax
+
+	fsogsmd: lowlevel_openmoko: enable input after resume
+
+	fsogsmd: lowlevel_openmoko: write to sysfs flow control nodes on suspend/resume
+
+	fsogsmd: add suspend() and resume() methods to vendor-specific lowlevel class call them during preparation and recovering from suspend
+
+2010-06-26  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'morphis/palmpre/modem'
+
+	fsogsmd: qualcomm_palm: use type property of message to handle different message types
+
+2010-06-19  Antonio Ospite  <ospite@studenti.unina.it>
+
+	fsogsmd: add query() method to atcommands.vala::PlusCLCC
+	Some modems reply to +CLCC? instead of +CLCC
+
+	Acked-by: Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+
+	fsogsmd: implement org.freesmartphone.GSM.Network.Unregister()
+	This prevents getting messages like:
+
+	Traceback (most recent call last):
+	  File "./fso-listen-for-calls.py", line 53, in <module>
+	    run()
+	  File "./fso-listen-for-calls.py", line 49, in run
+	    gsm_network_iface.Unregister()
+	  File "/usr/lib/python2.6/site-packages/dbus/proxies.py", line 140, in __call__
+	    **keywords)
+	  File "/usr/lib/python2.6/site-packages/dbus/connection.py", line 622, in call_blocking
+	    message, timeout)
+	dbus.exceptions.DBusException: org.freesmartphone.InternalError: Not yet implemented
+
+	fsogsmd: add AtNetworkUnregister mediator
+
+2010-06-17  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: qualcomm_palm: check message type and not result of to_string()
+
+	fsogsmd: qualcomm_palm: set message index before sending to modem
+
+	fsogsmd: qualcomm_palm: compare ref id of message and it's response
+
+2010-06-13  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: qualcomm_msm: reset commandqueue on modem reset
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-06-03  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: qualcomm_palm: only launch/shutdown msmcomm-daemon when config requires it
+
+2010-05-20  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: implement start/stop of msmcomm daemon on modem power up/down
+
+	fsogsmd: add missing break statement in modem class
+
+	fsogsmd: introduce lowlevel_palmpre as configurable option
+
+2010-05-18  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: add initial version of the lowlevel_palmpre plugin
+
+2010-05-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: fix +CMT format to match when receiver on SIM. Closes #562
+
+2010-05-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: first work towards binary SMS support
+
+	fsogsmd: provide modem-specific ways for rejecting incoming calls
+
+	fsogsmd: include terminal response in result for org.freesmartphone.GSM.DebugCommand
+	Closes FSO #560
+
+2010-05-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: handle CSSI and CSSU URCs and add a corresponding new property to the CallDetail field. Example: If you receive a forwarded call, you will see the following signal: [SIGNAL] org.freesmartphone.GSM.Call.CallStatus  /org/freesmartphone/GSM/Device  :1.163 ( 1, "INCOMING", { "service": "forwarded", "direction": "incoming", "peer": "...", "type": "voice" } ) NOTE: Unfortunately this new 'service' property can not be delivered more than once; clients should remember it.
+
+2010-05-13  Maksim 'max_posedon' Melnikau  <maxposedon@gmail.com>
+
+	Fix using AC_ARG_ENABLE
+	Macro: AC_ARG_ENABLE (feature, help-string, [action-if-given],
+	[action-if-not-given]) works litte different as cornucopia expect:
+	1. action-if-given called when --enable-feature or --disable-feature
+	2. if it was --enable: $enableval="yes"
+	   if it was --disable: $enableval="no"
+	3. action-if-not-given is place for default value
+
+	See also:
+
+	http://www.gnu.org/software/hello/manual/autoconf/Package-Options.html
+	http://devmanual.gentoo.org/general-concepts/autotools/
+
+2010-05-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with libfso-glib new versioning scheme
+
+2010-05-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: implement org.freesmartphone.GSM.Network.{Get|Set}CallingIdentification
+
+	fsogsmd: reenable org.freesmartphone.GSM.PDP.GetContextStatus()
+
+2010-05-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: honor 4-tuple format for +CEER as well; hence improving 'cause' value for released calls
+
+	fsogsmd: modem_ti_calypso: register for waiting call notifications only after we're registered
+
+	fsogsmd: modem_ti_calypso: set custom command for releaseing outgoing calls
+
+	fsogsmd: implement vendor-specific extensions for releaseing outgoing calls
+
+2010-05-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: due to popular demand (*cough*), here comes direct delivery of SMS without touching the SIM
+
+	fsogsmd: modem: prepare for configuring whether SMS handling works direct or buffered
+
+	fsogsmd: add default configuration for singleline modem as starting point
+
+	fsogsmd: ppp: deactivate context via AT command rather than killing ppp
+	LCP should then terminate due to the modem
+
+2010-05-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_ti_calypso: don't use 'silent' for Calypso, since the modem does not always initiate LCP actively
+
+	fsogsmd: support new combined Time report and remember the last received report from network org.freesmartphone.GSM.Network.GetTimeReport() is now implemented.
+
+	fsogsmd: ppp: try harder to sync. ppp status signal with actual status
+
+2010-05-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: phonebook: work around a possible reentrancy issue
+
+	fsogsmd: modem_ti_calypso: org.freesmartphone.GSM.Monitor now implemented
+
+2010-05-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_ti_calypso: more work on engineering commands
+
+2010-05-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add stub for org.freesmartphone.GSM.Monitor API
+
+	fsogsmd: register stub for +CLIP to silence warning
+
+2010-05-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: sms: return the correct transaction_index upon sending
+
+2010-05-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_qualcomm_htc: full time reports now working
+
+	fsogsmd: atcommandqueue: fix parsing URCs with multiple ':'
+
+	fsogsmd: modem_qualcomm_htc: prepare to handle HTC proprietary NITZ report
+
+	fsogsmd: implement org.freesmartphone.GSM.CB.[Get|Set]CellBroadcastSubscriptions
+
+2010-05-02  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsogsmd: openmoko_gta: save libfsotransport logs into fsogsmd.log
+
+2010-05-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: fix bug in 3rdparty code that flagged valid cell broadcasts as invalid :D
+
+2010-05-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: sms: reference number for org.freesmartphone.GSM.SMS.SendTextMessage() is now correct
+
+	fsogsmd: implement signal org.freesmartphone.GSM.CB.IncomingCellBroadcast()
+
+	fsogsmd: make decoding of cell broadcast messages pass unit tests
+
+	fsogsmd: add skeleton for cell broadcast tests
+
+	fsogsmd: atpdp: fix assumptions about what's in the external status report
+
+	fsogsmd: ppp/plugin: add error checking
+
+	Revert "fsogsmd: ppp plugin: convert addresses to strings to match what the receiver expects"
+	This reverts commit 2d8bfd0f82b862c51b6479bd4a6a6834193e529e.
+
+	fsogsmd: atmediators: don't override display name with an empty string
+
+	fsogsmd: atunsolicited: silence warnings for +CGEV and NO CARRIER URCs
+
+	fsogsmd: ppp plugin: convert addresses to strings to match what the receiver expects
+
+	fsogsmd: atpdp: warn and use default DNS, if not delivered by IPCP
+
+2010-05-01  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsogsmd: fix c&p error in modem.vala Thanks PaulFertser for spotting that one :-)
+
+2010-04-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: kill sim timeout watch, if we attempt to closing in between unlocked->ready state transition
+
+	fsogsmd: do not send shutdown commands before the channel has been initialized
+
+	fsogsmd: modem_ti_calypso: fix regex for %CPRI and %CSQ
+	Thanks JaMa and MrMoku
+
+2010-04-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: support sending a command sequence on shutdown
+
+	fsogsmd: modem_ti_calypso: put %SLEEP command into proper sequence to make it actually being executed
+
+	fsogsmd: watchdog: save last modem status and resend registration update after resume - closes FSO #552
+
+	fsogsmd: modem: fix wrong modem status during resuming
+
+	fsogsmd: prepare sending context status signals and honor status in calls to Activate() and Deactivate()
+
+	fsogsmd: modem_ti_calypso: resend special DSP command on MT/MO setup
+
+	fsogsmd: modem_ti_calypso: configure deep sleep. default is 'never'
+
+	fsogsmd: modem_ti_calypso: honor %CSQ and send org.freesmartphone.GSM.Network.SignalStrength accordingly
+
+	fsogsmd: modem_ti_calypso: honor %CPRI and send org.freesmartphone.GSM.Network.CipherStatus accordingly
+
+2010-04-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add preliminary support for USSD requests and responses
+	NOTE: Untested, may eat your kittens and puppies. Please report.
+
+2010-04-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add support for AT time zone reports from GSM
+
+	fsogsmd: atpdp: explicitly free the ppp process to guarantee clean shutdown
+	With this revision (and the corresponding libfsobasics) I can repeatedly
+	call org.freesmartphone.GSM.PDP.ActivateContext() and org.freesmartphone.GSM.PDP.DeactivateContext()
+
+2010-04-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: org.freesmartphone.GSM.Network.Status: make sure 'display' always has a value
+
+2010-04-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: split pdp interface into seperate file
+
+2010-04-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: lowlevel_openmoko: debugging++
+
+	fsogsmd: lowlevel_openmoko: debug++
+
+2010-04-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: transform phone number and type into proper string. closes FSO #534
+
+	fsogsmd: incoming status report signals are now working
+
+	fsogsmd: sms: add skeleton for handling incoming sms status reports
+
+	fsogsmd: atunsolicited: handle +CDS
+
+	fsogsmd: atcommands: add +CDS
+
+	fsogsmd: fsogsm3rdparty.vapi: add has_type_id to enums
+
+	fsogsmd: sms: honor the want_report condition when composing SMS
+
+2010-04-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: use full path for pppd command default
+
+2010-04-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: change licensing to GPLv2 since we're infected by to the ofono source code parts.
+
+2010-04-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: send signal on (completed) incoming text message
+
+	fsogsmd: phonebook: fix swapped name/number in SIM entries
+
+2010-04-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_ti_calypso: enable SMS URCs for mrmoku
+
+2010-04-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_ti_calypso: +CRC is by-channel on this modem
+
+2010-04-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_qualcomm_palm: companion AT channel does not properly open via serial_forward
+	Hopefully it works better on the device...
+
+	fsogsmd: modem_qualcomm_palm: handle URC_NETWORK_STATE_INFO
+	NOTE: Values other than for strength don't seem to make sense atm.
+
+	fsogsmd: modem_qualcomm_palm: raise NYI for not yet implemented mediators
+
+	fsogsmd: modem_qualcomm_palm: handle SIM auth
+
+	fsogsmd: use more string templates
+
+2010-04-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_qualcomm_palm: update SimAuth status
+
+	fsogsmd: modem_qualcomm_palm: construct MsmUnsolicitedHandler on demand
+
+	fsogsmd: modem_qualcomm_htc: register suspend and resume commands
+
+	fsogsmd: modem_qualcomm_palm: use handwritten to_string method for now
+
+	fsogsmd: modem_qualcomm_palm: prepare for handling unsolicited responses
+
+2010-04-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem_qualcomm_htc: enable incoming SMS
+
+	fsogsmd: atchannel: send command sequence "registered" after registration with network provider has been done
+
+2010-03-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: query operator display (short) name as well
+	Applications may want to use this rather than the long
+	name as delivered via key 'provider'. The short name
+	now has the key 'display'.
+
+2010-03-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: prepare for modem-specific ways to cancel an outgoing call
+
+	fsogsmd: phonebook: handle Dir open errors
+
+2010-03-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: catch up with specs
+
+	fsogsmd: catch up with SMS API changes
+
+	fsogsmd: sync with org.freesmartphone.GSM.SIM
+
+	fsogsmd: add TwoParamsAtCommand as generic class
+
+	fsogsmd: implement org.freesmartphone.GSM.SIM.GetPhonebookInfo()
+
+	fsogsmd: implement phonebook and message deletion; add charset encoding for AT commands
+
+	fsogsmd: sync w/ org.freesmartphone.GSM.Device specs
+
+2010-03-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: create phonebook handler
+
+	fsogsmd: ti_calypso: remove unused variables
+
+	fsogsmd: improve hangup behaviour; on hangup, try to seamlessly reconnect
+
+	fsogsmd: debug output --
+
+	fsogsmd: debug output--
+
+	fsogsmd: add org.freesmartphone.GSM.HZ
+
+2010-03-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: ti_calypso: init every channel w/ A0Q0V1
+
+	fsogsmd: dbus_service: remove deprecated method
+
+	fsogsmd: vapi: fix deprecated constructs
+
+	fsogsmd: silence format violation output in atparser and htcparser
+
+	fsogsmd: implement org.freesmartphone.Info
+
+	fsogsmd: handle CGREG
+
+	fsogsmd: fix all warnings in library
+
+	fsogsmd: add dummy data for messagebook
+
+2010-03-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add data network status properties into org.freesmartphone.GSM.Network.[Get]Status()
+
+	fsogsmd: atcommands: add +CGREG
+
+	fsogsmd: catch up with spec changes (removal of deprecated methods)
+
+	fsogsmd: dummy: simulate SIM with PIN
+
+	fsogsmd: add dummy modem
+
+	fsogsmd: conf/htc_qualcomm_dream: use hex charset
+
+2010-03-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: and out goes all the debugging code.
+	See the embarrassing details in https://bugzilla.gnome.org/show_bug.cgi?id=613343
+
+	fsogsmd: even more debugging code; apparantly this works on the desktop, but crashes on arm :(
+
+	fsogsmd: trying harder to debug this
+
+	fsogsmd: yet more debugging
+
+	fsogsmd: more debugging
+
+	fsogsmd: debugging++
+
+	fsogsmd: conf: prefer HEX charset for htc_qualcomm_msm
+
+	fsogsmd: you can now override autodetecting the best modem charset with e.g. [fsogsm] modem_charset = hex
+
+	fosgsmd: qualcomm_htc: refactor htcparser start command to detect missing \r\n always (not just on URC)
+
+2010-03-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: don't trigger network status query until we have the proper modem status
+
+	fsogsmd: don't compile the main program with thread support; it's enough that pdp_qmi is using threads
+
+2010-03-17  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsogsmd: don't send signals before parent has been set by dbus object
+
+2010-03-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: pdp_qmi: don't launch thread when QMI device can't be opened
+
+	fsogsmd: refactor generic call handling into seperate source file
+
+	fsogsmd: expose device status via DBus
+
+2010-03-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: use +CEER to gather the release cause after someone hung up; ship it as 'cause' value in status properties
+
+	fsogmsd: send auth code mediator: transform +CME ERROR 16 into FSO error SIM_AUTH_FAILED
+
+2010-03-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: ti_calypso: implement stubs for %CSQ and %CPRI to silence the warning
+
+2010-03-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: qualcomm_palm: catch up with changes in libmsmcomm
+
+2010-03-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: parsing NMEA works again
+
+	fsogsmd: remove workaround for https://bugzilla.gnome.org/show_bug.cgi?id=607558 NOTE: needs more testing
+
+2010-03-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: qualcomm_palm: implement org.freesmartphone.GSM.Device.GetInfo()
+	NOTE that I'm not satisfied with the syntax used in the msm mediators yet,
+	please don't add more until we clean that up
+
+	fsogsmd: qualcomm_msm: open AT command channel for testing purposes again NOTE that we need to change the main channel's open to do the whole initializing, before we should attempt to open the AT command channel NOTE also missing is the state advancement logic triggered from MSM channel
+
+	fsogsmd: qualcomm_palm: work around vala bug #612230
+
+	fsogsmd: fix muxtransport wrt. async open()
+
+	fsogsmd: catch up with new async stuff
+
+2010-03-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: atcommandqueue: reenable urc processing NOTE: We should be back to where we were before the command queue revamp now
+
+	fsogsmd: cinterion_mc75 and ti_calypso compile again
+
+	fsogsmd: qualcomm_palm: use self-descriptor for msm messages
+
+	fsogsmd: qualcomm_msm: we now properly respond to org.freesmartphone.GSM.Debug.Ping (yay!) Here's the proof: 2010-03-06T19:00:41.705604Z [INFO]  libfsotransport <127.0.0.1:3030 (fd 6)>: SRC: "COMMAND_TEST_ALIVE" -> RESPONSE_TEST_ALIVE
+
+	fsogsmd: modem_qualcomm_palm: rewrite MsmCommandQueue on top of the new FsoFramework.AbstractCommandQueue
+
+	libfsotransport & fsogsmd: part 1 of the great command queue rework fsogsmd will be broken for a while
+
+	fsogsmd: catch up with libmsmcomm API changes
+
+2010-03-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: catch up with debug API changes
+
+	fsogsmd: qualcomm_msm: compact classes are a nightmare :/
+
+	fsogsmd: start integrating libmsmcomm; send reset command on opening the channel
+
+	fsogsmd: map modem_type = "qualcomm_palm" to appropriate class
+
+	fsogsmd: create configuration for palm pre
+
+	fsogsmd: qualcomm_palm: start with own commandqueue, channel, and mediators
+
+	fsogsmd: qualcomm_palm: make it compile at least
+
+	fsogsmd: qualcomm_palm: start with own set of mediators
+
+	fsogsmd: refactor Channel into Channel interface and AtChannel implementation
+
+2010-02-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: initial support for suspending/resuming the modem
+
+2010-02-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: openmoko_gta: reposition pdp_ppp_mux plugin
+
+2010-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: change SIM ready timeout to 30 seconds for default; while the Calypso uses 60 *yawn*
+
+	fsogsmd: openmoko_gta: incorporate libgsm0710mux options into configuration file
+
+	add config.vapi and GITV everywhere
+
+	fsogsmd: fix pdp_ppp handler after refactoring
+
+	cosmetics
+
+2010-02-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: pdp_qmi: use FsoFramework.StringHandling.splitKeyValuePairs() utility function
+
+2010-02-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogmsd: modem_qualcomm_htc: enable most important URCs on channel init
+
+	fsogsmd: dbus_servcei: don't accept commands if modem in a one of the critical states
+
+2010-02-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: serialize opening channels; open the main channel first, then the others.
+	If one channel can't be opened, power down the device.
+
+	fsogsmd: dbus_service: throw ResourceError, if modem can't be opened
+
+	fsogsmd: dbus_service: start revamping the opening/closing logic
+
+2010-02-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: watchdog: debug++
+
+	fsogsmd: modem_qualcomm_htc: listen to +PB_READY, the proprietary URC signalizing that the SIM phonebook has been read into internal RAM
+
+2010-02-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: pdp: once we have a new default route, try to tell fsonetworkd
+
+	fsogsmd: pdp_qmi: the QMI driver implementation is somewhat braindead; it doesn't allow integrating /dev/qmi0 into the mainloop; we rather have to introduce a second thread that reads blocking from the device.
+
+2010-02-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: pdp_qmi: open device node w/ O_NONBLOCK
+
+2010-02-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: pdp_qmi: add communication with /dev/qmi
+
+	fsogsmd: some work on pdp_qmi
+
+	fsogsmd: create pdp handler based on configuration settings
+
+	fsogsmd: create htc_qualcomm_dream, a special configuration for the HTC Dream, where we are using the qmi/rmnet protocol for data connectivity
+
+	fsogsmd: refactor muxppp from library into pdp_ppp_mux plugin
+	NOTE: ppp will be broken for a couple of days
+
+2010-02-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: create plugin skeletons for PDP handling
+	Depending on firmware and kernel support, different modems have different ways
+	to handle PDP. While PPP is still the most common, it is fading out. For now
+	we will support PPP, PPP_MUX, and PPP_QMI.
+
+2010-02-09  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsogsmd: Fix compilation if gsm0710mux has been disabled
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+2010-02-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: support for modem plugins requiring libgsm0710mux is now optional. Please submit --enable-libgsm0710mux to enable those.
+
+	fsogsmd: modem_qualcomm_palm is now an optional feature (since it needs a special library)
+
+	fsogsmd: cosmetics
+
+	fsogsmd: add build skeleton for modem_qualcomm_palm plugin
+
+2010-02-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: fix initialization state logic to also work after initial close (usual way when used with fsousaged integration)
+	NOTE: multiple request / release of the GSM resource is still broken, it should work at least for the first time now though
+
+	fsogsmd: muxtransport: don't close a channel that has never been opened
+
+2010-02-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: conf: specify power_node in lowlevel_openmoko
+
+	fsogsmd: conf: enable lowlevel_openmoko for openmoko_gta family
+
+	fsogsmd: modem: create channel map a bit earlier, so that logging errors does not SIGSEGV
+
+2010-02-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: conf: specify correct lowlevel handler for openmoko_gta family
+
+	fsgsmd: add conf to SUBDIRs
+
+2010-01-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: ship some default configurations
+
+2010-01-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: refactor common ppp logic into AtPdpHandler; derive MuxPppPdpHandler from it
+
+2010-01-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add debug for ppp address transmission
+
+	fsogsmd: implement org.freesmartphone.GSM.Network.InternalStatusUpdate which gets called from the ppp plugin
+
+	fsogsmd: ppp: once ipcp negotiation is complete, gather the necessary information from ppp and submit to fsogsmd
+
+2010-01-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: bind ppp phase enum
+
+	fsogsmd: fix moduledir
+
+	fsogsmd: raise org.freesmartphone.InvalidParameter upon context activation without any credentials NOTE: CDMA?
+
+	fsogsmd: make log configurable; bind utility functions from pppd
+
+	all: catch up with libfso-glib 0.2.2 containing convenience constructors for structs
+
+2010-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: move triggerNetworkStatusUpdate() from atunsolicited.vala to mediator class issue network status update after automatic registration, if requested
+
+	fsogsmd: run our ppp plugin when invocating ppp
+
+	sync. MAINTAINERS file
+
+	fsogsmd: build ppp plugin by default; don't check for proper plugin directory as ppp will load our plugin from wherever we want
+
+2010-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: muxppp: fix hanging dbus pdp activation call; always remember that startForwardingPPP() reroutes the mux channel to the ppp, hence if we do that too early we have no chance to parse the actual 'CONNECT' response :)
+
+	fsogsmd: modem_cinterion_mc75: this modem needs to be given the explicit context string otherwise it won't use the right context *sigh*
+
+	fsogsmd: modem_cinterion_mc75: use MUX ppp here as well
+
+	fsogsmd: atmediators: introduce checkResponseExpected that takes a number of AtResponse codes that are "OK" NOTE: This is handy for commands where an AT error is not actually a real error, such as on some modems: *) +CFUN if you're not authorized yet, *) +CMGL if you don't have any messages
+
+	fsogsmd: modem_ti_calypso: use own modem-default set of ppp options NOTE: for system integrators, ppp options are overridable w/ ppp_options; handle this with extreme care though!
+
+	fsogsmd: modem_ti_calypso: fix detection of context activation dial string
+
+	fsogsmd: teach mediator to validate CONNECT responses
+
+	fsogsmd: atparser: gracefully ignore \r\n for solicited responses as well
+
+	use top level logger for initial plugin loading debug beacon
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	adjust (C) for 2010
+
+2010-01-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: qualcomm_htc: ignore 07.07 violations for sending the SMS continuation character (*sigh*)
+
+	fsogsmd: fix SMS sending bug on modems that are less forgiving wrt. submitting a hexpdu padded with lots of '0'
+
+2010-01-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: qualcomm_htc: and remove the BOGUS_HTC_LINE state now that we are more forgiving anyways
+
+	fsogsmd: modem_qualcomm_htc: backport generic AT parser improvements to HTC parser
+
+	fsogsmd: lowest call index is 1; not 0. Fixes SIGSEGV on call sync
+
+2010-01-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: ti_calypso: create proper pdp handler and start forwarding data from PPP to MUX
+
+	fsogsmd: more work on ppp integration
+
+2010-01-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: catch up with separation of ppp and muxppp handlers
+
+	fsogsmd: rename transport to muxtransport; create new muxppp which will contain the ppp handler that transfers ppp data via the LibGsm0710muxTransport
+
+	fsogsmd: prepare for communicating with ppp over a pipe instead of having it use a serial port
+
+	fsogsmd: add +CGDCONT command, call it from SetCredentials, and dial context before launching ppp
+
+	fsogsmd: build ppp command line from configuration and modem setup launch guarded by GProcessGuard
+
+	fsogsmd: add methods to get data port and data options from modem class
+
+2010-01-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: prepare for implementing first bunch of pdp commands
+
+	fsogsmd: more work on ppp plugin
+
+	fsogsmd: move setFunctionality call into modem class
+
+	fsogsmd: add watchdog for automatic unlocking and registration NOTE: Automatic unlocking and registration is available in two flavours: For operation on startup, you can configure this in fsogsmd, e.g.: [fsogsm] auto_pin = 1234 auto_register = 1 For operation after startup, use org.freesmartphone.GSM.Device.SetFunctionality()
+
+	fsogsmd: bind pppd global variables
+
+	fsogsmd: bind more of pppd; we now can write pppd plugins in Vala :)
+
+2010-01-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: prepare build system for ppp plugin
+
+	fsogsmd: check for pppd development headers and pppd plugin directory
+
+	fsogsmd: catch up with new signature of org.freesmartphone.GSM.Device.SetFunctionality()
+
+2009-12-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: ti_calypso: show number of channels currently open in repr() same for cinterion mc75
+
+	fsogsmd: ti_calypso: fix regexp for %CSTAT
+
+	fsogsmd: parser: escape escape sequences
+
+	fsogsmd: lowlevel_openmoko: destroy the interrim transport after lowlevel init done
+
+	fsogsmd: lowlevel_openmoko: give up opening the modem after 5 unsuccessful tries
+
+	fsogsmd: ti_calypso: only open two channels for now
+
+	fsogsmd: parser: yank banner idea; it's way better to treat such a thing as a regular URC
+
+	fsogsmd: ti_calypso: set 'AT-Command Interpreter ready\r\n' as banner for parser
+
+	fsogsmd: parser: support a banner state that waits for a certain line until we move to the actual start state
+
+2009-12-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem: fail faster, if we can't open the modem
+
+	fsogsmd: parser: handle invalid state more forgiving, trying to resynchronize with the stream
+
+	fsogsmd: move openmoko-specific code out of modem_ti_calypso into lowlevel_openmoko
+
+	fsogsmd: prepare for lowlevel plugins; lowlevel plugins cross the gap between the (somewhat generic) modem plugins and the (device specific) vendor specifics, such as how to properly power on the modem and put it into AT mode. Add lowlevel_openmoko in order to remove the openmoko-specific code out of the TI Calypso plugin.
+
+2009-12-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: ti_calypso: lowlevel powerup calypso and prepare for bringing into MUX mode
+
+	fsogsmd: ti_calypso: add init sequence for urc channel
+
+	fsogsmd: ti_calypso: honor %CSTAT to watch for SIM readyness
+
+	fsogsmd: ti_calypso: prepare for custom commands, mediators, and unsolicited handlers.
+
+	fsogsmd: document modem plugins
+
+	fsogsmd: cinterion_mc75: enable all proprietary indicators that come via the +CIND URC
+
+2009-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: cinterion_mc75: disable M20 compatibility, we're not stoneagers
+
+	fsogsmd: cinterion_mc75: enable M20 compat mode, we like that
+
+	fsogsmd: cinterion_mc75: add custom unsolicited handler and start with custom init sequences using proprietary AT commands
+
+	fsogsmd: modem plugins: do not yank modem_data, it's been preconfigured for you, please amend, not replace
+
+	fsogsmd: enable debug build
+
+2009-12-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: introduce notion of 'main' channel
+
+2009-12-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: ti_calypso: attempt to open three channels via MUX
+
+2009-12-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: properly shutdown the dbus_service subsystem in signalhandler (hence properly closing the virtual channels and the 07.10 session as well)
+
+2009-12-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: call subsystem.shutdown() in signalhandler
+
+	fsogsmd: check for channel parameter validity in DebugInjectAtResponse
+
+	fsogsmd: cinterion_mc75: open all three MUX channels on startup
+
+	fsogsmd: honor channel name for at debug command
+
+	fsogsmd: 0710transport: add virtual channel number in repr
+
+2009-12-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: properly catch error when we can't allocate a MUX channel
+
+2009-11-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: move daemons into @prefix@/sbin/
+
+2009-11-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: remove traces of libxml-2.0; no longer required
+
+	fsogsmd: remove traces of MBPI
+
+	fsogsmd: move mbpi stuff into fsodatad
+
+2009-11-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: gsm0710mux transport works now. Hurray, we can now talk 0710 without going through ptys
+
+	fsogsmd: use TransportDelegate to connect to libgsm0710mux. not working at all yet
+
+2009-11-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: support more compact form of specifying modem_access parameters
+
+2009-11-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: cinterion_mc75: create three channels using the multiplexing transport library
+	Yay, no more piping data through pty's...
+
+2009-11-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: start working on TI Calypso modem plugin
+
+	fsogsmd: gather full network status on receiving +CREG notifictions
+
+2009-11-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add enhanced iso3361+tz file cross-referencing data from different sources to augment MBPI
+
+2009-11-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: parse iso3361 list and augment countrylist w/ real name
+
+	fsogsmd: compute PACKAGE_DATADIR
+
+	fsogsmd: install dbus configuration files and iso-3166-1 datafile
+	iso-3166-1 has been downloaded from http://www.iso.org/iso
+
+2009-11-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add some means to traverse the MBPI
+
+	fsogsmd: add tests for Constants module
+
+	fsogsmd: relax libxml2 requirement to 0.7.3
+
+	fsogsmd: read mobile broadband provider information database into memory
+
+	fsogsmd: require mobile-broadband-provider-info and bind via config.vapi
+
+2009-11-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: testsms working again
+
+	fsogsmd: implement SmsStorage.clear()
+
+	fsogsmd: testsms: fix uint8
+
+2009-11-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: sms: use closure to traverse slist
+
+	fsogsmd: sms: encode destination address in text sms
+
+	fsogsmd: add unit tests for encoding SMSes
+
+	Revert "fsogsmd: 3rdparty: sanitize sms_text_prepare() by creating structures on the heap"
+	This reverts commit 939cc6abf46c485cad7104b9d49b59b029e4a394.
+
+	fsogsmd: 3rdparty: sanitize sms_text_prepare() by creating structures on the heap
+
+	all: bump Vala requirement and enable silent automake rules, if available
+
+	fsogsmd: make sms storage dir prefix a configuration option and document it
+
+	fsogsmd: require vala 0.7.8; do not use posix or posixextra
+
+2009-11-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: sms: feeding incoming CMTI to SmsStorage works now
+
+	fsogsmd: sms: fix off-by-one error for concatenated messages
+
+	fsogsmd: implement basic versions of DebugAtCommand and DebugInjectAtResponse()
+
+2009-11-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: org.freesmartphone.GSM.SIM.RetrieveMessagebook() is now functional again, using the SmsStorage. Incomplete messages are decoded as much as possible and flagged as 'incomplete'.
+
+	fsogsmd: more work on SmsStorage
+
+	fsogsmd: repair SmsStorage after changing how Sms.Message is bound by Vapi
+
+	fsogsmd: initial SMS storage sync. works now
+
+	fsogsmd: htcparser: add warning for URC AT violation. HTC: Your implementation of V1 mode S U C K S -- go in the corner and be ashamed
+
+	fsogsmd: htcparser: add continuation support from atparser here as well
+
+2009-11-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: bind Sms.Message as Vala class to improve the memory management w/ struct nightmare
+
+	fsogsmd: smshandler: hand over incoming sms to smsstorage
+
+	fsogsmd: SmsStorage passes unit tests
+
+2009-11-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: more work on SmsStorage API
+
+2009-10-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: shuffle code around and disable SMS support for now in order to prepare for the new SmsStorage abstraction
+
+2009-10-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: i'll probably have to rewrite some of that *sigh*
+
+	fsogsmd: more SMS unit tests
+
+	fsogsmd: start with unit tests for SMS and CB code
+
+2009-10-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: misc SMS work
+
+	fsogsmd: secure against null names in sim phonebook
+
+	fsogsmd: show properties in sms w/ type DELIVER
+
+	fsogsmd: sending arbitrary long SMSes works now transparently
+
+2009-10-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: more work on SMS PDU
+
+	fsogsmd: add (optional) SIM name in +CMGL
+
+	fsogsmd: improve 3rdparty code integration for SMS PDU handling
+
+2009-10-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: more work on SMS PDU
+
+	fsogsmd: start integrating 3rd party SMS PDU stuff
+
+	fsogsmd: add more SMS PDU parsing stuff from 3rdparty project
+
+	fsogsmd: first work towards reading messagebook -- pending actual PDU parsing
+
+	fsogsmd: {at|htc}parser.vala: fix bug w/ solicited answers containing PDUs on a seperate line
+
+2009-10-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: handle empty SIM socket while starting up
+
+2009-10-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: change interface declaration order to work around https://bugzilla.gnome.org/show_bug.cgi?id=599595
+
+2009-10-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: disable checking +CEER for now, have some problems w/ GValue double free BT
+
+	fsogsmd: be more failsafe, some results (e.g. +CME ERROR: 22) do not lead to an error but rather an empty response.
+
+	fsogsmd: htcparser: catch up with improvements in atparser
+
+	fsogsmd: handle nonverbose mode (kind of) gracefully NOTE: This parser is still not designed for nonverbose mode, but we do not bail out when we detect it. This improves support for modems which start in nonverbose mode as per factory settings (e.g. Qualcomm w/ HTC firmware). Make sure that the init sequence should always contain V1 as (one of) the first command(s) though.
+
+	fsogsmd: parser: handle echo mode gracefully
+
+	fsogsmd: name unknown phonebooks as unsupported, but allow to query them
+
+	fsogsmd: support multiple modem state init sequences, all customizable via configuration
+
+2009-10-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: +COPS=?: apparantly both the long name and the short name can be missing
+
+	fsogsmd: catch up with changes in libfsotransport command queue
+
+	fosgsmd: run through a sequence of test commands to negotiate the 'best' charset we can use.
+
+	fsogsmd: add 3rdparty code for certain format conversions
+
+	fsogsmd: add 3rdparty directory for C code we 'borrow' from other projects
+
+	fsogsmd: atcommands: allow encoding the +CRSM payload result in "", some modems do that (palm pre, for a start)
+
+	fsogsmd: add facilities info in GetFeatures()
+
+	fsogsmd: org.freesmartphone.GSM.SIM.{Get|Set}AuthCodeRequired done
+
+	fsogsmd: prepare for channel-specific init sequences; overridable through config (yes, that's for you DocScrutinizer :)
+
+	fsogsmd: prefer DC instead of LD; support 'unknown' phonebooks on SIM
+
+	fsogsmd: move response checkers out of mediator interface; don't ignore error for reading phonebooks
+
+2009-10-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add full set of known CME and CMS error constants
+
+	fsogsmd: translate (some) +CME ERRORs into proper dbus errors
+
+	fsogsmd: move AtResponse codes into Constants namespace
+
+2009-10-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: call: add release cause in status update (if available)
+
+	fsogsmd: fix +FCLASS
+
+	fsogsmd: modem_qualcomm_htc: adjust parser for the HTC firmware bug wrt. ATV1 error messages
+
+	fsogsmd: org.freesmartphone.GSM.Network.ListProviders() done.
+
+	fsogsmd: qualcomm_htc: adjust parser to cope with the bogus intermediate bracket responses, such as '[WCDMA] Current RRC Status = 0'
+
+	fsogsmd: create modem_qualcomm_htc plugin as modem abstraction for Qualcomm MSM7 devices using a HTC firmware. Add also a special AT parser for this modem (*sigh*)
+
+	fsogsmd: org.freesmartphone.GSM.Network.GetStatus() done. NOTE: Look at atmediators.vala:625-680 if you want to see a real beauty! It's the monster of a mediator, but still pretty readable thanks to our coroutines (and the stellar fsogsmd architecture, of course ;)
+
+	fsogsmd: call: enable call waiting URC and retrigger call syncing upon detection
+
+2009-10-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: more work on call handling, pending conference, transfer, and join
+
+	fsogsmd: org.freesmartphone.GSM.Call.SendDtmf() done
+
+	fsogsmd: more work on call handling
+
+	fsogsmd: define Constants.CALL_INDEX_MAX. fsogsmd will have support for up to 7 concurrent calls.
+
+2009-10-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add known SIM elementary file records
+
+2009-10-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: callhandling: activate single call
+
+	fsogsmd: hook to +CRING to detect incoming calls
+
+	fsogsmd: org.freesmartphone.GSM.SIM.GetAuthStatus() done
+
+	fsogsmd: more work on callhandler
+
+2009-10-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: more callhandler work
+
+	fsogsmd: org.freesmartphone.GSM.Call.ListCalls() done
+
+	fsogsmd: catch up with changes in libfsotransport
+
+	fsogsmd: remove duplicated signal declarations which are now invalid in Vala
+
+	fsogsmd: first bits of generic callhandler infrastructure
+
+2009-10-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add skeleton for call handlers
+
+	fsogsmd: add skeleton for org.freesmartphone.GSM.Call interface
+
+2009-10-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: catch up with commandqueue moving to libfsotransport
+
+	libfsotransport: commandqueue moves to here, comes from fsogsmd
+
+	fsogsmd: catch up with parser moving to libfsotransport
+
+	fsogsmd: modem: data is now a class in the modem interface, not a toplevel class
+
+	fsogsmd: rename plugin gsm_device to dbus_service
+
+2009-10-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: bump version to 0.1.0.0
+
+	fsogsmd: org.freesmartphone.GSM.SIM.RetrievePhonebook() done
+
+	fsogsmd: add +CREG command
+
+	fsogsmd: implement org.freesmartphone.GSM.Network.Register()
+
+2009-10-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: implement org.freesmartphone.GSM.SIM.{Get|Set}ServiceCenterNumber()
+
+	fsogsmd: org.freesmartphone.GSM.SIM.GetSimInfo() partly done (imsi and issuer)
+
+2009-10-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: implement org.freesmartphone.GSM.SIM.{Unlock|SendAuthCode|ChangeAuthCode}
+
+	fsogsmd: raise INTERNAL_ERROR( "Not yet implemented" ) for everything that's not done yet
+
+	fsogsmd: more work on phonebook reading
+
+2009-10-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: start w/ phonebook reading
+
+	fsogsmd: integrate PlusCOPS_Test() into PlusCOPS(), use autgenerated NetworkProvider struct from specs
+
+	fsogsmd: implement org.freesmartphone.GSM.SIM.ListPhonebooks()
+
+2009-10-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add function skeletons for all of org.freesmartphone.GSM.SIM.*
+
+	fsogsmd: send org.freesmartphone.Device.RealtimeCLock.Alarm when the URC +CALA comes in
+
+	fsogsmd: change the way unsolicited responses are handled in the call chain new way is similar to fso1 with the exception of less automatic handling due to the static typing
+
+2009-10-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: fix +CCLK format
+
+	fsogsmd: org.freesmartphone.Device.RealtimeClock: transform org.freesmartphone.GSM.Error into org.freesmartphone.Error, since the realtimeclock interface does not know anything about GSM.Error
+
+	fsogsmd: parse unexpected error codes and return via DBus error: org.freesmartphone.GSM.DeviceFailed
+
+	fsogsmd: mediators: all run() methods need to throw FreeSmartphone.GSM.Error as well
+
+	fsogsmd: rename mediators.vala to atmediators.vala; modems with different protocols (binary) will have a completely seperate set of mediators
+
+2009-10-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: honor clearing alarm
+
+2009-10-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: implement org.freesmartphone.Device.RealtimeClock.* NOTE: This is the same RTC API as the device's RTC uses.
+
+	fsogsmd: org.freesmartphone.GSM.{Get|Set}Functionality done
+
+	fsogsmd: allow modem to be closed/opened multiple times without the Modem class to be removed. NOTE: This is necessary since unloading a TypeModule is currently not possible with Vala (g_type_register_static [used in Vala] vs. g_type_register_dynamic)
+
+	fsogsmd: integrate in the resource system; depends on libfsoresource now
+
+2009-10-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: prepare for org.freesmartphone.GSM.Device.{Get|Set}Functionality NOTE: Need to integrate fsogsmd with resource system before we can implement this
+
+	fsogsmd: modem: channelForCommand is abstract hence MUST be implemented by the modem plugin
+
+2009-10-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: implement org.freesmartphone.GSM.Device.{Get|Set}SimBuffersSms()
+
+	fsogsmd: use new way for sending commands everywhere
+
+	fsogsmd: all sent commands now go through a function in the modem class this gives the modem the chance to decide which channel a command goes through at any given time! It also simplifies the mediators even more :)
+
+2009-10-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: implement org.freesmartphone.GSM.Device.GetPowerStatus()
+
+	fsogsmd: implement org.freesmartphone.GSM.Device.SetMicrophoneMuted
+
+2009-09-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: mediators: create helper function for gathering speaker volume range
+
+	fsogsmd: create AT command factory as generic method for more lightweight syntax
+
+	fsogsmd: use validate function, instead of parsing directly
+
+	all: require libgee 0.5.0
+
+2009-09-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: prepare for At command classes parsing responses as a whole
+
+	fsogsmd: add +CMICKEY command to prepare for sane error handling
+
+	fsogsmd: spice up SimpleAtCommand class to feature test commands (=?)
+
+2009-09-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: substitute PlusCGCLASS with SimpleAtCommand<string>
+
+	fsogsmd: create generic issue implementation for SimpleAtCommand
+
+	fsogsmd: base PlusCFUN on SimpleAtCommand<int>
+
+	fsogsmd: bump vala version requirement due to async dbus fixes in 0.7.7
+
+2009-09-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: simplify simple (sic!) AT command classes by deriving from SimpleAtCommand
+
+2009-09-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: catch up with libgee 0.5.0; bump gee requirement
+
+	fsogsmd: modem: use generics to gather the proper type NOTE: This needs vala later than 15f806f611898953a859c393e363d532974c52bd
+
+	fsogsmd: fix +COPS=? to recognize the optional access technology field
+
+	fsogsmd: prepare for org.freesmartphone.GSM.Network.ListProviders() implementation
+
+	fsogsmd: add FsoGsm.Constants class for converting between GSM-related datatypes
+
+	fsogsmd: experiment with a different way to instanciate mediators. This does not work currently due to some Vala async inheritance problems.
+
+2009-09-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: modem: raise internal errors (marshalled back to dbus client) when a mediator or an at command is not found
+
+	fsogsmd: catch up with new error declarations in libfso-glib
+
+2009-09-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: put constant into interface (valid in vala 0.7.6)
+
+	fsogsmd: introduce channel timeout and retry counter for commands
+
+	fsogsmd: remove async debug output again
+
+2009-09-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: fix the logic bug with command sequences. command loop now works async and again *phew*
+
+	fsogsmd: use libfso-glib, since it compiles again
+
+	fsogsmd: remove debug output, async coroutines seem to work now with Vala master
+
+	all: bump version requirements
+
+2009-09-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: play with coroutines
+
+2009-09-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: first async dbus method implemented! disable libfso-glib for now as it doesn't compile
+
+2009-09-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: convert to using Gee, add typefactory for mediators in Modem class
+
+2009-09-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: gsm_device: register dbus object
+
+	fsogsmd: add preliminary interface
+
+	fsogsmd: depend on libfso-glib, add skeleton for implementing org.freesmartphone.GSM.Device.*
+
+	fsogsmd: remove assert; use logger.critical instead
+
+	fsogsmd: don't start if can't load any plugins
+
+2009-09-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: sync COPYING file with license as found in code
+
+2009-09-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: catch up with libfsoframework; builds again
+
+2009-08-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: catch up with new logging API
+
+2009-07-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: fix valac options, we don't want it to call gcc for us
+
+	fsogsmd: enable GNU extensions
+
+2009-04-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsm: catch up with vala 0.7.x
+
+2009-04-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: Libgsm0710muxTransport now lives in its library
+
+2009-04-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: implement missing createChannels() method in plugins
+
+2009-04-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: this is version 0.1.0.0. The basic architecture has been implemented. Further work is pending Vala support for async dbus on server side.
+
+	fsogsmd: commandqueue: handle PDU URCs
+
+	fsogsmd: send init commands to modem (on all channels atm.)
+
+	fsogsmd: openening the modem now triggered from the gsm_device
+
+	fsogsmd: make channel a full class, add registering unsolicited response handlers to command queue
+
+	fsogsmd: commandqueue: response handler can be null, if no one is interested in the result
+
+	fsogsmd: parser: fix multiline responses
+
+	fsogsmd: fix responsehandler signature and document FsoGsm.CommandQueue interface.
+
+	fsogsm: first bits of command queue request/response cycle complete
+
+	fsogsmd: revamp parser, include as atom in channel, set delegates from command queue
+
+	fsogsmd: more work on the command queue
+
+2009-04-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsm: modify command syntax for mediators
+
+	fsogsmd: change hash names for commands to proper AT strings instead of class names
+
+2009-04-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: playing with mediator syntax
+
+2009-04-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsm: move at command factor into modem; add more info to individual at commands
+
+	fsogsmd: add parser skeleton with tests
+
+2009-04-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: open serial transport and enqueue a test command
+
+	fsogsmd: add singleline modem abstraction
+
+	fsogsmd: refactor for FsoFramework.AbstractObject and FsoGsm.AbstractModem
+
+	fsogsmd: add build skeleton for modem_cinterion_mc75
+
+	fsogsm: try to instanciate modem plugin, if found
+
+	fsogsmd: add missing modem_ti_calypso files
+
+	fsogsmd: start with TI Calypso Modem Plugin
+
+2009-04-04  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	fsoframework: clean up commons; revert custom vala change in glib-2.0.vapi
+
+2009-04-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: commandqueue writes the first command now
+
+	fsogsmd: first sketch at commandqueue and modem classes
+
+	fsogsm: make it compile again
+
+2009-03-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: generate some more of the simple commands
+
+	fsogsmd: some fun with generated classes for at command parsing NOTE: just playing, dunno whether this will lead into something or not
+
+2009-03-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: AtPlusCPIN
+
+	fsogsmd: add test binary to .gitignore
+
+	fsogsmd: testing infrastructure
+
+	fsogsmd: make it build
+
+	fsogsmd: add build skeleton

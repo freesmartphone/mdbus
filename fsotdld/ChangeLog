@@ -1,2 +1,394 @@
-See NEWS for large-scale changes and git log for details.
+2012-03-10  Simon Busch  <morphis@gravedo.de>
 
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required fso-glib version of all components to 2012.14.1
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+2011-12-18  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsotdld: adjust the gpsd provider to change API of 2.96
+
+2011-12-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: alarm: make sure to catch all kinds of errors when setting alarm call. partly fixes SHR #1558
+
+2011-11-25  Simon Busch  <morphis@gravedo.de>
+
+	fsotdld: source_ntp: fix compilation issues with vala 0.14.0
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-11-22  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsotdld: add a systemd unit file for it
+
+2011-10-20  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsotdld: add config for gta04
+
+2011-10-13  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsotdld: fix provider_location_gpsd's libgps.vapi compilation
+	Without that fix we have:
+	  plugin.c: In function 'location_gpsd_real_start':
+	  plugin.c:266:2: error: too many arguments to function 'gps_open'
+	when building the provider_location_gpsd plugin.
+
+2011-08-21  Simon Busch  <morphis@gravedo.de>
+
+	fsotdld: alarm: do not automatically start the device daemon
+
+2011-06-07  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	Add nexusone configurations files.
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsotdld: add vim tags for correct indentation with 4 spaces
+
+2011-03-07  Lukas-David Gorris  <lukas.gorris@gmail.com>
+
+	htcleo: add all configs in the make system
+	Tested-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+	Acked-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+
+2011-03-06  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	Move htcleo's config
+	I carefully reviewed the commit c65d801ba4abfd09ee49f3c4a89823679c090bf9
+	  But I looked at the content, not at the pathes.
+	This fixes the pathes.
+
+	Note that the config is not activated yet in the autotools build system.
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump copyright notices for 2011
+
+	fsotdld: fix error handling in gsm source
+
+2011-02-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: fix dbus-glib -> gdbus conversion oversight
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsotdld: set G_LOG_DOMAIN
+
+2011-01-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: fix typo in README
+
+2011-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: fix typo in default conf
+
+	fsotdld: add new context manager default options to configuration
+
+	fsotdld: fix race condition when unsubscribing while publishing location updates
+
+	fsotdld: provider_locatioN_cellidwifi: fix json request when we have no wifi data
+
+2011-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: provider_location_gpsd: bind more of libgps and ignore bogus status value. rather inspect longitude and latitude
+
+	fsotdld: contextmanager: handle location updates with varying accuracy
+
+	fsotdld: provider_location_dummy: deliver values read from config
+
+	fsotdld: add dummy location provider, configurable via config: [fsotdl.location_provider_dummy] accuracy = 100 frequency = 6 latitude = 50.0 longitude = 8.0
+
+	fsotdld: contextmanager/location: first version working
+
+	fsotdld: provider_location_freegeoip: deliver accuracy, if we have a lat/lon pair
+
+	fsotdld: repair provider_location_freegeoip
+
+	fsotdld: more work on contextmanager location updates
+
+2011-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: add gio-hacks.vapi for our special needs
+
+	fsotdld: contextmanager: add parameter check
+
+	fsotdld: start with contextmanager plugin
+
+2011-01-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: provider_location_gpsd: first version working
+
+	fsotdld: bind more of libgps
+
+2011-01-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: start with libgps.vapi; scheduled for upstream when completed
+
+	fsotdld: add build skeleton for new gpsd plugin
+
+2011-01-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: honor wifi stations for location query, if available through wpa_supplicanth
+
+2011-01-04  Simon Busch  <morphis@gravedo.de>
+
+	fsotdld: set lower version (2.29) as requirement for libsoup-2.40
+
+2011-01-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: provider_location_cellidwifi: implement cell id lookup NOTE: we require libsoup-2.4 and json-glib-1.0 now
+
+	fsotdld: add build skeleton for provider_location_cellidwifi plugin
+
+2010-12-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: alam: send out alarm notifications asynchronously
+
+	fsotdld: vala workaround no longer necessary
+
+	fsotdld: don't autostart dbus services, postpone initialization to after runloop has been started
+
+2010-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala and glib-2.0 requirements
+
+2010-12-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: gdbus
+
+2010-12-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: work around bug in Vala w/ lambdas in construct statements
+
+	fsotdld: (gdbus) start with gdbus conversion
+
+	fsodeviced: start w/ gdbus port
+
+2010-10-06  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsotdld: make MODULE_NAME public, because fso_factory_function is returning it
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-09-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: provider_gps_nmea: use full keynames
+
+	fsotdld: provider_location_freegeoip: use full keynames
+
+2010-09-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: add accuracy methd to ILocationProvider
+
+	fsotdld: provider_location_freegeoip: fix parser
+
+	fsotdld: remember last location update
+
+	fsotdld: add stub for org.freesmartphone.Location.GetLocation()
+
+2010-08-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: convert latitude and longitude into proper decimal degree format
+
+	fsotdld: register dbus object at location path
+
+	fsotdld: report location from GPRMC
+
+	fsotdld: start GPS hardware with location handler; don't handle coordinates until reported as valid
+
+2010-08-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: start with the long needed migration to the location provider infrastructure
+
+	fsotdl: cosmetics
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-08-27  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsotdld/conf: add htcdream config
+
+2010-08-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotld: sync_time: make the use of adjtime(2) configurable. New config entry is: [fsotdl.sync_time] try_adjtime_before_settime = false
+
+2010-07-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: retrigger ntp sync everytime a new route appears
+
+	fsotdld: relaunch NTP sync when default route changes
+
+2010-06-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: add FixInfo
+
+2010-06-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: parse $GPRMC
+
+2010-06-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: add SatelliteInfo to lib; start parsing GGSV
+
+	fsotdld: repair provider_gps_nmea; works as GPS time source again
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-05-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: alarm: use the new no_reply feature of vala 0.8.1.2
+
+2010-05-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: use libfsobasics to gather own IP and feed that into freegeoip
+
+	fsotdld: add trigger and update to ILocationProvider
+
+	fsotdld: first sketch at provider_location_freegeoip
+
+	fsotdl: load all location providers on startup
+
+	fsotdld: first work towards location provider class library
+
+2010-05-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with libfso-glib new versioning scheme
+
+2010-05-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: prepare for handling GSM time & zone reports
+
+2010-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsotdld/conf: change the default NTP server to pool.ntp.org
+
+2010-04-26  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsotdld: add config for openmoko_gta devices (with disabled GPS for now)
+
+2010-04-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: add new field to default configuration
+
+	fsotdld: add dummy source
+
+	fsotdld: sync_time: fix updating timezone files. closes FSO #532
+
+2010-04-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: don't treat the diff as full timeval
+
+	fsotdld: cosmetics
+
+	fsotdld: resort to brute force (settimeofday), if the interval is too big for adjtime
+
+2010-04-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: allow owning org.freesmartphone.otimed
+
+2010-03-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with removed libfreesmartphone/common
+
+2010-03-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: parsing NMEA works again
+
+	fsotdld: provider_gps: catch up with changes in libfsotransport
+
+2010-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add config.vapi and GITV everywhere
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+2010-01-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: install default configuration
+
+2010-01-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: catch up with libfso-glib 0.2.2 containing convenience constructors for structs
+
+2010-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	sync. MAINTAINERS file
+
+2010-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: merge
+
+	use top level logger for initial plugin loading debug beacon
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: alarm: a busname can now register multiple alarm times
+
+	adjust (C) for 2010
+
+2009-12-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: tests: yank bogus reference to fsotime. 'tis no more.
+
+	fsotdld: catch up with gio binding changes; bump requirements on Vala and GLib
+
+2009-12-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	adjust Makefile as per fsotdld
+
+	fsotdld: provider_gps_nmea: parse GPZDA
+
+2009-11-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: repair config fields; gps receiver plugin is getting NMEA packets again
+
+	fsotdld: bring back provider_gps from fsolocationd
+
+2009-11-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: source_gsm: report location based on recognized timezone (only if this is not ambigous, of course)
+
+2009-11-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	Ok, here's the new world order: fsotimed is no longer and fsolocationd is gone as well.
+	After long pondering, I decided that time, date, and location are belonging together:
+	Please welcome fsotdld.

@@ -1,0 +1,850 @@
+2012-03-10  Simon Busch  <morphis@gravedo.de>
+
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-08-03  Simon Busch  <morphis@gravedo.de>
+
+	libfsoframework: move abstract object class to libfsobasics
+
+2011-07-11  Simon Busch  <morphis@gravedo.de>
+
+	fsoframework: dbusservicenotifier: use correct interface for the master dbus object
+
+	libfsoframework: activate DBusServiceNotifier class
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	libfsoframework: add vim tags for correct indentation with 4 spaces
+
+2011-04-09  Simon Busch  <morphis@gravedo.de>
+
+	libfsoframework: add application service names
+
+2011-03-04  Simon Busch  <morphis@gravedo.de>
+
+	libfsoframework: add dbus names for new audio subsystem
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump copyright notices for 2011
+
+2011-02-23  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	libfsoframework: return underscores to dbus object names
+	* was changed in f6223ddce173b3fc93c4d872769356bd2c025faa
+	  and mickey don't remember why, so lets try return them back
+	  instead changing apps/configs depending on old names like
+	  http://lists.linuxtogo.org/pipermail/smartphones-userland/2011-February/002911.html
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsoframework: set G_LOG_DOMAIN
+
+2011-01-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: interfaces: add Phone and reorder alphabetically
+
+	libfsoframework: send a signal once we have acquired a servicename
+
+2011-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: subsystem: more info in error message
+
+	libfsoframework: subsystem: handle potential errors during object registration
+
+	libfsoframework: add context interface
+
+2010-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala and glib-2.0 requirements
+
+2010-12-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: repair DBusServiceNotifier for gdbus
+
+2010-12-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: catch up with vala
+
+	libfsoframework: (gdbus) sync with master
+
+	libfsoframework: ensure connection is present before handing it out
+
+	libfsoframework: rename DBusExtensions to DBusService
+
+	libfsoframework: rewrite the way how we register objects. In the new gdbus world, every exported interface for a given object needs to be registered seperately. We need to remember the reference IDs, so we can unregister all interfaces in one go. We no longer operate more than one dbus connection. Busnames are registered after the mainloop has started.
+
+	more gdbus work in progress
+
+	libfsoframework: port subsystem class to gdbus
+
+	libfsoframework: bump dependencies, prepare for gdbus
+
+2010-11-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: subsystem: new API objectsForPrefix( string prefix )
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-08-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: interfaces: add service interface and object path for org.freesmartphone.Location
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-07-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: move ResourceStatus to libfsoframework
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-05-13  Maksim 'max_posedon' Melnikau  <maxposedon@gmail.com>
+
+	Fix using AC_ARG_ENABLE
+	Macro: AC_ARG_ENABLE (feature, help-string, [action-if-given],
+	[action-if-not-given]) works litte different as cornucopia expect:
+	1. action-if-given called when --enable-feature or --disable-feature
+	2. if it was --enable: $enableval="yes"
+	   if it was --disable: $enableval="no"
+	3. action-if-not-given is place for default value
+
+	See also:
+
+	http://www.gnu.org/software/hello/manual/autoconf/Package-Options.html
+	http://devmanual.gentoo.org/general-concepts/autotools/
+
+2010-05-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with libfso-glib new versioning scheme
+
+2010-05-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: fix dependencies in pkgconfig file
+
+2010-04-25  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoframework/interfaces.vala: remove ContactServicePathPrefix there is no such thing.
+
+	fsoframework/interfaces.vala: add defines for PIM.Contact
+
+2010-04-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: add well-known object paths and interface names for org.freesmartphone.Device.Proximity and org.freesmartphone.Device.AmbientLight
+
+2010-04-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: remove alsa support fsodeviced: add alsa support
+
+2010-04-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add modem notes for qualcomm_palm
+
+2010-04-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	libfsoframework/interfaces: fix typo for preferences DBusName
+
+2010-04-01  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoframework/intervaces.vala: add Preference and PIM namespaces
+
+2010-03-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: fix vala warnings and remove common.vala
+
+2010-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add config.vapi and GITV everywhere
+
+2010-02-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: use new device specific alsa data file path in /etc/freesmartphone/default/conf/<machine>/...
+
+2010-02-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: don't try to unload a plugin that has never be loaded
+
+	libfsoframework: more string templates
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+2010-01-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: subsystem: add new method for creating incremental object paths. NOTE: This function is to be used, if multiple plugins create the same kind of object that have to be registered incrementally (i.e. vibrators, leds, etc.)
+
+	libfsoframework: add Vibrator to interfaces / paths
+
+2010-01-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: move scheduled-for-upstream vapis into libfsobasics/vapi
+
+	BIG CHANGE: move generic utility classes that have nothing to do with the framework, subsystems, or plugins into libfsobasics. Bump versions to reflect actual state and add some more unit tests.
+
+2010-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	sync. MAINTAINERS file
+
+2010-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: add convenience function to wait a couple of seconds in mainloop
+
+	libfsoframework: sync libnl-2.0.vapi w/ upstream
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: add test for isValidDBusName()
+
+	libfsoframework: add isValidDBusName()
+
+	adjust (C) for 2010
+
+2010-01-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: remove Pipe class from here; change signature for launchWithPipes
+
+	libfsoframework: add pipe mode to GProcessGuard
+
+	libfsoframework: vapi: sync linux.vapi w/ upstream
+
+	libfsoframework: add libnl-2.0 to .pc file
+
+2010-01-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add LIBNL flags to tests
+
+2010-01-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: more libnl
+
+	libfsoframework: bind more of libnl
+
+2009-12-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: bind more of libnl
+
+	libfsoframework: bind more of libnl-2.0; refactor some bindings in linux.vapi
+
+	fsoframework: start w/ netlink notifier in order to prepare for ppp handling. NOTE: We require libnl-2.0 now
+
+2009-12-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: yank traces of frameworkd.conf; we now use $binary.conf for everything
+
+2009-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: enable debug build; remove eventfd check; catch up with libfsobasics
+
+2009-12-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	lbifsoframework: remove bogus binary
+
+	libfsoframework: add unit test or GProcessGuard
+
+2009-12-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: add unit test for OverlayFile
+
+	libfsoframework: add OverlayFile class
+
+	libfsoframework: add ProcessGuard.setAutoRelaunch( bool ) NOTE: automatic relaunching will be disabled, if the guard dies before the process, or if any attempt to relaunch is not successful.
+
+	libfsoframework: add ProcessGuard::sendSignal( int )
+
+	libfsoframework: remove accidantly committed binary; use non-ambiguous name for delegate holder in kobjectnotifier
+
+	libfsoframework: fix process guard dieing earlier than guarded process
+
+	libfsoframework: add GProcessGuard, spawning an external process and guarding it
+
+2009-11-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: inotifier: do not bail out if inotify subsystem can't be initialized; report the error instead
+
+	libfsoframework: post release version bump
+
+	libfsoframework: create INotifier dispatcher object. NOTE: We need Vala >= 0.7.8.2 now
+
+	libfsoframework: alsa: move BunchOfMixerControls to here
+
+2009-11-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: fix configure.ac output for module dir
+
+2009-11-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: add config.vapi
+
+	libfsoframework: use compile-time path to look for modules; this fixes breakage introduced with bin -> sbin change
+
+2009-11-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: add service info for odatad
+
+2009-11-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: inject common dbus interfaces into DBus namespace
+
+2009-11-14  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsoframework: Add musicd's paths and prefixes
+
+2009-11-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: d'oh! 0.2.3 is actually a smaller number than 0.2.3.1
+
+	all: bump Vala requirement and enable silent automake rules, if available
+
+	libfsoframework: post-release version bump
+
+	libfsoframework: catch up with vala 0.7.8
+	* use string templates
+	* debug output --
+
+2009-10-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: remove asserts in favour of logging
+
+2009-10-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: add dependencies to pkgconfig file
+
+	libfsoframework: document subsystem interface
+
+2009-10-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: interfaces: add well-known GPS prefixes
+
+2009-10-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: wrap logger calls in assert, so that the compiler has a chance to remove them for release builds needs libfsobasics-0.8.3.1
+
+2009-10-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: use pkgconfig to check for misc-vapi
+
+2009-09-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: remove generated vapi file; logger is now a public attribute
+
+2009-09-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: bring back generic delegate storage class (fixed in Vala HEAD)
+
+2009-09-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	post-release version bump
+
+	fsodeviced: comment out generic class that doesn't compile w/ 0.7.6 atm.
+
+2009-09-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: catch up with inclusion of linux.vapi and alsa.vapi Vala upstream This is version 0.2.3
+
+2009-09-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: interfaces: add well-known paths for org.freesmartphone.GSM
+
+2009-09-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: add well-known paths for GSM object
+
+2009-09-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: sync COPYING file with license as found in code
+
+2009-09-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: add service path prefix for org.freesmartphone.Device.Orientation
+
+2009-09-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: define fso_shutdown_function that gets called (if present) during shutdown of a plugin plugins should use that to save persistent data in order to improve restarting
+
+	libfsoframework: add shutdown() method to subsystem and plugin interfaces
+
+2009-09-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: post-release version bump
+
+	libfsoframework: silence vala varnings and replace assert_not_reached() with critical()
+
+2009-08-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: Vala objects created w/ Object.new() do NOT (I repeat _not_) call any default constructor (like Foo()), but just the construct {} constructor.
+
+2009-08-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: object: construct properties and using 'this' in the constructor don't mix well
+
+	libfsoframework: catch up with Vala no longer autogenerating constructors See http://bugzilla.gnome.org/show_bug.cgi?id=578417
+
+2009-08-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: object: show name of logger domain on debug
+
+2009-08-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: catch up with new createLogger syntax
+
+2009-08-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	README cleanup
+
+2009-08-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: catch up with libfsobasics API addition
+
+2009-07-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: alsa.vala: remove warning
+
+2009-07-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: strip logger, smartkeyfile, and utilities out of this library. Depend on libfsobasics instead.
+
+	fsoframework: enable GNU extensions
+
+2009-07-08  Daniel Willmann  <daniel@totalueberwachung.de>
+
+	smartkeyfile.vala: Strip string values to catch trailing whitespaces
+
+	logger.vala: Append to the log file by default
+
+	logger.vala: Don't fail if the log level doesn't match expected values
+
+2009-07-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: logger: add 'critical' which leads to a non-maskable program abort
+
+2009-06-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: inject proper dbus constants into namespace as preparation before the patch will appear upstream
+
+2009-06-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: dbus: add DBusServiceNotifier class. This class will call a delegate whenever a service a client is interested in is appearing on or disappearing from the dbus.
+
+2009-06-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: fix EXTRA_DIST
+
+	libfsoframework: canonicalize dbus object name before registering
+
+2009-06-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: common: remove assert in favour of real error message
+
+	fsoframework: alsa: looks like on writing, control indices start with '0', while they start with '1' on reading *sigh*
+
+2009-06-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: alsa: add method to create a MixerControl from a string description
+
+	fsoframework: alsa: refactor
+	We keep the list of controls now in the alsa object,
+	based on the assumption that it doesn't change over the lifetime
+
+	fsoframework: save/restore groups of mixer controls
+
+	fsoframework: more work on SoundSystem class (using alsa backend)
+
+2009-06-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: create skeleton for sound system; requires alsa now
+
+2009-06-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: fix typo in error message
+
+2009-06-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: add org.freesmartphone.Resource
+
+2009-06-07  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	fsoframework: Add DBus interface prefixes for fsotime
+
+2009-06-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: remove experimental vapi files, which have been moved to misc-vapi
+
+	libfsoframework: linux.vapi: add non-posix socket constants SOCK_NONBLOCK and SOCK_CLOEXEC
+
+2009-06-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: check for ioctl return value
+
+2009-06-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: tests: add test for Network.ipv4AddressForInterface
+
+	fsoframework: utilities: add convenience function ipv4AddressForInterface
+
+	fsoframework: vapi: start with binding libnl (netlink convenience library)
+
+	fsoframework: add more networking stuff to linux26.vapi and posixextra.vapi
+
+2009-05-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: add network service path
+
+	linux26.vapi: use Posix timeval instead of GLib one
+
+	linux26.vapi: add unshare(2)
+
+	linux26.vapi: bind inotify and friends
+
+	linux26.vapi: add signalfd(2)
+
+2009-05-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: check for presence of sys/eventfd.h
+
+2009-05-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: utilities: add framework for string list size = 0
+
+	fsoframework: add dbusConnection method to Subsystem
+
+	fsoframework: interfaces: add usage service path
+
+2009-05-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: add IdleNotifier service path
+
+2009-05-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: utilities: add EventFd class wrapping Linux26.eventfd
+
+2009-05-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: libascenario: add [NoArrayLength] to list()
+
+2009-05-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: add libascenario.{deps|vapi}
+
+2009-05-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	linux26: add linux-isms from posix.vapi; add eventfd
+
+	fsoframework: add vala bindings for libcanberra
+
+2009-05-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces.vala: add Audio
+
+	fsoframework: interfaces: add PowerControl object path
+
+2009-05-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: strip interface declarations from this library.
+
+2009-05-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	vapi: remove functions sent to patchset
+
+	all: catch up with new patchset against posix.vapi
+
+	fsoframework: remove stuff from PosixExtra and create proper patches on top of vala master
+
+2009-05-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: fix signal org.freesmartphone.Device.Input.Event
+
+	fsoframework: smartkeyfile: add hasKey() and keysWithPrefix()
+
+	fsoframework: linux26.vapi: add missing MAX constants
+
+	fsoframework: linux26.vapi: input subsystem bindings complete (minus force feedback joysticks, but who's going to use these anyways... :-)
+
+2009-05-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: add org.freesmartphone.Device.Input
+
+2009-05-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: add org.freesmartphone.Device.PowerSupply.GetType() -> s
+
+2009-05-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: add org.freesmartphone.Device.PowerSupply.Capacity signal
+
+	fsoframework: utilities: mention filename in warning
+
+	fsoframework: add interface for org.freesmartphone.Device.PowerSupply
+
+2009-05-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: first version of kobjectnotifier now works
+
+	fsoframework: add enough bindings to get messages from the kobject netlink dispatcher
+
+	fsoframework: linux26.vapi: add netlink message constants
+
+	fsoframework: depend on vala 0.7.3 which has our syslog patches applied, remove from posixextra
+
+	fsoframework: linux26.vapi: include sys/ioctl.h here, since it's Linux specific
+
+	fsoframework: add skeleton for KObjectNotifier
+
+	fsoframework: simplify linux26.vapi, vala's posix.vapi is buggy :)
+
+	fsoframework: tweak bindings and add SystemError to interfaces
+
+	fsoframework: linux26.vapi: add bindings for linux-specifics
+
+2009-05-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: add org.freesmartphone.Device.RTC
+
+	fsoframework: openlog does not copy the ident string, make sure it's not removed
+
+	fsoframework: gitignore++
+
+	specify dbus errors where necessary
+
+2009-04-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: fix dbus test
+
+	fsoframework: first sketch of asyncworker
+
+2009-04-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: catch up with vala 0.7.x; fix header path
+
+	fsoframework: catch up with vala 0.7.x
+
+2009-04-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: remove transport functions; they're now in libfsotransport
+
+2009-04-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: allow overriding log_level, log_to, log_destination via environment
+
+	fsoframework: check whether delegate is actually set before calling it
+
+	fsoframework: transport: fix detection for IN and HUP conditions
+
+	fsoframework: set NullLogger as default logger. log_to = none (or omitting log_to completely) also uses the NullLogger from now on
+
+	fsoframework: add NullLogger
+
+2009-04-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: transport: refactor configure into base class
+
+2009-04-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: add test for transport/freeze&thaw
+
+	fsoframework: transport: support freeze() and thaw()
+
+2009-04-13  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	Add Info Interface
+
+2009-04-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: add all known posix speeds; this is version 0.1.0.0
+
+	fsogsmd: send init commands to modem (on all channels atm.)
+
+	fsoframework: transport: use logger for warning
+
+	fsoframework: smartkeyfile: add stringlist support
+
+	fsoframework: add StringHandling.stringListToString
+
+	fsoframework: transport: mark as closed, add more unit tests
+
+	fsoframework: add write test for transport class
+
+	fsoframework: make transport a class, not just an interface
+
+2009-04-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: transport: add some assertions
+
+	fsoframework: add user and group switching; prepare to drop privileges
+
+	fsoframework: gather default library path based on path to executable
+
+2009-04-08  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	Add Display interface to libfsoframework
+
+2009-04-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: transport: add freeze and thaw to interface
+
+	fsoframework: transport: add setDelegates to Transport interface
+
+	fsoframework: AbstractObject: define basic repr() function and set ReprDelegate in construct classes deriving from AbstractObject need to define their own repr function
+
+	fsoframework: add FsoFramework.BaseObject, handling configuration and logging
+
+	fsoframework: subsystem: s/error/logger.warning/
+
+2009-04-04  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	fsoframework: clean up commons; revert custom vala change in glib-2.0.vapi
+
+2009-04-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: transport: allow delegates to be submitted lateron
+
+2009-04-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: transport: always create IOChannel, even if we have no Transport{Read|Hup}Func
+
+	fsoframework: add testtransport to gitignore
+
+	fsoframework: add transport tests
+
+	fsoframework: add serial and pty transport
+
+	fsoframework: start adding transport abstraction classes
+
+2009-03-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: add Makefile.am in vapi dir
+
+	fsoframework: install posixextra file (stuff submitted for inclusion upstream)
+
+2009-03-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: move class back to interface; the problem has been found
+
+2009-03-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: add dbus object call test
+
+2009-03-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add note about our vala mirror.
+
+	fsoframework: compile it
+
+	fsoframework: this was not supposed to be commited yet
+
+	fsodevice: lower dbus requirement to 1.2.1
+
+	fsoframework: plugin is a typemodule now
+
+2009-03-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	sync
+
+2009-03-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: logger: support setting a representation delegate for the logger. The representation delegate has to return a string and will be called for every logged message. This can slow down logging, so use with care.
+
+	fsoframework: fixed factory delegate which was wrongly declared. Unfortunately Vala can not warn you, if you cast a function symbol to a delegate that has a different signature (static vs non-static), so we have to be extra careful here. It works now :)
+
+2009-03-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: add tests for utilities
+
+	fsoframework: add utilties; pending tests!
+
+	fsoframework: start interfaces file, containing service interface metadata
+
+	fsoframework: plugin: add subsystem parameter to factory method
+
+	fsoframework: plugin: the factory function can throw an error now NOTE: This exposes an error in Vala or glib.
+
+2009-03-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: get rid of MODULE_ARCH in module install path This is making more problems than it solves... we don't need to have multiple modules living in one path anyways...
+
+	fsoframework: subsystem: an empty list is null
+
+	fsoframework: smartkeyfile: add hasSection method
+
+	fsoframework: start with some logging
+
+	s/theMasterLogger/createLogger/g
+
+	revert exception change
+
+	factory can return an empty string to indicate an initialization error
+
+	subsystem passes tests
+
+	add subsystem tests
+
+	start with subsystem class
+
+	add SmartKeyFile.sectionsWithPrefix()
+
+2009-03-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	build: check for dbus as well, but seperately
+
+	first sketch at plugin class
+
+2009-03-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: typo in Makefile.am
+
+	adjust .pc file
+
+	master logger factory done
+
+2009-03-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	logger: syslog logger complete; filelog logger knows about stderr
+
+	formatted log output ok
+
+	start with logging class
+
+	create MasterKeyFile
+
+	testing infrastructure
+
+2009-02-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	commit skeleton

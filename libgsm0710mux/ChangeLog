@@ -1,1 +1,111 @@
-Please see git changelog.
+2012-03-10  Simon Busch  <morphis@gravedo.de>
+
+	libgsm0710mux: change maintainers email address
+
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+	libgsm0710mux: drop usage of external loop variable
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	ligsm0710mux: add vim tags for correct indentation with 4 spaces
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump copyright notices for 2011
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libgsm0710mux: set G_LOG_DOMAIN
+
+2010-12-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libgsm0710mux: gracefully shutdown when receiving HUP from modem
+
+2010-12-05  leitner  <leitner@leitner-laptop.(none)>
+
+	add new configuration parameter for devices which can't drop out of MUX mode. To enable, set your configuration to: [libgsm0710mux] device_close_broken = true
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-05-13  Maksim 'max_posedon' Melnikau  <maxposedon@gmail.com>
+
+	Fix using AC_ARG_ENABLE
+	Macro: AC_ARG_ENABLE (feature, help-string, [action-if-given],
+	[action-if-not-given]) works litte different as cornucopia expect:
+	1. action-if-given called when --enable-feature or --disable-feature
+	2. if it was --enable: $enableval="yes"
+	   if it was --disable: $enableval="no"
+	3. action-if-not-given is place for default value
+
+	See also:
+
+	http://www.gnu.org/software/hello/manual/autoconf/Package-Options.html
+	http://devmanual.gentoo.org/general-concepts/autotools/
+
+2010-03-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libgsm0710mux: introduce send_pause_threshold configuration value for unstable modems
+	This configuration value allows to specify a minimum pause time interval
+	that has to be guaranteed when sending consecutive commands. Some modems tend to
+	hang up, if you send commands too fast. Yes, this is what the channel flow control
+	out-of-band data should be used, but alas, it seems we can't rely on that for all
+	modems. So we play safe. Note that this value is initially set to 0; change it like:
+	[libgsm0710mux]
+	device_sendpause_threshold = 100
+
+	libgsm0710mux: revert last commit; Idle.add is not a good idea when using a shared buffer
+
+	libgsm0710mux: remove vala warnings
+
+2010-03-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libgsm0710mux: fix checking git version
+
+2010-03-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libgsm0710mux: add missing config.vapi
+
+	libgsm0710mux: fix VALAC options
+
+2010-03-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add libgsm0710mux and fso-abyss to the cornucopia directory they are cornucopia subprojects and should have been here since long

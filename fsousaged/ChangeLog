@@ -1,2 +1,691 @@
-Please see git log for individual changes.
+2012-03-10  Simon Busch  <morphis@gravedo.de>
 
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required fso-glib version of all components to 2012.14.1
+
+	Bump required vala version of all components to 0.14.2
+
+	fsousaged: dbus_service: fix two bugs with resource status update handling
+	- resource send two status updates when requested by a user; one with refcount = 0 and one
+	  with refcount = 1 (but status still the same)
+	- resource send no status update when it's requested by more than one user and one of this
+	  disappeared or released the resource
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+	fsousaged: lowlevel_kernel26_staysalive: make suitable for the upcoming vala 0.14.2
+
+2011-12-21  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: herring: adjust for recent changes to power management regarding android devices
+
+2011-12-18  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: dbus_service: initialize array object as early as possible to avoid segfaults
+
+	fsousaged: dbus_service: mention wakelock support when enabled
+
+	fsousaged: conf: add wakelock support for herring machine
+
+	fsousaged: lowlevel_android: rework to support new suspend/resume handling for android influenced devices
+	This removes the powerkey handling too. Handling system wakeup when the power key is
+	pressed should be done somewhere else and the usage subsystem will be triggered via the
+	org.freesmartphone.Usage.Resume method to completely wakeup.
+
+	fsousaged: dbus_service: rework to support suspend/resume handling on android based devices
+
+	fsousaged: dbus_service: adjust signature of resume method to catch up with the specification
+	The FSO API specification requires two parameters for the resume method of the usage
+	service: One for the source and one for the reason. This implements only the parameters so
+	we can call the resume method correctly from the outside but we're not using both
+	parameters atm.
+
+2011-12-12  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: lowlevel_android: refactor screen resume handling into own method
+
+	fsodeviced: lowlevel_android: cleanup code a bit and comment unused parts to avoid compiler warnings
+
+	fsousaged: lowlevel_android: make resume reason for modem a config option
+	Not on every device the resume reason for modem activity is named SMD_RPCCALL. This is
+	mostly the case on MSM devices but for example not for the Nexus S from Samsung.
+
+2011-11-30  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: lowlevel_kernel26_staysalive: adjust for changes to posix.vapi in latest vala versio
+
+	fsousaged: lowlevel_android: adjust for changes to posix.vapi in latest vala version
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-11-10  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsousaged: drop the unneeded cmd var from Shutdown and Reboot commands
+
+2011-11-09  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsousaged: make shutdown and reboot commands configurable
+	We can't rely on PATH being correct when being activated via dbus.
+	This means we better use absolute paths to the commands to
+	execute.
+
+	This adds two new config options in [fsousage]: shutdown_command and
+	reboot_command. If not configured they default to '/sbin/shutdown -h now'
+	and '/sbin/shutdown -r now'.
+
+2011-10-16  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsousaged: herring config: fix real suspend's resume
+	Without that fix Xorg doesn't come back after a real suspend.
+
+2011-10-09  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsousaged: configuration: switch the herring machine to android low level plugin
+	Herring is also known as crespo or nexus S
+
+2011-09-28  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: add configuration for herring machine (also known as nexus s)
+
+2011-08-22  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: dbus_service: when resume is not user initiated display should not turn on
+	In cases where the resume is not initiated by the user (for example the device wakes up by
+	some messages arrived on the modem channel) it's not right to turn on the display (which
+	is the case in the idle idle state but not in the lock idle state).
+
+2011-08-19  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: lowlevel_palmpre: minor bug fixes
+	- "UNKNOWN" is now handled as invalid resume reason
+	- only the first resume reason is read from /sys/power/wake_event_list
+
+2011-07-12  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: dbus_service: increase time we're waiting for resource registration
+
+	fsousaged: sync all configuration files with new configuration option
+
+	fsousaged: add myself to the authors list
+
+	fsousaged: dbus_service: remove unreached break statement
+
+	fsousaged: dbus_serivce: make shadow resource handling finally work
+	If a shadow resource is pinged but never registers its resource the daemon will not die
+	anymore. It will wait for about 10 seconds for the resource to register and then abort
+	resource enablement process.
+
+	fsousaged: dbus_service: improve the code with more comments and exception handling
+
+2011-07-11  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: dbus_service: clean up dependency handling code
+
+	fsousaged: dbus_service: catch unhandeled exception otherwise the daemon will die
+
+	fsousaged: dbus_service: implement two debug options available through configuration
+	You can now disable lowlevel suspend with the configratuion debug_do_not_suspend = true in
+	the fsousaged.conf configuration file. Together with this you can set the resume reason
+	with debug_suspend_user_initiated = true/false.
+
+	fsousaged: dbus_service: forward all possible errors to the caller
+
+2011-07-10  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: dbus_services: some minor bug fixes for resource dependency handling
+
+	fsogsmd/fsousaged: some minor corrections about resource dependency handling
+
+	fsousaged: dbus_service: implement handling of resource dependencies
+
+2011-06-29  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: dbus_service: even respect shadow resources when doing the suspend
+	Not enabled shadowed resources have the state UNKNOWN. When doing a suspend this always
+	fails as the code checks only for a state not equal to SUSPENDED or ENABLED. This adds the
+	check for the UNKNOWN state to be able to suspend the device when shadowed resources are
+	not enabled.
+
+	fsousaged: dbus_service: add some more debug statements in resource class
+
+2011-06-27  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsousaged: nexusone's config: activate suspend(remove debug_do_not_suspend)
+	Now that we have implemented the screen userspace resume, we can suspend/resume.
+
+	nexusone's fsousaged.conf: add userspace screen resume config
+
+	fsousaged: lowlevel_android plugin: add support for userspace screen resume
+	Add that in the [fsousage.lowlevel_android] fsousaged configuration section to activate it:
+	screen_resume_type = userspace
+	screen_resume_command = chvt 1;chvt 2
+
+	fsousaged: lowlevel_android plugin: Whitespace and cleanup fix
+
+2011-06-07  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	Add nexusone configurations files.
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+	Revert "fsousaged: enable shadow resources for palm_pre machine"
+	This reverts commit 81d1ac9905479153a20f3ab0f81acc79b905901e.
+
+	Enabled shadow resources leads to errors within the SHR distribution. We need to solve
+	this problem later. For now we will ship a separate config file for fsousaged in OE for
+	the aurora distribution.
+
+2011-05-31  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: enable shadow resources for palm_pre machine
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsousaged: add vim tags for correct indentation with 4 spaces
+
+2011-03-07  Lukas-David Gorris  <lukas.gorris@gmail.com>
+
+	htcleo: add all configs in the make system
+	Tested-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+	Acked-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+
+2011-03-06  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	Move htcleo's config
+	I carefully reviewed the commit c65d801ba4abfd09ee49f3c4a89823679c090bf9
+	  But I looked at the content, not at the pathes.
+	This fixes the pathes.
+
+	Note that the config is not activated yet in the autotools build system.
+
+2011-03-04  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: lowlevel_palmpre: parse wakeup events correctly
+
+2011-03-01  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: palmpre conf: switch to DEBUG loglevel for now
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump copyright notices for 2011
+
+	fsousaged: simplify error handling
+
+2011-02-20  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: lowlevel_palmpre: remove wrong newline character
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsousaged: set G_LOG_DOMAIN
+
+2010-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: don't autostart fsodevice just because we create a proxy for the idlenotifier
+
+	bump vala and glib-2.0 requirements
+
+2010-12-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: bring back dbus name owner change watcher and idlenotifier glue
+
+	fsousaged: more gdbus conversion
+
+	fsousaged: first bunch of gdbus conversion
+
+2010-12-05  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: conf: palm_pre: disable shadow resources
+
+2010-12-01  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: palmpre: set enable_shadow_resources = 1
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-08-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsotdld: register dbus object at location path
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-07-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: move ResourceStatus to libfsoframework
+
+2010-07-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: disable shadow resources by default
+
+2010-06-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: lowlevel_android: sick
+
+	fsousaged: ä&ßa%&$§C"§! !!!
+
+	fsousaged: lowlevel_android: next try to get this darn plugin right
+
+2010-06-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: lowlevel_android: resurrecting input node grabbing for resume handling
+
+	fsousaged: lowlevel_android: trigger resume also on event3-531
+
+	fsousaged: lowlevel_android: debug++
+
+2010-06-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: don't call glib's error(), but just emit a warning, if we can't suspend
+
+2010-06-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: lowlevel_android: event3-219 == powerkey
+
+	fsousaged: lowlevel_android: try to gather resume reason from new proc nodes
+
+	fsousaged: lowlevel_android: use /proc/wakelocks_suspend_resume to wait for resume & compute IRQ diff
+
+2010-06-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: lowlevel_android: add debug code for /proc/wakelocks_last_lock
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-05-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: lowlevel_android: -ERESTARTNOHAND is not being delivered to the application, but rather intercepted by glibc :/
+
+	fsousaged: lowlevel_android: debug++
+
+	fsousaged: lowlevel_android: use select and wait for ERESTARTHAND to block until we have resumed
+
+	fsousaged: lowlevel_android: give grace period to fall asleep
+
+2010-05-30  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: make lowlevel_palmpre plugin available for everybody
+
+2010-05-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: lowlevel_android: first try
+
+	fsousaged: add plugin lowlevel_android that handles the subtle differences in suspend/resume on Android/Linux-derived kernels
+
+2010-05-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: conf/htc_qualcomm_dream: use kernel26 plugin for lowlevel suspend
+
+2010-05-18  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: add lowlevel plugin for the palm pre machine
+
+2010-05-13  Maksim 'max_posedon' Melnikau  <maxposedon@gmail.com>
+
+	Fix using AC_ARG_ENABLE
+	Macro: AC_ARG_ENABLE (feature, help-string, [action-if-given],
+	[action-if-not-given]) works litte different as cornucopia expect:
+	1. action-if-given called when --enable-feature or --disable-feature
+	2. if it was --enable: $enableval="yes"
+	   if it was --disable: $enableval="no"
+	3. action-if-not-given is place for default value
+
+	See also:
+
+	http://www.gnu.org/software/hello/manual/autoconf/Package-Options.html
+	http://devmanual.gentoo.org/general-concepts/autotools/
+
+2010-05-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with libfso-glib new versioning scheme
+
+2010-05-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: use Linux.ioctl rather than Posix.ioctl which is not supported on some Linuces
+	This makes us depend on Vala 0.8.1.1 (FSO-release)
+
+2010-05-07  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: tell if debug is enabled when configuring
+
+2010-04-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: more experimental support for shadow resources
+
+	fsousaged: fix debug build
+
+	fsousaged: don't try to disable a shadow resource; you will fail
+
+	fsousaged: add Resume() command
+
+2010-03-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: lowlevel_kernel26_staysalive: and set state back to on
+
+	fsousaged: lowlevel_kernel26_staysalive: add prototype implementation
+
+	fsousaged: install special configuration for htc_qualcomm_dream
+
+	fsousaged: add skeleton for new lowlevel plugin 'lowlevel_kernel26_staysalive'
+	This plugin is for systems that use the kernel26 suspend/resume mechanism,
+	however the CPU is not halted during suspend.
+
+	fsousaged: add basic support for shadow resources
+
+2010-03-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: gather dbus system services during configure step
+
+2010-03-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with removed libfreesmartphone/common
+
+2010-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add config.vapi and GITV everywhere
+
+2010-02-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: bump version
+
+	fsousaged: complete the error checking cycle for org.freesmartphone.Usage.RequestResource
+
+2010-02-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	docs: remove fsousaged/TODO, merge with toplevel TODO
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+2010-02-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsgsmd: add conf to SUBDIRs
+
+2010-01-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: ship machine-specific default configurations
+
+	fsousaged: add missing return statement in lambdas
+
+2010-01-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: fix system actions
+
+	fsousaged: even more string templates
+
+	fsousaged: system actions use their own (shared) queue
+
+	fsousaged: use string templates
+
+	fsousaged: move command queue into resource class
+	most command queues are resource specific, since resource allocation can be parallized
+
+	fsousaged: queueify suspend
+
+	fsousaged: first commands queueified
+
+	fsousaged: add command classes
+
+2010-01-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: remove persistence stuff; we don't need that NOTE: fsousaged has to be rewritten in order to properly serialize resource requests retaining the sync semantics of the API :/
+
+	fsousaged: dbus_service: convert some messages to @ notation
+
+2010-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	sync. MAINTAINERS file
+
+2010-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: fix make 'test'
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	adjust (C) for 2010
+
+2009-12-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: log package version on startup
+
+2009-11-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: move daemons into @prefix@/sbin/
+
+2009-11-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: dbus_service: reenable system action messages, thanks Slyon_
+
+2009-11-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: put bug number in pp command
+
+	fsousaged: catch up with dbus async changes
+	Async dbus changes have changed our timing so that fsousaged's dbus methods
+	were not being carried out synchronously, which is what we want in the case
+	of requesting/releasing/configuring resources. This should fix it,
+	but may introduce other timing instabilities, so take a close look on
+	unexpected behaviour.
+
+2009-11-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsouaged: catch up with async dbus changes; also secure against lowlevel not being present
+	This should fix the suspend/resume timing issues people have been reported
+
+2009-11-15  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsousaged: the bin's name fsousaged not fsodeviced for .gitignore
+
+2009-11-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: fix race condition that broke dbus system activation NOTE: Do NOT use plain deferred initialization (Idle.add(do_more_init_stuff)) for plugins that are dbus system activated, since in that case, the dbus call will be the first action inserted in the mainloop queue -- even before your idle call, hence parts may not be initialized at that time.
+
+2009-11-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: bump Vala requirement and enable silent automake rules, if available
+
+2009-10-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: rename controller to dbus_service. NOTE: Sorry folks, but you need to adjust your configuration.
+
+2009-10-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: add some debugging options; honor 'sync_resources_with_lifecycle' option from fso1
+
+2009-10-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: secure against race condition (see code comment for more info)
+
+2009-10-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: catch up with async API and outcomment problematic code
+
+2009-09-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: require libgee 0.5.0
+
+2009-09-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: catch up with libgee master; bump vala version requirement
+
+2009-09-25  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	Change file order to avoid segfault, Thanks to agg1n
+
+	Fix rapid emmiting of ResoueceChange. Thanks to agg1n1
+
+2009-09-23  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	Fix double emitted signal ResourceChanged. Thx to agg1n
+
+2009-09-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: controller: split into two files
+
+2009-09-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: post-release version bump
+
+2009-09-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: bump version requirements
+
+2009-09-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: shut down if can't load any plugins
+
+2009-09-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: sync COPYING file with license as found in code
+
+2009-09-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: add (optional) libpersistence support to improve restartability NOTE: configure with --enable-persistence, if you want to enable this feature.
+
+2009-09-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: register signal handlers for SIGBUS and SIGSEGV; call shutdown on forced exit
+
+2009-09-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: post-release version bump
+
+2009-08-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: controller: fix crash when a resource implementor quits the bus (Note to self: do not modify an interable while iterating over it...) Thanks ptitjes and juergbi.
+
+	fsousaged: controller: show resume reason as string
+
+2009-08-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: use enum internally to derive resume reason fix swapped idle vs. busy states when notifying idlenotifier after resume
+
+2009-08-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: controller: talking to the right dbus object helps Thanks dos1 for spotting
+
+2009-08-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: call org.freesmartphone.IdleNotifier.SetState( ... ) on resume. lowlevel_openmoko: properly recognize reason and subreason.
+
+	fsousaged: for some reason, my constructors were not called. use 'construct' to work around for now
+
+2009-08-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: lowlevel_openmoko: detect reason and subreason from sysfs
+
+	fsousaged: controller: use DBus constants as defined in fsoframework-2.0.vapi
+
+	fsousaged: controller: infrastructure for lowlevel plugin done. To add a certain plugin as lowlevel suspend/resume plugin, you have to do the following: 1.) Make it loaded at all by adding its name to the conf file, e.g. [fsousage.lowlevel_kernel26] or [fsousage.lowlevel_openmoko] 2.) Chose which plugin to use for suspend/resume in [fsousaged] by adding (e.g.) lowlevel_type = kernel26 NOTE: kernel26 is the default, if the lowlevel_type entry is not present.
+
+	fsousaged: add skeleton for lowlevel plugins implementing suspend/resume handling
+
+2009-08-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: catch up with new logging API
+
+2009-07-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: fix valac invocation to not call gcc for us
+
+	fsousaged: enable GNU extensions; fix EXTRA_DIST declaration
+
+2009-06-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: release as 0.9.0
+
+	fsousaged: send org.freesmartphone.Usage.ResourceChanged()
+
+	fsousaged: update TODO
+
+2009-06-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add TODO
+
+2009-06-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: remove warnings and secure against more potential failures
+
+	fsousaged: check for invalid parameters in {Get|Set}ResourcePolicy
+
+2009-06-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: fix resource policy handling; since we can't use the enumeration code in here, it always transferred 0 instead of the real value :/
+
+2009-06-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: controller: use FreeSmartphone.UsageSystemAction enum
+
+2009-06-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: add missing data/Makefile.am
+
+	fsousaged: install service file for dbus system activation
+
+	fsousaged: install dbus configuration file
+
+	fsousaged: send system action 'resume' after resuming
+
+2009-05-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	ousaged: controller: remove debug messages
+
+2009-05-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: controller: secure better against errors while enabling/disabling/suspending/resuming
+
+2009-05-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousage: controller: grab sysfs prefix from config
+
+	fsoframework: suspend async (work around missing async dbus server)
+
+	fsousaged: controller: basic functionality done
+
+2009-05-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: controller: request/release done for simple cases
+
+	fsousaged: controller: unregister resources when the provider quits the bus
+
+	fsousage: Bummer! We can't use libfso-glib for the server implementation in cases where we do special tricks like dealing with the dbus sender name or (eventually) async processing. Need to think whether we can convey the additional information other than by modifying the method signature :(
+
+	fsousage: fix binary name
+
+	fsousage: catch up with API changes
+
+	fsousage: make it build
+
+	fsousaged: add build skeleton

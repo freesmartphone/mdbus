@@ -1,2 +1,243 @@
-See NEWS for large-scale changes and git log for details.
+2012-03-10  Simon Busch  <morphis@gravedo.de>
 
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required fso-glib version of all components to 2012.14.1
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-11-09  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsonetworkd: sharing plugin: use absolute paths for Posix.system
+	PATH might not be correct because fsonetworkd is being dbus-activated.
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsonetworkd: add vim tags for correct indentation with 4 spaces
+
+2011-04-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: support default routes without gateway
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsonetworkd: set G_LOG_DOMAIN
+
+2010-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala and glib-2.0 requirements
+
+2010-12-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: (gdbus) migrate to gdbus
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-05-21  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsonetworkd: replace the remaining Process.spawn.. with Posix.system looks like Process.spawn_command_line_async is broken
+
+	fsonetworkd: no need to write udhcpd.conf when stoping connection sharing
+
+	fsonetworkd: stop forwarding when connection sharing ends
+
+	fsonetworkd: let the sharing plugin create udhcpd.conf if it does not exist
+
+2010-05-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with libfso-glib new versioning scheme
+
+2010-03-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetwork: Use Posix.system() instead of GLib's spawn so we can catch the result code easily
+
+2010-03-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with removed libfreesmartphone/common
+
+2010-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add config.vapi and GITV everywhere
+
+2010-02-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: fix string template
+
+2010-02-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: catch up with API-changes
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+2010-01-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: install default configuration
+
+2010-01-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: catch up with class refactoring
+
+	libfsobasics: move netlink utilities from fsonetworkd to here
+
+	fsonetworkd: implement placeholder for connection API
+
+2010-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	sync. MAINTAINERS file
+
+2010-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: fix make 'test'
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	adjust (C) for 2010
+
+2010-01-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: catch up with changes in libfsoframework
+
+2009-12-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	yank some completed things from TODO
+
+2009-12-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: if we stop sharing our internet connection, remove ip table chains and kill udhcpc
+
+	fsonetwork: implement new dbus API (stop sharing interface...) as skeleton
+
+	fsonetworkd: pick up git version, if available
+
+2009-11-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: move daemons into @prefix@/sbin/
+
+2009-11-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodatad|fsonetworkd: .gitignore++
+
+2009-11-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: build fix
+
+2009-11-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: use new function to gather ip address based on libnl
+	We now require Vala 0.7.8.1 which comes with proper libnl-2.0 bindings
+
+2009-11-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: bump Vala requirement and enable silent automake rules, if available
+
+2009-10-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetwork: specify async for dbus server implementations
+
+2009-09-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: bump vala version requirement
+
+2009-09-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: post-release version bump
+
+2009-09-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: bump version requirements
+
+2009-09-15  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsonetworkd: fix dbus activation file
+
+2009-09-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: shut down can't load any plugins
+
+	fsonetworkd: ship dbus configuration and system activation files
+
+	fsonetworkd: sharing.vapi no longer necessary, we do it all in vala now
+
+2009-09-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: sync COPYING file with license as found in code
+
+2009-08-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: catch up with vala 0.7.x
+
+2009-08-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: catch up with new logging API
+
+2009-07-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetworkd: catch up with Vala 0.7.4
+
+	fsonetwork: enable GNU extensions
+
+2009-06-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetwork: sharing: simplify checking for interface existance * remove c helper code and use fsoframework method instead * raise proper dbus errors
+
+2009-05-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsonetwork: use libfso-glib
+
+2009-05-21  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	Fix package name in configure.ac (Oops)
+
+2009-05-17  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	fsonetworkd: working StartConnectionSharing
+
+	1.) Add sharing-helpers.c FIXME: Should use bindings to net/if.h instead. Just a temporary addition
+
+	.
+
+2009-05-12  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	Initial skeleton of fsonetworkd

@@ -1,2 +1,544 @@
-See NEWS for large-scale changes and git log for details.
+2012-03-10  Simon Busch  <morphis@gravedo.de>
 
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-21  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: gsmvoice_alsa_fowarder: fix killing of fsogsmd
+	Before, running the alsaloop plugin prevented fsogsmd from
+	  beeing killed, this fixes it.
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required fso-glib version of all components to 2012.14.1
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+2012-01-25  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: configure.ac: add configurable libsamplerate dependency
+	This is needed because the GTA04 audio forwarding plugin
+	  depends on libsamplerate.
+
+	Thanks to lindi on #openmoko-cdevel on the Freenode IRC servers:
+	  Jan 25 18:53:50 <lindi-_>	GNUtoo: perhaps PKG_CHECK_MODULES(LIBSAMPLERATE, [libsamplerate]) in configure.in
+
+	fsoaudiod: conf: gta04: update alsaloop.conf
+	This new version add record capability and less CPU usage and latency
+
+	fsoaudiod: gsmvoice_alsa_forwarder: fix CPU usage
+	Without that fix the CPU usage is high on the GTA04 machine because at
+	  FreeSmartphone.GSM.CallStatus.OUTGOING, the modem "sound card"
+	  is not ready yet, which causes buffer underruns/overruns issues
+	  which causes high CPU usage, which unfortunately stays accross
+	  the whole call.
+
+2012-01-25  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: add config for GTA04
+
+2012-01-25  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: gsmvoice_alsa_forwarder: make succesive calls work.
+	Without that fix alsaloop exited right after starting after
+	  the first call: that was caused by the global quit variable:
+	  it was set to one after the first call to make alsaloop exit,
+	  but it stayed one on the successive calls because it was initialized
+	  only when alsaloop started for the first time.
+
+	fsoaudiod: gsmvoice_alsa_forwarder: alsaloop.c: switch from exit to return
+	without that the exit code could make fsoaudiod exit instead of just the forwarder.
+
+	Thanks mrmoku on #openmoko-cdevel on Freenode IRC server for the idea:
+	  Jan 14 13:40:23 <mrmoku>	GNUtoo: make those too a return and check for the value?
+
+	fsoaudiod: gsmvoice_alsa_forwarder: fix restart when thread exits by itself
+	Thanks to mrmoku on #openmoko-cdevel Freenode irc channel for noticing it:
+	  Jan 14 13:26:40 <mrmoku>	GNUtoo: one suboptimal thing is... when start_forwarder exits by itself (without calling stop) alsaLoopThread won't be reset to null
+
+	fsoaudiod: gsmvoice_alsa_forwarder: add mutex to protect threads and add more logging
+
+	fsoaudiod: gsmvoice_alsa_forwarder: make alsaloop exit without exiting fsoaudiod
+	Without that fix fsoaudiod quits when alsaloop exits
+
+	fsoaudiod: gsmvoice_alsa_forwarder: better handling of the start/stop of the wrapper alsaloop
+	Note that when the call stops fsoaudiod exits...
+	That will be addressed in a new commit.
+
+	fsoaudiod: gsmvoice_alsa_forwarder: add shut down and config file
+
+	fsoaudiod: gsmvoice_alsa_forwarder: make it compile
+
+	fsoaudiod: gsmvoice_alsa_forwarder: try to make it compile
+
+	fsoaudiod: import files for making an alsaloop based alsa forwarder plugin for the om-gta04
+
+2012-01-25  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: change license from LGPLv2.1 to GPLv2
+	Acked-by: Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+	Acked-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+
+2012-01-04  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: libcmtspeechdata.vapi: explicitely name the typedefed structs we add with CCode/cname
+
+	fsoaudiod: add an alsaext.vapi
+
+2012-01-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoaudiod: vapi: add CCode directive for CmtSpeech namespace
+
+2011-12-31  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: alsa plugins: move session plugin into own subdirectory
+
+2011-12-28  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: sessionpolicy_default: initialize array before accessing it
+
+2011-12-21  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: herring: import alsa scenarios from fsoaudiod
+	As per IRC we agreed not to ship fsoaudiod as default audio solution for the 2012.01
+	release of SHR. fsoaudiod will be the default for the next release. Due to this fact we
+	need to ship the alsa scenario files for the herring machine with fsodeviced.
+
+2011-12-20  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: herring: don't ship alsa.conf until fsoaudiod is not supported by SHR
+
+	fsoaudiod: never include comments in config files in the same line than config values
+
+2011-12-18  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: add ALSA scenario files for herring machine
+
+	fsoaudiod: add configuration for herring machine; alsa scenarios still missing
+
+2011-11-25  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata: fix compilation with vala 0.14.0
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: add a systemd unit file for it
+
+2011-11-19  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: conf: palm_pre: import necessary audio scripts we need for audio routing
+
+2011-09-18  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: alsa_hooks: pass the real pcm name to request_session
+
+2011-08-02  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: system_integration: switch to call audio mode on an incoming call too
+
+2011-07-28  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: router_palmpre: add new audio script to list of available audio scripts
+
+	fsoaudiod: system_integration: some more debug output lines
+
+2011-07-22  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: palm_pre: activate system integration plugin
+
+	fsoaudiod: system_integration: get call service proxy only when service is available
+
+	fsoaudiod: router_palmpre: fix audio volume calculation in call mode
+
+	fsoaudiod: system_integration: create a new plugin for system integrated audio management
+
+2011-07-03  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	Merge branch 'gsmvoice_alsa_cmtspeechdata+buffer_threads'
+	Conflicts:
+		fsogsmd/src/ppp/plugin.vala
+		fsogsmd/vapi/ppp.vapi
+
+2011-07-01  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: cmtspeech: don't set frame_flags in ul buffers
+
+	fsoaudiod: cmtspeech: setup alsa on transition to DL_START / UL_START respectively
+
+	fsoaudiod: cmtspeech: check with is_active if we should feed audo to the modem
+	and not via ACTIVE_DLUL connection state.
+
+	fsoaudiod: cmtspeech: correctly free pcmin / pcmout
+
+	fsoaudiod: cmtspeech: activate audio on OUTGOING call state already
+	This is needed to actually hear the ringtone and seems to work
+	fine now.
+
+	fsoaudiod: cmtspeech: activate feeding of audio to modem
+	initialize the silence_buffer once before enabling audio and
+	use it to feed silence to the modem too.
+
+2011-06-30  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeech: give writei the correct length when playing back modem data
+
+	fsoaudiod: gsmvoice_alsa_cmtspeech: use a RingBuffer
+	This adds a ringbuffer class and uses it to buffer audio from
+	and to the modem. The part to the modem is still disabled to
+	get playback right first.
+
+	Gives horrible sound right now - lot's of alsa clicking noise.
+
+	fsoaudiod: libcmtspeechdata.vapi: extend EventData
+
+2011-06-29  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: some initial work on the alsa streamcontrol plugin
+
+2011-06-29  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata plugin: try to handle buffer underruns in the buffers
+	We have 2 pointers, a read pointer and a write pointers.
+	  we can treat it like 2 buffers in the big buffers:
+	  so we have a read buffer and a write buffer.
+	  the length of both virtual buffer are 320 bytes.
+	  Since alsa writei was faster than the modem, it tried to writei more than necessary
+	  And the read buffer passed before the write buffer in the FIFO big buffer.
+	  That is now beeing handled
+
+	At some pointt there was a comparison of the pointers distance, that didn't take in account the fact
+	  that a distance is always positive(for instance when a buffer cross the border and the other buffer
+	  didn't cross it yet. that is also now handled.
+
+2011-06-28  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata plugin : fix fix buffer position handling ,add buffer position loggin to stderr, and fix buffer pointers
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata: fix issues during call release,improve audio quality
+	Without this fix fsoaudiod can segfault or block during call release
+
+	The audio quality fix is about not playing frames before they are ready:
+	  Otherwise the playback threads plays back before the modem memcpy data to the
+	  transefert buffer.
+
+	cmthandler.vala: fix size of buffer,various other fixes, and disable readi for now
+	Note that pcmout.recover seem to produce better sound quality than pcmout.prepare
+
+2011-06-26  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod gsmvoice_alsa_cmtspeechdata plugin: switch recording and playback to their separate threads
+
+2011-06-09  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata plugin: fix robot voice on remote side
+	The recording thread was removed, intead the sound is recorded
+	  immediately, and the possible buffer overrun should be handled.
+
+	This was tested recording my own voice with the help of my carrier
+	  Answering machine function(thanks DocScrutinizer (on the
+	  #openmoko-cdevel IRC channel on the freenode server) for the idea)
+
+2011-06-08  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata plugin: fix buffer underruns
+	We now handle buffer underrun,even huges ones:
+	  I tested it on the nokia n900, making a call to the operator number,
+	  with many mplayer instance playing a video,with DEBUG on in
+	  fsoaudiod.conf and with the CPU at 250Mhz only. and while the sound
+	  is not so pretty, it recover the errors and I continue to ear the
+	  remote number
+
+2011-06-05  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata : removing mutex in cmthandler makes audio work again
+	Without the mutex removal we have some buffer overrun:
+	  CMTSPEECH: nokiamodem_backend: read bytes 89:11:00:41, control channel message (TIMING_CONFIG_NTF).
+	  CMTSPEECH: nokiamodem_backend: DL buffer overrun (mmaphw 6, hw 3, appl 3, slot 0, count 3, hwdelay 3).
+	  CMTSPEECH: nokiamodem_backend: late appl wakeup (hw 3, appl 3, delay 3, count 3, boundary 768).
+	  CMTSPEECH: nokiamodem_backend: DL xrun, reset hw/appl at 3
+	  CMTSPEECH: nokiamodem_backend: DL buffer overrun (mmaphw 8, hw 5, appl 4, slot 2, count 3, hwdelay 4).
+	  CMTSPEECH: nokiamodem_backend: late appl wakeup (hw 5, appl 4, delay 4, count 3, boundary 768).
+	  CMTSPEECH: nokiamodem_backend: DL xrun, reset hw/appl at 5
+	  CMTSPEECH: UL frame send failed with -1 (16: Device or resource busy)
+	  CMTSPEECH: nokiamodem_backend: DL frame received, reactivating UL transfers.
+	  CMTSPEECH: nokiamodem_backend: DL buffer overrun (mmaphw 12, hw 9, appl 9, slot 0, count 3, hwdelay 3).
+	  CMTSPEECH: nokiamodem_backend: late appl wakeup (hw 9, appl 9, delay 3, count 3, boundary 768).
+	  CMTSPEECH: nokiamodem_backend: DL xrun, reset hw/appl at 9
+	  CMTSPEECH: UL frame send failed with -1 (16: Device or resource busy)
+	  [...]
+	And we cannot ear the remote person
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata: fix a segmentation fault in cmthandler caused by a vala 0.12.1 bug
+	Thanks Lethalman_ for the pointer(conversation from the vala IRC channel on irc.gimp.org servers):
+	  Jun 05 20:37:09 <Lethalman_>    GNUtoo|laptop, are you using to_string() on an enum?
+	  [...]
+	  Jun 05 20:40:40 <Lethalman_>    GNUtoo|laptop, yes, you are in $condition... can you try vala master? it might have been fixed
+	  [...]
+	  Jun 05 20:41:29 <Lethalman_>    GNUtoo|laptop, comment out the debug row
+
+2011-06-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata: s/Alsa2/Alsa/
+
+2011-06-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoaudiod: remove alsa-ext.vapi; has been applied upstream; bump vala requirement to 0.12.1
+
+2011-06-02  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata: coding style fixes
+
+2011-06-02  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata plugin: add recording(from microphone) support
+	This patch also removes support for the file and the loop backends
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata: catch up with lib
+
+	fsoaudiod: readn/writen takes an array of pointers, fix vapi and lib
+
+	fsoaudiod: vapi: fix snd_pcm_read* bindings
+
+2011-05-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoaudiod: bump libfso-glib requirement, which is too old for FreeSmartphone.Audio.Stream.INVALID
+
+2011-05-19  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: first sketch on session policy plugin
+
+	fsoaudiod: rename AudioSessionPolicy to SessionPolicy
+
+	fsoaudiod: add stream policy configuration file
+
+2011-05-18  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: introduce new sessionpolicy_default plugin
+
+	fsoaudiod: manager: notify audio session policy when a stream connects/disconnects
+
+	fsoaudiod: manager: move two classes into their own code files
+
+2011-05-17  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: sessionhandler: be more verbose when releasing a session
+
+2011-05-17  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: alsa-hooks: use vala dbus abstraction and get a typified proxy
+
+	fsoaudiod: alsa-hooks: call g_type_init when initializing the hook
+
+2011-05-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata: cosmetics
+
+2011-05-16  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeech: some cleanups
+	- move the static helper functions inside the CmtHandler class
+	- use logger.debug protected with assert
+	- whitespacing fixes
+	- use @ for logging instead of .printf
+
+2011-05-16  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata : add initial alsa backend
+	Note that the code is still messy and has to be cleaned a bit.
+
+	Also Note that it contains only the playback part, and not the
+	  recording part.
+
+2011-05-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoaudio: lib: set card as public
+
+	fsoaudio: alsa vapi: bind conversion helpers
+
+	fsoaudio: alsa vapi: add abstraction for write and read, use uint8 instead of void* to ease usage
+
+2011-05-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoaudiod: conf/nokian900: enable gsmvoice_alsa_cmtspeechdata plugin
+
+	fsoaudiod: gsmvoice_alsa_cmtspeechdata: integrate code, should have the same functionality as the old cmtspeechtest now
+
+	fsoaudio: gsmvoice_alsa_cmtspeechdata: import code from cmtspeechtest
+
+	fsoaudio: lib: add PcmDevice.setFormat
+
+	fsoaudiod: add vapi for libcmtspeechdata; add configuration logic for optional plugin
+
+	fsoaudiod: add enlarged alsa-ext and skeleton for gsmvoice_alsa_cmtspeechdata plugin
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsoaudiod: add vim tags for correct indentation with 4 spaces
+
+2011-04-13  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: default alsa device is now the media one
+
+	fsoaudiod: manager: create and register stream control
+
+	fsoaudiod: add empty alsa streamcontrol plugin
+
+	fsoaudiod: add abstract audio stream control class
+
+	fsoaudiod: add simple class to control a alsa pcm device
+
+	fsoaudiod: add vapi with additional binding of alsa pcm API
+
+2011-04-12  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: correct MAINTAINERS file
+
+2011-04-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoaudiod: add .gitignore
+
+2011-04-12  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: first draft version of the alsa plugin to control audio session
+
+	fsoaudiod: implement abstract type for a audio session policy
+
+	fsoaudiod: implement session handler to register/release audio sessions
+
+	fsoaudiod: manager: implement new methods to register/release a audio session
+
+	fsoaudiod: alsa_hooks: register hooks to alsa
+
+	fsoaudiod: alsa_hooks: make it possible to write parts of the plugin with vala
+
+	fsoaudiod: alsa_hooks: we only need one plugin to do the session handling
+
+2011-04-01  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: correct machine configuration files to load router alsa plugin
+
+	fsoaudiod: add configuration file for the openmoko gta phones
+
+	fsoaudiod: add initial configuration for nokia n900
+
+2011-03-31  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: be sure that the initial mode is always set on startup
+
+2011-03-29  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: update TODO
+
+2011-03-24  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: don't clean alsa_hooks c sources when doing a make clean
+
+2011-03-22  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: update TODO
+
+2011-03-21  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: add dummy alsa hooks
+
+2011-03-15  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: fix wrong volume control name in alsa.conf
+
+	fsoaudiod: ship our own asound.conf with needed settings to do audio session handling
+
+	fsoaudiod: manager: check current mute state before muting the the right way
+
+	fsoaudiod: manager: report mute status via signal if changed
+
+	fsoaudiod: refactor router creation into own method
+
+	fsoaudiod: implement new pull/push methods for device changing
+
+2011-03-14  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: adjust volume for both controls when mode or device is changed
+
+2011-03-13  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: router_alsa: implement set_volume method
+
+2011-03-11  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: palmpre configuration: install symbolic link with the correct prefix
+
+	fsoaudiod: palmpre configuration: add compat names for config directory
+
+	fsoaudiod: add default configuration file for alsa router
+
+	fsoaudiod: each mode now has it's own current device; make default devices configurable
+
+	fsoaudiod: router_alsa: set scenario on mode or device changing
+
+2011-03-09  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: router_alsa: implement scenario loading
+
+	fsoaudiod: manager: store device and control settings per mode and not globally
+
+	fsoaudiod: import alsa utlities from fsodeviced
+
+	fsoaudiod: manager: finish implementation of all dbus api methods
+
+2011-03-08  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: rework for api changes
+
+	fsoaudiod: palm_pre configuration: set default log destination to file
+
+	fsoaudiod: adjust default configuration file
+
+	fsoaudiod: router_alsa: add dummy implementation
+
+	fsoaudiod: move some general functionality into abstract router class
+
+	fsoaudiod: add TODO file
+
+	fsoaudiod: manager plugin: implement most API functionality
+
+2011-03-07  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: router_palmpre: handle mode and output device changes
+
+	fsoaudio: suite for API changes and first bits of router_palmpre plugin
+
+	fsoaudiod: configuration palmpre: add missing Makefile ... narf
+
+	fsoaudiod: router_palmpre: correct naming so we can instanciate the router correctly
+
+	fsoaudiod: add missing autotools magic for palmpre configuration
+
+	fsoaudiod: palmpre configuration: load router plugin before manager
+
+	fsoaudiod: add router plugin for palmpre machine
+
+	fsoaudiod: adjust for naming changes in libfso-glib/specs
+
+2011-03-04  Simon Busch  <morphis@gravedo.de>
+
+	fsoaudiod: initial version of new audio subsystem daemon

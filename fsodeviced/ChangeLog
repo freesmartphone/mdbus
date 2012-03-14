@@ -1,0 +1,2048 @@
+2012-03-10  Simon Busch  <morphis@gravedo.de>
+
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required fso-glib version of all components to 2012.14.1
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-31  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsodeviced: set wifi_interface to eth0 for openmoko_gta
+
+2012-01-31  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: kernel26_rfkill: catch possible thrown FsoFramework.Network.Error exception
+
+2012-01-28  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: kernel26_rfkill: add missing dependency to libfsosystem
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+	fsodeviced: kernel26_rfkill: refactor code so we're not executing binaries for network configuration
+
+	fsodeviced: kernel26_rfkill: we need an valid instance of the hashtable instances all the time
+
+2012-01-25  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: gta04 config: now that the rfkill plugin works on the GTA04, use it
+
+	fsodeviced: kernel26_rfkill: add ifconfig and power save support for wifi
+	The ifconfig and exec function were taken from the powercontrol_ifconfig
+	  plugin.
+
+	Note that I used harcoded GPS and FM rfkill values because they
+	  are not even in the upstream vala
+	  ( http://valadoc.org/linux/Linux.RfKillType.html )
+
+2012-01-22  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: GTA04 config: fix installation of the config
+	Without that fix we have(during the installation):
+	  ln: creating symbolic link `.../image/etc/freesmartphone/conf/GTA04/alsa-default': No such file or directory
+
+2012-01-21  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: gta04 configurations: add and enable initial audio configuration
+	Note that theses audio configurations are not complete, so far only
+	  The stereoout and gsmhandset are handled.
+
+2011-12-31  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: conf: herring: load herring_quirks plugin before alsa router/player
+
+	fsodeviced: herring_quirks: add quirk to keep one alsa stream all-time open
+
+2011-12-22  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: herring_quirks: use correct name for configuration section
+
+2011-12-21  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: disable the rfkill plugin for gta04 as it makes fsodeviced segfault
+
+2011-12-21  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: kernel_idle: respect system suspend state before updating idle state
+
+	fsodeviced: conf: herring: activate herring_quirks plugin
+
+	fsodeviced: herring_quirks: add first version of the resumehandler needed to wakeup from suspend
+
+	fsodeviced: herring: import alsa scenarios from fsoaudiod
+	As per IRC we agreed not to ship fsoaudiod as default audio solution for the 2012.01
+	release of SHR. fsoaudiod will be the default for the next release. Due to this fact we
+	need to ship the alsa scenario files for the herring machine with fsodeviced.
+
+2011-12-20  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: kernel26_rfkill: use absolute path to spawn bluetoothd
+
+2011-12-20  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'morphis/android-system-wakeup'
+	Conflicts:
+		fsogsmd/src/plugins/modem_samsung/channel.vala
+
+	fsodeviced: conf: herring: enable alsa router and player support
+
+	fsodeviced: conf: herring: ship proper alsa.conf to support audio routing
+
+2011-12-19  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: enable rfkill and powercontrol_ifconfig in gta04 config
+
+2011-12-19  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsodeviced: update gta04 conf to recognize AUX button
+
+2011-12-18  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: herring_quirks: add skeleton plugin
+
+2011-12-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	Merge branch 'master' of git.freesmartphone.org:cornucopia
+
+	fsodeviced: kernel26_rtc: catch up with Vala 0.14
+
+2011-12-17  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: conf/GTA04: enable kernel26_display, fix quirks typo and disable fsodevice.audio
+
+2011-12-10  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsodeviced: update .service file
+
+2011-12-08  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: disable firmware loader in all configs - job is done by fsosystemd now
+
+2011-11-30  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: remove old makefile from configure.ac
+
+	fsodeviced: remove wrong line from makefile
+
+2011-11-29  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: move 3rdparty folder into the src directory where it should be
+
+	fsodeviced: add myself as author
+
+	fsodeviced: rework gta04_powercontrol plugin into a gta04_quirks plugin
+
+	fsodeviced: merge proximity_palmpre plugin into palmpre_quirks plugin
+
+	fsodeviced: lib: remove unused and empty dispatcher class
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: add a systemd service file for it
+
+2011-10-22  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: gta04_powercontrol: correctly handle GPS
+
+2011-10-20  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: fix sysfs path construction in gta04_powercontrol
+
+	fsodeviced: add config for gta04
+
+	fsodeviced: add gta04_powercontrol plugin
+
+2011-10-14  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: conf: om-gta02: let ogpsd(from the old python framework handle GPS resource)
+
+2011-10-14  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: kernel26_powersupply: handle more than one possible charger and set status correctly
+
+2011-10-14  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: powersupply_n900: try to handle the wall charger.
+	The values were taken from:
+	  http://enivax.net/jk/n900/charge21.sh.txt
+
+2011-10-08  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: update configuration file for herring machine to detect hardware buttons
+
+2011-09-28  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: add configuration for herring machine (also known as nexus s)
+
+2011-09-24  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: and actually add the alsa-2.6.39 Makefile.am to configure.ac
+
+	fsodeviced: add a Makefile.am for the alsa-2.6.39 subdir in openmoko_gta config too
+
+	fsodeviced: add alsa-2.6.39 to Makefile.am for openmoko_gta config
+
+2011-09-19  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: conf: openmoko: add alsa state files for the 2.6.39 kernel and make it the default
+	The new files were obtained by running theses 2 commands on every scenario:
+	  mdbus2 -s org.freesmartphone.odeviced /org/freesmartphone/Device/Audio org.freesmartphone.Device.Audio.SetScenario
+	  mdbus2 -s org.freesmartphone.odeviced /org/freesmartphone/Device/Audio org.freesmartphone.Device.Audio.PushScenario
+	And then doing a diff between the old scenario and the new one,
+	And then since the control names didn't change but only their position, I applied
+	  the previous values to the same controls at a different position.
+
+2011-09-05  Sylvain 'GarthPS' Paré  <sylvain.pare@gmail.com>
+
+	Revert "fsodeviced: palmpre configuration: ignore gpio-keys for changing the idle state"
+	This reverts commit 6dc1d95d5db8749fa527a1b39431bf8f003170d4.
+
+	waiting for a better handling of these events. in the meanwhile we need these gpio events
+
+2011-08-27  Sebastian Krzyszkowiak  <dos@dosowisko.net>
+
+	kernel26_display: actually set backlight power off/on when blanking/unblanking
+	This fixes problem with GetBacklightPower returning true after blanking with SetBrightness(0), when BacklightPower(false) signal is emited
+
+	fsodeviced: fix config for n900
+
+2011-08-25  Sebastian Krzyszkowiak  <dos@dosowisko.net>
+
+	[fsodeviced] conf: nokia_n900: update config Added accelerometer modules and fixed kernel input and idle notifier, which was reading data from accel.
+
+2011-08-22  Sebastian Krzyszkowiak  <dos@dosowisko.net>
+
+	fsodeviced: conf: fix for headset connection detection on N900
+
+	fsodeviced: conf: update input configuration for Nokia N900
+
+2011-08-18  Rico Rommel  <rico@bierrommel.de>
+
+	fsodevice: add gps powercontrol
+
+2011-07-17  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: kernel26_rfkill plugin: add a bluetoothd launcher and its config option
+	All the phones that don't have udev(om-gta02,htcdream,nexusone,n900)
+	  must have bluetoothd launched for the applications that use bluetoothd(like emtooth),
+	  when bluetooth is requested.
+
+2011-07-08  Sylvain 'GarthPS' Paré  <sylvain.pare@gmail.com>
+
+	fsodeviced: palmpre_quirks: add a missing '@' to a logger call
+
+2011-07-05  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: workaround a bug in vala
+
+	fsodeviced: palmpre_quirks: convert sleep to async timeout and style corrections
+
+	fsodeviced: palmpre_quirks: process changes to host or power status withing powersupply
+
+	fsodeviced: palm_pre: activate usb_gadget power supply control
+
+	fsodeviced: palmpre_quirks: rework powersupply implementation again
+	We have now to separate power supply classes. One for the battery and one for the usb
+	gadget. Both are combined within a aggregated power supply.
+
+2011-07-04  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: more features and bug fixing for the power supply implementation
+
+	fsodeviced: palmpre_quirks: rework complete battery power supply implementation
+
+	fsodeviced: palmpre_quirks: add initial version of the usb gadget listener
+
+	fsodeviced: palmpre_quirks: catch power state change events of usb_gadget kobject
+
+2011-07-02  Sylvain 'GarthPS' Paré  <sylvain.pare@gmail.com>
+
+	fsodeviced: palmpre_quirks: improved the wifi handling to be more robust
+	 * moves the up() code into the proper 'else' part
+	 * add a try catch around it
+	 * adds a delay between loading the kernel module and the try of bringing the resulting interface up
+	 * checks if the interface is really up instead of  supposing it
+
+2011-06-30  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: respect connected charger when updating power status
+
+2011-06-29  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre configuration: ignore gpio-keys for changing the idle state
+	For example we don't want the volume keys to change the idle state. This should be only
+	done by the power key and no other key. The respective userland daemons need to implement
+	the correct behaviour.
+
+2011-06-07  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	Add nexusone configurations files.
+
+2011-06-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: remove i2c and uinput vapi; has been applied upstream. bump vala requirement to 0.12.1
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-24  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: router_alsa: fix unhandled error warnings
+
+2011-05-23  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: router_alsa: don't segfault when loading a scenario with bogus lines
+
+2011-05-23  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: openmoko_gta alsa-2.6.34 config: fix gsmhandset trailing new line
+	Without that fix fsogsmd breaks this way:
+	  'GLib <fsodevice.router_alsa>: file plugin.c: line 256: uncaught error: Expected 4 descriptor components, got 1 (fso_device_sound_error-quark, 3)'
+	Under the followin circumstances:
+	 * install SHR for the first time,
+	 * make a call, since the volume is too loud, lower the speakers volume
+	 * hangup, at that point fsodeviced stop working
+	 * startup fsodeviced again and you will have the previous breaking message
+
+2011-05-21  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	nokia n900: fsodeviced.conf: add configuration for the firmware loader
+	Since we don't use udev anymore in shr-image we need a way to load
+	  the firmwares.
+
+	htcdream: fsodeviced.conf: configuration cleanup
+	This commit removes the accelerometers entries that were
+	  took from the openmoko freerunner device and left nearly
+	  unchanged
+
+	Note that the htc dream accelerometer is not working yet.
+
+2011-05-18  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: remove unneeded debug log message from ambientlight handler
+	The event we can't detect here is only the sync event we're not interested in anyway.
+
+2011-05-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: add support for reading capacity from charge_{now|full} nodes, which apparantly some of the newer modules are using
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: add vim tags for correct indentation with 4 spaces
+
+2011-04-28  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: add battery charging to the nokia900 fsodeviced.conf
+
+2011-04-27  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: kernel_idle: !string does not work in vala ;)
+
+	fsodeviced: kernel_idle: don't segfault when no ignores are configured
+
+2011-04-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: conf/motorola_ezx: fix KEYPAD entries and add additional keys for ROKR E2
+
+	fsodeviced: conf/motorola_ezx: mark ROKR E2 and ROKR E6 as compatible
+
+2011-04-17  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: powercontrol_ifconfig: make it bring up the network interface
+	Without that fix we have:
+	  [ERROR] fsodeviced : Could not call ifconfig wlan0 up!
+	  [ERROR] fsodeviced : Could not call iwconfig wlan0 power!
+
+2011-04-08  Simon Busch  <morphis@gravedo.de>
+
+	Revert "fsodeviced: palmpre config: let the power key be the aux key for now"
+	This reverts commit a19483afb552085112519aac923a7713cf96ad18.
+
+2011-04-05  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre config: let the power key be the aux key for now
+
+2011-03-23  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsodeviced: remove moved ambientlight_palmpre from configure.ac too
+
+2011-03-23  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: include ambientlight_palmpre in palmpre_quirks plugin
+
+	fsodeviced: palmpre_quirks: activate network interface when powering up wifi
+
+2011-03-13  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palm_pre configuration: fix palmpre2 compat name
+
+	fsodeviced: palmpre_quirks: respect configure resource enabling switch
+
+	fsodeviced: palmpre_quirks: simplify wifi powercontrol as we have udev in the back
+
+	fsodeviced: palmpre_quirks: remove unused touchscreenmanager
+
+	fsodeviced: palmpre_quirks: rework bluetooth powercontrol to handle power up/down correct
+
+2011-03-11  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre configuration: don't install already removed audio.conf
+
+	fsodeviced: router_palmpre: is deprecated by new fsoaudio daemon
+
+2011-03-07  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palm_pre configuration: even support the palm pre 2
+
+2011-03-07  Lukas-David Gorris  <lukas.gorris@gmail.com>
+
+	htcleo: add all configs in the make system
+	Tested-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+	Acked-by: Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+
+2011-03-06  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	Move htcleo's config
+	I carefully reviewed the commit c65d801ba4abfd09ee49f3c4a89823679c090bf9
+	  But I looked at the content, not at the pathes.
+	This fixes the pathes.
+
+	Note that the config is not activated yet in the autotools build system.
+
+2011-03-04  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre config: update some settings
+
+	fsodeviced: kernel_idle: check if ids to ignore exists before we do the real check
+
+	fsodeviced: kernel_idle: add config option to ignore input events in specific idle states
+
+2011-02-28  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre conf: reduce timeout for ilde state from 10000 (!!!) to 20
+
+	fsodeviced: backlight_omappanel: set backlight power always with internal method to archive same mute
+
+2011-02-25  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre machine: deactivate touchscreen plugin; not needed currently
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump copyright notices for 2011
+
+2011-02-24  Peter van de Werken  <pwerken-fso@a-eskwadraat.nl>
+
+	fsodeviced: accelerometer: add back signal delay timer
+	Add back the delay in the orientation_changed signal.
+	Now only a signal is sent if the orientation remains unchanged for 1 sec.
+	The delay can be changed in the config.
+
+2011-02-23  Peter van de Werken  <pwerken-fso@a-eskwadraat.nl>
+
+	fsodeviced: accelerometer: stateless orientation
+	When flat we still reports the previous (when it was held) screen orientation.
+	The orientation changed signal now sends the same info as the get_orientation
+	method, i.e. the full orientations state.  This eliminates the need for the
+	client to keep track of this state information.
+
+	These messages are (also/still) compliant with the current dbus specification.
+
+	fsodeviced: accelerometer: reimplement orientation
+	Axis orientation is assumed to be that as of the freerunners top
+	accelerometer.  The configurable variable deadzone is used to provide a range
+	in which the orientation is not changed.  This removes the jittering between
+	orientations when one of the axis is near its zero value.
+
+	fsodeviced: accelerometer_lis302: remove the 1 sec timeout
+	Remove the one second timeout.  Every time there was an input event the
+	timeout got reset, i.e. no accelerometer data was passed on until the
+	the device was perfectly still for more than a second.
+
+	fsodeviced: accelerometer: always set orientation
+	fsodeviced would fail on an assert when the dbus methode GetOrientation is
+	called before the plugin has been enabled atleast once.
+
+	fsodeviced: accelerometer_lis302: add duration sysfsnode
+	Set the delay (in ms) between events the lis302dl kernel module generates.
+	With this can control the amount of cpu fsodeviced uses when the accelerometer
+	is enabled/generating events.
+
+	fsodeviced: accelerometer_lis302: enable full_scale config variable
+	Add the needed code to use the full_scale config variable.
+
+	fsodeviced: accelerometer_lis302: add sysfs path to config
+	The path to the sysfsnode can now be changed from the config file.
+
+	fsodeviced: accelerometer_lis302: update sysfspaths to 2.6.34
+	Update the accelerometer_lis302 plugin to the paths used in 2.6.34.
+	Valid values for sample_rate are either 100 or 400, using 100 as
+	default.  With full_scale at "2.3" the threshold stepping size is 18
+	so set its default to 54 (3 * 18).
+
+	fsodeviced: remove unused accelerometer code
+
+	fsodeviced: lib/alsa: fix segfault
+	Need to investigate how/why first_elem returns NULL, but for now this stops
+	fsodeviced from segfaulting when the GetVolume or SetVolume dbus method is
+	called.
+
+	fsodeviced: include the .vala files with make dist
+	Even though valac is not required when building from a dist-tarball,
+	make does require the .vala files to be present.
+
+2011-02-21  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: fixed voiphandset state file in openmoko_gta / 2.6.34
+	Acked-by: Klaus Kurzmann <mok@fluxnetz.de>
+
+2011-02-21  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: reconfigure touchscreen after attaching to process
+
+2011-02-20  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: fix eol for openmoko 2.6.34 alsa statefiles
+
+2011-02-18  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: rather launching the ts daemon only we now try to attach first
+
+	libfsobasics: process: rename pidof to findByName
+
+	fsodeviced: palmpre_quirks: kill tsmd daemon before launching it
+
+2011-02-15  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: be more verbose in router plugin
+
+	fsodeviced: palmpre_quirks: request display resource async
+
+	fsodeviced: conf palm_pre: uncomment currently not used parts
+	Will be activated again later, but for now we don't want a big bang integration. We do it
+	step by step.
+
+	fsogsmd: palmpre_quirks: implement FreeSmartphone.Info for battery powersupply plugin
+
+	fsodeviced: remove old palmpre_powersupply plugin
+
+2011-02-01  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsodeviced: kernel26_leds: yield into set_blinking in blink_seconds
+
+2011-01-28  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre conf: remove firmware loader as we have now udev for this
+
+	fsodeviced: palmpre conf: change firmware name to the correct one provided by OE
+
+2011-01-26  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: implement basic bluetooth power control
+
+	fsodeviced: add libfsotransport as dependency
+
+	fsodeviced: palmpre_quirks: start with bluetooth powercontrol
+
+2011-01-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: fix compiling with gee 0.7
+
+2011-01-25  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: backlight_omappanel: correct state handling for set_backlight_power
+
+2011-01-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: ambientlight_n900: return raw LUX values for now until we had a chance to fix the scale
+
+	fsodeviced: ambientlight_n900: new plugin NOTE: Not tested on real hardware yet
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsodeviced: Set G_LOG_DOMAIN for everyone
+
+2011-01-16  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: and actually make autoconf output the Makefile
+
+	fsodeviced: fix Makefiles for n900 scenario installation
+
+	fsodeviced: actually install alsa-scenarios for nokia900
+
+2011-01-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel_idle: rewrite init path to be more secure against race conditions
+
+2011-01-16  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: add headset and stereout scenarii for n900
+
+2011-01-10  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: disable wifi + bluetooth in openmoko_powercontrol for gta02 by default
+
+2011-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: openmoko_powercontrol: introduce three switches for newer kernels: [fsodevice.openmoko_powercontrol] ignore_wifi = false ignore_bluetooth = false ignore_usbhost = false
+
+2011-01-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: include everything necessary to use i2c from userland
+
+	fsodeviced: mention libi2c-dev
+
+2010-12-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: support broken power supply classes that don't carry the POWER_SUPPLY_TYPE attribute
+
+2010-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala and glib-2.0 requirements
+
+2010-12-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: use registerWithPrefix instead of manually keeping track of the counter
+
+	fsodeviced: player_gstreamer: catch up with vala
+
+	fsodeviced: convert gpio_input to gdbus
+
+	palmpre_quirks: convert to gdbus
+
+	Merge remote branch 'origin/gdbus'
+
+2010-12-21  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: fix bug in battery authentication handling
+
+	fsodeviced: palmpre_quirks: be more verbose
+
+2010-12-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: migrate some of the new plugins to gdbus
+
+	Merge remote branch 'origin/gdbus' into gdbus
+	Conflicts:
+		fsodeviced/src/plugins/kernel_idle/Makefile.am
+		fsodeviced/src/plugins/palmpre_quirks/Makefile.am
+		fsodeviced/src/plugins/powercontrol_ifconfig/plugin.vala
+		fsogsmd/src/plugins/modem_qualcomm_palm/mediators_network.vala
+		fsogsmd/src/plugins/modem_qualcomm_palm/mediators_sim.vala
+
+	fsodeviced: (gdbus) convert dummy_input plugin
+
+	fsodeviced: (gdbus) convert methods with a{sv} in signature
+
+	fsodeviced: (gdbus) kernel_info migrated
+
+	fsodeviced: (gdbus) convert plugins to use new subsystem object registration
+
+	more gdbus work in progress
+
+	fsodeviced: start w/ gdbus port
+
+2010-12-20  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palm_pre configuration: adjust configuration according to latest changes
+
+	fsodeviced: palmpre_quirks: rework configuration handling
+	As the palmpre_quirks module provides several submodules we need to respect this in the
+	handling of the configuration. The powersupply battery submodule is handled via the section
+	name fsodevice.palmpre_quirks/powersupply/battery for example.
+
+2010-12-18  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: add palmpre_quirks plugin a second time ... narf
+
+	fsodeviced: palmpre_quirks: remove wrong and unused MODULE_NAME from powercontrol module
+
+	fsodeviced: palm_pre configuration: add kernel26 firmware loader
+
+2010-12-17  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palm_pre configuration: add missing fsodevice.palmpre_quirks.powersupply entry
+
+	fsodeviced: palm_pre configuration: adjust for changes in palmpre_quirks plugin
+
+	fsodeviced: palmpre_quirks: add initial wifi powercontrol
+
+2010-12-16  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_quirks: implement handling of backlight_power signal from display
+
+	fsodeviced: palmpre_quirks: be more verbose in touchscreen manager
+
+2010-12-15  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palm_pre configuration: fetch up with changes to router_palmpre module
+
+	fsodeviced: router_palmpre: merge into palmpre_quirks module
+
+	fsodeviced: palm_pre configuration: stick with changes of the palmpre_quirks module
+
+	fsodeviced: palmpre_powersupply: merge into palmpre_quirks module
+
+	Merge branch 'master' of ssh://git.freesmartphone.org/cornucopia
+
+	fsodeviced: palmpre_quirks: create new module based on the palmpre_touchscreen one
+	We decided on IRC to move all quirks for special devices in one *_quirks module per
+	device/platform. This hopefully will reduce the number of available modules in the future
+	and will preempt a maintenane hell in the end.
+
+2010-12-14  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: move collecting the cpufreq sysfs nodes to the factory function
+
+	fsodeviced: fix parsing gpio_input events
+
+2010-12-13  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: fix the remaining state files for openmoko / 2.6.34
+	Thanks go again to Paulus.
+
+2010-12-13  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'master' of ssh://git.freesmartphone.org/cornucopia
+
+	fsodeviced: backlight_omappanel: use dbus backlight_power signal to indicate display brightness changes
+
+2010-12-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_display: use org.freesmartphone.Device.Display.BacklightPower() to indicate when the display brightness transitions from non-zero to zero and vice-versa.
+
+	fsodeviced: n900_powercontrol: create Bluetooth resource and powercontrol that handles the sysfs dance upon activation
+
+	fsodeviced: n900_powercontrol: add skeleton
+
+2010-12-13  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: palmpre_touchscreen: implement as process guard for the tsm daemon
+	Not finished yet as we need some signal in the org.freesmartphone.Device.Display API when
+	the display changed its power state to get the right point of time when we have to tell
+	the tsm daemon to start/stop reading from the touchscreen interface.
+
+2010-12-13  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: fix headset and gsmheadset scenarios for gta02 on 2.6.34
+	Thanks to Paulus for the fixed ones. Note other scenarios still look
+	wrong and need fixing, but at least stereout, gsmhandset, headset and
+	gsmheadset are supposed to work now.
+
+	fsodeviced: respect the fact mixer indices are uints
+
+	fsodeviced: make the index of main volume configurable for router_alsa
+
+2010-12-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel_idle: hook to external signalling input modules providing NOTE: This should fix non-working idlenotifier with gpio_input
+
+	fsodeviced: gpio_input: final refactoring
+
+	fsodeviced: gpio_input: start migrating to ReactorChannel
+
+	fsodeviced: gpio_input: cosmetics
+
+	fsodeviced: gpio_input: fix indentation NOTE: Please don't mix styles. I'm using 4 spaces and { } on seperate lines.
+
+2010-12-12  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: powercontrol_ifconfig: fix power saving modes
+	Previously the following command was run:
+	  ifconfig wlan0 power on
+	The correct comand is:
+	  iwconfig wlan0 power on
+	That prevented PSM(power saving mode) from beeing set.
+
+	The most usefull Power saving mode is a wifi feature that makes the router
+	  buffer the packets for the device(so the wifi card can sleep
+	  while the packets are beeing buffered) and then the device request
+	  all the packets at once.
+	See that video for more background on wifi and power savings:
+	  http://free-electrons.com/pub/video/2009/elce/elce2009-ortiz-wifi-solutions-for-mobile.ogv
+
+	Pratically speaking without that command the wifi card consume way too much power,
+	  which affect massively the autonomy of the device.
+
+2010-12-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: powersupply_n900: display status while tickling charger
+
+	fsodeviced: powersupply_n900: implement configuring the charger and tickling it every now and then
+
+2010-12-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: powersupply_n900: prepare for handling charging
+
+	fsodeviced: we depend on i2c-tools now
+
+2010-12-11  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: router_palmpre: load even default scenario on boot
+
+2010-12-09  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: set max frequency for n900 to 600001 somehow setting it to 600000, which would be the cpu's natural speed, does not work :P
+
+	fsodeviced: kernel26_cpufreq - use to_string() instead of ugly printf
+
+	fsodeviced: new plugin kernel26_cpufreq
+
+2010-12-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: powersupply_n900: read capacity every 15 seconds
+
+	fsodeviced: fix i2c.vapi calls using arrays
+
+	fsodeviced: add i2c.vapi for communicating via libi2c
+
+	fsodeviced: powersupply_n900: add skeleton for N900 powersupply plugin
+
+2010-12-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: change config for n900 to use the gpio-input for the headset jack
+	The input node is still there, but does not work. The gpio switch
+	works just fine.
+
+2010-12-02  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: remove palm pre2 configs - they are identical with the palm pre ones
+
+2010-12-02  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsodeviced: Use new Max_brightness option in config
+
+	fsodeviced: kernel26_leds: use config options for max_brighness if sysfsnode isn't present
+
+	fsodeviced: Add palm_pre2 dir to conf/
+
+	fsodeviced: set long idle timout for palmpre to prevent dimming
+
+2010-12-01  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: add missing uinput.vapi - .gitignore causes me to ignore it before ...
+
+	fsodeviced: palmpre_touchscreen: initial work for this new touchscreen management plugin
+
+	fsodeviced: palmpre conf: skip battery authentication
+
+	fsodeviced: palmpre_powersupply: add config option to skip battery authentication
+
+	fsodeviced: palmpre_powersupply: cleanup code style
+
+2010-11-15  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: conf: use gpio_input on N900
+
+	fsodeviced: gpio_input: fix compilation error. Bad dos, bad!
+
+	fsodeviced: gpio_input: allow to specify, which string indicates button being pressed
+
+	fsodeviced: gpio_input: don't use the same dbus path for different gpio devices
+
+	fsodeviced: add gpio_input module for devices using gpio-switch interface (like sliders, camera shutter and buttons on N900)
+
+2010-11-11  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	powercontrol_ifconfig: add issuing "power on" for power saving
+
+2010-11-11  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: fix vapidir and cflags for dummy_input plugin
+
+	fsodeviced: fix include path in AM_CFLAGS too
+
+	fsodeviced: fix vapidir in VALAC_ARGS for the kernel_input plugin
+
+2010-11-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: (gdbus) convert dummy_input plugin
+
+	fsodeviced: (gdbus) convert methods with a{sv} in signature
+
+	fsodeviced: (gdbus) kernel_info migrated
+
+	fsodeviced: (gdbus) convert plugins to use new subsystem object registration
+
+	more gdbus work in progress
+
+	fsodeviced: start w/ gdbus port
+
+2010-11-06  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: conf: n900: add volume keys
+
+2010-11-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: add dummy_input module, showing how to utilize the auxilliary input mechanism
+
+	fsodeviced: kernel_input: provide a way for modules to provide auxilliary input events
+
+	fsodeviced: lib: add SignallingInputDevice interface
+
+2010-10-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_display: call backlight ioctl also in soft-modes
+
+2010-10-20  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsodeviced: update config for the pre
+
+2010-10-20  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: router_palmpre: implement volume control for scenarios which supports it
+
+2010-10-15  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsodeviced: Add signals for PalmPre's power supply plugin
+
+	fsodeviced: implement getCapacity fot power supply on the pre
+
+	fsodeviced: Fix PowerSupply initialisation for the palmpre plugin
+
+	fsodevice: Add Proximity Resource
+
+	Merge branch 'master' of fso:cornucopia
+
+	fsodevice: Add missing bits to proximity_palmpre and adjust sysfs path
+
+	fsodeviced: Add missing bits to ambientlight_palmpre adjust sysfs path
+
+2010-10-13  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsodeviced: fix typo in palmpre_powersupply
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-10-05  Thomas Zimmermann  <zimmermann@vdm-design.de>
+
+	fsodeviced: kernel_idle: write idle timeouts to config on change
+
+2010-10-03  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	accelerometer_lis302: fix to work with new kernels
+
+2010-09-29  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: conf: openmoko_gta: set alsa-2.6.34 as default
+
+2010-09-27  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: powercontrol_ifconfig: cosmetics on logger messages
+
+	fsodeviced: openmoko_gta: add alsa-2.6.34 to configure.ac
+
+2010-09-27  Marco Trevisan (Treviño)  <mail@3v1n0.net>
+
+	openmoko alsa-2.6.31 scenario: fix GSM speaker out state file
+
+2010-09-27  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: openmoko_gta: add alsa-2.6.34 to build system
+
+2010-09-27  Marco Trevisan (Treviño)  <mail@3v1n0.net>
+
+	fsodeviced: added alsa scenarios for openmoko 2.6.34 kernels
+
+2010-09-25  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: conf: nokia_n900: use powercontrol_ifconfig
+
+	fsodeviced: new module: powercontrol_ifconfig
+
+2010-09-19  Pau Espin Pedrol  <pespin.shar@gmail.com>
+
+	fsodeviced: openmoko_powercontrol: fix UsbHost sysnode Signed-off-by: Sebastian Krzyszkowiak <seba.dos1@gmail.com>
+
+2010-09-19  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	proximity_n900: make get_proximity returning currect value even, when Proximity resource is not requested
+
+	proximity_n900: disable readings from sensor at boot
+
+	proximity_n900: define proximity resource variable
+	It somehow compiles without it, but it doesn't seem right to me ;)
+
+	proximity_n900: fix powernode and register resource on init
+
+	proximity_n900: implement power control and Proximity resource
+
+2010-09-18  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: conf: enable proximity_n900
+
+	proximity_n900: check for first char of value in node
+
+	proximity_n900: provide correct value via dbus, add timestamps and cleanup
+
+	proximity_n900: another attempt to pool data from sysfs node...
+
+2010-09-10  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	Revert "proximity_n900: try creating ReactorChannel without rewind (it segfaults)"
+	This reverts commit 2d4286e376e7abbd5445cf64ab3b57d6ac69e9a4.
+
+2010-09-09  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	proximity_n900: try creating ReactorChannel without rewind (it segfaults)
+
+	proximity_n900: cleanup and implement GetProximity
+
+2010-09-07  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	proximity_n900: add debug message
+
+	fsodeviced: introduce proximity_n900 plugin
+
+2010-09-05  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: update nokia_n900 config
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-08-22  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	fsodeviced: fix(in configuration) the remote silence when answering a call
+	The alsa routing resulted in a problematic issue:
+	*someone calls you
+	*fso routes the ringing to the external speaker:
+	  ( The external speaker is usually used for hand-free calling
+	  or for playing some music loud, it's not used for normal
+	  phone conversations )
+	*the phone rings
+	*you press the answer button in SHR's phone GUI
+
+	Then:
+	You can't ear the remote person talking.
+	(leviathan said that the remote person could ear you tough)
+
+	Removing this routing fix that issue,but the ringing is done
+	trough the current audio path, in other words:
+	if you're on headphones, it'll ring on the headphones.
+	(which can be desirable or not)
+
+2010-08-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: remove htcdream_powercontrol plugin A special process will provide the FSO GPS resource instead.
+
+2010-08-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: htcdream_powercontrol: debug++
+
+2010-07-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: catch up with android-rpc changes
+
+2010-07-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: debug--
+
+	fsodeviced: kernel_idle: fix warning; add more descriptive state debug output
+
+2010-07-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: htcdream_powercontrol: fix SIGSEGV on startup
+
+2010-07-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: enable firmwareloader for dream
+
+2010-07-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: default/conf: add warning wrt. firmwareloader
+
+2010-07-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: htcdream_powercontrol: first sketch at implementation
+
+	fsogsmd: htcdream_powercontrol: make it compile
+
+	fsodeviced: add skeleton for htcdream_powercontrol
+	On the HTC Dream, GPS is exposed through the native ARM11/ARM9 RPC
+	interface, hence we need to walk an extra-mile hiding this behind
+	our abstraction.
+
+2010-07-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: also listen to compat_firmware subsystem notifications
+
+2010-07-13  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsodeviced: use alsa-2.6.31 for openmoko_gta by default
+
+2010-07-10  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: openmoko_powercontrol: change UsbHost sysfs paths to work with 2.6.32 kernel
+
+2010-07-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel26_firmwareloader: firmware path is now customizable: [fsodevice.kernel26_firmwareloader] firmware_path = "/etc/firmware"
+
+2010-07-07  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: enable smooth = down for backlight in Openmoko devices
+
+2010-07-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: conf/motorola_ezx: add PHONE_HANGUP for A1200
+
+	fsodevice: motorola_ezx: map keys and buttons for A780
+
+2010-07-04  Antonio Ospite  <ospite@studenti.unina.it>
+
+	fsodeviced: add preliminary support for Motorola EZX phones
+	Acked-by: Michael 'Mickey' Lauer <mickey@vanille-media.de>
+
+2010-06-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: use AS_HELP_STRING for better help strings
+
+2010-06-12  Sebastian Reichel  <elektranox@gmail.com>
+
+	fsodeviced: add configuration for Nokia N900
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	fsodeviced: indent with spaces, not tab
+	This file uses spaces for indentation, so fix a line where tabs are used
+	instead.
+
+	Acked-by: Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-06-02  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: router_palmpre: load all needed scripts on startup
+
+2010-06-01  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: activate RouterPalmPre for the public
+
+2010-05-31  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: rework route_palmpre plugin as simple state machine reacting on several events
+
+2010-05-17  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodeviced: add missing @ to logger in kernel26_powersupply
+
+2010-05-13  Maksim 'max_posedon' Melnikau  <maxposedon@gmail.com>
+
+	Fix using AC_ARG_ENABLE
+	Macro: AC_ARG_ENABLE (feature, help-string, [action-if-given],
+	[action-if-not-given]) works litte different as cornucopia expect:
+	1. action-if-given called when --enable-feature or --disable-feature
+	2. if it was --enable: $enableval="yes"
+	   if it was --disable: $enableval="no"
+	3. action-if-not-given is place for default value
+
+	See also:
+
+	http://www.gnu.org/software/hello/manual/autoconf/Package-Options.html
+	http://devmanual.gentoo.org/general-concepts/autotools/
+
+2010-05-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with libfso-glib new versioning scheme
+
+2010-05-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: use Linux.ioctl rather than Posix.ioctl which is not supported on some Linuces
+	This makes us depend on Vala 0.8.1.1 (FSO-release)
+
+2010-05-01  Sebastian Krzyszkowiak  <seba.dos1@gmail.com>
+
+	fsodeviced: conf: set log level to INFO for openmoko_gta devices
+
+2010-04-29  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsodeviced: tune openmoko_gta alsa scenarios a bit (Thanks TAsn)
+
+2010-04-22  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	fsodeviced: add alsa scenarios for 2.6.31 and newer, use alsa-2.6.29 by default
+	* rename old alsa-default to alsa-2.6.29
+	* add new alsa-2.6.31 based on statefiles from OpenWrt + gsmbluetooth
+	  and rename to use same filenames as 2.6.29 scenarios
+	* create link alsa-default -> alsa-2.6.29
+
+2010-04-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: conf/palm_pre: enable accelerometer_kxsd9 and backlight_omappanel
+
+	fsodeviced: add accelerometer plugin for Kionix KXSD9
+
+2010-04-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: add backlight_omappanel plugin
+
+	fsodeviced: conf/palm_pre: fix misspelling of powersupply plugin
+
+	fsodeviced: conf/palm_pre: enable proximity and ambientlight plugins
+
+2010-04-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: proximity_palmpre: first sketch at plugin implementation
+
+	fsodeviced: ambientlight_palmpre: first sketch at plugin implementation
+
+2010-04-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: add build skeleton for new plugins ambientlight_palmpre and proximity_palmpre
+
+	fsodeviced: add vibrator plugin for omap; enable for palm pre
+
+	fsodeviced: conf/palm_pre: fix syntax for ignore_by_id (it's ';', not ',')
+
+2010-04-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: conf/palm_pre: add Makefile.am
+
+	fsodeviced: conf/palm_pre: link Sirloin OMAP3430 board (got lost during branch merge)
+
+2010-04-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: use string templates and wrap debug log in assert()
+
+2010-04-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: htc_qualcomm_dream: add preliminary alsa scenarios for a couple of usecases
+
+	fsodeviced: alsa: fix volume control when min is < 0
+
+	fsodeviced: router_alsa: hook volume accessors to dbus
+
+	fsodeviced: router_alsa: first stab at implement get/set volume; requires vala 0.8.0.69 now
+
+2010-04-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: work towards implementation of get/set volume
+
+	fsodeviced: add mainvolume index to BunchOfMixerControls
+
+	libfsoframework: remove alsa support fsodeviced: add alsa support
+
+	fsodeviced: catch up with changes in org.freesmartphone.Device.Audio API
+	Add stubs for GetVolume and SetVolume
+
+2010-04-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_firmwareloader: debug--
+
+	fsodeviced: kernel26_firmwareloader: fix merge error
+
+	fsodeviced: kernel26_firmwareloader: use writeContentsToFile as the firmware interface needs partial writes
+
+	fsodeviced: kernel26_firmwareloader: use libfsobasics instead of glib
+	NOTE to self: don't use glib functions when Posix does fine...
+
+2010-04-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_firmwareloader: signalize uploading abort on error
+
+	fsodeviced: kernel26_firmwareloader: first version
+
+	fsodeviced: add build skeleton for new plugin kernel26_firmwareloader
+	This plugin is handy on udev-less systems when you have devices which
+	require downloadable firmware for operation, such as many wifi or
+	bluetooth devices these days.
+
+2010-04-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: router_alsa: fix last commit
+
+	fsodeviced: router_alsa: skip empty lines and comment lines in scenario files
+
+2010-04-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_display: fix repr()
+
+	fsodeviced: kernel26_display: allow hard setting brightness to interrupt a soft operation
+
+	fsodeviced: kernel26_display: add configuration entry to dim in a soft way
+	This is handy for panels that don't have automatic soft-dimming. Enable it with:
+	[kernel26_display]
+	soft = always
+
+	You can also use 'up' or 'down', if you only want to enable it for one direction.
+
+	fsodeviced: kernel26_display: refactor and read configuration for 'smooth'
+
+	fsodeviced: conf/htc_qualcomm_dream: report trackball movements via input system
+
+	fsodeviced: kernel_input: handle relative events
+	This is a preliminary way to handle things like trackballs and joysticks
+	in scenarios that lack a proper display server taking over these events.
+
+2010-04-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: enable debug build
+
+	fsodeviced: kernel_input: refactor input handling
+
+	fsodeviced: kernel_input: initialize the hold timeout
+
+2010-04-01  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsodevice: conf/palm_pre Add some ids to ignore. Update spaces
+
+2010-03-30  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsodevice: conf/palm_pre Add missing headset key
+
+	fsodevice: conf/palm_pre: configure buttons to report via input
+
+2010-03-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: conf/htc_qualcomm_dream: fix KEYBOARD switch to toggle portrait/landscape
+
+	fsodeviced: conf/htc_qualcomm_dream: configure buttons to report via Input
+
+	fsodeviced: kernel_idle: react to all events; this fixes idlenotifier on htcdream and similar devices
+
+2010-03-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: fix bogus error message, if configuration file can't be loaded
+
+2010-03-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with removed libfreesmartphone/common
+
+	fsodeviced: implement FreeSmartphone.Info interfaces
+
+2010-03-08  Simon Busch  <morphis@gravedo.de>
+
+	fsodeviced: add palmpre_powersupply and router_palmpre Makefile's to configure.ac
+
+	fsodeviced: palmpre_powersupply and route_palmpre compile now
+
+	fsodeviced: add palmpre_powersupply plugin
+
+	fsodeviced: conf: add config files for the palm pre
+
+	fsodevice: route_palmpre: add initial version
+
+2010-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add config.vapi and GITV everywhere
+
+2010-02-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: use new device specific alsa data file path in /etc/freesmartphone/default/conf/<machine>/...
+
+2010-02-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: ship alsa state files for openmoko_gta family of devices
+
+2010-02-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: confs: msm routes with qdsp5, dream routes with alsa
+	Also add a default fallback configuration
+
+2010-02-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: create htc_qualcomm_dream and link it to 'trout' board
+	The HTC Dream is significantly different from other HTC devices
+	which ship with windows mobile; hence we need seperate configurations.
+
+2010-02-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_leds: fix initialization
+	NOTE: Always remember: static class members are _not_ initialized
+	until the first instance of a class has been created.
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+2010-02-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: router_alsa: fail gracefully, if soundcard not existing; thanks JaMa
+
+	fsodeviced: router_alsa: fix construction
+	NOTE: Always remember there's a difference of the construct()
+	constructor and an empty ClassName() constructor, the latter will
+	_not_ be invoked on object creation using GLib.Object.new()
+
+	fsodeviced: default conf logs to file
+
+	fosdeviced: audio: show routertype in repr() as well
+
+2010-02-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_rfkill: don't bail out, if /dev/rfkill is not present or can't be opened
+	NOTE: plugins should _never_ ever use GLib.critical for anything.
+
+2010-01-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: ok, this seems to be the right incarnation
+
+	fsodeviced: autohell, next try
+
+	fsodeviced: conf: and prepend DESTDIR
+
+	fsodeviced: try harder to create links in the sysconfdir
+
+	fsodeviced: add missing Makefile.am for conf directory (thanks max_posedon)
+
+	fsodeviced: kernel_input: ignore input device completely if it can't be opened
+
+2010-01-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: ignore lcd-backlight led backlight on broken kernels
+
+	fsodeviced: add default configuration for Openmoko devices
+
+	fsodeviced: htc_qualcomm_msm contains the default configuration for this machine class create per-machine links during install that point to this class, for now this is trout, raphael, and diamond
+
+	fsodeviced: add default configuration for the HTC Dream (T-Mobile G1, Google ADP-1)
+
+2010-01-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel26_powersupply: add more info in org.freesmartphone.Device.PowerSupply.GetInfo()
+
+2010-01-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_leds: honor config entry to skip LED device nodes by name (substring match)
+
+	fsodeviced: vibrator plugins: debug output --
+
+	fsodeviced: vibrator_timeoutdput: fix sysfs class name (it's timed_output, not timedoutput)
+
+	fsodeviced: new plugin vibrator_timedoutputclass
+	This plugin implements org.freesmartphone.Device.Vibrator for vibrators conforming to the timedoutput class device, often found in Android/Linux kernels.
+
+	fsodeviced: vibrator_ledclass: catch up with new API semantics
+
+	fsodeviced: vibrator_ledclass: implement org.freesmartphone.Device.Vibrator.Stop()
+
+2010-01-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: vibrator_ledclass: register object path incrementally
+
+	fsodeviced: vibrator_ledclass: bail out on concurrent calls
+
+	fsodeviced: add vibrator_ledclass plugin, implementing org.freesmartphone.Device.Vibrator for vibrator devices registered as LED class device
+
+2010-01-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: router_qdsp5: remove static scope
+
+	fsodeviced: router_qdsp5: remove playwav2 namespace
+
+2010-01-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_leds: honor max_brightness sysfs node, if available
+
+2010-01-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: fix WANT_FSO_RESOURCE in Makefiles
+
+2010-01-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: add --disable-resource-integration to disable FSO resource integration. Some systems want fsodeviced, but not fsousaged.
+
+2010-01-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: allow router_type = qdsp5
+
+	fsodeviced: new audio router plugin: router_qdsp5
+
+2010-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	sync. MAINTAINERS file
+
+2010-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: add audiorouter interface and base class
+
+	fsodeviced: fix make 'test'
+
+	fsodeviced: split alsa_audio into 'audio' and 'router_alsa' in order to allow for further audio routing plugins
+
+	fsodeviced: accelerometer: change delegate method to signal
+	Patch based on Frederik 'playya' Sdun <Frederik.Sdun@googlemail.com>
+
+	use top level logger for initial plugin loading debug beacon
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	adjust (C) for 2010
+
+	Revert "fsodeviced: use a signal instead of a delegate to inform observer"
+	This reverts commit 4de6bcf526c03ce9e4ff4bc4bf2cc5d2ceba5e7a.
+
+	Revert "fsodeviced: Add getAccelerometer for unique instance"
+	This reverts commit 36167ef9fdbe00d518a3cc2f3777edbb4d9cbf2c.
+
+	Revert "fsodeviced: Adopt new syntax for accelerometer plugin"
+	This reverts commit f479286c79f8dfda3578852f820b3f44864d9e39.
+
+2010-01-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: ship dbus service file to make it autoactivatable Note that despite this capability you might want to start it by an init script anyways to get the idle notifier ticking asap.
+
+2010-01-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_rfkill: make it build again
+
+	fsodeviced: catch up with libfsobasics
+
+2010-01-05  Frederik 'playya' Sdun  <frederik.sdun@googlemail.com>
+
+	fsodeviced: Adopt new syntax for accelerometer plugin
+
+	fsodeviced: Add getAccelerometer for unique instance
+
+	fsodeviced: use a signal instead of a delegate to inform observer
+
+2009-12-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	yank some completed things from TODO
+
+2009-12-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kill rfkill.vapi (upstream now) and bump vala requirement bump local version as well to reflect state of things
+
+2009-12-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: player_gstreamer works now
+
+2009-12-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: player_gstreamer: add playing sounds, does crash on assert() due to unknown cause :/
+
+	fsodeviced: player_gstreamer: build decoder map based on available plugins
+
+	fsodevice: refactor audio player to handle multiple player backends per process add skeleton for gstreamer backend
+
+2009-11-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: building the kernel26_rfkill plugin is now optional (and disabled by default), since it requires quite a current Linux kernel (2.6.31). To build it, pass --enable-kernel26-rfkill to ./configure
+
+	fsodeviced: player_alsa: stop (a looping) sound, if requested
+
+2009-11-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: player_canberra is now optional and has to be enabled with --enable-player-canberra
+
+2009-11-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: fix copy'n'paste errors in fso_register debug function
+
+	fsodeviced: kernel26: register with the resource subsystem to make every rfkill device autoappear as a resource
+
+	fsodeviced: rfkill: implement get/set power
+
+	fsodeviced: add ISimplePowerControl interface as relevant interface for PowerControlResource delegate BasePowerControl now implements this interface to comply with the needs of PowerControlResource
+
+	fosdeviced: kernel26_rfkill: fix creating classes based on rfkill resources
+
+2009-11-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_rfkill: do not use sysfs; objects are created based on what /dev/rfkill reports
+
+	fsodeviced: add rfkill vapi (scheduled for inclusion in linux.vapi before next release)
+
+	fsodeviced: add skeleton for new plugin kernel26_rfkill
+
+	fsodeviced: alsa_audio: use inotify to watch for scenario changes
+	Reload the scenario cache (for the modified scenario only) whenever
+	a change is being reported. This also works, if the changed scenario
+	is the current scenario. If the scenario being modified is not the
+	current scenario, be aware that audible artefacts can occur during
+	reloading.
+	NOTE: We require libfsoframework 0.2.4 and Vala 0.7.8.2 now
+
+	fsodeviced: implement org.freesmartphone.Device.Audio.SaveScenario()
+
+2009-11-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_rtc: be more cooperative with /dev/rtc0
+	This module will now only hold /dev/rtc0 while it is a) doing any operation
+	(which is very short), or b) waiting for a pending alarm (in which case
+	we do not want someone else to remove or change it behind our back anyways).
+
+	This should improve FSO #492 to a certain extent. Please open another ticket,
+	if you are missing something in the RTC DBus API.
+
+	fsodeviced: player_alsa: handle loop and length attributes
+
+	fsodeviced: create experimental player_alsa plugin that just delegates playing a sound to aplay
+
+2009-11-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: alsa_audio: fix crash when no scenarious can be found
+
+	Revert "fsodeviced: add config.vapi"
+	This reverts commit 1e4d02d17bd3900cd0061c958cd8e7e42a18fe49.
+
+	fsodeviced: add config.vapi
+
+	fsodeviced: refactor PlayingSound into library, add missing GLIB_CFLAGS and GLIB_LIBS in various Makefile.am
+
+	fsodeviced: audio: load player plugin based on player_type setting in config
+
+	fsodeviced: split canberra player out of alsa_audio and prepare for pluggable players
+
+	all: move daemons into @prefix@/sbin/
+
+2009-11-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: openmoko_powercontrol: fix path to usb_mode
+
+2009-11-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: handle missing entries in kobject change notification more gracefully
+	This should fix the segfault on removing the battery
+
+2009-11-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: alsa_audio: fix logic errors in push/pull; also send org.freesmartphone.Device.Audio.Scenario on scenario change
+
+	fsodeviced: alsa_audio: catch up with async dbus, sync. with interface error specs
+
+2009-11-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: prefer battery status as aggregate status, whenever we have at least one battery
+
+2009-11-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: bump Vala requirement and enable silent automake rules, if available
+
+2009-10-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: openmoko_powercontrol: add UsbHost resource
+
+2009-10-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: use libfsoresource instead of own stuff; catch up with recent Vala sanity checks
+
+2009-10-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: fix dbus API (all server methods now async)
+
+2009-09-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: require libgee 0.5.0
+
+2009-09-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: catch up with libgee HashMap changes; bump vala requirement
+
+2009-09-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: since dbus methods are now async, we can no longer call them as before from sync methods
+
+	fsodeviced: alsa_audio: catch up with libcanberra-0.17
+
+	fsodeviced: fix remaining references to Linux26
+
+	fsodeviced: s/linux26/linux/
+
+2009-09-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: bump version requirements release as 0.1.0.0
+
+2009-09-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: create scenario queue before using it
+
+2009-09-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: shut down if can't load any plugins
+
+	fsodeviced: kernel26_rtc: throw dbus error, if requested wakeup time is not in the future
+
+	fsodeviced: kernel26_rtc: send new dbus signals * org.freesmartphone.Device.RealtimeClock.WakeupTimeChanged(i) when the wakeup time has been changed * org.freesmartphone.Device.RealtimeClock.Alarm(i) when the wakeup time has been reached
+
+2009-09-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: add data to subdirs
+
+2009-09-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: remove debugging code
+
+2009-09-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: accelerometer: only send signal when orientation has actually changed
+
+	fsodeviced: resource: enable unconditionally, if we can't communicate with fsousaged
+
+	fsodeviced: accelerometer: hook into FSO resource system; available as Resource 'Accelerometer'
+
+	fsodeviced: accelerometer: remove debug output, first version seems to work fine Now let's check CPU usage ;)
+
+	fsodeviced: accelerometer: finally fix intWithinRegion()... *sigh*
+
+	fsodeviced: accelerometer[_lis302]: fix more bugs, add more debugging
+
+	fsodeviced: accelerometer: fix logic in intInRegion() and use ternary values for atoms
+
+	fsodeviced: accelerometer: first sketch at identifiying actual device orientation
+
+	fsodeviced: accelerometer_lis302: sample_rate, threshhold, full_scale configurable to customize movement detection
+
+	fsodevice: accelerometer: use threshhold + timeout instead of low pass filter to detect start/stop movements
+
+	fsodeviced: accelerometer: compare w/ the right values
+
+	fsodeviced: accelerometer: compute movement factor to find out whether we have started or stopped to move the device's orientation
+
+2009-09-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: sync COPYING file with license as found in code
+
+	fsodeviced: add accelerometer.vala
+
+	fsodeviced: accelerometer: apply low pass filter to incoming acceleration data in order to detect end of movement
+
+	fsodeviced: accelerometer_lis302: read and parse values, call delegate for further processing
+
+2009-09-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: install dbus configuration file
+
+	fsodeviced: accelerometer: instanciate accelerometer plugin
+
+	fsodeviced: add build skeleton for accelerometer devices and plugins
+
+2009-09-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel_input: send coldplug input notifications on startup. Fixes FSO #239
+
+2009-08-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel_idle: resync input devices when input devices appear or disappear during runtime NOTE: This fixes the infamous 'screen blanking bug' when using USB or BT keyboards plugged in after system start
+
+2009-08-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: ship dbus conf file
+
+	fsodeviced: fix dbus configuration file
+
+2009-08-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel_idle: add new configuration option to Display resource specifying whether the holding the display resource will allow for dimming the display after a while. Set "display_resource_allows_dim = 1" in [fsodevice.kernel_idle] to allow dimming. Default behaviour (display always on full brightness when resource is held) remains unchanged. Fixes FSO #370
+
+2009-08-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_rtc: do not use mktime as it's using local time (d'oh!), better use timegm which uses UTC
+
+	Merge branch 'master' of git@git.freesmartphone.org:cornucopia
+
+2009-08-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_rtc: add logging output for set and get methods
+
+2009-08-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	Merge branch 'master' of git@git.freesmartphone.org:cornucopia
+
+	fsodeviced: catch up with stronger Vala type checks
+
+2009-08-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: fix dbus query methods
+
+2009-08-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: synthesize coldplug, if we're on a mounted sysfs
+
+2009-08-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: catch up with new logging API
+
+2009-08-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	gitignore++
+
+2009-07-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: catch up with Vala 0.7.4
+
+	fsodeviced: enable GNU extensions
+
+2009-07-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel26_powersupply: handle offline adapters properly
+
+2009-07-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: fix concurrent playing of multiple sounds
+
+	fsodeviced: alsa_audio: use quarks to transfer from/to strings
+
+2009-07-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: don't fail, if no scenarios are available
+
+2009-06-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel_idle: honor 'ignore_by_id' and 'ignore_by_path' as well
+
+	fsodeviced: kernel_input: Allow skipping individual input objects by product Id substring or by physical Path substring.
+	Example1: If you want to skip the accelerometers in the GTA02, add to [fsodevice.kernel_input]:
+	ignore_by_id = lis302
+	Example2: If you want to skip all USB input devices, add to [fsodevice.kernel_input]:
+	ignore_by_path = usb
+
+	fsodeviced: inquire physical path and capabilities for every input node
+
+	fsodeviced: kernel26_leds: register dbus objects by name, not by incremental counter NOTE: Eventually we will get the incremental counter back, not now though since registering an object under multiple paths does not work w/ dbus-glib atm.
+
+2009-06-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: alsa_audio: throw INVALID_PARAMETER instead of INVALID_SCENARIO
+
+2009-06-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: alsa_audio: implement scenario handling with new code
+
+	fsodevice: remove all traces of libascenario
+
+2009-06-21  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	A little change to debug message
+
+2009-06-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: autofoo magic to get everything to build in one run
+
+	fsousaged: kernel_idle: add Cpu resource and Display resource
+
+	fsodeviced: lib/resource: use constants from FsoFramework
+
+	fsodeviced: openmoko_powercontrol: register Bluetooth and WiFi as FSO Resources
+
+	fsodeviced: lib: add AbstractSimpleResource and BasePowerControlResource. The former encapsulating the connection to org.freesmartphone.usaged, the latter exports a BasePowerControl as a FSO Resource.
+
+2009-06-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsousaged: add missing data/Makefile.am
+
+2009-05-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: start watching after creating idlestatus
+
+2009-05-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel_idle: read timeouts from config, implement more of the interface
+
+	fsodevice: convert kernel_input to Gee
+
+	fsodevice: alsa_audio: use Gee.HashTable instead of GLib.HashMap, use non-compact class NOTE: We require libgee 0.1.6 now.
+
+	fsodevice: alsa_audio: honor length parameter in PlaySound
+
+2009-05-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: use eventfd mechanism for signalizing sound repetition. As per libcanberra docs, the finishing callback can be called from whatever stack frame or thread, so we have to use eventfd in order to prevent deadlocks.
+
+2009-05-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: alsa_audio: honor loop parameter in sound playback
+
+2009-05-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: alsa_audio: more work on scenario API implementation NOTE: Reconsider implementing this on a seperate object path
+
+	fsodevice: alsa_audio: add first bits of libascenario usage
+
+2009-05-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel26_powersupply: don't crash if we can't open powersupply nodes
+
+	fsodevice: kernel_input: skip input fds in aggregate, if you can't open
+
+	fsodevice: alsa_audio: play and stop works
+
+2009-05-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: alsa_audio: play a sound NOTE: We now require libcanberra
+
+2009-05-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: add skeleton for alsa_audio plugin
+
+	fsodevice: add plugin thinkpad_powercontrol
+
+	fsodevice: openmoko_powercontrol: WiFiPowerControl done.
+
+	fsodevice: openmoko_powercontrol: Openmoko.BluetoothPowerControl working.
+
+	fsodevice: start with BasePowerControl class in libfsodevice; add build skeleton for plugin openmoko_powercontrol
+
+	fsodevice: first version of idlenotifier working
+
+2009-05-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: add skeleton for kernel_idle implementing org.freesmartphone.Device.IdleNotifier
+
+	fsodevice: convert to libfso-glib
+
+2009-05-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel_input: fix dbus marshalling problem
+
+2009-05-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel_input: first version complete
+
+	fsodevice: kernel_input: parse config and handle input events
+
+	fsodevice: kernel_input: grab product ID from input device
+
+2009-05-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel_input: register input devices
+
+	fsodeviced: add build skeleton for kernel_input plugin
+
+	fsodevice: rename info plugin to kernel_info
+
+2009-05-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: aggregate handles correctly when we don't have any power supply class devices
+
+	fsodevice: kernel26_powersupply: compute status if we're AC-powered
+
+2009-05-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: kernel26_powersupply: send 'critical' and 'empty' status
+
+	fsodevice: kernel26_powersupply: send org.freesmartphone.Device.PowerSupply.Capacity regularly
+
+	fsodevice: kernel26_powersupply: send status signals
+
+	fsodeviced: kernel26_powersupply: add AggregatePowerSupply object In contrast to fso1, fso2 will feature an aggregated power supply object that combines the status of all available power supplies. This will then be the only one sending out status signals. The individual power supply objects will continue to be present; their status can be requested manually, but they will not send signals.
+
+	fsodeviced: add skeleton for kernel26_powersupply plugin
+
+2009-05-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: rtc plugin works
+
+2009-05-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: interfaces: add org.freesmartphone.Device.RTC
+
+	fsodevice: kernel26_leds: derive mode from cleaned mode
+
+	fsoframework: kernel26_leds: leds 1.0 :)
+
+	fsodevice: kernel26_leds: throw proper dbus errors
+
+2009-04-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: catch up with vala 0.7.x
+
+2009-04-13  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	Correct a little debug message
+
+	Add Info plugin
+
+	Fix a build error due to missing package inclusion
+
+2009-04-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: prepare to drop privileges
+
+	fsodevice: only return basename in GetName()
+
+2009-04-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel26_leds: use FsoFramework.AbstractObject for config and logging setup
+
+	fsodevice: kernel26_display: overhaul * fix API semantics (we're using percentages, not absolute values) * get rid of display-helpers and use Posix.ioctl instead
+
+2009-04-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel26_display: whitespace changes; please use 4 spaces, no tabs
+
+2009-04-08  Sudharshan 'Sup3rkiddo' S  <sudharsh@gmail.com>
+
+	Add kernel26_display. No abort errors here
+
+2009-04-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: kernel26_leds: complete SetNetworking, SetBrightness cleans trigger now.
+
+2009-04-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: honor 'sysfs_root' attribute in top level config and compute paths based on it By using the sysfs_root attribute we can develop many parts of fsodevice that do their work using sysfs on the PC. Simply mount your neo's / to your PC (e.g. via sshfs) to /mnt/neo and then set [cornucopia] sysfs_root = /mnt/neo/sysfs
+
+2009-03-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: remove posixextra.vapi; included in fsoframework
+
+2009-03-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: remove XsoFramework workaround; Didier Ptitjes found the problem in Vala
+
+2009-03-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: lower dbus requirement to 1.2.1
+
+	fsodevice: catch up with fsoframework changes
+
+2009-03-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	sync
+
+2009-03-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: kernel26: SetBrightness ok.
+
+	fsodeviced: add workaround to get the valadbus interface working
+
+	fsodevice: kernel26_leds: led objects are getting registered
+
+	fsodevice: kernel26_leds: scan sysfs path and create instances
+
+2009-03-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodevice: catch up with removing MODULE_ARCH
+
+	fsoframework: start with some logging
+
+	fsodevice: add build infrastructure for first plugin
+
+	fsodevice: check for vala; create subsystem, register, load, run mainloop
+
+2009-03-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	first sketch at plugin class
+
+2009-03-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodeviced: build skeleton

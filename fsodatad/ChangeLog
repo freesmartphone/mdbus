@@ -1,2 +1,164 @@
-See NEWS for large-scale changes and git log for details.
+2012-03-10  Simon Busch  <morphis@gravedo.de>
 
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required fso-glib version of all components to 2012.14.1
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+	fsodatad: provide a pkg-config file to make libfsodata accessible for other components
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsodatad: add vim tags for correct indentation with 4 spaces
+
+2011-03-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodatad: implement org.freesmartphone.Data.World.GetApnForMccMnc
+
+2011-03-13  Neil Jerram  <neil@ossau.uklinux.net>
+
+	fsodatad: world: fix provider code to country mapping
+	* fsodatad/src/plugins/world/plugin.vala: Don't return a 3 digit
+	  prefix match while there are still countries we haven't checked yet
+	  that might have a full match.
+
+	Acked-by: Simon Busch <morphis@gravedo.de>
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump copyright notices for 2011
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsodatad: set G_LOG_DOMAIN
+
+2011-01-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodatad: fix README
+
+2010-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala and glib-2.0 requirements
+
+2010-12-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodatad: don't link tests against libdbus
+
+2010-12-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodatad: sync gdbus error definitions w/ interfaces
+
+	fsodatad: use gdbus
+
+	fsodatad: yank dbus & dbus-glib
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-07-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodata: support debug build
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-05-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with libfso-glib new versioning scheme
+
+2010-03-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with removed libfreesmartphone/common
+
+2010-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add config.vapi and GITV everywhere
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+2010-01-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodatad: install default configuration
+
+2010-01-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: catch up with libfso-glib 0.2.2 containing convenience constructors for structs
+
+2010-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	sync. MAINTAINERS file
+
+2010-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	use top level logger for initial plugin loading debug beacon
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	adjust (C) for 2010
+
+2009-11-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: move daemons into @prefix@/sbin/
+
+2009-11-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodatad: implement org.freesmartphone.Data.World.GetTimezonesForCountryCode()
+
+	fsodatad: iso3361+dialcode: add .vc
+
+	fsodatad: read zone.tab and augment country information
+
+	fsodatad: create better iso3361+dialcode file (handcrafted, with the help of Wikipedia...), add fallback zone.tab
+
+2009-11-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsodatad: implement org.freesmartphone.Data.World
+
+	fsodatad: country code != country name
+
+	fsodatad|fsonetworkd: .gitignore++
+
+	fsodata: require libxml-2.0
+
+	fsogsmd: move mbpi stuff into fsodatad
+
+	fsodatad: new cornucopia subsystem; generic data storage daemon

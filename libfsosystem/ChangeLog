@@ -1,0 +1,99 @@
+2012-03-10  Simon Busch  <morphis@gravedo.de>
+
+	libfsosystem: add vim mode line at end of all vala source files
+
+	libfsosystem: tests: remove unused $(DBUS_*) variables
+
+	libfsosystem: use $(top_srcdir) rather than a static ../ path specification
+
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+	libfsosystem: remove integration tests for module and network and integrate them into fsotest
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.2
+
+2012-02-03  Simon Busch  <morphis@gravedo.de>
+
+	libfsosystem: fix bug in interface class which causes interface operations to fail
+	It's now working again, verified with successfull excuted tests which failed before:
+
+	morphis@nirvana .../Workspace/fso/cornucopia/libfsosystem (git)-[morphis/pending] % sudo tests/testnetwork
+	/Network/Interface/UpDown: OK
+	/Network/WextInterface/PowerStatus: OK
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	libfsosystem: network: close socket on object destruction if it's still valid
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+	libfsosystem: network: implement power status control functionality for wireless network interfaces
+
+2011-12-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsosystemd: add missing check for libgee
+
+2011-12-18  Simon Busch  <morphis@gravedo.de>
+
+	libfsosystem: add simple abstraction class for android wakelocks
+	In general no one really needs this and wants to use it but there are some cases where we
+	should to integrate the best way with a android based kernel. If this class is used on
+	systems without wakelock support using it will have no impact on the system suspend
+	handling.
+
+	libfsosystem: import write method from libfsobasics
+	There is currently no clear line between libfsobasics and libfsosystem so we need to
+	define what should be in which one and migrate all dependencies to use the the correct
+	library.
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-10  Simon Busch  <morphis@gravedo.de>
+
+	libfsosystem: add some path and filesystem utilities
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	libfsosystem: add vim tags for correct indentation with 4 spaces
+
+2011-03-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsosystem: add stub for WextInterface
+
+	libfsosystem: catch up with (and require) vala 0.11.7.4
+
+2011-03-23  Simon Busch  <morphis@gravedo.de>
+
+	libfsosystem: bump to version 0.1.0
+
+	libfsosystem: network: evaluate errno variable in error case
+
+	libfsosystem: implement basic network interface handling (up/down)
+
+2011-01-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsosystem: add insertModule and removeModule
+
+	libfsosystem: add tests directory
+
+2010-12-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsosystem: new library; will contain lowlevel system related functions, such as mounting a filesystem, loading a kernel module, etc.

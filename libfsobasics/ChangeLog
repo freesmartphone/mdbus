@@ -1,0 +1,746 @@
+2012-03-10  Simon Busch  <morphis@gravedo.de>
+
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: testutilities: check also for content for vendor_id field
+
+	libfsobasics: testkobjectnotifier: wait up to ten seconds for kobject event until we fail
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'morphis/pending'
+
+2012-01-27  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	libfsobasics: allow to use vendor_id as hardware identificator
+	* for example on qemux86-64 there is no Hardware field in /proc/cpuinfo, but there is
+	  vendor_id       : AuthenticAMD
+	  so we can use this to provide configuration for i686/amd64 architectures
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+2011-12-17  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	fsobasics: make kobjectnotifier log properties only if DEBUG
+
+	libfsobasics: fix sysconfdir expansion for newer autofoo
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+	libfsobasics: fix another bug we get with vala-0.14 with the Posix.bind method
+	When compiling with vala-0.14 we get the following error:
+
+	kobjectnotifier.c: In function 'fso_framework_base_kobject_notifier_construct':
+	kobjectnotifier.c:253:49: error: incompatible type for argument 2 of 'bind'
+	/usr/include/x86_64-linux-gnu/sys/socket.h:115:12: note: expected '__CONST_SOCKADDR_ARG' but argument is of type 'struct sockaddr_nl *'
+
+	Converting the argument to void* before passing it to the bind method fixes this error.
+
+	fsobasics: work around some bug? in vala-0.14 with sighandler_t delegate
+	When compiling with vala-0.14 we get the following error:
+
+	libinitexit.c: In function 'fso_framework_onSignal':
+	libinitexit.c:154:2: error: unknown type name 'sighandler_t'
+	libinitexit.c:212:10: warning: assignment makes integer from pointer without a cast [enabled by default]
+	libinitexit.c:213:2: warning: passing argument 2 of 'signal' makes pointer from integer without a cast [enabled by default]
+	/usr/include/signal.h:101:23: note: expected '__sighandler_t' but argument is of type 'int'
+
+	sighandler_t is definied in signal.h and is a GNU extension for libc which is only
+	available when _GNU_SOURCE is definied otherwise there is only sig_t available. This adds
+	the _GNU_SOURCE define as compiler flag.
+
+	libfsobasics: netlinkutils: work around a nasty bug in vala-0.14 with Posix.InAddr structure
+	We're using here our own InAddr structure as if we use the default one vala ships we get
+	the following compilation error:
+
+	netlinkutils.vala:58.35-58.48: error: `Posix.InAddr' does not have a default constructor
+	     Posix.InAddr inaddr = Posix.InAddr();
+
+	When this bug is fixed upstream we should use Posix.InAddr instead of
+	Posix.InAddr2 again.
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-10-28  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: add simple method to convert a glib list into an array
+
+2011-10-27  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: stringhandling: fix nasty bug in hexdump method
+	Due to a +1 a byte array with n*16-1 bytes isn't displayed correctly. It displays only
+	(n-1)*16 bytes and not the complete dump.
+
+2011-08-03  Simon Busch  <morphis@gravedo.de>
+
+	libfsoframework: move abstract object class to libfsobasics
+
+2011-07-19  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: split utilities in seperate source files for a better overview
+
+	libfsobasics: utilities: minor style corrections
+
+2011-07-08  Sylvain 'GarthPS' Paré  <sylvain.pare@gmail.com>
+
+	libfsobasics/fsobasics/kernel.vala : added a test on "activate" flag at objet creation (...)
+	 *  added a test on "activate" flag at objet creation to avoid a mismanagement in unload() methode.
+	    If a kernel module is already loaded when the Kernel26Module objet is created without this addition
+	    we had an error when calling unload() because of the activate flag not reflecting the reality(check the logic)
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-21  Denis 'GNUtoo' Carikli  <GNUtoo@no-log.org>
+
+	libfsobasics: smartkeyfile: fix the location of the config files
+	Without that fix at least fsodeviced looks for fsodeviced instead of
+	  fsodeviced.conf:
+	    stat64("/etc/freesmartphone/conf/default/fsodeviced", 0xbed18b28) = -1 ENOENT (No such file or directory)
+
+	Thanks mickeyl in #openmoko-cdevel for telling me how to fix it:
+	  May 21 15:34:37 <mickeyl>       var location = Path.build_filename( prefix, @"$filename.conf" );
+
+2011-05-20  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: use $SYSCONFDIR for configuration file detection
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	libfsobasics: add vim tags for correct indentation with 4 spaces
+
+2011-05-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add utility functions for convenient sharing of data within a process
+
+2011-04-12  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: adjust style to match common style
+
+2011-03-11  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: add some new enumFromString method
+
+2011-03-09  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: tests: add some more enum converting tests
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump copyright notices for 2011
+
+2011-02-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: warnings--
+
+2011-02-18  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: you have to specify the command when attaching to a process
+
+	libfsobasics: process: rename pidof to findByName
+
+	libfsobasics: add attach method to process guard class
+
+	libfsobasics: pidof: use correct array index for validation
+
+2011-02-16  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: add own implementation of pidof method
+
+2011-02-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add hexdump function to StringUtils
+
+2011-02-05  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: register signal handler for Posix signals to log a backtrace
+
+2011-02-04  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: AsyncProcess: Use IOFuncs for stderr/stdout instead of signals
+
+2011-01-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: process: repair damage done by either a chainsaw, a mutant sed command, or hardware problems... NOTE: I just fixed the syntax errors...
+
+2011-01-28  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: Add AsyncProcess class
+	This class allows you to yield into commands and watch it's file descriptors
+
+2011-01-26  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: Add copyData method
+	This method checks the sizes of all buffers and chooses the smallest
+	before calling memcpy
+
+	libfsobasics: Add Async.sleep_async method
+
+2011-01-25  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: kernel module loader: first set value then check it ...
+
+2011-01-22  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: add convertEnum method (thanks playya!)
+
+2011-01-21  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: make enumToString und enumToNick typesafe delegates
+
+	libfsobasics: Add some more enum helper
+
+2011-01-20  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: Add data method to Logger for logging binary data in hexdump style
+
+2011-01-19  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: fix string creation in kernel module loader
+
+2011-01-19  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: add dataToString method to Utilitities
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: set G_LOG_DOMAIN
+
+2011-01-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: refactor glib logger and fix level switch
+
+2011-01-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: fix yield syntax for Vala 0.11.4; bump Vala dependency
+
+2011-01-14  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: harmonize GLib logger's output
+
+2011-01-13  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: Add append_bitfield to BinBuilder
+
+	libfsobasics: remove length arguement from Outpustream.write_async call
+
+	libfsobasics: Add GLib logger to track glib's internal messages
+
+	Merge branch 'master' of fso:cornucopia
+
+2011-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: smartkeyfile: add doubleValue for config
+
+2011-01-10  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	Merge branch 'master' of fso:cornucopia
+
+2011-01-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: simplify string <-> uint8[] conversion
+
+2011-01-07  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	fsobasics: Fix a small indent issue
+
+	fsobasics: add bitfield support to BinReader
+
+	fsobasics: add crc16_verify for BinReader
+
+	fsobasics: add crc16 methods for BinBuilder
+
+	fsobasics: Import crc16 code of morphis msmcomm implementation
+
+	fsobasics: Add BinReader tests
+
+	fsobasics: Add BinReader class
+
+2011-01-05  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	Merge branch 'master' of fso:cornucopia
+
+	libfsobasics: add simple testcases for BinBuilder
+
+	libfsobasics: Add BinBuilder class
+
+2010-12-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: delete private vapi copies for stuff that is now upstream
+
+2010-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala and glib-2.0 requirements
+
+2010-12-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	Merge remote branch 'origin/gdbus'
+
+2010-12-22  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	libfsobasics: add some netlink / socket consts in linux.vapi
+
+2010-12-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: if backtrace is not available, fill result with dummy string
+
+	libfsobasics: check whether the C library supports backtrace facilities, uclibc does not
+
+2010-12-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: make it compile against Vala 0.11.2
+
+2010-12-17  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: add simple helper class to load kernel modules
+
+2010-12-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: derive ReactorChannel from GLib.Object to make the rewind constructor appear
+
+2010-10-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: repair damage introduced with a561ec741ba93e6a70eca86d3822e75063c0209d NOTE: Objects need to be created before calling methods on them. Should fix FSO #587
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-08-27  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: fix compile error in ReactorChannel
+	Please check your commits first, even if it is a small change !! It's frustrating waiting
+	for a build and then it only fails cause there is a small error in the code ...
+
+2010-08-27  Sebastian Reichel  <sre@ring0.de>
+
+	avoid code duplication
+
+	libfsobasics: ReactorChannel: add new constructor
+	The new constructor is needed to preserve ABI compability.
+
+	libfsobasics: ReactorChannel: add sysfs capability
+	 * Add rewind option
+	 * watch PRI in addition to IN
+
+	This is needed to watch some sysfs files on the N900,
+	for example this one:
+
+	/sys/devices/platform/gpio-switch/proximity/state
+
+2010-07-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: write: allow overwriting existing files
+
+2010-07-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: utilities: add listDirectory()
+
+2010-07-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: require vala 0.9.3.x
+
+2010-07-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add StringHandling.filterByAllowedCharacters()
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-05-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: return array in textForUri() and bump version
+
+	libfsobasics: add utility function for retrieving a string via HTTP
+
+2010-05-16  Heiko Stuebner  <heiko@sntech.de>
+
+	libfsobasics: forward-declare vala_library methods
+
+2010-05-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: fix bunch of warnings; based on patch from Heiko Stübner
+
+2010-05-13  Maksim 'max_posedon' Melnikau  <maxposedon@gmail.com>
+
+	Fix using AC_ARG_ENABLE
+	Macro: AC_ARG_ENABLE (feature, help-string, [action-if-given],
+	[action-if-not-given]) works litte different as cornucopia expect:
+	1. action-if-given called when --enable-feature or --disable-feature
+	2. if it was --enable: $enableval="yes"
+	   if it was --disable: $enableval="no"
+	3. action-if-not-given is place for default value
+
+	See also:
+
+	http://www.gnu.org/software/hello/manual/autoconf/Package-Options.html
+	http://devmanual.gentoo.org/general-concepts/autotools/
+
+2010-05-09  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: there is not destination for kmsg logger
+
+	libfsobasics: add tests for kmsg logger
+
+	libfsobasics: implement basic kmsg logger
+
+2010-05-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add pair, triple, and quadtruple
+
+2010-05-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: process.vala: fix reporting spawn error
+
+2010-04-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsobasics: process: emit warning, if process guard is implicitly being freed
+
+	libfsobasics: process: fix implicit killing of process due to GProcessGuard being destroyed
+	This should prevent zombies in certain conditions
+
+	libfsobasics: process: rename method
+
+	libfsobasics: netlinknotifier: debug fixes
+
+2010-04-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add test for implicit killing of a GProcessGuard child
+	This demonstrates that we're creating zombies on implicit kill atm. :/
+
+2010-04-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: sync local vapi copies w/ upstream
+
+2010-04-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add typeInherits
+
+2010-04-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add writeContentsToFile; this supports partial writes
+
+	libfsobasics: fix typo in result check
+
+	libfsobasics: add readContentsOfFile()
+
+2010-04-03  Simon Busch  <morphis@gravedo.de>
+
+	libfsobasics: add createDirectory method
+
+2010-03-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: utilities: use FSO warnings instead of GLib ones
+
+2010-03-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: fix search path for configuration files
+
+	libfsobasics: fix testasyncworker
+
+	libfsobasics: add FileHandling.readIfPresent(); this one will not emit a warning, if requested file is not present
+
+2010-03-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: strip spaces from /proc/cpuinfo
+
+2010-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: remove vala thread support; does not make sense for libraries
+
+	add config.vapi and GITV everywhere
+
+2010-02-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add StringHandling.splitKeyValuePair()
+
+2010-02-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsoframework: inotifier: use FsoFramework logging instead of GLibs
+
+	libfsobasics: add Utility.machineConfigurationDir()
+
+2010-02-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: fix prefixForExecutable for sbin
+
+2010-02-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: utilities: add ReactorChannel.fileno()
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+2010-01-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: implement new search order for configuration files
+	For a configuration file 'foo', the following paths are now being searched:
+	* $PWD/.foo.conf
+	* $HOME/.foo.conf
+	* /etc/foo.conf
+	* /etc/freesmartphone/foo.conf
+	* /etc/freesmartphone/conf/<machine>/foo.conf
+	* /etc/freesmartphone/conf/default/foo.conf
+	where <machine> is the result of grep 'Hardware' /proc/cpuinfo
+
+	libfsobasics: utilities: add function to grep 'Hardware' from /proc/cpuinfo
+
+2010-01-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: fix netlink notifier unit test
+
+	libfsobasics: libnl is very low level -- binding it from Vala is a nightmare, hence we just abuse its convenient string-based dump interface.
+
+	libfsobasics: more work on netlinknotifier; bind more of netlink in .vapi
+
+2010-01-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: move netlink utilities from fsonetworkd to here
+
+2010-01-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: improve logger output formatting
+
+2010-01-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoframework: move scheduled-for-upstream vapis into libfsobasics/vapi
+
+	BIG CHANGE: move generic utility classes that have nothing to do with the framework, subsystems, or plugins into libfsobasics. Bump versions to reflect actual state and add some more unit tests.
+
+2010-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	sync. MAINTAINERS file
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	adjust (C) for 2010
+
+2010-01-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: fix bogus sizeof statement NOTE to self: NEVER EVER commit without compiling, even if it's just a tiny little change
+
+	libfsobasics: tests: ReactorChannel reads from /dev/zero now
+
+2010-01-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: ReactorChannel: stop watch on HUP
+
+	libfsobasics: simplify interface for ReactorChannel
+
+2010-01-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: push morelinux.vapi upstream; require vala 0.7.9.2 now
+
+2009-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: callDelegateOnNewThread() now works
+
+	libfsobasics: add debug build configuration (--enable-debug) misc cleanups wrt. loggers and keyfiles; bump vala requirement
+
+2009-12-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add callDelegateOnNewThread(), which happily segfaults all over
+
+2009-12-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: calling selector, err... function on main thread works now
+
+2009-12-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add some experimental threading stuff
+
+2009-12-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: ReactorChannel: call delegate with (null, 0) on HUP
+
+	libfsobasics: add new class ReactorChannel. This encapsulates an IOChannel that gets hooked up with the mainloop. If data is available, it is being read and the dataReadyFunc is being called.
+
+	libfsobasics: post-release version bump
+
+	libfsobasics: this is 0.9.0
+
+	libfsobasics: fix smartkeyfile unit tests; add firstAvailableProgram() utility function
+
+2009-11-19  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: prepare for per-daemon configuration files
+	If found, the per-process default configuration file will now be available as
+	FsoFramework.theConfig, likewise the default logger as FsoFramework.theLogger.
+
+2009-11-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add c file that hooks us into the dynamic linker, providing init and fini methods. Yes, we're gcc-specific and won't run on windows now.
+
+2009-11-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsobasics: logger: also supply O_CREATE so that we can appending to a (not existing) log
+
+2009-11-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: allocate 1M
+
+2009-11-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: remove Network function; enable backtrace and require Vala 0.7.8.1
+
+	libfsobasics: add Utility.createBacktrace() NOTE: function disabled until Vala 0.7.9 or (inofficial) 0.7.8.1 release
+
+2009-11-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: rewrite removeTree() for systems that lack proper d_type reporting in readdir(2)
+
+	libfsobasics: add FileHandling.removeTree()
+
+2009-11-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: debug--
+
+	all: bump Vala requirement and enable silent automake rules, if available
+
+	libfsobasics: post-release version bump
+
+	libfsobasics: catch up with vala 0.7.8
+	* no longer needs misc-vapi
+	* use string templates
+	* create StdErrLogger which is default (rather than NullLogger), if logger type unknown
+
+2009-11-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: revert the last commit in favour of DirUtils.create_with_parents()
+
+2009-11-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add FileHandling.writeBuffer() and FileHandling.createDirectoryHierarchy()
+
+2009-10-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: smartkeyfile: add write<T> utilities: allow creating files during a call to write()
+
+2009-10-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: always dump critical errors to stderr before aborting.
+
+2009-10-23  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: relax dependencies, bump version number before vala 0.7.8 release
+
+2009-10-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: dim yellow
+
+	libfsobasics: enable colored output for logger 'stderr:colors'
+
+2009-10-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: fix types namespace and add Pair<T1,T2>
+
+2009-10-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add missing file, thanks heinervdm
+
+	add fsogspd to top-level Makefile
+
+2009-10-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: use pkgconfig to check for misc-vapi
+
+	libfsobasics: post-release version bump
+
+	libfsobasics: logger: return true for debug/info/warning/error/critical, so that we can use it embedded in calls to 'assert' this is version 0.8.3.1
+
+2009-09-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: remove generated vapi file
+
+2009-09-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsobasics: logger: fix overriding log_level by setting FSO_LOG_LEVEL
+
+2009-09-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: remove unnecessary dependencies from pkgconfig file
+
+	libfsobasics: post-release version bump
+
+	libfsobasics: catch up with inclusion of linux.vapi upstream vala This is version 0.8.3
+
+2009-09-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsobasics: don't assert_not_reached() on logger.critical; exit(FAILURE) instead and dump a message
+
+2009-09-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: sync COPYING file with license as found in code
+
+2009-09-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: post-release version bump
+
+2009-08-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: add StringHandling.enumToString courtesy Playya.
+
+2009-08-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: utilities: cache program name result
+
+	libfsobasics: move prefixForExecutable from libfsoframework to here and add test for it
+
+2009-08-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: logger: separate keyfile group to read configuration from from domain
+
+	libfsobasics: logger: add Logger.createFromKeyFileName( filename, domain )
+
+2009-08-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: post-release version bump
+
+	libfsobasics: fill in MAINTAINERS
+
+	README cleanup
+
+2009-08-02  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: logger: add missing reprdelegate for syslog logger
+
+	libfsobasics: logger: new API Logger.createFromKeyFile( SmartKeyFile smk, string domain) to create a logger from an entry in a configuration file
+
+2009-07-22  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsobasics: fix warning in logger
+
+2009-07-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsobasics: fix include dir
+
+	fsobasics: new library containing the omre versatile utility classes previously found in libfsoframework

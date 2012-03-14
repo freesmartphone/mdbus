@@ -1,2 +1,174 @@
-Please see git log for details or NEWS for large-scale changes.
+2012-03-10  Simon Busch  <morphis@gravedo.de>
 
+	Bump version to 0.10.0 and for all FSO dependencies too
+
+	drop GITV as version postfix for all components
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required fso-glib version of all components to 2012.14.1
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-07-12  Simon Busch  <morphis@gravedo.de>
+
+	libfsoresource: if we could not register the resource enable it at least
+
+	libfsoresource: implement resource registration after registration was lost
+	In a few cases it can happen that the fsousage daemon dies. When it comes back again all
+	registrations are lost. Especially when using shadow resources this will let the usage
+	daemon wait for ever for the resource to register again. The AbstractDBusResource will
+	now watch if the usage bus disappears and then register the resource again when it comes
+	back.
+
+	In a stable system this case should never happen but when it happens it is better when the
+	system can solve this simple problem on its own.
+
+2011-07-10  Simon Busch  <morphis@gravedo.de>
+
+	libfsoresource: we're using gdbus only so we should use GVariant instead of GValue
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	libfsoresource: add vim tags for correct indentation with 4 spaces
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump copyright notices for 2011
+
+2011-01-18  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	libfsoresource: set G_LOG_DOMAIN
+
+2011-01-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresource: rewrite resource init, bump Vala dependency
+
+2011-01-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresource: catch errors during dbus object registration TODO: Use subsystem infrastructure rather than registering the object itself
+
+2010-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala and glib-2.0 requirements
+
+2010-12-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresource: catch up with vala
+
+	libfsoresource: (gdbus) fix catching errors when we can't get the proxy
+
+	libfsoresource: (gdbus) switch to gdbus
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-08-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresource: catch up with extended org.freesmartphone.Usage.Resource API
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-05-13  Maksim 'max_posedon' Melnikau  <maxposedon@gmail.com>
+
+	Fix using AC_ARG_ENABLE
+	Macro: AC_ARG_ENABLE (feature, help-string, [action-if-given],
+	[action-if-not-given]) works litte different as cornucopia expect:
+	1. action-if-given called when --enable-feature or --disable-feature
+	2. if it was --enable: $enableval="yes"
+	   if it was --disable: $enableval="no"
+	3. action-if-not-given is place for default value
+
+	See also:
+
+	http://www.gnu.org/software/hello/manual/autoconf/Package-Options.html
+	http://devmanual.gentoo.org/general-concepts/autotools/
+
+2010-05-12  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	catch up with libfso-glib new versioning scheme
+
+2010-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsobasics: remove vala thread support; does not make sense for libraries
+
+	add config.vapi and GITV everywhere
+
+2010-02-21  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresource: enable now can raise a resource error as well
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	adjust (C) for 2010
+
+2009-12-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresource: enable debug build
+
+2009-11-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	all: bump Vala requirement and enable silent automake rules, if available
+
+	libfsoresource: post-release version bump
+
+	libfsoresource: do not require linux, posix, nor posixextra
+
+2009-10-15  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresources: add dependencies to pkgconfig file
+
+2009-10-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	add fsogspd to top-level Makefile
+
+2009-10-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresource: comment out tests for now
+
+2009-10-04  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresource: async interface
+
+2009-10-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	libfsoresource: make it an abstract class
+
+	libfsoresource: add new library to ease implementing DBus servers with Resource objects that comply to the FSO resource system
