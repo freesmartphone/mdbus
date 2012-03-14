@@ -10,7 +10,6 @@ SUBDIRS = \
 	fsodeviced \
 	fsogsmd \
 	fsonetworkd \
-	fsophoned \
 	fsousaged \
 	fsotdld
 
