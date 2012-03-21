@@ -15,7 +15,7 @@ progs_ldadd = \
 	$(FSO_GLIB_LIBS) \
 	$(FSO_LIBS) \
 	$(DBUS_LIBS) \
-	$(top_srcdir)/src/lib/libfsonetwork.la \
+	$(top_builddir)/src/lib/libfsonetwork.la \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -40,6 +40,11 @@ $(sharing_la_SOURCES): $(sharing_la_VALASOURCES)
 sharing_la_LIBADD = $(progs_ldadd)
 sharing_la_LDFLAGS = -no-undefined -module -avoid-version
 sharing_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(sharing_la_VALASOURCES) \
+	$(sharing_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     plugin.c \

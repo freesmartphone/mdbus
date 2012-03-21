@@ -37,6 +37,7 @@ fsonetworkd_LDADD = \
 
 EXTRA_DIST += \
 	$(fsonetworkd_VALASOURCES) \
+	$(fsonetworkd_SOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
 
