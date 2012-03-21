@@ -32,7 +32,7 @@ void main (string[] args)
 //===========================================================================
 {
     Test.init (ref args);
-    Test.add_func( "/FsoTime/SourceNtp/all", test_it );
+    // Test.add_func( "/FsoTime/SourceNtp/all", test_it );
     Test.run ();
 }
 
