@@ -37,6 +37,7 @@ fsosystemd_LDADD = \
 
 EXTRA_DIST += \
 	$(fsosystemd_VALASOURCES) \
+	$(fsosystemd_SOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
 

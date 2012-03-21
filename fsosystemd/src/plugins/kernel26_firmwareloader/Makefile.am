@@ -41,6 +41,7 @@ kernel26_firmwareloader_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(kernel26_firmwareloader_la_VALASOURCES) \
+	$(kernel26_firmwareloader_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \
