@@ -13,7 +13,7 @@ AM_CFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
-	$(top_srcdir)/src/lib/libfsousage.la \
+	$(top_builddir)/src/lib/libfsousage.la \
 	$(GEE_LIBS) \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
@@ -49,13 +49,16 @@ lowlevel_palmpre_la_LIBADD = $(progs_ldadd)
 lowlevel_palmpre_la_LDFLAGS = -no-undefined -module -avoid-version
 lowlevel_palmpre_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(lowlevel_palmpre_la_VALASOURCES) \
+	$(lowlevel_palmpre_la_SOURCES) \
+	$(NULL)
+
 CLEANFILES = \
-    plugin.c \
-    plugin.h \
-    *.la \
-    *.lo \
-    $(NULL)
+	$(lowlevel_palmpre_la_SOURCES) \
+	$(NULL)
 
 MAINTAINERCLEANFILES = \
-  Makefile.in \
-  $(NULL)
+	$(lowlevel_palmpre_la_SOURCES) \
+	Makefile.in \
+	$(NULL)

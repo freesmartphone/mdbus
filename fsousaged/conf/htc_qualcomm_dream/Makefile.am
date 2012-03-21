@@ -2,9 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-THISDIR = `basename $$PWD`
-
-confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
+confdir = $(sysconfdir)/freesmartphone/conf/htc_qualcomm_dream
 dist_conf_DATA = \
 	fsousaged.conf \
 	$(NULL)

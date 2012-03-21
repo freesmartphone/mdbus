@@ -13,7 +13,7 @@ AM_CFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
-	$(top_srcdir)/src/lib/libfsousage.la \
+	$(top_builddir)/src/lib/libfsousage.la \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
 	$(FSO_LIBS) \
@@ -50,13 +50,15 @@ dbus_service_la_LIBADD = $(progs_ldadd)
 dbus_service_la_LDFLAGS = -no-undefined -module -avoid-version
 dbus_service_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(dbus_service_la_VALASOURCES) \
+	$(dbus_service_la_SOURCES)
+
 CLEANFILES = \
-    plugin.c \
-    plugin.h \
-    *.la \
-    *.lo \
-    $(NULL)
+	$(dbus_service_la_SOURCES) \
+	$(NULL)
 
 MAINTAINERCLEANFILES = \
   Makefile.in \
+  $(dbus_service_la_SOURCES) \
   $(NULL)

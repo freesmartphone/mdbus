@@ -9,6 +9,8 @@ SUBDIRS = \
 	tests \
 	$(NULL)
 
+DISTCHECK_CONFIGURE_FLAGS = --disable-datafiles
+
 MAINTAINERCLEANFILES = \
 	aclocal.m4 compile config.guess config.sub \
 	configure depcomp install-sh ltmain.sh     \
