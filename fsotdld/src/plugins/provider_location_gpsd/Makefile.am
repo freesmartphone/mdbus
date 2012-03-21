@@ -18,11 +18,11 @@ progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
 	$(GPS_LIBS) \
-	$(top_srcdir)/src/lib/libfsotdl.la
+	$(top_builddir)/src/lib/libfsotdl.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/src/lib \
 	--vapidir . \
 	--pkg posix \
 	--pkg glib-2.0 \
@@ -48,6 +48,11 @@ $(provider_location_gpsd_la_SOURCES): $(provider_location_gpsd_la_VALASOURCES)
 provider_location_gpsd_la_LIBADD = $(progs_ldadd)
 provider_location_gpsd_la_LDFLAGS = -no-undefined -module -avoid-version
 provider_location_gpsd_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(provider_location_gpsd_la_VALASOURCES) \
+	$(provider_location_gpsd_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

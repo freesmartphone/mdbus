@@ -16,11 +16,11 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsotdl.la
+	$(top_builddir)/src/lib/libfsotdl.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/src/lib \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
@@ -43,6 +43,11 @@ $(provider_gps_nmea_la_SOURCES): $(provider_gps_nmea_la_VALASOURCES)
 provider_gps_nmea_la_LIBADD = $(progs_ldadd)
 provider_gps_nmea_la_LDFLAGS = -no-undefined -module -avoid-version
 provider_gps_nmea_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(provider_gps_nmea_la_VALASOURCES) \
+	$(provider_gps_nmea_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

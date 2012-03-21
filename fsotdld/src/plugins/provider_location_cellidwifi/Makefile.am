@@ -20,7 +20,7 @@ progs_ldadd = \
 	$(GEE_LIBS) \
 	$(SOUP_LIBS) \
 	$(JSON_LIBS) \
-	$(top_srcdir)/src/lib/libfsotdl.la
+	$(top_builddir)/src/lib/libfsotdl.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -50,6 +50,11 @@ $(provider_location_cellidwifi_la_SOURCES): $(provider_location_cellidwifi_la_VA
 provider_location_cellidwifi_la_LIBADD = $(progs_ldadd)
 provider_location_cellidwifi_la_LDFLAGS = -no-undefined -module -avoid-version
 provider_location_cellidwifi_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(provider_location_cellidwifi_la_VALASOURCES) \
+	$(provider_location_cellidwifi_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

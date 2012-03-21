@@ -15,12 +15,12 @@ progs_ldadd = \
 	$(FSO_GLIB_LIBS) \
 	$(FSO_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsotdl.la \
+	$(top_builddir)/src/lib/libfsotdl.la \
 	$(NULL)
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/fsoframework \
+	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
@@ -41,13 +41,16 @@ alarm_la_LIBADD = $(progs_ldadd)
 alarm_la_LDFLAGS = -no-undefined -module -avoid-version
 alarm_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(alarm_la_VALASOURCES) \
+	$(alarm_la_SOURCES) \
+	$(NULL)
+
 CLEANFILES = \
-    plugin.c \
-    plugin.h \
-    *.la \
-    *.lo \
-    $(NULL)
+	*.h \
+	$(alarm_la_SOURCES) \
+	$(NULL)
 
 MAINTAINERCLEANFILES = \
-  Makefile.in \
-  $(NULL)
+	Makefile.in \
+	$(NULL)

@@ -35,7 +35,7 @@ $(testsourcentp_SOURCES): $(testsourcentp_VALASOURCES)
 	$(VALAC) -C $(VALAC_ARGS) $^
 	touch $@
 testsourcentp_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testsourcentp_VALASOURCES)
+EXTRA_DIST += $(testsourcentp_VALASOURCES) $(testsourcentp_SOURCES)
 
 
 CLEANFILES = \

@@ -15,11 +15,11 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsotdl.la
+	$(top_builddir)/src/lib/libfsotdl.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
@@ -41,6 +41,11 @@ $(contextmanager_la_SOURCES): $(contextmanager_la_VALASOURCES)
 contextmanager_la_LIBADD = $(progs_ldadd)
 contextmanager_la_LDFLAGS = -no-undefined -module -avoid-version
 contextmanager_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(contextmanager_la_VALASOURCES) \
+	$(contextmanager_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

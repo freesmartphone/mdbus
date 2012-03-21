@@ -37,12 +37,12 @@ fsotdld_LDADD = \
 
 EXTRA_DIST += \
 	$(fsotdld_VALASOURCES) \
+	$(fsotdld_SOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \
-	*.c \
-	*.h \
+	$(fsotdld_SOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
 

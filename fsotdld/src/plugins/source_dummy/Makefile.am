@@ -17,11 +17,11 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsotdl.la
+	$(top_builddir)/src/lib/libfsotdl.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/src/lib \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
@@ -44,6 +44,11 @@ $(source_dummy_la_SOURCES): $(source_dummy_la_VALASOURCES)
 source_dummy_la_LIBADD = $(progs_ldadd)
 source_dummy_la_LDFLAGS = -no-undefined -module -avoid-version
 source_dummy_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(source_dummy_la_VALASOURCES) \
+	$(source_dummy_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \
