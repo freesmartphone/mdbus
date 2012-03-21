@@ -58,10 +58,10 @@ AC_ARG_ENABLE(debug,
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
 # output
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([
+  Makefile
   fsoframework-2.0.pc
-  fsoframework/Makefile
-  tests/Makefile])
+  fsoframework/Makefile])
 
 AC_OUTPUT
 

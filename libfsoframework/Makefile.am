@@ -5,7 +5,6 @@ NULL =
 SUBDIRS = \
   fsoframework \
   $(NULL)
-# tests
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = fsoframework-2.0.pc
