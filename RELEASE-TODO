@@ -5,7 +5,7 @@ version 0.10
     - 665, 666, 668
 
 * check wether all unit tests are still running and valid
-    - libfsobasics: test_kobjectnotifier_add_match fails
+    - libfsobasics: test_kobjectnotifier_add_match fails [OK]
 * bump version of all components to 0.10 [OK]
 * required vala version for this release is 0.14.2 [OK]
 * check default configuration (enable switches)
@@ -18,7 +18,7 @@ version 0.10
     - (Palm Pre)
 * write release announcement
 * remove git revision from configure scripts [OK]
-* update changelog from git log
+* update changelog from git log [OK]
 
 * tests: we need to distinguish between integration and unit tests
     - libfsosystem: move network and module tests to fsotest project [OK]
@@ -40,3 +40,4 @@ version 0.10
     - fsodeviced
     - fsonetworkd
     - fsodatad
+    - fsotdld
