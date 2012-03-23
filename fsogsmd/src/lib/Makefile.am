@@ -135,6 +135,7 @@ dist_vapi_DATA = \
 
 EXTRA_DIST += \
 	$(libfsogsm_la_VALASOURCES) \
+	$(libfsogsm_la_SOURCES) \
 	$(BUILT_SOURCES)
 
 CLEANFILES = \

@@ -17,7 +17,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsogsm.la
+	$(top_builddir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -45,6 +45,11 @@ $(dbus_service_la_SOURCES): $(dbus_service_la_VALASOURCES)
 dbus_service_la_LIBADD = $(progs_ldadd)
 dbus_service_la_LDFLAGS = -no-undefined -module -avoid-version
 dbus_service_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(dbus_service_la_VALASOURCES) \
+	$(dbus_service_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

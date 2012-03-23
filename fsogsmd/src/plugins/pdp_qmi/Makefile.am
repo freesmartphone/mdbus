@@ -12,7 +12,7 @@ AM_CPPFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
-	$(top_srcdir)/src/lib/libfsogsm.la \
+	$(top_builddir)/src/lib/libfsogsm.la \
 	$(FSO_LIBS) \
 	$(NULL)
 
@@ -39,6 +39,11 @@ $(pdp_qmi_la_SOURCES): $(pdp_qmi_la_VALASOURCES)
 pdp_qmi_la_LIBADD = $(progs_ldadd)
 pdp_qmi_la_LDFLAGS = -no-undefined -module -avoid-version
 pdp_qmi_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(pdp_qmi_la_VALASOURCES) \
+	$(pdp_qmi_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     plugin.c \

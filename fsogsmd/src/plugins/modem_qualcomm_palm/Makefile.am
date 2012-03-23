@@ -79,6 +79,11 @@ modem_qualcomm_palm_la_LIBADD = $(progs_ldadd)
 modem_qualcomm_palm_la_LDFLAGS = -no-undefined -module -avoid-version
 modem_qualcomm_palm_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(modem_qualcomm_palm_la_VALASOURCES) \
+	$(modem_qualcomm_palm_la_SOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     *.c \
     *.h \

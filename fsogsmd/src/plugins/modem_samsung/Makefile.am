@@ -20,11 +20,11 @@ progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
 	$(SAMSUNG_LIBS) \
-	$(top_srcdir)/src/lib/libfsogsm.la
+	$(top_builddir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/src/plugins/modem_samsung \
 	--pkg posix \
 	--pkg glib-2.0 \
@@ -80,6 +80,11 @@ $(modem_samsung_la_SOURCES): $(modem_samsung_la_VALASOURCES)
 modem_samsung_la_LIBADD = $(progs_ldadd)
 modem_samsung_la_LDFLAGS = -no-undefined -module -avoid-version
 modem_samsung_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(modem_samsung_la_VALASOURCES) \
+	$(modem_samsung_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

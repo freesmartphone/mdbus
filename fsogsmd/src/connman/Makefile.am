@@ -18,11 +18,11 @@ progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
 	$(CONNMAN_LIBS) \
-	$(top_srcdir)/src/lib/libfsogsm.la
+	$(top_builddir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg connman \
 	--pkg glib-2.0 \
@@ -51,6 +51,11 @@ $(fsogsm_la_SOURCES): $(fsogsm_la_VALASOURCES)
 fsogsm_la_LIBADD = $(progs_ldadd)
 fsogsm_la_LDFLAGS = -no-undefined -module -avoid-version
 fsogsm_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(fsogsm_la_VALASOURCES) \
+	$(fsogsm_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     $(fsogsm_la_VALASOURCES:.vala=.c) \

@@ -37,6 +37,7 @@ fsogsmd_LDADD = \
 
 EXTRA_DIST += \
 	$(fsogsmd_VALASOURCES) \
+	$(fsogsmd_SOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
 

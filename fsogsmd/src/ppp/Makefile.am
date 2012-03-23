@@ -17,11 +17,11 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsogsm.la
+	$(top_builddir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../../lib \
+	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg ppp \
 	--pkg glib-2.0 \
@@ -45,6 +45,12 @@ $(ppp2fsogsmd_la_SOURCES): $(ppp2fsogsmd_la_VALASOURCES)
 ppp2fsogsmd_la_LIBADD = $(progs_ldadd)
 ppp2fsogsmd_la_LDFLAGS = -no-undefined -module -avoid-version
 ppp2fsogsmd_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(ppp2fsogsmd_la_VALASOURCES) \
+	$(ppp2fsogsmd_la_SOURCES) \
+	pppd-local.h \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

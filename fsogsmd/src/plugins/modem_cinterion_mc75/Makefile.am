@@ -17,11 +17,11 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsogsm.la
+	$(top_builddir)/src/lib/libfsogsm.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ../../lib \
+	--vapidir $(top_builddir)/src/lib \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
@@ -45,6 +45,11 @@ $(modem_cinterion_mc75_la_SOURCES): $(modem_cinterion_mc75_la_VALASOURCES)
 modem_cinterion_mc75_la_LIBADD = $(progs_ldadd)
 modem_cinterion_mc75_la_LDFLAGS = -no-undefined -module -avoid-version
 modem_cinterion_mc75_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(modem_cinterion_mc75_la_VALASOURCES) \
+	$(modem_cinterion_mc75_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \
