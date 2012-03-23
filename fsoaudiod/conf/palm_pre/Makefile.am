@@ -3,9 +3,7 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 SUBDIRS = audio-scripts
 
-THISDIR = `basename $$PWD`
-
-confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
+confdir = $(sysconfdir)/freesmartphone/conf/palm_pre
 dist_conf_DATA = \
 	fsoaudiod.conf \
 	$(NULL)
@@ -18,7 +16,7 @@ COMPAT = \
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)/etc/freesmartphone/conf/
-	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(DESTDIR)/etc/freesmartphone/conf/$$compat; done
+	for compat in $(COMPAT); do ln -sf ./palm_pre $(DESTDIR)/etc/freesmartphone/conf/$$compat; done
 
 
 MAINTAINERCLEANFILES = Makefile.in

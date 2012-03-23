@@ -18,7 +18,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsoaudio.la
+	$(top_builddir)/src/lib/libfsoaudio.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -48,6 +48,11 @@ $(gsmvoice_alsa_forwarder_la_SOURCES): $(gsmvoice_alsa_forwarder_la_VALASOURCES)
 gsmvoice_alsa_forwarder_la_LIBADD = $(progs_ldadd)
 gsmvoice_alsa_forwarder_la_LDFLAGS = -no-undefined -module -avoid-version -lm
 gsmvoice_alsa_forwarder_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(gsmvoice_alsa_forwarder_la_VALASOURCES) \
+	$(gsmvoice_alsa_forwarder_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     plugin.c \

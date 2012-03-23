@@ -1,10 +1,9 @@
 include $(top_srcdir)/Makefile.decl
 
 NULL=
-THISDIR = `basename $$PWD`
-# SUBDIRS = alsa-default
+SUBDIRS = alsa-default
 
-confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
+confdir = $(sysconfdir)/freesmartphone/conf/herring
 dist_conf_DATA = \
 	fsoaudiod.conf \
 	policy.conf \

@@ -39,6 +39,11 @@ fsoaudio_session_la_LIBADD = $(progs_ldadd)
 fsoaudio_session_la_LDFLAGS = -no-undefined -module -avoid-version
 fsoaudio_session_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	$(fsoaudio_session_la_VALASOURCES) \
+	$(fsoaudio_session_la_SOURCES) \
+	$(NULL)
+
 CLEANFILES = \
     $(fsoaudio_session_la_VALASOURCES:.vala=.c) \
     *.la \

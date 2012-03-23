@@ -16,7 +16,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsoaudio.la
+	$(top_builddir)/src/lib/libfsoaudio.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -46,6 +46,11 @@ $(streamcontrol_alsa_la_SOURCES): $(streamcontrol_alsa_la_VALASOURCES)
 streamcontrol_alsa_la_LIBADD = $(progs_ldadd)
 streamcontrol_alsa_la_LDFLAGS = -no-undefined -module -avoid-version
 streamcontrol_alsa_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(streamcontrol_alsa_la_VALASOURCES) \
+	$(streamcontrol_alsa_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

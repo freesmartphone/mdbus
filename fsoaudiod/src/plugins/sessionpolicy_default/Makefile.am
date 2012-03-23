@@ -16,7 +16,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsoaudio.la
+	$(top_builddir)/src/lib/libfsoaudio.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -46,6 +46,11 @@ $(sessionpolicy_default_la_SOURCES): $(sessionpolicy_default_la_VALASOURCES)
 sessionpolicy_default_la_LIBADD = $(progs_ldadd)
 sessionpolicy_default_la_LDFLAGS = -no-undefined -module -avoid-version
 sessionpolicy_default_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(sessionpolicy_default_la_VALASOURCES) \
+	$(sessionpolicy_default_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

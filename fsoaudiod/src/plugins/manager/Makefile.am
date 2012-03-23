@@ -16,7 +16,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsoaudio.la
+	$(top_builddir)/src/lib/libfsoaudio.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -46,6 +46,11 @@ $(manager_la_SOURCES): $(manager_la_VALASOURCES)
 manager_la_LIBADD = $(progs_ldadd)
 manager_la_LDFLAGS = -no-undefined -module -avoid-version
 manager_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(manager_la_VALASOURCES) \
+	$(manager_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

@@ -16,7 +16,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsoaudio.la
+	$(top_builddir)/src/lib/libfsoaudio.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -46,6 +46,11 @@ $(router_alsa_la_SOURCES): $(router_alsa_la_VALASOURCES)
 router_alsa_la_LIBADD = $(progs_ldadd)
 router_alsa_la_LDFLAGS = -no-undefined -module -avoid-version
 router_alsa_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(router_alsa_la_VALASOURCES) \
+	$(router_alsa_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \

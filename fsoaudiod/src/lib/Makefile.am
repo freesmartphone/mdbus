@@ -71,6 +71,7 @@ dist_vapi_DATA = \
 
 EXTRA_DIST += \
 	$(libfsoaudio_la_VALASOURCES) \
+	$(libfsoaudio_la_SOURCES) \
 	$(BUILT_SOURCES)
 
 CLEANFILES = \
