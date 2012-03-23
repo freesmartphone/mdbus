@@ -67,6 +67,7 @@ dist_vapi_DATA = \
 
 EXTRA_DIST += \
 	$(libfsodata_la_VALASOURCES) \
+	$(libfsodata_la_SOURCES) \
 	$(BUILT_SOURCES)
 
 CLEANFILES = \

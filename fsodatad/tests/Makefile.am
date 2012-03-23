@@ -27,7 +27,7 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsodata-2.0
 
-TEST_PROGS += testworld
+# TEST_PROGS += testworld
 testworld_VALASOURCES = testworld.vala
 testworld_SOURCES = testworld.c
 $(testworld_SOURCES): $(testworld_VALASOURCES)

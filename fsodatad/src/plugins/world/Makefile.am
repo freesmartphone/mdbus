@@ -17,7 +17,7 @@ progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
-	$(top_srcdir)/src/lib/libfsodata.la
+	$(top_builddir)/src/lib/libfsodata.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -46,6 +46,11 @@ $(world_la_SOURCES): $(world_la_VALASOURCES)
 world_la_LIBADD = $(progs_ldadd)
 world_la_LDFLAGS = -no-undefined -module -avoid-version
 world_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	$(world_la_VALASOURCES) \
+	$(world_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     *.c \
