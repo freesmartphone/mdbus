@@ -11,7 +11,7 @@ AM_CPPFLAGS = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
+progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_builddir)/src/lib/libfsodevice.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -38,6 +38,7 @@ powersupply_n900_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(powersupply_n900_la_VALASOURCES) \
+	$(powersupply_n900_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \

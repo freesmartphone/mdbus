@@ -12,7 +12,7 @@ AM_CPPFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
-	$(top_srcdir)/src/lib/libfsodevice.la \
+	$(top_builddir)/src/lib/libfsodevice.la \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
@@ -42,6 +42,7 @@ router_alsa_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(router_alsa_la_VALASOURCES) \
+	$(router_alsa_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \

@@ -4,9 +4,7 @@ NULL=
 
 # SUBDIRS = alsa-default
 
-THISDIR = `basename $$PWD`
-
-confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
+confdir = $(sysconfdir)/freesmartphone/conf/palm_pre
 dist_conf_DATA = \
 	fsodeviced.conf \
 	$(NULL)
@@ -18,7 +16,7 @@ COMPAT = \
 	$(NULL)
 
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)/etc/freesmartphone/conf/
-	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(DESTDIR)/etc/freesmartphone/conf/$$compat; done
+	$(mkinstalldirs) $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/
+	for compat in $(COMPAT); do ln -sf ./palm_pre $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/$$compat; done
 
 MAINTAINERCLEANFILES = Makefile.in

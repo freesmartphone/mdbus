@@ -4,9 +4,7 @@ NULL=
 
 # SUBDIRS = alsa-default
 
-THISDIR = `basename $$PWD`
-
-confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
+confdir = $(sysconfdir)/freesmartphone/conf/htcleo
 dist_conf_DATA = \
 	fsodeviced.conf \
 	$(NULL)

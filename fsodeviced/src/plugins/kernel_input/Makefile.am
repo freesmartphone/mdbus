@@ -10,7 +10,7 @@ AM_CFLAGS = \
 	$(NULL)
 
 progs_ldadd = \
-	$(top_srcdir)/src/lib/libfsodevice.la \
+	$(top_builddir)/src/lib/libfsodevice.la \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)

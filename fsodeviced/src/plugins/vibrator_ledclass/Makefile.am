@@ -12,7 +12,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
 	$(FSO_LIBS) \
-	$(top_srcdir)/src/lib/libfsodevice.la \
+	$(top_builddir)/src/lib/libfsodevice.la \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -38,6 +38,7 @@ vibrator_ledclass_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(vibrator_ledclass_la_VALASOURCES) \
+	$(vibrator_ledclass_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \

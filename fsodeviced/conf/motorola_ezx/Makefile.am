@@ -2,9 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-THISDIR = `basename $$PWD`
-
-confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
+confdir = $(sysconfdir)/freesmartphone/conf/motorola_ezx
 dist_conf_DATA = \
 	fsodeviced.conf \
 	$(NULL)
@@ -18,7 +16,7 @@ COMPAT = \
 	$(NULL)
 
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)/etc/freesmartphone/conf/
-	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(DESTDIR)/etc/freesmartphone/conf/$$compat; done
+	$(mkinstalldirs) $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/
+	for compat in $(COMPAT); do ln -sf ./motorola_ezx $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/$$compat; done
 
 MAINTAINERCLEANFILES = Makefile.in

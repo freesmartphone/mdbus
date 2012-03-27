@@ -12,7 +12,7 @@ AM_CPPFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
-	$(top_srcdir)/src/lib/libfsodevice.la \
+	$(top_builddir)/src/lib/libfsodevice.la \
 	$(GLIB_LIBS) \
 	$(FSO_LIBS) \
 	$(NULL)
@@ -44,6 +44,7 @@ accelerometer_lis302_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(accelerometer_lis302_la_VALASOURCES) \
+	$(accelerometer_lis302_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \

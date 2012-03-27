@@ -14,7 +14,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
-	$(top_srcdir)/src/lib/libfsodevice.la
+	$(top_builddir)/src/lib/libfsodevice.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -41,6 +41,7 @@ kernel26_cpufreq_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(kernel26_cpufreq_la_VALASOURCES) \
+	$(kernel26_cpufreq_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \

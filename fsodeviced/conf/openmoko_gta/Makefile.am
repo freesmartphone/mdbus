@@ -9,9 +9,7 @@ SUBDIRS = \
 	alsa-2.6.39 \
 	$(NULL)
 
-THISDIR = `basename $$PWD`
-
-confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
+confdir = $(sysconfdir)/freesmartphone/conf/openmoko_gta
 dist_conf_DATA = \
 	fsodeviced.conf \
 	alsa.conf \
@@ -24,8 +22,8 @@ COMPAT = \
 	$(NULL)
 
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)/etc/freesmartphone/conf/
-	ln -sf alsa-2.6.39 $(DESTDIR)/etc/freesmartphone/conf/$(THISDIR)/alsa-default
-	for compat in $(COMPAT); do ln -sf ./$(THISDIR) $(DESTDIR)/etc/freesmartphone/conf/$$compat; done
+	$(mkinstalldirs) $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/
+	ln -sf alsa-2.6.39 $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/openmoko_gta/alsa-default
+	for compat in $(COMPAT); do ln -sf ./openmoko_gta $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/$$compat; done
 
 MAINTAINERCLEANFILES = Makefile.in

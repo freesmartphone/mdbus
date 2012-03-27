@@ -54,8 +54,8 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/SoundSystem/Controls", test_controls );
-    Test.add_func( "/SoundSystem/Mixer", test_mixer );
+    // Test.add_func( "/SoundSystem/Controls", test_controls );
+    // Test.add_func( "/SoundSystem/Mixer", test_mixer );
 
     Test.run();
 }

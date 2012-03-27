@@ -12,7 +12,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
 	$(FSO_LIBS) \
-	$(top_srcdir)/src/lib/libfsodevice.la \
+	$(top_builddir)/src/lib/libfsodevice.la \
 	$(NULL)
 
 VALAC_ARGS = \
@@ -39,6 +39,7 @@ proximity_n900_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(proximity_n900_la_VALASOURCES) \
+	$(proximity_n900_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \

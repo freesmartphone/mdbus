@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_srcdir)/src/lib/libfsodevice.la
+progs_ldadd = $(FSO_LIBS) $(DBUS_LIBS) $(top_builddir)/src/lib/libfsodevice.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -36,6 +36,7 @@ kernel_info_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(kernel_info_la_VALASOURCES) \
+	$(kernel_info_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \

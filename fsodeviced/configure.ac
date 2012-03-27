@@ -175,6 +175,7 @@ AC_CONFIG_FILES([
   data/Makefile
   data/org.freesmartphone.odeviced.service
   src/Makefile
+  src/3rdparty/Makefile
   src/lib/Makefile
   src/bin/Makefile
   src/plugins/Makefile

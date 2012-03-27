@@ -14,7 +14,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 progs_ldadd = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
-	$(top_srcdir)/src/lib/libfsodevice.la
+	$(top_builddir)/src/lib/libfsodevice.la
 
 VALAC_ARGS = \
 	--basedir $(top_srcdir) \
@@ -44,6 +44,7 @@ openmoko_powercontrol_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(openmoko_powercontrol_la_VALASOURCES) \
+	$(openmoko_powercontrol_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \

@@ -37,6 +37,7 @@ fsodeviced_LDADD = \
 
 EXTRA_DIST += \
 	$(fsodeviced_VALASOURCES) \
+	$(fsodeviced_SOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
 

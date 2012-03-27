@@ -10,7 +10,7 @@ AM_CFLAGS = \
 	$(NULL)
 
 progs_ldadd = \
-	$(top_srcdir)/src/lib/libfsodevice.la \
+	$(top_builddir)/src/lib/libfsodevice.la \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
@@ -49,6 +49,7 @@ gpio_input_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(gpio_input_la_VALASOURCES) \
+	$(gpio_input_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \

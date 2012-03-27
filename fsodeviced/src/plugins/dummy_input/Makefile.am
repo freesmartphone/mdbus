@@ -10,7 +10,7 @@ AM_CFLAGS = \
 	$(NULL)
 
 progs_ldadd = \
-	$(top_srcdir)/src/lib/libfsodevice.la \
+	$(top_builddir)/src/lib/libfsodevice.la \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
@@ -48,6 +48,7 @@ dummy_input_la_LIBTOOLFLAGS = --tag=disable-static
 
 EXTRA_DIST += \
 	$(dummy_input_la_VALASOURCES) \
+	$(dummy_input_la_SOURCES) \
 	$(NULL)
 
 CLEANFILES = \
