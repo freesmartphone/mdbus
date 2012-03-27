@@ -151,7 +151,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
             /* """%CBHZ=0""", */
             """%CPI=3""",
-            """%CPRI=0""",
+            """%CPRI=1""",
             """%CNIV=1""",
             """%CSQ=1"""
         } ) );
