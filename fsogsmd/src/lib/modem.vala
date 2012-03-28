@@ -223,6 +223,14 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract async string[] processAtCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES );
     public abstract async string[] processAtPduCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES );
 
+    /**
+     * Send an AT command to the modem but don't wait for any response. This might me usefull in
+     * some cases where we're really sure that the modem will understand the command we're sending.
+     *
+     * Possible response will be threated as unsolicited ones when using this method.
+     **/
+    public abstract void sendAtCommand( AtCommand command, string request, int retries = DEFAULT_RETRIES );
+
     public abstract FsoGsm.Channel? channel( string category );
 
     // Misc. Accessors
@@ -929,6 +937,13 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         // FIXME: assert channel is really an At channel
         var response = yield channel.enqueueAsync( command, request, retries );
         return response;
+    }
+
+    public void sendAtCommand( AtCommand command, string request, int retries = DEFAULT_RETRIES )
+    {
+        AtChannel channel = channelForCommand( command, request ) as AtChannel;
+        // FIXME: assert channel is really an At channel
+        channel.enqueue( command, request, retries );
     }
 
     public async string[] processAtPduCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES )

@@ -186,6 +186,15 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
         onSolicitedResponse( (AtCommandHandler) bundle, new string[] { @"+EXT: TIMEOUT $(bundle.timeout)" } );
     }
 
+    public void enqueue( FsoGsm.AtCommandQueueCommand command, string request, int retries = 0 )
+    {
+ #if DEBUG
+        debug( "enqueuing %s from AT command %s".printf( request, Type.from_instance( command ).name() ) );
+#endif
+        var handler = new AtCommandHandler( command, request, retries, 0 );
+        enqueueCommand( handler );
+    }
+
     public async string[] enqueueAsync( FsoGsm.AtCommandQueueCommand command, string request, int retries = 0, int timeout = 0 )
     {
 #if DEBUG
