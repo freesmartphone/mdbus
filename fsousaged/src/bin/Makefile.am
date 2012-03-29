@@ -38,6 +38,7 @@ fsousaged_LDADD = \
 
 EXTRA_DIST += \
 	$(fsousaged_VALASOURCES) \
+	$(fsousaged_SOURCES) \
 	$(BUILT_SOURCES) \
 	$(NULL)
 
