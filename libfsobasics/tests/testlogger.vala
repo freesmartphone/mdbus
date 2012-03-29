@@ -200,8 +200,8 @@ void main (string[] args)
     Test.add_func ("/FileLogger/New", test_file_logger_new);
     Test.add_func ("/SyslogLogger/New", test_syslog_logger_new);
     Test.add_func ("/Kmsg/New", test_kmsg_logger_new);
-    Test.add_func ("/Logger/CreateFromKeyFileName", test_logger_create_from_keyfilename);
-    Test.add_func ("/Logger/CreateFromKeyFile", test_logger_create_from_keyfile);
+    // Test.add_func ("/Logger/CreateFromKeyFileName", test_logger_create_from_keyfilename);
+    // Test.add_func ("/Logger/CreateFromKeyFile", test_logger_create_from_keyfile);
 
     Test.run ();
 }

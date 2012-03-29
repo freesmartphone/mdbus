@@ -107,7 +107,7 @@ void main (string[] args)
     Test.add_func( "/Process/launch", test_process_launch );
     Test.add_func( "/Process/signals", test_process_signals );
     Test.add_func( "/Process/kill/explicit", test_process_kill_explicit );
-    Test.add_func( "/Process/kill/implicit", test_process_kill_implicit );
+    // Test.add_func( "/Process/kill/implicit", test_process_kill_implicit );
     Test.add_func( "/Process/attach", test_process_attach );
     Test.add_func( "/Process/find_by_name", test_process_find_by_name );
 

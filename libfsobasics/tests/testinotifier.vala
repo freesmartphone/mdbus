@@ -34,7 +34,6 @@ public void myCallback( Linux.InotifyMaskFlags flags, uint32 cookie, string? nam
 void test_inotifier_add()
 //===========================================================================
 {
-    FileUtils.unlink( TEST_FILENAME );
     FsoFramework.FileHandling.write( "Hello World", TEST_FILENAME, true );
     INotifier.add( TEST_FILENAME, Linux.InotifyMaskFlags.MODIFY, myCallback );
     Timeout.add_seconds( 1, () => {
@@ -43,15 +42,18 @@ void test_inotifier_add()
     } );
     loop = new MainLoop();
     loop.run();
+    FileUtils.unlink( TEST_FILENAME );
 }
 
 //===========================================================================
 void test_inotifier_remove()
 //===========================================================================
 {
+    FsoFramework.FileHandling.write( "Hello World", TEST_FILENAME, true );
     INotifier.remove( 123456 ); // not existing
     var handle = INotifier.add( TEST_FILENAME, Linux.InotifyMaskFlags.CREATE, myCallback );
     INotifier.remove( handle );
+    FileUtils.unlink( TEST_FILENAME );
 }
 
 //===========================================================================

@@ -35,7 +35,7 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/Netlink/Utilities/GetIpAddress", test_netlink_getaddress );
+    // Test.add_func( "/Netlink/Utilities/GetIpAddress", test_netlink_getaddress );
 
     Test.run();
 }

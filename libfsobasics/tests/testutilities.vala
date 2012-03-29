@@ -172,10 +172,10 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/Utilities/FileHandling/Presence", test_utilities_filehandling_presence );
-    Test.add_func( "/Utilities/FileHandling/Read", test_utilities_filehandling_read );
-    Test.add_func( "/Utilities/FileHandling/Write", test_utilities_filehandling_write );
-    Test.add_func( "/Utilities/FileHandling/RemoveTree", test_utilities_filehandling_remove_tree );
+    // Test.add_func( "/Utilities/FileHandling/Presence", test_utilities_filehandling_presence );
+    // Test.add_func( "/Utilities/FileHandling/Read", test_utilities_filehandling_read );
+    // Test.add_func( "/Utilities/FileHandling/Write", test_utilities_filehandling_write );
+    // Test.add_func( "/Utilities/FileHandling/RemoveTree", test_utilities_filehandling_remove_tree );
     Test.add_func( "/Utilities/StringHandling/List", test_utilities_stringhandling_list );
     Test.add_func( "/Utilities/StringHandling/Enum", test_utilities_stringhandling_enum );
     Test.add_func( "/Utilities/StringHandling/Split", test_utilities_stringhandling_key_value_split );
@@ -184,7 +184,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );
     Test.add_func( "/Utilities/Utility/firstAvailableProgram", test_utilities_utility_first_available_program );
     Test.add_func( "/Utilities/Utility/createBacktrace", test_utilities_utility_create_backtrace );
-    Test.add_func( "/Utilities/Utility/hardware", test_utilities_utility_hardware );
+    // Test.add_func( "/Utilities/Utility/hardware", test_utilities_utility_hardware );
     Test.add_func( "/Utilities/Network/textForUri", test_utilities_network_textForUri );
 
     Test.run();

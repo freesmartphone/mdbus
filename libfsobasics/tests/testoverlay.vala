@@ -45,7 +45,7 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/Overlay", test_overlay );
+    // Test.add_func( "/Overlay", test_overlay );
 
     Test.run();
 }

@@ -175,10 +175,12 @@ void main (string[] args)
 
     // SmartKeyFile creation
 
+    /*
     Test.add_func ("/SmartKeyFile/Values", test_smartkeyfile_values);
     Test.add_func ("/SmartKeyFile/Values/Generics", test_smartkeyfile_values_generics);
     Test.add_func ("/SmartKeyFile/Sections", test_smartkeyfile_sections);
     Test.add_func ("/SmartKeyFile/Keys", test_smartkeyfile_keys);
+    */
 
     Test.run ();
 }
