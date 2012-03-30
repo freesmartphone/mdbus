@@ -2,19 +2,18 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CFLAGS = \
-	-I$(top_srcdir)/fsosystem \
+AM_CPPFLAGS = \
 	$(GLIB_CFLAGS) \
+	-I$(top_srcdir)/fsosystem \
+	-include $(CONFIG_HEADER)
 	$(NULL)
 
-noinst_PROGRAMS = $(TEST_PROGS)
-
-progs_ldadd = \
+LDADD = \
+	$(top_builddir)/fsosystem/libfsosystem.la \
 	$(GLIB_LIBS) \
-	../fsosystem/libfsosystem.la \
 	$(NULL)
 
-VALAC_ARGS = \
+AM_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsosystem \
 	--pkg posix \
@@ -22,27 +21,28 @@ VALAC_ARGS = \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
 	--pkg fsosystem-2.0
+	-g \
+	$(NULL)
 
-#
-# path test
-#
-TEST_PROGS += testpath
-testpath_VALASOURCES = testpath.vala
-testpath_SOURCES = testpath.c
-$(testpath_SOURCES): $(testpath_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-testpath_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testpath_VALASOURCES)
+noinst_PROGRAMS = \
+	testpath \
+	$(NULL)
 
+TEST_PROGS += $(noinst_PROGRAMS)
+
+testpath_SOURCES = \
+	testpath.vala \
+	$(NULL)
 
 CLEANFILES = \
-    $(TEST_PROGS) \
-    *.? \
-    $(NULL)
+	$(TEST_PROGS) \
+	$(NULL)
 
 MAINTAINERCLEANFILES = \
-  Makefile.in \
-  *.la \
-  *.lo \
-  $(NULL)
+	$(addsuffix .c,$(noinst_PROGRAMS)) \
+	testpath_vala.stamp \
+	$(NULL)
+
+EXTRA_DIST += \
+	$(MAINTAINERCLEANFILES) \
+	$(NULL)
