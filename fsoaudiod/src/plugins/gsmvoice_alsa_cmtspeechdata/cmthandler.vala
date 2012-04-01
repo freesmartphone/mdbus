@@ -29,7 +29,7 @@ errordomain RingError {
     Underflow
 }
 
-class RingBuffer : GLib.Object
+class RingBuffer : FsoFramework.AbstractObject
 {
     private uint8[] ring;
     private int ring_head;
@@ -50,26 +50,26 @@ class RingBuffer : GLib.Object
         int free = (ring_size + ring_tail - ring_head) % ring_size;
         if ( free == 0 )
             free = ring_size;
-        stderr.printf( "RingBuffer.write: ring_head=%d, ring_tail=%d, count=%d, free=%d\n", ring_head, ring_tail, count, free );
+        logger.debug( @"RingBuffer.write: ring_head=$(ring_head), ring_tail=$(ring_tail), count=$(count), free=$(free)");
         if ( count > free )
         {
             throw new RingError.Overflow( @"Buffer is full (free: $free / wanted to write: $count)" );
         }		 
 
-        stderr.printf( "RingBuffer.write: new ring_head would be %d\n", new_ring_head );
+        logger.debug( @"RingBuffer.write: new ring_head would be $(new_ring_head)");
         /* check wraparound */
         if ( new_ring_head == 0 || new_ring_head > ring_head )
         {
             /* check next line for +-1 errors I made! */
-            stdout.printf( "RingBuffer.write: does not overlap - chunk = %d\n", count );
+            logger.debug( @"RingBuffer.write: does not overlap - chunk = $(count)");
             Memory.copy( &ring[ring_head], x, count );
         }
         else
         {
-            stdout.printf( "RingBuffer.write: does overlap - first chunk = %d\n", ring_size - ring_head );
+            logger.debug( @"RingBuffer.write: does overlap - first chunk = $(ring_size - ring_head)");
             /* check next 2 lines for +-1 errors I made! */
             Memory.copy( &ring[ring_head], x, ring_size - ring_head );
-            stdout.printf( "RingBuffer.write: second chunk = %d\n", ring_size - ring_head );
+            logger.debug( @"RingBuffer.write: second chunk = $(ring_size - ring_head)");
             Memory.copy( &ring[0], &x[ring_size - ring_head], count - (ring_size - ring_head) );
         }
         ring_head = new_ring_head;
@@ -81,25 +81,25 @@ class RingBuffer : GLib.Object
     {
         int avail = (ring_size + ring_head - ring_tail) % ring_size;
 
-        stderr.printf( "RingBuffer.read: ring_head=%d, ring_tail=%d, count=%d, avail=%d\n", ring_head, ring_tail, count, avail );
+        logger.debug( @"RingBuffer.read: ring_head=$(ring_head), ring_tail=$(ring_tail), count=$(count), avail=$(avail)");
         if ( avail < count )
         {
             throw new RingError.Underflow( @"Buffer has only $avail bytes available ($count requested)" );
         }
 
         int new_ring_tail = (ring_tail + count) % ring_size;
-        stderr.printf( "RingBuffer.read: new_ring_tail would be %d\n", new_ring_tail );
+        logger.debug( @"RingBuffer.read: new_ring_tail would be $(new_ring_tail)");
 
         if ( new_ring_tail == 0 || new_ring_tail > ring_tail )
         {
-            stderr.printf( "RingBuffer.read: does not wrap - chunk = %d\n", count );
+            logger.debug( @"RingBuffer.read: does not wrap - chunk = $(count)" );
             Memory.copy( x, &ring[ring_tail], count );
         }
         else
         {
-            stderr.printf( "RingBuffer.read: does overwrap - first chunk = %d\n", ring_size - ring_tail );
+            logger.debug( @"RingBuffer.read: does overwrap - first chunk = $(ring_size - ring_tail)");
             Memory.copy( x, &ring[ring_tail], ring_size - ring_tail );
-            stderr.printf( "RingBuffer.read: second chunk = %d\n", count - (ring_size - ring_tail) );
+            logger.debug( @"RingBuffer.read: second chunk = $(count - (ring_size - ring_tail))");
             Memory.copy( &x[ring_size - ring_tail], ring, count - (ring_size - ring_tail) );
         }
         ring_tail = new_ring_tail;
@@ -108,6 +108,10 @@ class RingBuffer : GLib.Object
     public void reset()
     {
         ring_tail = ring_head = 0;
+    }
+    public override string repr()
+    {
+        return "<RingBuffer>";
     }
 }
 
@@ -268,7 +272,7 @@ public class CmtHandler : FsoFramework.AbstractObject
                 frames = pcmout.writei( (uint8[])buf, FCOUNT );
                 if ( frames != FCOUNT )
                 {
-                    stderr.printf("frames: %ld \n",(long)frames);
+                    logger.debug(@"frames: $((long)frames)");
                 }
                 else if ( frames == -Posix.EPIPE )
                 {
@@ -356,13 +360,13 @@ public class CmtHandler : FsoFramework.AbstractObject
                 }
                 catch ( ThreadError e )
                 {
-                    stdout.printf( @"Error: $(e.message)" );
+                    logger.debug( @"Error: $(e.message)" );
                     return;
                }
             }
             else
             {
-                stdout.printf( "Thread already launched \n" );
+                logger.debug( "Thread already launched" );
             }
             AtomicInt.set(ref runPlaybackThread,1);
         }
@@ -400,13 +404,13 @@ public class CmtHandler : FsoFramework.AbstractObject
                 }
                 catch ( ThreadError e )
                 {
-                    stdout.printf( @"Error: $(e.message)" );
+                    logger.debug( @"Error: $(e.message)" );
                     return;
                }
             }
             else
             {
-                stdout.printf( "Thread already launched \n" );
+                logger.debug( "Thread already launched" );
             }
             runRecordThread = true;
         }
