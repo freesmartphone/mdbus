@@ -479,7 +479,7 @@ public class CmtHandler : FsoFramework.AbstractObject
         CmtSpeech.Event event = CmtSpeech.Event();
         CmtSpeech.Transition transition = 0;
 
-        connection.read_event( event );
+        connection.read_event( ref event );
 
         assert( logger.debug( @"read event, type is $(event.msg_type)" ) );
         transition = connection.event_to_state_transition( event );

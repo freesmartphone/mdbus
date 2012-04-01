@@ -173,7 +173,7 @@ namespace CmtSpeech
         //public int close();
         public int descriptor();
         public int check_pending( out EventType flags_mask );
-        public int read_event( Event event );
+        public int read_event( ref Event event );
         public Transition event_to_state_transition( Event event );
 
         public int set_wb_preference( bool enabled );
