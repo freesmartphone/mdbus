@@ -183,7 +183,7 @@ void main( string[] args )
     Test.add_func( "/Utilities/Utility/programName", test_utilities_utility_program_name );
     Test.add_func( "/Utilities/Utility/prefixForExecutable", test_utilities_utility_prefix_for_executable );
     Test.add_func( "/Utilities/Utility/firstAvailableProgram", test_utilities_utility_first_available_program );
-    Test.add_func( "/Utilities/Utility/createBacktrace", test_utilities_utility_create_backtrace );
+    // Test.add_func( "/Utilities/Utility/createBacktrace", test_utilities_utility_create_backtrace );
     // Test.add_func( "/Utilities/Utility/hardware", test_utilities_utility_hardware );
     Test.add_func( "/Utilities/Network/textForUri", test_utilities_network_textForUri );
 

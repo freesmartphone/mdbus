@@ -2,44 +2,27 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CFLAGS = \
-	$(GLIB_CFLAGS) \
-	$(LIBNL_CFLAGS) \
+AM_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"fsobasics\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-D_GNU_SOURCE \
 	$(NULL)
 
-VALAC_ARGS = \
-	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/vapi \
-	--pkg posix \
-	--pkg linux \
-	--pkg libnl-2.0 \
-	--pkg glib-2.0 \
-	--pkg gio-2.0 \
-	--pkg config \
-	--pkg misc \
-	-D SYSCONFDIR="$(sysconfdir)" \
-	--header fsobasics.h \
-	--library fsobasics-2.0
+AM_VALAFLAGS = \
+	$(NULL)
 
 if HAVE_BACKTRACE
-VALAC_ARGS += -D HAVE_BACKTRACE
+AM_VALAFLAGS += -D HAVE_BACKTRACE
 endif
 
 if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
+AM_VALAFLAGS += -g -D DEBUG
+AM_CPPFLAGS += -ggdb -O0
 endif
 
-BUILT_SOURCES = fsobasics.vala.stamp
+lib_LTLIBRARIES = libfsobasics.la
 
-lib_LTLIBRARIES = \
-	libfsobasics.la
-	$(NULL)
-
-libfsobasics_la_VALASOURCES = \
+libfsobasics_la_SOURCES = \
 	asyncworker.vala \
 	binary.vala \
 	inotifier.vala \
@@ -61,48 +44,50 @@ libfsobasics_la_VALASOURCES = \
 	kernel.vala \
 	checksum.vala \
 	object.vala \
-	$(NULL)
-
-libfsobasics_la_SOURCES = \
-	fsobasics.vala.stamp \
-	$(libfsobasics_la_VALASOURCES:.vala=.c) \
 	gcc_libinitexit.c \
 	$(NULL)
 
-fsobasicsincludedir = $(includedir)/fsoframework-2.0
-fsobasicsinclude_HEADERS = fsobasics.h
+libfsobasics_la_CFLAGS = \
+	$(GLIB_CFLAGS) \
+	$(LIBNL_CFLAGS) \
+	$(NULL)
 
-fsobasics-2.0.vapi fsobasics.vala.stamp: $(libfsobasics_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
+libfsobasics_la_VALAFLAGS = \
+	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/vapi \
+	--pkg posix \
+	--pkg linux \
+	--pkg libnl-2.0 \
+	--pkg glib-2.0 \
+	--pkg gio-2.0 \
+	--pkg config \
+	--pkg misc \
+	-D SYSCONFDIR="$(sysconfdir)" \
+	--header fsobasics.h \
+	--library fsobasics-2.0
+	$(NULL)
 
 libfsobasics_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(LIBNL_LIBS) \
 	$(NULL)
 
-vapidir = $(datadir)/vala/vapi
+fsobasicsincludedir = $(includedir)/fsoframework-2.0
+fsobasicsinclude_HEADERS = fsobasics.h
 
+vapidir = $(datadir)/vala/vapi
 dist_vapi_DATA = \
 	fsobasics-2.0.vapi \
 	fsobasics-2.0.deps \
 	$(NULL)
 
-EXTRA_DIST += \
-	$(libfsobasics_la_VALASOURCES) \
+BUILT_SOURCES = \
+	fsobasics.h \
 	fsobasics-2.0.vapi \
-	fsobasics-2.0.deps \
-	fsobasics.vala.stamp
-
-CLEANFILES = \
-	$(BUILT_SOURCES) \
-	$(libfsobasics_la_VALASOURCES:.vala=.c) \
 	$(NULL)
 
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
 	$(BUILT_SOURCES) \
-	$(libfsobasics_la_VALASOURCES:.vala=.c) \
-	Makefile.in \
 	$(NULL)
 

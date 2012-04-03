@@ -11,12 +11,13 @@ AM_CFLAGS = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = \
+LDADD = \
 	$(GLIB_LIBS) \
 	$(LIBNL_LIBS) \
-	../fsobasics/libfsobasics.la
+	$(top_builddir)/fsobasics/libfsobasics.la \
+	$(NULL)
 
-VALAC_ARGS = \
+AM_VALAFLAGS = \
 	-C \
 	--thread \
 	--basedir $(top_srcdir) \
@@ -28,6 +29,7 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg fsobasics-2.0
+	$(NULL)
 
 EXTRA_DIST += \
 	.testlogger.ini \
@@ -36,184 +38,71 @@ EXTRA_DIST += \
 	textfile.txt \
 	$(NULL)
 
-#
-# async test
-#
-TEST_PROGS += testasync
-testasync_VALASOURCES = testasync.vala
-testasync_SOURCES = testasync.c
-$(testasync_SOURCES): $(testasync_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testasync_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testasync_VALASOURCES)
+TEST_PROGS += \
+	testasync \
+	testasyncworker \
+	testinotifier \
+	testnetlinknotifier \
+	testsmartkeyfile \
+	testlogger \
+	testutilities \
+	testnetlink \
+	testoverlay \
+	testthreading \
+	testbinreader \
+	testbinbuilder \
+	$(NULL)
 
-#
-# asyncworker test
-#
-TEST_PROGS += testasyncworker
-testasyncworker_VALASOURCES = testasyncworker.vala
-testasyncworker_SOURCES = testasyncworker.c
-$(testasyncworker_SOURCES): $(testasyncworker_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testasyncworker_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testasyncworker_VALASOURCES)
+#	testkobjectnotifier
 
-#
-# inotifier test
-#
-TEST_PROGS += testinotifier
-testinotifier_VALASOURCES = testinotifier.vala
-testinotifier_SOURCES = testinotifier.c
-$(testinotifier_SOURCES): $(testinotifier_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testinotifier_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testinotifier_VALASOURCES)
+noinst_PROGRAMS = $(TEST_PROGS)
 
-#
-# kobjectnotifier test
-#
-# TEST_PROGS += testkobjectnotifier
-# testkobjectnotifier_VALASOURCES = testkobjectnotifier.vala
-# testkobjectnotifier_SOURCES = testkobjectnotifier.c
-# $(testkobjectnotifier_SOURCES): $(testkobjectnotifier_VALASOURCES)
-# 	$(VALAC) $(VALAC_ARGS) $^
-# 	touch $@
-# testkobjectnotifier_LDADD = $(progs_ldadd)
-# EXTRA_DIST += $(testkobjectnotifier_VALASOURCES)
+testasync_SOURCES = testasync.vala
 
-#
-# netlinknotifier test
-#
-TEST_PROGS += testnetlinknotifier
-testnetlinknotifier_VALASOURCES = testnetlinknotifier.vala
-testnetlinknotifier_SOURCES = testnetlinknotifier.c
-$(testnetlinknotifier_SOURCES): $(testnetlinknotifier_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testnetlinknotifier_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testnetlinknotifier_VALASOURCES)
+testasyncworker_SOURCES = testasyncworker.vala
 
-#
-# smartkeyfile test
-#
-TEST_PROGS += testsmartkeyfile
-testsmartkeyfile_VALASOURCES = testsmartkeyfile.vala
-testsmartkeyfile_SOURCES = testsmartkeyfile.c
-$(testsmartkeyfile_SOURCES): $(testsmartkeyfile_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testsmartkeyfile_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testsmartkeyfile_VALASOURCES)
+testinotifier_SOURCES = testinotifier.vala
 
-#
-# logger test
-#
-TEST_PROGS += testlogger
-testlogger_VALASOURCES = testlogger.vala
-testlogger_SOURCES = testlogger.c
-$(testlogger_SOURCES): $(testlogger_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testlogger_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testlogger_VALASOURCES)
+# testkobjectnotifier_SOURCES = testkobjectnotifier.vala
 
-#
-# utilities test
-#
-TEST_PROGS += testutilities
-testutilities_VALASOURCES = testutilities.vala
-testutilities_SOURCES = testutilities.c
-$(testutilities_SOURCES): $(testutilities_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testutilities_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testutilities_VALASOURCES)
+testnetlinknotifier_SOURCES = testnetlinknotifier.vala
 
-#
-# process test
-#
-TEST_PROGS += testprocess
-testprocess_VALASOURCES = testprocess.vala
-testprocess_SOURCES = testprocess.c
-$(testprocess_SOURCES): $(testprocess_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testprocess_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testprocess_VALASOURCES)
+testsmartkeyfile_SOURCES = testsmartkeyfile.vala
 
-#
-# netlink test
-#
-TEST_PROGS += testnetlink
-testnetlink_VALASOURCES = testnetlink.vala
-testnetlink_SOURCES = testnetlink.c
-$(testnetlink_SOURCES): $(testnetlink_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testnetlink_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testnetlink_VALASOURCES)
+testlogger_SOURCES = testlogger.vala
 
-#
-# overlay test
-#
-TEST_PROGS += testoverlay
-testoverlay_VALASOURCES = testoverlay.vala
-testoverlay_SOURCES = testoverlay.c
-$(testoverlay_SOURCES): $(testoverlay_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testoverlay_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testoverlay_VALASOURCES)
+testutilities_SOURCES = testutilities.vala
 
-#
-# threading test
-#
-TEST_PROGS += testthreading
-testthreading_VALASOURCES = testthreading.vala
-testthreading_SOURCES = testthreading.c
-$(testthreading_SOURCES): $(testthreading_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testthreading_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testthreading_VALASOURCES)
+testnetlink_SOURCES = testnetlink.vala
 
-#
-# BinBuilder test
-#
-TEST_PROGS += testbinbuilder
-testbinbuilder_VALASOURCES = testbinbuilder.vala
-testbinbuilder_SOURCES = testbinbuilder.c
-$(testbinbuilder_SOURCES): $(testbinbuilder_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testbinbuilder_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testbinbuilder_VALASOURCES)
+testoverlay_SOURCES = testoverlay.vala
 
-#
-# BinReader test
-#
-TEST_PROGS += testbinreader
-testbinreader_VALASOURCES = testbinreader.vala
-testbinreader_SOURCES = testbinreader.c
-$(testbinreader_SOURCES): $(testbinreader_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testbinreader_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testbinreader_VALASOURCES)
+testthreading_SOURCES = testthreading.vala
 
-#
-#
-#
+testbinbuilder_SOURCES = testbinbuilder.vala
+
+testbinreader_SOURCES = testbinreader.vala
+
 CLEANFILES = \
     $(TEST_PROGS) \
-    *.? \
     $(NULL)
 
 MAINTAINERCLEANFILES = \
-  Makefile.in \
-  *.la \
-  *.lo \
-  $(NULL)
+	$(addsuffix .c,$(noinst_PROGRAMS)) \
+	testasync_vala.stamp \
+	testasyncworker_vala.stamp \
+	testinotifier_vala.stamp \
+	testnetlinknotifier_vala.stamp \
+	testsmartkeyfile_vala.stamp \
+	testlogger_vala.stamp \
+	testutilities_vala.stamp \
+	testnetlink_vala.stamp \
+	testoverlay_vala.stamp \
+	testthreading_vala.stamp \
+	testbinreader_vala.stamp \
+	testbinbuilder_vala.stamp \
+	$(NULL)
+
+EXTRA_DIST += \
+	$(MAINTAINERCLEANFILES) \
+	$(NULL)
