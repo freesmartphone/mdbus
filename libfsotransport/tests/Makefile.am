@@ -2,18 +2,17 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CFLAGS = \
-	-I../fsotransport \
+AM_CPPFLAGS = \
+	-I$(top_srcdir)/fsotransport \
 	$(GLIB_CFLAGS) \
-	$(DBUS_CFLAGS) \
 	$(NULL)
 
-noinst_PROGRAMS = $(TEST_PROGS)
+LDADD = \
+	$(GLIB_LIBS) \
+	$(top_builddir)/fsotransport/libfsotransport.la \
+	$(NULL)
 
-progs_ldadd = $(GLIB_LIBS) $(DBUS_LIBS) ../fsotransport/libfsotransport.la
-
-VALAC_ARGS = \
-	-C \
+AM_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsotransport \
 	--pkg posix \
@@ -21,35 +20,33 @@ VALAC_ARGS = \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
 	--pkg fsotransport-2.0
+	$(NULL)
 
-#
-# transport test
-#
-TEST_PROGS += testtransport
-testtransport_VALASOURCES = testtransport.vala
-testtransport_SOURCES = testtransport.c
-$(testtransport_SOURCES): $(testtransport_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testtransport_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testtransport_VALASOURCES)
+noinst_PROGRAMS = \
+	testtransport \
+	testcommandqueue \
+	$(NULL)
 
-TEST_PROGS += testcommandqueue
-testcommandqueue_VALASOURCES = testcommandqueue.vala
-testcommandqueue_SOURCES = testcommandqueue.c
-$(testcommandqueue_SOURCES): $(testcommandqueue_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-testcommandqueue_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testcommandqueue_VALASOURCES)
+TEST_PROGS += $(noinst_PROGRAMS)
 
-CLEANFILES = \
-    $(TEST_PROGS) \
-    *.? \
-    $(NULL)
+testtransport_SOURCES = \
+	testtransport.vala \
+	$(NULL)
+
+testcommandqueue_SOURCES = \
+	testcommandqueue.vala \
+	$(NULL)
+
+CLEANFILES =
+	$(TEST_PROGS) \
+	$(NULL)
 
 MAINTAINERCLEANFILES = \
-  Makefile.in \
-  *.la \
-  *.lo \
-  $(NULL)
+	$(addsuffix .c,$(noinst_PROGRAMS)) \
+	testtransport_vala.stamp \
+	testcommandqueue_vala.stamp \
+	$(NULL)
+
+EXTRA_DIST += \
+	$(MAINTAINERCLEANFILES) \
+	$(NULL)
