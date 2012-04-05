@@ -54,4 +54,4 @@ test-report perf-report full-report:	${TEST_PROGS}
 	  }
 .PHONY: test test-report perf-report full-report
 # run make test as part of make check
-check-local: test
+# check-local: test
