@@ -2,14 +2,32 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CFLAGS = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
 	-D G_LOG_DOMAIN=\"fsoframework\" \
 	$(NULL)
 
-VALAC_ARGS = \
+AM_VALAFLAGS = \
+	$(NULL)
+
+if WANT_DEBUG
+AM_VALAFLAGS += -g -D DEBUG
+AM_CPPFLAGS += -ggdb -O0
+endif
+
+lib_LTLIBRARIES = libfsoframework.la
+
+libfsoframework_la_SOURCES = \
+	dbus.vala \
+	interfaces.vala \
+	plugin.vala \
+	resource.vala \
+	subsystem.vala \
+	$(NULL)
+
+libfsoframework_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
@@ -19,65 +37,29 @@ VALAC_ARGS = \
 	--pkg fsobasics-2.0 \
 	--pkg config \
 	--header fsoframework.h \
-	--library fsoframework-2.0
-
-if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
-
-BUILT_SOURCES = fsoframework.vala.stamp
-
-lib_LTLIBRARIES = \
-	libfsoframework.la
+	--library fsoframework-2.0 \
 	$(NULL)
-
-libfsoframework_la_VALASOURCES = \
-	dbus.vala \
-	interfaces.vala \
-	plugin.vala \
-	resource.vala \
-	subsystem.vala \
-	$(NULL)
-
-libfsoframework_la_SOURCES = \
-	fsoframework.vala.stamp \
-	$(libfsoframework_la_VALASOURCES:.vala=.c) \
-	$(NULL)
-
-fsoframeworkincludedir = $(includedir)/fsoframework-2.0
-fsoframeworkinclude_HEADERS = fsoframework.h
-
-fsoframework-2.0.vapi fsoframework.vala.stamp: $(libfsoframework_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
 
 libfsoframework_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(FSOBASICS_LIBS) \
 	$(NULL)
 
-vapidir = $(datadir)/vala/vapi
+fsoframeworkincludedir = $(includedir)/fsoframework-2.0
+fsoframeworkinclude_HEADERS = fsoframework.h
 
+vapidir = $(datadir)/vala/vapi
 dist_vapi_DATA = \
 	fsoframework-2.0.vapi \
 	fsoframework-2.0.deps \
 	$(NULL)
 
-EXTRA_DIST += \
-	$(libfsoframework_la_VALASOURCES) \
+BUILT_SOURCES = \
 	fsoframework-2.0.vapi \
-	fsoframework-2.0.deps \
-	fsoframework.vala.stamp
+	fsoframework.h \
+	$(NULL)
 
-CLEANFILES = \
-    $(BUILT_SOURCES) \
-    $(libfsoframework_la_SOURCES) \
-    $(NULL)
-
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
 	$(BUILT_SOURCES) \
-	$(libfsoframework_la_SOURCES) \
-	Makefile.in
-
+	$(NULL)
