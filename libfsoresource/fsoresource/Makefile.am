@@ -4,11 +4,24 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir) \
-	$(GLIB_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsoresource\" \
 	$(NULL)
 
-VALAC_ARGS = \
+AM_VALAFLAGS = \
+	$(NULL)
+
+if WANT_DEBUG
+AM_VALAFLAGS += -g -D DEBUG
+AM_CPPFLAGS += -ggdb -O0
+endif
+
+lib_LTLIBRARIES = libfsoresource.la
+
+libfsoresource_la_SOURCES = \
+	dbusresource.vala \
+	$(NULL)
+
+libfsoresource_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
@@ -18,57 +31,31 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--header fsoresource.h \
 	--library fsoresource-2.0
-
-if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS = -ggdb -O0
-endif
-
-BUILT_SOURCES = .vala.stamp
-
-lib_LTLIBRARIES = \
-	libfsoresource.la
 	$(NULL)
 
-libfsoresource_la_VALASOURCES = \
-	dbusresource.vala \
+libfsoresource_la_CFLAGS = \
+	$(GLIB_CFLAGS) \
 	$(NULL)
-
-libfsoresource_la_SOURCES = \
-	$(BUILT_SOURCES) \
-	$(libfsoresource_la_VALASOURCES:.vala=.c) \
-	$(NULL)
-
-fsoresourceincludedir = $(includedir)/fsoframework-2.0
-
-fsoresourceinclude_HEADERS = fsoresource.h
-
-fsoresource-2.0.vapi .vala.stamp: $(libfsoresource_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
 
 libfsoresource_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(NULL)
 
-vapidir = $(datadir)/vala/vapi
+fsoresourceincludedir = $(includedir)/fsoframework-2.0
+fsoresourceinclude_HEADERS = fsoresource.h
 
+vapidir = $(datadir)/vala/vapi
 dist_vapi_DATA = \
 	fsoresource-2.0.vapi \
 	fsoresource-2.0.deps \
 	$(NULL)
 
-EXTRA_DIST += \
-	$(libfsoresource_la_VALASOURCES) \
+BUILT_SOURCES = \
+	fsoresource.h \
 	fsoresource-2.0.vapi \
-	$(BUILT_SOURCES) \
 	$(NULL)
 
-CLEANFILES = \
-    $(BUILT_SOURCES) \
-    $(libfsoresource_la_SOURCES) \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
-	$(CLEANFILES) \
-	Makefile.in
+	$(BUILT_SOURCES) \
+	$(NULL)
