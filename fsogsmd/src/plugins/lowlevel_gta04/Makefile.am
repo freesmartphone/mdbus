@@ -12,7 +12,7 @@ AM_CPPFLAGS = \
 noinst_PROGRAMS = $(TEST_PROGS)
 
 progs_ldadd = \
-	$(top_srcdir)/src/lib/libfsogsm.la \
+	$(top_builddir)/src/lib/libfsogsm.la \
 	$(FSO_LIBS) \
 	$(NULL)
 
@@ -36,6 +36,11 @@ $(lowlevel_gta04_la_SOURCES): $(lowlevel_gta04_la_VALASOURCES)
 lowlevel_gta04_la_LIBADD = $(progs_ldadd)
 lowlevel_gta04_la_LDFLAGS = -no-undefined -module -avoid-version
 lowlevel_gta04_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST +=  \
+	$(lowlevel_gta04_la_VALASOURCES) \
+	$(lowlevel_gta04_la_SOURCES) \
+	$(NULL)
 
 CLEANFILES = \
     plugin.c \
