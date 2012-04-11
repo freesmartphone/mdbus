@@ -55,8 +55,8 @@ dist_vapi_DATA = \
 	$(NULL)
 
 BUILT_SOURCES = \
-	fsoframework-2.0.vapi \
 	fsoframework.h \
+	fsoframework-2.0.vapi \
 	$(NULL)
 
 CLEANFILES =
