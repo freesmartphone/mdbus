@@ -59,6 +59,8 @@ public abstract class FsoFramework.AbstractCommandHandler
     public uint timeout;
     public uint retry;
     public SourceFunc callback;
+    // expose wether this command expects a response from the remote side
+    public bool sync = false;
 
     public abstract void writeToTransport( FsoFramework.Transport t );
     public abstract string to_string();
@@ -103,10 +105,18 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
         assert( transport.logger.debug( @"Attemping to write next command to transport; we have $(q.size) commands pending!" ) );
         current = q.poll_head();
         current.writeToTransport( transport );
-        assert( transport.logger.debug( @"Wrote '$current'. Waiting ($(current.timeout)s) for answer..." ) );
-        if ( current.timeout > 0 )
+
+        if ( !current.sync )
         {
-            timeoutWatch = GLib.Timeout.add_seconds( current.timeout, onTimeout );
+            assert( transport.logger.debug( @"Wrote '$current'. Waiting ($(current.timeout)s) for answer..." ) );
+            if ( current.timeout > 0 )
+            {
+                timeoutWatch = GLib.Timeout.add_seconds( current.timeout, onTimeout );
+            }
+        }
+        else
+        {
+            current = null;
         }
     }
 
