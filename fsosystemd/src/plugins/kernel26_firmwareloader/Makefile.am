@@ -4,18 +4,27 @@ NULL =
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/src/lib \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
-	-DG_LOG_DOMAIN=\"fsosystem.kernel26_firmwareloader\" \
+	-DG_LOG_DOMAIN=\"fsosystem.test\" \
 	$(NULL)
 
-noinst_PROGRAMS = $(TEST_PROGS)
+modlibexecdir = $(libdir)/cornucopia/modules/fsosystem
+modlibexec_LTLIBRARIES = kernel26_firmwareloader.la
 
-progs_ldadd = \
+kernel26_firmwareloader_la_SOURCES = \
+	plugin.vala \
+	$(NULL)
+
+kernel26_firmwareloader_la_CFLAGS = \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(NULL)
+
+kernel26_firmwareloader_la_LIBADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS)
+	$(NULL)
 
-VALAC_ARGS = \
+kernel26_firmwareloader_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
@@ -23,34 +32,7 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0
-
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsosystem
-modlibexec_LTLIBRARIES = kernel26_firmwareloader.la
-kernel26_firmwareloader_la_SOURCES = plugin.c
-kernel26_firmwareloader_la_VALASOURCES = plugin.vala
-$(kernel26_firmwareloader_la_SOURCES): $(kernel26_firmwareloader_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-kernel26_firmwareloader_la_LIBADD = $(progs_ldadd)
-kernel26_firmwareloader_la_LDFLAGS = -no-undefined -module -avoid-version
-kernel26_firmwareloader_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(kernel26_firmwareloader_la_VALASOURCES) \
-	$(kernel26_firmwareloader_la_SOURCES) \
 	$(NULL)
 
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
-MAINTAINERCLEANFILES = \
-  Makefile.in \
-  $(NULL)
+kernel26_firmwareloader_la_LDFLAGS = -no-undefined -module -avoid-version
+# kernel26_firmwareloader_la_LIBTOOLFLAGS = --tag=disable-static
