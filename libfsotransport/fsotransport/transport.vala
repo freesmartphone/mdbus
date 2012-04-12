@@ -120,7 +120,7 @@ public abstract class FsoFramework.Transport : Object
                 return new FsoFramework.NgsmAdvancedMuxTransport( name, speed );
             case "combined":
                 //FIXME: make this configurable - this is hardcoded for the GTA04
-                return new FsoFramework.CombinedTransport( new FsoFramework.SerialTransport( "/dev/ttyHS3", 115200, raw, hard ), new FsoFramework.SerialTransport( "/dev/ttyHS3", 115200, raw, hard) );
+                return new FsoFramework.CombinedTransport( new FsoFramework.SerialTransport( "/dev/ttyHS3", 115200, raw, hard ), new FsoFramework.SerialTransport( "/dev/ttyHS5", 115200, raw, hard) );
             default:
                 return null;
         }
