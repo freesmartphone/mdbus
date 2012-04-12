@@ -1,27 +1,24 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	-I$(top_srcdir)/vapi \
-	$(CMTSPEECHDATA_CFLAGS) \
-	$(FSO_GLIB_CFLAGS) \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
-	$(GEE_CFLAGS) \
+AM_CPPFLAGS = \
+	-include $(CONFIG_HEADER) \
+	-DG_LOG_DOMAIN=\"fsoaudio\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
+if WANT_DEBUG
+AM_VALAFLAGS += -g -D DEBUG
+AM_CPPFLAGS += -ggdb -O0
+endif
 
-progs_ldadd = \
-    $(CMTSPEECHDATA_LIBS) \
-	$(FSO_GLIB_LIBS) \
-	$(FSO_LIBS) \
-	$(GLIB_LIBS) \
-	$(GEE_LIBS) \
-	$(top_builddir)/src/lib/libfsoaudio.la
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
+modlibexec_LTLIBRARIES = gsmvoice_alsa_cmtspeechdata.la
+gsmvoice_alsa_cmtspeechdata_la_SOURCES = \
+	plugin.vala \
+	cmthandler.vala \
+	$(NULL)
+gsmvoice_alsa_cmtspeechdata_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
@@ -31,39 +28,24 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsoaudio-2.0 \
 	--pkg libcmtspeechdata \
-	--pkg alsa
-
-if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
-modlibexec_LTLIBRARIES = gsmvoice_alsa_cmtspeechdata.la
-gsmvoice_alsa_cmtspeechdata_la_SOURCES = plugin.c cmthandler.c
-gsmvoice_alsa_cmtspeechdata_la_VALASOURCES = plugin.vala cmthandler.vala
-$(gsmvoice_alsa_cmtspeechdata_la_SOURCES): $(gsmvoice_alsa_cmtspeechdata_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-gsmvoice_alsa_cmtspeechdata_la_LIBADD = $(progs_ldadd)
-gsmvoice_alsa_cmtspeechdata_la_LDFLAGS = -no-undefined -module -avoid-version
-gsmvoice_alsa_cmtspeechdata_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(gsmvoice_alsa_cmtspeechdata_la_VALASOURCES) \
-	$(gsmvoice_alsa_cmtspeechdata_la_SOURCES) \
+	--pkg alsa \
 	$(NULL)
-
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
-MAINTAINERCLEANFILES = \
-  Makefile.in \
-  $(NULL)
+gsmvoice_alsa_cmtspeechdata_la_CPPFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	-I$(top_srcdir)/vapi \
+	$(CMTSPEECHDATA_CFLAGS) \
+	$(FSO_GLIB_CFLAGS) \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GEE_CFLAGS) \
+	$(NULL)
+gsmvoice_alsa_cmtspeechdata_la_LIBADD = \
+	$(CMTSPEECHDATA_LIBS) \
+	$(FSO_GLIB_LIBS) \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(GEE_LIBS) \
+	$(top_builddir)/src/lib/libfsoaudio.la
+	$(NULL)
+gsmvoice_alsa_cmtspeechdata_la_LDFLAGS = -no-undefined -module -avoid-version
+# gsmvoice_alsa_cmtspeechdata_la_LIBTOOLFLAGS = --tag=disable-static

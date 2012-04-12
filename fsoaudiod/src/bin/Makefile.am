@@ -1,50 +1,32 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-INCLUDES = \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
+AM_CPPFLAGS = \
 	-include $(CONFIG_HEADER) \
+	-DG_LOG_DOMAIN=\"fsoaudio\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-BUILT_SOURCES = .vala.stamp
+if WANT_DEBUG
+AM_VALAFLAGS += -g -D DEBUG
+AM_CPPFLAGS += -ggdb -O0
+endif
 
 sbin_PROGRAMS = fsoaudiod
-
-fsoaudiod_VALASOURCES = \
-	main.vala \
+fsoaudiod_SOURCES = main.vala
+fsoaudiod_VALAFLAGS = \
+	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/vapi \
+	--pkg posix \
+	--pkg gio-2.0 \
+	--pkg fsoframework-2.0 \
+	--save-temps \
 	$(NULL)
-
-fsoaudiod_SOURCES = \
-	$(fsoaudiod_VALASOURCES:.vala=.c) \
+fsoaudiod_CPPFLAGS = \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
-
-$(BUILT_SOURCES): $(fsoaudiod_VALASOURCES)
-	$(VALAC) -C --vapidir vapi \
-				--pkg posix \
-				--pkg gio-2.0 \
-				--pkg fsoframework-2.0 \
-				--save-temps \
-				--basedir $(top_srcdir) $^
-	touch $@
-
 fsoaudiod_LDADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
-	$(NULL)
-
-EXTRA_DIST += \
-	$(fsoaudiod_VALASOURCES) \
-	$(BUILT_SOURCES) \
-	$(NULL)
-
-CLEANFILES = \
-	*.c \
-	*.h \
-	$(BUILT_SOURCES) \
-	$(NULL)
-
-MAINTAINERCLEANFILES = \
-	Makefile.in \
 	$(NULL)

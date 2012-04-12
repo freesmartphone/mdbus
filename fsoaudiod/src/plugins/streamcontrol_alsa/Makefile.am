@@ -1,24 +1,21 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	$(FSO_GLIB_CFLAGS) \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
-	$(GEE_CFLAGS) \
+AM_CPPFLAGS = \
+	-include $(CONFIG_HEADER) \
+	-DG_LOG_DOMAIN=\"fsoaudio\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
+if WANT_DEBUG
+AM_VALAFLAGS += -g -D DEBUG
+AM_CPPFLAGS += -ggdb -O0
+endif
 
-progs_ldadd = \
-	$(FSO_GLIB_LIBS) \
-	$(FSO_LIBS) \
-	$(GLIB_LIBS) \
-	$(GEE_LIBS) \
-	$(top_builddir)/src/lib/libfsoaudio.la
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
+modlibexec_LTLIBRARIES = streamcontrol_alsa.la
+streamcontrol_alsa_la_SOURCES = plugin.vala
+streamcontrol_alsa_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
@@ -26,39 +23,21 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
-	--pkg fsoaudio-2.0
-
-if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
-modlibexec_LTLIBRARIES = streamcontrol_alsa.la
-streamcontrol_alsa_la_SOURCES = plugin.c
-streamcontrol_alsa_la_VALASOURCES = plugin.vala
-$(streamcontrol_alsa_la_SOURCES): $(streamcontrol_alsa_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-streamcontrol_alsa_la_LIBADD = $(progs_ldadd)
-streamcontrol_alsa_la_LDFLAGS = -no-undefined -module -avoid-version
-streamcontrol_alsa_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(streamcontrol_alsa_la_VALASOURCES) \
-	$(streamcontrol_alsa_la_SOURCES) \
+	--pkg fsoaudio-2.0 \
 	$(NULL)
-
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
-MAINTAINERCLEANFILES = \
-  Makefile.in \
-  $(NULL)
+streamcontrol_alsa_la_CPPFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	$(FSO_GLIB_CFLAGS) \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GEE_CFLAGS) \
+	$(NULL)
+streamcontrol_alsa_la_LIBADD = \
+	$(FSO_GLIB_LIBS) \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(GEE_LIBS) \
+	$(top_builddir)/src/lib/libfsoaudio.la \
+	$(NULL)
+streamcontrol_alsa_la_LDFLAGS = -no-undefined -module -avoid-version
+# streamcontrol_alsa_la_LIBTOOLFLAGS = --tag=disable-static

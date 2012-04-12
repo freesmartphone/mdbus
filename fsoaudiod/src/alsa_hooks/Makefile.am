@@ -3,6 +3,4 @@ NULL =
 
 AUTOMAKE_OPTIONS = subdir-objects
 
-SUBDIRS = \
-	session \
-	$(NULL)
+SUBDIRS = session
