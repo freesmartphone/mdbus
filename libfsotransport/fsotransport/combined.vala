@@ -61,14 +61,42 @@ public class FsoFramework.CombinedTransport : FsoFramework.BaseTransport
     // public
     //
 
-    public CombinedTransport( FsoFramework.Transport rwtransport, FsoFramework.Transport rotransport )
+    public CombinedTransport( string transports )
     {
         base( "CombinedTransport" );
-        _rwtransport = rwtransport;
-        _rotransport = rotransport;
 
-        _rwtransport.setDelegates( onRwTransportRead, onRwTransportHup );
-        _rotransport.setDelegates( onRoTransportRead, onRoTransportHup );
+        //cut [ and ], put rwtransport string into _transports[0], put rotransport string into _transports[1]
+        var _transports = transports.substring(1,(transports.length)-2).split( "," );
+        string modem_transport, modem_port;
+        int modem_speed;
+
+        var params = _transports[0].split( ";" );
+        if ( params.length == 3 )
+        {
+            modem_transport = params[0];
+            modem_port = params[1];
+            modem_speed = int.parse( params[2] );
+            _rwtransport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+            _rwtransport.setDelegates( onRwTransportRead, onRwTransportHup );
+        }
+        else
+        {
+            logger.warning( @"Configuration string 'modem_access' (rwtransport) invalid; expected 3 parameters, got $(params.length)" );
+        }
+
+        var params2 = _transports[1].split( ";" );
+        if ( params2.length == 3 )
+        {
+            modem_transport = params2[0];
+            modem_port = params2[1];
+            modem_speed = int.parse( params2[2] );
+            _rotransport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+            _rotransport.setDelegates( onRoTransportRead, onRoTransportHup );
+        }
+        else
+        {
+            logger.warning( @"Configuration string 'modem_access' (rotransport) invalid; expected 3 parameters, got $(params.length)" );
+        }
     }
 
     public override bool open()
