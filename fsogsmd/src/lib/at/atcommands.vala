@@ -1550,22 +1550,12 @@ public class PlusGCAP : SimpleAtCommand<string>
 
 public class PlusVTS : AbstractAtCommand
 {
-    public const string DTMF_VALID_CHARS = "0123456789ABC+#";
-
     public string issue( string tones )
     {
-        /*
-        var tone = "";
-        for ( int i = 0; i < tone.length; ++i )
-        {
-            var c = tones[i];
-            if ( c in DTMF_VALID_CHARS )
-            {
-                tone += c;
-            }
-        }
-        */
-        return @"+VTS=$tones";
+        var command = @"+VTS=$(tones[0])";
+        for ( var n = 1; n < tones.length; n++ )
+            command += @";+VTS=$(tones[n])";
+        return command;
     }
 }
 
