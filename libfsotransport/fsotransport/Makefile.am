@@ -34,6 +34,7 @@ libfsotransport_la_SOURCES = \
 	socket.vala \
 	transport.vala \
 	raw.vala \
+	combined.vala \
 	$(NULL)
 
 libfsotransport_la_VALAFLAGS = \

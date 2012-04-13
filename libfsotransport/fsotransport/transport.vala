@@ -118,6 +118,8 @@ public abstract class FsoFramework.Transport : Object
                 return new FsoFramework.NgsmBasicMuxTransport( name, speed );
             case "ngsmadvanced":
                 return new FsoFramework.NgsmAdvancedMuxTransport( name, speed );
+            case "combined":
+                return new FsoFramework.CombinedTransport( name );
             default:
                 return null;
         }
