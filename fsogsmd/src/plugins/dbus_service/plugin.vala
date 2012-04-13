@@ -755,6 +755,7 @@ class DBusService.Device :
     public async void send_dtmf( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+        FsoGsm.validateDtmfTones( tones );
         var m = modem.createMediator<FsoGsm.CallSendDtmf>();
         yield m.run( tones );
     }
