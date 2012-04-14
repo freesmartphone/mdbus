@@ -66,6 +66,9 @@ class SyncTime.Service : FsoFramework.AbstractObject
             case "gps":
                 typename = "SourceGps";
                 break;
+            case "gpsddbus":
+                typename = "SourceGpsddbus";
+                break;
             case "gsm":
                 typename = "SourceGsm";
                 break;

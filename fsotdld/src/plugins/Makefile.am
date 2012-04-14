@@ -17,6 +17,7 @@ SUBDIRS = \
 	\
 	source_dummy \
 	source_gps \
+	source_gpsddbus \
 	source_gsm \
 	source_ntp \
 	\
