@@ -61,6 +61,11 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
             FsoFramework.FileHandling.write( "0\n", sysfs_modem_gpio );
         }
 
+        // we need to sleep for at least 1 - 2 seconds until the relevant devices are
+        // created by udev/devtmpfs. As the whole poweron logic is synchronous, we have no
+        // other option as forcing a sleep time for the whole daemon.
+        Posix.sleep( 2 );
+
         return true;
     }
 
