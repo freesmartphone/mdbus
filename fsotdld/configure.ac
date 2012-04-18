@@ -23,7 +23,7 @@ GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 SOUP_REQUIRED=2.29
 JSON_REQUIRED=0.10.2
-FSO_GLIB_REQUIRED=2012.02.14.1
+FSO_GLIB_REQUIRED=2012.04.18.1
 FSO_REQUIRED=0.10.0
 
 ##############################################################################

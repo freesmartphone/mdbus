@@ -53,7 +53,7 @@ AM_CONDITIONAL([HAVE_VALA], [test "x$enable_vala" = "xyes"])
 #########################################################################################
 
 GLIB_REQUIRED=2.26.0
-FSO_GLIB_REQUIRED=2012.02.14.1
+FSO_GLIB_REQUIRED=2012.04.18.1
 FSO_REQUIRED=0.10.0
 
 PKG_CHECK_MODULES(GLIB,
