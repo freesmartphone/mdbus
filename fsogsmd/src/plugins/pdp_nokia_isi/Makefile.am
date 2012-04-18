@@ -27,7 +27,7 @@ VALAC_ARGS = \
 	--pkg glib-2.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsogsm-2.0 \
-	--pkg gisicomm-0.0
+	--pkg gisicomm-1.0
 
 #
 # plugin
