@@ -1,3 +1,23 @@
+2012-04-17  Simon Busch  <morphis@gravedo.de>
+
+	Remove unneeded stuff from all autogen.sh files
+
+2012-04-11  Simon Busch  <morphis@gravedo.de>
+
+	Update autotools bootstrap script for all components
+
+2012-04-10  Simon Busch  <morphis@gravedo.de>
+
+	libfsosystem: tests: remove debug build option from Makefile
+
+2012-03-30  Simon Busch  <morphis@gravedo.de>
+
+	libfsosystem: restructure autoconf/automake configuration to be ready for a release
+
+2012-03-14  Simon Busch  <morphis@gravedo.de>
+
+	Update ChangeLog of all components from git history
+
 2012-03-10  Simon Busch  <morphis@gravedo.de>
 
 	libfsosystem: add vim mode line at end of all vala source files

@@ -1,4 +1,4 @@
-m4_define([fsotdld_released], [0])
+m4_define([fsotdld_released], [1])
 m4_define([fsotdld_base_version], [0.10.0])
 m4_define([fsotdld_maybe_gitrev], m4_if(fsotdld_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([fsotdld_version], m4_if(fsotdld_released, [1], [fsotdld_base_version], [fsotdld_base_version-fsotdld_maybe_gitrev]))

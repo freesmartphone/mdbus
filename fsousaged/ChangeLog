@@ -1,3 +1,30 @@
+2012-04-18  Simon Busch  <morphis@gravedo.de>
+
+	Bump required version of libfso-glib to 2012.04.18.1
+
+2012-04-17  Simon Busch  <morphis@gravedo.de>
+
+	Remove unneeded stuff from all autogen.sh files
+
+2012-04-11  Simon Busch  <morphis@gravedo.de>
+
+	Update autotools bootstrap script for all components
+
+	fsousaged: restructure autoconf configuration to be ready for a release
+	Restructuring the automake configuration will follow after the release of version 0.10.
+
+2012-03-29  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: bin: distribute all c sources
+
+2012-03-21  Simon Busch  <morphis@gravedo.de>
+
+	fsousaged: adjust makefiles for distribution
+
+2012-03-14  Simon Busch  <morphis@gravedo.de>
+
+	Update ChangeLog of all components from git history
+
 2012-03-10  Simon Busch  <morphis@gravedo.de>
 
 	Bump version to 0.10.0 and for all FSO dependencies too

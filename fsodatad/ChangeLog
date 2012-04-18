@@ -1,3 +1,29 @@
+2012-04-18  Simon Busch  <morphis@gravedo.de>
+
+	Bump required version of libfso-glib to 2012.04.18.1
+
+2012-04-17  Simon Busch  <morphis@gravedo.de>
+
+	Remove unneeded stuff from all autogen.sh files
+
+2012-04-13  Simon Busch  <morphis@gravedo.de>
+
+	fsodatad: refactor automake infrastructure to use common vala automake bits
+
+2012-04-11  Simon Busch  <morphis@gravedo.de>
+
+	Update autotools bootstrap script for all components
+
+	fsodatad: restructure autoconf/automake configuration to be ready for a release
+
+2012-03-23  Simon Busch  <morphis@gravedo.de>
+
+	fsodatad: prepare make infrastructure for release
+
+2012-03-14  Simon Busch  <morphis@gravedo.de>
+
+	Update ChangeLog of all components from git history
+
 2012-03-10  Simon Busch  <morphis@gravedo.de>
 
 	Bump version to 0.10.0 and for all FSO dependencies too

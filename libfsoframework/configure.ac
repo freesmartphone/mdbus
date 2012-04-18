@@ -1,4 +1,4 @@
-m4_define([fsoframework_released], [0])
+m4_define([fsoframework_released], [1])
 m4_define([fsoframework_base_version], [0.10.0])
 m4_define([fsoframework_maybe_gitrev], m4_if(fsoframework_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([fsoframework_version], m4_if(fsoframework_released, [1], [fsoframework_base_version], [fsoframework_base_version-fsoframework_maybe_gitrev]))

@@ -1,3 +1,29 @@
+2012-04-17  Simon Busch  <morphis@gravedo.de>
+
+	Remove unneeded stuff from all autogen.sh files
+
+2012-04-11  Simon Busch  <morphis@gravedo.de>
+
+	Update autotools bootstrap script for all components
+
+	libfsoframework: fix dependency on generated vala api file
+
+	libfsoframework: remove gobject introspection meta data file from version control
+
+2012-04-10  Simon Busch  <morphis@gravedo.de>
+
+	libfsoframework: restructure autoconf/automake configuration to be ready for a release
+
+2012-03-21  Simon Busch  <morphis@gravedo.de>
+
+	libfsoframework: we don't distribute the tests for the next release
+	The tests are not compiling as they are right now so we have to fix them for the next
+	release.
+
+2012-03-14  Simon Busch  <morphis@gravedo.de>
+
+	Update ChangeLog of all components from git history
+
 2012-03-10  Simon Busch  <morphis@gravedo.de>
 
 	Bump version to 0.10.0 and for all FSO dependencies too

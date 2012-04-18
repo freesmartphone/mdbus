@@ -1,3 +1,44 @@
+2012-04-17  Simon Busch  <morphis@gravedo.de>
+
+	Remove unneeded stuff from all autogen.sh files
+
+2012-04-13  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'fsotransport/combined-transport'
+
+2012-04-13  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	libfsotransport: combined: create only if rw and ro are OK
+
+	libfsotransport: make the combined transport configurable
+	usage: modem_access = combined:[serial;/dev/ttyHS3;115200,serial;/dev/ttyHS5;115200]:-1
+
+2012-04-12  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	libfsotransport: fix typo HS3 -> HS5
+
+2012-04-11  Simon Busch  <morphis@gravedo.de>
+
+	Update autotools bootstrap script for all components
+
+	libfsotransport: commandqueue: support commands which don't expect a response
+
+2012-04-10  Simon Busch  <morphis@gravedo.de>
+
+	libfsotransport: disable test execution for distcheck as it fails somehow
+
+	libfsotransport: restructure autoconf/automake configuration to be ready for a release
+
+2012-04-07  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	libfsotransport: make use of the combined transport
+	ATTENTION: rw_transport and ro_transport are hardcoded for testing purposes at the moment.
+	           This needs to be made configurable later on.
+
+2012-03-14  Simon Busch  <morphis@gravedo.de>
+
+	Update ChangeLog of all components from git history
+
 2012-03-10  Simon Busch  <morphis@gravedo.de>
 
 	Bump version to 0.10.0 and for all FSO dependencies too
@@ -5,6 +46,10 @@
 	drop GITV as version postfix for all components
 
 	libfsotransport: include necessary 3rdparty header files for distribution
+
+2012-03-08  Simon Busch  <morphis@gravedo.de>
+
+	libfsotransport: first draft version of a combined transport class; it's untested ..
 
 2012-02-14  Simon Busch  <morphis@gravedo.de>
 

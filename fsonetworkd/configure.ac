@@ -1,4 +1,4 @@
-m4_define([fsonetworkd_released], [0])
+m4_define([fsonetworkd_released], [1])
 m4_define([fsonetworkd_base_version], [0.10.0])
 m4_define([fsonetworkd_maybe_gitrev], m4_if(fsonetworkd_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([fsonetworkd_version], m4_if(fsonetworkd_released, [1], [fsonetworkd_base_version], [fsonetworkd_base_version-fsonetworkd_maybe_gitrev]))

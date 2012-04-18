@@ -1,3 +1,60 @@
+2012-04-18  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_nokia_isi: respect gisicomm ABI bump
+
+	fsogsmd: require version 0.1.0 of gisicom
+
+	Bump required version of libfso-glib to 2012.04.18.1
+
+2012-04-17  Simon Busch  <morphis@gravedo.de>
+
+	Remove unneeded stuff from all autogen.sh files
+
+2012-04-16  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: lowlevel_gta04: force a two seconds sleep for the whole daemon until dev nodes are available
+
+2012-04-13  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'fsotransport/combined-transport'
+
+2012-04-13  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	libfsotransport: make the combined transport configurable
+	usage: modem_access = combined:[serial;/dev/ttyHS3;115200,serial;/dev/ttyHS5;115200]:-1
+
+2012-04-11  Simon Busch  <morphis@gravedo.de>
+
+	Update autotools bootstrap script for all components
+
+	fsogsmd: we need to compile everything in C99 mode
+
+	fsogsmd: restructure autoconf/automake configuration to be ready for a release
+
+	fsogsmd: activate lowlevel_gta04 plugin for GTA04 machine
+
+	Merge branch 'slyon/gta04'
+
+2012-04-07  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	libfsotransport: make use of the combined transport
+	ATTENTION: rw_transport and ro_transport are hardcoded for testing purposes at the moment.
+	           This needs to be made configurable later on.
+
+2012-03-27  Simon Busch  <morphis@gravedo.de>
+
+	Merge branch 'gsm-call-encryption'
+
+2012-03-23  Simon Busch  <morphis@gravedo.de>
+
+	fsogsmd: modem_ti_calypso: set CPRI=1 on resume to enable GSM call encryption
+
+	fsogsmd: prepare make infrastructure for release
+
+2012-03-14  Simon Busch  <morphis@gravedo.de>
+
+	Update ChangeLog of all components from git history
+
 2012-03-10  Simon Busch  <morphis@gravedo.de>
 
 	Bump version to 0.10.0 and for all FSO dependencies too
@@ -7,6 +64,8 @@
 2012-03-08  Simon Busch  <morphis@gravedo.de>
 
 	fsogsmd: modem_samsung: fix checking of return code for IPC_SND_SPKR_VOLUME_CTRL message
+
+	fsogsmd: lowlevel_gta04: check wether sysfs node is present (it's not on version < A4)
 
 2012-03-05  Simon Busch  <morphis@gravedo.de>
 
@@ -32,6 +91,15 @@
 
 	Revert "fsogsmd: modem_samsung: read signal strength from modem when user wants to retrieve it's value"
 	This reverts commit a2088cd81d94b001d4bd08f7ba2ab9067fef6000.
+
+2012-03-02  Lukas Märdian  <lukasmaerdian@gmail.com>
+
+	fsogsmd: lowlevel_gta04: initial toggle function
+
+	fsogsmd: add lowlevel_gta04 autofoo
+	plugin.vala is just a 1:1 copy of lowlevel_openmoko for now
+
+2012-03-02  Simon Busch  <morphis@gravedo.de>
 
 	fsogsmd: modem_samsung: provide cal-date and misc fields in result of DeviceGetInformation mediator
 
