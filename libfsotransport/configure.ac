@@ -1,5 +1,5 @@
-m4_define([fsotransport_released], [1])
-m4_define([fsotransport_base_version], [0.10.0])
+m4_define([fsotransport_released], [0])
+m4_define([fsotransport_base_version], [0.11.0])
 m4_define([fsotransport_maybe_gitrev], m4_if(fsotransport_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([fsotransport_version], m4_if(fsotransport_released, [1], [fsotransport_base_version], [fsotransport_base_version-fsotransport_maybe_gitrev]))
 
