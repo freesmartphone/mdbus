@@ -103,7 +103,7 @@ namespace FsoGsm
         }
     }
 
-    public void validateDtmfTones( string tones )
+    public void validateDtmfTones( string tones ) throws FreeSmartphone.Error
     {
         if ( tones == "" )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid DTMF tones" );
