@@ -991,8 +991,8 @@ public class PlusCOPS : AbstractAtCommand
             {
                 var p = FreeSmartphone.GSM.NetworkProvider(
                     Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
-                    to_string( "longname" ),
                     to_string( "shortname" ),
+                    to_string( "longname" ),
                     to_string( "mccmnc" ),
                     Constants.instance().networkProviderActToString( to_int( "act" ) ) );
                 providers += p;
