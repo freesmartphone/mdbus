@@ -94,13 +94,9 @@ public class FsoFramework.TransportSpec
         return new TransportSpec( type, name, speed );
     }
 
-    public void create()
+    public FsoFramework.Transport create()
     {
-        if ( transport != null )
-        {
-            transport.logger.warning( "Create called on already existing transport. Ignoring" );
-            return;
-        }
+        FsoFramework.Transport transport = null;
 
         switch ( type )
         {
@@ -126,15 +122,8 @@ public class FsoFramework.TransportSpec
                 transport = new FsoFramework.NullTransport();
                 break;
         }
-    }
 
-    public bool open()
-    {
-        if ( transport == null )
-        {
-            create();
-        }
-        return transport.open();
+        return transport;
     }
 
     public string type;
@@ -142,7 +131,6 @@ public class FsoFramework.TransportSpec
     public uint speed;
     public bool raw;
     public bool hard;
-    public Transport transport;
 }
 
 //===========================================================================
