@@ -129,8 +129,7 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
 
         if ( !match || mi == null )
         {
-            theModem.logger.debug( @"Parsing error: '$response' does not match '$(re.get_pattern())'" );
-            throw new AtCommandError.UNABLE_TO_PARSE( "" );
+            throw new AtCommandError.UNABLE_TO_PARSE( @"Parsing error: '$response' does not match '$(re.get_pattern())'" );
         }
     }
 
@@ -141,8 +140,7 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
 
         if ( !match || mi == null )
         {
-            theModem.logger.debug( @"Parsing error: '$response' does not match '$(tere.get_pattern())'" );
-            throw new AtCommandError.UNABLE_TO_PARSE( "" );
+            throw new AtCommandError.UNABLE_TO_PARSE( @"Parsing error: '$response' does not match '$(tere.get_pattern())'" );
         }
     }
 
