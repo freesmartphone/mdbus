@@ -16,9 +16,9 @@ progs_ldadd = \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
 	$(FSO_LIBS) \
-	../src/lib/libfsogsm.la
+	$(top_builddir)/src/lib/libfsogsm.la
 
-VALAC_ARGS = \
+AM_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg posix \
@@ -31,64 +31,39 @@ VALAC_ARGS = \
 	--pkg fsogsm3rdparty
 
 TEST_PROGS += testatcommand
-testatcommand_VALASOURCES = testatcommand.vala
-testatcommand_SOURCES = testatcommand.c
-$(testatcommand_SOURCES): $(testatcommand_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
+testatcommand_SOURCES = testatcommand.vala
 testatcommand_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testatcommand_VALASOURCES)
 
 TEST_PROGS += testatparser
-testatparser_VALASOURCES = testatparser.vala
-testatparser_SOURCES = testatparser.c
-$(testatparser_SOURCES): $(testatparser_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
+testatparser_SOURCES = testatparser.vala
 testatparser_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testatparser_VALASOURCES)
 
 TEST_PROGS += testcb
-testcb_VALASOURCES = testcb.vala
-testcb_SOURCES = testcb.c
-$(testcb_SOURCES): $(testcb_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
+testcb_SOURCES = testcb.vala
 testcb_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testcb_VALASOURCES)
 
 TEST_PROGS += testconversions
-testconversions_VALASOURCES = testconversions.vala
-testconversions_SOURCES = testconversions.c
-$(testconversions_SOURCES): $(testconversions_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
+testconversions_SOURCES = testconversions.vala
 testconversions_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testconversions_VALASOURCES)
 
 TEST_PROGS += testconst
-testconst_VALASOURCES = testconst.vala
-testconst_SOURCES = testconst.c
-$(testconst_SOURCES): $(testconst_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
+testconst_SOURCES = testconst.vala
 testconst_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testconst_VALASOURCES)
 
 TEST_PROGS += testsms
-testsms_VALASOURCES = testsms.vala
-testsms_SOURCES = testsms.c
-$(testsms_SOURCES): $(testsms_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
+testsms_SOURCES = testsms.vala
 testsms_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testsms_VALASOURCES)
-
-CLEANFILES = \
-    $(TEST_PROGS) \
-    *.? \
-    $(NULL)
 
 MAINTAINERCLEANFILES = \
-  Makefile.in \
-  $(NULL)
+	$(addsuffix .c,$(noinst_PROGRAMS)) \
+	testatcommand_vala.stamp \
+	testatparser_vala.stamp \
+	testcb_vala.stamp \
+	testconversions_vala.stamp \
+	testconst_vala.stamp \
+	testsms_vala.stamp \
+	$(NULL)
+
+EXTRA_DIST += \
+	$(MAINTAINERCLEANFILES) \
+	$(NULL)
