@@ -1108,4 +1108,20 @@ public abstract class FsoGsm.AbstractCdmaModem : FsoGsm.AbstractModem
 {
 }
 
+/**
+ * Dummy implementation of a modem. Should be only used for testing purpose.
+ **/
+public class FsoGsm.NullModem : FsoGsm.AbstractModem
+{
+    public override string repr()
+    {
+        return @"<>";
+    }
+
+    protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
+    {
+        return (FsoGsm.Channel) null;
+    }
+}
+
 // vim:ts=4:sw=4:expandtab
