@@ -45,6 +45,55 @@ public class FsoFramework.TransportSpec
         this.hard = hard;
     }
 
+    public static TransportSpec parse( string line )
+    {
+        string[] tokens = { };
+        string current_token = "";
+        int depth = 0;
+        string type = "", name = "";
+        int speed = 0;
+
+        for ( int n = 0; n < line.length; n++ )
+        {
+            if ( line[n] == ':' && depth == 0 )
+            {
+                tokens += current_token;
+                current_token = "";
+                continue;
+            }
+
+            if ( line[n] == '[' )
+            {
+                depth++;
+                continue;
+            }
+            else if ( line[n] == ']' )
+            {
+                depth--;
+                continue;
+            }
+
+            current_token += @"$(line[n])";
+        }
+
+        if ( current_token.length > 0 )
+            tokens += current_token;
+
+        if ( tokens.length == 3 )
+        {
+            type = tokens[0];
+            name = tokens[1];
+            speed = int.parse(tokens[2]);
+        }
+        else if ( tokens.length == 2 )
+        {
+            type = tokens[0];
+            name = tokens[1];
+        }
+
+        return new TransportSpec( type, name, speed );
+    }
+
     public void create()
     {
         if ( transport != null )

@@ -214,6 +214,18 @@ void test_transport_pty_freeze_thaw()
     assert( readline == "HELLO WORLD" );
 }
 
+void test_transport_spec_from_config()
+{
+    var spec = TransportSpec.parse( "serial:/dev/ttS1:115200" );
+    assert( spec.type == "serial" );
+    assert( spec.name == "/dev/ttS1" );
+    assert( spec.speed == 115200 );
+
+    spec = TransportSpec.parse( "combined:[serial:/dev/ttyS1:115200,tcp:192.168.7.2:3001]" );
+    assert( spec.type == "combined" );
+    assert( spec.name == "serial:/dev/ttyS1:115200,tcp:192.168.7.2:3001" );
+}
+
 //===========================================================================
 void main( string[] args )
 //===========================================================================
@@ -228,6 +240,7 @@ void main( string[] args )
     Test.add_func( "/Transport/Pty/Read", test_transport_pty_read );
     Test.add_func( "/Transport/Pty/Hup", test_transport_pty_hup );
     Test.add_func( "/Transport/Pty/FreezeThaw", test_transport_pty_freeze_thaw );
+    Test.add_func( "/TransportSpec/FromConfig", test_transport_spec_from_config );
 
     Test.run();
 }
