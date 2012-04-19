@@ -25,6 +25,10 @@ HashMap<string,FsoGsm.AtCommand> commands;
 
 void setup()
 {
+    // Take care we have a valid modem which is used by the commands to access it's logger
+    // object
+    FsoGsm.theModem = new FsoGsm.NullModem();
+
     commands = new HashMap<string,FsoGsm.AtCommand>();
     registerGenericAtCommands( commands );
 }
@@ -43,7 +47,6 @@ void test_atcommand_PlusCFUN()
 {
     FsoGsm.PlusCFUN cmd = (FsoGsm.PlusCFUN) atCommandFactory( "+CFUN" );
     cmd.parse( "+CFUN: 0" );
-    message( "cmd.value = %d", cmd.value );
     assert( cmd.value == 0 );
 
     cmd.parse( "+CFUN: 1" );
@@ -156,15 +159,14 @@ void test_atcommand_PlusCOPS()
 {
     FsoGsm.PlusCOPS cmd = (FsoGsm.PlusCOPS) atCommandFactory( "+COPS" );
     cmd.parse( "+COPS: 2" );
-    assert( cmd.status == 2 );
-    assert( cmd.mode == -1 ); // not present
+    assert( cmd.mode == 2 );
+    assert( cmd.format == -1 );
     assert( cmd.oper == "" ); // not present
 
     cmd.parse( "+COPS: 0,3,\"E-Plus\"" );
-    assert( cmd.status == 0 );
-    assert( cmd.mode == 3 );
+    assert( cmd.mode == 0 );
+    assert( cmd.format == 3 );
     assert( cmd.oper == "E-Plus" );
-
 
     cmd.parseTest( """+COPS: (1,"E-Plus","E-Plus","26203"),(2,"Vodafone.de","Vodafone","26202",2),(3,"T-Mobile D","TMO D","26201")""" );
     assert( cmd.providers.length == 3 );
@@ -242,7 +244,7 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+CPIN", test_atcommand_PlusCPIN );
     Test.add_func( "/AtCommand/+FCLASS", test_atcommand_PlusFCLASS );
     Test.add_func( "/AtCommand/+VTS", test_atcommand_PlusVTS );
-    // Test.run();
+    Test.run();
 }
 
 // vim:ts=4:sw=4:expandtab
