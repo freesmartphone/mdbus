@@ -1,0 +1,10 @@
+== GTA04 Option GTM601 specific notes ==
+
+=== AT Level ===
+
+* AT+VTS is as in 27.007 described and does not get any response but in error case
+
+=== Proprietary commands ===
+
+* Too many to list here, please see GTA04 Manual
+
