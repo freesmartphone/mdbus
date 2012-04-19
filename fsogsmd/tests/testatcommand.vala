@@ -219,6 +219,15 @@ void test_atcommand_PlusFCLASS()
 }
 
 //===========================================================================
+void test_atcommand_PlusVTS()
+//===========================================================================
+{
+    FsoGsm.PlusVTS cmd = (FsoGsm.PlusVTS) atCommandFactory( "+VTS" );
+    assert( cmd.issue( "9AD0") == "+VTS=9;+VTS=A;+VTS=D;+VTS=0" );
+    assert( cmd.issue( "B" ) == "+VTS=B" );
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -232,7 +241,8 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+COPS", test_atcommand_PlusCOPS );
     Test.add_func( "/AtCommand/+CPIN", test_atcommand_PlusCPIN );
     Test.add_func( "/AtCommand/+FCLASS", test_atcommand_PlusFCLASS );
-    //Test.run();
+    Test.add_func( "/AtCommand/+VTS", test_atcommand_PlusVTS );
+    // Test.run();
 }
 
 // vim:ts=4:sw=4:expandtab
