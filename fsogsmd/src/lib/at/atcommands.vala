@@ -936,7 +936,6 @@ public class PlusCOPS : AbstractAtCommand
     public int mode;
     public string oper;
     public string act;
-    public int status;
 
     public FreeSmartphone.GSM.NetworkProvider[] providers;
 
