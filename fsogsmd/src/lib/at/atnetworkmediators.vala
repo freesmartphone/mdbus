@@ -137,7 +137,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
             var code = status.lookup( "code" );
             if ( code != null )
             {
-                var provider = findProviderNameForMccMnc( code.get_string() );
+                var provider = yield findProviderNameForMccMnc( code.get_string() );
                 status.insert( "provider", provider );
                 status.insert( "display", provider );
                 status.insert( "network", provider );

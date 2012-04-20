@@ -127,7 +127,7 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         {
             status.insert( "code", plmn );
 
-            var provider = findProviderNameForMccMnc( plmn );
+            var provider = yield findProviderNameForMccMnc( plmn );
             status.insert( "provider", provider );
             status.insert( "display", provider );
         }
@@ -173,7 +173,7 @@ public class SamsungNetworkListProviders : NetworkListProviders
             for ( int m = 0; m < 5; m++ )
                 mccmnc += "%c".printf( currentNetwork.plmn[m] );
 
-            var provider = findProviderNameForMccMnc( mccmnc );
+            var provider = yield findProviderNameForMccMnc( mccmnc );
 
             var p = FreeSmartphone.GSM.NetworkProvider(
                 Constants.instance().networkProviderStatusToString( (int) currentNetwork.status - 1 ),
