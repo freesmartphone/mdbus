@@ -75,11 +75,13 @@ PKG_CHECK_MODULES(FSO_GLIB,
 # dbus conf directory
 #########################################################################################
 
-DBUS_DIR="`$PKG_CONFIG --variable=sysconfdir dbus-1`"
-if (test -z "{DBUS_DIR}"); then
+AC_ARG_WITH(dbusconfdir, AC_HELP_STRING([--with-dbusconfdir=PATH], [path to D-Bus config directory]),
+			[path_dbusconf=${withval}], [path_dbusconf="`$PKG_CONFIG --variable=sysconfdir dbus-1`"])
+
+if (test -z "${path_dbusconf}"); then
   DBUS_DIR="${sysconfdir}/dbus-1"
 else
-  DBUS_DIR="$DBUS_DIR/dbus-1"
+  DBUS_DIR="${path_dbusconf}/dbus-1"
 fi
 AC_SUBST(DBUS_DIR)
 
@@ -87,9 +89,13 @@ AC_SUBST(DBUS_DIR)
 # dbus service directory
 #########################################################################################
 
-DBUS_SERVICE_DIR="`$PKG_CONFIG --variable=session_bus_services_dir dbus-1`"
-if (test -z "{DBUS_SERVICE_DIR}"); then
-  DBUS_SERVICE_DIR="${datadir}/dbus-1/services"
+AC_ARG_WITH(dbusservicedir, AC_HELP_STRING([--with-dbusdatadir=PATH], [path to D-Bus data directory]),
+			[path_dbusdata=${withval}], [path_dbusdata="`$PKG_CONFIG --variable=datadir dbus-1`"])
+
+if (test -z "${path_dbusdata}"); then
+	DBUS_SERVICE_DIR="${datadir}/dbus-1/system-services"
+else
+	DBUS_SERVICE_DIR="${path_dbusdata}/dbus-1/system-services"
 fi
 AC_SUBST(DBUS_SERVICE_DIR)
 
