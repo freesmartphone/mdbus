@@ -64,11 +64,9 @@ internal class Channel
         _name = info.consumer;
         _number = info.number;
 
-        info.tspec.create();
-        transport = info.tspec.transport;
+        transport = info.transport;
         transport.setPriorities( TRANSPORT_READ_PRIORITY, TRANSPORT_WRITE_PRIORITY );
         transport.setDelegates( onRead, onHup );
-        info.tspec.transport = transport;
         assert( logger.debug( "Constructed" ) );
 
         if ( ackTimeout > 0 )

@@ -40,7 +40,7 @@ public class ChannelInfo
      * Transport specification for the transport the
      * channel should be exposed over
      **/
-    public FsoFramework.TransportSpec tspec;
+    public FsoFramework.Transport transport;
 }
 
 //===========================================================================
@@ -194,7 +194,7 @@ public class Manager : Object
 
     public async int allocChannel( ChannelInfo channel ) throws MuxerError
     {
-        assert( logger.debug( @"Consumer $(channel.consumer) requested channel $(channel.number) via $(channel.tspec.type)" ) );
+        assert( logger.debug( @"Consumer $(channel.consumer) requested channel $(channel.number) via $(channel.transport.getName())" ) );
 
         if ( autoopen && muxer == null )
         {
