@@ -246,17 +246,8 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
  **/
 public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.AbstractObject
 {
-    //FIXME: Encapsulate as transport spec
-    public string modem_type;
-    public string modem_transport;
-    public string modem_port;
-    public int modem_speed;
-
-    //FIXME: Encapsulate as transport spec
-    public string data_type;
-    public string data_transport;
-    public string data_port;
-    public int data_speed;
+    public FsoFramework.TransportSpec modem_transport_spec { get; private set; }
+    public FsoFramework.TransportSpec data_transport_spec { get; private set; }
 
     protected FsoGsm.Modem.Status modem_status;
     protected FsoGsm.Modem.Data modem_data;
@@ -291,43 +282,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         // gather modem access parameters
         var modem_config = config.stringValue( CONFIG_SECTION, "modem_access", "invalid:invalid:-1" );
-        if ( modem_config != "" )
-        {
-            var params = modem_config.split( ":" );
-            if ( params.length == 3 )
-            {
-                var values = modem_config.split( ":" );
-                modem_transport = values[0];
-                modem_port = values[1];
-                modem_speed = values[2].to_int();
-            }
-            else
-            {
-                logger.warning( @"Configuration string 'modem_access' invalid; expected 3 parameters, got $(params.length)" );
-            }
-        }
-        else
-        {
-            logger.warning( @"Configuration string 'modem_access' missing. This might not be what you want." );
-        }
+        modem_transport_spec = FsoFramework.TransportSpec.parse( modem_config );
 
         // gather modem data access parameters
         var data_config = config.stringValue( CONFIG_SECTION, "data_access", "" );
-        if ( data_config != "" )
-        {
-            var params = data_config.split( ":" );
-            if ( params.length == 3 )
-            {
-                var values = data_config.split( ":" );
-                data_transport = values[0];
-                data_port = values[1];
-                data_speed = values[2].to_int();
-            }
-            else
-            {
-                logger.warning( @"Configuration string 'data_access' invalid; expected 3 parameters, got $(params.length)" );
-            }
-        }
+        data_transport_spec = FsoFramework.TransportSpec.parse( data_config );
 
         initLowlevel();
         initPdpHandler();
@@ -338,11 +297,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         registerAtCommands();
         createChannels();
 
-        var configuration = @"$modem_transport:$modem_port@$modem_speed";
+        var configuration = modem_transport_spec.repr();
         if ( data_config != "" )
-        {
-            configuration += @" / $data_transport:$data_port@$data_speed";
-        }
+            configuration += @" / $(data_transport_spec.repr())";
 
         assert( logger.debug( @"Created; configured for $configuration" ) );
     }
@@ -482,7 +439,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.keepRegistration = config.boolValue( CONFIG_SECTION, "auto_register", false );
 
         modem_data.pppCommand = config.stringValue( CONFIG_SECTION, "ppp_command", PPPD_DEFAULT_COMMAND );
-        modem_data.pppPort = data_port ?? config.stringValue( CONFIG_SECTION, "ppp_port", "/dev/null" );
+        modem_data.pppPort = data_transport_spec.name ?? config.stringValue( CONFIG_SECTION, "ppp_port", "/dev/null" );
         modem_data.pppOptions = config.stringListValue( CONFIG_SECTION, "ppp_options", {
             "115200",
             "nodetach",
@@ -921,7 +878,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     public virtual string allocateDataPort()
     {
-        return data_port;
+        return data_transport_spec.name;
     }
 
     /**

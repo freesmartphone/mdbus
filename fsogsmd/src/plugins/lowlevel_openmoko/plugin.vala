@@ -64,7 +64,7 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( "1\n", powerNode );
         Thread.usleep( 1000 * 1000 );
 
-        var transport = FsoFramework.Transport.create( modem.modem_transport, modem.modem_port, modem.modem_speed );
+        var transport = modem.modem_transport_spec.create();
         transport.open();
         assert( transport.isOpen() );
 

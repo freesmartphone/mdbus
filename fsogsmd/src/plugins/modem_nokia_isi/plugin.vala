@@ -67,20 +67,20 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     construct
     {
-        if ( modem_transport != "phonet" )
+        if ( modem_transport_spec.type != "phonet" )
         {
             logger.critical( "ISI: This modem plugin only supports the PHONET transport" );
             return;
         }
-        if ( Linux.Network.if_nametoindex( modem_port ) == 0 )
+        if ( Linux.Network.if_nametoindex( modem_transport_spec.name ) == 0 )
         {
-            logger.critical( @"Interface $modem_port not available" );
+            logger.critical( @"Interface $(modem_transport_spec.name) not available" );
         }
 
         handle_modem_power = config.boolValue( MODULE_NAME, "handle_modem_power", true );
 
         NokiaIsi.modem = this;
-        NokiaIsi.isimodem = new GIsiComm.ModemAccess( modem_port );
+        NokiaIsi.isimodem = new GIsiComm.ModemAccess( modem_transport_spec.name );
         NokiaIsi.isimodem.m.set_flags( GIsi.ModemFlag.USE_LEGACY_SUBSCRIBE );
         NokiaIsi.isimodem.netlinkChanged.connect( onNetlinkChanged );
         gpio_probe();
@@ -88,7 +88,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     public override string repr()
     {
-        return @"<$modem_transport:$modem_port>";
+        return @"<$(modem_transport_spec.type):$(modem_transport_spec.name)>";
     }
 
     protected override bool powerOn()
@@ -192,7 +192,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        new IsiChannel( ISI_CHANNEL_NAME, new IsiTransport( modem_port ) );
+        new IsiChannel( ISI_CHANNEL_NAME, new IsiTransport( modem_transport_spec.name ) );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

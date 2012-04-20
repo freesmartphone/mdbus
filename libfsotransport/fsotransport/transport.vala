@@ -45,6 +45,11 @@ public class FsoFramework.TransportSpec
         this.hard = hard;
     }
 
+    public string repr()
+    {
+        return @"$type:$name:$speed";
+    }
+
     public static TransportSpec parse( string line )
     {
         string[] tokens = { };

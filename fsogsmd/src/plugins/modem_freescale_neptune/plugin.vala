@@ -99,7 +99,7 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
     {
         logger.info( "Create Freescale Neptune channels" );
 
-        if ( modem_transport == "serial" )
+        if ( modem_transport_spec.type == "serial" )
         {
             var muxnode_prefix = config.stringValue( MODULE_NAME, "muxnode_prefix" );
 
@@ -110,7 +110,7 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
                 if ( dlci != "" )
                 {
                     var muxnode = @"$(muxnode_prefix)$(dlci)";
-                    var transport = FsoFramework.Transport.create( modem_transport, muxnode, modem_speed );
+                    var transport = FsoFramework.Transport.create( modem_transport_spec.name, muxnode, modem_transport_spec.speed );
                     new AtChannel( channel, transport, new FsoGsm.StateBasedAtParser() );
                 }
                 else
@@ -119,7 +119,7 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
                 }
             }
         }
-        else if ( modem_transport == "tcp" )
+        else if ( modem_transport_spec.type == "tcp" )
         {
             for ( int i = 0; i < CHANNEL_NAMES.length; ++i )
             {
@@ -127,7 +127,8 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
                 var dlci = config.intValue( MODULE_NAME, @"dlci_$(channel)" );
                 if ( dlci > 0 )
                 {
-                    var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed + dlci );
+                    var transport = FsoFramework.Transport.create( modem_transport_spec.type, modem_transport_spec.name,
+                        modem_transport_spec.speed + dlci );
                     new AtChannel( channel, transport, new FsoGsm.StateBasedAtParser() );
                 }
                 else

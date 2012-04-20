@@ -78,7 +78,7 @@ class Gtm601.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        var transport = FsoFramework.Transport.create( modem_transport, modem_port, modem_speed );
+        var transport = modem_transport_spec.create();
         var parser = new FsoGsm.StateBasedAtParser();
         new AtChannel( CHANNEL_NAME, transport, parser );
     }

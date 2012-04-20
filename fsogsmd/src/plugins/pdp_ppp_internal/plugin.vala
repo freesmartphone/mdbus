@@ -89,17 +89,18 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
         }
 
-        if ( ( (FsoGsm.AbstractModem) theModem ).data_transport != "serial" &&  ( (FsoGsm.AbstractModem) theModem ).data_transport != "tcp" )
+        if ( ( (FsoGsm.AbstractModem) theModem ).data_transport_spec.type != "serial" &&
+             ( (FsoGsm.AbstractModem) theModem ).data_transport_spec.type != "tcp" )
         {
             disconnected();
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "ippp only supports data transport types 'serial' and 'tcp' for now" );
         }
 
-        transport = FsoFramework.Transport.create( m.data_transport, m.data_port, m.data_speed );
+        transport = ( (FsoGsm.AbstractModem) theModem ).data_transport_spec.create();
 
         // in the case that we have a serial transport we need to cycle the dtr line of
         // the serial port if the config tells us to do so
-        if ( ( (FsoGsm.AbstractModem) theModem ).data_transport == "serial" )
+        if ( transport is FsoFramework.SerialTransport )
         {
             var serial_transport = transport as FsoFramework.SerialTransport;
             serial_transport.dtr_cycle = FsoFramework.theConfig.boolValue( MODULE_NAME, "dtr_cycle", false );
