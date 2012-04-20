@@ -123,9 +123,9 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
 
     public override async bool open()
     {
-        if ( modem_transport.has_prefix( "ngsm" ) )
+        if ( modem_transport_spec.type.has_prefix( "ngsm" ) )
         {
-            muxtransport = new FsoFramework.NgsmBasicMuxTransport( modem_port, modem_speed );
+            muxtransport = new FsoFramework.NgsmBasicMuxTransport( modem_transport_spec.name, modem_transport_spec.speed );
             if ( !muxtransport.open() )
             {
                 return false;
@@ -147,7 +147,7 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        if ( modem_transport.has_prefix( "ngsm" ) )
+        if ( modem_transport_spec.type.has_prefix( "ngsm" ) )
         {
             new AtChannel( "main", new FsoFramework.SerialTransport( "/dev/ttygsm1", 115200 ), new FsoGsm.StateBasedAtParser() );
             new AtChannel( "call", new FsoFramework.SerialTransport( "/dev/ttygsm3", 115200 ), new FsoGsm.StateBasedAtParser() );
