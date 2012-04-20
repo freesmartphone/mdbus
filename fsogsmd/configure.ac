@@ -82,8 +82,7 @@ PKG_CHECK_MODULES(FSO,
   fsosystem-2.0 >= $FSO_REQUIRED
   fsoframework-2.0 >= $FSO_REQUIRED
   fsotransport-2.0 >= $FSO_REQUIRED
-  fsoresource-2.0 >= $FSO_REQUIRED
-  fsodata-2.0 >= $FSO_REQUIRED)
+  fsoresource-2.0 >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 

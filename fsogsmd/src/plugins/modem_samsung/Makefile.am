@@ -35,7 +35,6 @@ VALAC_ARGS = \
 	--pkg fsotransport-2.0 \
 	--pkg fsosystem-2.0 \
 	--pkg fsogsm-2.0 \
-	--pkg fsodata-2.0 \
 	--pkg samsung-ipc-1.0 \
 	--pkg samsung-modemctl \
 	$(NULL)

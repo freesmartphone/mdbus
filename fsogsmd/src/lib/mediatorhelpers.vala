@@ -118,24 +118,9 @@ namespace FsoGsm
         }
     }
 
-    public FsoData.MBPI.Provider findProviderForMccMnc( string mccmnc )
+    public string findProviderNameForMccMnc( string mccmnc )
     {
-        FsoData.MBPI.Provider? result = new FsoData.MBPI.Provider() { name = "unkown" };
-        var mbpi = FsoData.MBPI.Database.instance();
-
-        foreach ( var country in FsoData.MBPI.Database.instance().allCountries().values )
-        {
-            foreach ( var provider in country.providers.values )
-            {
-                foreach ( var code in provider.codes )
-                {
-                    if ( code == mccmnc )
-                        result = provider;
-                }
-            }
-        }
-
-        return result;
+        return "unknown";
     }
 }
 

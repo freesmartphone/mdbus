@@ -127,9 +127,9 @@ public class SamsungNetworkGetStatus : NetworkGetStatus
         {
             status.insert( "code", plmn );
 
-            var provider_info = findProviderForMccMnc( plmn );
-            status.insert( "provider", provider_info.name );
-            status.insert( "display", provider_info.name );
+            var provider = findProviderNameForMccMnc( plmn );
+            status.insert( "provider", provider );
+            status.insert( "display", provider );
         }
 
         // query PDP registration status
@@ -173,11 +173,11 @@ public class SamsungNetworkListProviders : NetworkListProviders
             for ( int m = 0; m < 5; m++ )
                 mccmnc += "%c".printf( currentNetwork.plmn[m] );
 
-            var providerInfo = findProviderForMccMnc( mccmnc );
+            var provider = findProviderNameForMccMnc( mccmnc );
 
             var p = FreeSmartphone.GSM.NetworkProvider(
                 Constants.instance().networkProviderStatusToString( (int) currentNetwork.status - 1 ),
-                providerInfo.name, providerInfo.name, mccmnc, "GSM");
+                provider, provider, mccmnc, "GSM");
 
             _providers += p;
         }
