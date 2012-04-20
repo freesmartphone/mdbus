@@ -62,11 +62,8 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
                                                       delegateFreeze,
                                                       delegateThaw );
 
-        var tspec = new FsoFramework.TransportSpec( "foo", "bar" );
-        tspec.transport = tdelegate;
-
         channelinfo = new Gsm0710mux.ChannelInfo() {
-            tspec = tspec,
+            transport = tdelegate,
             number = channel,
             consumer = @"fsogsmd:$channel" };
 
