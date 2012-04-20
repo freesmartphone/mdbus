@@ -43,6 +43,46 @@ public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
     public async abstract void connectedWithNewDefaultRoute( FsoGsm.RouteInfo route );
 
     public abstract void disconnected();
+
+    public abstract FreeSmartphone.GSM.ContextStatus status { get; set; }
+}
+
+/**
+ * @class NullPdpHandler
+ **/
+public class FsoGsm.NullPdpHandler : IPdpHandler, FsoFramework.AbstractObject
+{
+    public FreeSmartphone.GSM.ContextStatus status { get; set; default = FreeSmartphone.GSM.ContextStatus.RELEASED; }
+
+    public override string repr()
+    {
+        return "";
+    }
+
+    public async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        logger.warning( "NullPdpHandler::activate() - this is probably not what you want" );
+    }
+
+    public async void deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        logger.warning( "NullPdpHandler::deactivate() - this is probably not what you want" );
+    }
+
+    public async void statusUpdate( string status, GLib.HashTable<string,Variant> properties )
+    {
+        logger.warning( "NullPdpHandler::statusUpdate() - this is probably not what you want" );
+    }
+
+    public async void connectedWithNewDefaultRoute( FsoGsm.RouteInfo route )
+    {
+        logger.warning( "NullPdpHandler::connectedWithNewDefaultRoute() - this is probably not what you want" );
+    }
+
+    public void disconnected()
+    {
+        logger.warning( "NullPdpHandler::disconnected() - this is probably not what you want" );
+    }
 }
 
 /**
