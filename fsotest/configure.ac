@@ -66,8 +66,8 @@ AC_OUTPUT([
 	conf/Makefile
 	conf/default/Makefile
 	data/Makefile
-	tests/Makefile
-	fsosystem/Makefile
+	api/Makefile
+	system/Makefile
 ])
 
 ###############################################################################

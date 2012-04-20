@@ -5,8 +5,8 @@ NULL =
 SUBDIRS = \
 	conf \
 	data \
-	tests \
-	fsosystem \
+	api \
+	system \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
