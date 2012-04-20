@@ -147,6 +147,29 @@ class World.Info : FreeSmartphone.Data.World, FsoFramework.AbstractObject
 
         return result;
     }
+
+    public async string get_provider_name_for_mcc_mnc( string mcc_mnc ) throws FreeSmartphone.Error, DBusError, IOError
+    {
+        string result = "";
+        var mbpi = FsoData.MBPI.Database.instance();
+
+        foreach ( var country in FsoData.MBPI.Database.instance().allCountries().values )
+        {
+            foreach ( var provider in country.providers.values )
+            {
+                foreach ( var code in provider.codes )
+                {
+                    if ( code == mcc_mnc )
+                        result = provider.name;
+                }
+            }
+        }
+
+        if ( result == "" )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Did not found a valid provider for MCC/MNC $mcc_mnc" );
+
+        return result;
+    }
 }
 
 World.Info instance;
