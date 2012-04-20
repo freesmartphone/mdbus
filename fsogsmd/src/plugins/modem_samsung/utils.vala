@@ -143,24 +143,4 @@ private string ipAddrFromByteArray( uint8* data, int size )
     return "%i.%i.%i.%i".printf( data[0], data[1], data[2], data[3] );
 }
 
-public FsoData.MBPI.Provider findProviderForMccMnc( string mccmnc )
-{
-    FsoData.MBPI.Provider? result = new FsoData.MBPI.Provider() { name = "unkown" };
-    var mbpi = FsoData.MBPI.Database.instance();
-
-    foreach ( var country in FsoData.MBPI.Database.instance().allCountries().values )
-    {
-        foreach ( var provider in country.providers.values )
-        {
-            foreach ( var code in provider.codes )
-            {
-                if ( code == mccmnc )
-                    result = provider;
-            }
-        }
-    }
-
-    return result;
-}
-
 // vim:ts=4:sw=4:expandtab

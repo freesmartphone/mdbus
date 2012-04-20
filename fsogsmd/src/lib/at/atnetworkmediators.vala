@@ -87,17 +87,28 @@ public class AtNetworkGetStatus : NetworkGetStatus
             }
         }
 
-        // query registration mode, operator name, access technology
+        // query operator code
         var cops = theModem.createAtCommand<PlusCOPS>( "+COPS" );
+        var copsResult3 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
+        if ( cops.validate( copsResult3 ) == Constants.AtResponse.VALID )
+        {
+            strvalue = cops.oper;
+            status.insert( "code", strvalue );
+        }
+
+        // query registration mode, operator name, access technology
         var copsResult = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC ) );
         if ( cops.validate( copsResult ) == Constants.AtResponse.VALID )
         {
             strvalue = Constants.instance().networkRegistrationModeToString( cops.mode );
             status.insert( "mode", strvalue );
             strvalue = cops.oper;
-            status.insert( "provider", strvalue );
-            status.insert( "network", strvalue ); // base value
-            status.insert( "display", strvalue ); // base value
+            if ( strvalue != "" )
+            {
+                status.insert( "provider", strvalue );
+                status.insert( "network", strvalue ); // base value
+                status.insert( "display", strvalue ); // base value
+            }
             strvalue = cops.act;
             status.insert( "act", strvalue );
         }
@@ -118,6 +129,21 @@ public class AtNetworkGetStatus : NetworkGetStatus
                 status.insert( "network", strvalue );
             }
         }
+
+        // if we still don't have any valid value for the provider of the currently
+        // connected network we're looking into our local database for it.
+        if ( status.lookup( "provider" ) == null )
+        {
+            var code = status.lookup( "code" );
+            if ( code != null )
+            {
+                var provider = findProviderForMccMnc( code.get_string() );
+                status.insert( "provider", provider.name );
+                status.insert( "display", provider.name );
+                status.insert( "network", provider.name );
+            }
+        }
+
 #if 0
         // check whether we want to override display name with SIM issuer
         if ( overrideProviderWithSimIssuer )
@@ -125,13 +151,6 @@ public class AtNetworkGetStatus : NetworkGetStatus
             status.insert( "display", theModem.data().simIssuer );
         }
 #endif
-        // query operator code
-        var copsResult3 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
-        if ( cops.validate( copsResult3 ) == Constants.AtResponse.VALID )
-        {
-            strvalue = cops.oper;
-            status.insert( "code", strvalue );
-        }
 
         // query pdp registration status and lac/cid
         var cgreg = theModem.createAtCommand<PlusCGREG>( "+CGREG" );

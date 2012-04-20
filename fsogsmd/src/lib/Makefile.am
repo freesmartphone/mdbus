@@ -46,6 +46,7 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsogsm3rdparty \
+	--pkg fsodata-2.0 \
 	--pkg config \
 	--header fsogsm.h \
 	--library fsogsm-2.0
