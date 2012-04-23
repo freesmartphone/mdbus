@@ -12,4 +12,5 @@ COMPONENTS=" \
 	fsodeviced \
 	fsonetworkd \
 	fsosystemd \
-	fsotdld"
+	fsotdld \
+	fsoaudiod"
