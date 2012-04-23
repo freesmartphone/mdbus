@@ -186,6 +186,7 @@ AC_CONFIG_FILES([
   conf/GTA04/Makefile
   data/Makefile
   data/org.freesmartphone.oaudiod.service
+  vapi/Makefile
   src/Makefile
   src/lib/Makefile
   src/bin/Makefile

@@ -6,6 +6,7 @@ SUBDIRS = \
 	conf \
 	data \
 	src \
+	vapi \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
