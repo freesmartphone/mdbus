@@ -83,6 +83,7 @@ modem_samsung_la_LIBTOOLFLAGS = --tag=disable-static
 EXTRA_DIST += \
 	$(modem_samsung_la_VALASOURCES) \
 	$(modem_samsung_la_SOURCES) \
+	include/samsung_modem_ctl.h \
 	$(NULL)
 
 CLEANFILES = \
