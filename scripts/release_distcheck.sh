@@ -19,6 +19,8 @@ for comp in $COMPONENTS; do
 				--enable-player-gstreamer
 		elif [ $comp == "fsoaudiod" ] ; then
 			./configure --enable-cmtspeechdata --enable-samplerate
+		elif [ $comp == "fsotdld" ] ; then
+			./configure --enable-provider-libgps
 		fi
 
 		make || exit 1
