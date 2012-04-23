@@ -105,7 +105,7 @@ AC_ARG_ENABLE(provider-libgps,
 if test x$libgps = x"yes"; then
     # libgps
     PKG_CHECK_MODULES(GPS,
-      libgps >= 0.0)
+      libgps >= 3.4)
     AC_SUBST(GPS_CFLAGS)
     AC_SUBST(GPS_LIBS)
 fi
