@@ -9,19 +9,21 @@ for comp in $COMPONENTS; do
 			sudo make maintainer-clean
 		fi
 
-		./autogen.sh
+		NOCONFIGURE=1 ./autogen.sh
+
+		CFLAGS=""
 
 		if [ $comp == "fsogsmd" ] ; then
-			./configure --enable-libgsm0710mux --enable-modem-qualcomm-palm \
-				--enable-modem-nokia-isi --enable-modem-samsung
+			CFLAGS="--enable-libgsm0710mux --enable-modem-qualcomm-palm --enable-modem-nokia-isi --enable-modem-samsung"
 		elif [ $comp == "fsodeviced" ] ; then
-			./configure --enable-kernel26-rfkill --enable-player-canberra \
-				--enable-player-gstreamer
+			CFLAGS="--enable-kernel26-rfkill --enable-player-canberra --enable-player-gstreamer"
 		elif [ $comp == "fsoaudiod" ] ; then
-			./configure --enable-cmtspeechdata --enable-samplerate
+			CFLAGS="--enable-cmtspeechdata --enable-samplerate"
 		elif [ $comp == "fsotdld" ] ; then
-			./configure --enable-provider-libgps
+			CFLAGS="--enable-provider-libgps"
 		fi
+
+		./configure --enable-vala $CFLAGS
 
 		make || exit 1
 		sudo make distcheck || exit 1
