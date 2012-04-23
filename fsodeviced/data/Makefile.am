@@ -7,6 +7,8 @@ dbusservicedir = @DBUS_SERVICE_DIR@/../system-services
 dbusservice_in_file = org.freesmartphone.odeviced.service.in
 dist_dbusservice_DATA = $(dbusservice_in_file:.service.in=.service)
 
+EXTRA_DIST += fsodeviced.service
+
 CLEANFILES = $(dist_dbusservice_DATA)
 MAINTAINERCLEANFILES = Makefile.in
 

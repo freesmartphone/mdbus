@@ -97,6 +97,7 @@ AC_CONFIG_FILES([
   src/plugins/kernel26_firmwareloader/Makefile
   conf/Makefile
   conf/default/Makefile
+  data/Makefile
 ])
 AC_OUTPUT
 
