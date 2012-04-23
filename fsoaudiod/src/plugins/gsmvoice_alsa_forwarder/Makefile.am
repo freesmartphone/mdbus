@@ -48,3 +48,10 @@ gsmvoice_alsa_forwarder_la_LIBADD = \
 	$(NULL)
 gsmvoice_alsa_forwarder_la_LDFLAGS = -no-undefined -module -avoid-version -lm
 # gsmvoice_alsa_forwarder_la_LIBTOOLFLAGS = --tag=disable-static
+
+EXTRA_DIST += \
+	alsaloop.c \
+	control.c \
+	pcmjob.c \
+	alsaloop.h \
+	$(NULL)
