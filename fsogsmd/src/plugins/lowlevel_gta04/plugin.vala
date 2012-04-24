@@ -25,10 +25,12 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
     public const string MODULE_NAME = "fsogsm.lowlevel_gta04";
     private string sysfs_modem_gpio;
+    private string modem_application_node;
 
     construct
     {
         sysfs_modem_gpio = config.stringValue( MODULE_NAME, "modem_toggle", "/sys/class/gpio/gpio186/value" );
+        modem_application_node = config.stringValue( MODULE_NAME, "modem_application_node", "/dev/ttyHS_Application" );
 
         logger.info( "Registering gta04 low level modem toggle" );
     }
@@ -38,18 +40,17 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         return "<>";
     }
 
+    public bool is_powered()
+    {
+        return FsoFramework.FileHandling.isPresent( "/dev/ttyHS_Application");
+    }
+
     /*
      * Toggling the modem is needed since revision GTA04a4.
      * The GPIO node will not exist on GTA04a3, the modem is always powered there.
      */
-    public bool toggle()
+    private void toggle_modem_power_state()
     {
-#if DEBUG
-        debug( "lowlevel_gta04_toggle()" );
-#endif
-        //TODO: check if the modem is powered on or off, e.g. via lsusb:
-        //      Bus 001 Device 002: ID 0af0:8800 Option
-
         if ( FsoFramework.FileHandling.isPresent( sysfs_modem_gpio ) )
         {
             // 0,1,0 (duration: at least 200ms) toggles from on->off and from off->on
@@ -60,45 +61,73 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
             Thread.usleep( 1000 * 100 );
             FsoFramework.FileHandling.write( "0\n", sysfs_modem_gpio );
         }
-
-        // we need to sleep for at least 1 - 2 seconds until the relevant devices are
-        // created by udev/devtmpfs. As the whole poweron logic is synchronous, we have no
-        // other option as forcing a sleep time for the whole daemon.
-        Posix.sleep( 2 );
-
-        return true;
     }
 
+    /**
+     * Wait until the modem is powered on or off. This will probably block for some
+     * seconds until the modem is powerd on or off.
+     **/
+    private void wait_for_modem( bool powered )
+    {
+        int fd = -1;
+        int count_retries = 5;
+
+        do
+        {
+            fd = Posix.open( "/dev/ttyHS_Application", Posix.O_RDWR );
+            if ((powered && fd < 0) || (!powered && fd > 0))
+                Posix.sleep( 1 );
+            count_retries--;
+        }
+        while ( ((powered && fd < 0 && Posix.errno == Posix.ENODEV) || (powered && fd > 0)) && count_retries >= 0 );
+    }
+
+    /**
+     * Power on the modem. After calling this the modem is ready to use.
+     * NOTE: Calling poweron() will probably block for some seconds until the
+     * modem is completely initialized.
+     **/
     public bool poweron()
     {
-#if DEBUG
-        debug( "lowlevel_gta04_poweron()" );
-#endif
-        bool ret = toggle();
-        return ret;
+        // Power off the modem first. If modem is already off this does nothing.
+        poweroff();
+
+        toggle_modem_power_state();
+        wait_for_modem( false );
+
+        return true;
     }
 
+    /**
+     * Powering off the modem.
+     * NOTE: Calling poweroff() will probably block for some seconds until the
+     * modem is completely powered off.
+     **/
     public bool poweroff()
     {
-#if DEBUG
-        debug( "lowlevel_gta04_poweroff()" );
-#endif
+        // Be sure we're not already powered off
+        if ( !is_powered() )
+            return true;
+
+        toggle_modem_power_state();
+        wait_for_modem( true );
+
         return true;
     }
 
+    /**
+     * Suspend the modem - UNIMPLEMENTED
+     **/
     public bool suspend()
     {
-#if DEBUG
-        debug( "lowlevel_gta04_suspend()" );
-#endif
         return true;
     }
 
+    /**
+     * Resume the modem - UNIMPLEMENTED
+     **/
     public bool resume()
     {
-#if DEBUG
-        debug( "lowlevel_gta04_resume()" );
-#endif
         return true;
     }
 }
