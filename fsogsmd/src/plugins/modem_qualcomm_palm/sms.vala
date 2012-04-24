@@ -27,7 +27,7 @@ using FsoGsm;
  **/
 public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 {
-    public FsoGsm.SmsStorage storage { get; set; }
+    public FsoGsm.ISmsStorage storage { get; set; }
 
     public MsmSmsHandler()
     {
@@ -125,7 +125,7 @@ public class MsmSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
             throw new FreeSmartphone.Error.INTERNAL_ERROR( msg );
         }
 
-        storage = new SmsStorage( imsi );
+        storage = SmsStorageFactory.create( "default", imsi );
 #if 0
         // read all messages
         var cmgl = theModem.createAtCommand<PlusCMGL>( "+CMGL" );

@@ -81,7 +81,7 @@ public class WrapHexPdu
  */
 public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
 {
-    public abstract SmsStorage storage { get; set; }
+    public abstract ISmsStorage storage { get; set; }
 
     public abstract async void handleIncomingSmsOnSim( uint index );
     public abstract async void handleIncomingSms( string hexpdu, int tpdulen );
@@ -103,7 +103,7 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
  **/
 public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 {
-    public SmsStorage storage { get; set; }
+    public ISmsStorage storage { get; set; }
 
     protected abstract async string retrieveImsiFromSIM();
     protected abstract async void fillStorageWithMessageFromSIM();
@@ -132,7 +132,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
         if ( imsi == "" || imsi == null )
             imsi = "unknown";
 
-        storage = new SmsStorage( imsi );
+        storage = SmsStorageFactory.create( "default", imsi );
 
         yield fillStorageWithMessageFromSIM();
     }

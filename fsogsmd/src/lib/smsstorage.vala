@@ -27,12 +27,37 @@ namespace FsoGsm
                                                                Posix.S_IXUSR | Posix.S_IRGRP |
                                                                Posix.S_IXGRP | Posix.S_IROTH |
                                                                Posix.S_IXOTH;
+
+    public interface ISmsStorage : FsoFramework.AbstractObject
+    {
+        public abstract void clean();
+        public abstract int addSms( Sms.Message message );
+        public abstract Gee.ArrayList<string> keys();
+        public abstract FreeSmartphone.GSM.SIMMessage message( string key, int index = 0 );
+        public abstract FreeSmartphone.GSM.SIMMessage[] messagebook();
+        public abstract uint16 lastReferenceNumber();
+        public abstract uint16 increasingReferenceNumber();
+        public abstract void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus );
+        public abstract int confirmReceivedMessage( int netreference );
+    }
+
+    public class SmsStorageFactory
+    {
+        /**
+         * Create a new SMS storage for a given IMSI.
+         **/
+        public static ISmsStorage create( string type, string imsi )
+        {
+            return new SmsStorage( imsi );
+        }
+    }
+
     /**
      * @class SmsStorage
      *
      * A high level persistent SMS Storage abstraction.
      */
-    public class SmsStorage : FsoFramework.AbstractObject
+    public class SmsStorage : FsoFramework.AbstractObject, ISmsStorage
     {
         private static string storagedirprefix;
         private string imsi;

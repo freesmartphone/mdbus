@@ -24,7 +24,7 @@ using Gee;
  **/
 public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 {
-    public SmsStorage storage { get; set; }
+    public ISmsStorage storage { get; set; }
 
     public AtSmsHandler()
     {
@@ -118,7 +118,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObjec
         }
 
         // create Storage for current IMSI
-        storage = new SmsStorage( cimi.value );
+        storage = SmsStorageFactory.create( "default", cimi.value );
 
         // read all messages
         var cmgl = theModem.createAtCommand<PlusCMGL>( "+CMGL" );
