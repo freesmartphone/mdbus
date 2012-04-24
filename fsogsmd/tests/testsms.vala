@@ -289,12 +289,12 @@ void test_sms_encode_submit_concatenated_default_alphabet()
 void test_fso_sms_storage_new()
 //===========================================================================
 {
-    var storage = new SmsStorage( IMSI );
+    var storage = SmsStorageFactory.create( "default", IMSI );
 }
 
 void test_fso_sms_storage_add_single()
 {
-    var storage = new SmsStorage( IMSI );
+    var storage = SmsStorageFactory.create( "default", IMSI );
     storage.clean();
 
     var sms = Sms.Message.newFromHexPdu( pdu3, pdulength3 );
@@ -311,7 +311,7 @@ void test_fso_sms_storage_add_single()
 void test_fso_sms_storage_add_concatenated()
 //===========================================================================
 {
-    var storage = new SmsStorage( IMSI );
+    var storage = SmsStorageFactory.create( "default", IMSI );
     storage.clean();
 
     var smses = new Sms.Message[pdulengths1.length] {};
@@ -333,7 +333,7 @@ void test_fso_sms_storage_store_transaction_index()
 //===========================================================================
 {
     var handler = new AtSmsHandler();
-    handler.storage = new SmsStorage( IMSI );
+    handler.storage = SmsStorageFactory.create( "default", IMSI );
     //handler.storage.clean();
     var pdus = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT, true );
     var i = 0;
@@ -349,7 +349,7 @@ void test_fso_sms_storage_confirm_ack()
 //===========================================================================
 {
     var handler = new AtSmsHandler();
-    handler.storage = new SmsStorage( IMSI );
+    handler.storage = SmsStorageFactory.create( "default", IMSI );
     //handler.storage.clean();
     assert( handler.storage.confirmReceivedMessage( 2 ) == -1 );
     assert( handler.storage.confirmReceivedMessage( 3 ) == -1 );
