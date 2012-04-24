@@ -1,4 +1,0 @@
-[D-BUS Service]
-Name=org.freesmartphone.oappd
-Exec=@prefix@/sbin/fsoappd
-User=root

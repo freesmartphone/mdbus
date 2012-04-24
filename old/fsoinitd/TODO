@@ -1,2 +1,0 @@
-- execute /etc/rc.local after boot configuration has finished to give the user the
-  possibility to add additional apps to the boot process
