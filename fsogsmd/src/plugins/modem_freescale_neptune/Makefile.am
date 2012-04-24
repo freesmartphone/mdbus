@@ -1,25 +1,20 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AM_CFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	-I$(top_srcdir)/src/3rdparty \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
-	$(GEE_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsogsm.modem_freescale_neptune\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
+if WANT_DEBUG
+AM_VALAFLAGS+= -g -D DEBUG
+AM_CFLAGS += -ggdb -O0
+endif
 
-progs_ldadd = \
-	$(FSO_LIBS) \
-	$(GLIB_LIBS) \
-	$(GEE_LIBS) \
-	$(top_builddir)/src/lib/libfsogsm.la
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
+modlibexec_LTLIBRARIES = modem_freescale_neptune.la
+modem_freescale_neptune_la_SOURCES = plugin.vala commands.vala mediators.vala unsolicited.vala
+modem_freescale_neptune_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg posix \
@@ -29,39 +24,23 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
-	--pkg fsogsm-2.0
-
-if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
-modlibexec_LTLIBRARIES = modem_freescale_neptune.la
-modem_freescale_neptune_la_SOURCES = plugin.c commands.c mediators.c unsolicited.c
-modem_freescale_neptune_la_VALASOURCES = plugin.vala commands.vala mediators.vala unsolicited.vala
-$(modem_freescale_neptune_la_SOURCES): $(modem_freescale_neptune_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-modem_freescale_neptune_la_LIBADD = $(progs_ldadd)
-modem_freescale_neptune_la_LDFLAGS = -no-undefined -module -avoid-version
-modem_freescale_neptune_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(modem_freescale_neptune_la_VALASOURCES) \
-	$(modem_freescale_neptune_la_SOURCES) \
+	--pkg fsogsm-2.0 \
 	$(NULL)
+modem_freescale_neptune_la_CFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	-I$(top_srcdir)/src/3rdparty \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GEE_CFLAGS) \
+	$(NULL)
+modem_freescale_neptune_la_LIBADD = \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(GEE_LIBS) \
+	$(top_builddir)/src/lib/libfsogsm.la
+	$(NULL)
+modem_freescale_neptune_la_LDFLAGS = -no-undefined -module -avoid-version
+# modem_freescale_neptune_la_LIBTOOLFLAGS = --tag=disable-static
 
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
-MAINTAINERCLEANFILES = \
-  Makefile.in \
-  $(NULL)
+CLEANFILES =
+MAINTAINERCLEANFILES =
