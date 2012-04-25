@@ -126,9 +126,9 @@ AM_CONDITIONAL( [WANT_FSORESOURCE], [test x"$fsoresource" = x"yes"])
 #########################################################################################
 
 AC_ARG_ENABLE(kernel26_rfkill,
-  AS_HELP_STRING([--enable-kernel26-rfkill],[Enable building the rfkill power control plugin (default=disabled)]),
+  AS_HELP_STRING([--disable-kernel26-rfkill],[Disable building the rfkill power control plugin (default=enabled)]),
   [rfkill=$enableval],
-  [rfkill="no"])
+  [rfkill="yes"])
 
 if test x$rfkill = "xyes"; then
     # linux/rfkill.h
