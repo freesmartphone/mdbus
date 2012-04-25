@@ -11,7 +11,8 @@ AM_VALAFLAGS += -g -D DEBUG
 AM_CFLAGS += -ggdb -O0
 endif
 
-lib_LTLIBRARIES = libfsogsm.la
+modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
+modlibexec_LTLIBRARIES = libfsogsm.la
 libfsogsm_la_SOURCES = \
 	at/atcall.vala \
 	at/atchannel.vala \
@@ -103,6 +104,7 @@ libfsogsm_la_LIBADD = \
 	$(GSMMUX_LIBS) \
 	$(THIRDPARTY_LIBS) \
 	$(NULL)
+libfsogsm_la_LDFLAGS = -no-undefined -avoid-version
 
 fsogsmincludedir = $(includedir)/fsoframework-2.0
 fsogsminclude_HEADERS = fsogsm.h
