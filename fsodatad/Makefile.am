@@ -18,12 +18,8 @@ DISTCHECK_CONFIGURE_FLAGS = \
 	--disable-datafiles \
 	$(NULL)
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = fsodata-2.0.pc
-
 EXTRA_DIST += \
   MAINTAINERS \
-  fsodata-2.0.pc.in \
   $(NULL)
 
 MAINTAINERCLEANFILES = \
