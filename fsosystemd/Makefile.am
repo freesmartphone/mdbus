@@ -4,8 +4,17 @@ NULL =
 
 SUBDIRS = \
 	src \
+	$(NULL)
+
+if WANT_DATAFILES
+SUBDIRS += \
 	conf \
 	data \
+	$(NULL)
+endif
+
+DISTCHECK_CONFIGURE_FLAGS = \
+	--disable-datafiles \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \

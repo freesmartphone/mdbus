@@ -145,6 +145,15 @@ eval PACKAGE_DATADIR="${pkgdatadir}"
 AC_DEFINE_UNQUOTED([PACKAGE_DATADIR], ["${PACKAGE_DATADIR}"], [Shared data directory])
 
 #########################################################################################
+# data files
+#########################################################################################
+
+AC_ARG_ENABLE(datafiles, AC_HELP_STRING([--disable-datafiles],
+			[don't install configuration and data files]),
+					[enable_datafiles=${enableval}])
+AM_CONDITIONAL(WANT_DATAFILES, test "${enable_datafiles}" != "no")
+
+#########################################################################################
 # output
 #########################################################################################
 

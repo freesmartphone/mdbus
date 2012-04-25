@@ -118,6 +118,15 @@ AC_SUBST(DBUS_SYSTEM_SERVICE_DIR)
 AC_DEFINE_UNQUOTED([DBUS_SYSTEM_SERVICE_DIR], ["${DBUS_SYSTEM_SERVICE_DIR}"], [dbus system service activation dir])
 
 #########################################################################################
+# data files
+#########################################################################################
+
+AC_ARG_ENABLE(datafiles, AC_HELP_STRING([--disable-datafiles],
+			[don't install configuration and data files]),
+					[enable_datafiles=${enableval}])
+AM_CONDITIONAL(WANT_DATAFILES, test "${enable_datafiles}" != "no")
+
+#########################################################################################
 # check for debugging
 #########################################################################################
 

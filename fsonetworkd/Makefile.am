@@ -3,9 +3,18 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 SUBDIRS = \
+	src \
+	$(NULL)
+
+if WANT_DATAFILES
+SUBDIRS += \
 	conf \
 	data \
-	src \
+	$(NULL)
+endif
+
+DISTCHECK_CONFIGURE_FLAGS = \
+	--disable-datafiles \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \

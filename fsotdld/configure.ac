@@ -153,6 +153,15 @@ AC_ARG_ENABLE(debug,
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$enable_debug" = x"yes"])
 
 #########################################################################################
+# data files
+#########################################################################################
+
+AC_ARG_ENABLE(datafiles, AC_HELP_STRING([--disable-datafiles],
+			[don't install configuration and data files]),
+					[enable_datafiles=${enableval}])
+AM_CONDITIONAL(WANT_DATAFILES, test "${enable_datafiles}" != "no")
+
+#########################################################################################
 # output
 #########################################################################################
 
