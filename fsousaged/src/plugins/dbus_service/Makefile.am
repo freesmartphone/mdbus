@@ -1,25 +1,20 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AM_CFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	$(GLIB_CFLAGS) \
-	$(GEE_CFLAGS) \
-	$(FSO_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsousage.dbus_service\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
+if WANT_DEBUG
+AM_VALAFLAGS += -g -D DEBUG
+AM_CFLAGS += -ggdb -O0
+endif
 
-progs_ldadd = \
-	$(top_builddir)/src/lib/libfsousage.la \
-	$(GLIB_LIBS) \
-	$(GEE_LIBS) \
-	$(FSO_LIBS) \
-	$(NULL)
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsousage
+modlibexec_LTLIBRARIES = dbus_service.la
+dbus_service_la_SOURCES = resource.vala commands.vala plugin.vala
+dbus_service_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
@@ -29,36 +24,24 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fso-glib-1.0 \
-	--pkg fsousage-2.0
-
-if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsousage
-modlibexec_LTLIBRARIES = dbus_service.la
-dbus_service_la_SOURCES = resource.c commands.c plugin.c
-dbus_service_la_VALASOURCES = resource.vala commands.vala plugin.vala
-$(dbus_service_la_SOURCES): $(dbus_service_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $(VALAC_EXTRA_ARGS) $^
-	touch $@
-dbus_service_la_LIBADD = $(progs_ldadd)
-dbus_service_la_LDFLAGS = -no-undefined -module -avoid-version
-dbus_service_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(dbus_service_la_VALASOURCES) \
-	$(dbus_service_la_SOURCES)
-
-CLEANFILES = \
-	$(dbus_service_la_SOURCES) \
+	--pkg fsousage-2.0 \
 	$(NULL)
+dbus_service_la_CFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	$(GLIB_CFLAGS) \
+	$(GEE_CFLAGS) \
+	$(FSO_CFLAGS) \
+	$(NULL)
+dbus_service_la_LIBADD = \
+	$(top_builddir)/src/lib/libfsousage.la \
+	$(GLIB_LIBS) \
+	$(GEE_LIBS) \
+	$(FSO_LIBS) \
+	$(NULL)
+dbus_service_la_LDFLAGS = -no-undefined -module -avoid-version
+# dbus_service_la_LIBTOOLFLAGS = --tag=disable-static
 
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
-  $(dbus_service_la_SOURCES) \
   $(NULL)

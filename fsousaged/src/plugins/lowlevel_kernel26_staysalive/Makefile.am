@@ -1,64 +1,45 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AM_CFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	$(GEE_CFLAGS) \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
 	-DG_LOG_DOMAIN=\"fsousage.lowlevel_kernel26_staysalive\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
+if WANT_DEBUG
+AM_VALAFLAGS += -g -D DEBUG
+AM_CFLAGS += -ggdb -O0
+endif
 
-progs_ldadd = \
-	$(top_builddir)/src/lib/libfsousage.la \
-	$(GEE_LIBS) \
-	$(FSO_LIBS) \
-	$(GLIB_LIBS) \
-	$(NULL)
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsousage
+modlibexec_LTLIBRARIES = lowlevel_kernel26_staysalive.la
+lowlevel_kernel26_staysalive_la_SOURCES = plugin.vala
+lowlevel_kernel26_staysalive_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
-	--vapidir ./ \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fso-glib-1.0 \
-	--pkg fsousage-2.0
-
-if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsousage
-modlibexec_LTLIBRARIES = lowlevel_kernel26_staysalive.la
-lowlevel_kernel26_staysalive_la_SOURCES = plugin.c
-lowlevel_kernel26_staysalive_la_VALASOURCES = plugin.vala
-$(lowlevel_kernel26_staysalive_la_SOURCES): $(lowlevel_kernel26_staysalive_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-lowlevel_kernel26_staysalive_la_LIBADD = $(progs_ldadd)
+	--pkg fsousage-2.0 \
+	$(NULL)
+lowlevel_kernel26_staysalive_la_CFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	$(GEE_CFLAGS) \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(NULL)
+lowlevel_kernel26_staysalive_la_LIBADD = \
+	$(top_builddir)/src/lib/libfsousage.la \
+	$(GEE_LIBS) \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(NULL)
 lowlevel_kernel26_staysalive_la_LDFLAGS = -no-undefined -module -avoid-version
-lowlevel_kernel26_staysalive_la_LIBTOOLFLAGS = --tag=disable-static
+# lowlevel_kernel26_staysalive_la_LIBTOOLFLAGS = --tag=disable-static
 
-EXTRA_DIST += \
-	$(lowlevel_kernel26_staysalive_la_SOURCES) \
-	$(lowlevel_kernel26_staysalive_la_VALASOURCES) \
-	$(NULL)
-
-CLEANFILES = \
-	$(lowlevel_kernel26_staysalive_la_SOURCES) \
-	$(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
-	$(lowlevel_kernel26_staysalive_la_SOURCES) \
 	Makefile.in \
 	$(NULL)
