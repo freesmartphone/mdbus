@@ -106,15 +106,6 @@ libfsogsm_la_LIBADD = \
 	$(NULL)
 libfsogsm_la_LDFLAGS = -no-undefined -avoid-version
 
-fsogsmincludedir = $(includedir)/fsoframework-2.0
-fsogsminclude_HEADERS = fsogsm.h
-
-vapidir = $(datadir)/vala/vapi
-dist_vapi_DATA = \
-	fsogsm-2.0.vapi \
-	fsogsm-2.0.deps \
-	$(NULL)
-
 CLEANFILES =
 MAINTAINERCLEANFILES = \
 	fsogsm.h \
