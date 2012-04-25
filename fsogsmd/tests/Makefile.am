@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
 	$(GLIB_CFLAGS) \
@@ -52,8 +52,12 @@ testconst_SOURCES = testconst.vala
 testconst_LDADD = $(progs_ldadd)
 
 TEST_PROGS += testsms
-testsms_SOURCES = testsms.vala
+testsms_SOURCES = testsms.vala smsdata.vala
 testsms_LDADD = $(progs_ldadd)
+
+TEST_PROGS += testsmsstorage
+testsmsstorage_SOURCES = testsmsstorage.vala smsdata.vala
+testsmsstorage_LDADD = $(progs_ldadd)
 
 MAINTAINERCLEANFILES = \
 	$(addsuffix .c,$(noinst_PROGRAMS)) \
@@ -63,6 +67,7 @@ MAINTAINERCLEANFILES = \
 	testconversions_vala.stamp \
 	testconst_vala.stamp \
 	testsms_vala.stamp \
+	testsmsstorage_vala.stamp \
 	$(NULL)
 
 EXTRA_DIST += \
