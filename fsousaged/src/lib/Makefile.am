@@ -29,6 +29,7 @@ libfsousage_la_LIBADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
+libfsodevice_la_LDFLAGS = -no-undefined -avoid-version
 
 CLEANFILES =
 MAINTAINERCLEANFILES = \
