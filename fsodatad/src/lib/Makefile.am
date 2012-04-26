@@ -13,7 +13,8 @@ AM_VALAFLAGS += -g -D DEBUG
 AM_CPPFLAGS += -ggdb -O0
 endif
 
-lib_LTLIBRARIES = libfsodata.la
+modlibexecdir = $(libdir)/cornucopia/modules/fsodata
+modlibexec_LTLIBRARIES = libfsodata.la
 libfsodata_la_SOURCES = mbpi.vala
 libfsodata_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
@@ -40,15 +41,7 @@ libfsodata_la_LIBADD = \
 	$(GEE_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
-
-fsodataincludedir = $(includedir)/fsoframework-2.0
-fsodatainclude_HEADERS = fsodata.h
-
-vapidir = $(datadir)/vala/vapi
-dist_vapi_DATA = \
-	fsodata-2.0.vapi \
-	fsodata-2.0.deps \
-	$(NULL)
+libfsodata_la_LDFLAGS = -no-undefined -avoid-version
 
 BUILT_SOURCES = \
 	fsodata.h \
