@@ -122,6 +122,8 @@ public class FsoFramework.TransportSpec
             case "raw":
                 transport = new FsoFramework.RawTransport( name );
                 break;
+            case "combined":
+                return new FsoFramework.CombinedTransport( name );
             default:
                 FsoFramework.theLogger.warning( @"Invalid transport type $type. Using NullTransport" );
                 transport = new FsoFramework.NullTransport();
