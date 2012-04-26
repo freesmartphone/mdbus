@@ -12,7 +12,8 @@ AM_VALAFLAGS += -g -D DEBUG
 AM_CPPFLAGS += -ggdb -O0
 endif
 
-lib_LTLIBRARIES = libfsoaudio.la
+modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
+modlibexec_LTLIBRARIES = libfsoaudio.la
 libfsoaudio_la_SOURCES = \
 	router.vala \
 	alsa.vala \
@@ -45,14 +46,7 @@ libfsoaudio_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(ALSA_LIBS) \
 	$(NULL)
-fsoaudioincludedir = $(includedir)/fsoframework-2.0
-fsoaudioinclude_HEADERS = fsoaudio.h
-
-vapidir = $(datadir)/vala/vapi
-dist_vapi_DATA = \
-	fsoaudio-2.0.vapi \
-	fsoaudio-2.0.deps \
-	$(NULL)
+libfsoaudio_la_LDFLAGS = -no-undefined -avoid-version
 
 BUILT_SOURCES = \
 	fsoaudio.h \
