@@ -25,13 +25,11 @@ public class Gtm601.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHan
     public UnsolicitedResponseHandler()
     {
         registerUrc( "$QCSIMSTAT", dollarQCSIMSTAT );
+        registerUrc( "_OSIGQ", underscoreOSIGQ );
     }
 
     /**
-     * GTM SIM status report:
-     *
-     * $QCSIMSTAT: 1, SIM INIT COMPLETED
-     *
+     * GTM SIM status report: "$QCSIMSTAT: 1, SIM INIT COMPLETED"
      **/
     public virtual void dollarQCSIMSTAT( string prefix, string rhs )
     {
@@ -42,6 +40,24 @@ public class Gtm601.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHan
                 theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
                 return false; // don't call again
             } );
+        }
+    }
+
+    /**
+     * GTM network signal strength report: "_OSIGQ: 8,0"
+     **/
+    public virtual void underscoreOSIGQ( string prefix, string rhs )
+    {
+        var cmd = theModem.createAtCommand<UnderscoreOSIGQ>( "_OSIGQ" );
+        if ( cmd.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
+        {
+            var strength = Constants.instance().networkSignalToPercentage( cmd.strength );
+            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            obj.signal_strength( strength );
+        }
+        else
+        {
+            logger.warning( @"Received invalid _OSIGQ message $rhs. Please report" );
         }
     }
 }

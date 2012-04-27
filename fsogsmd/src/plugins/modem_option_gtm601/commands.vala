@@ -121,7 +121,30 @@ public class ExtPlusCEER : FsoGsm.PlusCEER
     }
 }
 
+public class UnderscoreOSIGQ : AbstractAtCommand
+{
+    public int strength = 0;
 
+    public UnderscoreOSIGQ()
+    {
+        try
+        {
+            re = new Regex( """_OSIGQ: (?P<strength>[0-9.]+),(?P<unknown>[0-9.]+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached();
+        }
+
+        prefix = { "_OSIGQ: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        strength = to_int( "strength" );
+    }
+}
 
 /* register all custom at commands */
 public void registerCustomAtCommands( HashMap<string,AtCommand> table )
@@ -130,6 +153,7 @@ public void registerCustomAtCommands( HashMap<string,AtCommand> table )
     table[ "_OWANCALL" ] = new UnderscoreOWANCALL();
     table[ "_OWANDATA" ] = new UnderscoreOWANDATA();
     table[ "+CEER" ] = new ExtPlusCEER();
+    table[ "_OSIGQ" ] = new UnderscoreOSIGQ();
 }
 
 } // namespace Gtm601
