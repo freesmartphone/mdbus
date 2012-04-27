@@ -42,7 +42,7 @@ AtCommand atCommandFactory( string command )
 
 void test_option_gtm601_atcommand_PlusCEER()
 {
-    var cmd = (Gtm601.PlusCEER) atCommandFactory( "+CEER" );
+    var cmd = (Gtm601.ExtPlusCEER) atCommandFactory( "+CEER" );
     cmd.parse( "+CEER: Normal call clearing" );
 
     assert( cmd.reason == "Normal call clearing" );

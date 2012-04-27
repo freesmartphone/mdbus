@@ -98,9 +98,9 @@ public class UnderscoreOWANDATA : AbstractAtCommand
 //    }
 }
 
-public class PlusCEER : FsoGsm.PlusCEER
+public class ExtPlusCEER : FsoGsm.PlusCEER
 {
-    public PlusCEER()
+    public ExtPlusCEER()
     {
         try
         {
@@ -129,7 +129,7 @@ public void registerCustomAtCommands( HashMap<string,AtCommand> table )
     table[ "H" ] = new PlusCHUP();
     table[ "_OWANCALL" ] = new UnderscoreOWANCALL();
     table[ "_OWANDATA" ] = new UnderscoreOWANDATA();
-    table[ "+CEER" ] = new PlusCEER();
+    table[ "+CEER" ] = new ExtPlusCEER();
 }
 
 } // namespace Gtm601
