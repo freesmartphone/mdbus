@@ -60,7 +60,6 @@ public class UnderscoreOWANDATA : AbstractAtCommand
     public UnderscoreOWANDATA()
     {
         // some modems strip the leading zero for one-digit chars
-
         var str = """_OWANDATA: "(?P<connected>[01]), (?P<ip>[0-9.]+), (?P<gw>[0-9.]+), (?P<dns1>[0-9.]+), (?P<dns2>[0-9.]+), (?P<nbns1>[0-9.]+), (?P<nbns2>[0-9.]+), (?P<speed>\d+)""";
         try
         {
@@ -68,7 +67,7 @@ public class UnderscoreOWANDATA : AbstractAtCommand
         }
         catch ( GLib.RegexError e )
         {
-            assert_not_reached(); // fail here if Regex is broken
+            assert_not_reached();
         }
         prefix = { "_OWANDATA: " };
     }
@@ -91,11 +90,6 @@ public class UnderscoreOWANDATA : AbstractAtCommand
     {
         return "_OWANDATA?";
     }
-
-//    public string query()
-//    {
-//        return "+CALA?";
-//    }
 }
 
 public class ExtPlusCEER : FsoGsm.PlusCEER
