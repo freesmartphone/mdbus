@@ -53,6 +53,7 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
     {
         if ( FsoFramework.FileHandling.isPresent( sysfs_modem_gpio ) )
         {
+            assert( logger.debug( "Toggeling modem power state ..." ) );
             // 0,1,0 (duration: at least 200ms) toggles from on->off and from off->on
             Thread.usleep( 1000 * 100 );
             FsoFramework.FileHandling.write( "0\n", sysfs_modem_gpio );
@@ -67,19 +68,27 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
      * Wait until the modem is powered on or off. This will probably block for some
      * seconds until the modem is powerd on or off.
      **/
-    private void wait_for_modem( bool powered )
+    private bool wait_for_modem( bool powered )
     {
         int fd = -1;
         int count_retries = 5;
+
+        assert( logger.debug( @"Waiting for modem to be in %s state ...".printf( powered ? "active" : "inactive" ) ) );
 
         do
         {
             fd = Posix.open( modem_application_node, Posix.O_RDWR );
             if ((powered && fd < 0) || (!powered && fd > 0))
+            {
+                assert( logger.debug( "Modem is not in %s state yet, waiting ...".printf( powered ? "active" : "inactive" ) ) );
                 Posix.sleep( 1 );
+            }
             count_retries--;
         }
         while ( ((powered && fd < 0 && Posix.errno == Posix.ENODEV) || (powered && fd > 0)) && count_retries >= 0 );
+
+        return ( powered && FsoFramework.FileHandling.isPresent( modem_application_node ) ) ||
+               ( !powered && !FsoFramework.FileHandling.isPresent( modem_application_node ) );
     }
 
     /**
@@ -93,9 +102,7 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
         poweroff();
 
         toggle_modem_power_state();
-        wait_for_modem( false );
-
-        return true;
+        return wait_for_modem( false );
     }
 
     /**
@@ -110,9 +117,7 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
             return true;
 
         toggle_modem_power_state();
-        wait_for_modem( true );
-
-        return true;
+        return wait_for_modem( true );
     }
 
     /**
