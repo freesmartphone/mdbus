@@ -59,6 +59,18 @@ TEST_PROGS += testsmsstorage
 testsmsstorage_SOURCES = testsmsstorage.vala smsdata.vala
 testsmsstorage_LDADD = $(progs_ldadd)
 
+TEST_PROGS += testoptiongtm601
+# FIXME adding the sources from the modem plugin itself to the list of sources for
+# compilation of this test is ugly, we should rather load the plugin and use it the common
+# way.
+testoptiongtm601_SOURCES = \
+	$(top_srcdir)/src/plugins/modem_option_gtm601/commands.vala \
+	testoptiongtm601.vala \
+	$(NULL)
+testoptiongtm601_LDADD = \
+	$(progs_ldadd) \
+	$(NULL)
+
 MAINTAINERCLEANFILES = \
 	$(addsuffix .c,$(noinst_PROGRAMS)) \
 	testatcommand_vala.stamp \

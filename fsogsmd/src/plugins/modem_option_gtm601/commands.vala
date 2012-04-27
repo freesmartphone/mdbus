@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2011 Klaus 'mrmoku' Kurzmann   <mok@fluxnetz.de>
  *               2011 Lukas 'slyon' Märdian     <lukasmaerdian@gmail.com>
+ *               2012 Simon Busch               <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -97,12 +98,38 @@ public class UnderscoreOWANDATA : AbstractAtCommand
 //    }
 }
 
+public class PlusCEER : FsoGsm.PlusCEER
+{
+    public PlusCEER()
+    {
+        try
+        {
+            re = new Regex( """\+CEER: (?P<reason>[A-Z a-z]+)""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+
+        prefix = { "+CEER: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        reason = to_string( "reason" );
+    }
+}
+
+
+
 /* register all custom at commands */
 public void registerCustomAtCommands( HashMap<string,AtCommand> table )
 {
     table[ "H" ] = new PlusCHUP();
     table[ "_OWANCALL" ] = new UnderscoreOWANCALL();
     table[ "_OWANDATA" ] = new UnderscoreOWANDATA();
+    table[ "+CEER" ] = new PlusCEER();
 }
 
 } // namespace Gtm601
