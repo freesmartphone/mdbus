@@ -731,8 +731,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         yield;
 
         assert( logger.debug( @"Check wether we have to deactivate the PDP context ..." ) );
-        if ( pdphandler.status == FreeSmartphone.GSM.ContextStatus.ACTIVE ||
-             pdphandler.status == FreeSmartphone.GSM.ContextStatus.SUSPENDED )
+        if ( pdphandler != null && ( pdphandler.status == FreeSmartphone.GSM.ContextStatus.ACTIVE ||
+                                     pdphandler.status == FreeSmartphone.GSM.ContextStatus.SUSPENDED ) )
         {
             yield pdphandler.deactivate();
         }
