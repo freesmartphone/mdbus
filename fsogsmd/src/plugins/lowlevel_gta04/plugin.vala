@@ -42,7 +42,7 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
     public bool is_powered()
     {
-        return FsoFramework.FileHandling.isPresent( "/dev/ttyHS_Application");
+        return FsoFramework.FileHandling.isPresent( modem_application_node );
     }
 
     /*
@@ -74,7 +74,7 @@ class LowLevel.GTA04 : FsoGsm.LowLevel, FsoFramework.AbstractObject
 
         do
         {
-            fd = Posix.open( "/dev/ttyHS_Application", Posix.O_RDWR );
+            fd = Posix.open( modem_application_node, Posix.O_RDWR );
             if ((powered && fd < 0) || (!powered && fd > 0))
                 Posix.sleep( 1 );
             count_retries--;
