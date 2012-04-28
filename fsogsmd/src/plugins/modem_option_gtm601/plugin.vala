@@ -83,6 +83,32 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         new AtChannel( CHANNEL_NAME, transport, parser );
     }
 
+    public override async bool resume()
+    {
+        lowlevel.resume();
+
+        advanceToState( theModem.Status.RESUMING );
+
+        // resume all channels
+        var channels = this.channels.values;
+        foreach( var channel in channels )
+        {
+            yield channel.resume();
+        }
+
+        /**
+         * Poll for new SMS on the SIM.
+         * On the GTA04 we get no AT command for incoming sms' during suspend but
+         * the phone awakes and the SMS is available on the SIM, so we can poll.
+         **/
+
+        var smshandler = theModem.smshandler as AtSmsHandler;
+        smshandler.pollSim();
+
+        advanceToState( modem_status_before_suspend, true ); // force
+        return true;
+    }
+
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
     {
         // nothing to round-robin here as gmt601 only has one channel
