@@ -84,6 +84,7 @@ AM_CONDITIONAL([HAVE_DEBUG], [test "x$enable_debug" = "xyes"])
 AC_CONFIG_FILES([Makefile
   fsosystem-2.0.pc
   fsosystem/Makefile
+  vapi/Makefile
   tests/Makefile])
 AC_OUTPUT
 
