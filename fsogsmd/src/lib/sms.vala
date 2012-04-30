@@ -110,10 +110,6 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
     protected abstract async bool readSmsMessageFromSIM( uint index, out string hexpdu, out int tpdulen );
     protected abstract async bool acknowledgeSmsMessage( int id );
 
-    public void pollSim() {
-        syncWithSim();
-    }
-
     //
     // private
     //
@@ -129,7 +125,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
         yield syncWithSim();
     }
 
-    private async void syncWithSim()
+    public async void syncWithSim()
     {
         string imsi = yield retrieveImsiFromSIM();
 
