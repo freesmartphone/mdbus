@@ -35,7 +35,7 @@ class Gtm601.Modem : FsoGsm.AbstractModem
 
     construct
     {
-        assert( theModem == null );
+        assert( theModem != null );
         theModem.signalStatusChanged.connect( onModemStatusChange );
     }
 
