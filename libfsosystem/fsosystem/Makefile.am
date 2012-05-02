@@ -46,6 +46,10 @@ libfsosystem_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
 	$(NULL)
+libfsosystem_la_LDFLAGS = \
+	$(AM_LDFLAGS) \
+	-version-info "$(LT_CURRENT)":"$(LT_REVISION)":"$(LT_AGE)" \
+	$(NULL)
 
 fsosystemincludedir = $(includedir)/fsoframework-2.0
 fsosysteminclude_HEADERS = fsosystem.h
