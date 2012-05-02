@@ -72,6 +72,10 @@ public class FsoTest.TestUsage : FsoFramework.Test.TestCase
                         cb => test_release_resource( cb ),
                         res => test_release_resource.end( res ) );
 
+        add_async_test( "ResourcePolicy",
+                        cb => test_resource_policy( cb ),
+                        res => test_resource_policy.end( res ) );
+
         add_async_test( "ResourceDeregistration",
                         cb => test_resource_unregister( cb ),
                         res => test_resource_unregister.end( res ) );
@@ -127,6 +131,29 @@ public class FsoTest.TestUsage : FsoFramework.Test.TestCase
         yield usage.release_resource( "Dummy" );
         Assert.is_false( resource.enabled );
         Assert.is_false( resource.suspended );
+    }
+
+    public async void test_resource_policy() throws GLib.Error
+    {
+        Assert.is_false( resource.enabled );
+
+        var policy = yield usage.get_resource_policy( "Dummy" );
+        Assert.is_true( FreeSmartphone.UsageResourcePolicy.AUTO == policy );
+
+        yield usage.set_resource_policy( "Dummy", FreeSmartphone.UsageResourcePolicy.ENABLED );
+        policy = yield usage.get_resource_policy( "Dummy" );
+        Assert.is_true( FreeSmartphone.UsageResourcePolicy.ENABLED == policy );
+        Assert.is_true( resource.enabled );
+
+        yield usage.set_resource_policy( "Dummy", FreeSmartphone.UsageResourcePolicy.DISABLED );
+        policy = yield usage.get_resource_policy( "Dummy" );
+        Assert.is_true( FreeSmartphone.UsageResourcePolicy.DISABLED == policy );
+        Assert.is_false( resource.enabled );
+
+        yield usage.set_resource_policy( "Dummy", FreeSmartphone.UsageResourcePolicy.AUTO );
+        policy = yield usage.get_resource_policy( "Dummy" );
+        Assert.is_true( FreeSmartphone.UsageResourcePolicy.AUTO == policy );
+        Assert.is_false( resource.enabled );
     }
 
     public async void test_resource_unregister() throws GLib.Error
