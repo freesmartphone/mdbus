@@ -1,12 +1,7 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL=
 
-THISDIR = `basename $$PWD`
-
-confdir = $(sysconfdir)/freesmartphone/conf/$(THISDIR)
-dist_conf_DATA = \
-	fsotest.conf \
-	$(NULL)
+confdir = $(sysconfdir)/freesmartphone/conf/default
+dist_conf_DATA = fsotest.conf
 
 MAINTAINERCLEANFILES = Makefile.in

@@ -1,71 +1,35 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
-	$(FSOFRAMEWORK_CFLAGS) \
+	$(FSO_CFLAGS) \
 	$(NULL)
-
-noinst_PROGRAMS = $(TEST_PROGS)
-
-progs_ldadd = \
-	$(GLIB_LIBS) \
-	$(FSOFRAMEWORK_LIBS) \
-	$(NULL)
-
-VALAC_ARGS = \
+AM_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
-	--pkg fsosystem-2.0
+	--pkg fsosystem-2.0 \
+	$(NULL)
+LDADD = \
+	$(GLIB_LIBS) \
+	$(FSO_LIBS) \
+	$(NULL)
 
-#
-# modules test
-#
-TEST_PROGS += testmodules
-testmodules_VALASOURCES = testmodules.vala
-testmodules_SOURCES = testmodules.c
-$(testmodules_SOURCES): $(testmodules_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-testmodules_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testmodules_VALASOURCES)
+noinst_PROGRAMS = \
+	testnetwork \
+	testmodules \
+	testpath \
+	$(NULL)
+TEST_PROGS += $(noinst_PROGRAMS)
 
-#
-# network test
-#
-TEST_PROGS += testnetwork
-testnetwork_VALASOURCES = testnetwork.vala
-testnetwork_SOURCES = testnetwork.c
-$(testnetwork_SOURCES): $(testnetwork_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-testnetwork_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testnetwork_VALASOURCES)
+testmodules_SOURCES = testmodules.vala
+testnetwork_SOURCES = testnetwork.vala
+testpath_SOURCES = testpath.vala
 
-#
-# path test
-#
-TEST_PROGS += testpath
-testpath_VALASOURCES = testpath.vala
-testpath_SOURCES = testpath.c
-$(testpath_SOURCES): $(testpath_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-testpath_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testpath_VALASOURCES)
-
-
-CLEANFILES = \
-    $(TEST_PROGS) \
-    *.? \
-    $(NULL)
-
+CLEANFILES = $(TEST_PROGS)
 MAINTAINERCLEANFILES = \
   Makefile.in \
-  *.la \
-  *.lo \
   $(NULL)

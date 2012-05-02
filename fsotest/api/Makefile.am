@@ -1,14 +1,13 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AM_CFLAGS = \
-	$(FSOFRAMEWORK_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(FSO_CFLAGS) \
 	-include $(CONFIG_HEADER) \
 	$(NULL)
-
-VALAC_ARGS = \
-	--vapidir ../vapi \
+AM_VALAFLAGS = \
+	--vapidir $(top_srcdir)/vapi \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
 	--pkg fsotest-2.0 \
@@ -17,44 +16,27 @@ VALAC_ARGS = \
 	--pkg fsoresource-2.0 \
 	--pkg fso-glib-1.0 \
 	--save-temps \
-	--basedir $(top_srcdir)
+	--basedir $(top_srcdir) \
+	$(NULL)
+LDADD = \
+	$(GLIB_LIBS) \
+	$(FSO_LIBS) \
+	$(NULL)
 
 if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
+AM_VALAFLAGS += -g -D DEBUG
 AM_CFLAGS += -ggdb -O0
 endif
 
-progs_ldadd = \
-	$(FSOFRAMEWORK_LIBS) \
+bin_PROGRAMS = \
+	testusage \
+	testgsm \
 	$(NULL)
 
-bin_PROGRAMS = $(TEST_PROGS)
+testusage_SOURCES = testusage.vala
+testgsm_SOURCES = testgsm.vala
 
-TEST_PROGS += testusage
-testusage_VALASOURCES = testusage.vala
-testusage_SOURCES = testusage.c
-$(testusage_SOURCES): $(testusage_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testusage_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testusage_VALASOURCES)
-
-TEST_PROGS += testgsm
-testgsm_VALASOURCES = testgsm.vala
-testgsm_SOURCES = testgsm.c
-$(testgsm_SOURCES): $(testgsm_VALASOURCES)
-	$(VALAC) $(VALAC_ARGS) $^
-	touch $@
-testgsm_LDADD = $(progs_ldadd)
-EXTRA_DIST += $(testgsm_VALASOURCES)
-
-CLEANFILES = \
-    $(TEST_PROGS) \
-    *.? \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
-  *.la \
-  *.lo \
   $(NULL)
