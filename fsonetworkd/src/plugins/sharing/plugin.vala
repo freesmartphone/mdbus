@@ -160,13 +160,13 @@ public class Sharing.ConnectionSharing : FreeSmartphone.Network, FsoFramework.Ab
         {
             foreach( string command in commands )
             {
-		    assert( logger.debug( @"executing $command" ) );
-		    var ok = Posix.system( command );
-		    if ( ok != 0 )
-		    {
-			logger.error( @"Can't execute '$command' - error code $ok" );
-			throw new FreeSmartphone.Error.SYSTEM_ERROR( @"Can't execute '$command' - error code $ok" );
-		    }
+                assert( logger.debug( @"executing $command" ) );
+                var ok = Posix.system( command );
+                if ( ok != 0 )
+                {
+                    logger.error( @"Can't execute '$command' - error code $ok" );
+                    throw new FreeSmartphone.Error.SYSTEM_ERROR( @"Can't execute '$command' - error code $ok" );
+                }
             }
             FsoFramework.FileHandling.write( "0", IP_FORWARD );
 
