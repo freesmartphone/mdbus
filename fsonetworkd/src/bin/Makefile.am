@@ -1,52 +1,33 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-INCLUDES = \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
+AM_CFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsonetworkd\" \
 	$(NULL)
-
-BUILT_SOURCES = .vala.stamp
+AM_VALAFLAGS =
 
 sbin_PROGRAMS = fsonetworkd
 
-fsonetworkd_VALASOURCES = \
-	main.vala \
+fsonetworkd_SOURCES = main.vala
+fsonetworkd_VALAFLAGS = \
+	--vapidir vapi \
+	--pkg posix \
+	--pkg gio-2.0 \
+	--pkg fsoframework-2.0 \
+	--save-temps \
+	--basedir $(top_srcdir) \
 	$(NULL)
-
-fsonetworkd_SOURCES = \
-	$(fsonetworkd_VALASOURCES:.vala=.c) \
+fsonetworkd_CFLAGS = \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
-
-$(BUILT_SOURCES): $(fsonetworkd_VALASOURCES)
-	$(VALAC) -C --vapidir vapi \
-				--pkg posix \
-				--pkg gio-2.0 \
-				--pkg fsoframework-2.0 \
-				--save-temps \
-				--basedir $(top_srcdir) $^
-	touch $@
-
 fsonetworkd_LDADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 
-EXTRA_DIST += \
-	$(fsonetworkd_VALASOURCES) \
-	$(fsonetworkd_SOURCES) \
-	$(BUILT_SOURCES) \
-	$(NULL)
-
-CLEANFILES = \
-	*.c \
-	*.h \
-	$(BUILT_SOURCES) \
-	$(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
 	Makefile.in \
 	$(NULL)

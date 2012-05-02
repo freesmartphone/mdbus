@@ -129,7 +129,6 @@ AC_CONFIG_FILES([
   data/Makefile
   data/org.freesmartphone.onetworkd.service
   src/Makefile
-  src/lib/Makefile
   src/bin/Makefile
   src/plugins/Makefile
   src/plugins/sharing/Makefile
