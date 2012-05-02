@@ -33,7 +33,7 @@ AC_ARG_ENABLE([vala], AS_HELP_STRING([--enable-vala],[Enable building from Vala 
               [enable_vala=$enableval], [enable_vala=no])
 
 # Force Vala for non-release builds
-m4_if(fsosystem_released, [1], [],
+m4_if(fsosystemd_released, [1], [],
       [
         enable_vala=yes
         echo "Vala compiler required for non-release builds; requiring Vala..."
