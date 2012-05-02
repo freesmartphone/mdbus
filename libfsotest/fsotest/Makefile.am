@@ -1,14 +1,25 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AM_CFLAGS = \
-	-I$(top_srcdir) \
-	$(GLIB_CFLAGS) \
 	-D G_LOG_DOMAIN=\"fsotest\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-VALAC_ARGS = \
+if WANT_DEBUG
+AM_VALAFLAGS += -g -D DEBUG
+AM_CFLAGS += -ggdb -O0
+endif
+
+lib_LTLIBRARIES = libfsotest.la
+
+libfsotest_la_SOURCES = \
+	assert.vala \
+	signalwaiter.vala \
+	asynchelpers.vala \
+	testcase.vala \
+	$(NULL)
+libfsotest_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
@@ -16,62 +27,32 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg config \
 	--header fsotest.h \
-	--library fsotest-2.0
-
-if WANT_DEBUG
-VALAC_ARGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
-
-BUILT_SOURCES = fsotest.vala.stamp
-
-lib_LTLIBRARIES = \
-	libfsotest.la
+	--library fsotest-2.0 \
 	$(NULL)
-
-libfsotest_la_VALASOURCES = \
-	assert.vala \
-	signalwaiter.vala \
-	asynchelpers.vala \
-	testcase.vala \
+libfsotest_la_CFLAGS = \
+	-I$(top_srcdir) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
-
-libfsotest_la_SOURCES = \
-	fsotest.vala.stamp \
-	$(libfsotest_la_VALASOURCES:.vala=.c) \
+libfsotest_la_LIBADD = \
+	$(GLIB_LIBS) \
 	$(NULL)
 
 fsotestincludedir = $(includedir)/fsotest-2.0
 fsotestinclude_HEADERS = fsotest.h
 
-fsotest-2.0.vapi fsotest.vala.stamp: $(libfsotest_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-
-libfsotest_la_LIBADD = \
-	$(GLIB_LIBS) \
-	$(NULL)
-
 vapidir = $(datadir)/vala/vapi
-
 dist_vapi_DATA = \
 	fsotest-2.0.vapi \
 	fsotest-2.0.deps \
 	$(NULL)
 
 EXTRA_DIST += \
-	$(libfsotest_la_VALASOURCES) \
 	fsotest-2.0.vapi \
 	fsotest-2.0.deps \
-	fsotest.vala.stamp
+	$(NULL)
 
-CLEANFILES = \
-    $(BUILT_SOURCES) \
-    $(libfsotest_la_SOURCES) \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
-	$(BUILT_SOURCES) \
-	$(libfsotest_la_SOURCES) \
+	fsotest-2.0.vapi \
+	fsotest.h \
 	Makefile.in
-
