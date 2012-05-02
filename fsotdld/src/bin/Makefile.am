@@ -1,51 +1,33 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-INCLUDES = \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
+AM_CFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsotdld\" \
 	$(NULL)
-
-BUILT_SOURCES = .vala.stamp
+AM_VALAFLAGS =
 
 sbin_PROGRAMS = fsotdld
 
-fsotdld_VALASOURCES = \
-	main.vala \
+fsotdld_SOURCES = main.vala
+fsotdld_VALAFLAGS = \
+	--vapidir vapi \
+	--pkg posix \
+	--pkg gio-2.0 \
+	--pkg fsoframework-2.0 \
+	--save-temps \
+	--basedir $(top_srcdir) \
 	$(NULL)
-
-fsotdld_SOURCES = \
-	$(fsotdld_VALASOURCES:.vala=.c) \
+fsotdld_CFLAGS = \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
-
-$(BUILT_SOURCES): $(fsotdld_VALASOURCES)
-	$(VALAC) -C --vapidir vapi \
-				--pkg posix \
-				--pkg gio-2.0 \
-				--pkg fsoframework-2.0 \
-				--save-temps \
-				--basedir $(top_srcdir) $^
-	touch $@
-
 fsotdld_LDADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
 
-EXTRA_DIST += \
-	$(fsotdld_VALASOURCES) \
-	$(fsotdld_SOURCES) \
-	$(BUILT_SOURCES) \
-	$(NULL)
-
-CLEANFILES = \
-	$(fsotdld_SOURCES) \
-	$(BUILT_SOURCES) \
-	$(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
 	Makefile.in \
 	$(NULL)

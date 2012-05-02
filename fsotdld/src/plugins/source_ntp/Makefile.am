@@ -1,23 +1,15 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
-	$(GEE_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsotdld.source_ntp\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
-
-progs_ldadd = \
-	$(FSO_LIBS) \
-	$(GLIB_LIBS) \
-	$(GEE_LIBS) \
-	$(top_builddir)/src/lib/libfsotdl.la
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsotdl
+modlibexec_LTLIBRARIES = source_ntp.la
+source_ntp_la_SOURCES = plugin.vala
+source_ntp_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg posix \
@@ -28,34 +20,24 @@ VALAC_ARGS = \
 	--pkg fsobasics-2.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
-	--pkg fsotdl-2.0
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsotdl
-modlibexec_LTLIBRARIES = source_ntp.la
-source_ntp_la_SOURCES = plugin.c
-source_ntp_la_VALASOURCES = plugin.vala
-$(source_ntp_la_SOURCES): $(source_ntp_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-source_ntp_la_LIBADD = $(progs_ldadd)
-source_ntp_la_LDFLAGS = -no-undefined -module -avoid-version
-source_ntp_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(source_ntp_la_VALASOURCES) \
-	$(source_ntp_la_SOURCES) \
+	--pkg fsotdl-2.0 \
 	$(NULL)
+source_ntp_la_CFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(GEE_CFLAGS) \
+	$(NULL)
+source_ntp_la_LIBADD = \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(GEE_LIBS) \
+	$(top_builddir)/src/lib/libfsotdl.la \
+	$(NULL)
+source_ntp_la_LDFLAGS = -no-undefined -module -avoid-version
+# source_ntp_la_LIBTOOLFLAGS = --tag=disable-static
 
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
   $(NULL)

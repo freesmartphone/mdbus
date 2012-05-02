@@ -1,15 +1,22 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsotdld.lib\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsotdl
+modlibexec_LTLIBRARIES = libfsotdl.la
+libfsotdl_la_SOURCES = \
+	dbusinterfaces.vala \
+	gpsdata.vala \
+	gpsreceiver.vala \
+	gpschannel.vala \
+	locationprovider.vala \
+	source.vala \
+	$(NULL)
+libfsotdl_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
@@ -18,59 +25,20 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--header fsotdl.h \
-	--library fsotdl-2.0
-
-BUILT_SOURCES = .vala.stamp fsotdl-2.0.vapi
-
-lib_LTLIBRARIES = \
-	libfsotdl.la
+	--library fsotdl-2.0 \
 	$(NULL)
-
-libfsotdl_la_VALASOURCES = \
-	dbusinterfaces.vala \
-	gpsdata.vala \
-	gpsreceiver.vala \
-	gpschannel.vala \
-	locationprovider.vala \
-	source.vala \
+libfsotdl_la_CFLAGS = \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
-
-libfsotdl_la_SOURCES = \
-	$(BUILT_SOURCES) \
-	$(libfsotdl_la_VALASOURCES:.vala=.c) \
-	$(NULL)
-
-fsotdlincludedir = $(includedir)/fsoframework-2.0
-
-fsotdlinclude_HEADERS = fsotdl.h
-
-$(BUILT_SOURCES): $(libfsotdl_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-
 libfsotdl_la_LIBADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
+libfsotdl_la_LDFLAGS = -no-undefined -avoid-version
 
-vapidir = $(datadir)/vala/vapi
-
-dist_vapi_DATA = \
-	fsotdl-2.0.vapi \
-	fsotdl-2.0.deps \
-	$(NULL)
-
-EXTRA_DIST += \
-	$(libfsotdl_la_VALASOURCES) \
-	$(BUILT_SOURCES)
-
-CLEANFILES = \
-	$(BUILT_SOURCES) \
-	$(libfsotdl_la_SOURCES) \
-	$(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
-	$(BUILT_SOURCES) \
-	$(libfsotdl_la_SOURCES) \
-	Makefile.in
+	Makefile.in \
+	$(NULL)
 
