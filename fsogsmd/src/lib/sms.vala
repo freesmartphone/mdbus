@@ -125,7 +125,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
         yield syncWithSim();
     }
 
-    private async void syncWithSim()
+    public async void syncWithSim()
     {
         string imsi = yield retrieveImsiFromSIM();
 

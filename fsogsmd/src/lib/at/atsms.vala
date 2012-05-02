@@ -52,7 +52,14 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
 
         foreach( var sms in cmgl.messagebook )
         {
-            storage.addSms( sms.message );
+            var ret = storage.addSms( sms.message );
+            // send the incoming_text_message signal if ret == 1 (message is new).
+            if ( ret == 1 )
+            {
+                var msg = storage.message( sms.message.hash() );
+                var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
+                obj.incoming_text_message( msg.number, msg.timestamp, msg.contents );
+            }
         }
     }
 

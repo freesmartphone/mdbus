@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2011 Klaus 'mrmoku' Kurzmann
  * Copyright (C) 2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2012 Lukas 'Slyon' Märdian <lukasmaerdian@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,6 +32,12 @@ using FsoGsm;
 class Gtm601.Modem : FsoGsm.AbstractModem
 {
     private const string CHANNEL_NAME = "main";
+
+    construct
+    {
+        assert( theModem != null );
+        theModem.signalStatusChanged.connect( onModemStatusChange );
+    }
 
     public override string repr()
     {
@@ -110,6 +117,25 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         FsoFramework.DataSharing.setValueForKey( "Gtm601.OWANCALL", cmd );
         var cmd2 = theModem.createAtCommand<Gtm601.UnderscoreOWANDATA>( "_OWANDATA" );
         FsoFramework.DataSharing.setValueForKey( "Gtm601.OWANDATA", cmd2 );
+    }
+
+    private void onModemStatusChange( FsoGsm.Modem.Status status )
+    {
+        switch ( status )
+        {
+            case FsoGsm.Modem.Status.RESUMING:
+                /**
+                 * Poll for new SMS on the SIM.
+                 * On the GTA04 we get no AT command for incoming sms' during suspend but
+                 * the phone awakes and the SMS is available on the SIM, so we can poll.
+                 **/
+                var smshandler = theModem.smshandler as AtSmsHandler;
+                smshandler.syncWithSim();
+                break;
+
+            default:
+                break;
+        }
     }
 }
 
