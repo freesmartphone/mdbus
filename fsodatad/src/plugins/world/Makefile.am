@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsodata.world\" \
 	$(NULL)
@@ -9,7 +9,7 @@ AM_VALAFLAGS =
 
 if WANT_DEBUG
 AM_VALAFLAGS += -g -D DEBUG
-AM_CPPFLAGS += -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsodata
@@ -24,7 +24,7 @@ world_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsodata-2.0 \
 	$(NULL)
-world_la_CPPFLAGS = \
+world_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \

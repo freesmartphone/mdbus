@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsodata\" \
 	$(NULL)
@@ -16,7 +16,7 @@ fsodatad_VALAFLAGS = \
 	--save-temps \
 	--basedir $(top_srcdir) \
 	$(NULL)
-fsodatad_CPPFLAGS = \
+fsodatad_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(NULL)
