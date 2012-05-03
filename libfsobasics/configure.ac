@@ -3,6 +3,15 @@ m4_define([fsobasics_base_version], [0.11.0])
 m4_define([fsobasics_maybe_gitrev], m4_if(fsobasics_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([fsobasics_version], m4_if(fsobasics_released, [1], [fsobasics_base_version], [fsobasics_base_version-fsobasics_maybe_gitrev]))
 
+# If library source has changed since last release, increment revision
+# If public symbols have been added, removed or changed since last release,
+#  increment current and set revision to 0
+# If public symbols have been added since last release, increment age
+# If public symbols have been removed since last release, set age to 0
+m4_define([fsobasics_lt_current], [0])
+m4_define([fsobasics_lt_revision], [0])
+m4_define([fsobasics_lt_age], [0])
+
 AC_INIT([libfsobasics], [fsobasics_version], [smartphones-userland@linuxtogo.org], [libfsobasics])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -22,6 +31,13 @@ PKG_PROG_PKG_CONFIG([0.21])
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
+
+LT_CURRENT=fsobasics_lt_current
+LT_REVISION=fsobasics_lt_revision
+LT_AGE=fsobasics_lt_age
+AC_SUBST([LT_CURRENT])
+AC_SUBST([LT_REVISION])
+AC_SUBST([LT_AGE])
 
 #########################################################################################
 # Vala building options -- allows tarball builds without installing vala

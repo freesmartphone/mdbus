@@ -1,5 +1,4 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AM_CPPFLAGS = \
@@ -70,6 +69,10 @@ libfsobasics_la_VALAFLAGS = \
 libfsobasics_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(LIBNL_LIBS) \
+	$(NULL)
+libfsobasics_la_LDFLAGS = \
+	$(AM_LDFLAGS) \
+	-version-info "$(LT_CURRENT)":"$(LT_REVISION)":"$(LT_AGE)" \
 	$(NULL)
 
 fsobasicsincludedir = $(includedir)/fsoframework-2.0
