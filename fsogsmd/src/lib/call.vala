@@ -166,11 +166,11 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
     {
         startTimeoutIfNecessary();
     }
-    
+
     public virtual void handleConnectingCall( FsoGsm.CallInfo call_info )
     {
     }
-    
+
     public virtual void handleEndingCall( FsoGsm.CallInfo call_info )
     {
     }
