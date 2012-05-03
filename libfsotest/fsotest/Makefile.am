@@ -36,6 +36,10 @@ libfsotest_la_CFLAGS = \
 libfsotest_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(NULL)
+libfsotest_la_LDFLAGS = \
+	$(AM_LDFLAGS) \
+	-version-info "$(LT_CURRENT)":"$(LT_REVISION)":"$(LT_AGE)" \
+	$(NULL)
 
 fsotestincludedir = $(includedir)/fsotest-2.0
 fsotestinclude_HEADERS = fsotest.h
