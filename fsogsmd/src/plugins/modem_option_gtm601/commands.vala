@@ -140,6 +140,21 @@ public class UnderscoreOSIGQ : AbstractAtCommand
     }
 }
 
+public class UnderscoreOPSYS : AbstractAtCommand
+{
+    public enum RadioAccessMode
+    {
+        GSM = 0,
+        UMTS = 1,
+        ANY = 5,
+    }
+
+    public string issue( RadioAccessMode mode )
+    {
+        return "_OPSYS=%i,2".printf( (int) mode );
+    }
+}
+
 /* register all custom at commands */
 public void registerCustomAtCommands( HashMap<string,AtCommand> table )
 {
@@ -148,6 +163,7 @@ public void registerCustomAtCommands( HashMap<string,AtCommand> table )
     table[ "_OWANDATA" ] = new UnderscoreOWANDATA();
     table[ "+CEER" ] = new ExtPlusCEER();
     table[ "_OSIGQ" ] = new UnderscoreOSIGQ();
+    table[ "_OPSYS" ] = new UnderscoreOPSYS();
 }
 
 } // namespace Gtm601
