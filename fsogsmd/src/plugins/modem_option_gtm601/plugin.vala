@@ -52,7 +52,8 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         modem_data.simReadyTimeout = 5; /* seconds */
 
         theModem.atCommandSequence( "MODEM", "init" ).append( {
-            "$QCSIMSTAT=1"          /* enable sim status report */
+            "$QCSIMSTAT=1",          /* enable sim status report */
+            "_OSQI=1"                /* signal strength updates */
         } );
 
         registerAtCommandSequence( "main", "init", new AtCommandSequence( {
