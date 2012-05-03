@@ -1,5 +1,4 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AM_CPPFLAGS = \
@@ -64,6 +63,10 @@ endif
 libfsotransport_la_LIBADD = \
 	$(GLIB_LIBS) \
 	-lutil \
+	$(NULL)
+libfsotransport_la_LDFLAGS = \
+	$(AM_LDFLAGS) \
+	-version-info "$(LT_CURRENT)":"$(LT_REVISION)":"$(LT_AGE)" \
 	$(NULL)
 
 fsotransportincludedir = $(includedir)/fsoframework-2.0
