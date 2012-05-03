@@ -40,6 +40,10 @@ libfsoresource_la_CFLAGS = \
 libfsoresource_la_LIBADD = \
 	$(GLIB_LIBS) \
 	$(NULL)
+libfsoresource_la_LDFLAGS = \
+	$(AM_LDFLAGS) \
+	-version-info "$(LT_CURRENT)":"$(LT_REVISION)":"$(LT_AGE)" \
+	$(NULL)
 
 fsoresourceincludedir = $(includedir)/fsoframework-2.0
 fsoresourceinclude_HEADERS = fsoresource.h
