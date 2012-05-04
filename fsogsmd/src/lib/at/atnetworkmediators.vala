@@ -56,6 +56,10 @@ public class AtNetworkGetStatus : NetworkGetStatus
         Variant strvalue;
         Variant intvalue;
 
+        status.insert( "registration", "unknown" );
+        status.insert( "mode", "unknown" );
+        status.insert( "act", "unknown" );
+
         // query field strength
         var csq = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
         var response = yield theModem.processAtCommandAsync( csq, csq.execute() );
