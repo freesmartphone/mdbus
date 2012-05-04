@@ -1285,6 +1285,13 @@ public class PlusCREG : AbstractAtCommand
     public string lac;
     public string cid;
 
+    public enum Mode
+    {
+        DISABLE = 0,
+        ENABLE_WITH_NETORK_REGISTRATION = 1,
+        ENABLE_WITH_NETORK_REGISTRATION_AND_LOCATION = 2,
+    }
+
     public PlusCREG()
     {
         try
@@ -1312,14 +1319,9 @@ public class PlusCREG : AbstractAtCommand
         return "+CREG?";
     }
 
-    public string issue( int mode )
+    public string issue( Mode mode )
     {
-        return @"+CREG=$mode";
-    }
-
-    public string queryFull( int restoreMode )
-    {
-        return @"+CREG=2;+CREG?;+CREG=$restoreMode";
+        return "+CREG=%i".printf( (int) mode );
     }
 }
 

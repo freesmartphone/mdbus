@@ -83,14 +83,11 @@ public class AtNetworkGetStatus : NetworkGetStatus
             overrideProviderWithSimIssuer = ( theModem.data().simIssuer != null && creg.status == 1 /* home */ );
 #endif
 
-            var cregResult2 = yield theModem.processAtCommandAsync( creg, creg.queryFull( creg.mode ) );
-            if ( creg.validate( cregResult2 ) == Constants.AtResponse.VALID )
-            {
-                strvalue = creg.lac;
-                status.insert( "lac", strvalue );
-                strvalue = creg.cid;
-                status.insert( "cid", strvalue );
-            }
+            if ( creg.lac != "" )
+                status.insert( "lac", new Variant.string( creg.lac ) );
+
+            if ( creg.cid != "" )
+                status.insert( "cid", new Variant.string( creg.cid ) );
         }
 
         // query operator code
