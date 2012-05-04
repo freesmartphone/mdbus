@@ -51,14 +51,12 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         modem_data.simHasReadySignal = true; // $QCSIMSTAT
         modem_data.simReadyTimeout = 5; /* seconds */
 
-        var initseq = theModem.atCommandSequence( "MODEM", "init" );
-
-        registerAtCommandSequence( "MODEM", "init", new SimpleAtCommandSequence.merge( initseq, {
+        theModem.atCommandSequence( "MODEM", "init" ).append( {
             "$QCSIMSTAT=1",          /* enable sim status report */
             "_OSQI=1"                /* signal strength updates */
-        } ) );
+        } );
 
-        registerAtCommandSequence( "main", "init", new SimpleAtCommandSequence( {
+        registerAtCommandSequence( "main", "init", new AtCommandSequence( {
             """+CGEREP=2,1""",
             """+CGREG=2""",
             """+CLIP=1""",
@@ -72,16 +70,16 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         var cnmiCommand = modem_data.simBuffersSms ? """+CNMI=2,1,2,1,1""" : """+CNMI=2,2,2,1,1""";
 
         // sequence for when the modem is registered
-        registerAtCommandSequence( "main", "registered", new SimpleAtCommandSequence( {
+        registerAtCommandSequence( "main", "registered", new AtCommandSequence( {
             cnmiCommand,
             """+CSMS=1""" /* enable SMS phase 2 */
         } ) );
 
-        registerAtCommandSequence( "main", "suspend", new SimpleAtCommandSequence( {
+        registerAtCommandSequence( "main", "suspend", new AtCommandSequence( {
             """_OSQI=0""" /* disable signal strength updates */
         } ) );
 
-        registerAtCommandSequence( "main", "resume", new SimpleAtCommandSequence( {
+        registerAtCommandSequence( "main", "resume", new AtCommandSequence( {
             """_OSQI=1""" /* enable signal strength updates */
         } ) );
     }

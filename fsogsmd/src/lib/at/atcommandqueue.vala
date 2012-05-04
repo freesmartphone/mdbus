@@ -209,49 +209,28 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
 }
 
 /**
- * @interface IAtCommandSequence
+ * @class AtCommandSequence
  **/
-public interface FsoGsm.IAtCommandSequence : GLib.Object
+public class FsoGsm.AtCommandSequence
 {
-    public abstract async void performOnChannel( AtChannel channel );
-}
+    private string[] commands;
 
-/**
- * @class SimpleAtCommandSequence
- **/
-public class FsoGsm.SimpleAtCommandSequence : IAtCommandSequence, GLib.Object
-{
-    private string[] _commands;
-
-    public string[] commands { get { return _commands; } }
-
-    public SimpleAtCommandSequence( string[] commands )
+    public AtCommandSequence( string[] commands )
     {
-        _commands = commands;
-    }
-
-    public SimpleAtCommandSequence.merge( IAtCommandSequence other, string[] commands )
-    {
-        _commands = new string[] { };
-
-        var seq = other as SimpleAtCommandSequence;
-        if ( seq != null )
-            append( seq.commands );
-
-        append( commands );
+        this.commands = commands;
     }
 
     public void append( string[] commands )
     {
         foreach ( var cmd in commands )
         {
-            _commands += cmd;
+            this.commands += cmd;
         }
     }
 
     public async void performOnChannel( AtChannel channel )
     {
-        foreach( var element in _commands )
+        foreach( var element in commands )
         {
             var components = element.split( "=" );
 

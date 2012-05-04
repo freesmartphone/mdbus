@@ -59,13 +59,13 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
             """+EAPF=12,1,0""",
          *   so we put these commands in the lowlevel plugin
          */
-        registerAtCommandSequence( "MODEM", "init", new SimpleAtCommandSequence( {
+        registerAtCommandSequence( "MODEM", "init", new AtCommandSequence( {
             """+EPOM=1,0""",
             """+EAPF=12,1,0"""
         } ) );
 
         // sequence for initializing the channel
-        registerAtCommandSequence( "main", "init", new SimpleAtCommandSequence( {
+        registerAtCommandSequence( "main", "init", new AtCommandSequence( {
             // GSM unsolicited
             """+CRC=1""",
             """+CLIP=1""",
@@ -82,7 +82,7 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
         } ) );
 
         // sequence for initializing the channel
-        registerAtCommandSequence( "sms", "unlocked", new SimpleAtCommandSequence( {
+        registerAtCommandSequence( "sms", "unlocked", new AtCommandSequence( {
             """+CRRM""",
             //FIXME if this returns an error, we might have no SIM inserted
             """+EPMS?""",
@@ -90,7 +90,7 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
         } ) );
 
         // sequence for initializing the channel
-        registerAtCommandSequence( "misc", "init", new SimpleAtCommandSequence( {
+        registerAtCommandSequence( "misc", "init", new AtCommandSequence( {
             """+USBSTAT=255,1"""
         } ) );
     }
