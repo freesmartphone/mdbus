@@ -476,7 +476,7 @@ namespace Sms
     }
 
     [Compact]
-    [CCode (cname = "structsms", cprefix = "sms_", cheader_filename = "smsutil.h,conversions.h")]
+    [CCode (cname = "struct sms", cprefix = "sms_", cheader_filename = "smsutil.h,conversions.h")]
     public class Message
     {
         public string to_string()
@@ -509,27 +509,30 @@ namespace Sms
          */
         public string hash()
         {
-            // we only support deliver type messages for now
             GLib.assert( type == Sms.Type.DELIVER );
 
             uint16 ref_num;
             uint8 max_msgs;
             uint8 seq_num;
+            int tpdulen;
+            string hash = "";
 
             var oaddr = number();
 
             if ( !extract_concatenation( out ref_num, out max_msgs, out seq_num ) )
             {
-                // originating address, delivery timestamp
-                return @"$(oaddr)_$(deliver.scts.to_epoch())_1".replace( "+", "" );
+                var pdu_hash = GLib.Checksum.compute_for_string( GLib.ChecksumType.MD5, toHexPdu( out tpdulen ) );
+                hash = @"$(pdu_hash)_1";
             }
             else
             {
                 // originating address, reference number, # of fragments
                 //FIXME: This goes wrong (problem probably in sms_address_to_string)
                 //return @"$(sc_addr)_$(deliver.oaddr)_$(ref_num)_$(max_msgs)";
-                return @"$(oaddr)_$(ref_num)_$(max_msgs)".replace( "+", "" );
+                hash = @"$(oaddr)_$(ref_num)_$(max_msgs)".replace( "+", "" );
             }
+
+            return hash;
         }
 
         public string timestamp()
