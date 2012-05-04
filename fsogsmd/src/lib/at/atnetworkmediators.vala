@@ -76,18 +76,20 @@ public class AtNetworkGetStatus : NetworkGetStatus
         var cregResult = yield theModem.processAtCommandAsync( creg, creg.query() );
         if ( creg.validate( cregResult ) == Constants.AtResponse.VALID )
         {
+            strvalue = Constants.instance().networkRegistrationStatusToString( creg.status );
+            status.insert( "registration", strvalue );
+
+#if 0
+            overrideProviderWithSimIssuer = ( theModem.data().simIssuer != null && creg.status == 1 /* home */ );
+#endif
+
             var cregResult2 = yield theModem.processAtCommandAsync( creg, creg.queryFull( creg.mode ) );
             if ( creg.validate( cregResult2 ) == Constants.AtResponse.VALID )
             {
-                strvalue = Constants.instance().networkRegistrationStatusToString( creg.status );
-                status.insert( "registration", strvalue );
                 strvalue = creg.lac;
                 status.insert( "lac", strvalue );
                 strvalue = creg.cid;
                 status.insert( "cid", strvalue );
-#if 0
-                overrideProviderWithSimIssuer = ( theModem.data().simIssuer != null && creg.status == 1 /* home */ );
-#endif
             }
         }
 
