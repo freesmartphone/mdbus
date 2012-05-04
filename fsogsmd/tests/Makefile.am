@@ -12,7 +12,7 @@ AM_CFLAGS = \
 
 noinst_PROGRAMS = $(TEST_PROGS)
 
-progs_ldadd = \
+LDADD = \
 	$(GLIB_LIBS) \
 	$(GEE_LIBS) \
 	$(FSO_LIBS) \
@@ -33,35 +33,27 @@ AM_VALAFLAGS = \
 
 TEST_PROGS += testatcommand
 testatcommand_SOURCES = testatcommand.vala
-testatcommand_LDADD = $(progs_ldadd)
 
 TEST_PROGS += testatparser
 testatparser_SOURCES = testatparser.vala
-testatparser_LDADD = $(progs_ldadd)
 
 TEST_PROGS += testcb
 testcb_SOURCES = testcb.vala
-testcb_LDADD = $(progs_ldadd)
 
 TEST_PROGS += testconversions
 testconversions_SOURCES = testconversions.vala
-testconversions_LDADD = $(progs_ldadd)
 
 TEST_PROGS += testconst
 testconst_SOURCES = testconst.vala
-testconst_LDADD = $(progs_ldadd)
 
 TEST_PROGS += testsms
 testsms_SOURCES = testsms.vala smsdata.vala
-testsms_LDADD = $(progs_ldadd)
 
 TEST_PROGS += testsmsstorage
 testsmsstorage_SOURCES = testsmsstorage.vala smsdata.vala
-testsmsstorage_LDADD = $(progs_ldadd)
 
 TEST_PROGS += testatcommandsequence
 testatcommandsequence_SOURCES = testatcommandsequence.vala
-testatcommandsequence_LDADD = $(progs_ldadd)
 
 # TEST_PROGS += testoptiongtm601
 # FIXME adding the sources from the modem plugin itself to the list of sources for
@@ -71,22 +63,8 @@ testatcommandsequence_LDADD = $(progs_ldadd)
 #	$(top_srcdir)/src/plugins/modem_option_gtm601/commands.vala \
 #	testoptiongtm601.vala \
 #	$(NULL)
-#testoptiongtm601_LDADD = \
-#	$(progs_ldadd) \
-#	$(NULL)
 
+CLEANFILES =
 MAINTAINERCLEANFILES = \
-	$(addsuffix .c,$(noinst_PROGRAMS)) \
-	testatcommand_vala.stamp \
-	testatparser_vala.stamp \
-	testcb_vala.stamp \
-	testconversions_vala.stamp \
-	testconst_vala.stamp \
-	testsms_vala.stamp \
-	testsmsstorage_vala.stamp \
-	testatcommandsequence_vala.stamp \
-	$(NULL)
-
-EXTRA_DIST += \
-	$(MAINTAINERCLEANFILES) \
+	Makefile.in \
 	$(NULL)
