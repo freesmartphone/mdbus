@@ -279,6 +279,7 @@ AC_CONFIG_FILES([
   conf/nokia_n900/Makefile
   conf/herring/Makefile
   conf/GTA04/Makefile
+  conf/phonesim/Makefile
   data/Makefile
   data/org.freesmartphone.ogsmd.service
   src/Makefile
@@ -303,6 +304,7 @@ AC_CONFIG_FILES([
   src/plugins/modem_qualcomm_palm/Makefile
   src/plugins/modem_samsung/Makefile
   src/plugins/modem_option_gtm601/Makefile
+  src/plugins/modem_phonesim/Makefile
   src/plugins/pdp_ppp/Makefile
   src/plugins/pdp_ppp_internal/Makefile
   src/plugins/pdp_ppp_mux/Makefile

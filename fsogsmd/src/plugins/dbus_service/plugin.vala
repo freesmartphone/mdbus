@@ -81,6 +81,9 @@ class DBusService.Device :
             case "option_gtm601":
                 typename = "Gtm601Modem";
                 break;
+            case "phonesim":
+                typename = "PhonesimModem";
+                break;
             default:
                 logger.error( @"Unsupported modem_type $modemtype" );
                 return;

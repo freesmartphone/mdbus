@@ -14,6 +14,7 @@ SUBDIRS = \
 	nokia_n900 \
 	herring \
 	GTA04 \
+	phonesim \
 	$(NULL)
 
 MAINTAINERCLEANFILES = Makefile.in

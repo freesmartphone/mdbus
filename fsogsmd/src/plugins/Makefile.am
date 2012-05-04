@@ -17,6 +17,7 @@ SUBDIRS = \
 	modem_qualcomm_htc \
 	modem_option_gtm601 \
 	modem_freescale_neptune \
+	modem_phonesim \
 	\
 	pdp_qmi \
 	pdp_option_gtm601 \
