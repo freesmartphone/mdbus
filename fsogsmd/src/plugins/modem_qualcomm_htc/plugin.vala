@@ -50,7 +50,7 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
         modem_data.simHasReadySignal = true;
 
         // sequence for initializing the channel
-        registerAtCommandSequence( "main", "init", new AtCommandSequence( {
+        registerAtCommandSequence( "main", "init", new SimpleAtCommandSequence( {
             """+CLIP=1""",
             """+COLP=0""",
             """+CCWA=1""",
@@ -65,19 +65,19 @@ class QualcommHtc.Modem : FsoGsm.AbstractModem
         } ) );
 
         // sequence for when the modem is registered
-        registerAtCommandSequence( "main", "registered", new AtCommandSequence( {
+        registerAtCommandSequence( "main", "registered", new SimpleAtCommandSequence( {
             """+CNMI=2,1,2,2,1""" // deliver SMS via SIM
         } ) );
 
         // sequence for suspending the channel
-        registerAtCommandSequence( "main", "suspend", new AtCommandSequence( {
+        registerAtCommandSequence( "main", "suspend", new SimpleAtCommandSequence( {
             """+CREG=0""",
             """+CGREG=0""",
             """+CGEREP=0,0"""
         } ) );
 
         // sequence for resuming the channel
-        registerAtCommandSequence( "main", "resume", new AtCommandSequence( {
+        registerAtCommandSequence( "main", "resume", new SimpleAtCommandSequence( {
             """+CREG=2""",
             """+CGREG=2""",
             """+CGEREP=2,1"""

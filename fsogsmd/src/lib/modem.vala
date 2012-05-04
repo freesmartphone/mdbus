@@ -121,7 +121,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public bool simBuffersSms;
         public HashMap<string,PhonebookParams> simPhonebooks;
         public string charset;
-        public HashMap<string,AtCommandSequence> cmdSequences;
+        public HashMap<string,IAtCommandSequence> cmdSequences;
 
         public string functionality;
         public string simPin;
@@ -201,7 +201,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
     public abstract void advanceToState( Modem.Status status, bool force = false );
-    public abstract AtCommandSequence atCommandSequence( string channel, string purpose );
+    public abstract IAtCommandSequence atCommandSequence( string channel, string purpose );
     public signal void signalStatusChanged( Modem.Status status );
 
     // Mediator API
@@ -237,7 +237,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract Modem.Status status();
     public abstract FreeSmartphone.GSM.DeviceStatus externalStatus();
     public abstract FsoGsm.Modem.Data data();
-    public abstract void registerAtCommandSequence( string channel, string purpose, AtCommandSequence sequence );
+    public abstract void registerAtCommandSequence( string channel, string purpose, IAtCommandSequence sequence );
     public abstract bool isAlive();
 }
 
@@ -431,7 +431,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         modem_data.simPhonebooks = new HashMap<string,PhonebookParams>();
 
-        modem_data.cmdSequences = new HashMap<string,AtCommandSequence>();
+        modem_data.cmdSequences = new HashMap<string,IAtCommandSequence>();
 
         modem_data.networkTimeReport = new NetworkTimeReport();
 
@@ -467,9 +467,9 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         // add some basic init/exit/suspend/resume sequences
         var seq = modem_data.cmdSequences;
 
-        seq["null"] = new AtCommandSequence( {} );
+        seq["null"] = new SimpleAtCommandSequence( {} );
 
-        var initsequence = new AtCommandSequence( {
+        var initsequence = new SimpleAtCommandSequence( {
             "E0Q0V1",       /* echo off, Q0, verbose on */
             "+CMEE=1",      /* report mobile equipment errors = numerical format */
             "+CRC=1",       /* extended cellular result codes = enable */
@@ -484,7 +484,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         initsequence.append( config.stringListValue( CONFIG_SECTION, "modem_init", { } ) );
         registerAtCommandSequence( "MODEM", "init", initsequence );
 
-        registerAtCommandSequence( "MODEM", "shutdown", new AtCommandSequence( {} ) );
+        registerAtCommandSequence( "MODEM", "shutdown", new SimpleAtCommandSequence( {} ) );
 
         configureData();
     }
@@ -512,7 +512,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         registerCustomAtCommands( commands );
     }
 
-    private void registerAtCommandSequence( string channel, string purpose, AtCommandSequence sequence )
+    private void registerAtCommandSequence( string channel, string purpose, IAtCommandSequence sequence )
     {
         assert( modem_data != null && modem_data.cmdSequences != null );
         modem_data.cmdSequences[ @"$channel-$purpose" ] = sequence;
@@ -1024,7 +1024,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         logger.info( @"Modem Status changed to $modem_status" );
     }
 
-    public AtCommandSequence atCommandSequence( string channel, string purpose )
+    public IAtCommandSequence atCommandSequence( string channel, string purpose )
     {
         var seq = modem_data.cmdSequences[ @"$channel-$purpose" ];
         return ( seq != null ) ? seq : modem_data.cmdSequences["null"];
