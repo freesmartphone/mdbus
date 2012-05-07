@@ -31,7 +31,6 @@ libfsosystem_la_VALAFLAGS = \
 	--pkg posix \
 	--pkg linux \
 	--pkg glib-2.0 \
-	--pkg gio-2.0 \
 	--pkg linuxext \
 	--header fsosystem.h \
 	--library fsosystem-2.0 \
@@ -39,12 +38,10 @@ libfsosystem_la_VALAFLAGS = \
 
 libfsosystem_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
-	$(GEE_CFLAGS) \
 	$(NULL)
 
 libfsosystem_la_LIBADD = \
 	$(GLIB_LIBS) \
-	$(GEE_LIBS) \
 	$(NULL)
 libfsosystem_la_LDFLAGS = \
 	$(AM_LDFLAGS) \

@@ -74,15 +74,9 @@ GEE_REQUIRED=0.5.0
 # glib and friends
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
-  gobject-2.0 >= $GLIB_REQUIRED
-  gio-2.0 >= $GLIB_REQUIRED
-  gthread-2.0 >= $GLIB_REQUIRED)
+  gobject-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
-
-PKG_CHECK_MODULES(GEE, gee-1.0 >= $GEE_REQUIRED)
-AC_SUBST(GEE_CFLAGS)
-AC_SUBST(GEE_LIBS)
 
 #########################################################################################
 # check for debugging
