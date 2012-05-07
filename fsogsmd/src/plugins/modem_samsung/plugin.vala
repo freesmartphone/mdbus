@@ -126,7 +126,6 @@ class Samsung.Modem : FsoGsm.AbstractModem
 
         mediators[ typeof(SmsRetrieveTextMessages) ]      = typeof( SamsungSmsRetrieveTextMessages );
         mediators[ typeof(SmsSendTextMessage) ]           = typeof( SamsungSmsSendTextMessage );
-        mediators[ typeof(SmsGetSizeForTextMessage) ]     = typeof( SamsungSmsGetSizeForTextMessage );
     }
 }
 

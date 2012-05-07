@@ -31,14 +31,6 @@ public class SamsungSmsRetrieveTextMessages : SmsRetrieveTextMessages
     }
 }
 
-public class SamsungSmsGetSizeForTextMessage : SmsGetSizeForTextMessage
-{
-    public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
-    }
-}
-
 public class SamsungSmsSendTextMessage : SmsSendTextMessage
 {
     public override async void run( string recipient_number, string contents, bool want_report )

@@ -31,14 +31,6 @@ public class MsmSmsRetrieveTextMessages : SmsRetrieveTextMessages
     }
 }
 
-public class MsmSmsGetSizeForTextMessage : SmsGetSizeForTextMessage
-{
-    public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
-    }
-}
-
 public class MsmSmsSendTextMessage : SmsSendTextMessage
 {
     /**
