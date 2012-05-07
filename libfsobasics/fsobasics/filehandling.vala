@@ -28,48 +28,53 @@ namespace FsoFramework.FileHandling
 
     public bool removeTree( string path )
     {
-    #if DEBUG
-        debug( "removeTree: %s", path );
-    #endif
+        assert( theLogger.debug( @"removeTree: $path" ) );
+
         var dir = Posix.opendir( path );
         if ( dir == null )
         {
-    #if DEBUG
-            debug( "can't open dir: %s", path );
-    #endif
+            assert( theLogger.debug( @"can't open dir: $path" ) );
             return false;
         }
+
         for ( unowned Posix.DirEnt entry = Posix.readdir( dir ); entry != null; entry = Posix.readdir( dir ) )
         {
+            var current_path = "%s/%s".printf( path, (string) entry.d_name );
+
             if ( ( "." == (string)entry.d_name ) || ( ".." == (string)entry.d_name ) )
             {
-    #if DEBUG
-                debug( "skipping %s", (string)entry.d_name );
-    #endif
+                theLogger.debug( @"skipping $current_path" );
                 continue;
             }
-    #if DEBUG
-            debug( "processing %s", (string)entry.d_name );
-    #endif
-            var result = Posix.unlink( "%s/%s".printf( path, (string)entry.d_name ) );
-            if ( result == 0 )
+
+            assert( theLogger.debug( @"processing $current_path" ) );
+
+            if ( GLib.FileUtils.test( current_path, GLib.FileTest.IS_REGULAR | GLib.FileTest.IS_SYMLINK ) )
             {
-    #if DEBUG
-                debug( "%s removed", (string)entry.d_name );
-    #endif
-                continue;
-            }
-            if ( Posix.errno == Posix.EISDIR )
-            {
-                if ( !removeTree( "%s/%s".printf( path, (string)entry.d_name ) ) )
+                var result = GLib.FileUtils.remove( current_path );
+                if ( result == 0 )
                 {
+                    assert( theLogger.debug( @"$current_path removed" ) );
+                    continue;
+                }
+                else
+                {
+                    theLogger.error( @"Failed to remove $current_path" );
                     return false;
                 }
+            }
+            else if ( GLib.FileUtils.test( current_path, GLib.FileTest.IS_DIR ) )
+            {
+                if ( !removeTree( current_path ) )
+                    return false;
+
                 continue;
             }
+
             return false;
         }
-        return true;
+
+        return GLib.FileUtils.remove( path ) == 0;
     }
 
     public bool isPresent( string filename )
