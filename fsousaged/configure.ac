@@ -152,6 +152,7 @@ AC_CONFIG_FILES([
   conf/herring/Makefile
   data/org.freesmartphone.ousaged.service
   data/Makefile
+  vapi/Makefile
   src/Makefile
   src/lib/Makefile
   src/bin/Makefile
