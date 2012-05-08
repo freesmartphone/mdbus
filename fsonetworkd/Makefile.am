@@ -3,6 +3,7 @@ NULL =
 
 SUBDIRS = \
 	src \
+	vapi \
 	$(NULL)
 
 if WANT_DATAFILES

@@ -124,6 +124,7 @@ AM_CONDITIONAL(WANT_DATAFILES, test "${enable_datafiles}" != "no")
 
 AC_CONFIG_FILES([
   Makefile
+  vapi/Makefile
   conf/Makefile
   conf/default/Makefile
   data/Makefile
