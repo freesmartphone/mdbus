@@ -45,7 +45,7 @@ AC_ARG_ENABLE(debug,
 AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
 # output
-AC_CONFIG_FILES([Makefile
+AC_CONFIG_FILES([Makefile vapi/Makefile
 gsm0710mux-1.0.pc])
 
 AC_OUTPUT

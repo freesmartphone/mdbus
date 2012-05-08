@@ -2,6 +2,8 @@ NULL =
 
 AUTOMAKE_OPTIONS = subdir-objects
 
+SUBDIRS = vapi
+
 AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"gsm0710mux\" \
 	-include $(CONFIG_HEADER) \
