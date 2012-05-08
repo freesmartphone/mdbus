@@ -99,6 +99,7 @@ AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 
 AC_CONFIG_FILES([Makefile
   fsoresource-2.0.pc
+  vapi/Makefile
   fsoresource/Makefile
   tests/Makefile])
 

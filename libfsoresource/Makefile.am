@@ -5,6 +5,7 @@ NULL =
 SUBDIRS = \
   fsoresource \
   tests \
+  vapi \
   $(NULL)
 
 pkgconfigdir = $(libdir)/pkgconfig
