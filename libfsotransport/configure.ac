@@ -129,6 +129,7 @@ AM_CONDITIONAL( [WANT_NGSM], [test x"$ngsm" = x"yes"])
 #########################################################################################
 AC_CONFIG_FILES([Makefile
   fsotransport-2.0.pc
+  vapi/Makefile
   fsotransport/Makefile
   tests/Makefile])
 
