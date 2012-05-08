@@ -195,6 +195,7 @@ AC_CONFIG_FILES([
   src/plugins/source_gpsddbus/Makefile
   src/plugins/sync_time/Makefile
   tests/Makefile
+  vapi/Makefile
 ])
 
 AC_OUTPUT
