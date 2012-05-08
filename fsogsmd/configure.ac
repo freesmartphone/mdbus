@@ -62,7 +62,6 @@ GISICOMM_REQUIRED=0.1.0
 MSMCOMM_SPECS_REQUIRED=0.10.0
 FSO_GLIB_REQUIRED=2012.04.18.1
 FSO_REQUIRED=0.10.0
-CONNMAN_REQUIRED=0.68
 SAMSUNG_IPC_REQUIRED=0.1
 
 PKG_CHECK_MODULES(GLIB,
@@ -129,22 +128,6 @@ if test "x$ppp" = "xyes"; then
       [AC_MSG_ERROR([Could not find pppd.h. pppd development headers are required to build the ppp plugin.])])
 fi
 AM_CONDITIONAL( [WANT_PPP], [test x"$ppp" = x"yes"])
-
-#########################################################################################
-# optional feature: connman
-#########################################################################################
-
-AC_ARG_ENABLE(connman-support,
-  [  --disable-connman-support   Disable building connman support (default=enabled)],
-  [connman=$enableval],
-  [connman="yes"])
-
-if test "x$connman" = "xyes"; then
-    PKG_CHECK_MODULES(CONNMAN, connman >= $CONNMAN_REQUIRED)
-    AC_SUBST(CONNMAN_CFLAGS)
-    AC_SUBST(CONNMAN_LIBS)
-fi
-AM_CONDITIONAL( [WANT_CONNMAN], [test x"$connman" = x"yes"])
 
 #########################################################################################
 # optional feature: libgsm0710mux support
@@ -312,7 +295,6 @@ AC_CONFIG_FILES([
   src/plugins/pdp_nokia_isi/Makefile
   src/plugins/pdp_option_gtm601/Makefile
   src/ppp/Makefile
-  src/connman/Makefile
   tests/Makefile
 ])
 AC_OUTPUT
@@ -330,7 +312,6 @@ echo "Configuration Options:"
 echo
 echo "  ppp support.............: $ppp"
 echo "  pdp_mux.................: $mux"
-echo "  connman_support.........: $connman"
 echo "  modem_ti_calypso........: $mux"
 echo "  modem_cinterion_mc75....: $mux"
 echo "  modem_qualcomm_palm.....: $palm"
