@@ -5,6 +5,7 @@ NULL =
 SUBDIRS = \
 	src \
 	tests \
+	vapi \
 	$(NULL)
 
 if WANT_DATAFILES
