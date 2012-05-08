@@ -4,6 +4,7 @@ NULL =
 
 SUBDIRS = \
   fsoframework \
+  vapi \
   $(NULL)
 
 pkgconfigdir = $(libdir)/pkgconfig
