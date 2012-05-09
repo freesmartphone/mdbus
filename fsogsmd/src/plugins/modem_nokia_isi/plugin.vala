@@ -72,10 +72,13 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
             logger.critical( "ISI: This modem plugin only supports the PHONET transport" );
             return;
         }
+
+        /*
         if ( Linux.Network.if_nametoindex( modem_transport_spec.name ) == 0 )
         {
             logger.critical( @"Interface $(modem_transport_spec.name) not available" );
         }
+        */
 
         handle_modem_power = config.boolValue( MODULE_NAME, "handle_modem_power", true );
 
