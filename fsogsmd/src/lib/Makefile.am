@@ -51,6 +51,7 @@ libfsogsm_la_SOURCES = \
 	\
 	$(top_srcdir)/src/3rdparty/conversions.c \
 	$(top_srcdir)/src/3rdparty/smsutil.c \
+	$(top_srcdir)/src/3rdparty/storage.c \
 	$(top_srcdir)/src/3rdparty/util.c \
 	\
 	$(top_srcdir)/src/3rdparty/ppp/crc-ccitt.c \
