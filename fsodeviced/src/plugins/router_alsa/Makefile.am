@@ -1,57 +1,37 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsodevice.router_alsa\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
-
-progs_ldadd = \
-	$(top_builddir)/src/lib/libfsodevice.la \
-	$(FSO_LIBS) \
-	$(GLIB_LIBS) \
-	$(NULL)
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
+modlibexec_LTLIBRARIES = router_alsa.la
+router_alsa_la_SOURCES = plugin.vala
+router_alsa_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
-	--pkg fsodevice-2.0
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = router_alsa.la
-router_alsa_la_SOURCES = plugin.c
-router_alsa_la_VALASOURCES = plugin.vala
-$(router_alsa_la_SOURCES): $(router_alsa_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-router_alsa_la_LIBADD = $(progs_ldadd)
-router_alsa_la_LDFLAGS = -no-undefined -module -avoid-version
-router_alsa_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(router_alsa_la_VALASOURCES) \
-	$(router_alsa_la_SOURCES) \
+	--pkg fsodevice-2.0 \
 	$(NULL)
+router_alsa_la_CFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(NULL)
+router_alsa_la_LIBADD = \
+	$(top_builddir)/src/lib/libfsodevice.la \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(NULL)
+router_alsa_la_LDFLAGS = -no-undefined -module -avoid-version
+# router_alsa_la_LIBTOOLFLAGS = --tag=disable-static
 
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
   $(NULL)

@@ -1,23 +1,23 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	-I$(top_srcdir) \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsodevice.herring_quirks\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
+if WANT_FSORESOURCE
+AM_VALAFLAGS += -D WANT_FSO_RESOURCE
+endif
 
-progs_ldadd = \
-	$(FSO_LIBS) \
-	$(GLIB_LIBS) \
-	$(top_builddir)/src/lib/libfsodevice.la
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
+modlibexec_LTLIBRARIES = herring_quirks.la
+herring_quirks_la_SOURCES = \
+	plugin.vala \
+	resumehandler.vala \
+	alsa.vala \
+	$(NULL)
+herring_quirks_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsoframework \
 	--vapidir $(top_srcdir)/vapi \
@@ -29,42 +29,23 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsosystem-2.0 \
-	--pkg fsodevice-2.0
-
-if WANT_FSORESOURCE
-VALAC_ARGS += -D WANT_FSO_RESOURCE
-endif
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = herring_quirks.la
-herring_quirks_la_VALASOURCES = \
-	plugin.vala \
-	resumehandler.vala \
-	alsa.vala \
+	--pkg fsodevice-2.0 \
 	$(NULL)
-herring_quirks_la_SOURCES = $(herring_quirks_la_VALASOURCES:.vala=.c)
-$(herring_quirks_la_SOURCES): $(herring_quirks_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-herring_quirks_la_LIBADD = $(progs_ldadd)
+herring_quirks_la_CFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	-I$(top_srcdir) \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(NULL)
+herring_quirks_la_LIBADD = \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(top_builddir)/src/lib/libfsodevice.la \
+	$(NULL)
 herring_quirks_la_LDFLAGS = -no-undefined -module -avoid-version
-herring_quirks_la_LIBTOOLFLAGS = --tag=disable-static
+# herring_quirks_la_LIBTOOLFLAGS = --tag=disable-static
 
-EXTRA_DIST += \
-	$(herring_quirks_la_VALASOURCES) \
-	$(herring_quirks_la_SOURCES) \
-	$(NULL)
-
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
   $(NULL)

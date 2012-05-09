@@ -1,53 +1,32 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(FSO_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsodevice.ambientlight_n900\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
-
-progs_ldadd = \
-	$(FSO_LIBS) \
-	$(top_builddir)/src/lib/libfsodevice.la \
-	$(NULL)
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
+modlibexec_LTLIBRARIES = ambientlight_n900.la
+ambientlight_n900_la_SOURCES = plugin.vala
+ambientlight_n900_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsoframework \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
-	--pkg fsoframework-2.0
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = ambientlight_n900.la
-ambientlight_n900_la_SOURCES = plugin.c
-ambientlight_n900_la_VALASOURCES = plugin.vala
-$(ambientlight_n900_la_SOURCES): $(ambientlight_n900_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-ambientlight_n900_la_LIBADD = $(progs_ldadd)
+	--pkg fsoframework-2.0 \
+	$(NULL)
+ambientlight_n900_la_CFLAGS = \
+	$(FSO_CFLAGS) \
+	$(NULL)
+ambientlight_n900_la_LIBADD = \
+	$(FSO_LIBS) \
+	$(top_builddir)/src/lib/libfsodevice.la \
+	$(NULL)
 ambientlight_n900_la_LDFLAGS = -no-undefined -module -avoid-version
-ambientlight_n900_la_LIBTOOLFLAGS = --tag=disable-static
+# ambientlight_n900_la_LIBTOOLFLAGS = --tag=disable-static
 
-EXTRA_DIST += \
-       $(ambientlight_n900_la_VALASOURCES) \
-       $(ambientlight_n900_la_SOURCES) \
-       $(NULL)
-
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
   $(NULL)

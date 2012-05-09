@@ -1,23 +1,15 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	$(FSO_CFLAGS) \
-	$(GLIB_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsodevice.router_qdsp5\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
-
-progs_ldadd = \
-	$(top_builddir)/src/lib/libfsodevice.la \
-	$(FSO_LIBS) \
-	$(GLIB_LIBS) \
-	$(NULL)
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
+modlibexec_LTLIBRARIES = router_qdsp5.la
+router_qdsp5_la_SOURCES = plugin.vala playwav2.c
+router_qdsp5_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--vapidir . \
@@ -27,32 +19,21 @@ VALAC_ARGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsodevice-2.0
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = router_qdsp5.la
-router_qdsp5_la_SOURCES = plugin.c playwav2.c
-router_qdsp5_la_VALASOURCES = plugin.vala
-$(router_qdsp5_la_SOURCES): $(router_qdsp5_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-router_qdsp5_la_LIBADD = $(progs_ldadd)
-router_qdsp5_la_LDFLAGS = -no-undefined -module -avoid-version
-router_qdsp5_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(router_qdsp5_la_VALASOURCES) \
-	$(router_qdsp5_la_SOURCES) \
 	$(NULL)
+router_qdsp5_la_CFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	$(FSO_CFLAGS) \
+	$(GLIB_CFLAGS) \
+	$(NULL)
+router_qdsp5_la_LIBADD = \
+	$(top_builddir)/src/lib/libfsodevice.la \
+	$(FSO_LIBS) \
+	$(GLIB_LIBS) \
+	$(NULL)
+router_qdsp5_la_LDFLAGS = -no-undefined -module -avoid-version
+# router_qdsp5_la_LIBTOOLFLAGS = --tag=disable-static
 
-CLEANFILES = \
-    plugin.c \
-    *.la \
-    *.lo \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
   $(NULL)

@@ -1,23 +1,15 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir)/src/lib \
-	$(GLIB_CFLAGS) \
-	$(FSO_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsodevice.accelerometer_lis302\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
-
-progs_ldadd = \
-	$(top_builddir)/src/lib/libfsodevice.la \
-	$(GLIB_LIBS) \
-	$(FSO_LIBS) \
-	$(NULL)
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
+modlibexec_LTLIBRARIES = accelerometer_lis302.la
+accelerometer_lis302_la_SOURCES = plugin.vala
+accelerometer_lis302_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir ./ \
 	--vapidir $(top_srcdir)/src/lib \
@@ -26,34 +18,22 @@ VALAC_ARGS = \
 	--pkg gee-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fso-glib-1.0 \
-	--pkg fsodevice-2.0
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = accelerometer_lis302.la
-accelerometer_lis302_la_SOURCES = plugin.c
-accelerometer_lis302_la_VALASOURCES = plugin.vala
-$(accelerometer_lis302_la_SOURCES): $(accelerometer_lis302_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-accelerometer_lis302_la_LIBADD = $(progs_ldadd)
-accelerometer_lis302_la_LDFLAGS = -no-undefined -module -avoid-version
-accelerometer_lis302_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(accelerometer_lis302_la_VALASOURCES) \
-	$(accelerometer_lis302_la_SOURCES) \
+	--pkg fsodevice-2.0 \
 	$(NULL)
+accelerometer_lis302_la_CFLAGS = \
+	-I$(top_srcdir)/src/lib \
+	$(GLIB_CFLAGS) \
+	$(FSO_CFLAGS) \
+	$(NULL)
+accelerometer_lis302_la_LIBADD = \
+	$(top_builddir)/src/lib/libfsodevice.la \
+	$(GLIB_LIBS) \
+	$(FSO_LIBS) \
+	$(NULL)
+accelerometer_lis302_la_LDFLAGS = -no-undefined -module -avoid-version
+# accelerometer_lis302_la_LIBTOOLFLAGS = --tag=disable-static
 
-CLEANFILES = \
-    plugin.c \
-    plugin.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
   $(NULL)

@@ -1,16 +1,24 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(FSO_CFLAGS) \
-	$(ALSA_CFLAGS) \
-	$(GLIB_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsodevice.lib\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
+modlibexec_LTLIBRARIES = libfsodevice.la
+
+libfsodevice_la_SOURCES = \
+	accelerometer.vala \
+	alsa.vala \
+	audioplayer.vala \
+	audiorouter.vala \
+	input.vala \
+	powercontrol.vala \
+	resource.vala \
+	$(NULL)
+libfsodevice_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg linux \
@@ -23,61 +31,23 @@ VALAC_ARGS = \
 	--pkg fsoframework-2.0 \
 	--header fsodevice.h \
 	--library fsodevice-2.0
-
-BUILT_SOURCES = .vala.stamp fsodevice-2.0.vapi
-
-lib_LTLIBRARIES = \
-	libfsodevice.la
 	$(NULL)
-
-libfsodevice_la_VALASOURCES = \
-	accelerometer.vala \
-	alsa.vala \
-	audioplayer.vala \
-	audiorouter.vala \
-	input.vala \
-	powercontrol.vala \
-	resource.vala \
+libfsodevice_la_CFLAGS = \
+	-I$(top_srcdir) \
+	$(FSO_CFLAGS) \
+	$(ALSA_CFLAGS) \
+	$(GLIB_CFLAGS) \
 	$(NULL)
-
-libfsodevice_la_SOURCES = \
-	$(BUILT_SOURCES) \
-	$(libfsodevice_la_VALASOURCES:.vala=.c) \
-	$(NULL)
-
-fsodeviceincludedir = $(includedir)/fsoframework-2.0
-
-fsodeviceinclude_HEADERS = fsodevice.h
-
-$(BUILT_SOURCES): $(libfsodevice_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-
 libfsodevice_la_LIBADD = \
 	$(FSO_LIBS) \
 	$(ALSA_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
+libfsodevice_la_LDFLAGS = -no-undefined -avoid-version
 
-vapidir = $(datadir)/vala/vapi
-
-dist_vapi_DATA = \
-	fsodevice-2.0.vapi \
-	fsodevice-2.0.deps \
-	$(NULL)
-
-EXTRA_DIST += \
-	$(libfsodevice_la_VALASOURCES) \
-	$(libfsodevice_la_SOURCES) \
-	$(BUILT_SOURCES)
-
-CLEANFILES = \
-	$(BUILT_SOURCES) \
-	$(libfsodevice_la_SOURCES) \
-	$(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
-	$(BUILT_SOURCES) \
-	$(libfsodevice_la_SOURCES) \
-	Makefile.in
-
+	fsogsmd.h \
+	fsodevice-2.0.vapi \
+	Makefile.in \
+	$(NULL)

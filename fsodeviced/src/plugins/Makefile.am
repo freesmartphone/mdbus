@@ -1,5 +1,4 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
 AUTOMAKE_OPTIONS = subdir-objects
@@ -64,3 +63,6 @@ if WANT_RFKILL
 SUBDIRS += kernel26_rfkill
 endif
 
+MAINTAINERCLEANFILES = \
+	Makefile.in \
+	$(NULL)

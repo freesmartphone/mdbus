@@ -1,53 +1,33 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(FSO_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsodevice.vibrator_timedoutputclass\" \
 	$(NULL)
+AM_VALAFLAGS =
 
-noinst_PROGRAMS = $(TEST_PROGS)
-
-progs_ldadd = \
-	$(FSO_LIBS) \
-	$(top_builddir)/src/lib/libfsodevice.la \
-	$(NULL)
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
+modlibexec_LTLIBRARIES = vibrator_timedoutputclass.la
+vibrator_timedoutputclass_la_SOURCES = plugin.vala
+vibrator_timedoutputclass_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsoframework \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
-	--pkg fsoframework-2.0
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = vibrator_timedoutputclass.la
-vibrator_timedoutputclass_la_SOURCES = plugin.c
-vibrator_timedoutputclass_la_VALASOURCES = plugin.vala
-$(vibrator_timedoutputclass_la_SOURCES): $(vibrator_timedoutputclass_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-vibrator_timedoutputclass_la_LIBADD = $(progs_ldadd)
-vibrator_timedoutputclass_la_LDFLAGS = -no-undefined -module -avoid-version
-vibrator_timedoutputclass_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(vibrator_timedoutputclass_la_VALASOURCES) \
-	$(vibrator_timedoutputclass_la_SOURCES) \
+	--pkg fsoframework-2.0 \
 	$(NULL)
+vibrator_timedoutputclass_la_CFLAGS = \
+	-I$(top_srcdir) \
+	$(FSO_CFLAGS) \
+	$(NULL)
+vibrator_timedoutputclass_la_LIBADD = \
+	$(FSO_LIBS) \
+	$(top_builddir)/src/lib/libfsodevice.la \
+	$(NULL)
+vibrator_timedoutputclass_la_LDFLAGS = -no-undefined -module -avoid-version
+# vibrator_timedoutputclass_la_LIBTOOLFLAGS = --tag=disable-static
 
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
   $(NULL)

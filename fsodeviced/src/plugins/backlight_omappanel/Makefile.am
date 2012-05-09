@@ -1,53 +1,31 @@
 include $(top_srcdir)/Makefile.decl
-
 NULL =
 
-AM_CPPFLAGS = \
-	-I$(top_srcdir) \
-	$(FSO_CFLAGS) \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsodevice.backlight_omappanel\" \
 	$(NULL)
 
-noinst_PROGRAMS = $(TEST_PROGS)
-
-progs_ldadd = \
-	$(FSO_LIBS) \
-	$(top_builddir)/src/lib/libfsodevice.la \
-	$(NULL)
-
-VALAC_ARGS = \
+modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
+modlibexec_LTLIBRARIES = backlight_omappanel.la
+backlight_omappanel_la_SOURCES = plugin.vala
+backlight_omappanel_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsoframework \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
-	--pkg fsoframework-2.0
-
-#
-# plugin
-#
-modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
-modlibexec_LTLIBRARIES = backlight_omappanel.la
-backlight_omappanel_la_SOURCES = plugin.c
-backlight_omappanel_la_VALASOURCES = plugin.vala
-$(backlight_omappanel_la_SOURCES): $(backlight_omappanel_la_VALASOURCES)
-	$(VALAC) -C $(VALAC_ARGS) $^
-	touch $@
-backlight_omappanel_la_LIBADD = $(progs_ldadd)
-backlight_omappanel_la_LDFLAGS = -no-undefined -module -avoid-version
-backlight_omappanel_la_LIBTOOLFLAGS = --tag=disable-static
-
-EXTRA_DIST += \
-	$(backlight_omappanel_la_VALASOURCES) \
-	$(backlight_omappanel_la_SOURCES) \
+	--pkg fsoframework-2.0 \
 	$(NULL)
+backlight_omappanel_la_CFLAGS = \
+	$(FSO_CFLAGS) \
+	$(NULL)
+backlight_omappanel_la_LIBADD = \
+	$(FSO_LIBS) \
+	$(top_builddir)/src/lib/libfsodevice.la \
+	$(NULL)
+backlight_omappanel_la_LDFLAGS = -no-undefined -module -avoid-version
+# backlight_omappanel_la_LIBTOOLFLAGS = --tag=disable-static
 
-CLEANFILES = \
-    *.c \
-    *.h \
-    *.la \
-    *.lo \
-    $(NULL)
-
+CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
   $(NULL)
