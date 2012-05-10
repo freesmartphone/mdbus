@@ -18,24 +18,29 @@
  */
 
 /**
+ * @interface FsoFramework.IParserDelegate
+ *
+ * Interface to describe various actions delegated from the parser.
+ **/
+public interface FsoFramework.IParserDelegate : GLib.Object
+{
+    public abstract bool onParserHaveCommand();
+    public abstract bool onParserIsExpectedPrefix( string line );
+    public abstract void onParserSolicitedCompleted( string[] response );
+    public abstract void onParserUnsolicitedCompleted( string[] response );
+}
+
+/**
  * @interface FsoFramework.Parser
  *
  * The Parser Interface
  **/
 public abstract interface FsoFramework.Parser : GLib.Object
 {
-    public delegate bool HaveCommandFunc();
-    public delegate bool ExpectedPrefixFunc( string line );
-    public delegate void SolicitedCompletedFunc( string[] response );
-    public delegate void UnsolicitedCompletedFunc( string[] response );
-
     /**
-     * Set the delegates
+     * Set the delegate
      **/
-    public abstract void setDelegates( HaveCommandFunc haveCommand,
-                                       ExpectedPrefixFunc expectedPrefix,
-                                       SolicitedCompletedFunc solicitedCompleted,
-                                       UnsolicitedCompletedFunc unsolicitedCompleted );
+    public abstract void setDelegate( IParserDelegate? d );
 
     /**
      * Feed data into the parser.
@@ -48,25 +53,11 @@ public abstract interface FsoFramework.Parser : GLib.Object
  **/
 public class FsoFramework.BaseParser : FsoFramework.Parser, GLib.Object
 {
-    protected Parser.HaveCommandFunc haveCommand;
-    protected Parser.ExpectedPrefixFunc expectedPrefix;
-    protected Parser.SolicitedCompletedFunc solicitedCompleted;
-    protected Parser.UnsolicitedCompletedFunc unsolicitedCompleted;
+    protected IParserDelegate? _delegate;
 
-    public void setDelegates( Parser.HaveCommandFunc haveCommand,
-                              Parser.ExpectedPrefixFunc expectedPrefix,
-                              Parser.SolicitedCompletedFunc solicitedCompleted,
-                              Parser.UnsolicitedCompletedFunc unsolicitedCompleted )
+    public void setDelegate( IParserDelegate? d )
     {
-        if ( haveCommand != null ) assert( this.haveCommand == null );
-        if ( expectedPrefix != null ) assert( this.expectedPrefix == null );
-        if ( solicitedCompleted != null ) assert( this.solicitedCompleted == null );
-        if ( unsolicitedCompleted != null ) assert( this.unsolicitedCompleted == null );
-
-        this.haveCommand = haveCommand;
-        this.expectedPrefix = expectedPrefix;
-        this.solicitedCompleted = solicitedCompleted;
-        this.unsolicitedCompleted = unsolicitedCompleted;
+        _delegate = d;
     }
 
     public virtual int feed( void* data, int len )
@@ -148,13 +139,13 @@ public class FsoFramework.LineByLineParser : FsoFramework.BaseParser
         debug( "line completed: '%s'", (string)curline );
 #endif
 
-        if ( !haveCommand() )
+        if ( !_delegate.onParserHaveCommand() )
         {
-            unsolicitedCompleted( { (string)curline } );
+            _delegate.onParserUnsolicitedCompleted( { (string)curline } );
         }
         else
         {
-            solicitedCompleted( { (string)curline } );
+            _delegate.onParserSolicitedCompleted( { (string)curline } );
         }
         resetLine();
     }
