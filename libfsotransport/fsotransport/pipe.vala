@@ -39,7 +39,7 @@ public class FsoFramework.FdPipe : GLib.Object
     {
         if ( ( condition & GLib.IOCondition.HUP ) == GLib.IOCondition.HUP )
         {
-            error( @"AutoPipe: HUP from source fd $(source.unix_get_fd()). Stopping." );
+            warning( @"AutoPipe: HUP from source fd $(source.unix_get_fd()). Stopping." );
             return false;
         }
 
@@ -55,7 +55,7 @@ public class FsoFramework.FdPipe : GLib.Object
         }
         else
         {
-            error( "AutoPipe: Unknown IOCondition. Stopping." );
+            warning( "AutoPipe: Unknown IOCondition. Stopping." );
             return false;
         }
         return true;
