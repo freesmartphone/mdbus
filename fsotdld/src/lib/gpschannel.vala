@@ -19,7 +19,7 @@
 
 using GLib;
 
-public class FsoGps.Channel : FsoFramework.AbstractCommandQueue
+public class FsoGps.Channel : FsoFramework.AbstractCommandQueue, FsoFramework.IParserDelegate
 {
     public const int COMMAND_QUEUE_BUFFER_SIZE = 4096;
 
@@ -34,18 +34,18 @@ public class FsoGps.Channel : FsoFramework.AbstractCommandQueue
         buffer = new char[COMMAND_QUEUE_BUFFER_SIZE];
         this.name = name;
         this.parser = parser;
-        parser.setDelegates( haveCommand, isExpectedPrefix, onParserCompletedSolicited, onParserCompletedUnsolicited );
+        parser.setDelegate( this );
         theReceiver.registerChannel( name, this );
         theReceiver.signalStatusChanged.connect( onModemStatusChanged );
     }
 
-    protected override void onReadFromTransport( FsoFramework.Transport t )
+    public override void onTransportDataAvailable( FsoFramework.Transport t )
     {
         var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
 
         if ( bytesread == 0 )
         {
-            onHupFromTransport();
+            onTransportHangup( t );
             return;
         }
 
@@ -56,22 +56,22 @@ public class FsoGps.Channel : FsoFramework.AbstractCommandQueue
         parser.feed( (string)buffer, bytesread );
     }
 
-    protected bool haveCommand()
+    public bool onParserHaveCommand()
     {
         return false; // NMEA is not interactive
     }
 
-    protected bool isExpectedPrefix( string line )
+    public bool onParserIsExpectedPrefix( string line )
     {
         return false;
     }
 
-    protected void onParserCompletedSolicited( string[] response )
+    public void onParserSolicitedCompleted( string[] response )
     {
         assert_not_reached();
     }
 
-    protected void onParserCompletedUnsolicited( string[] response )
+    public void onParserUnsolicitedCompleted( string[] response )
     {
         transport.logger.info( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
         urchandler( "", response[0], null );
