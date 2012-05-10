@@ -67,7 +67,7 @@ public abstract class FsoFramework.AbstractCommandHandler
 /**
  * @class FsoFramework.AbstractCommandQueue
  **/
-public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQueue, GLib.Object
+public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.ITransportDelegate, FsoFramework.CommandQueue, GLib.Object
 {
     /**
      * @property transport - The underlying transport
@@ -89,7 +89,6 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
     //
     protected FsoFramework.CommandQueue.UnsolicitedHandler urchandler;
     protected AbstractCommandHandler current;
-    protected abstract void onReadFromTransport( FsoFramework.Transport t );
 
     protected bool checkRestartingQ()
     {
@@ -124,12 +123,6 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
         {
             GLib.Source.remove( timeoutWatch );
         }
-    }
-
-    protected void onHupFromTransport()
-    {
-        transport.logger.warning( "HUP from transport; signalling to upper layer" );
-        this.hangup(); // emit HUP signal
     }
 
     protected bool onTimeout()
@@ -174,11 +167,20 @@ public abstract class FsoFramework.AbstractCommandQueue : FsoFramework.CommandQu
     //
     // public API
     //
+
+    public abstract void onTransportDataAvailable( FsoFramework.Transport t );
+
+    public void onTransportHangup( FsoFramework.Transport t )
+    {
+        transport.logger.warning( "HUP from transport; signalling to upper layer" );
+        this.hangup(); // emit HUP signal
+    }
+
     public AbstractCommandQueue( Transport transport )
     {
         q = new Gee.LinkedList<AbstractCommandHandler>();
         this.transport = transport;
-        transport.setDelegates( onReadFromTransport, onHupFromTransport );
+        transport.setDelegate( this );
     }
 
     public void registerUnsolicitedHandler( FsoFramework.CommandQueue.UnsolicitedHandler urchandler )

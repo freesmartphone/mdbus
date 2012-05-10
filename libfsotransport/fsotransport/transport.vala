@@ -140,6 +140,12 @@ public class FsoFramework.TransportSpec
     public bool hard;
 }
 
+public interface FsoFramework.ITransportDelegate : Object
+{
+    public abstract void onTransportDataAvailable( Transport transport );
+    public abstract void onTransportHangup( Transport transport );
+}
+
 //===========================================================================
 public abstract class FsoFramework.Transport : Object
 {
@@ -191,11 +197,7 @@ public abstract class FsoFramework.Transport : Object
     /**
      * Set delegates for being called when there is something to read or there has been an exception.
      **/
-    public abstract void setDelegates( TransportFunc? readfunc, TransportFunc? hupfunc );
-    /**
-     * Get delegates
-     **/
-    public abstract void getDelegates( out TransportFunc? readfun, out TransportFunc? hupfun );
+    public abstract void setDelegate( ITransportDelegate? d );
     /**
      * Set priorities for reading and writing
      **/

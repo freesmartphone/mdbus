@@ -17,7 +17,7 @@
  *
  */
 
-public class FsoFramework.CombinedTransport : FsoFramework.BaseTransport
+public class FsoFramework.CombinedTransport : FsoFramework.BaseTransport, FsoFramework.ITransportDelegate
 {
     private FsoFramework.Transport _rwtransport;
     private FsoFramework.Transport _rotransport;
@@ -27,34 +27,19 @@ public class FsoFramework.CombinedTransport : FsoFramework.BaseTransport
     // private
     //
 
-    private void onRwTransportRead( Transport transport )
+    public void onTransportDataAvailable( Transport transport )
     {
-        if ( readfunc != null )
+        if ( _delegate != null )
         {
-            readswitch = 0;
-            readfunc( transport );
+            readswitch = transport == _rwtransport ? 0 : 1;
+            _delegate.onTransportDataAvailable( transport );
         }
     }
 
-    private void onRwTransportHup( Transport transport )
+    public void onTransportHangup( Transport transport )
     {
-        if ( hupfunc != null )
-            hupfunc( transport );
-    }
-
-    private void onRoTransportRead( Transport transport )
-    {
-        if ( readfunc != null )
-        {
-            readswitch = 1;
-            readfunc( transport );
-        }
-    }
-
-    private void onRoTransportHup( Transport transport )
-    {
-        if ( hupfunc != null )
-            hupfunc( transport );
+        if ( _delegate != null )
+            _delegate.onTransportHangup( transport );
     }
 
     //
@@ -80,8 +65,8 @@ public class FsoFramework.CombinedTransport : FsoFramework.BaseTransport
 
     public override bool open()
     {
-        _rwtransport.setDelegates( onRwTransportRead, onRwTransportHup );
-        _rotransport.setDelegates( onRoTransportRead, onRoTransportHup );
+        _rwtransport.setDelegate( this );
+        _rotransport.setDelegate( this );
 
         if ( !_rwtransport.open() )
             return false;

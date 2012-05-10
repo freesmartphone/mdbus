@@ -28,21 +28,24 @@ string readline;
 bool gotHup;
 bool frozen;
 
-void transport_read_func( Transport transport )
+public class TestTransportDelegate : FsoFramework.ITransportDelegate, GLib.Object
 {
-    message( "read delegate called" );
-    assert( !frozen );
-    buffer = new char[512];
-    var bytesread = transport.read( (void*)buffer, 512 );
-    buffer[bytesread] = 0;
-    readline = (string)buffer;
-}
+    public void onTransportDataAvailable( Transport transport )
+    {
+        message( "read delegate called" );
+        assert( !frozen );
+        buffer = new char[512];
+        var bytesread = transport.read( (void*)buffer, 512 );
+        buffer[bytesread] = 0;
+        readline = (string)buffer;
+    }
 
-void transport_hup_func( Transport transport )
-{
-    message( "hup delegate called" );
-    gotHup = true;
-    transport.close();
+    public void onTransportHangup( Transport transport )
+    {
+        message( "hup delegate called" );
+        gotHup = true;
+        transport.close();
+    }
 }
 
 //===========================================================================
@@ -50,14 +53,8 @@ void test_transport_base()
 //===========================================================================
 {
     var t = new BaseTransport( "testing" );
-    TransportFunc hupfunc;
-    TransportFunc readfunc;
-//    t.getDelegates( out readfunc, out hupfunc );
-//    assert( readfunc == null && hupfunc == null );
-
-    t.setDelegates( transport_read_func, transport_hup_func );
-//    t.getDelegates( out readfunc, out hupfunc );
-//    assert( readfunc == read_func && hupfunc == hup_func );
+    var d = new TestTransportDelegate();
+    t.setDelegate( d );
 }
 
 //===========================================================================
@@ -125,7 +122,6 @@ void test_transport_pty_write()
 
     assert( length == TRANSPORT_TEST_STRING.length );
     assert( Memory.cmp( TRANSPORT_TEST_STRING, buf, TRANSPORT_TEST_STRING.length ) == 0 );
-
 }
 
 //===========================================================================
@@ -134,7 +130,7 @@ void test_transport_pty_read()
 {
     readline = "";
     var t = new PtyTransport();
-    t.setDelegates( transport_read_func, transport_hup_func );
+    t.setDelegate( new TestTransportDelegate() );
     t.open();
 
     // open pts and write something to it, so the other side can pick it up
@@ -160,7 +156,7 @@ void test_transport_pty_hup()
 {
     gotHup = false;
     var t = new PtyTransport();
-    t.setDelegates( transport_read_func, transport_hup_func );
+    t.setDelegate( new TestTransportDelegate() );
     t.open();
 
     // open pts and close it again
@@ -182,7 +178,7 @@ void test_transport_pty_freeze_thaw()
 //===========================================================================
 {
     var t = new PtyTransport();
-    t.setDelegates( transport_read_func, transport_hup_func );
+    t.setDelegate( new TestTransportDelegate() );
     t.open();
 
     readline = "";
