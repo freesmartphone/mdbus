@@ -54,7 +54,7 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
         return yield transport.openAsync();
     }
 
-    protected override void onReadFromTransport( FsoFramework.Transport t )
+    public override void onTransportDataAvailable( FsoFramework.Transport t )
     {
         assert_not_reached();
     }

@@ -34,7 +34,7 @@ public class Samsung.RfsChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     // private
     //
 
-    protected override void onReadFromTransport( FsoFramework.Transport t )
+    public override void onTransportDataAvailable( FsoFramework.Transport t )
     {
         SamsungIpc.Response request = SamsungIpc.Response();
 
@@ -81,10 +81,6 @@ public class Samsung.RfsChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         return transport.write(data, data.length);
     }
 
-    private void _onHupFromTransport()
-    {
-    }
-
     //
     // public API
     //
@@ -92,8 +88,6 @@ public class Samsung.RfsChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     public RfsChannel( string name, FsoFramework.Transport? transport )
     {
         base( transport );
-
-        transport.setDelegates( onReadFromTransport, _onHupFromTransport );
 
         this.name = name;
         this.wakelock = new FsoFramework.Wakelock( "fsogsmd-modem-samsung-rfs" );
