@@ -27,7 +27,7 @@ using Gsm0710;
 //===========================================================================
 // The Channel class
 //
-internal class Channel
+internal class Channel : FsoFramework.ITransportDelegate, GLib.Object
 {
     public enum Status
     {
@@ -66,7 +66,7 @@ internal class Channel
 
         transport = info.transport;
         transport.setPriorities( TRANSPORT_READ_PRIORITY, TRANSPORT_WRITE_PRIORITY );
-        transport.setDelegates( onRead, onHup );
+        transport.setDelegate( this );
         assert( logger.debug( "Constructed" ) );
 
         if ( ackTimeout > 0 )
@@ -200,9 +200,9 @@ internal class Channel
     //
     // delegates from Pty object
     //
-    public void onRead( FsoFramework.Transport transport )
+    public void onTransportDataAvailable( FsoFramework.Transport transport )
     {
-        assert( logger.debug( "onRead() from Transport; reading." ) );
+        assert( logger.debug( "onTransportDataAvailable() from Transport; reading." ) );
         assert( _multiplexer != null );
 
         if ( ( _serial_status & SerialStatus.FC ) == SerialStatus.FC )
@@ -217,9 +217,9 @@ internal class Channel
         _multiplexer.submit_data( _number, buffer, (int)bytesread );
     }
 
-    public void onHup( FsoFramework.Transport transport )
+    public void onTransportHangup( FsoFramework.Transport transport )
     {
-        assert( logger.debug( "onHup() from Transport; closing." ) );
+        assert( logger.debug( "onTransportHangup() from Transport; closing." ) );
         close();
     }
 

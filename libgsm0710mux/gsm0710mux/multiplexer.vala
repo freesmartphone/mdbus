@@ -92,7 +92,7 @@ internal static void response_to_test_fwd( Context ctx, char[] data )
 //===========================================================================
 // The Multiplexer class
 //
-internal class Multiplexer
+internal class Multiplexer : FsoFramework.ITransportDelegate, GLib.Object
 {
     Manager manager;
 
@@ -364,7 +364,7 @@ internal class Multiplexer
         {
             return false;
         }
-        transport.setDelegates( onReadFromTransport, onHupFromTransport );
+        transport.setDelegate( this );
         transport.setBuffered( false );
         transport.open();
         return transport.isOpen();
@@ -448,12 +448,12 @@ internal class Multiplexer
     }
 
     // callbacks from modem transport
-    public void onReadFromTransport( FsoFramework.Transport transport )
+    public void onTransportDataAvailable( FsoFramework.Transport transport )
     {
         ctx.readyRead();
     }
 
-    public void onHupFromTransport( FsoFramework.Transport transport )
+    public void onTransportHangup( FsoFramework.Transport transport )
     {
         logger.error( "HUP from modem transport; closing session" );
         closeSession();
