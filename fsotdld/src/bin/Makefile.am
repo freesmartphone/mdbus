@@ -8,10 +8,9 @@ AM_CFLAGS = \
 AM_VALAFLAGS =
 
 sbin_PROGRAMS = fsotdld
-
 fsotdld_SOURCES = main.vala
 fsotdld_VALAFLAGS = \
-	--vapidir vapi \
+	--vapidir $(top_srcdir)/vapi \
 	--pkg posix \
 	--pkg gio-2.0 \
 	--pkg fsoframework-2.0 \
