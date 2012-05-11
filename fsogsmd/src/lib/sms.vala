@@ -95,6 +95,54 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
 }
 
 /**
+ * @class NullSmsHandler
+ **/
+public class FsoGsm.NullSmsHandler : FsoFramework.AbstractObject, FsoGsm.SmsHandler
+{
+    public ISmsStorage storage { get; set; }
+
+    public NullSmsHandler()
+    {
+        storage = SmsStorageFactory.create( "null", "" );
+    }
+
+    public async void handleIncomingSmsOnSim( uint index )
+    {
+    }
+
+    public async void handleIncomingSms( string hexpdu, int tpdulen )
+    {
+    }
+
+    public async void handleIncomingSmsReport( string hexpdu, int tpdulen )
+    {
+    }
+
+    public uint16 lastReferenceNumber()
+    {
+        return storage.lastReferenceNumber();
+    }
+    public uint16 nextReferenceNumber()
+    {
+        return storage.increasingReferenceNumber();
+    }
+
+    public Gee.ArrayList<WrapHexPdu> formatTextMessage( string number, string contents, bool requestReport )
+    {
+        return new Gee.ArrayList<WrapHexPdu>();
+    }
+
+    public void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus )
+    {
+    }
+
+    public override string repr()
+    {
+        return @"<>";
+    }
+}
+
+/**
  * @class AbstractSmsHandler
  *
  * An abstract SMS message handler which implements most parts for handling

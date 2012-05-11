@@ -213,7 +213,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract SmsHandler smshandler { get; set; } // the Sms handler
     public abstract PhonebookHandler pbhandler { get; set; } // the Phonebook handler
     public abstract WatchDog watchdog { get; set; } // the WatchDog
-    public abstract PdpHandler pdphandler { get; set; } // the Pdp handler
+    public abstract IPdpHandler pdphandler { get; set; } // the Pdp handler
 
     // PDP API
     public abstract string allocateDataPort();
@@ -263,7 +263,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     public SmsHandler smshandler { get; set; } // the SMS handler
     public PhonebookHandler pbhandler { get; set; } // the Phonebook handler
     public WatchDog watchdog { get; set; } // the WatchDog
-    public PdpHandler pdphandler { get; set; } // the Pdp handler
+    public IPdpHandler pdphandler { get; set; } // the Pdp handler
 
     protected FsoGsm.LowLevel lowlevel;
 

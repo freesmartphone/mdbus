@@ -48,7 +48,77 @@ namespace FsoGsm
          **/
         public static ISmsStorage create( string type, string imsi )
         {
-            return new SmsStorage( imsi );
+            ISmsStorage storage = null;
+
+            switch ( type )
+            {
+                case "default":
+                    storage = new SmsStorage( imsi );
+                    break;
+                default:
+                    storage = new NullSmsStorage();
+                    break;
+            }
+
+            return storage;
+        }
+    }
+
+    /**
+     * @class NullSmsStorage
+     *
+     * A sms storage without a implement for times where no real sms storage handling is
+     * needed but required by the implementation (e.g. testing, dummy implementation, ...)
+     **/
+    public class NullSmsStorage : FsoFramework.AbstractObject, ISmsStorage
+    {
+        public void clean()
+        {
+        }
+
+        public int addSms( Sms.Message message )
+        {
+            return 1;
+        }
+
+        public Gee.ArrayList<string> keys()
+        {
+            return new Gee.ArrayList<string>();
+        }
+
+        public FreeSmartphone.GSM.SIMMessage message( string key, int index = 0 )
+        {
+            return FreeSmartphone.GSM.SIMMessage( index, "unknown", "1234567890", "0",
+                "Test", new GLib.HashTable<string,GLib.Variant>( null, null ) );
+        }
+
+        public FreeSmartphone.GSM.SIMMessage[] messagebook()
+        {
+            return new FreeSmartphone.GSM.SIMMessage[] { };
+        }
+
+        public uint16 lastReferenceNumber()
+        {
+            return 0;
+        }
+
+        public uint16 increasingReferenceNumber()
+        {
+            return 0;
+        }
+
+        public void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus )
+        {
+        }
+
+        public int confirmReceivedMessage( int netreference )
+        {
+            return 0;
+        }
+
+        public override string repr()
+        {
+            return @"<>";
         }
     }
 
