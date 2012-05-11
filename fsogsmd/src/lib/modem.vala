@@ -734,7 +734,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         if ( pdphandler != null && ( pdphandler.status == FreeSmartphone.GSM.ContextStatus.ACTIVE ||
                                      pdphandler.status == FreeSmartphone.GSM.ContextStatus.SUSPENDED ) )
         {
-            yield pdphandler.deactivate();
+            try
+            {
+                yield pdphandler.deactivate();
+            }
+            catch( GLib.Error e )
+            {
+                logger.error( @"Could not deactivate PDP handle: $(e.message)" );
+            }
         }
 
         // close all channels

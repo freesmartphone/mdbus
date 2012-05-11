@@ -226,7 +226,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     {
         // FIXME: +CTZV should be remembered
 
-        var tzoffset = rhs.to_int();
+        var tzoffset = int.parse( rhs );
         if ( tzoffset < 0 )
         {
             logger.warning( @"Receive invalid +CTZV message $rhs. Please report" );

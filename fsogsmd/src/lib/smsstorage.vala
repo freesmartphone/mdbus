@@ -232,7 +232,7 @@ namespace FsoGsm
                 // concatenated SMS
                 result.status = "concatenated";
                 var namecomponents = key.split( "_" );
-                var max_fragment = namecomponents[namecomponents.length-1].to_int();
+                var max_fragment = int.parse( namecomponents[namecomponents.length-1] );
     #if DEBUG
                 GLib.message( "highest fragment = %d", max_fragment );
     #endif
@@ -303,14 +303,14 @@ namespace FsoGsm
         public uint16 lastReferenceNumber()
         {
             var filename = GLib.Path.build_filename( storagedir, "refnum" );
-            return (uint16) FsoFramework.FileHandling.readIfPresent( filename ).to_int();
+            return (uint16) int.parse( FsoFramework.FileHandling.readIfPresent( filename ) );
         }
 
         public uint16 increasingReferenceNumber()
         {
             var filename = GLib.Path.build_filename( storagedir, "refnum" );
             var number = FsoFramework.FileHandling.readIfPresent( filename );
-            uint16 num = (uint16) number.to_int() + 1;
+            uint16 num = (uint16) int.parse( number ) + 1;
             FsoFramework.FileHandling.write( num.to_string(), filename, true ); // create, if not existing
             return num;
         }
@@ -346,14 +346,14 @@ namespace FsoGsm
                 var components = unconfirmed.split( ":" );
                 foreach ( var component in components )
                 {
-                    if ( component.to_int() == netreference )
+                    if ( int.parse( component ) == netreference )
                     {
     #if DEBUG
                         debug( @"Found reference ($netreference) of unconfirmed SMS:$component in $unconfirmed" );
     #endif
                         var filedirname = GLib.Path.build_filename( dirname, unconfirmed );
                         var filename = GLib.Path.build_filename( filedirname, component );
-                        var transaction_index = FsoFramework.FileHandling.read( filename ).to_int();
+                        var transaction_index = int.parse( FsoFramework.FileHandling.read( filename ) );
                         GLib.FileUtils.unlink( filename );
                         var ok = GLib.DirUtils.remove( filedirname );
                         if ( ok != 0 )

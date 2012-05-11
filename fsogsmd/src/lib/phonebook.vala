@@ -154,7 +154,7 @@ public class FsoGsm.PhonebookStorage : FsoFramework.AbstractObject
                 var components = contents.split( ":" );
                 if ( components.length == 2 )
                 {
-                    var index = entry2.to_int();
+                    var index = int.parse( entry2 );
                     //FIXME: Use relational syntax in Vala 0.7.11
                     if ( mindex <= index && index <= maxdex )
                     {

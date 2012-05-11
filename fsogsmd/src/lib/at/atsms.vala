@@ -65,6 +65,9 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
 
     protected override async bool readSmsMessageFromSIM( uint index, out string hexpdu, out int tpdulen )
     {
+        hexpdu = "";
+        tpdulen = 0;
+
         var cmd = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( index ) );
         if ( cmd.validateUrcPdu( response ) != Constants.AtResponse.VALID )

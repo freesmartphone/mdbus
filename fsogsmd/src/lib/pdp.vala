@@ -188,7 +188,7 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
     public void disconnected()
     {
         var status = new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal );
-        updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
+        updateStatus( FreeSmartphone.GSM.ContextStatus.RELEASED, status );
     }
 
     public async void syncStatus()
@@ -205,41 +205,49 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         if ( !theModem.isAlive() || this.status == FreeSmartphone.GSM.ContextStatus.RELEASED )
             return;
 
-        var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
-        var networkStatus = yield network.get_status();
-
-        if ( ( networkRegistrationStatus = (string) networkStatus.lookup( "pdp.registration" ) ) == null &&
-             ( networkRegistrationStatus = (string) networkStatus.lookup( "registration" ) ) == null )
-             networkRegistrationStatus = lastNetworkRegistrationStatus;
-
-        var registered = ( networkRegistrationStatus == "registered" );
-
-        if ( registered || ( roamingAllowed && networkRegistrationStatus == "roaming" ) )
+        try
         {
-            nextContextStatus = FreeSmartphone.GSM.ContextStatus.ACTIVE;
-        }
-        else if ( networkRegistrationStatus != "home" && networkRegistrationStatus != "roaming" )
-        {
-            nextContextStatus = FreeSmartphone.GSM.ContextStatus.SUSPENDED;
-        }
+            var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            var networkStatus = yield network.get_status();
 
-        if ( nextContextStatus != status )
-        {
-            switch ( nextContextStatus )
+            if ( ( networkRegistrationStatus = (string) networkStatus.lookup( "pdp.registration" ) ) == null &&
+                 ( networkRegistrationStatus = (string) networkStatus.lookup( "registration" ) ) == null )
+                 networkRegistrationStatus = lastNetworkRegistrationStatus;
+
+            var registered = ( networkRegistrationStatus == "registered" );
+
+            if ( registered || ( roamingAllowed && networkRegistrationStatus == "roaming" ) )
             {
-                case FreeSmartphone.GSM.ContextStatus.ACTIVE:
-                    activate();
-                    break;
-                case FreeSmartphone.GSM.ContextStatus.RELEASED:
-                    deactivate();
-                    break;
-                case FreeSmartphone.GSM.ContextStatus.SUSPENDED:
-                    updateStatus( nextContextStatus, this.properties );
-                    break;
+                nextContextStatus = FreeSmartphone.GSM.ContextStatus.ACTIVE;
             }
+            else if ( networkRegistrationStatus != "home" && networkRegistrationStatus != "roaming" )
+            {
+                nextContextStatus = FreeSmartphone.GSM.ContextStatus.SUSPENDED;
+            }
+
+            if ( nextContextStatus != status )
+            {
+                switch ( nextContextStatus )
+                {
+                    case FreeSmartphone.GSM.ContextStatus.ACTIVE:
+                        activate();
+                        break;
+                    case FreeSmartphone.GSM.ContextStatus.RELEASED:
+                        deactivate();
+                        break;
+                    case FreeSmartphone.GSM.ContextStatus.SUSPENDED:
+                        updateStatus( nextContextStatus, this.properties );
+                        break;
+                }
+            }
+
+            lastNetworkRegistrationStatus = networkRegistrationStatus;
+        }
+        catch ( GLib.Error e )
+        {
+            logger.error( @"Could not synchronize PDP registration status" );
         }
 
-        lastNetworkRegistrationStatus = networkRegistrationStatus;
         inSyncStatus = false;
     }
 }
