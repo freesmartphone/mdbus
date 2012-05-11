@@ -387,7 +387,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
                 break;
             default:
                 logger.warning( @"Invalid pdp_type $pdphandlertype; data connectivity will NOT be available" );
-                //pdphandler = new FsoGsm.Nullpdphandler();
+                pdphandler = new FsoGsm.NullPdpHandler();
                 return;
         }
 
@@ -397,7 +397,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             if ( pdphandlerclass == Type.INVALID  )
             {
                 logger.warning( @"Can't find plugin for pdp_type $pdphandlertype; data connectivity will NOT be available" );
-                //pdphandler = new FsoGsm.Nullpdphandler();
+                pdphandler = new FsoGsm.NullPdpHandler();
                 return;
             }
 
