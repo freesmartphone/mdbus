@@ -51,16 +51,30 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
         }
 
-        var cmd = FsoFramework.DataSharing.valueForKey( "Gtm601.OWANCALL") as FsoGsm.SimpleAtCommand<bool>;
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( true ) );
-        checkResponseConnect( cmd, response );
+        try
+        {
+            var cmd = FsoFramework.DataSharing.valueForKey( "Gtm601.OWANCALL") as FsoGsm.SimpleAtCommand<bool>;
+            var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( true ) );
+            checkResponseConnect( cmd, response );
+        }
+        catch ( GLib.Error e )
+        {
+            logger.error( @"Failed to execute _OWANCALL command to activate PDP context: $(e.message)" );
+        }
     }
 
     public async override void sc_deactivate()
     {
-        var cmd = FsoFramework.DataSharing.valueForKey( "Gtm601.OWANDATA") as FsoGsm.SimpleAtCommand<bool>;
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( false ) );
-        checkResponseConnect( cmd, response );
+        try
+        {
+            var cmd = FsoFramework.DataSharing.valueForKey( "Gtm601.OWANDATA") as FsoGsm.SimpleAtCommand<bool>;
+            var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( false ) );
+            checkResponseConnect( cmd, response );
+        }
+        catch ( GLib.Error e )
+        {
+            logger.error( @"Failed to execute _OWANDATA command to deactivate PDP context: $(e.message)" );
+        }
     }
 
     public async override void statusUpdate( string status, GLib.HashTable<string,Variant> properties )

@@ -36,6 +36,7 @@ public class FsoGsm.RouteInfo
 public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
 {
     public abstract FreeSmartphone.GSM.ContextStatus status { get; set; }
+    public abstract GLib.HashTable<string,Variant> properties { get; set; }
 
     public async abstract void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public async abstract void deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
@@ -45,6 +46,8 @@ public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
     public async abstract void connectedWithNewDefaultRoute( FsoGsm.RouteInfo route );
 
     public abstract void disconnected();
+
+    public abstract async void syncStatus();
 }
 
 /**
@@ -53,6 +56,7 @@ public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
 public class FsoGsm.NullPdpHandler : IPdpHandler, FsoFramework.AbstractObject
 {
     public FreeSmartphone.GSM.ContextStatus status { get; set; default = FreeSmartphone.GSM.ContextStatus.RELEASED; }
+    public GLib.HashTable<string,Variant> properties { get; set; default = new GLib.HashTable<string,Variant>( null, null ); }
 
     public async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
@@ -71,6 +75,10 @@ public class FsoGsm.NullPdpHandler : IPdpHandler, FsoFramework.AbstractObject
     }
 
     public void disconnected()
+    {
+    }
+
+    public async void syncStatus()
     {
     }
 
