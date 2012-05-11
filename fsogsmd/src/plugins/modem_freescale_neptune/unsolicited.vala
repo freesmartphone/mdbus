@@ -121,7 +121,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
 
         var octets = rhs.split( "," );
         for (uint i = 0; i < octets.length; i++) {
-            modem.bdaddr[i] = (uint8) octets[i].to_int();
+            modem.bdaddr[i] = (uint8) int.parse( octets[i] );
         }
 
         theModem.logger.debug( "bdaddr: %02X:%02X:%02X:%02X:%02X:%02X".printf(

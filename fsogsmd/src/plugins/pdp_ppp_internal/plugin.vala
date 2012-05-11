@@ -73,8 +73,6 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
 
     public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var m = theModem as FsoGsm.AbstractModem;
-
         var data = theModem.data();
 
         if ( data.contextParams == null )
@@ -118,7 +116,7 @@ class Pdp.PppInternal : FsoGsm.PdpHandler
         Timeout.add( delay, sc_activate.callback );
         yield;
 
-        var reason = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "Z" );
+        yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "Z" );
 
         //var response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "E0" );
         var response = yield channel.enqueueAsync( new FsoGsm.CustomAtCommand(), "+CGQREQ=1;+CGQMIN=1;+CGEQREQ=1;+CGEQMIN=1" );

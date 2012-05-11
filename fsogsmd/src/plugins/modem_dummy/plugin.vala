@@ -59,12 +59,12 @@ class Dummy.Modem : FsoGsm.AbstractModem
 
     protected override CallHandler createCallHandler()
     {
-        return null;
+        return new NullCallHandler();
     }
 
     protected override SmsHandler createSmsHandler()
     {
-        return null;
+        return new NullSmsHandler();
     }
 
     protected override PhonebookHandler createPhonebookHandler()
@@ -74,7 +74,7 @@ class Dummy.Modem : FsoGsm.AbstractModem
 
     protected override WatchDog createWatchDog()
     {
-        return null;
+        return new NullWatchDog();
     }
 }
 

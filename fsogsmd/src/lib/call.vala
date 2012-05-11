@@ -37,18 +37,18 @@ public class FsoGsm.Call
         detail.status = FreeSmartphone.GSM.CallStatus.RELEASE;
         detail.properties = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
     }
-    
+
     public bool update_status( FreeSmartphone.GSM.CallStatus new_status )
     {
         var result = false;
-        
+
         if ( this.detail.status != new_status )
         {
             this.detail.status = new_status;
             notify( this.detail );
             result = true;
         }
-        
+
         return result;
     }
 
@@ -56,7 +56,7 @@ public class FsoGsm.Call
     {
         assert( this.detail.id == detail.id );
         var result = false;
-        
+
         // Something has changed and we should notify somebody about his?
         if ( this.detail.status != detail.status )
         {
@@ -68,7 +68,7 @@ public class FsoGsm.Call
             notify( detail );
             result = true;
         }
-        
+
         /*
         var iter = GLib.HashTableIter<string,GLib.Variant>( this.detail.properties );
         string key; Variant? v;
@@ -82,7 +82,7 @@ public class FsoGsm.Call
             }
         }
         */
-        
+
         return result; 
     }
 
@@ -103,16 +103,16 @@ public class FsoGsm.CallInfo : GLib.Object
     {
         cinfo = new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal );
     }
-    
+
     public CallInfo()
     {
     }
-    
+
     public CallInfo.with_ctype( string ctype )
     {
         this.ctype = ctype;
     }
-    
+
     public string ctype { get; set; default = ""; }
     public int id { get; set; default = 0; }
     public GLib.HashTable<string, GLib.Variant?> cinfo;
@@ -127,22 +127,22 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
      * Call this, when the network has indicated an incoming call.
      **/
     public abstract void handleIncomingCall( FsoGsm.CallInfo call_info );
-    
+
     /**
      * Call this, when the network has indicated an connecting call
      **/
     public abstract void handleConnectingCall( FsoGsm.CallInfo call_info );
-    
+
     /**
      * Call this, when the network has indicated an ending call
      **/
     public abstract void handleEndingCall( FsoGsm.CallInfo call_info );
-    
+
     /**
      * Call this, when the network has indicated a supplementary service indication.
      **/
     public abstract void addSupplementaryInformation( string direction, string info );
-    
+
     /**
      * Call Actions
      **/
@@ -155,6 +155,54 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
     public abstract async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     */
+}
+
+/**
+ * @class FsoGsm.NullCallHandler
+ **/
+public class FsoGsm.NullCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractObject
+{
+    public void handleIncomingCall( FsoGsm.CallInfo call_info )
+    {
+    }
+
+    public void handleConnectingCall( FsoGsm.CallInfo call_info )
+    {
+    }
+
+    public void handleEndingCall( FsoGsm.CallInfo call_info )
+    {
+    }
+
+    public void addSupplementaryInformation( string direction, string info )
+    {
+    }
+
+    public async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    public async int  initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        return 0;
+    }
+
+    public async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    public async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    public async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    public override string repr()
+    {
+        return @"<>";
+    }
 }
 
 /**

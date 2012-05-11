@@ -46,11 +46,27 @@ namespace FsoGsm
             return;
         }
 
-        // gather info
-        var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
         try
         {
+            var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
             yield m.run();
+
+            // advance modem status, if necessary
+            var status = m.status.lookup( "registration" ).get_string();
+            assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
+
+            if ( status == "home" || status == "roaming" )
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
+            }
+            else
+            {
+                theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
+            }
+
+            // send dbus signal
+            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            obj.status( m.status );
         }
         catch ( GLib.Error e )
         {
@@ -58,23 +74,6 @@ namespace FsoGsm
             inTriggerUpdateNetworkStatus = false;
             return;
         }
-
-        // advance modem status, if necessary
-        var status = m.status.lookup( "registration" ).get_string();
-        assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
-
-        if ( status == "home" || status == "roaming" )
-        {
-            theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
-        }
-        else
-        {
-            theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
-        }
-
-        // send dbus signal
-        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-        obj.status( m.status );
 
         inTriggerUpdateNetworkStatus = false;
     }

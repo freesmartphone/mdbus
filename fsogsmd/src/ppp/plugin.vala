@@ -157,11 +157,7 @@ static void plugin_init()
     {
         fsogsmd_pdp = Bus.get_proxy_sync<FreeSmartphone.GSM.PDP>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath );
     }
-    catch ( DBusError e )
-    {
-        PPPD.error( @"DBusError while initializing plugin: $(e.message)" );
-    }
-    catch ( IOError e )
+    catch ( Error e )
     {
         PPPD.error( @"IOError while initializing plugin: $(e.message)" );
     }

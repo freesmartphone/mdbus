@@ -48,7 +48,77 @@ namespace FsoGsm
          **/
         public static ISmsStorage create( string type, string imsi )
         {
-            return new SmsStorage( imsi );
+            ISmsStorage storage = null;
+
+            switch ( type )
+            {
+                case "default":
+                    storage = new SmsStorage( imsi );
+                    break;
+                default:
+                    storage = new NullSmsStorage();
+                    break;
+            }
+
+            return storage;
+        }
+    }
+
+    /**
+     * @class NullSmsStorage
+     *
+     * A sms storage without a implement for times where no real sms storage handling is
+     * needed but required by the implementation (e.g. testing, dummy implementation, ...)
+     **/
+    public class NullSmsStorage : FsoFramework.AbstractObject, ISmsStorage
+    {
+        public void clean()
+        {
+        }
+
+        public int addSms( Sms.Message message )
+        {
+            return 1;
+        }
+
+        public Gee.ArrayList<string> keys()
+        {
+            return new Gee.ArrayList<string>();
+        }
+
+        public FreeSmartphone.GSM.SIMMessage message( string key, int index = 0 )
+        {
+            return FreeSmartphone.GSM.SIMMessage( index, "unknown", "1234567890", "0",
+                "Test", new GLib.HashTable<string,GLib.Variant>( null, null ) );
+        }
+
+        public FreeSmartphone.GSM.SIMMessage[] messagebook()
+        {
+            return new FreeSmartphone.GSM.SIMMessage[] { };
+        }
+
+        public uint16 lastReferenceNumber()
+        {
+            return 0;
+        }
+
+        public uint16 increasingReferenceNumber()
+        {
+            return 0;
+        }
+
+        public void storeTransactionIndizesForSentMessage( Gee.ArrayList<WrapHexPdu> hexpdus )
+        {
+        }
+
+        public int confirmReceivedMessage( int netreference )
+        {
+            return 0;
+        }
+
+        public override string repr()
+        {
+            return @"<>";
         }
     }
 
@@ -232,7 +302,7 @@ namespace FsoGsm
                 // concatenated SMS
                 result.status = "concatenated";
                 var namecomponents = key.split( "_" );
-                var max_fragment = namecomponents[namecomponents.length-1].to_int();
+                var max_fragment = int.parse( namecomponents[namecomponents.length-1] );
     #if DEBUG
                 GLib.message( "highest fragment = %d", max_fragment );
     #endif
@@ -303,14 +373,14 @@ namespace FsoGsm
         public uint16 lastReferenceNumber()
         {
             var filename = GLib.Path.build_filename( storagedir, "refnum" );
-            return (uint16) FsoFramework.FileHandling.readIfPresent( filename ).to_int();
+            return (uint16) int.parse( FsoFramework.FileHandling.readIfPresent( filename ) );
         }
 
         public uint16 increasingReferenceNumber()
         {
             var filename = GLib.Path.build_filename( storagedir, "refnum" );
             var number = FsoFramework.FileHandling.readIfPresent( filename );
-            uint16 num = (uint16) number.to_int() + 1;
+            uint16 num = (uint16) int.parse( number ) + 1;
             FsoFramework.FileHandling.write( num.to_string(), filename, true ); // create, if not existing
             return num;
         }
@@ -346,14 +416,14 @@ namespace FsoGsm
                 var components = unconfirmed.split( ":" );
                 foreach ( var component in components )
                 {
-                    if ( component.to_int() == netreference )
+                    if ( int.parse( component ) == netreference )
                     {
     #if DEBUG
                         debug( @"Found reference ($netreference) of unconfirmed SMS:$component in $unconfirmed" );
     #endif
                         var filedirname = GLib.Path.build_filename( dirname, unconfirmed );
                         var filename = GLib.Path.build_filename( filedirname, component );
-                        var transaction_index = FsoFramework.FileHandling.read( filename ).to_int();
+                        var transaction_index = int.parse( FsoFramework.FileHandling.read( filename ) );
                         GLib.FileUtils.unlink( filename );
                         var ok = GLib.DirUtils.remove( filedirname );
                         if ( ok != 0 )

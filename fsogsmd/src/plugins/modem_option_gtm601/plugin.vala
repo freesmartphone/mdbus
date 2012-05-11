@@ -109,8 +109,6 @@ class Gtm601.Modem : FsoGsm.AbstractModem
 
     protected override void registerCustomAtCommands( HashMap<string,FsoGsm.AtCommand> commands )
     {
-
-        var plusCops = theModem.createAtCommand<PlusCOPS>( "+COPS" );
         PlusCOPS.providerNameDeliveredInConfiguredCharset = true;
 
         Gtm601.registerCustomAtCommands( commands );

@@ -679,7 +679,7 @@ public class FsoGsm.Constants
     {
         if ( number[0] == '+' )
         {
-            return """"%s",145""".printf( number.offset( 1 ) );
+            return """"%s",145""".printf( number.substring( 1 ) );
         }
         else
         {
@@ -692,7 +692,7 @@ public class FsoGsm.Constants
         if ( number[0] == '+' )
         {
             ntype = 145;
-            return number.offset( 1 );
+            return number.substring( 1 );
         }
 
         ntype = 129;
@@ -767,7 +767,7 @@ public class FsoGsm.Constants
             case 1:
                 return "incoming";
             default:
-                error( "invalid call status: %d", code );
+                warning( "invalid call status: %d", code );
                 return "unknown";
         }
     }
@@ -796,7 +796,7 @@ public class FsoGsm.Constants
             case "unknown":
                 return 9;
             default:
-                error( "invalid call type: %s", ctype );
+                warning( "invalid call type: %s", ctype );
                 return 9;
         }
     }

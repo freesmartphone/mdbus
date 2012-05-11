@@ -27,6 +27,21 @@ public interface FsoGsm.WatchDog : GLib.Object
 }
 
 /**
+ * @class NullWatchDog
+ **/
+
+public class FsoGsm.NullWatchDog : GLib.Object, FsoGsm.WatchDog
+{
+    public void check()
+    {
+    }
+
+    public void resetUnlockMarker()
+    {
+    }
+}
+
+/**
  * @class GenericWatchDog
  *
  **/
