@@ -11,7 +11,6 @@ modlibexec_LTLIBRARIES = vibrator_timedoutputclass.la
 vibrator_timedoutputclass_la_SOURCES = plugin.vala
 vibrator_timedoutputclass_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
-	--vapidir $(top_srcdir)/fsoframework \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \

@@ -12,13 +12,13 @@ router_qdsp5_la_SOURCES = plugin.vala playwav2.c
 router_qdsp5_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
-	--vapidir . \
+	--vapidir $(top_srcdir)/src/plugins/router_qdsp5 \
 	--pkg playwav2 \
 	--pkg glib-2.0 \
 	--pkg gee-1.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
-	--pkg fsodevice-2.0
+	--pkg fsodevice-2.0 \
 	$(NULL)
 router_qdsp5_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
