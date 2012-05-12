@@ -43,12 +43,7 @@ libfsodata_la_LIBADD = \
 	$(NULL)
 libfsodata_la_LDFLAGS = -no-undefined -avoid-version
 
-BUILT_SOURCES = \
-	fsodata.h \
-	fsodata-2.0.vapi \
-	$(NULL)
-
 CLEANFILES =
 MAINTAINERCLEANFILES = \
-	$(BUILT_SOURCES) \
+	Makefile.in \
 	$(NULL)
