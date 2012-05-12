@@ -25,3 +25,8 @@ fsogsmd_LDADD = \
 	$(FSO_LIBS) \
 	$(GLIB_LIBS) \
 	$(NULL)
+
+CLEANFILES =
+MAINTAINERCLEANFILES = \
+	Makefile.in \
+	$(NULL)
