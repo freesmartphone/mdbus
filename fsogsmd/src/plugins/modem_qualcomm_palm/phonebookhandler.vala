@@ -99,6 +99,10 @@ public class MsmPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.Abstrac
         }
     }
 
+    public async void syncWithSim()
+    {
+    }
+
     public async void initializeStorage()
     {
         if ( initialized )
