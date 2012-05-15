@@ -444,6 +444,7 @@ class Commands : Object
         var n = 0;
         var depth = 0;
         var depth_changed = false;
+        var in_quote = false;
         var current_argument = "";
         var arguments = new GLib.List<string>();
 
@@ -452,7 +453,7 @@ class Commands : Object
             switch ( commandline[n] )
             {
                 case ' ':
-                    if ( depth == 0 && ( current_argument.length > 0 || depth_changed ) )
+                    if ( depth == 0 && ( current_argument.length > 0 || depth_changed ) && !in_quote)
                     {
                         arguments.append( current_argument );
                         current_argument = "";
@@ -463,30 +464,28 @@ class Commands : Object
                         current_argument += @"$(commandline[n])";
                     }
                     break;
-                case '\'':
                 case '\"':
-                    if ( ( n + 1 < commandline.size() && commandline[n+1] == ' ' ) || ( n + 1 >= commandline.size() ) )
-                    {
-                        depth--;
-                    }
-                    else
-                    {
-                        depth++;
-                        depth_changed = true;
-                    }
+                    in_quote = !in_quote;
+                    current_argument += "\"";
                     break;
                 case '{':
                 case '[':
                 case '(':
-                    current_argument += @"$(commandline[n])";
-                    depth++;
-                    depth_changed = true;
+                    if ( !in_quote )
+                    {
+                        current_argument += @"$(commandline[n])";
+                        depth++;
+                        depth_changed = true;
+                    }
                     break;
                 case '}':
                 case ')':
                 case ']':
-                    current_argument += @"$(commandline[n])";
-                    depth--;
+                    if ( !in_quote )
+                    {
+                        current_argument += @"$(commandline[n])";
+                        depth--;
+                    }
                     break;
                 default:
                     current_argument += @"$(commandline[n])";
