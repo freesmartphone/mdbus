@@ -26,18 +26,11 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
 {
     public PhonebookStorage storage { get; set; }
 
-    public AtPhonebookHandler()
-    {
-        assert( theModem != null ); // Can't create PB handler before modem
-        theModem.signalStatusChanged.connect( onModemStatusChanged );
-    }
+    //
+    // private
+    //
 
-    public override string repr()
-    {
-        return storage != null ? storage.repr() : "<None>";
-    }
-
-    public void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
+    private void onModemStatusChanged( FsoGsm.Modem modem, FsoGsm.Modem.Status status )
     {
         switch ( status )
         {
@@ -49,12 +42,12 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
         }
     }
 
-    public async void simIsReady()
+    private async void simIsReady()
     {
         yield syncWithSim();
     }
 
-    public T[] copy<T>( T[] array )
+    private T[] copy<T>( T[] array )
     {
         T[] result = new T[] {};
         foreach ( T t in array )
@@ -64,7 +57,7 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
         return result;
     }
 
-    public async void syncWithSim()
+    private async void syncWithSim()
     {
         // gather IMSI
         var cimi = theModem.createAtCommand<PlusCIMI>( "+CIMI" );
@@ -109,6 +102,21 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
                 storage.addPhonebook( pbcode, cpbr.min, cpbr.max, cpbr.phonebook );
             }
         }
+    }
+
+    //
+    // public API
+    //
+
+    public AtPhonebookHandler()
+    {
+        assert( theModem != null ); // Can't create PB handler before modem
+        theModem.signalStatusChanged.connect( onModemStatusChanged );
+    }
+
+    public override string repr()
+    {
+        return storage != null ? storage.repr() : "<None>";
     }
 }
 
