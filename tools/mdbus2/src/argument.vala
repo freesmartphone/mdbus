@@ -47,7 +47,9 @@ public class Argument : Object
 
     private bool append_type( string arg, string type, VariantBuilder vbuilder )
     {
+#if DEBUG
         stdout.printf( @"trying to parse argument $name of type $type delivered as $arg\n" );
+#endif
 
         switch ( type.substring(0,1) )
         {
@@ -120,11 +122,16 @@ public class Argument : Object
 #if DEBUG
         debug( @"parsing array '$arg' with subsignature '$type'" );
 #endif
+
+        var va = new VariantBuilder( VariantType.ARRAY );
+
         foreach( var sub_arg in get_sub_args( arg.substring( 1, arg.length - 2 ) ) )
         {
-            if(append_type( sub_arg, type, vbuilder ) == false)
+            if(append_type( sub_arg, type, va ) == false)
                  return false;
         }
+
+        vbuilder.add_value( va.end() );
 
         return true;
 
@@ -162,10 +169,14 @@ public class Argument : Object
         var key = values[0];
         var value = values[1];
 
-        if( append_type( key, keytype, vbuilder ) == false)
+        var vde = new VariantBuilder( VariantType.DICT_ENTRY );
+
+        if( append_type( key, keytype, vde ) == false)
              return false;
-        if( append_type( value, valuetype, vbuilder ) == false)
+        if( append_type( value, valuetype, vde ) == false)
              return false;
+
+        vbuilder.add_value( vde.end() );
 
         return true;
     }
