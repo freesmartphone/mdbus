@@ -28,7 +28,7 @@ public class Argument : Object
     private const char[] end_chars = {'}', ']', ')'};
     private const char arg_separator = ',';
 
-    private VariantBuilder vbuilder;
+    private VariantBuilder _vbuilder;
 
     public string name;
     public string type;
@@ -37,17 +37,18 @@ public class Argument : Object
     {
         this.name = name;
         this.type = type;
-        this.vbuilder = vbuilder;
+        _vbuilder = vbuilder;
     }
 
     public bool append( string arg )
     {
-        return append_type( arg, type );
+        return append_type( arg, type, _vbuilder );
     }
 
-    private bool append_type( string arg, string type )
+    private bool append_type( string arg, string type, VariantBuilder vbuilder )
     {
         stdout.printf( @"trying to parse argument $name of type $type delivered as $arg\n" );
+
         switch ( type.substring(0,1) )
         {
             case "v":
@@ -102,11 +103,11 @@ public class Argument : Object
                 break;
             case "a":
                 var subsig = get_sub_signature( type.substring( 1, type.length - 1 ) );
-                return append_array_type(arg, subsig);
+                return append_array_type( arg, subsig, vbuilder );
             case "(":
-                return append_struct_type(arg, type);
+                return append_struct_type( arg, type, vbuilder );
             case "{":
-                return append_dict_entry_type(arg, type);
+                return append_dict_entry_type( arg, type, vbuilder );
             default:
                 stderr.printf( @"Unsupported type $type\n" );
                 return false;
@@ -114,14 +115,14 @@ public class Argument : Object
         return true;
     }
 
-    private bool append_array_type(string arg, string type)
+    private bool append_array_type( string arg, string type, VariantBuilder vbuilder )
     {
 #if DEBUG
         debug( @"parsing array '$arg' with subsignature '$type'" );
 #endif
         foreach( var sub_arg in get_sub_args( arg.substring( 1, arg.length - 2 ) ) )
         {
-            if(append_type( sub_arg, type ) == false)
+            if(append_type( sub_arg, type, vbuilder ) == false)
                  return false;
         }
 
@@ -129,7 +130,7 @@ public class Argument : Object
 
     }
 
-    private bool append_struct_type(string arg, string type)
+    private bool append_struct_type( string arg, string type, VariantBuilder vbuilder )
     {
 #if DEBUG
         debug(@"Sending Struct with signature '$type' with arg: '$arg'" );
@@ -141,14 +142,14 @@ public class Argument : Object
         {
             var sig = get_sub_signature( subtype.offset( sigpos ) );
             sigpos += (int)sig.length;
-            if( append_type(s, sig) == false)
+            if( append_type( s, sig, vbuilder ) == false)
                  return false;
         }
 
         return true;
     }
 
-    public bool append_dict_entry_type( string arg, string type )
+    public bool append_dict_entry_type( string arg, string type, VariantBuilder vbuilder )
     {
 #if DEBUG
         debug(@"Sending DictEntry with signature '$type' and arg '$arg'");
@@ -161,9 +162,9 @@ public class Argument : Object
         var key = values[0];
         var value = values[1];
 
-        if( append_type( key, keytype ) == false)
+        if( append_type( key, keytype, vbuilder ) == false)
              return false;
-        if( append_type( value, valuetype ) == false)
+        if( append_type( value, valuetype, vbuilder ) == false)
              return false;
 
         return true;
