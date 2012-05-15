@@ -47,9 +47,7 @@ public class Argument : Object
 
     private bool append_type( string arg, string type )
     {
-#if DEBUG
         stdout.printf( @"trying to parse argument $name of type $type delivered as $arg\n" );
-#endif
         switch ( type.substring(0,1) )
         {
             case "v":
@@ -94,15 +92,13 @@ public class Argument : Object
             case "o":
                 vbuilder.add_value( new Variant.object_path( arg ) );
                 break;
-            /*
             case "a":
                 var subsig = get_sub_signature( type.substring( 1, type.length - 1 ) );
                 return append_array_type(arg, subsig);
             case "(":
                 return append_struct_type(arg, type);
             case "{":
-                return append_dict_entry_type(arg, iter, type);
-            */
+                return append_dict_entry_type(arg, type);
             default:
                 stderr.printf( @"Unsupported type $type\n" );
                 return false;
@@ -110,46 +106,41 @@ public class Argument : Object
         return true;
     }
 
-    /*
-    private bool append_array_type(string arg, DBus.RawMessageIter iter, string type)
+    private bool append_array_type(string arg, string type)
     {
-        //remove []
-        var subiter = DBus.RawMessageIter();
 #if DEBUG
         debug( @"parsing array '$arg' with subsignature '$type'" );
 #endif
-        assert( iter.open_container( DBus.RawType.ARRAY, type, subiter ) );
         foreach( var sub_arg in get_sub_args( arg.substring( 1, arg.length - 2 ) ) )
         {
-            if(append_type( sub_arg, subiter, type ) == false)
+            if(append_type( sub_arg, type ) == false)
                  return false;
         }
-        assert( iter.close_container ( subiter ) );
+
         return true;
 
     }
 
-    private bool append_struct_type(string arg, DBus.RawMessageIter iter, string type)
+    private bool append_struct_type(string arg, string type)
     {
 #if DEBUG
         debug(@"Sending Struct with signature '$type' with arg: '$arg'" );
 #endif
         int sigpos = 0;
         var subtype = type.substring(1, type.length - 2);
-        var subiter = DBus.RawMessageIter();
-        assert( iter.open_container( DBus.RawType.STRUCT, null, subiter ) );
+
         foreach(var s in get_sub_args( arg.substring( 1, arg.length - 2 )  ) )
         {
             var sig = get_sub_signature( subtype.offset( sigpos ) );
             sigpos += (int)sig.length;
-            if( append_type(s, subiter, sig) == false)
+            if( append_type(s, sig) == false)
                  return false;
         }
-        assert( iter.close_container( subiter ) );
+
         return true;
     }
 
-    public bool append_dict_entry_type( string arg, DBus.RawMessageIter iter, string type )
+    public bool append_dict_entry_type( string arg, string type )
     {
 #if DEBUG
         debug(@"Sending DictEntry with signature '$type' and arg '$arg'");
@@ -162,18 +153,13 @@ public class Argument : Object
         var key = values[0];
         var value = values[1];
 
-        var subiter = DBus.RawMessageIter();
-        assert( iter.open_container( DBus.RawType.DICT_ENTRY, null, subiter ) );
-
-        if( append_type( key, subiter, keytype ) == false)
+        if( append_type( key, keytype ) == false)
              return false;
-        if( append_type( value, subiter, valuetype ) == false)
+        if( append_type( value, valuetype ) == false)
              return false;
 
-        assert( iter.close_container( subiter ) );
         return true;
     }
-    */
 
     private string get_sub_signature( string signature )
     {
