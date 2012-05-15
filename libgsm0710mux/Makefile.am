@@ -1,7 +1,6 @@
 NULL =
 
 AUTOMAKE_OPTIONS = subdir-objects
-
 SUBDIRS = vapi
 
 AM_CFLAGS = \
