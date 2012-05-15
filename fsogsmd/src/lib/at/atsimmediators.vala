@@ -56,7 +56,8 @@ public class AtSimDeleteEntry : SimDeleteEntry
             Constants.AtResponse.OK,
             Constants.AtResponse.CME_ERROR_021_INVALID_INDEX
         } );
-        //FIXME: theModem.pbhandler.resync();
+
+        yield theModem.pbhandler.syncWithSim();
     }
 }
 

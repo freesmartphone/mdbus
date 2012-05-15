@@ -57,9 +57,23 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
         return result;
     }
 
-    private async void syncWithSim()
+    //
+    // public API
+    //
+
+    public AtPhonebookHandler()
     {
-        // gather IMSI
+        assert( theModem != null ); // Can't create PB handler before modem
+        theModem.signalStatusChanged.connect( onModemStatusChanged );
+    }
+
+    public override string repr()
+    {
+        return storage != null ? storage.repr() : "<None>";
+    }
+
+    public async void syncWithSim()
+    {
         var cimi = theModem.createAtCommand<PlusCIMI>( "+CIMI" );
         var response = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
         if ( cimi.validate( response ) != Constants.AtResponse.VALID )
@@ -68,8 +82,8 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
             return;
         }
 
-        // create Storage for current IMSI
         storage = new PhonebookStorage( cimi.value );
+        storage.clean();
 
         // retrieve all known phonebooks
         var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
@@ -104,20 +118,6 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
         }
     }
 
-    //
-    // public API
-    //
-
-    public AtPhonebookHandler()
-    {
-        assert( theModem != null ); // Can't create PB handler before modem
-        theModem.signalStatusChanged.connect( onModemStatusChanged );
-    }
-
-    public override string repr()
-    {
-        return storage != null ? storage.repr() : "<None>";
-    }
 }
 
 

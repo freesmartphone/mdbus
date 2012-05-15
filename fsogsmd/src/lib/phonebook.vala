@@ -157,6 +157,8 @@ public class FsoGsm.PhonebookStorage : FsoFramework.AbstractObject
 public interface FsoGsm.PhonebookHandler : FsoFramework.AbstractObject
 {
     public abstract PhonebookStorage storage { get; set; }
+
+    public abstract async void syncWithSim();
 }
 
 // vim:ts=4:sw=4:expandtab
