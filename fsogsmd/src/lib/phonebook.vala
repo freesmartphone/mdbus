@@ -69,27 +69,6 @@ public class FsoGsm.PhonebookStorage : FsoFramework.AbstractObject
         FsoFramework.FileHandling.removeTree( this.storagedir );
     }
 
-    /*
-    public Gee.ArrayList<string> keys()
-    {
-        var result = new Gee.ArrayList<string>();
-        GLib.Dir dir;
-        try
-        {
-            dir = GLib.Dir.open( storagedir );
-            for ( var smshash = dir.read_name(); smshash != null; smshash = dir.read_name() )
-            {
-                result.add( smshash );
-            }
-        }
-        catch ( GLib.Error e )
-        {
-            logger.error( @"Can't access PB storage dir: $(e.message)" );
-        }
-        return result;
-    }
-    */
-
     public void writePhonebookEntry( FreeSmartphone.GSM.SIMEntry entry, string filename )
     {
         var text = @"$(entry.name):$(entry.number)";
