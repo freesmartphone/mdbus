@@ -1,15 +1,12 @@
 version 0.11
 =====================================================================
 
-* outstanding bugs:
-* check default configuration (enable switches)
+* outstanding bugs scheduled for 0.11
+* check default configuration (enable switches) [OK]
 * pgp signing with git tags
-* test all components on at least three different machines (shake down test)
-    - gta02
-    - gta04
-    - Nexus S
-    - N900
-    - (Palm Pre)
+* ABI bump for:
+    * libfsotransport 2.0.0
+    * libgsm0710mux 1.0.0
 
 version 0.10
 =====================================================================
