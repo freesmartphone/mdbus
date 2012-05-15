@@ -87,7 +87,15 @@ public class Argument : Object
                 vbuilder.add_value( new Variant.double( value ) );
                 break;
             case "s":
-                vbuilder.add_value( new Variant.string( arg ) );
+                try
+                {
+                    var v = Variant.parse( VariantType.STRING, arg );
+                    vbuilder.add_value( v );
+                }
+                catch ( GLib.Error e )
+                {
+                    vbuilder.add_value( new Variant.string( arg ) );
+                }
                 break;
             case "o":
                 vbuilder.add_value( new Variant.object_path( arg ) );
