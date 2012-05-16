@@ -448,7 +448,9 @@ class Commands : Object
         var current_argument = "";
         var arguments = new GLib.List<string>();
 
-        while ( n < commandline.size() )
+        args = new string[] { };
+
+        while ( n < commandline.length )
         {
             switch ( commandline[n] )
             {
@@ -494,7 +496,7 @@ class Commands : Object
             n++;
         }
 
-        if ( current_argument.size() > 0 || depth_changed )
+        if ( current_argument.length > 0 || depth_changed )
             arguments.append( current_argument );
 
         if ( arguments.length() == 0 || depth > 0 )
