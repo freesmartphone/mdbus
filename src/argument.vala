@@ -57,7 +57,7 @@ public class Argument : Object
                 vbuilder.add_value( new Variant.variant( new Variant.parsed( arg ) ) );
                 break;
             case "y":
-                uint8 value = (uint8) arg.to_int();
+                uint8 value = (uint8) int.parse( arg );
                 vbuilder.add_value( new Variant.byte( value ) );
                 break;
             case "b":
@@ -65,28 +65,28 @@ public class Argument : Object
                 vbuilder.add_value( new Variant.boolean( value ) );
                 break;
             case "n":
-                int16 value = (int16) arg.to_int();
+                int16 value = (int16) int.parse( arg );
                 vbuilder.add_value( new Variant.int16( value ) );
                 break;
             case "i":
-                int32 value = (int32) arg.to_int();
+                int32 value = (int32) int.parse( arg );
                 vbuilder.add_value( new Variant.int32( value ) );
                 break;
             case "q":
-                uint16 value = (uint16) arg.to_int();
+                uint16 value = (uint16) int.parse( arg );
                 vbuilder.add_value( new Variant.uint16( value ) );
                 break;
             case "u":
-                uint32 value = (uint32) arg.to_long();
+                uint32 value = (uint32) long.parse( arg );
                 vbuilder.add_value( new Variant.uint32( value ) );
                 break;
             case "t":
             case "x":
-                uint64 value = (uint64) arg.to_long();
+                uint64 value = (uint64) long.parse( arg );
                 vbuilder.add_value( new Variant.uint64( value ) );
                 break;
             case "d":
-                double value = arg.to_double();
+                double value = double.parse( arg );
                 vbuilder.add_value( new Variant.double( value ) );
                 break;
             case "s":
@@ -147,7 +147,7 @@ public class Argument : Object
 
         foreach(var s in get_sub_args( arg.substring( 1, arg.length - 2 )  ) )
         {
-            var sig = get_sub_signature( subtype.offset( sigpos ) );
+            var sig = get_sub_signature( subtype.substring( sigpos ) );
             sigpos += (int)sig.length;
             if( append_type( s, sig, vbuilder ) == false)
                  return false;
@@ -163,7 +163,7 @@ public class Argument : Object
 #endif
         var subtype = type.substring(1, type.length - 2 );
         var keytype = get_sub_signature(subtype);
-        var valuetype = subtype.offset( keytype.length );
+        var valuetype = subtype.substring( keytype.length );
 
         var values = get_sub_args( arg, ':' );
         var key = values[0];
