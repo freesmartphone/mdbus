@@ -42,7 +42,7 @@ void main( string[] args )
 {
     Test.init( ref args );
 
-    Test.add_func( "/NetlinkNotifier/AddMatch", test_netlinknotifier_add_match );
+    // Test.add_func( "/NetlinkNotifier/AddMatch", test_netlinknotifier_add_match );
 
     Test.run();
 }
