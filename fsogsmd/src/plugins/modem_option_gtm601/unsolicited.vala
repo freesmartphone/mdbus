@@ -52,8 +52,7 @@ public class Gtm601.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHan
         if ( cmd.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
             var strength = Constants.instance().networkSignalToPercentage( cmd.strength );
-            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-            obj.signal_strength( strength );
+            updateNetworkSignalStrength( strength );
         }
         else
         {
