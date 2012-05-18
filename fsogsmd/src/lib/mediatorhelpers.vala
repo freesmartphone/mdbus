@@ -135,6 +135,19 @@ namespace FsoGsm
 
         return provider;
     }
+
+    public async void updateNetworkSignalStrength( int strength )
+    {
+        if ( theModem.status() == FsoGsm.Modem.Status.ALIVE_REGISTERED )
+        {
+            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            obj.signal_strength( strength );
+        }
+        else
+        {
+            assert( FsoFramework.theLogger.debug( @"Ignoring signal strength update while not in ALIVE_REGISTERED state" ) );
+        }
+    }
 }
 
 // vim:ts=4:sw=4:expandtab
