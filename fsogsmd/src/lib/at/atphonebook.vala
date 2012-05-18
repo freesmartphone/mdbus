@@ -74,20 +74,26 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
 
     public async void syncWithSim()
     {
-        var cimi = theModem.createAtCommand<PlusCIMI>( "+CIMI" );
-        var response = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
-        if ( cimi.validate( response ) != Constants.AtResponse.VALID )
+        if ( storage == null )
         {
-            logger.warning( "Can't synchronize PB storage with SIM" );
-            return;
+            assert( logger.debug( @"No storage yet available; creating a new one ..." ) );
+
+            var cimi = theModem.createAtCommand<PlusCIMI>( "+CIMI" );
+            var resp = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
+            if ( cimi.validate( resp ) != Constants.AtResponse.VALID )
+            {
+                logger.warning( "Can't synchronize PB storage with SIM" );
+                return;
+            }
+
+            storage = new PhonebookStorage( cimi.value );
         }
 
-        storage = new PhonebookStorage( cimi.value );
         storage.clean();
 
         // retrieve all known phonebooks
         var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
-        response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
         if ( cmd.validateTest( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( "Can't parse phonebook result" );
@@ -113,6 +119,7 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
                     logger.warning( @"Can't parse PB $pbcode" );
                     continue;
                 }
+
                 storage.addPhonebook( pbcode, cpbr.min, cpbr.max, cpbr.phonebook );
             }
         }
