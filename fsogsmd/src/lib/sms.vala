@@ -175,12 +175,16 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
 
     public async void syncWithSim()
     {
-        string imsi = yield retrieveImsiFromSIM();
+        if ( storage == null )
+        {
+            assert( logger.debug( @"Storage not yet available; create a new one ..." ) );
 
-        if ( imsi == "" || imsi == null )
-            imsi = "unknown";
+            string imsi = yield retrieveImsiFromSIM();
+            if ( imsi == "" || imsi == null )
+                imsi = "unknown";
 
-        storage = SmsStorageFactory.create( "default", imsi );
+            storage = SmsStorageFactory.create( "default", imsi );
+        }
 
         yield fillStorageWithMessageFromSIM();
     }
