@@ -520,12 +520,14 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     private async void checkChannelsForHangup()
     {
+        assert( logger.debug( @"Checking our channels as one had a hangup ..." ) );
+
         // we need to find out which channel has a hangup as we need to react
         // differently if it is the main channel or not
         var mainchannel = channels[ "main" ];
-        if ( mainchannel.isActive() )
+        if ( !mainchannel.isActive() )
         {
-            logger.error( "Detected main channel hangup; closing modem" );
+            logger.error( "Detected main channel hangup; closing modem ..." );
             close();
             this.hangup();
         }
@@ -537,6 +539,8 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             {
                 if ( cname != "main" )
                 {
+                    assert( logger.debug( @"Checking channel $cname for hangup ..." ) );
+
                     var channel = channels[ cname ];
                     if ( !channel.isActive() )
                     {
@@ -558,14 +562,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         if ( modem_status == Modem.Status.CLOSING )
         {
             logger.warning( "Ignoring additional channel hangup while already closing the modem..." );
+            return;
         }
-        else
-        {
-            Idle.add( () => {
-                checkChannelsForHangup();
-                return false;
-            } );
-        }
+
+        Idle.add( () => { checkChannelsForHangup(); return false; } );
     }
 
     //
