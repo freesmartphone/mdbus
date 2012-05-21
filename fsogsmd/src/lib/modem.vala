@@ -189,6 +189,27 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         CLOSING,
     }
 
+    /**
+     * Network connection state. We have this separated from the Modem status itself to be
+     * able to keep track of it for other purposes than exposing a global modem state
+     * (e.g. when state is SUSPENDING or CLOSING it's impossible to find out if we are
+     * still registered with any network or not).
+     *
+     * NOTE: This is currently only for internal use and will not be exposed with our
+     * public dbus API (which will maybe happen later).
+     **/
+    public enum NetworkStatus
+    {
+        /** For error cases **/
+        UNKNOWN,
+        /** Not registered to any network or trying to register **/
+        UNREGISTERED,
+        /** Not registered to any network but trying to register with one **/
+        SEARCHING,
+        /** Registered to a network **/
+        REGISTERED,
+    }
+
     // DBus Service API
     public abstract async bool open();
     public abstract async void close();
@@ -201,6 +222,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     // Channel API
     public abstract void registerChannel( string name, FsoGsm.Channel channel );
     public abstract void advanceToState( Modem.Status status, bool force = false );
+    public abstract void advanceNetworkState( Modem.NetworkStatus status );
     public abstract AtCommandSequence atCommandSequence( string channel, string purpose );
     public signal void signalStatusChanged( Modem.Status status );
 
@@ -235,6 +257,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
 
     // Misc. Accessors
     public abstract Modem.Status status();
+    public abstract Modem.NetworkStatus network_status();
     public abstract FreeSmartphone.GSM.DeviceStatus externalStatus();
     public abstract FsoGsm.Modem.Data data();
     public abstract void registerAtCommandSequence( string channel, string purpose, AtCommandSequence sequence );
@@ -250,6 +273,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     public FsoFramework.TransportSpec data_transport_spec { get; private set; }
 
     protected FsoGsm.Modem.Status modem_status;
+    protected FsoGsm.Modem.NetworkStatus modem_network_status;
     protected FsoGsm.Modem.Data modem_data;
 
     protected HashMap<string,FsoGsm.Channel> channels;
@@ -825,6 +849,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         return modem_status;
     }
 
+    public Modem.NetworkStatus network_status()
+    {
+        return modem_network_status;
+    }
+
     public FsoGsm.Modem.Data data()
     {
         return modem_data;
@@ -1029,6 +1058,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             obj.device_status( externalStatus() );
         }
         logger.info( @"Modem Status changed to $modem_status" );
+    }
+
+    public void advanceNetworkState( Modem.NetworkStatus state )
+    {
+        assert( logger.debug( @"Advancing network state to $state" ) );
+        modem_network_status = state;
     }
 
     public AtCommandSequence atCommandSequence( string channel, string purpose )

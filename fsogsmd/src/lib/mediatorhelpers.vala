@@ -55,13 +55,23 @@ namespace FsoGsm
             var status = m.status.lookup( "registration" ).get_string();
             assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
 
-            if ( status == "home" || status == "roaming" )
+            switch ( status )
             {
-                theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
-            }
-            else
-            {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
+                case "home":
+                case "roaming":
+                    theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
+                    theModem.advanceNetworkState( Modem.NetworkStatus.REGISTERED );
+                    break;
+                case "searching":
+                    theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
+                    theModem.advanceNetworkState( Modem.NetworkStatus.SEARCHING );
+                    break;
+                case "denied":
+                case "unregistered":
+                case "unknown":
+                    theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
+                    theModem.advanceNetworkState( Modem.NetworkStatus.UNREGISTERED );
+                    break;
             }
 
             // send dbus signal
