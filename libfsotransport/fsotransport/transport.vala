@@ -123,7 +123,14 @@ public class FsoFramework.TransportSpec
                 transport = new FsoFramework.RawTransport( name );
                 break;
             case "combined":
-                return new FsoFramework.CombinedTransport( name );
+                transport = new FsoFramework.CombinedTransport( name );
+                break;
+            case "ngsm-basic":
+                transport = new FsoFramework.NgsmBasicMuxTransport( name, speed );
+                break;
+            case "ngsm-advanced":
+                transport = new FsoFramework.NgsmAdvancedMuxTransport( name, speed );
+                break;
             default:
                 FsoFramework.theLogger.warning( @"Invalid transport type $type. Using NullTransport" );
                 transport = new FsoFramework.NullTransport();
@@ -164,9 +171,9 @@ public abstract class FsoFramework.Transport : Object
             case "udp":
             case "tcp":
                 return new FsoFramework.SocketTransport( type, name, speed );
-            case "ngsmbasic":
+            case "ngsm-basic":
                 return new FsoFramework.NgsmBasicMuxTransport( name, speed );
-            case "ngsmadvanced":
+            case "ngsm-advanced":
                 return new FsoFramework.NgsmAdvancedMuxTransport( name, speed );
             case "combined":
                 return new FsoFramework.CombinedTransport( name );
