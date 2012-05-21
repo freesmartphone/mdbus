@@ -1,3 +1,22 @@
+version 0.12
+=====================================================================
+
+* outstanding bugs scheduled for 0.12
+* switch to vala 0.16.x
+* fsogsmd:
+    * n_gsm as default?
+    * pdp_ppp_internal default PDP plugin?
+    * call forwarding
+    * converence calls
+    * emergency calls (how to test?)
+    * join/release held/transfer calls
+    * homezone API needed anymore?
+    * voice mails API
+    * send generic/retricted SIM command
+    * lockdown feature?
+* extend API test coverage
+* fsotest re-design (use dbus-daemon-proxy to test API on the device)
+
 version 0.11
 =====================================================================
 
@@ -7,6 +26,8 @@ version 0.11
 * ABI bump for:
     * libfsotransport 2.0.0
     * libgsm0710mux 1.0.0
+* update ChangeLog of all components
+* announce deprecation of old frameworkd (no further releases and support)
 
 version 0.10
 =====================================================================
