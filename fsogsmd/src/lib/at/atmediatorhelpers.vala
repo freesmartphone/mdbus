@@ -92,7 +92,7 @@ public void checkResponseConnect( FsoGsm.AtCommand command, string[] response ) 
     }
 }
 
-internal void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+public void checkTestResponseValid( FsoGsm.AtCommand command, string[] response ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     var code = command.validateTest( response );
     if ( code == Constants.AtResponse.VALID )

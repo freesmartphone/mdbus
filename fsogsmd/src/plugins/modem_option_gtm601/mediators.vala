@@ -33,10 +33,54 @@ namespace Gtm601
         }
     }
 
+    /**
+     * Sadly the Option GTM601 modem does not return the provider names a real strings.
+     * Instead it returns the hexadecimal representation of each character concatenated as
+     * a long string. To handle this and provider the correct provider names we override
+     * the common NetworkListProviders mediator here and implement the conversion routine.
+     **/
+    public class AtNetworkListProviders : NetworkListProviders
+    {
+        public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+        {
+            var providers_tmp = new FreeSmartphone.GSM.NetworkProvider[] { };
+
+            var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
+            var response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
+            checkTestResponseValid( cmd, response );
+
+            foreach ( var p in cmd.providers )
+            {
+                providers_tmp += FreeSmartphone.GSM.NetworkProvider(
+                    p.status,
+                    Codec.hexToString( p.shortname ),
+                    Codec.hexToString( p.longname ),
+                    p.mccmnc,
+                    p.act );
+            }
+
+            providers = providers_tmp;
+        }
+    }
+
+    public class AtSimGetServiceCenterNumber : SimGetServiceCenterNumber
+    {
+        public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+        {
+            var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
+            var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+            checkResponseValid( cmd, response );
+            number = Codec.hexToString( cmd.number );
+        }
+    }
+
+
     /* register all mediators */
     public void registerCustomMediators( HashMap<Type,Type> mediators )
     {
-        mediators[ typeof(CallSendDtmf) ] = typeof( AtCallSendDtmf );
+        mediators[ typeof(CallSendDtmf) ] = typeof( Gtm601.AtCallSendDtmf );
+        mediators[ typeof(NetworkListProviders) ] = typeof( Gtm601.AtNetworkListProviders );
+        mediators[ typeof(SimGetServiceCenterNumber) ] = typeof( Gtm601.AtSimGetServiceCenterNumber );
     }
 
 } // namespace Gtm601
