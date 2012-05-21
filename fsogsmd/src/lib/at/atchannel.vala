@@ -62,6 +62,8 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
     private async void initialize()
     {
+        assert( theModem.logger.debug( @"Initializing channel $name ..." ) );
+
         if ( this.isMainChannel )
         {
             var seq1 = theModem.atCommandSequence( "MODEM", "init" );
@@ -119,6 +121,8 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
     private async void shutdown()
     {
+        assert( theModem.logger.debug( @"Shutting down channel $name ..." ) );
+
         if ( this.isMainChannel )
         {
             if ( this.isInitialized )
