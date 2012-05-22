@@ -8,7 +8,13 @@ AM_VALAFLAGS =
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_option_gtm601.la
-modem_option_gtm601_la_SOURCES = plugin.vala commands.vala mediators.vala unsolicited.vala
+modem_option_gtm601_la_SOURCES = \
+	plugin.vala \
+	commands.vala \
+	mediators.vala \
+	unsolicited.vala \
+	pdphandler.vala \
+	$(NULL)
 modem_option_gtm601_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \

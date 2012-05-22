@@ -19,7 +19,6 @@
  */
 
 using GLib;
-
 using FsoGsm;
 
 /**
@@ -53,7 +52,7 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
 
         try
         {
-            var cmd = FsoFramework.DataSharing.valueForKey( "Gtm601.OWANCALL") as FsoGsm.SimpleAtCommand<bool>;
+            var cmd = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
             var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( true ) );
             checkResponseConnect( cmd, response );
         }
@@ -67,7 +66,7 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
     {
         try
         {
-            var cmd = FsoFramework.DataSharing.valueForKey( "Gtm601.OWANDATA") as FsoGsm.SimpleAtCommand<bool>;
+            var cmd = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
             var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( false ) );
             checkResponseConnect( cmd, response );
         }
@@ -81,26 +80,6 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
     {
         assert_not_reached();
     }
-}
-
-
-/**
- * This function gets called on plugin initialization time.
- * @return the name of your plugin here
- * @note that it needs to be a name in the format <subsystem>.<plugin>
- * else your module will be unloaded immediately.
- **/
-public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
-{
-    FsoFramework.theLogger.debug( "pdp_option_gtm601 fso_factory_function" );
-
-    return Pdp.OptionGtm601.MODULE_NAME;
-}
-
-[ModuleInit]
-public static void fso_register_function( TypeModule module )
-{
-    // do not remove this function
 }
 
 // vim:ts=4:sw=4:expandtab

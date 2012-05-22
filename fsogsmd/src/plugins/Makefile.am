@@ -20,7 +20,6 @@ SUBDIRS = \
 	modem_phonesim \
 	\
 	pdp_qmi \
-	pdp_option_gtm601 \
 	$(NULL)
 
 if WANT_PPP

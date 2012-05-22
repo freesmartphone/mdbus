@@ -112,10 +112,6 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         PlusCOPS.providerNameDeliveredInConfiguredCharset = true;
 
         Gtm601.registerCustomAtCommands( commands );
-        var cmd = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
-        FsoFramework.DataSharing.setValueForKey( "Gtm601.OWANCALL", cmd );
-        var cmd2 = theModem.createAtCommand<Gtm601.UnderscoreOWANDATA>( "_OWANDATA" );
-        FsoFramework.DataSharing.setValueForKey( "Gtm601.OWANDATA", cmd2 );
     }
 
     private void onModemStatusChange( FsoGsm.Modem.Status status )

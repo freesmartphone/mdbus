@@ -293,7 +293,6 @@ AC_CONFIG_FILES([
   src/plugins/pdp_ppp_mux/Makefile
   src/plugins/pdp_qmi/Makefile
   src/plugins/pdp_nokia_isi/Makefile
-  src/plugins/pdp_option_gtm601/Makefile
   src/ppp/Makefile
   tests/Makefile
   vapi/Makefile
