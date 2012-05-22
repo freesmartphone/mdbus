@@ -54,7 +54,7 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
         {
             var cmd = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
             var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( true ) );
-            checkResponseConnect( cmd, response );
+            checkResponseOk( cmd, response );
         }
         catch ( GLib.Error e )
         {
@@ -97,7 +97,7 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
         {
             var cmd = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
             var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( false ) );
-            checkResponseConnect( cmd, response );
+            checkResponseOk( cmd, response );
         }
         catch ( GLib.Error e )
         {
