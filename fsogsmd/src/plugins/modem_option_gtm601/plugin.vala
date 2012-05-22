@@ -32,6 +32,7 @@ using FsoGsm;
 class Gtm601.Modem : FsoGsm.AbstractModem
 {
     private const string CHANNEL_NAME = "main";
+    private const string URC_CHANNEL_NAME = "urc";
 
     construct
     {
@@ -89,6 +90,14 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         var transport = modem_transport_spec.create();
         var parser = new FsoGsm.StateBasedAtParser();
         new AtChannel( CHANNEL_NAME, transport, parser );
+
+        var modem_urc_access = FsoFramework.theConfig.stringValue( "fsogsm.modem_option_gtm601", "modem_urc_access", "" );
+        if ( modem_urc_access.length > 0 )
+        {
+            transport = FsoFramework.TransportSpec.parse( modem_urc_access ).create();
+            parser = new FsoGsm.StateBasedAtParser();
+            new AtChannel( URC_CHANNEL_NAME, transport, parser );
+        }
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )
