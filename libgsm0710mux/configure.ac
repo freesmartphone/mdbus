@@ -8,7 +8,7 @@ m4_define([gsm0710mux_version], m4_if(gsm0710mux_released, [1], [gsm0710mux_base
 #  increment current and set revision to 0
 # If public symbols have been added since last release, increment age
 # If public symbols have been removed since last release, set age to 0
-m4_define([gsm0710mux_lt_current], [0])
+m4_define([gsm0710mux_lt_current], [1])
 m4_define([gsm0710mux_lt_revision], [0])
 m4_define([gsm0710mux_lt_age], [0])
 
