@@ -50,7 +50,7 @@ public class UnderscoreOWANDATA : AbstractAtCommand
 {
     public bool connected;
     public string ip;
-    public string gw;
+    public string gateway;
     public string dns1;
     public string dns2;
     public string nbns1;
@@ -78,7 +78,7 @@ public class UnderscoreOWANDATA : AbstractAtCommand
 
         connected = to_int( "connected" ) == 1;
         ip = to_string( "ip" );
-        gw = to_string( "gw" );
+        gateway = to_string( "gw" );
         dns1 = to_string( "dns1" );
         dns2 = to_string( "dns2" );
         nbns1 = to_string( "nbns1" );

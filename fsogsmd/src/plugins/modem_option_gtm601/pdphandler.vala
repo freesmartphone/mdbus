@@ -58,7 +58,36 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
         }
         catch ( GLib.Error e )
         {
-            logger.error( @"Failed to execute _OWANCALL command to activate PDP context: $(e.message)" );
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Failed to execute _OWANCALL command to activate PDP context: $(e.message)" );
+        }
+
+        try
+        {
+            var cmd2 = theModem.createAtCommand<Gtm601.UnderscoreOWANDATA>( "_OWANDATA" );
+            var response2 = yield theModem.processAtCommandAsync( cmd2, cmd2.issue() );
+            checkResponseOk( cmd2, response2 );
+
+            if ( !cmd2.connected )
+                throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Modem reports that PDP session is not yet established!" );
+
+            assert( logger.debug( @"Got IP configuration from modem:" ) );
+            assert( logger.debug( @"local = $(cmd2.ip)" ) );
+            assert( logger.debug( @"gateway = $(cmd2.gateway), dns1 = $(cmd2.dns1), dns2 = $(cmd2.dns2)" ) );
+
+            var route = new FsoGsm.RouteInfo() {
+                iface = HSO_IFACE,
+                ipv4addr = cmd2.ip,
+                ipv4mask = "255.255.255.0",
+                ipv4gateway = cmd2.gateway,
+                dns1 = cmd2.dns1,
+                dns2 = cmd2.dns2
+            };
+
+            connectedWithNewDefaultRoute( route );
+        }
+        catch ( GLib.Error e2 )
+        {
+            throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Failed to execute _OWANDATA to retrieve PDP context configuration from modem: $(e2.message)" );
         }
     }
 
