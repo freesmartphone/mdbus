@@ -68,5 +68,7 @@ modem_samsung_la_LIBADD = \
 modem_samsung_la_LDFLAGS = -no-undefined -module -avoid-version
 # modem_samsung_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += include/samsung_modem_ctl.h
+
 CLEANFILES =
 MAINTAINERCLEANFILES =
