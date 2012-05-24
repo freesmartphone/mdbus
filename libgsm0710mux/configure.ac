@@ -1,5 +1,5 @@
 m4_define([gsm0710mux_released], [0])
-m4_define([gsm0710mux_base_version], [0.11.0])
+m4_define([gsm0710mux_base_version], [0.12.0])
 m4_define([gsm0710mux_maybe_gitrev], m4_if(gsm0710mux_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([gsm0710mux_version], m4_if(gsm0710mux_released, [1], [gsm0710mux_base_version], [gsm0710mux_base_version-gsm0710mux_maybe_gitrev]))
 

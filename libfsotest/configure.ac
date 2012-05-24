@@ -1,5 +1,5 @@
 m4_define([fsotest_released], [0])
-m4_define([fsotest_base_version], [0.11.0])
+m4_define([fsotest_base_version], [0.12.0])
 m4_define([fsotest_maybe_gitrev], m4_if(fsotest_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([fsotest_version], m4_if(fsotest_released, [1], [fsotest_base_version], [fsotest_base_version-fsotest_maybe_gitrev]))
 

@@ -1,5 +1,5 @@
 m4_define([fsobasics_released], [0])
-m4_define([fsobasics_base_version], [0.11.0])
+m4_define([fsobasics_base_version], [0.12.0])
 m4_define([fsobasics_maybe_gitrev], m4_if(fsobasics_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([fsobasics_version], m4_if(fsobasics_released, [1], [fsobasics_base_version], [fsobasics_base_version-fsobasics_maybe_gitrev]))
 

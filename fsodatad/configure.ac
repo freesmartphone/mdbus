@@ -1,5 +1,5 @@
 m4_define([fsodatad_released], [0])
-m4_define([fsodatad_base_version], [0.11.0])
+m4_define([fsodatad_base_version], [0.12.0])
 m4_define([fsodatad_maybe_gitrev], m4_if(fsodatad_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([fsodatad_version], m4_if(fsodatad_released, [1], [fsodatad_base_version], [fsodatad_base_version-fsodatad_maybe_gitrev]))
 
