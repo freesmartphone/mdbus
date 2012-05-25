@@ -153,9 +153,6 @@ public class Controller : FsoFramework.AbstractObject
             case "openmoko":
                 typename = "LowLevelOpenmoko";
                 break;
-            case "palmpre":
-                typename = "LowLevelPalmPre";
-                break;
             default:
                 logger.warning( @"Invalid lowlevel_type $lowleveltype; suspend/resume will NOT be available!" );
                 lowlevel = new FsoUsage.NullLowLevel();
