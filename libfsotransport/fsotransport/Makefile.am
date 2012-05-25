@@ -49,12 +49,6 @@ libfsotransport_la_VALAFLAGS = \
 	--library fsotransport-2.0 \
 	$(NULL)
 
-if WANT_PALMPRE_HSUART
-libfsotransport_la_VALAFLAGS += --pkg hsuart
-AM_CPPFLAGS += -I$(top_srcdir)/3rdparty
-libfsotransport_la_SOURCES += hsuart.vala
-endif
-
 if WANT_NGSM
 AM_CPPFLAGS += -I$(top_srcdir)/3rdparty
 libfsotransport_la_SOURCES += ngsm.vala

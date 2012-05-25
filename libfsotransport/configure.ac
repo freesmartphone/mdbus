@@ -105,16 +105,6 @@ AC_ARG_ENABLE(fast-baud,
 AM_CONDITIONAL( [FAST_BAUD], [test x"$fastbaud" = x"yes"])
 
 #########################################################################################
-# check for disabling palm pre hsuart support
-#########################################################################################
-
-AC_ARG_ENABLE(palmpre-hsuart,
-  AS_HELP_STRING([--disable-palmpre-hsuart], [Disable Palm Pre HSUART support (default=yes)]),
-  [palmprehsuart="$enableval"],
-  [palmprehsuart="yes"])
-AM_CONDITIONAL( [WANT_PALMPRE_HSUART], [test x"$palmprehsuart" = x"yes"])
-
-#########################################################################################
 # check for disabling the n_gsm support
 #########################################################################################
 
@@ -153,7 +143,6 @@ echo
 echo "  debug build....................: $enable_debug"
 echo
 echo "  fast baud rates................: $fastbaud"
-echo "  palm pre hsuart support........: $palmprehsuart"
 echo "  n_gsm line discipline support..: $ngsm"
 echo
 echo "  prefix.........................: $prefix"
