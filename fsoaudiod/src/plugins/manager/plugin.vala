@@ -163,9 +163,6 @@ namespace FsoAudio
                 case "alsa":
                     typename = "RouterLibAlsa";
                     break;
-                case "palmpre":
-                    typename = "RouterPalmPre";
-                    break;
                 default:
                     router = new FsoAudio.NullRouter();
                     break;

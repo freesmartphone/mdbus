@@ -116,9 +116,6 @@ class AudioManager : FreeSmartphone.Device.Audio,
             case "qdsp5":
                 typename = "RouterQdsp5";
                 break;
-            case "palmpre":
-                typename = "RouterPalmPre";
-                break;
             default:
                 typename = "NullRouter";
                 break;
