@@ -72,9 +72,6 @@ class DBusService.Device :
             case "qualcomm_htc":
                 typename = "QualcommHtcModem";
                 break;
-            case "qualcomm_palm":
-                typename = "QualcommPalmModem";
-                break;
             case "samsung":
                 typename = "SamsungModem";
                 break;

@@ -347,9 +347,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             case "openmoko":
                 typename = "LowLevelOpenmoko";
                 break;
-            case "palmpre":
-                typename = "LowLevelPalmPre";
-                break;
             case "nokia900":
                 typename = "LowLevelNokia900";
                 break;

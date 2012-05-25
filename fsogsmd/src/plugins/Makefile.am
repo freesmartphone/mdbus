@@ -35,12 +35,6 @@ SUBDIRS += \
 	modem_cinterion_mc75
 endif
 
-if WANT_PALM
-SUBDIRS += \
-	modem_qualcomm_palm \
-	lowlevel_palmpre
-endif
-
 if WANT_ISI
 SUBDIRS += \
 	modem_nokia_isi \
