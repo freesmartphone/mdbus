@@ -17,6 +17,9 @@ endif
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--disable-datafiles \
+	--enable-libgsm0710mux \
+	--enable-modem-nokia-isi \
+	--enable-modem-samsung \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \

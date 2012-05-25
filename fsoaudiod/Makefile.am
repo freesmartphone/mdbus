@@ -16,6 +16,8 @@ endif
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--disable-datafiles \
+	--enable-cmtspeechdata \
+	--enable-samplerate \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \

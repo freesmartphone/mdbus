@@ -17,6 +17,7 @@ endif
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--disable-datafiles \
+	--enable-provider-libgps \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \

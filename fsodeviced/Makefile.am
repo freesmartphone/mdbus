@@ -17,6 +17,9 @@ endif
 
 DISTCHECK_CONFIGURE_FLAGS = \
 	--disable-datafiles \
+	--enable-kernel26-rfkill \
+	--enable-player-canberra \
+	--enable-player-gstreamer \
 	$(NULL)
 
 MAINTAINERCLEANFILES = \
