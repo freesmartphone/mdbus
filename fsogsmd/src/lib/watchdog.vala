@@ -53,10 +53,7 @@ public class FsoGsm.GenericWatchDog : FsoGsm.WatchDog, FsoFramework.AbstractObje
 
     public override string repr()
     {
-        var data = theModem.data();
-        var pin = data.simPin;
-        var keep = data.keepRegistration;
-        return @"<P:$pin|KR:$keep>";
+        return @"<>";
     }
 
     private void onModemStatusChange( Modem.Status status )
