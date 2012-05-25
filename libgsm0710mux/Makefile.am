@@ -50,6 +50,11 @@ libgsm0710mux_la_CFLAGS = $(DEPS_CFLAGS)
 libgsm0710mux_la_LIBADD = \
 	$(DEPS_LIBS) \
 	$(NULL)
+libgsm0710mux_la_LDFLAGS = \
+	$(AM_LDFLAGS) \
+	-version-info "$(LT_CURRENT)":"$(LT_REVISION)":"$(LT_AGE)" \
+	$(NULL)
+
 
 EXTRA_DIST = \
 	MAINTAINERS \
