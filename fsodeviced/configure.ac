@@ -217,7 +217,6 @@ AC_CONFIG_FILES([
   conf/openmoko_gta/alsa-2.6.39/Makefile
   conf/GTA04/Makefile
   conf/GTA04/alsa-3.2/Makefile
-  conf/palm_pre/Makefile
   conf/herring/Makefile
   conf/herring/alsa-default/Makefile
   data/Makefile
@@ -248,7 +247,6 @@ AC_CONFIG_FILES([
   src/plugins/n900_powercontrol/Makefile
   src/plugins/openmoko_powercontrol/Makefile
   src/plugins/gta04_quirks/Makefile
-  src/plugins/palmpre_quirks/Makefile
   src/plugins/herring_quirks/Makefile
   src/plugins/powercontrol_ifconfig/Makefile
   src/plugins/player_alsa/Makefile

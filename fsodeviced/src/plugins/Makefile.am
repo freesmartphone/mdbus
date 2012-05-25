@@ -40,7 +40,6 @@ SUBDIRS = \
 	vibrator_omapvibe \
 	vibrator_timedoutputclass \
 	\
-	palmpre_quirks \
 	gta04_quirks \
 	herring_quirks \
 	\
