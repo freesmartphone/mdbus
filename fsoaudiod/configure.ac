@@ -186,8 +186,6 @@ AC_CONFIG_FILES([
   Makefile
   conf/Makefile
   conf/default/Makefile
-  conf/palm_pre/Makefile
-  conf/palm_pre/audio-scripts/Makefile
   conf/nokia_n900/Makefile
   conf/openmoko_gta/Makefile
   conf/herring/Makefile
@@ -205,7 +203,6 @@ AC_CONFIG_FILES([
   src/plugins/gsmvoice_alsa_cmtspeechdata/Makefile
   src/plugins/gsmvoice_alsa_forwarder/Makefile
   src/plugins/manager/Makefile
-  src/plugins/router_palmpre/Makefile
   src/plugins/router_alsa/Makefile
   src/plugins/streamcontrol_alsa/Makefile
   src/plugins/sessionpolicy_default/Makefile
