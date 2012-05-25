@@ -106,7 +106,7 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         }
         else
         {
-            theModem.logger.info( @"Channel successfully configured for charset '$charset'" );
+            assert( theModem.logger.debug( @"Channel successfully configured for charset '$charset'" ) );
         }
         theModem.data().charset = charset;
 
@@ -151,7 +151,7 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
     private async string configureCharset( string[] charsets )
     {
-        theModem.logger.info( "Configuring modem charset..." );
+        assert( theModem.logger.debug( "Configuring modem charset..." ) );
 
         for ( int i = 0; i < charsets.length; ++i )
         {
