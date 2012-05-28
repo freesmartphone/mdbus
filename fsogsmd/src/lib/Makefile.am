@@ -110,6 +110,7 @@ libfsogsm_la_LDFLAGS = -no-undefined -avoid-version
 EXTRA_DIST += \
 	fsogsm3rdparty.deps \
 	fsogsm3rdparty.vapi \
+	fsogsm-2.0.deps \
 	$(NULL)
 
 CLEANFILES =
