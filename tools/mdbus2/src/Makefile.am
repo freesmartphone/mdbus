@@ -20,7 +20,6 @@ mdbus2_VALAFLAGS = \
 	--pkg readline \
 	--pkg gio-2.0 \
 	--save-temps
-	--pkg gio-2.0 \
 	--enable-experimental \
 	$(NULL)
 mdbus2_CFLAGS = \
