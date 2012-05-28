@@ -1,2 +1,435 @@
-See NEWS for large-scale changes and git log for details.
+2012-05-16  Simon Busch  <morphis@gravedo.de>
 
+	tools: mdbus2: fix a lot of warnings from the vala compiler
+
+2012-05-15  Simon Busch  <morphis@gravedo.de>
+
+	tools: mdbus2: parse array and dict entry arguments correctly as variants
+
+	tools: mdbus2: refactor argument to variant conversion to use different variant builders
+
+	tools: mdbus2: try to parse a string argument first before adding it as string directly
+
+	tools: mdbus2: enable parsing of struct/array/dict types without adding them to the result
+
+	tools: mdbus2: parse quotes correctly
+
+	tools: mdbus2: refactor autoconf/automake configuration
+
+2012-04-17  Simon Busch  <morphis@gravedo.de>
+
+	Remove unneeded stuff from all autogen.sh files
+
+2012-02-14  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.2
+
+2012-01-29  Simon Busch  <morphis@gravedo.de>
+
+	tools: mdbus2: fix bug that we can't supply an empty string as argument
+	If you want to supply an empty string as argument you have to pass at least
+	"" or '' so the commandline parser detects that the argument is empty.
+
+2012-01-29  Pau Espin Pedrol  <pespin.shar@gmail.com>
+
+	mdbus2: Fix segfault on querying a service with no .service file
+
+2012-01-27  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.1 (which is wrong anyway)
+	We're requiring at least vala 0.14.1 but in reality we need a bit more. There is currently
+	a version 0.14.1.9 distributed by ourself which contains everything we need to compile the
+	complete FSO stack with vala-0.14. You find it at
+	http://downloads.freesmartphone.org/vala-0.14.9.tar.bz2
+
+2012-01-25  Simon Busch  <morphis@gravedo.de>
+
+	tools: mdbus2: handle simple variant arguments (like sv)
+
+2012-01-12  Simon Busch  <morphis@gravedo.de>
+
+	tools: mdbus2: correct parsing of arguments with leading spaces
+
+	tools: mdbus2: determine git srcrev correctly from repository
+
+2011-12-21  Simon Busch  <morphis@gravedo.de>
+
+	mdbus2: use input arguments for processing input arguments and not output arguments
+
+2011-12-20  Simon Busch  <morphis@gravedo.de>
+
+	mdbus2: correct parsing of command line arguments
+
+	mdbus2: remove unused and unneeded code
+
+	mdbus2: initial work to avoid using variant syntax for arguments
+	Only simple arguments are currently working!
+
+2011-11-29  Simon Busch  <morphis@gravedo.de>
+
+	mdbus2: update README
+
+	mdbus2: update mentioned authors
+
+	mdbus2: update NEWS for release of 2.1.0
+
+	mdbus2: prepare for release of version 2.1.0
+
+	mdbus2: some cleanups and enhancements to get it working probably
+
+	mdbus2: enable debug build options
+
+2011-11-29  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: Show some nice arrows pointing on the parsing errors position
+
+	mdbus2: Fix indentation of interface descriptions
+
+	mdbus2: Only remove signals for tab completion
+
+	mdbus2: return if Variant.parse fails to parse user input
+
+	mdbus2: return if wrong number of arguments is specified for properties
+
+	mdbus2: Add support for property getters
+
+	mdbus2: update required glib version
+
+	mdbus2: Fix out signature for method calls
+
+	mdbus2: add support to set properties
+
+	mdbus2: don't return immediately if we have methods for completion
+
+	mdbus2: Fix completion for interface methods
+
+	mdbus2: Add support for calling methods without introspection and parameters
+
+	mdbus: port to GDBus and GVariant
+	This requires vala master after 2011-02-07 19:38:36 (GMT)
+
+2011-11-26  Simon Busch  <morphis@gravedo.de>
+
+	mdbus2: convert first parts to use gdbus instead of dbus-glib
+	mdbus2 is still buggy with this first patch as the other parts using dbus-glib needs to be
+	converted too. Don't report any bugs for this version until conversion is finished! This
+	patch is commited only the let mdbus2 compile with vala 0.14 again.
+
+2011-11-24  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.14.0
+
+2011-11-22  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all FSO components to 0.12.1
+
+2011-06-02  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version of all components to 0.12.0
+
+2011-05-05  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	tools: add vim tags for correct indentation with 4 spaces
+
+2011-02-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump copyright notices for 2011
+
+2011-02-03  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: only print object paths with interfaces for tab completion
+
+2010-10-26  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: Remove deprecated syntax for vala
+
+	mdbus2: Fix segfault for empty dictionaries
+
+2010-10-19  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: Add missing dbus type 'x'
+
+2010-10-07  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: Allow tab completion for empty busnames
+
+2010-10-05  Martin Jansa  <Martin.Jansa@gmail.com>
+
+	new way to detect vala
+
+2010-09-20  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: rename --want-bash-completion to --enable
+
+2010-09-15  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: Add pretty print
+
+2010-09-10  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: strip busnames, paths, interfaces to avoid assertions on malformed parameters
+
+	mdbus2: remove properties in bash completion fix a small bug introduced by last commit
+
+	mdbus2: update bash completion
+
+2010-09-09  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: add bash completion script
+
+2010-08-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	bump vala dependencies
+
+2010-08-20  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: Don't add empty arguments to the array of subarguments
+
+2010-08-14  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: Add HashTable support on the sending side
+
+	mdbus2: Add struct support on the sender side
+
+2010-08-13  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+
+	mdbus2: Add minimal parser for seperation of complex arguments
+
+	mdbus2: Add array support for basic types
+
+2010-07-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus: this is version 2.0.2
+
+2010-07-31  Klaus Kurzmann  <mok@fluxnetz.de>
+
+	mdbus2: fix to comply with coding style :)
+
+	mdbus2: check arg_type of the iter and do not try to get_basic when invalid
+
+2010-07-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: duct-tape against invalid response
+
+2010-06-09  Antonio Ospite  <ospite@studenti.unina.it>
+
+	Cosmetics: remove trailing spaces
+	Changes are purely cosmetics, I generated them with this command:
+	  find . -type f ! \( -path '*/.git/*' -or -name COPYING \) | \
+	  xargs sed -e 's/[[:blank:]]*$//g' -i
+	I had to take care to not mangle .git objects; this works also because there
+	are no binary files in the repository, if there were any, then some other
+	attentions should have been taken into account.
+
+2010-06-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: skip introspecting before calling a method, when method no parameters are given. Partly closes FSO #553
+
+	mdbus2: remove some warnings and improve error message when we can't hook to the bus
+
+2010-05-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: fix tab completion against bogus spaces at the start of the command
+
+	mdbus2: add TODO
+
+	mdbus2: allow _ in object paths; fixes FSO #563
+
+2010-05-13  Maksim 'max_posedon' Melnikau  <maxposedon@gmail.com>
+
+	Fix using AC_ARG_ENABLE
+	Macro: AC_ARG_ENABLE (feature, help-string, [action-if-given],
+	[action-if-not-given]) works litte different as cornucopia expect:
+	1. action-if-given called when --enable-feature or --disable-feature
+	2. if it was --enable: $enableval="yes"
+	   if it was --disable: $enableval="no"
+	3. action-if-not-given is place for default value
+
+	See also:
+
+	http://www.gnu.org/software/hello/manual/autoconf/Package-Options.html
+	http://devmanual.gentoo.org/general-concepts/autotools/
+
+2010-05-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: don't swallow container with just one element. Should close #555
+
+2010-05-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: bail out, if readline is missing
+
+2010-04-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: bump version number after release and strip unnecessary dependencies
+
+2010-04-18  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: validate bus names and object paths rather than always introspecting.
+	This should improve performance, increase compliance with broken servers, and
+	add support for servers using fallback object paths. Closes FSO #521 and #530
+
+2010-04-17  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: mention expected signature if argument count does not match; idea by Paul Fertser
+
+	mdbus2: fix readline history name; this should close FSO #545
+
+2010-04-15  Paul Fertser  <fercerpav@gmail.com>
+
+	mdbus2: print method's meaningful reply to stdout
+
+2010-04-03  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: use shell parsing for interactive mode; this fixes FSO #526
+
+2010-04-01  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: fix dumping empty containers; fixes FSO #525
+
+2010-03-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: remove warnings
+
+2010-03-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: simplify formatter in order to prepare for smarter formatting
+
+2010-03-24  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: only include interface methods when looking for readline completions
+
+2010-02-16  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: fix "last entry missing" for dictionaries
+
+2010-02-14  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: parse more simple types
+
+2010-02-13  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2 now features a man page to please lindi...
+
+	mdbus2: vapi files have been pushed upstream; require vala 0.7.10.3 now
+
+2010-02-11  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: improve handling bogus arguments and broken introspection data
+
+2010-02-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: fix missing last element in structs and arrays
+
+	mdbus2: show sender and path for signals in listening mode
+
+2010-02-10  Marcin Juszkiewicz  <marcin@juszkiewicz.com.pl>
+
+	mdbus2: fix output for structs
+
+	mdbus2: handle 'u' type
+
+2010-02-10  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: add more type support
+
+2010-02-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: add full help text
+
+	mdbus2: disable -p when used in conjunction with -i
+
+	mdbus2: fix -p option to show PIDs for services
+
+2010-02-08  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: treat partial commands as command line invocations
+
+2010-02-07  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: add some simple checks for bus name and object path validity
+
+	mdbus2: unify error messages and fix parameter delivery
+
+	complete AUTHORS and MAINTAINERS file; please add yourself
+
+	mdbus2: calling methods from interactive shell now works
+
+	mdbus2: fix completion for interfaces
+
+	mdbus2: tab completion in interactive mode almost works
+
+	mdbus2: add fixed readline.vapi; scheduled for upstream inclusion
+
+	mdbus2: upstream readline.vapi is broken; work around it for now
+
+2010-02-06  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	fsogsmd: cosmetics
+
+	mdbus2: prepare for interactive mode
+
+2010-02-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: fix bogus ',' in containers
+
+	mdbus2: fix off-by-one error in container parsing; fix parsing structs
+
+2010-01-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: debug--
+
+2010-01-30  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: fix binding a delegate without target
+
+2010-01-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: honor parameters for signal listener mode
+
+	mdbus2: fix multiple output arguments; start with signal listener mode
+
+	mdbus2: allow debug build
+
+	mdbus2: parse dictionaries and variants
+
+2010-01-27  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: array of strings as result now works
+
+	mdbus2: add support for string and int out arguments
+
+	mdbus2: start with suport for method calling
+	NOTE: This needs some enhancements in dbus-glib-1.vapi, which is
+	going to happen here in a local copy before I send it upstream
+
+2010-01-20  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: prepare for calling functions with only out params
+
+2010-01-09  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	adjust (C) for 2010
+
+2009-08-05  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	gitignore++
+
+2009-07-31  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: error out on functions NYI
+
+2009-07-26  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: split basemethod from interface.method
+
+	mdbus2: handle properties
+
+	mdbus2: show interfaces for object works (even with out params)
+
+2009-07-25  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+
+	mdbus2: use glib markup parser, should be sufficient for dbus introspection data
+
+	mdbus2: listing bus names and listing objects done
+
+	tools: add mdbus2 skeleton
