@@ -107,6 +107,11 @@ libfsogsm_la_LIBADD = \
 	$(NULL)
 libfsogsm_la_LDFLAGS = -no-undefined -avoid-version
 
+EXTRA_DIST += \
+	fsogsm3rdparty.deps \
+	fsogsm3rdparty.vapi \
+	$(NULL)
+
 CLEANFILES =
 MAINTAINERCLEANFILES = \
 	fsogsm.h \
