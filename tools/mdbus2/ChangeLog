@@ -1,3 +1,15 @@
+2012-05-29  Simon Busch  <morphis@gravedo.de>
+
+	tools: mdbus2: mdbus2 is now known as mdbus2 for release as well
+
+2012-05-28  Simon Busch  <morphis@gravedo.de>
+
+	tools: mdbus2: post release work
+
+	tools: mdbus2: switch to release mode for 2.2.0 release
+
+	tools: mdbus2: don't mention gio-2.0 as required twice
+
 2012-05-16  Simon Busch  <morphis@gravedo.de>
 
 	tools: mdbus2: fix a lot of warnings from the vala compiler
