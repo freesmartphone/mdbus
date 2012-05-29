@@ -45,6 +45,10 @@ libfsodevice_la_LIBADD = \
 	$(NULL)
 libfsodevice_la_LDFLAGS = -no-undefined -avoid-version
 
+EXTRA_DIST += \
+	fsodevice-2.0.deps \
+	$(NULL)
+
 CLEANFILES =
 MAINTAINERCLEANFILES = \
 	fsogsmd.h \
