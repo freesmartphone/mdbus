@@ -7,7 +7,6 @@ SUBDIRS = \
 	htc_qualcomm_dream \
 	htcleo \
 	openmoko_gta \
-	palm_pre \
 	nexusone \
 	herring \
 	$(NULL)

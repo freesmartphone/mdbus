@@ -4,7 +4,6 @@ NULL=
 
 SUBDIRS = \
 	default \
-	palm_pre \
 	nokia_n900 \
 	openmoko_gta \
 	herring \

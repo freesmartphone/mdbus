@@ -147,24 +147,6 @@ fi
 AM_CONDITIONAL( [WANT_MUX], [test x"$mux" = x"yes"])
 
 #########################################################################################
-# optional feature: Qualcomm modem support as found in Palm WebOS devices
-#########################################################################################
-
-AC_ARG_ENABLE(modem-qualcomm-palm,
-  [  --enable-modem-qualcomm-palm  Enable building the modem_qualcomm_palm plugin (default=disabled)],
-  [palm=$enableval],
-  [palm="no"])
-
-if test x$palm = "xyes"; then
-    PKG_CHECK_MODULES(PALM,
-      msmcomm-specs-2.0 >= $MSMCOMM_SPECS_REQUIRED)
-AC_SUBST(PALM_CFLAGS)
-AC_SUBST(PALM_LIBS)
-
-fi
-AM_CONDITIONAL( [WANT_PALM], [test x"$palm" = x"yes"])
-
-#########################################################################################
 # optional feature: Nokia ISI modem support as found in Nokia N900
 #########################################################################################
 
@@ -257,7 +239,6 @@ AC_CONFIG_FILES([
   conf/htcleo/Makefile
   conf/motorola_ezx/Makefile
   conf/openmoko_gta/Makefile
-  conf/palm_pre/Makefile
   conf/nexusone/Makefile
   conf/nokia_n900/Makefile
   conf/herring/Makefile
@@ -275,7 +256,6 @@ AC_CONFIG_FILES([
   src/plugins/lowlevel_motorola_ezx/Makefile
   src/plugins/lowlevel_openmoko/Makefile
   src/plugins/lowlevel_gta04/Makefile
-  src/plugins/lowlevel_palmpre/Makefile
   src/plugins/lowlevel_samsung_crespo/Makefile
   src/plugins/modem_cinterion_mc75/Makefile
   src/plugins/modem_dummy/Makefile
@@ -284,7 +264,6 @@ AC_CONFIG_FILES([
   src/plugins/modem_singleline/Makefile
   src/plugins/modem_ti_calypso/Makefile
   src/plugins/modem_qualcomm_htc/Makefile
-  src/plugins/modem_qualcomm_palm/Makefile
   src/plugins/modem_samsung/Makefile
   src/plugins/modem_option_gtm601/Makefile
   src/plugins/modem_phonesim/Makefile
@@ -314,7 +293,6 @@ echo "  ppp support.............: $ppp"
 echo "  pdp_mux.................: $mux"
 echo "  modem_ti_calypso........: $mux"
 echo "  modem_cinterion_mc75....: $mux"
-echo "  modem_qualcomm_palm.....: $palm"
 echo "  modem_nokia_isi.........: $isi"
 echo "  modem_samsung...........: $samsung"
 echo

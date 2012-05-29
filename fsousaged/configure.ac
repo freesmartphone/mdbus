@@ -148,7 +148,6 @@ AC_CONFIG_FILES([
   conf/htcleo/Makefile
   conf/openmoko_gta/Makefile
   conf/nexusone/Makefile
-  conf/palm_pre/Makefile
   conf/herring/Makefile
   data/org.freesmartphone.ousaged.service
   data/Makefile
@@ -162,7 +161,6 @@ AC_CONFIG_FILES([
   src/plugins/lowlevel_kernel26/Makefile
   src/plugins/lowlevel_kernel26_staysalive/Makefile
   src/plugins/lowlevel_openmoko/Makefile
-  src/plugins/lowlevel_palmpre/Makefile
   tests/Makefile
 ])
 AC_OUTPUT
