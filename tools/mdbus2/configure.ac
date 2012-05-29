@@ -1,5 +1,5 @@
-m4_define([mdbus_released], [1])
-m4_define([mdbus_base_version], [2.3.0])
+m4_define([mdbus_released], [0])
+m4_define([mdbus_base_version], [2.4.0])
 m4_define([mdbus_maybe_gitrev], m4_if(mdbus_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([mdbus_version], m4_if(mdbus_released, [1], [mdbus_base_version], [mdbus_base_version-mdbus_maybe_gitrev]))
 
