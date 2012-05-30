@@ -242,7 +242,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract void releaseDataPort();
 
     // Command Queue API
-    public abstract async string[] processAtCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES );
+    public abstract async string[] processAtCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES, int timeout = 0 );
     public abstract async string[] processAtPduCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES );
 
     /**
@@ -921,11 +921,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     {
     }
 
-    public async string[] processAtCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES )
+    public async string[] processAtCommandAsync( AtCommand command, string request, int retries = DEFAULT_RETRIES, int timeout = 0 )
     {
         AtChannel channel = channelForCommand( command, request ) as AtChannel;
         // FIXME: assert channel is really an At channel
-        var response = yield channel.enqueueAsync( command, request, retries );
+        var response = yield channel.enqueueAsync( command, request, retries, timeout );
         return response;
     }
 
