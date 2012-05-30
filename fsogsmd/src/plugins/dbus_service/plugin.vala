@@ -772,7 +772,14 @@ class DBusService.Device :
 
     public bool roaming_allowed
     {
-        get; set;
+        get
+        {
+            return modem.data().roamingAllowed;
+        }
+        set
+        {
+            modem.data().roamingAllowed = value;
+        }
     }
 
     public async void activate_context() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
