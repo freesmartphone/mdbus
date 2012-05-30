@@ -17,6 +17,7 @@ gta04_quirks_la_SOURCES = \
 	powercontrol.vala \
 	$(NULL)
 gta04_quirks_la_VALAFLAGS = \
+	$(AM_VALAFLAGS) \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsoframework \
 	--vapidir $(top_srcdir)/vapi \

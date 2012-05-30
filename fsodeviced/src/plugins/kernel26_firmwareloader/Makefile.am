@@ -14,6 +14,7 @@ modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = kernel26_firmwareloader.la
 kernel26_firmwareloader_la_SOURCES = plugin.vala
 kernel26_firmwareloader_la_VALAFLAGS = \
+	$(AM_VALAFLAGS) \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \

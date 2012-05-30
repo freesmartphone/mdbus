@@ -14,6 +14,7 @@ modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = openmoko_powercontrol.la
 openmoko_powercontrol_la_SOURCES = plugin.vala
 openmoko_powercontrol_la_VALAFLAGS = \
+	$(AM_VALAFLAGS) \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \

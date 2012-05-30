@@ -18,6 +18,7 @@ herring_quirks_la_SOURCES = \
 	alsa.vala \
 	$(NULL)
 herring_quirks_la_VALAFLAGS = \
+	$(AM_VALAFLAGS) \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsoframework \
 	--vapidir $(top_srcdir)/vapi \

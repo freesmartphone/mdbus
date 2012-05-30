@@ -25,6 +25,7 @@ kernel26_rfkill_la_VALAFLAGS = \
 	--pkg fsosystem-2.0 \
 	$(NULL)
 kernel26_rfkill_la_CFLAGS = \
+	$(AM_VALAFLAGS) \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
