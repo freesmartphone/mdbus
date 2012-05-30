@@ -989,6 +989,33 @@ namespace FsoGsm.Constants
 
         return sign ? -zone * 15 : zone * 15;
     }
+
+    /* 27.007 Section 7.11 */
+    public enum BearerClass
+    {
+        VOICE = 1,
+        DATA = 2,
+        FAX = 4,
+        DEFAULT = 7,
+        SMS = 8,
+        DATA_SYNC = 16,
+        DATA_ASYNC = 32,
+        /* According to 22.030, types 1-12 */
+        SS_DEFAULT = 61,
+        PACKET = 64,
+        PAD = 128,
+    }
+
+    /* 27.007 Section 7.11 */
+    public enum CallForwardingType
+    {
+        UNCONDITIONAL = 0,
+        BUSY = 1,
+        NO_REPLY = 2,
+        NOT_REACHABLE = 3,
+        ALL = 4,
+        ALL_CONDITIONAL = 5,
+    }
 }
 
 // vim:ts=4:sw=4:expandtab
