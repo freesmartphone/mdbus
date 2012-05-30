@@ -33,6 +33,10 @@ router_qdsp5_la_LIBADD = \
 router_qdsp5_la_LDFLAGS = -no-undefined -module -avoid-version
 # router_qdsp5_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	playwav2.vapi \
+	$(NULL)
+
 CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \
