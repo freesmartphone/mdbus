@@ -34,7 +34,7 @@ static bool inGatherSimStatusAndUpdate;
  **/
 internal void throwAppropriateError( Constants.AtResponse code, string detail ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
-    var error = Constants.instance().atResponseCodeToError( code, detail );
+    var error = Constants.atResponseCodeToError( code, detail );
     throw error;
 }
 

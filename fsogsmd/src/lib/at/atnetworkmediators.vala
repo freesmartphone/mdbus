@@ -76,7 +76,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
         var cregResult = yield theModem.processAtCommandAsync( creg, creg.query() );
         if ( creg.validate( cregResult ) == Constants.AtResponse.VALID )
         {
-            strvalue = Constants.instance().networkRegistrationStatusToString( creg.status );
+            strvalue = Constants.networkRegistrationStatusToString( creg.status );
             status.insert( "registration", strvalue );
 
 #if 0
@@ -103,7 +103,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
         var copsResult = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC ) );
         if ( cops.validate( copsResult ) == Constants.AtResponse.VALID )
         {
-            strvalue = Constants.instance().networkRegistrationModeToString( cops.mode );
+            strvalue = Constants.networkRegistrationModeToString( cops.mode );
             status.insert( "mode", strvalue );
             strvalue = cops.oper;
             if ( strvalue != "" )
@@ -163,7 +163,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
             var cgregResult2 = yield theModem.processAtCommandAsync( cgreg, cgreg.queryFull( cgreg.mode ) );
             if ( cgreg.validate( cgregResult2 ) == Constants.AtResponse.VALID )
             {
-                strvalue = Constants.instance().networkRegistrationStatusToString( cgreg.status );
+                strvalue = Constants.networkRegistrationStatusToString( cgreg.status );
                 status.insert( "pdp.registration", strvalue );
                 strvalue = cgreg.lac;
                 status.insert( "pdp.lac", strvalue );

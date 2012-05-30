@@ -23,34 +23,34 @@ using FsoGsm;
 //===========================================================================
 void test_ctzv_to_timezone()
 {
-    var tz1 = Constants.instance().ctzvToTimeZone( 0x19 );
+    var tz1 = Constants.ctzvToTimeZone( 0x19 );
     assert( tz1 == -165 );
 
-    var tz2 = Constants.instance().ctzvToTimeZone( 35 );
+    var tz2 = Constants.ctzvToTimeZone( 35 );
     assert( tz2 == 8*60 );
 
-    var tz3 = Constants.instance().ctzvToTimeZone( 105 );
+    var tz3 = Constants.ctzvToTimeZone( 105 );
     assert( tz3 == -4*60 );
 }
 
 void test_phone_number_string_to_tuple()
 {
-    var t0 = Constants.instance().phonenumberStringToTuple( "+1234567890" );
+    var t0 = Constants.phonenumberStringToTuple( "+1234567890" );
     assert( t0 == "\"1234567890\",145" );
 
-    var t1 = Constants.instance().phonenumberStringToTuple( "0987654321" );
+    var t1 = Constants.phonenumberStringToTuple( "0987654321" );
     assert( t1 == "\"0987654321\",129" );
 }
 
 void test_phone_number_string_to_real_tuple()
 {
     uint8 nt0 = 0;
-    var t0 = Constants.instance().phonenumberStringToRealTuple( "+1234567890", out nt0 );
+    var t0 = Constants.phonenumberStringToRealTuple( "+1234567890", out nt0 );
     assert( t0 == "1234567890" );
     assert( nt0 == 145 );
 
     uint8 nt1 = 0;
-    var t1 = Constants.instance().phonenumberStringToRealTuple( "0987654321", out nt1 );
+    var t1 = Constants.phonenumberStringToRealTuple( "0987654321", out nt1 );
     assert( t1 == "0987654321" );
     assert( nt1 == 129 );
 }

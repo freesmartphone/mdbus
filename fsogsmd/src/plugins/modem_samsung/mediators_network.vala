@@ -176,7 +176,7 @@ public class SamsungNetworkListProviders : NetworkListProviders
             var provider = yield findProviderNameForMccMnc( mccmnc );
 
             var p = FreeSmartphone.GSM.NetworkProvider(
-                Constants.instance().networkProviderStatusToString( (int) currentNetwork.status - 1 ),
+                Constants.networkProviderStatusToString( (int) currentNetwork.status - 1 ),
                 provider, provider, mccmnc, "GSM");
 
             _providers += p;

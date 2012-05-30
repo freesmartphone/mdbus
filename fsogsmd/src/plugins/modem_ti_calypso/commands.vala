@@ -46,7 +46,7 @@ public class PercentCPMB : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        number = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
+        number = Constants.phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
     }
 
     public string query()
@@ -140,7 +140,7 @@ public class PercentCSQ : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        strength = Constants.instance().networkSignalToPercentage( to_int( "signal" ) );
+        strength = Constants.networkSignalToPercentage( to_int( "signal" ) );
     }
 }
 

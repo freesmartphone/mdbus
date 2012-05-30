@@ -72,7 +72,7 @@ public class SamsungCallListCalls : CallListCalls
                 continue;
 
             var ci = FreeSmartphone.GSM.CallDetail((int) currentCallEntry.idx,
-                Constants.instance().callStatusToEnum( (int) currentCallEntry.state - 1 ), new GLib.HashTable<string,Variant>( str_hash, str_equal ) );
+                Constants.callStatusToEnum( (int) currentCallEntry.state - 1 ), new GLib.HashTable<string,Variant>( str_hash, str_equal ) );
 
             assert( theLogger.debug( @"Retrieved call with id = $(ci.id) from modem" ) );
 

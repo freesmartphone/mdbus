@@ -258,11 +258,11 @@ public class PlusCEER : AbstractAtCommand
 
         if ( v0 == 0 && v1 == 0 && v2 != 0 && v3 != 0 )
         {
-            reason = Constants.instance().ceerCauseToString( v1, v2, v3 );
+            reason = Constants.ceerCauseToString( v1, v2, v3 );
         }
         else
         {
-            reason = Constants.instance().ceerCauseToString( v0, v1, v3 );
+            reason = Constants.ceerCauseToString( v0, v1, v3 );
         }
     }
 
@@ -464,18 +464,18 @@ public class PlusCLCC : AbstractAtCommand
             base.parse( line );
             var entry = FreeSmartphone.GSM.CallDetail(
                 to_int( "id" ),
-                Constants.instance().callStatusToEnum( to_int( "stat" ) ),
+                Constants.callStatusToEnum( to_int( "stat" ) ),
                 new GLib.HashTable<string,Variant>( str_hash, str_equal )
             );
 
             Variant strvalue;
-            strvalue = Constants.instance().callDirectionToString( to_int( "dir" ) );
+            strvalue = Constants.callDirectionToString( to_int( "dir" ) );
             entry.properties.insert( "direction", strvalue );
 
-            strvalue = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
+            strvalue = Constants.phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
             entry.properties.insert( "peer", strvalue );
 
-            strvalue = Constants.instance().callTypeToString( to_int( "mode" ) );
+            strvalue = Constants.callTypeToString( to_int( "mode" ) );
             entry.properties.insert( "type", strvalue );
 
             c += entry;
@@ -978,7 +978,7 @@ public class PlusCOPS : AbstractAtCommand
         {
             oper = decodeString( oper );
         }
-        act = Constants.instance().networkProviderActToString( to_int( "act" ) );
+        act = Constants.networkProviderActToString( to_int( "act" ) );
     }
 
     public override void parseTest( string response ) throws AtCommandError
@@ -990,11 +990,11 @@ public class PlusCOPS : AbstractAtCommand
             do
             {
                 var p = FreeSmartphone.GSM.NetworkProvider(
-                    Constants.instance().networkProviderStatusToString( to_int( "status" ) ),
+                    Constants.networkProviderStatusToString( to_int( "status" ) ),
                     to_string( "shortname" ),
                     to_string( "longname" ),
                     to_string( "mccmnc" ),
-                    Constants.instance().networkProviderActToString( to_int( "act" ) ) );
+                    Constants.networkProviderActToString( to_int( "act" ) ) );
                 providers += p;
             }
             while ( mi.next() );
@@ -1059,7 +1059,7 @@ public class PlusCPBR : AbstractAtCommand
         foreach ( var line in response )
         {
             base.parse( line );
-            var number = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
+            var number = Constants.phonenumberTupleToString( to_string( "number" ), to_int( "typ" ) );
             var entry = FreeSmartphone.GSM.SIMEntry( to_int( "id" ), decodeString( to_string( "name" ) ), number );
             phonebook += entry;
         }
@@ -1111,7 +1111,7 @@ public class PlusCPBS : AbstractAtCommand
         {
             do
             {
-                books += /* Constants.instance().simPhonebookNameToString( */ to_string( "book" ) /* ) */;
+                books += /* Constants.simPhonebookNameToString( */ to_string( "book" ) /* ) */;
             }
             while ( mi.next() );
         }
@@ -1161,7 +1161,7 @@ public class PlusCPBW : AbstractAtCommand
         var cmd = @"+CPBS=\"$cat\";+CPBW=$location";
         if ( number != "" )
         {
-            cmd += ",%s,\"%s\"".printf( Constants.instance().phonenumberStringToTuple( number ), encodeString( name ) );
+            cmd += ",%s,\"%s\"".printf( Constants.phonenumberStringToTuple( number ), encodeString( name ) );
         }
         return cmd;
     }
@@ -1192,7 +1192,7 @@ public class PlusCPIN : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        status = Constants.instance().simAuthStatusToEnum( to_string( "status" ) );
+        status = Constants.simAuthStatusToEnum( to_string( "status" ) );
     }
 
     public string issue( string pin, string? new_pin = null )
@@ -1374,7 +1374,7 @@ public class PlusCSCA : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        number = Constants.instance().phonenumberTupleToString( to_string( "number" ), to_int( "ntype" ) );
+        number = Constants.phonenumberTupleToString( to_string( "number" ), to_int( "ntype" ) );
     }
 
     public string query()
@@ -1384,7 +1384,7 @@ public class PlusCSCA : AbstractAtCommand
 
     public string issue( string number )
     {
-        return "+CSCA=" + Constants.instance().phonenumberStringToTuple( number );
+        return "+CSCA=" + Constants.phonenumberStringToTuple( number );
     }
 }
 
@@ -1460,7 +1460,7 @@ public class PlusCSQ : AbstractAtCommand
     public override void parse( string response ) throws AtCommandError
     {
         base.parse( response );
-        signal = Constants.instance().networkSignalToPercentage( to_int( "signal" ) );
+        signal = Constants.networkSignalToPercentage( to_int( "signal" ) );
     }
 
     public string execute()
@@ -1578,7 +1578,7 @@ public class V250D : V250terCommand
     public string issue( string number, bool voice = true )
     {
         var postfix = voice ? ";" : "";
-        var safenumber = Constants.instance().cleanPhoneNumber( number );
+        var safenumber = Constants.cleanPhoneNumber( number );
         return @"D$safenumber$postfix";
     }
 

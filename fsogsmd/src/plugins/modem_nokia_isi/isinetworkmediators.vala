@@ -99,7 +99,7 @@ public GLib.HashTable<string,Variant> isiRegStatusToFsoRegStatus( Network.ISI_Re
         technology = 3;
     }
 
-    status.insert( "act", Constants.instance().networkProviderActToString( technology ) );
+    status.insert( "act", Constants.networkProviderActToString( technology ) );
 
     return status;
 }
@@ -146,11 +146,11 @@ public class IsiNetworkListProviders : NetworkListProviders
             {
                 for ( int i = 0; i < operators.length; ++i )
                 {
-                    p += FreeSmartphone.GSM.NetworkProvider( Constants.instance().networkProviderStatusToString( operators[i].status ),
+                    p += FreeSmartphone.GSM.NetworkProvider( Constants.networkProviderStatusToString( operators[i].status ),
                                                              operators[i].name,
                                                              operators[i].name,
                                                              operators[i].mcc + operators[i].mnc,
-                                                             Constants.instance().networkProviderActToString( operators[i].technology ) );
+                                                             Constants.networkProviderActToString( operators[i].technology ) );
                 }
             }
             run.callback();

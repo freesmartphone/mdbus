@@ -39,7 +39,7 @@ public class Samsung.SmsHandler : FsoGsm.AbstractSmsHandler
         // SMS messages
         var rsimreq = SamsungIpc.Security.RSimAccessRequestMessage();
         rsimreq.command = SamsungIpc.Security.RSimCommandType.READ_BINARY;
-        rsimreq.fileid = (uint16) Constants.instance().simFilesystemEntryNameToCode( "EFimsi" );
+        rsimreq.fileid = (uint16) Constants.simFilesystemEntryNameToCode( "EFimsi" );
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.SEC_RSIM_ACCESS, rsimreq.data );
 

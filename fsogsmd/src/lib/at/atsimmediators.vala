@@ -44,7 +44,7 @@ public class AtSimDeleteEntry : SimDeleteEntry
 {
     public override async void run( string category, int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cat = Constants.instance().simPhonebookStringToCode( category );
+        var cat = Constants.simPhonebookStringToCode( category );
         if ( cat == "" )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
@@ -124,7 +124,7 @@ public class AtSimGetInformation : SimGetInformation
         var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
         response = yield theModem.processAtCommandAsync( crsm, crsm.issue(
                 Constants.SimFilesystemCommand.READ_BINARY,
-                Constants.instance().simFilesystemEntryNameToCode( "EFspn" ), 0, 0, 17 ) );
+                Constants.simFilesystemEntryNameToCode( "EFspn" ), 0, 0, 17 ) );
         if ( crsm.validate( response ) == Constants.AtResponse.VALID )
         {
             var issuer = Codec.hexToString( crsm.payload );
@@ -137,7 +137,7 @@ public class AtSimGetInformation : SimGetInformation
             crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
             response = yield theModem.processAtCommandAsync( crsm, crsm.issue(
                 Constants.SimFilesystemCommand.READ_BINARY,
-                Constants.instance().simFilesystemEntryNameToCode( "EF_SPN_CPHS" ), 0, 0, 10 ) );
+                Constants.simFilesystemEntryNameToCode( "EF_SPN_CPHS" ), 0, 0, 10 ) );
             if ( crsm.validate( response ) == Constants.AtResponse.VALID )
             {
                 var issuer2 = Codec.hexToString( crsm.payload );
@@ -155,7 +155,7 @@ public class AtSimGetInformation : SimGetInformation
         {
             foreach ( var pbcode in cpbs.phonebooks )
             {
-                pbnames += Constants.instance().simPhonebookCodeToString( pbcode );
+                pbnames += Constants.simPhonebookCodeToString( pbcode );
                 pbnames += " ";
             }
         }
@@ -176,7 +176,7 @@ public class AtSimGetPhonebookInfo : SimGetPhonebookInfo
 {
     public override async void run( string category, out int slots, out int numberlength, out int namelength ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cat = Constants.instance().simPhonebookStringToCode( category );
+        var cat = Constants.simPhonebookStringToCode( category );
         if ( cat == "" )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
@@ -226,7 +226,7 @@ public class AtSimRetrieveMessage : SimRetrieveMessage
             throw new FreeSmartphone.GSM.Error.DEVICE_FAILED( @"Can't read SMS at index $index" );
         }
 
-        status = Constants.instance().simMessagebookStatusToString( cmgr.status );
+        status = Constants.simMessagebookStatusToString( cmgr.status );
         number = sms.number();
         contents = sms.to_string();
         properties = sms.properties();
@@ -237,7 +237,7 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
 {
     public override async void run( string category, int mindex, int maxdex ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cat = Constants.instance().simPhonebookStringToCode( category );
+        var cat = Constants.simPhonebookStringToCode( category );
         if ( cat == "" )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid Category" );
@@ -343,7 +343,7 @@ public class AtSimWriteEntry : SimWriteEntry
 {
     public override async void run( string category, int index, string number, string name ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cat = Constants.instance().simPhonebookStringToCode( category );
+        var cat = Constants.simPhonebookStringToCode( category );
         if ( cat == "" )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );

@@ -75,7 +75,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
             case 1:
                 // FIXME: Might want to remember the status
                 var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-                obj.signal_strength( Constants.instance().networkSignalIndicatorToPercentage( ciev.value2 ) );
+                obj.signal_strength( Constants.networkSignalIndicatorToPercentage( ciev.value2 ) );
                 break;
             default:
                 theModem.logger.warning( @"plusCIEV: $(ciev.value1),$(ciev.value2) unknown or not implemented" );

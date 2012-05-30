@@ -60,14 +60,14 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
             case GIsiClient.Call.Status.COMING:
                 assert( logger.debug( @"incoming call with id $(istatus.id) from $(istatus.number)" ) );
                 call.detail.properties.insert( "direction", "incoming" );
-                call.detail.properties.insert( "peer", Constants.instance().phonenumberTupleToString( istatus.number, istatus.ntype ) );
+                call.detail.properties.insert( "peer", Constants.phonenumberTupleToString( istatus.number, istatus.ntype ) );
                 call.update_status( FreeSmartphone.GSM.CallStatus.INCOMING );
                 break;
 
             case GIsiClient.Call.Status.CREATE:
                 assert( logger.debug( @"outgoing call with id $(istatus.id) to $(istatus.number)" ) );
                 call.detail.properties.insert( "direction", "outgoing" );
-                call.detail.properties.insert( "peer", Constants.instance().phonenumberTupleToString( istatus.number, istatus.ntype ) );
+                call.detail.properties.insert( "peer", Constants.phonenumberTupleToString( istatus.number, istatus.ntype ) );
                 call.update_status( FreeSmartphone.GSM.CallStatus.OUTGOING );
                 break;
 
@@ -146,7 +146,7 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
         }
 
         uint8 ntype;
-        var gsmnumber = Constants.instance().phonenumberStringToRealTuple( number, out ntype );
+        var gsmnumber = Constants.phonenumberStringToRealTuple( number, out ntype );
 
         NokiaIsi.isimodem.call.initiateVoiceCall( gsmnumber, ntype, GIsiClient.Call.PresentationType.GSM_DEFAULT, (error, id) => {
             if ( error == ErrorCode.OK )

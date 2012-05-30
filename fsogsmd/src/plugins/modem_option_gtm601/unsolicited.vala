@@ -51,7 +51,7 @@ public class Gtm601.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHan
         var cmd = theModem.createAtCommand<UnderscoreOSIGQ>( "_OSIGQ" );
         if ( cmd.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
-            var strength = Constants.instance().networkSignalToPercentage( cmd.strength );
+            var strength = Constants.networkSignalToPercentage( cmd.strength );
             updateNetworkSignalStrength( strength );
         }
         else

@@ -201,7 +201,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         var cssi = theModem.createAtCommand<PlusCSSI>( "+CSSI" );
         if ( cssi.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
-            theModem.callhandler.addSupplementaryInformation( Constants.instance().callDirectionToString( 0 ), Constants.instance().cssiCodeToString( cssi.value ) );
+            theModem.callhandler.addSupplementaryInformation( Constants.callDirectionToString( 0 ), Constants.cssiCodeToString( cssi.value ) );
         }
         else
         {
@@ -214,7 +214,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         var cssu = theModem.createAtCommand<PlusCSSU>( "+CSSU" );
         if ( cssu.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
-            theModem.callhandler.addSupplementaryInformation( Constants.instance().callDirectionToString( 1 ), Constants.instance().cssuCodeToString( cssu.value ) );
+            theModem.callhandler.addSupplementaryInformation( Constants.callDirectionToString( 1 ), Constants.cssuCodeToString( cssu.value ) );
         }
         else
         {
@@ -233,7 +233,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         }
         else
         {
-            var utcoffset = Constants.instance().ctzvToTimeZone( tzoffset );
+            var utcoffset = Constants.ctzvToTimeZone( tzoffset );
             logger.info( @"Received time zone report from GSM: $utcoffset minutes" );
             var data = theModem.data();
             data.networkTimeReport.setZone( utcoffset );

@@ -93,7 +93,7 @@ public class AtDeviceGetFunctionality : DeviceGetFunctionality
         var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
         var response = yield theModem.processAtCommandAsync( cfun, cfun.query() );
         checkResponseValid( cfun, response );
-        level = Constants.instance().deviceFunctionalityStatusToString( cfun.value );
+        level = Constants.deviceFunctionalityStatusToString( cfun.value );
         autoregister = theModem.data().keepRegistration;
         pin = theModem.data().simPin;
     }
@@ -333,7 +333,7 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var value = Constants.instance().deviceFunctionalityStringToStatus( level );
+        var value = Constants.deviceFunctionalityStringToStatus( level );
 
         if ( value == -1 )
         {
@@ -343,7 +343,7 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
         var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
         var queryanswer = yield theModem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, queryanswer );
-        var curlevel = Constants.instance().deviceFunctionalityStatusToString( cmd.value );
+        var curlevel = Constants.deviceFunctionalityStatusToString( cmd.value );
         if ( curlevel != level )
         {
             var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( value ) );

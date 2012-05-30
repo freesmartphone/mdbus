@@ -68,7 +68,7 @@ public class SamsungSimGetInformation : SimGetInformation
         // Read name of our SIM Card issuer from the modem
         var rsimreq = SamsungIpc.Security.RSimAccessRequestMessage();
         rsimreq.command = SamsungIpc.Security.RSimCommandType.READ_BINARY;
-        rsimreq.fileid = (uint16) Constants.instance().simFilesystemEntryNameToCode( "EFspn" );
+        rsimreq.fileid = (uint16) Constants.simFilesystemEntryNameToCode( "EFspn" );
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.GET, SamsungIpc.MessageType.SEC_RSIM_ACCESS, rsimreq.data );
 

@@ -67,7 +67,7 @@ public class IsiDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var value = Constants.instance().deviceFunctionalityStringToStatus( level );
+        var value = Constants.deviceFunctionalityStringToStatus( level );
 
         if ( value == -1 )
         {

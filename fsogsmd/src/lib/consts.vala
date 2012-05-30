@@ -20,7 +20,7 @@
 /**
  * Constant functions etc.
  **/
-public class FsoGsm.Constants
+namespace FsoGsm.Constants
 {
     public const string PHONE_DIGITS = """0123456789ABCD*#+pw""";
     public const string PHONE_DIGITS_RE = """[0-9A-D\*#\+pw]""";
@@ -354,17 +354,6 @@ public class FsoGsm.Constants
 
         EXT_ERROR_START = 3000,
         EXT_ERROR_0_INVALID_PARAMETERR = 3000,
-    }
-
-    internal static FsoGsm.Constants _instance;
-
-    public static FsoGsm.Constants instance()
-    {
-        if ( _instance == null )
-        {
-            _instance = new FsoGsm.Constants();
-        }
-        return _instance;
     }
 
     //
