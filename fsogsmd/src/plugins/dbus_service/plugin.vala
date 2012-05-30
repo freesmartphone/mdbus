@@ -586,23 +586,6 @@ class DBusService.Device :
     //
     // DBUS (org.freesmartphone.GSM.Network.*)
     //
-    public async void disable_call_forwarding( string reason, string class_ ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
-    {
-        checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-
-    public async void enable_call_forwarding( string reason, string class_, string number, int timeout ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
-    {
-        checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
-
-    public async GLib.HashTable<string,GLib.Variant> get_call_forwarding( string reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
-    {
-        checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-    }
 
     public async FreeSmartphone.GSM.CallingIdentificationStatus get_calling_identification() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
