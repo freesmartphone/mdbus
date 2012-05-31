@@ -14,6 +14,7 @@ modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = kernel26_rfkill.la
 kernel26_rfkill_la_SOURCES = plugin.vala
 kernel26_rfkill_la_VALAFLAGS = \
+	$(AM_VALAFLAGS) \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
@@ -25,7 +26,6 @@ kernel26_rfkill_la_VALAFLAGS = \
 	--pkg fsosystem-2.0 \
 	$(NULL)
 kernel26_rfkill_la_CFLAGS = \
-	$(AM_VALAFLAGS) \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
