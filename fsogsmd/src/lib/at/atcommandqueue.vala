@@ -146,7 +146,7 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue, FsoFrame
 
     public void onParserUnsolicitedCompleted( string[] response )
     {
-        transport.logger.info( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
+        assert( transport.logger.debug( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) ) );
 
         if ( ! ( ":" in response[0] ) ) // test for free-form URC
         {
