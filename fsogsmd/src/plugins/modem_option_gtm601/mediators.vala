@@ -74,6 +74,27 @@ namespace Gtm601
         }
     }
 
+    public class AtCallListCalls : CallListCalls
+    {
+        public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+        {
+            var poll_again = false;
+
+            do
+            {
+                var cmd = theModem.createAtCommand<PlusCLCC>( "+CLCC" );
+                var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
+
+                var code = cmd.validateMulti( response );
+                if ( code == Constants.AtResponse.VALID )
+                    calls = cmd.calls;
+                else if ( code == Constants.AtResponse.CME_ERROR_100_UNKNOWN_ERROR )
+                    poll_again = true;
+                else throw Constants.atResponseCodeToError( code, response[response.length-1] );
+            }
+            while ( poll_again );
+        }
+    }
 
     /* register all mediators */
     public void registerCustomMediators( HashMap<Type,Type> mediators )
@@ -81,6 +102,7 @@ namespace Gtm601
         mediators[ typeof(CallSendDtmf) ] = typeof( Gtm601.AtCallSendDtmf );
         mediators[ typeof(NetworkListProviders) ] = typeof( Gtm601.AtNetworkListProviders );
         mediators[ typeof(SimGetServiceCenterNumber) ] = typeof( Gtm601.AtSimGetServiceCenterNumber );
+        mediators[ typeof(CallListCalls) ] = typeof( Gtm601.AtCallListCalls );
     }
 
 } // namespace Gtm601
