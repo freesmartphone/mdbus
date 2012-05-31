@@ -230,6 +230,42 @@ void test_atcommand_PlusVTS()
 }
 
 //===========================================================================
+void test_atcommand_PlusCCFC()
+//===========================================================================
+{
+    FsoGsm.PlusCCFC cmd = (FsoGsm.PlusCCFC) atCommandFactory( "+CCFC" );
+
+    assert( cmd.query( FsoGsm.Constants.CallForwardingType.UNCONDITIONAL ) == "+CCFC=0,2" );
+    assert( cmd.query( FsoGsm.Constants.CallForwardingType.ALL_CONDITIONAL,
+                       FsoGsm.Constants.BearerClass.SMS ) == "+CCFC=5,2,,,8" );
+
+    assert( cmd.issue( FsoGsm.Constants.CallForwardingMode.QUERY_STATUS,
+                       FsoGsm.Constants.CallForwardingType.ALL_CONDITIONAL ) == "+CCFC=5,2" );
+    assert( cmd.issue( FsoGsm.Constants.CallForwardingMode.ENABLE,
+                       FsoGsm.Constants.CallForwardingType.BUSY,
+                       FsoGsm.Constants.BearerClass.SMS ) == "+CCFC=1,1,,,8" );
+
+    assert( cmd.issue_ext( FsoGsm.Constants.CallForwardingMode.REGISTRATION,
+                           FsoGsm.Constants.CallForwardingType.UNCONDITIONAL,
+                           FsoGsm.Constants.BearerClass.SMS,
+                           "+49123456789", 100 ) == "+CCFC=0,3,\"+49123456789\",145,8" );
+    assert( cmd.issue_ext( FsoGsm.Constants.CallForwardingMode.REGISTRATION,
+                           FsoGsm.Constants.CallForwardingType.NO_REPLY,
+                           FsoGsm.Constants.BearerClass.SMS,
+                           "+49123456789", 100 ) == "+CCFC=2,3,\"+49123456789\",145,8,,,100" );
+
+    try
+    {
+        cmd.parse( "+CCFC: 0,1" );
+        cmd.parse( "+CCFC: 0,1,2" );
+    }
+    catch ( Error e )
+    {
+        assert_not_reached();
+    }
+}
+
+//===========================================================================
 void main( string[] args )
 //===========================================================================
 {
@@ -244,6 +280,7 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+CPIN", test_atcommand_PlusCPIN );
     Test.add_func( "/AtCommand/+FCLASS", test_atcommand_PlusFCLASS );
     Test.add_func( "/AtCommand/+VTS", test_atcommand_PlusVTS );
+    Test.add_func( "/AtCommand/+CCFC", test_atcommand_PlusCCFC );
     Test.run();
 }
 

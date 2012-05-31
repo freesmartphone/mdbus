@@ -25,6 +25,7 @@
  **/
 
 using Gee;
+using FsoGsm.Constants;
 
 namespace FsoGsm {
 
@@ -1593,6 +1594,56 @@ public class V250H : V250terCommand
     }
 }
 
+public class PlusCCFC : AbstractAtCommand
+{
+    public PlusCCFC()
+    {
+        try
+        {
+            re = new Regex( """\+CCFC: (?P<status>\d),(?P<class>\d)?""" );
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+
+        prefix = { "+CCFC" };
+    }
+
+    public string query( CallForwardingType type, BearerClass cls = FsoGsm.Constants.BearerClass.DEFAULT )
+    {
+        if ( cls == BearerClass.DEFAULT )
+            return "+CCFC=%d,2".printf( (int) type );
+        return "+CCFC=%d,2,,,%d".printf( (int) type, (int) cls );
+    }
+
+    public string issue( CallForwardingMode mode,
+        CallForwardingType type, BearerClass cls = FsoGsm.Constants.BearerClass.DEFAULT )
+    {
+        var command = @"+CCFC=%d,%d".printf( (int) type, (int) mode );
+        if ( cls != BearerClass.DEFAULT )
+            command += ",,,%d".printf( (int) cls );
+        return command;
+    }
+
+    public string issue_ext( CallForwardingMode mode, CallForwardingType type,
+        BearerClass cls, string number, int time)
+    {
+        int number_type = determinePhoneNumberType( number );
+        var command = "+CCFC=%d,%d,\"%s\",%d,%d".printf( (int) type,
+            (int) mode, number, number_type, (int) cls );
+
+        if ( type == CallForwardingType.NO_REPLY ||
+             type == CallForwardingType.ALL ||
+             type == CallForwardingType.ALL_CONDITIONAL )
+        {
+            command += ",,,%d".printf( time );
+        }
+
+        return command;
+    }
+}
+
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // low level access (SIM, charset, etc.)
@@ -1638,6 +1689,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CSSI" ]             = new FsoGsm.PlusCSSI();
     table[ "+CSSU" ]             = new FsoGsm.PlusCSSU();
     table[ "+CUSD" ]             = new FsoGsm.PlusCUSD();
+    table[ "+CCFC" ]             = new FsoGsm.PlusCCFC();
 
     // call control
     table[ "A" ]                 = new FsoGsm.V250A();

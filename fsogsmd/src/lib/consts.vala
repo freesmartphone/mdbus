@@ -688,6 +688,11 @@ namespace FsoGsm.Constants
         return number;
     }
 
+    public uint8 determinePhoneNumberType( string number )
+    {
+        return ( number[0] == '+' ) ? 145 : 129;
+    }
+
     public FreeSmartphone.GSM.SIMAuthStatus simAuthStatusToEnum( string status )
     {
         switch ( status )
@@ -1015,6 +1020,16 @@ namespace FsoGsm.Constants
         NOT_REACHABLE = 3,
         ALL = 4,
         ALL_CONDITIONAL = 5,
+    }
+
+    /* 27.007 Section 7.11 */
+    public enum CallForwardingMode
+    {
+        DISABLE = 0,
+        ENABLE = 1,
+        QUERY_STATUS = 2,
+        REGISTRATION = 3,
+        ERASURE = 4,
     }
 }
 
