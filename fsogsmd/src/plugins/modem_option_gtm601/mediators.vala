@@ -82,6 +82,8 @@ namespace Gtm601
 
             do
             {
+                poll_again = false;
+
                 var cmd = theModem.createAtCommand<PlusCLCC>( "+CLCC" );
                 var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
 
