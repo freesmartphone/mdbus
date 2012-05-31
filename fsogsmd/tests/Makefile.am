@@ -52,6 +52,9 @@ testsms_SOURCES = testsms.vala smsdata.vala
 TEST_PROGS += testsmsstorage
 testsmsstorage_SOURCES = testsmsstorage.vala smsdata.vala
 
+TEST_PROGS += testatresultparser
+testatresultparser_SOURCES = testatresultparser.vala
+
 # TEST_PROGS += testoptiongtm601
 # FIXME adding the sources from the modem plugin itself to the list of sources for
 # compilation of this test is ugly, we should rather load the plugin and use it the common
