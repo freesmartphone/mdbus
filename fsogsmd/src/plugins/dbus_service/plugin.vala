@@ -33,6 +33,7 @@ class DBusService.Device :
     FreeSmartphone.GSM.SMS,
     FreeSmartphone.GSM.Network,
     FreeSmartphone.GSM.Call,
+    FreeSmartphone.GSM.CallForwarding,
     FreeSmartphone.GSM.PDP,
     FreeSmartphone.GSM.CB,
     FreeSmartphone.GSM.HZ,
@@ -102,6 +103,7 @@ class DBusService.Device :
         subsystem.registerObjectForService<FreeSmartphone.GSM.SMS>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
         subsystem.registerObjectForService<FreeSmartphone.GSM.Network>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
         subsystem.registerObjectForService<FreeSmartphone.GSM.Call>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
+        subsystem.registerObjectForService<FreeSmartphone.GSM.CallForwarding>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
         subsystem.registerObjectForService<FreeSmartphone.GSM.PDP>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
         subsystem.registerObjectForService<FreeSmartphone.GSM.CB>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
         subsystem.registerObjectForService<FreeSmartphone.GSM.HZ>( FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath, this );
@@ -747,6 +749,31 @@ class DBusService.Device :
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+    }
+
+    //
+    // DBUS (org.freesmartphone.GSM.CallForwarding)
+    //
+
+    public void disable_all() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    {
+        checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+        var m = modem.createMediator<FsoGsm.CallForwardingDisableAll>();
+        yield m.run();
+    }
+
+    public void enable( string cls, string reason, string number, int time ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    {
+        checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+        var m = modem.createMediator<FsoGsm.CallForwardingEnable>();
+        yield m.run( cls, reason, number, time );
+    }
+
+    public void disable( string cls, string reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    {
+        checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+        var m = modem.createMediator<FsoGsm.CallForwardingDisable>();
+        yield m.run( cls, reason );
     }
 
     //
