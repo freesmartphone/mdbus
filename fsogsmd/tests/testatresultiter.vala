@@ -47,13 +47,13 @@ void test_atresultiter_strings()
 
     assert( iter.next( prefix ) );
     assert( iter.next_string( out str ) );
-    assert( str == "\"test12\"" );
+    assert( str == "test12" );
     assert( iter.next_number( out num ) );
     assert( num == 3 );
     assert( iter.next_string( out str ) );
     assert( str == "" );
     assert( iter.next_string( out str ) );
-    assert( str == "\"test34\"" );
+    assert( str == "test34" );
     assert( iter.next_unquoted_string( out str ) );
     assert( str == "testbla3" );
 }
@@ -86,12 +86,12 @@ void test_atresultiter_list()
 
     assert( iter.next( prefix ) );
     assert( iter.next_string( out str ) );
-    assert( str == "\"test12\"" );
+    assert( str == "test12" );
     assert( iter.next_number( out num ) );
     assert( num == 3 );
     assert( iter.open_list() );
     assert( iter.next_string( out str ) );
-    assert( str == "\"test34\"" );
+    assert( str == "test34" );
     assert( iter.next_unquoted_string( out str ) );
     assert( str == "testbla3" );
     assert( iter.close_list() );
@@ -108,7 +108,7 @@ void test_atresultiter_multiple_lines()
     assert( iter.next( "+CCFC:" ) );
     assert( !iter.next_number( out num ) );
     assert( iter.next_string( out str ) );
-    assert( str == "\"test12\"" );
+    assert( str == "test12" );
     assert( !iter.next_string( out str ) );
     assert( !iter.open_list() );
     assert( !iter.close_list() );
@@ -116,19 +116,19 @@ void test_atresultiter_multiple_lines()
     assert( num == 3 );
     assert( iter.open_list() );
     assert( iter.next_string( out str ) );
-    assert( str == "\"test34\"" );
+    assert( str == "test34" );
     assert( iter.next_unquoted_string( out str ) );
     assert( str == "testbla3" );
     assert( iter.close_list() );
 
     assert( iter.next( "+CCLC:" ) );
     assert( iter.next_string( out str ) );
-    assert( str == "\"test32\"" );
+    assert( str == "test32" );
     assert( iter.next_number( out num ) );
     assert( num == 9 );
     assert( iter.open_list() );
     assert( iter.next_string( out str ) );
-    assert( str == "\"test14\"" );
+    assert( str == "test14" );
     assert( iter.next_unquoted_string( out str ) );
     assert( str == "testbla4" );
     assert( iter.close_list() );
@@ -136,7 +136,7 @@ void test_atresultiter_multiple_lines()
     assert( !iter.next( "+CCLC:" ) );
 
     iter = new AtResultIter( new string[] { response0, response1 } );
-    assert( !iter.next( "+CCLC: +CCFC:" ) );
+    while( iter.next( "+CCFC" ) );
 }
 
 void main( string[] args )

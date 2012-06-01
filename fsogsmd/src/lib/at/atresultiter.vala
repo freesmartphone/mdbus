@@ -90,6 +90,11 @@ namespace FsoGsm
         public AtResultIter( string[] lines )
         {
             _lines = lines;
+            reset();
+        }
+
+        public void reset()
+        {
             _line_pos = 0;
             _line_num = 0;
             _line = "";
@@ -132,9 +137,9 @@ namespace FsoGsm
             {
                 _line = line.dup();
                 result = true;
-
                 if ( _line_num == _lines.length - 1 )
                     _line_num = _lines.length;
+                else _line_num++;
             }
             else
             {
@@ -191,7 +196,7 @@ namespace FsoGsm
 
                 end++;
 
-                str = _line.substring( _line_pos, end - _line_pos );
+                str = _line.substring( _line_pos + 1, end - _line_pos - 2 );
             }
 
             _line_pos = skip_to_next_field( _line, end );
