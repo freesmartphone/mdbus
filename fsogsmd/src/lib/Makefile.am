@@ -35,7 +35,7 @@ libfsogsm_la_SOURCES = \
 	at/atsms.vala \
 	at/atunsolicited.vala \
 	at/atphonebook.vala \
-	at/atresultparser.vala \
+	at/atresultiter.vala \
 	\
 	call.vala \
 	codes.vala \

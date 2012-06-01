@@ -24,7 +24,7 @@ namespace FsoGsm
 {
     private const int AT_RESULT_LINE_LENGTH_MAX = 2048;
 
-    public class AtResultParser
+    public class AtResultIter
     {
         private int _line_pos;
         private int _line_num;
@@ -87,7 +87,7 @@ namespace FsoGsm
         // public API
         //
 
-        public AtResultParser( string[] lines )
+        public AtResultIter( string[] lines )
         {
             _lines = lines;
             _line_pos = 0;
