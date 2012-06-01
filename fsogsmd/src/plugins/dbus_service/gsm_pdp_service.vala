@@ -25,17 +25,10 @@ public class FsoGsm.GsmPdpService : FreeSmartphone.GSM.PDP, Service
     // DBUS (org.freesmartphone.GSM.PDP.*)
     //
 
-    public async bool get_roaming_allowed () throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+    public bool roaming_allowed
     {
-        checkAvailability();
-        return modem.data().roamingAllowed;
-    }
-
-    public async void set_roaming_allowed (bool state) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
-    {
-        checkAvailability();
-        modem.data().roamingAllowed = state;
-        yield modem.pdphandler.syncStatus();
+        get { return modem.data().roamingAllowed; }
+        set { modem.data().roamingAllowed = value; }
     }
 
     public async void activate_context() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
