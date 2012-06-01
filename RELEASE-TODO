@@ -3,19 +3,38 @@ version 0.12
 
 * outstanding bugs scheduled for 0.12
 * switch to vala 0.16.x
+* we need a utility script to test the content of the distribution archives against what
+  is stored in the git repository. If there is a not allowed difference than the archive
+  should not marked as ready my `make distcheck`
 * fsogsmd:
-    * n_gsm as default?
-    * pdp_ppp_internal default PDP plugin?
     * call forwarding
     * converence calls
-    * emergency calls (how to test?)
-    * join/release held/transfer calls
-    * homezone API needed anymore?
+    * emergency calls
+        * how can we test this?
+    * join/release/held/transfer calls
+    * homezone API
+        * needed anymore?
     * voice mails API
     * send generic/retricted SIM command
-    * lockdown feature?
-* extend API test coverage
-* fsotest re-design (use dbus-daemon-proxy to test API on the device)
+    * lockdown feature
+        * it should be possible for a client to lock the whole modem for any access.
+          Until the lock is set no other client than the one aquired the lock should be
+          able to access the modem. If the lock is released other clients can access the
+          modem again. Usable for doing firmware upgrade where no other program should be
+          allowed to use the modem.
+* fsotest re-design
+    * rather than doing testing the unit-test style write a test agent which acts as a
+      normal client but does every automatically like a normal UI would do.
+      Testing correct behavior is done by defining checkpoints. If a checkpoint is not
+      reached whole test procedure is aborted if the severity of the checkpoint is
+      configured as critical.
+    * furthermore it should be possible to test the daemons by using the dbus-daemon-proxy
+      utility on a remote device to test the daemons running there.
+    * do not use glib unit test framework anymore; current implementation gives us too
+      much trouble with executing asynchrounous methods.
+* API test coverage should be
+    * 100% for org.freesmartphone.Usage
+    * 50% for org.freesmartphone.GSM.*
 
 version 0.11
 =====================================================================
