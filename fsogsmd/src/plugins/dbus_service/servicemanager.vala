@@ -20,17 +20,16 @@
 
 using GLib;
 
-public abstract class FsoGsm.ServiceManager : FsoFramework.AbstractObject
+public abstract class FsoGsm.ServiceManager : FsoFramework.AbstractObject, FsoGsm.IServiceProvider
 {
-    // FIXME do we really need a list of all registered services?
-    private GLib.List<Service> services;
+    private GLib.HashTable<Type,Service> services;
     private FsoFramework.Subsystem subsystem;
     private string serviceName;
     private string servicePath;
 
     protected ServiceManager( FsoFramework.Subsystem subsystem, string serviceName, string servicePath )
     {
-        this.services = new GLib.List<Service>();
+        this.services = new GLib.HashTable<Type,Service>( null, null );
         this.subsystem = subsystem;
         this.serviceName = serviceName;
         this.servicePath = servicePath;
@@ -38,13 +37,19 @@ public abstract class FsoGsm.ServiceManager : FsoFramework.AbstractObject
 
     protected void registerService<T>( Service serviceObject )
     {
-        services.append( serviceObject );
+        services[typeof(T)] = serviceObject;
         subsystem.registerObjectForService<T>( serviceName, servicePath, serviceObject );
+    }
+
+    public T retrieveService<T>()
+    {
+        assert( services.lookup( typeof(T) ) != null );
+        return services[typeof(T)];
     }
 
     public void assignModem( FsoGsm.Modem modem )
     {
-        foreach ( var service in services )
+        foreach ( var service in services.get_values() )
             service.assignModem( modem );
     }
 

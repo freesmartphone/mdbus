@@ -230,7 +230,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract T createMediator<T>() throws FreeSmartphone.Error;
     public abstract T createAtCommand<T>( string command );
     public abstract T theDevice<T>();
-    public abstract Object parent { get; set; } // the DBus object
+    public abstract IServiceProvider parent { get; set; } // the DBus object
     public abstract CallHandler callhandler { get; set; } // the Call handler
     public abstract SmsHandler smshandler { get; set; } // the Sms handler
     public abstract PhonebookHandler pbhandler { get; set; } // the Phonebook handler
@@ -282,7 +282,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     protected UnsolicitedResponseHandler urc;
 
-    public Object parent { get; set; } // the DBus object
+    public IServiceProvider parent { get; set; } // the DBus object
     public CallHandler callhandler { get; set; } // the Call handler
     public SmsHandler smshandler { get; set; } // the SMS handler
     public PhonebookHandler pbhandler { get; set; } // the Phonebook handler
@@ -838,7 +838,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     public T theDevice<T>()
     {
         assert( parent != null );
-        return (T) parent;
+        return parent.retrieveService<T>();
     }
 
     public Modem.Status status()
@@ -1051,7 +1051,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         // update for external listeners
         if ( parent != null )
         {
-            var obj = parent as FreeSmartphone.GSM.Device;
+            var obj = theDevice<FreeSmartphone.GSM.Device>();
             obj.device_status( externalStatus() );
         }
         logger.info( @"Modem Status changed to $modem_status" );
