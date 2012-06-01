@@ -26,8 +26,9 @@ void test_atresultparser_numbers()
     var prefix = "+CCFC:";
     var response = "+CCFC: 1111,2345,9";
     var num = 0;
-    var parser = new AtResultParser( response, prefix );
+    var parser = new AtResultParser( new string[] { response } );
 
+    assert( parser.next( prefix ) );
     assert( parser.next_number( out num ) );
     assert( num == 1111 );
     assert( parser.next_number( out num ) );
@@ -42,8 +43,9 @@ void test_atresultparser_strings()
     var response = "+CCFC: \"test12\",3,,\"test34\",testbla3";
     var str = "";
     var num = 0;
-    var parser = new AtResultParser( response, prefix );
+    var parser = new AtResultParser( new string[] { response } );
 
+    assert( parser.next( prefix ) );
     assert( parser.next_string( out str ) );
     assert( str == "\"test12\"" );
     assert( parser.next_number( out num ) );
@@ -62,8 +64,9 @@ void test_atresultparser_skip_next()
     var response = "+CCFC: \"test12\",3,,\"test34\",testbla3";
     var str = "";
     var num = 0;
-    var parser = new AtResultParser( response, prefix );
+    var parser = new AtResultParser( new string[] { response } );
 
+    assert( parser.next( prefix ) );
     assert( parser.skip_next() );
     assert( parser.next_number( out num ) );
     assert( num == 3 );
@@ -79,8 +82,9 @@ void test_atresultparser_list()
     var response = "+CCFC: \"test12\",3,(\"test34\",testbla3)";
     var str = "";
     var num = 0;
-    var parser = new AtResultParser( response, prefix );
+    var parser = new AtResultParser( new string[] { response } );
 
+    assert( parser.next( prefix ) );
     assert( parser.next_string( out str ) );
     assert( str == "\"test12\"" );
     assert( parser.next_number( out num ) );
@@ -93,6 +97,48 @@ void test_atresultparser_list()
     assert( parser.close_list() );
 }
 
+void test_atresultparser_multiple_lines()
+{
+    var response0 = "+CCFC: \"test12\",3,(\"test34\",testbla3)";
+     var response1 = "+CCLC: \"test32\",9,(\"test14\",testbla4)";
+    var str = "";
+    var num = 0;
+    var parser = new AtResultParser( new string[] { response0, response1 } );
+
+    assert( parser.next( "+CCFC:" ) );
+    assert( !parser.next_number( out num ) );
+    assert( parser.next_string( out str ) );
+    assert( str == "\"test12\"" );
+    assert( !parser.next_string( out str ) );
+    assert( !parser.open_list() );
+    assert( !parser.close_list() );
+    assert( parser.next_number( out num ) );
+    assert( num == 3 );
+    assert( parser.open_list() );
+    assert( parser.next_string( out str ) );
+    assert( str == "\"test34\"" );
+    assert( parser.next_unquoted_string( out str ) );
+    assert( str == "testbla3" );
+    assert( parser.close_list() );
+
+    assert( parser.next( "+CCLC:" ) );
+    assert( parser.next_string( out str ) );
+    assert( str == "\"test32\"" );
+    assert( parser.next_number( out num ) );
+    assert( num == 9 );
+    assert( parser.open_list() );
+    assert( parser.next_string( out str ) );
+    assert( str == "\"test14\"" );
+    assert( parser.next_unquoted_string( out str ) );
+    assert( str == "testbla4" );
+    assert( parser.close_list() );
+
+    assert( !parser.next( "+CCLC:" ) );
+
+    parser = new AtResultParser( new string[] { response0, response1 } );
+    assert( !parser.next( "+CCLC: +CCFC:" ) );
+}
+
 void main( string[] args )
 {
     Test.init( ref args );
@@ -100,6 +146,7 @@ void main( string[] args )
     Test.add_func( "/AtResultParser/Strings", test_atresultparser_strings );
     Test.add_func( "/AtResultParser/SkipNext", test_atresultparser_skip_next );
     Test.add_func( "/AtResultParser/List", test_atresultparser_list );
+    Test.add_func( "/AtResultParser/MultipleLInes", test_atresultparser_multiple_lines );
     Test.run();
 }
 

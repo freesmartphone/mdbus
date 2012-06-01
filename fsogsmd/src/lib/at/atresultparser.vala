@@ -22,11 +22,14 @@
 
 namespace FsoGsm
 {
+    private const int AT_RESULT_LINE_LENGTH_MAX = 2048;
+
     public class AtResultParser
     {
         private int _line_pos;
+        private int _line_num;
+        private string[] _lines;
         private string _line;
-        private string _prefix;
 
         //
         // private API
@@ -84,22 +87,62 @@ namespace FsoGsm
         // public API
         //
 
-        public AtResultParser( string line, string prefix )
+        public AtResultParser( string[] lines )
         {
-            _line = line;
-            _prefix = prefix;
-            reset();
+            _lines = lines;
+            _line_pos = 0;
+            _line_num = 0;
+            _line = "";
         }
 
-        public void reset()
+        public bool next( string prefix )
         {
-            _line_pos = 0;
+            string line = "";
+            bool result = false;
 
-            if ( _prefix.length > 0 && _line.length > _prefix.length )
-                _line_pos = _prefix.length;
+            for ( ; _line_num < _lines.length; _line_num++ )
+            {
+                line = _lines[_line_num];
 
-            while ( _line_pos < _line.length && _line[_line_pos] == ' ' )
-                _line_pos++;
+                if ( line.length > AT_RESULT_LINE_LENGTH_MAX )
+                {
+                    _line_num++;
+                    continue;
+                }
+
+                if ( prefix.length == 0 )
+                {
+                    _line_pos = 0;
+                    break;
+                }
+
+                if ( line.has_prefix( prefix ) )
+                {
+                    _line_pos = prefix.length;
+
+                    while ( _line_pos < line.length &&
+                            line[_line_pos] == ' ' )
+                        _line_pos++;
+
+                    break;
+                }
+            }
+
+            if ( _line_num < _lines.length )
+            {
+                _line = line.dup();
+                result = true;
+
+                if ( _line_num == _lines.length - 1 )
+                    _line_num = _lines.length;
+            }
+            else
+            {
+                _line = "";
+                _line_pos = 0;
+            }
+
+            return result;
         }
 
         public bool next_number( out int number )
