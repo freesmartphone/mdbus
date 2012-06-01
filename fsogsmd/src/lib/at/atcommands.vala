@@ -1596,22 +1596,66 @@ public class V250H : V250terCommand
 
 public class PlusCCFC : AbstractAtCommand
 {
+    private BearerClass _query_cls = BearerClass.DEFAULT;
+
+    public GLib.List<CallForwardingCondition?> conditions;
+
     public PlusCCFC()
     {
-        try
+        conditions = new GLib.List<CallForwardingCondition?>();
+    }
+
+    public override void parseMulti( string[] response ) throws AtCommandError
+    {
+        var iter = new AtResultIter( response );
+        string str = "";
+        int num = 0;
+
+        while ( iter.next( "+CCFC:" ) )
+            num++;
+
+        if ( num == 0 )
         {
-            re = new Regex( """\+CCFC: (?P<status>\d),(?P<class>\d)?""" );
-        }
-        catch ( GLib.RegexError e )
-        {
-            assert_not_reached(); // fail here if Regex is broken
+            conditions.append ( CallForwardingCondition( _query_cls ) );
+            return;
         }
 
-        prefix = { "+CCFC" };
+        iter.reset();
+        for ( var n = 0; iter.next( "+CCFC:" ); n++ )
+        {
+            var condition = CallForwardingCondition();
+
+            iter.next_number( out num );
+            condition.status = (CallForwardingStatus) num;
+            iter.next_number( out num );
+            condition.cls = (BearerClass) num;
+
+            if ( !iter.next_string( out str ) )
+            {
+                conditions.append( condition );
+                continue;
+            }
+
+            condition.number = str.dup();
+
+            // skip number type as we determine the type based on the number itself
+            iter.skip_next();
+
+            // skip subaddr and satype if available too
+            if ( !iter.skip_next() )
+                continue;
+            if ( !iter.skip_next() )
+                continue;
+
+            iter.next_number( out condition.time );
+
+            conditions.append( condition );
+        }
     }
 
     public string query( CallForwardingType type, BearerClass cls = FsoGsm.Constants.BearerClass.DEFAULT )
     {
+        _query_cls = cls;
         if ( cls == BearerClass.DEFAULT )
             return "+CCFC=%d,2".printf( (int) type );
         return "+CCFC=%d,2,,,%d".printf( (int) type, (int) cls );

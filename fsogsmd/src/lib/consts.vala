@@ -1031,6 +1031,29 @@ namespace FsoGsm.Constants
         REGISTRATION = 3,
         ERASURE = 4,
     }
+
+    /* 27.007 Section 7.11 */
+    public enum CallForwardingStatus
+    {
+        NOT_ACTIVE = 0,
+        ACTIVE = 1,
+    }
+
+    public struct CallForwardingCondition
+    {
+        public CallForwardingStatus status;
+        public BearerClass cls;
+        public string number;
+        public int time;
+
+        public CallForwardingCondition( BearerClass cls = BearerClass.DEFAULT )
+        {
+            this.status = 0;
+            this.cls = cls;
+            this.number = "";
+            this.time = 20;
+        }
+    }
 }
 
 // vim:ts=4:sw=4:expandtab

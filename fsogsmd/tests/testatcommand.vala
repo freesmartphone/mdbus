@@ -20,6 +20,7 @@
 using GLib;
 using Gee;
 using FsoGsm;
+using FsoGsm.Constants;
 
 HashMap<string,FsoGsm.AtCommand> commands;
 
@@ -256,8 +257,41 @@ void test_atcommand_PlusCCFC()
 
     try
     {
-        cmd.parse( "+CCFC: 0,1" );
-        cmd.parse( "+CCFC: 0,1,2" );
+        cmd.parseMulti( new string[] {
+            "+CCFC: 1,7",
+            "+CCFC: 1,1,\"+49123456789\",143,,,50",
+            "+CCFC: 0,8,\"+491234567890\",143,\"987654321\",128,40"
+        } );
+
+        assert( cmd.conditions.length() == 3 );
+
+        var n = 0;
+        foreach ( var condition in cmd.conditions )
+        {
+            if ( n == 0 )
+            {
+                assert( condition.status == CallForwardingStatus.ACTIVE );
+                assert( condition.cls == BearerClass.DEFAULT );
+                assert( condition.number == "" );
+                assert( condition.time == 20 );
+            }
+            else if ( n == 1 )
+            {
+                assert( condition.status == CallForwardingStatus.ACTIVE );
+                assert( condition.cls == BearerClass.VOICE );
+                assert( condition.number == "+49123456789" );
+                assert( condition.time == 50 );
+            }
+            else if ( n == 2 )
+            {
+                assert( condition.status == CallForwardingStatus.NOT_ACTIVE );
+                assert( condition.cls == BearerClass.SMS );
+                assert( condition.number == "+491234567890" );
+                assert( condition.time == 40 );
+            }
+
+            n++;
+        }
     }
     catch ( Error e )
     {
