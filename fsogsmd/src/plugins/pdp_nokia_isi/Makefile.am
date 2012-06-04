@@ -19,12 +19,14 @@ pdp_nokia_isi_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsogsm-2.0 \
 	--pkg gisicomm-1.0
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 pdp_nokia_isi_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
 	$(FSO_CFLAGS) \
 	$(ISI_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 pdp_nokia_isi_la_LIBADD = \
 	$(top_builddir)/src/lib/libfsogsm.la \

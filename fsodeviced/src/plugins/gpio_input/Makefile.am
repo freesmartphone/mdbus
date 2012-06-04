@@ -6,10 +6,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = gpio_input.la
@@ -26,11 +22,13 @@ gpio_input_la_VALAFLAGS = \
 	--pkg fsobasics-2.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsodevice-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 gpio_input_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 gpio_input_la_LIBADD = \
 	$(top_builddir)/src/lib/libfsodevice.la \

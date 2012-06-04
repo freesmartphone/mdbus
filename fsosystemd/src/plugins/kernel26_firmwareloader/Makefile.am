@@ -17,6 +17,7 @@ kernel26_firmwareloader_la_SOURCES = \
 kernel26_firmwareloader_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 
 kernel26_firmwareloader_la_LIBADD = \
@@ -32,6 +33,7 @@ kernel26_firmwareloader_la_VALAFLAGS = \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 
 kernel26_firmwareloader_la_LDFLAGS = -no-undefined -module -avoid-version

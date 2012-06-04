@@ -7,10 +7,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
 modlibexec_LTLIBRARIES = gsmvoice_alsa_cmtspeechdata.la
@@ -29,6 +25,7 @@ gsmvoice_alsa_cmtspeechdata_la_VALAFLAGS = \
 	--pkg fsoaudio-2.0 \
 	--pkg libcmtspeechdata \
 	--pkg alsa \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 gsmvoice_alsa_cmtspeechdata_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -38,6 +35,7 @@ gsmvoice_alsa_cmtspeechdata_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 gsmvoice_alsa_cmtspeechdata_la_LIBADD = \
 	$(CMTSPEECHDATA_LIBS) \

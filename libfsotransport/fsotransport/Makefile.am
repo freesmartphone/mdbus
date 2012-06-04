@@ -10,10 +10,6 @@ AM_CFLAGS = \
 AM_VALAFLAGS = \
 	$(NULL)
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -g -ggdb
-endif
 
 if FAST_BAUD
 AM_VALAFLAGS += -D FAST_BAUD
@@ -47,6 +43,7 @@ libfsotransport_la_VALAFLAGS = \
 	--pkg fsobasics-2.0 \
 	--header fsotransport.h \
 	--library fsotransport-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 
 if WANT_NGSM

@@ -8,10 +8,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsodata
 modlibexec_LTLIBRARIES = libfsodata.la
@@ -27,6 +23,7 @@ libfsodata_la_VALAFLAGS = \
 	--pkg config \
 	--header fsodata.h \
 	--library fsodata-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 libfsodata_la_CFLAGS = \
 	-I$(top_srcdir) \
@@ -34,6 +31,7 @@ libfsodata_la_CFLAGS = \
 	$(XML_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 libfsodata_la_LIBADD = \
 	$(FSO_LIBS) \

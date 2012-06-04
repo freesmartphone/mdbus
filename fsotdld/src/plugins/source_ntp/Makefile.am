@@ -21,12 +21,14 @@ source_ntp_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsotdl-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 source_ntp_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 source_ntp_la_LIBADD = \
 	$(FSO_LIBS) \

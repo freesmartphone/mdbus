@@ -7,10 +7,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
 modlibexec_LTLIBRARIES = libfsoaudio.la
@@ -33,12 +29,14 @@ libfsoaudio_la_VALAFLAGS = \
 	--pkg config \
 	--header fsoaudio.h \
 	--library fsoaudio-2.0
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 libfsoaudio_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 libfsoaudio_la_LIBADD = \
 	$(FSO_LIBS) \

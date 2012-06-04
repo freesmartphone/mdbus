@@ -42,6 +42,7 @@ dbus_service_la_VALAFLAGS = \
 	--pkg fsotransport-2.0 \
 	--pkg fsoresource-2.0 \
 	--pkg fsogsm-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 dbus_service_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -49,6 +50,7 @@ dbus_service_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 dbus_service_la_LIBADD = \
 	$(FSO_LIBS) \

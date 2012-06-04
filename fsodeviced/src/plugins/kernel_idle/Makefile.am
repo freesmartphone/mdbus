@@ -23,12 +23,14 @@ kernel_idle_la_VALAFLAGS = \
 	--pkg fsoresource-2.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsodevice-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 kernel_idle_la_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 kernel_idle_la_LIBADD = \
 	$(FSO_LIBS) \

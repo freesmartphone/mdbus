@@ -16,10 +16,12 @@ kernel_info_la_VALAFLAGS = \
 	--pkg linux \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 kernel_info_la_CFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 kernel_info_la_LIBADD = \
 	$(FSO_LIBS) \

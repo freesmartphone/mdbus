@@ -7,10 +7,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
 modlibexec_LTLIBRARIES = gsmvoice_alsa_forwarder.la
@@ -29,6 +25,7 @@ gsmvoice_alsa_forwarder_la_VALAFLAGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsoaudio-2.0
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 gsmvoice_alsa_forwarder_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -38,6 +35,7 @@ gsmvoice_alsa_forwarder_la_CFLAGS = \
 	$(GEE_CFLAGS) \
 	-lsamplerate -D_GNU_SOURCE \
 	-DHAVE_SAMPLERATE_H \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 gsmvoice_alsa_forwarder_la_LIBADD = \
 	$(FSO_GLIB_LIBS) \

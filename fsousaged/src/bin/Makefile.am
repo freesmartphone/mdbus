@@ -17,10 +17,12 @@ fsousaged_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--save-temps \
 	--basedir $(top_srcdir) \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 fsousaged_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 fsousaged_LDADD = \
 	$(FSO_LIBS) \

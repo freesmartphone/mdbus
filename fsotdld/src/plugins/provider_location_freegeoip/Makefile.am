@@ -21,12 +21,14 @@ provider_location_freegeoip_la_VALAFLAGS = \
 	--pkg fsotransport-2.0 \
 	--pkg fsoresource-2.0 \
 	--pkg fsotdl-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 provider_location_freegeoip_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 provider_location_freegeoip_la_LIBADD = \
 	$(FSO_LIBS) \

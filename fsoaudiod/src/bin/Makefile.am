@@ -7,10 +7,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 sbin_PROGRAMS = fsoaudiod
 fsoaudiod_SOURCES = main.vala
@@ -21,10 +17,12 @@ fsoaudiod_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg fsoframework-2.0 \
 	--save-temps \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 fsoaudiod_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 fsoaudiod_LDADD = \
 	$(FSO_LIBS) \

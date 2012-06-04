@@ -6,10 +6,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsousage
 modlibexec_LTLIBRARIES = lowlevel_kernel26.la
@@ -23,12 +19,14 @@ lowlevel_kernel26_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsousage-2.0
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 lowlevel_kernel26_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(GEE_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 lowlevel_kernel26_la_LIBADD = \
 	$(top_builddir)/src/lib/libfsousage.la \

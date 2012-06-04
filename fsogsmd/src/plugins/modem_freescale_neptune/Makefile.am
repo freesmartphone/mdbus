@@ -6,10 +6,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS+= -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_freescale_neptune.la
@@ -25,6 +21,7 @@ modem_freescale_neptune_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsogsm-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 modem_freescale_neptune_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -32,6 +29,7 @@ modem_freescale_neptune_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 modem_freescale_neptune_la_LIBADD = \
 	$(FSO_LIBS) \

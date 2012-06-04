@@ -6,10 +6,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = libfsogsm.la
@@ -84,6 +80,7 @@ libfsogsm_la_VALAFLAGS = \
 	--pkg config \
 	--header fsogsm.h \
 	--library fsogsm-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 libfsogsm_la_CFLAGS = \
 	-I$(top_srcdir) \
@@ -93,6 +90,7 @@ libfsogsm_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(GSMMUX_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 
 if WANT_MUX

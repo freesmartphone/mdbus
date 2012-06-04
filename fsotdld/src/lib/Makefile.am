@@ -26,10 +26,12 @@ libfsotdl_la_VALAFLAGS = \
 	--pkg fsotransport-2.0 \
 	--header fsotdl.h \
 	--library fsotdl-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 libfsotdl_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 libfsotdl_la_LIBADD = \
 	$(FSO_LIBS) \

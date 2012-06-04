@@ -20,6 +20,7 @@ modem_singleline_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsogsm-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 modem_singleline_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -27,6 +28,7 @@ modem_singleline_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 modem_singleline_la_LIBADD = \
 	$(FSO_LIBS) \

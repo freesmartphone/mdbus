@@ -18,7 +18,6 @@ herring_quirks_la_SOURCES = \
 	alsa.vala \
 	$(NULL)
 herring_quirks_la_VALAFLAGS = \
-	$(AM_VALAFLAGS) \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/fsoframework \
 	--vapidir $(top_srcdir)/vapi \
@@ -31,12 +30,14 @@ herring_quirks_la_VALAFLAGS = \
 	--pkg fsotransport-2.0 \
 	--pkg fsosystem-2.0 \
 	--pkg fsodevice-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 herring_quirks_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 herring_quirks_la_LIBADD = \
 	$(FSO_LIBS) \

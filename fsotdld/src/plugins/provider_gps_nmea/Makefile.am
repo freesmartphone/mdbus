@@ -19,12 +19,14 @@ provider_gps_nmea_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsotdl-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 provider_gps_nmea_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 provider_gps_nmea_la_LIBADD = \
 	$(FSO_LIBS) \

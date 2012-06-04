@@ -17,11 +17,13 @@ alarm_la_VALAFLAGS = \
 	--pkg gee-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fso-glib-1.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 alarm_la_CFLAGS = \
 	$(FSO_GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 alarm_la_LIBADD = \
 	$(FSO_GLIB_LIBS) \

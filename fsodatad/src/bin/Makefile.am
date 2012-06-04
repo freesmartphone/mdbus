@@ -15,10 +15,12 @@ fsodatad_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--save-temps \
 	--basedir $(top_srcdir) \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 fsodatad_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 fsodatad_LDADD = \
 	$(FSO_LIBS) \

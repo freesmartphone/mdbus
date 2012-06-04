@@ -20,6 +20,7 @@ source_gps_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsotdl-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 source_gps_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -27,6 +28,7 @@ source_gps_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 source_gps_la_LIBADD = \
 	$(FSO_GLIB_LIBS) \

@@ -10,10 +10,6 @@ AM_CFLAGS = \
 AM_VALAFLAGS = \
 	$(NULL)
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -g -ggdb
-endif
 
 sbin_PROGRAMS = fsosystemd
 
@@ -24,10 +20,12 @@ fsosystemd_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg fsoframework-2.0 \
 	--basedir $(top_srcdir) \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 fsosystemd_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 fsosystemd_LDADD = \
 	$(FSO_LIBS) \

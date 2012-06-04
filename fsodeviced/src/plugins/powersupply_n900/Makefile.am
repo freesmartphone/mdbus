@@ -17,11 +17,13 @@ powersupply_n900_la_VALAFLAGS = \
 	--pkg linux \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 powersupply_n900_la_CFLAGS = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/3rdparty \
 	$(FSO_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 powersupply_n900_la_LIBADD = \
 	$(FSO_LIBS) \

@@ -17,11 +17,13 @@ kernel26_cpufreq_la_VALAFLAGS = \
 	--pkg gio-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 kernel26_cpufreq_la_CFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 kernel26_cpufreq_la_LIBADD = \
 	$(FSO_LIBS) \

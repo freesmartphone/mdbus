@@ -6,10 +6,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 lib_LTLIBRARIES = libfsotest.la
 
@@ -28,10 +24,12 @@ libfsotest_la_VALAFLAGS = \
 	--pkg config \
 	--header fsotest.h \
 	--library fsotest-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 libfsotest_la_CFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 libfsotest_la_LIBADD = \
 	$(GLIB_LIBS) \

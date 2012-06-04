@@ -1,3 +1,4 @@
+include $(top_srcdir)/Makefile.decl
 NULL =
 
 AUTOMAKE_OPTIONS = subdir-objects
@@ -9,9 +10,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = gsm0710mux-1.0.pc
@@ -36,7 +34,6 @@ libgsm0710mux_la_SOURCES = \
 	gsm0710mux/manager.vala \
 	$(NULL)
 libgsm0710mux_la_VALAFLAGS = \
-	$(AM_VALAFLAGS) \
 	--vapidir ./vapi \
 	--header gsm0710mux.h \
 	--pkg config \
@@ -45,6 +42,7 @@ libgsm0710mux_la_VALAFLAGS = \
 	--pkg fsobasics-2.0 \
 	--library=gsm0710mux-1.0 \
 	--save-temps --basedir $(top_srcdir) \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 libgsm0710mux_la_CFLAGS = $(DEPS_CFLAGS)
 libgsm0710mux_la_LIBADD = \

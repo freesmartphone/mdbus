@@ -31,12 +31,14 @@ libfsodevice_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--header fsodevice.h \
 	--library fsodevice-2.0
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 libfsodevice_la_CFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 libfsodevice_la_LIBADD = \
 	$(FSO_LIBS) \

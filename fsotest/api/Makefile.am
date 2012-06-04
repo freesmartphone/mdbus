@@ -23,10 +23,6 @@ LDADD = \
 	$(FSO_LIBS) \
 	$(NULL)
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 bin_PROGRAMS = \
 	testusage \

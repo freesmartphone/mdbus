@@ -18,12 +18,14 @@ player_canberra_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsodevice-2.0 \
 	--pkg libcanberra \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 player_canberra_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(CANBERRA_CFLAGS) \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 player_canberra_la_LIBADD = \
 	$(top_builddir)/src/lib/libfsodevice.la \

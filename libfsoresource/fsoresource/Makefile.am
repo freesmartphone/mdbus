@@ -10,10 +10,6 @@ AM_CFLAGS = \
 AM_VALAFLAGS = \
 	$(NULL)
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 lib_LTLIBRARIES = libfsoresource.la
 
@@ -31,10 +27,12 @@ libfsoresource_la_VALAFLAGS = \
 	--pkg fso-glib-1.0 \
 	--header fsoresource.h \
 	--library fsoresource-2.0
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 
 libfsoresource_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 
 libfsoresource_la_LIBADD = \

@@ -13,10 +13,6 @@ if HAVE_BACKTRACE
 AM_VALAFLAGS += -D HAVE_BACKTRACE
 endif
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 lib_LTLIBRARIES = libfsobasics.la
 
@@ -48,6 +44,7 @@ libfsobasics_la_SOURCES = \
 libfsobasics_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(LIBNL_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 
 libfsobasics_la_VALAFLAGS = \
@@ -63,6 +60,7 @@ libfsobasics_la_VALAFLAGS = \
 	-D SYSCONFDIR="$(sysconfdir)" \
 	--header fsobasics.h \
 	--library fsobasics-2.0
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 
 libfsobasics_la_LIBADD = \

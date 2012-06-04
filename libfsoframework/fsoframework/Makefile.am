@@ -12,10 +12,6 @@ AM_CFLAGS = \
 AM_VALAFLAGS = \
 	$(NULL)
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 lib_LTLIBRARIES = libfsoframework.la
 
@@ -38,6 +34,7 @@ libfsoframework_la_VALAFLAGS = \
 	--pkg config \
 	--header fsoframework.h \
 	--library fsoframework-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 
 libfsoframework_la_LIBADD = \

@@ -16,12 +16,14 @@ lowlevel_samsung_crespo_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsogsm-2.0 \
 	--pkg samsung-ipc-1.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 lowlevel_samsung_crespo_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
 	$(FSO_CFLAGS) \
 	$(SAMSUNG_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 lowlevel_samsung_crespo_la_LIBADD = \
 	$(top_builddir)/src/lib/libfsogsm.la \

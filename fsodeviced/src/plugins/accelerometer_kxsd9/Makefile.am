@@ -19,11 +19,13 @@ accelerometer_kxsd9_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsodevice-2.0
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 accelerometer_kxsd9_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(GLIB_CFLAGS) \
 	$(FSO_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 accelerometer_kxsd9_la_LIBADD = \
 	$(top_builddir)/src/lib/libfsodevice.la \

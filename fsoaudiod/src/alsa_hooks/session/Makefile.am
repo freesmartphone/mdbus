@@ -7,10 +7,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/alsa-lib
 modlibexec_LTLIBRARIES = fsoaudio_session.la
@@ -23,10 +19,12 @@ fsoaudio_session_la_VALAFLAGS = \
 	--pkg alsa \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 fsoaudio_session_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(ALSA_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 fsoaudio_session_la_LIBADD = \
 	$(GLIB_LIBS) \

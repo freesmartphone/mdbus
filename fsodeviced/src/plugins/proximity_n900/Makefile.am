@@ -16,10 +16,12 @@ proximity_n900_la_VALAFLAGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoresource-2.0 \
 	--pkg fsoframework-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 proximity_n900_la_CFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 proximity_n900_la_LIBADD = \
 	$(FSO_LIBS) \

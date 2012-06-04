@@ -19,11 +19,13 @@ libfsousage_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--header fsousage.h \
 	--library fsousage-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 libfsousage_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 libfsousage_la_LIBADD = \
 	$(FSO_LIBS) \

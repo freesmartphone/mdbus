@@ -15,10 +15,12 @@ vibrator_omapvibe_la_VALAFLAGS = \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 vibrator_omapvibe_la_CFLAGS = \
 	-I$(top_srcdir) \
 	$(FSO_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 vibrator_omapvibe_la_LIBADD = \
 	$(FSO_LIBS) \

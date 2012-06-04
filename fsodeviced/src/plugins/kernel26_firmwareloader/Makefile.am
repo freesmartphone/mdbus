@@ -14,7 +14,6 @@ modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = kernel26_firmwareloader.la
 kernel26_firmwareloader_la_SOURCES = plugin.vala
 kernel26_firmwareloader_la_VALAFLAGS = \
-	$(AM_VALAFLAGS) \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--vapidir $(top_srcdir)/vapi \
@@ -23,11 +22,13 @@ kernel26_firmwareloader_la_VALAFLAGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsodevice-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 kernel26_firmwareloader_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 kernel26_firmwareloader_la_LIBADD = \
 	$(FSO_LIBS) \

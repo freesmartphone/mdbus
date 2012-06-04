@@ -6,10 +6,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsousage
 modlibexec_LTLIBRARIES = dbus_service.la
@@ -25,12 +21,14 @@ dbus_service_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsousage-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 dbus_service_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(FSO_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 dbus_service_la_LIBADD = \
 	$(top_builddir)/src/lib/libfsousage.la \

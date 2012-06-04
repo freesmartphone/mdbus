@@ -34,10 +34,12 @@ libfsosystem_la_VALAFLAGS = \
 	--pkg linuxext \
 	--header fsosystem.h \
 	--library fsosystem-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 
 libfsosystem_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 
 libfsosystem_la_LIBADD = \

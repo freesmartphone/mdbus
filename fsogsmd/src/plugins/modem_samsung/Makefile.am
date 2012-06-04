@@ -6,10 +6,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = modem_samsung.la
@@ -48,6 +44,7 @@ modem_samsung_la_VALAFLAGS = \
 	--pkg fsogsm-2.0 \
 	--pkg samsung-ipc-1.0 \
 	--pkg samsung-modemctl \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 modem_samsung_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -57,6 +54,7 @@ modem_samsung_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(SAMSUNG_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 modem_samsung_la_LIBADD = \
 	$(FSO_LIBS) \

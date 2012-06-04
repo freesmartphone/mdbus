@@ -15,9 +15,11 @@ ambientlight_n900_la_VALAFLAGS = \
 	--pkg glib-2.0 \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 ambientlight_n900_la_CFLAGS = \
 	$(FSO_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 ambientlight_n900_la_LIBADD = \
 	$(FSO_LIBS) \

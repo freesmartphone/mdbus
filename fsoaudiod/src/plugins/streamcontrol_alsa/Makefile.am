@@ -7,10 +7,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
 modlibexec_LTLIBRARIES = streamcontrol_alsa.la
@@ -24,6 +20,7 @@ streamcontrol_alsa_la_VALAFLAGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsoaudio-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 streamcontrol_alsa_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -31,6 +28,7 @@ streamcontrol_alsa_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 streamcontrol_alsa_la_LIBADD = \
 	$(FSO_GLIB_LIBS) \

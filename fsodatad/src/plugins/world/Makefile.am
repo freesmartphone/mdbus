@@ -7,10 +7,6 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS =
 
-if WANT_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -ggdb -O0
-endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsodata
 modlibexec_LTLIBRARIES = world.la
@@ -23,6 +19,7 @@ world_la_VALAFLAGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsodata-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 world_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
@@ -30,6 +27,7 @@ world_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 world_la_LIBADD = \
 	$(FSO_GLIB_LIBS) \

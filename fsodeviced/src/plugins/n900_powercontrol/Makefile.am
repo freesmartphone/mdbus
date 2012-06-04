@@ -14,7 +14,6 @@ modlibexecdir = $(libdir)/cornucopia/modules/fsodevice
 modlibexec_LTLIBRARIES = n900_powercontrol.la
 n900_powercontrol_la_SOURCES = plugin.vala
 n900_powercontrol_la_VALAFLAGS = \
-	$(AM_VALAFLAGS) \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/src/lib \
 	--pkg glib-2.0 \
@@ -22,11 +21,13 @@ n900_powercontrol_la_VALAFLAGS = \
 	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsodevice-2.0 \
+	$(DEBUG_VALAFLAGS) \
 	$(NULL)
 n900_powercontrol_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
+	$(DEBUG_CFLAGS) \
 	$(NULL)
 n900_powercontrol_la_LIBADD = \
 	$(FSO_LIBS) \
