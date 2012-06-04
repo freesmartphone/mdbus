@@ -38,15 +38,6 @@ testcommandqueue_SOURCES = \
 	$(NULL)
 
 CLEANFILES =
-	$(TEST_PROGS) \
-	$(NULL)
-
 MAINTAINERCLEANFILES = \
-	$(addsuffix .c,$(noinst_PROGRAMS)) \
-	testtransport_vala.stamp \
-	testcommandqueue_vala.stamp \
-	$(NULL)
-
-EXTRA_DIST += \
-	$(MAINTAINERCLEANFILES) \
+	Makefile.in \
 	$(NULL)
