@@ -360,12 +360,12 @@ public abstract class FsoGsm.CallForwardingDisableAll : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.CallForwardingEnable : FsoGsm.AbstractMediator
 {
-    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void run( string cls, string reason, string number, int time ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 public abstract class FsoGsm.CallForwardingDisable : FsoGsm.AbstractMediator
 {
-    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void run( string cls, string reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 //

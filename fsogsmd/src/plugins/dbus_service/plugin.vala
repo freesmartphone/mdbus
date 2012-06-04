@@ -68,6 +68,7 @@ public class FsoGsm.DeviceServiceManager : FsoGsm.ServiceManager
         base.registerService<FreeSmartphone.GSM.Device>( new FsoGsm.GsmDeviceService() );
         base.registerService<FreeSmartphone.GSM.Debug>( new FsoGsm.GsmDebugService() );
         base.registerService<FreeSmartphone.GSM.Call>(new FsoGsm.GsmCallService() );
+        base.registerService<FreeSmartphone.GSM.CallForwarding>( new FsoGsm.GsmCallForwardingService() );
         base.registerService<FreeSmartphone.GSM.CB>( new FsoGsm.GsmCbService() );
         base.registerService<FreeSmartphone.GSM.HZ>( new FsoGsm.GsmHzService() );
         base.registerService<FreeSmartphone.GSM.Monitor>( new FsoGsm.GsmMonitorService() );

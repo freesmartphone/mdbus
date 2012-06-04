@@ -23,6 +23,7 @@ dbus_service_la_SOURCES = \
 	gsm_sms_service.vala \
 	gsm_network_service.vala \
 	gsm_call_service.vala \
+	gsm_call_forwarding_service.vala \
 	gsm_hz_service.vala \
 	gsm_cb_service.vala \
 	gsm_voicemail_service.vala \
