@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsogsm.lowlevel_gta04\" \
 	$(NULL)
 AM_VALAFLAGS =

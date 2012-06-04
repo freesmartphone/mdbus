@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
@@ -14,7 +14,7 @@ AM_VALAFLAGS = \
 
 if WANT_DEBUG
 AM_VALAFLAGS += -g -D DEBUG
-AM_CPPFLAGS += -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 lib_LTLIBRARIES = libfsoframework.la

@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsobasics\" \
 	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-D_GNU_SOURCE \
@@ -15,7 +15,7 @@ endif
 
 if WANT_DEBUG
 AM_VALAFLAGS += -g -D DEBUG
-AM_CPPFLAGS += -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 lib_LTLIBRARIES = libfsobasics.la

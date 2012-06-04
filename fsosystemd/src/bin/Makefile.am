@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsosystemd\" \
 	$(NULL)
@@ -12,7 +12,7 @@ AM_VALAFLAGS = \
 
 if WANT_DEBUG
 AM_VALAFLAGS += -g -D DEBUG
-AM_CPPFLAGS += -g -ggdb
+AM_CFLAGS += -g -ggdb
 endif
 
 sbin_PROGRAMS = fsosystemd
@@ -25,7 +25,7 @@ fsosystemd_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--basedir $(top_srcdir) \
 	$(NULL)
-fsosystemd_CPPFLAGS = \
+fsosystemd_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(NULL)

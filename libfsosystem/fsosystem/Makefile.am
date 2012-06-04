@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsosystem\" \
 	$(NULL)
@@ -12,7 +12,7 @@ AM_VALAFLAGS = \
 
 if HAVE_DEBUG
 AM_VALAFLAGS += -g -D DEBUG
-AM_CPPFLAGS += -g -ggdb
+AM_CFLAGS += -g -ggdb
 endif
 
 lib_LTLIBRARIES = libfsosystem.la

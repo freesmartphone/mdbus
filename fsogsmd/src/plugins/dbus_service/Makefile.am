@@ -43,7 +43,7 @@ dbus_service_la_VALAFLAGS = \
 	--pkg fsoresource-2.0 \
 	--pkg fsogsm-2.0 \
 	$(NULL)
-dbus_service_la_CPPFLAGS = \
+dbus_service_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
 	$(FSO_CFLAGS) \

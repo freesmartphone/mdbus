@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-DG_LOG_DOMAIN=\"fsogsm.lowlevel_motorola_ezx\" \
 	$(NULL)
 AM_VALAFLAGS =

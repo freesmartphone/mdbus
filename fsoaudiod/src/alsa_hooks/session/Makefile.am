@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsoaudio.alsa_hook\" \
 	$(NULL)
@@ -9,7 +9,7 @@ AM_VALAFLAGS =
 
 if WANT_DEBUG
 AM_VALAFLAGS += -g -D DEBUG
-AM_CPPFLAGS += -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 modlibexecdir = $(libdir)/alsa-lib
@@ -24,7 +24,7 @@ fsoaudio_session_la_VALAFLAGS = \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
 	$(NULL)
-fsoaudio_session_la_CPPFLAGS = \
+fsoaudio_session_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(NULL)

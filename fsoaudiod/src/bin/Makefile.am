@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsoaudio\" \
 	$(NULL)
@@ -9,7 +9,7 @@ AM_VALAFLAGS =
 
 if WANT_DEBUG
 AM_VALAFLAGS += -g -D DEBUG
-AM_CPPFLAGS += -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 sbin_PROGRAMS = fsoaudiod
@@ -22,7 +22,7 @@ fsoaudiod_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--save-temps \
 	$(NULL)
-fsoaudiod_CPPFLAGS = \
+fsoaudiod_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(NULL)

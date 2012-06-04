@@ -1,7 +1,7 @@
 include $(top_srcdir)/Makefile.decl
 NULL =
 
-AM_CPPFLAGS = \
+AM_CFLAGS = \
 	-include $(CONFIG_HEADER) \
 	-DG_LOG_DOMAIN=\"fsoaudio\" \
 	$(NULL)
@@ -9,7 +9,7 @@ AM_VALAFLAGS =
 
 if WANT_DEBUG
 AM_VALAFLAGS += -g -D DEBUG
-AM_CPPFLAGS += -ggdb -O0
+AM_CFLAGS += -ggdb -O0
 endif
 
 modlibexecdir = $(libdir)/cornucopia/modules/fsoaudio
@@ -34,7 +34,7 @@ libfsoaudio_la_VALAFLAGS = \
 	--header fsoaudio.h \
 	--library fsoaudio-2.0
 	$(NULL)
-libfsoaudio_la_CPPFLAGS = \
+libfsoaudio_la_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(ALSA_CFLAGS) \
 	$(GEE_CFLAGS) \
