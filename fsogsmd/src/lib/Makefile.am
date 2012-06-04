@@ -50,6 +50,7 @@ libfsogsm_la_SOURCES = \
 	sms.vala \
 	smsstorage.vala \
 	watchdog.vala \
+	serviceprovider.vala \
 	\
 	$(top_srcdir)/src/3rdparty/conversions.c \
 	$(top_srcdir)/src/3rdparty/smsutil.c \
