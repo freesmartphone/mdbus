@@ -3,5 +3,4 @@ NULL =
 
 EXTRA_DIST += \
 	config.vapi \
-	hsuart.vapi \
 	$(NULL)
