@@ -13,7 +13,6 @@ if HAVE_BACKTRACE
 AM_VALAFLAGS += -D HAVE_BACKTRACE
 endif
 
-
 lib_LTLIBRARIES = libfsobasics.la
 
 libfsobasics_la_SOURCES = \
@@ -42,12 +41,14 @@ libfsobasics_la_SOURCES = \
 	$(NULL)
 
 libfsobasics_la_CFLAGS = \
+	$(AM_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	$(LIBNL_CFLAGS) \
 	$(DEBUG_CFLAGS) \
 	$(NULL)
 
 libfsobasics_la_VALAFLAGS = \
+	$(AM_VALAFLAGS) \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg posix \
