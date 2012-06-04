@@ -54,4 +54,13 @@ test-report perf-report full-report:	${TEST_PROGS}
 	  }
 .PHONY: test test-report perf-report full-report
 # run make test as part of make check
-# check-local: test
+check-local: test
+
+# debug flags for vala and gcc
+DEBUG_VALAFLAGS =
+DEBUG_CFLAGS =
+
+if WANT_DEBUG
+DEBUG_VALAFLAGS += -g -D DEBUG
+DEBUG_CFLAGS += -ggdb -O0
+endif
