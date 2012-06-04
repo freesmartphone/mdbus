@@ -10,11 +10,6 @@ AM_CFLAGS = \
 AM_VALAFLAGS = \
 	$(NULL)
 
-if HAVE_DEBUG
-AM_VALAFLAGS += -g -D DEBUG
-AM_CFLAGS += -g -ggdb
-endif
-
 lib_LTLIBRARIES = libfsosystem.la
 
 libfsosystem_la_SOURCES = \

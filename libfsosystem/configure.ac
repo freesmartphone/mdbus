@@ -85,7 +85,7 @@ AC_SUBST(GLIB_LIBS)
 AC_ARG_ENABLE(debug,
   AS_HELP_STRING([--enable-debug], [compile with debug code]),
   [enable_debug=$enableval], [enable_debug=no])
-AM_CONDITIONAL([HAVE_DEBUG], [test "x$enable_debug" = "xyes"])
+AM_CONDITIONAL([WANT_DEBUG], [test "x$enable_debug" = "xyes"])
 
 #########################################################################################
 # output
