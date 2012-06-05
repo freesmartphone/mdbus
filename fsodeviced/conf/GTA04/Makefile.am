@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-SUBDIRS = alsa-3.2
+SUBDIRS = alsa-3.4
 
 confdir = $(sysconfdir)/freesmartphone/conf/GTA04
 dist_conf_DATA = \
@@ -12,6 +12,7 @@ dist_conf_DATA = \
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/
-	ln -sf alsa-3.2 $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/GTA04/alsa-default
+	ln -sf alsa-3.4 $(DESTDIR)/$(sysconfdir)/freesmartphone/conf/GTA04/alsa-default
+	ln -sf alsa-3.4 alsa-3.2
 
 MAINTAINERCLEANFILES = Makefile.in
