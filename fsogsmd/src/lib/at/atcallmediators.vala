@@ -24,6 +24,8 @@
  **/
 
 using Gee;
+using FsoGsm.Constants;
+using FsoFramework.StringHandling;
 
 namespace FsoGsm {
 
@@ -89,6 +91,40 @@ public class AtCallReleaseAll : CallReleaseAll
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         yield theModem.callhandler.releaseAll();
+    }
+}
+
+public class AtCallForwardingDisableAll : FsoGsm.CallForwardingDisableAll
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCCFC>( "+CCFC" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( CallForwardingMode.ERASURE,
+            CallForwardingType.ALL, BearerClass.DEFAULT) );
+        checkResponseOk( cmd, response );
+    }
+}
+
+public class AtCallForwardingEnable : FsoGsm.CallForwardingEnable
+{
+    public override async void run( string cls, string reason, string number, int time ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCCFC>( "+CCFC" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue_ext( CallForwardingMode.REGISTRATION,
+           enumFromNick<CallForwardingType>( reason ), enumFromNick<BearerClass>( cls ), number, time ) );
+        checkResponseOk( cmd, response );
+
+    }
+}
+
+public class AtCallForwardingDisable : FsoGsm.CallForwardingDisable
+{
+    public override async void run( string cls, string reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCCFC>( "+CCFC" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( CallForwardingMode.ERASURE,
+           enumFromNick<CallForwardingType>( reason ), enumFromNick<BearerClass>( cls ) ) );
+        checkResponseOk( cmd, response );
     }
 }
 
