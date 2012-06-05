@@ -28,6 +28,12 @@ PKG_CHECK_MODULES(GLIB,
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 
+AC_ARG_ENABLE(debug,
+  [  --enable-debug            Enable debug build (default=disabled)],
+  [enable_debug=$enableval],
+  [enable_debug="no"])
+AM_CONDITIONAL( [WANT_DEBUG], [test x"$enable_debug" = x"yes"])
+
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
