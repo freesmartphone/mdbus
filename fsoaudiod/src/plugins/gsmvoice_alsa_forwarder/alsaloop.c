@@ -741,6 +741,7 @@ static void thread_job1(void *_data)
 		}
 		if (verbose > 10)
 			gettimeofday(&tv1, NULL);
+		usleep(1000);
 		err = poll(pfds, j, wake);
 		if (err < 0)
 			err = -errno;
