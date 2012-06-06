@@ -25,25 +25,25 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
     // DBUS (org.freesmartphone.GSM.CallForwarding.*)
     //
 
-    public async void disable_all() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    public string voice_busy { owned get { return ""; } }
+    public string voice_no_reply { owned get { return ""; } }
+    public int voice_no_reply_timeout { get { return 0; } }
+    public string voice_not_reachable { owned get { return ""; } }
+    public string voice_unconditional { owned get { return ""; } }
+
+    public async void disable_all( string type ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        var m = modem.createMediator<FsoGsm.CallForwardingDisableAll>();
-        yield m.run();
     }
 
-    public async void enable( string cls, string reason, string number, int time ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    public async void enable( string rule, string number, int time ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        var m = modem.createMediator<FsoGsm.CallForwardingEnable>();
-        yield m.run( cls, reason, number, time );
     }
 
-    public async void disable( string cls, string reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    public async void disable( string rule ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        var m = modem.createMediator<FsoGsm.CallForwardingDisable>();
-        yield m.run( cls, reason );
     }
 }
 
