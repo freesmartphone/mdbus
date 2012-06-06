@@ -998,6 +998,7 @@ namespace FsoGsm.Constants
     /* 27.007 Section 7.11 */
     public enum BearerClass
     {
+        UNKNOWN = 0,
         VOICE = 1,
         DATA = 2,
         FAX = 4,
@@ -1037,22 +1038,6 @@ namespace FsoGsm.Constants
     {
         NOT_ACTIVE = 0,
         ACTIVE = 1,
-    }
-
-    public struct CallForwardingCondition
-    {
-        public CallForwardingStatus status;
-        public BearerClass cls;
-        public string number;
-        public int time;
-
-        public CallForwardingCondition( BearerClass cls = BearerClass.DEFAULT )
-        {
-            this.status = 0;
-            this.cls = cls;
-            this.number = "";
-            this.time = 20;
-        }
     }
 }
 
