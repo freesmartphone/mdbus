@@ -1,72 +1,14 @@
-1:'PCM Playback Volume':2:89,89
-2:'Line DAC Playback Volume':2:118,118
-3:'Line DAC Playback Switch':2:1,1
-4:'Line PGA Bypass Playback Volume':2:0,0
-5:'Line Line2 Bypass Playback Volume':2:0,0
-6:'Mono DAC Playback Volume':2:0,0
-7:'Mono DAC Playback Switch':1:1
-8:'Mono PGA Bypass Playback Volume':2:0,0
-9:'Mono Line2 Bypass Playback Volume':2:0,0
-10:'HP DAC Playback Volume':2:0,0
-11:'HP DAC Playback Switch':2:1,1
-12:'HP DAC Output Volume':2:6,6
-13:'HP PGA Bypass Playback Volume':2:0,0
-14:'HP Line2 Bypass Playback Volume':2:0,0
-15:'HPCOM DAC Playback Volume':2:71,71
-16:'HPCOM DAC Playback Switch':2:0,0
-17:'HPCOM DAC Output Volume':2:0,0
-18:'HPCOM PGA Bypass Playback Volume':2:0,0
-19:'HPCOM Line2 Bypass Playback Volume':2:0,0
-20:'AGC Switch':2:0,0
-21:'PGA Capture Volume':2:48,48
-22:'PGA Capture Switch':2:1,1
-23:'ADC HPF Cut-off':2:0,0
-24:'Right Line2 Bypass Mixer Line S':1:0
-25:'Right Line2 Bypass Mixer Mono S':1:0
-26:'Right Line2 Bypass Mixer HP Swi':1:0
-27:'Right Line2 Bypass Mixer HPCOM ':1:0
-28:'Left Line2 Bypass Mixer Line Sw':1:0
-29:'Left Line2 Bypass Mixer Mono Sw':1:0
-30:'Left Line2 Bypass Mixer HP Swit':1:0
-31:'Left Line2 Bypass Mixer HPCOM S':1:0
-32:'Right PGA Bypass Mixer Line Swi':1:0
-33:'Right PGA Bypass Mixer Mono Swi':1:0
-34:'Right PGA Bypass Mixer HP Switc':1:0
-35:'Right PGA Bypass Mixer HPCOM Sw':1:0
-36:'Left PGA Bypass Mixer Line Swit':1:0
-37:'Left PGA Bypass Mixer Mono Swit':1:0
-38:'Left PGA Bypass Mixer HP Switch':1:0
-39:'Left PGA Bypass Mixer HPCOM Swi':1:0
-40:'Right Line2R Mux':1:0
-41:'Right Line1R Mux':1:1
-42:'Right Line1L Mux':1:1
-43:'Right PGA Mixer Line1R Switch':1:0
-44:'Right PGA Mixer Line1L Switch':1:1
-45:'Right PGA Mixer Line2R Switch':1:0
-46:'Right PGA Mixer Mic3R Switch':1:0
-47:'Left Line2L Mux':1:0
-48:'Left Line1L Mux':1:1
-49:'Left PGA Mixer Line1L Switch':1:1
-50:'Left PGA Mixer Line2L Switch':1:0
-51:'Left PGA Mixer Mic3L Switch':1:0
-52:'Right HPCOM Mux':1:0
-53:'Right DAC_R1 Mixer Line Switch':1:1
-54:'Right DAC_R1 Mixer Mono Switch':1:0
-55:'Right DAC_R1 Mixer HP Switch':1:0
-56:'Right DAC_R1 Mixer HPCOM Switch':1:0
-57:'Right DAC Mux':1:0
-58:'Left HPCOM Mux':1:0
-59:'Left DAC_L1 Mixer Line Switch':1:1
-60:'Left DAC_L1 Mixer Mono Switch':1:0
-61:'Left DAC_L1 Mixer HP Switch':1:0
-62:'Left DAC_L1 Mixer HPCOM Switch':1:0
-63:'Left DAC Mux':1:0
-64:'Speaker Function':1:0
-65:'Jack Function':1:2
-66:'FMTX Function':1:0
-67:'Input Select':1:0
-68:'Earphone Function':1:0
-69:'Headphone Playback Volume':1:34
-70:'Earphone Playback Volume':1:0
-71:'Jack Bias Switch':1:0
-
+1:'PCM Playback Volume':2:40,40
+10:'Left HP Mixer DACR1 Playback Volume':2:0,0
+13:'Right HP Mixer DACL1 Playback Volume':2:0,0
+22:'Line DAC Playback Volume':2:118,118
+28:'HP DAC Playback Volume':2:0,0
+34:'HP Playback Switch':2:0,0
+40:'Speaker Function':1:0
+41:'Input Select':1:1
+42:'Jack Function':1:2
+45:'TPA6130A2 Headphone Playback Volume':1:42
+64:'Right HP Mixer DACL1 Switch':1:1
+73:'Left HP Mixer DACR1 Switch':1:1
+85:'Right Line Mixer DACR1 Switch':1:1
+88:'Left Line Mixer DACL1 Switch':1:1
