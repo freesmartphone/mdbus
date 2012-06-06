@@ -1596,66 +1596,44 @@ public class V250H : V250terCommand
 
 public class PlusCCFC : AbstractAtCommand
 {
-    private BearerClass _query_cls = BearerClass.DEFAULT;
-
-    public GLib.List<CallForwardingCondition?> conditions;
+    public bool active { get; private set; }
+    public BearerClass class1 { get; private set; }
+    public string number { get; private set; }
+    public int number_type { get; private set; }
+    public string subaddr { get; private set; }
+    public int satype { get; private set; }
+    public int timeout { get; private set; }
 
     public PlusCCFC()
     {
-        conditions = new GLib.List<CallForwardingCondition?>();
+        try
+        {
+            // +CCFC: <status>,<class1>[,<number>,<type>[,<subaddr>,<satype>[,<time>]]]
+            re = new Regex( """\+CCFC: (?P<status>[01]),(?P<class1>\d)(?:,"(?P<number>[\+0-9*#w]+)",(?P<type>\d+)(?:,"(?P<subaddr>[\+0-9*#w]+)",(?P<satype>\d+)(?:,(?P<time>\d+))?)?)?""");
+        }
+        catch ( GLib.RegexError e )
+        {
+            stdout.printf(@"error: $(e.message)\n");
+            assert_not_reached(); // fail here if Regex is broken
+        }
+
+        prefix = { "+CCFC: " };
     }
 
-    public override void parseMulti( string[] response ) throws AtCommandError
+    public override void parse( string response ) throws AtCommandError
     {
-        var iter = new AtResultIter( response );
-        string str = "";
-        int num = 0;
-
-        while ( iter.next( "+CCFC:" ) )
-            num++;
-
-        if ( num == 0 )
-        {
-            conditions.append ( CallForwardingCondition( _query_cls ) );
-            return;
-        }
-
-        iter.reset();
-        for ( var n = 0; iter.next( "+CCFC:" ); n++ )
-        {
-            var condition = CallForwardingCondition();
-
-            iter.next_number( out num );
-            condition.status = (CallForwardingStatus) num;
-            iter.next_number( out num );
-            condition.cls = (BearerClass) num;
-
-            if ( !iter.next_string( out str ) )
-            {
-                conditions.append( condition );
-                continue;
-            }
-
-            condition.number = str.dup();
-
-            // skip number type as we determine the type based on the number itself
-            iter.skip_next();
-
-            // skip subaddr and satype if available too
-            if ( !iter.skip_next() )
-                continue;
-            if ( !iter.skip_next() )
-                continue;
-
-            iter.next_number( out condition.time );
-
-            conditions.append( condition );
-        }
+        base.parse( response );
+        active = ( to_int( "status" ) == 1 );
+        class1 = (BearerClass) to_int( "class1" );
+        number = to_string( "number" );
+        number_type = to_int( "type" );
+        subaddr = to_string( "subaddr" );
+        satype = to_int( "satype" );
+        timeout = to_int( "time" );
     }
 
     public string query( CallForwardingType type, BearerClass cls = FsoGsm.Constants.BearerClass.DEFAULT )
     {
-        _query_cls = cls;
         if ( cls == BearerClass.DEFAULT )
             return "+CCFC=%d,2".printf( (int) type );
         return "+CCFC=%d,2,,,%d".printf( (int) type, (int) cls );

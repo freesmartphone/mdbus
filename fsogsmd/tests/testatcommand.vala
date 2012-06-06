@@ -257,44 +257,25 @@ void test_atcommand_PlusCCFC()
 
     try
     {
-        cmd.parseMulti( new string[] {
-            "+CCFC: 1,7",
-            "+CCFC: 1,1,\"+49123456789\",143,,,50",
-            "+CCFC: 0,8,\"+491234567890\",143,\"987654321\",128,40"
-        } );
+        cmd = (FsoGsm.PlusCCFC) atCommandFactory( "+CCFC" );
+        cmd.parse( "+CCFC: 1,7" );
+        assert( cmd.active );
+        assert( cmd.number == "" );
+        assert( cmd.timeout == -1 );
 
-        assert( cmd.conditions.length() == 3 );
-
-        var n = 0;
-        foreach ( var condition in cmd.conditions )
-        {
-            if ( n == 0 )
-            {
-                assert( condition.status == CallForwardingStatus.ACTIVE );
-                assert( condition.cls == BearerClass.DEFAULT );
-                assert( condition.number == "" );
-                assert( condition.time == 20 );
-            }
-            else if ( n == 1 )
-            {
-                assert( condition.status == CallForwardingStatus.ACTIVE );
-                assert( condition.cls == BearerClass.VOICE );
-                assert( condition.number == "+49123456789" );
-                assert( condition.time == 50 );
-            }
-            else if ( n == 2 )
-            {
-                assert( condition.status == CallForwardingStatus.NOT_ACTIVE );
-                assert( condition.cls == BearerClass.SMS );
-                assert( condition.number == "+491234567890" );
-                assert( condition.time == 40 );
-            }
-
-            n++;
-        }
+        cmd = (FsoGsm.PlusCCFC) atCommandFactory( "+CCFC" );
+        cmd.parse( "+CCFC: 0,8,\"+491234567890\",143,\"987654321\",128,40" );
+        assert( !cmd.active );
+        assert( cmd.class1 == BearerClass.SMS );
+        assert( cmd.number == "+491234567890" );
+        assert( cmd.number_type == 143 );
+        assert( cmd.subaddr == "987654321" );
+        assert( cmd.satype == 128 );
+        assert( cmd.timeout == 40 );
     }
     catch ( Error e )
     {
+        stdout.printf( @"test-error: $(e.message)\n" );
         assert_not_reached();
     }
 }
