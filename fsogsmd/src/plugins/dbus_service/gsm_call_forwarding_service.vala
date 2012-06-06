@@ -18,9 +18,49 @@
  */
 
 using GLib;
+using FsoGsm.Constants;
 
 public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding, Service
 {
+    //
+    // private
+    //
+
+    private BearerClass class_from_rule_name( string name ) throws FreeSmartphone.Error
+    {
+        switch ( name )
+        {
+            case "voice unconditional":
+            case "voice busy":
+            case "voice no reply":
+            case "voice not reachable":
+                return BearerClass.VOICE;
+        }
+
+        throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Invalid rule name: $name" );
+    }
+
+    private CallForwardingType reason_from_rule_name( string name ) throws FreeSmartphone.Error
+    {
+        switch ( name )
+        {
+            case "voice unconditional":
+                return CallForwardingType.UNCONDITIONAL;
+            case "voice busy":
+                return CallForwardingType.BUSY;
+            case "voice no reply":
+                return CallForwardingType.NO_REPLY;
+            case "voice not reachable":
+                return CallForwardingType.NOT_REACHABLE;
+        }
+
+        throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Invalid rule name: $name" );
+    }
+
+    //
+    // public API
+    //
+
     //
     // DBUS (org.freesmartphone.GSM.CallForwarding.*)
     //
@@ -33,17 +73,50 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
 
     public async void disable_all( string type ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
+        var real_type = CallForwardingType.ALL;
+
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+
+        switch ( type )
+        {
+            case "all":
+                real_type = CallForwardingType.ALL;
+                break;
+            case "conditional":
+                real_type = CallForwardingType.ALL_CONDITIONAL;
+                break;
+            default:
+                throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Unknown type: $type" );
+        }
+
+        var m = theModem.createMediator<CallForwardingDisable>();
+        yield m.run( BearerClass.DEFAULT, real_type );
     }
 
-    public async void enable( string rule, string number, int time ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    public async void enable( string rule, string number, int timeout ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+
+        var cls = class_from_rule_name( rule );
+        var reason = reason_from_rule_name( rule );
+
+        validatePhoneNumber( number );
+        if ( timeout < 0 || timeout > 30 )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Timeout is not inside range of [0:30]" );
+
+        var m =  theModem.createMediator<CallForwardingEnable>();
+        yield m.run( cls, reason, number, timeout );
     }
 
     public async void disable( string rule ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+
+        var cls = class_from_rule_name( rule );
+        var reason = reason_from_rule_name( rule );
+
+        var m =  theModem.createMediator<CallForwardingDisable>();
+        yield m.run( cls, reason );
     }
 }
 
