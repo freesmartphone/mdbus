@@ -1,6 +1,6 @@
 1:'Codec Operation Mode':1:1
 8:'DAC1 Analog Playback Switch':2:0,0
-9:'DAC2 Analog Playback Switch':2,1,1
+9:'DAC2 Analog Playback Switch':2:1,1
 35:'HandsfreeR Switch':1:1
 36:'HandsfreeR Mux':1:2
 37:'HandsfreeL Switch':1:1

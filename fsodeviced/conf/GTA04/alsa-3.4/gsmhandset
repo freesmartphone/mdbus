@@ -1,6 +1,6 @@
 1:'Codec Operation Mode':1:1
 8:'DAC1 Analog Playback Switch':2:0,0
-9:'DAC2 Analog Playback Switch':2,1,1
+9:'DAC2 Analog Playback Switch':2:1,1
 16:'Earpiece Playback Volume':1:1
 17:'TX1 Digital Capture Volume':2:0,0
 19:'Analog Capture Volume':2:4,4
