@@ -65,12 +65,6 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
     // DBUS (org.freesmartphone.GSM.CallForwarding.*)
     //
 
-    public string voice_busy { owned get { return ""; } }
-    public string voice_no_reply { owned get { return ""; } }
-    public int voice_no_reply_timeout { get { return 0; } }
-    public string voice_not_reachable { owned get { return ""; } }
-    public string voice_unconditional { owned get { return ""; } }
-
     public async void disable_all( string type ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         var real_type = CallForwardingType.ALL;
@@ -117,6 +111,17 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
 
         var m =  theModem.createMediator<CallForwardingDisable>();
         yield m.run( cls, reason );
+    }
+
+    public async FreeSmartphone.GSM.CallForwardingStatus get_status( string rule ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    {
+        var cls = class_from_rule_name( rule );
+        var reason = reason_from_rule_name( rule );
+
+        var m = theModem.createMediator<CallForwardingQuery>();
+        yield m.run( cls, reason );
+
+        return FreeSmartphone.GSM.CallForwardingStatus(true, m.number, m.timeout);
     }
 }
 

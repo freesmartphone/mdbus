@@ -298,6 +298,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
 
     table[ typeof(CallForwardingEnable) ]         = typeof( AtCallForwardingEnable );
     table[ typeof(CallForwardingDisable) ]        = typeof( AtCallForwardingDisable );
+    table[ typeof(CallForwardingQuery) ]          = typeof( AtCallForwardingQuery );
 
     table[ typeof(PdpActivateContext) ]           = typeof( AtPdpActivateContext );
     table[ typeof(PdpDeactivateContext) ]         = typeof( AtPdpDeactivateContext );

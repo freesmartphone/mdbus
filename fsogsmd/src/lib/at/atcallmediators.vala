@@ -114,6 +114,19 @@ public class AtCallForwardingDisable : FsoGsm.CallForwardingDisable
     }
 }
 
+public class AtCallForwardingQuery : FsoGsm.CallForwardingQuery
+{
+    public override async void run( BearerClass cls, CallForwardingType reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        var cmd = theModem.createAtCommand<PlusCCFC>( "+CCFC" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.query( reason, cls ) );
+        checkResponseValid( cmd, response );
+        active = cmd.active;
+        number = cmd.number;
+        timeout = cmd.timeout;
+    }
+}
+
 } // namespace FsoGsm
 
 // vim:ts=4:sw=4:expandtab
