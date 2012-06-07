@@ -1,14 +1,112 @@
 1:'PCM Playback Volume':2:40,40
-10:'Left HP Mixer DACR1 Playback Volume':2:0,0
-13:'Right HP Mixer DACL1 Playback Volume':2:0,0
+2:'Left Line Mixer Line2R Bypass Volume':1:0
+3:'Left Line Mixer PGAR Bypass Volume':1:0
+4:'Left Line Mixer DACR1 Playback Volume':1:0
+5:'Right Line Mixer Line2L Bypass Volume':1:0
+6:'Right Line Mixer PGAL Bypass Volume':1:0
+7:'Right Line Mixer DACL1 Playback Volume':1:0
+8:'Left HP Mixer Line2R Bypass Volume':1:0
+9:'Left HP Mixer PGAR Bypass Volume':1:0
+10:'Left HP Mixer DACR1 Playback Volume':1:0
+11:'Right HP Mixer Line2L Bypass Volume':1:0
+12:'Right HP Mixer PGAL Bypass Volume':1:0
+13:'Right HP Mixer DACL1 Playback Volume':1:0
+14:'Left HPCOM Mixer Line2R Bypass Volume':1:0
+15:'Left HPCOM Mixer PGAR Bypass Volume':1:0
+16:'Left HPCOM Mixer DACR1 Playback Volume':1:0
+17:'Right HPCOM Mixer Line2L Bypass Volume':1:0
+18:'Right HPCOM Mixer PGAL Bypass Volume':1:0
+19:'Right HPCOM Mixer DACL1 Playback Volume':1:0
+20:'Line Line2 Bypass Volume':2:0,0
+21:'Line PGA Bypass Volume':2:0,0
 22:'Line DAC Playback Volume':2:118,118
+23:'Mono Line2 Bypass Volume':2:0,0
+24:'Mono PGA Bypass Volume':2:0,0
+25:'Mono DAC Playback Volume':2:0,0
+26:'HP Line2 Bypass Volume':2:0,0
+27:'HP PGA Bypass Volume':2:0,0
 28:'HP DAC Playback Volume':2:0,0
+29:'HPCOM Line2 Bypass Volume':2:0,0
+30:'HPCOM PGA Bypass Volume':2:0,0
+31:'HPCOM DAC Playback Volume':2:0,0
+32:'Line Playback Switch':2:1,1
+33:'Mono Playback Switch':1:0
 34:'HP Playback Switch':2:0,0
+35:'HPCOM Playback Switch':2:0,0
+36:'AGC Switch':2:0,0
+37:'PGA Capture Volume':2:0,0
+38:'PGA Capture Switch':2:0,0
+39:'ADC HPF Cut-off':2:0,0
 40:'Speaker Function':1:0
 41:'Input Select':1:1
 42:'Jack Function':1:2
+43:'FMTX Function':1:0
+44:'Earpiece Function':1:1
 45:'TPA6130A2 Headphone Playback Volume':1:42
-64:'Right HP Mixer DACL1 Switch':1:1
-73:'Left HP Mixer DACR1 Switch':1:1
+46:'McBSP2 Sidetone Switch':1:0
+47:'McBSP2 Sidetone Channel 0 Volume':1:-32768
+48:'McBSP2 Sidetone Channel 1 Volume':1:-32768
+49:'34B HPL PGAR Bypass Playback Volume':1:0
+50:'Right HPCOM Mixer Line2L Bypass Switch':1:0
+51:'Right HPCOM Mixer PGAL Bypass Switch':1:0
+52:'Right HPCOM Mixer DACL1 Switch':1:0
+53:'Right HPCOM Mixer Line2R Bypass Switch':1:0
+54:'Right HPCOM Mixer PGAR Bypass Switch':1:0
+55:'Right HPCOM Mixer DACR1 Switch':1:0
+56:'Left HPCOM Mixer Line2L Bypass Switch':1:0
+57:'Left HPCOM Mixer PGAL Bypass Switch':1:0
+58:'Left HPCOM Mixer DACL1 Switch':1:0
+59:'Left HPCOM Mixer Line2R Bypass Switch':1:0
+60:'Left HPCOM Mixer PGAR Bypass Switch':1:0
+61:'Left HPCOM Mixer DACR1 Switch':1:0
+62:'Right HP Mixer Line2L Bypass Switch':1:0
+63:'Right HP Mixer PGAL Bypass Switch':1:0
+64:'Right HP Mixer DACL1 Switch':1:0
+65:'Right HP Mixer Line2R Bypass Switch':1:0
+66:'Right HP Mixer PGAR Bypass Switch':1:0
+67:'Right HP Mixer DACR1 Switch':1:0
+68:'Left HP Mixer Line2L Bypass Switch':1:0
+69:'Left HP Mixer PGAL Bypass Switch':1:0
+70:'Left HP Mixer DACL1 Switch':1:0
+71:'Left HP Mixer Line2R Bypass Switch':1:0
+72:'Left HP Mixer PGAR Bypass Switch':1:0
+73:'Left HP Mixer DACR1 Switch':1:0
+74:'Mono Mixer Line2L Bypass Switch':1:0
+75:'Mono Mixer PGAL Bypass Switch':1:0
+76:'Mono Mixer DACL1 Switch':1:0
+77:'Mono Mixer Line2R Bypass Switch':1:0
+78:'Mono Mixer PGAR Bypass Switch':1:0
+79:'Mono Mixer DACR1 Switch':1:0
+80:'Right Line Mixer Line2L Bypass Switch':1:0
+81:'Right Line Mixer PGAL Bypass Switch':1:0
+82:'Right Line Mixer DACL1 Switch':1:0
+83:'Right Line Mixer Line2R Bypass Switch':1:0
+84:'Right Line Mixer PGAR Bypass Switch':1:0
 85:'Right Line Mixer DACR1 Switch':1:1
+86:'Left Line Mixer Line2L Bypass Switch':1:0
+87:'Left Line Mixer PGAL Bypass Switch':1:0
 88:'Left Line Mixer DACL1 Switch':1:1
+89:'Left Line Mixer Line2R Bypass Switch':1:0
+90:'Left Line Mixer PGAR Bypass Switch':1:0
+91:'Left Line Mixer DACR1 Switch':1:0
+92:'Right Line2R Mux':1:0
+93:'Right Line1R Mux':1:0
+94:'Right Line1L Mux':1:0
+95:'Right PGA Mixer Line1R Switch':1:0
+96:'Right PGA Mixer Line1L Switch':1:0
+97:'Right PGA Mixer Line2R Switch':1:0
+98:'Right PGA Mixer Mic3L Switch':1:0
+99:'Right PGA Mixer Mic3R Switch':1:0
+100:'Left Line2L Mux':1:0
+101:'Left Line1R Mux':1:0
+102:'Left Line1L Mux':1:0
+103:'Left PGA Mixer Line1L Switch':1:1
+104:'Left PGA Mixer Line1R Switch':1:0
+105:'Left PGA Mixer Line2L Switch':1:0
+106:'Left PGA Mixer Mic3L Switch':1:0
+107:'Left PGA Mixer Mic3R Switch':1:0
+108:'Right HPCOM Mux':1:0
+109:'Right DAC Mux':1:0
+110:'Left HPCOM Mux':1:0
+111:'Left DAC Mux':1:0
+112:'Media Volume':2:255,255
