@@ -151,6 +151,7 @@ public abstract interface FsoGsm.CallHandler : FsoFramework.AbstractObject
     public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void transfer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     /*
     public abstract async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
@@ -199,6 +200,10 @@ public class FsoGsm.NullCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractO
     {
     }
 
+    public async void transfer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
     public override string repr()
     {
         return @"<>";
@@ -232,6 +237,7 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
     public abstract async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+    public abstract async void transfer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 
     /**
      * Override this to implement modem-specific cancelling of an outgoing call

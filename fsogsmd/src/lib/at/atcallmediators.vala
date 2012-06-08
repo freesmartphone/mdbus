@@ -94,6 +94,14 @@ public class AtCallReleaseAll : CallReleaseAll
     }
 }
 
+public class AtCallTransfer : FsoGsm.CallTransfer
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.transfer();
+    }
+}
+
 public class AtCallForwardingEnable : FsoGsm.CallForwardingEnable
 {
     public override async void run( BearerClass cls, CallForwardingType reason, string number, int timeout ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

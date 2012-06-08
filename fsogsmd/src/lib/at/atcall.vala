@@ -325,6 +325,26 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         yield theModem.processAtCommandAsync( cmd, cmd.execute() );
         // no checkResponseOk, this call will always succeed
     }
+
+    public override async void transfer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.ACTIVE ) == 0 &&
+             // According to 22.091 section 5.8 it's possible that our network supports
+             // transfering incoming calls too
+             numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.INCOMING ) == 0 )
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No active call present" );
+
+        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.HELD ) == 0 )
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No held call present" );
+
+        var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SELF_AND_CONNECT_ACTIVE ) );
+        checkResponseOk( cmd, response );
+
+        // FIXME do we really need to call this here or can we skip it as call state
+        // polling is always active as long as we have an active call?
+        startTimeoutIfNecessary();
+    }
 }
 
 // vim:ts=4:sw=4:expandtab
