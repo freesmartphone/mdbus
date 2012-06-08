@@ -100,10 +100,18 @@ public class FsoGsm.GsmCallService : FreeSmartphone.GSM.Call, Service
         yield m.run( tones );
     }
 
-    public async void transfer( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    public async void transfer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.CallTransfer>();
+        yield m.run();
+    }
+
+    public async void deflect( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    {
+        checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+        var m = modem.createMediator<FsoGsm.CallDeflect>();
+        yield m.run( number );
     }
 }
 
