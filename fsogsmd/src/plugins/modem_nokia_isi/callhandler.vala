@@ -25,7 +25,7 @@ using GIsiComm;
 /**
  * @class IsiCallHandler
  **/
-public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
+public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractObject
 {
     protected HashMap<int, FsoGsm.Call> calls;
 
@@ -108,18 +108,6 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
     {
     }
 
-    protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-    }
-
-    protected override async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-    }
-
-    protected override void startTimeoutIfNecessary()
-    {
-    }
-
     //
     // User Actions (forwarded through the generic mediators)
     //
@@ -179,7 +167,7 @@ public class FsoGsm.IsiCallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No active call with that id found" );
         }
-        
+
         NokiaIsi.isimodem.call.releaseVoiceCall( (uint8) id, GIsiClient.Call.CauseType.CLIENT, GIsiClient.Call.IsiCause.RELEASE_BY_USER, (error) => {
             if ( error == ErrorCode.OK )
             {

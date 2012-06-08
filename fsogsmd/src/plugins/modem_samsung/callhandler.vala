@@ -28,19 +28,10 @@ internal const int CALL_STATUS_REFRESH_TIMEOUT = 3; // in seconds
 
 public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
 {
-    private bool inSyncCallStatus;
-    protected uint timeout;
-    protected FsoGsm.Call[] calls;
-
-    protected FsoFramework.Pair<string,string> supplementary;
     private Samsung.SoundHandler _soundhandler;
 
     construct
     {
-        calls = new FsoGsm.Call[Constants.CALL_INDEX_MAX+1] {};
-        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
-            calls[i] = new Call.newFromId( i );
-
         _soundhandler = new Samsung.SoundHandler();
     }
 
@@ -190,7 +181,7 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
     // protected
     //
 
-    protected async void syncCallStatus()
+    protected override async void syncCallStatus()
     {
         inSyncCallStatus = true;
 
@@ -280,28 +271,6 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         inSyncCallStatus = false;
     }
 
-    protected override void startTimeoutIfNecessary()
-    {
-        onTimeout();
-        if ( timeout == 0 )
-        {
-            timeout = GLib.Timeout.add_seconds( CALL_STATUS_REFRESH_TIMEOUT, onTimeout );
-        }
-    }
-
-    protected bool onTimeout()
-    {
-        if ( inSyncCallStatus )
-        {
-            assert( logger.debug( "Synchronizing call status not done yet... ignoring" ) );
-        }
-        else
-        {
-            syncCallStatus.begin();
-        }
-        return true;
-    }
-
     protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
@@ -312,49 +281,6 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
     {
         assert( logger.debug( @"Rejecting incoming call with ID $id" ) );
         throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
-    }
-
-    //
-    // private
-    //
-
-    private int numberOfBusyCalls()
-    {
-        var num = 0;
-        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
-        {
-            if ( calls[i].detail.status != FreeSmartphone.GSM.CallStatus.RELEASE &&
-                 calls[i].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING )
-            {
-                num++;
-            }
-        }
-        return num;
-    }
-
-    private int numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus status )
-    {
-        var num = 0;
-        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
-        {
-            if ( calls[i].detail.status == status )
-            {
-                num++;
-            }
-        }
-        return num;
-    }
-
-    private int lowestOfCallsWithStatus( FreeSmartphone.GSM.CallStatus status )
-    {
-        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
-        {
-            if ( calls[i].detail.status == status )
-            {
-                return i;
-            }
-        }
-        return 0;
     }
 }
 
