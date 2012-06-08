@@ -92,26 +92,26 @@ public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractOb
         }
     }
 
-    public override void handleIncomingCall( FsoGsm.CallInfo call_info )
+    public void handleIncomingCall( FsoGsm.CallInfo call_info )
     {
     }
 
-    public override void handleConnectingCall( FsoGsm.CallInfo call_info )
+    public void handleConnectingCall( FsoGsm.CallInfo call_info )
     {
     }
 
-    public override void handleEndingCall( FsoGsm.CallInfo call_info )
+    public void handleEndingCall( FsoGsm.CallInfo call_info )
     {
     }
 
-    public override void addSupplementaryInformation( string direction, string info )
+    public void addSupplementaryInformation( string direction, string info )
     {
     }
 
     //
     // User Actions (forwarded through the generic mediators)
     //
-    public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         NokiaIsi.isimodem.call.answerVoiceCall( (uint8) id, (error) => {
             if ( error == ErrorCode.OK )
@@ -126,7 +126,7 @@ public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractOb
         yield;
     }
 
-    public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( ctype != "voice" )
         {
@@ -151,12 +151,12 @@ public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractOb
         return 0;
     }
 
-    public override async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async void hold() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
     }
 
-    public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         if ( !calls.has_key( id ) )
         {
@@ -181,7 +181,7 @@ public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractOb
         yield;
     }
 
-    public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         foreach ( var call in calls.values )
         {
@@ -213,6 +213,13 @@ public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractOb
         return ret;
     }
 
+    public async void transfer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    public async void deflect( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
 }
 
 // vim:ts=4:sw=4:expandtab
