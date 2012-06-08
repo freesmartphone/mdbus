@@ -102,6 +102,14 @@ public class AtCallTransfer : FsoGsm.CallTransfer
     }
 }
 
+public class AtCallDeflect : FsoGsm.CallDeflect
+{
+    public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        yield theModem.callhandler.deflect( number );
+    }
+}
+
 public class AtCallForwardingEnable : FsoGsm.CallForwardingEnable
 {
     public override async void run( BearerClass cls, CallForwardingType reason, string number, int timeout ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

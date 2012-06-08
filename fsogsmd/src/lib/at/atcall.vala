@@ -18,6 +18,7 @@
  */
 
 using Gee;
+using FsoGsm.Constants;
 
 internal const int CALL_STATUS_REFRESH_TIMEOUT = 3; // in seconds
 
@@ -339,6 +340,23 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
         var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SELF_AND_CONNECT_ACTIVE ) );
+        checkResponseOk( cmd, response );
+
+        // FIXME do we really need to call this here or can we skip it as call state
+        // polling is always active as long as we have an active call?
+        startTimeoutIfNecessary();
+    }
+
+    public override async void deflect( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.INCOMING ) == 0 &&
+             numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.HELD ) == 0 )
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No active or held call present" );
+
+        validatePhoneNumber( number );
+
+        var cmd = theModem.createAtCommand<PlusCTFR>( "+CTFR" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( number, determinePhoneNumberType( number ) ) );
         checkResponseOk( cmd, response );
 
         // FIXME do we really need to call this here or can we skip it as call state
