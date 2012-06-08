@@ -168,6 +168,14 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         }
     }
 
+    public override async void transfer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    public override async void deflect( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
     public override string repr()
     {
         return @"<>";
@@ -305,7 +313,6 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         assert( logger.debug( @"Rejecting incoming call with ID $id" ) );
         throw new FreeSmartphone.Error.UNSUPPORTED( "Not yet implemented!" );
     }
-
 
     //
     // private
