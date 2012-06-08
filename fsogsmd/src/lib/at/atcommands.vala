@@ -1666,6 +1666,16 @@ public class PlusCCFC : AbstractAtCommand
     }
 }
 
+public class PlusCTFR : AbstractAtCommand
+{
+    public string issue( string number, int number_type = 0 )
+    {
+        if ( number_type == 0 )
+            return @"+CTFR=$number";
+        return @"+CTFR=$number,$number_type";
+    }
+}
+
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // low level access (SIM, charset, etc.)
@@ -1721,6 +1731,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CHLD" ]             = new FsoGsm.PlusCHLD();
     table[ "+CLCC" ]             = new FsoGsm.PlusCLCC();
     table[ "+VTS" ]              = new FsoGsm.PlusVTS();
+    table[ "+CTFR" ]             = new FsoGsm.PlusCTFR();
 
     // phonebook
     table[ "+CPBR" ]             = new FsoGsm.PlusCPBR();

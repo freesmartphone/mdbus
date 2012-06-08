@@ -280,6 +280,14 @@ void test_atcommand_PlusCCFC()
     }
 }
 
+void test_atcommand_PlusCTFR()
+{
+    FsoGsm.PlusCTFR cmd = (FsoGsm.PlusCTFR) atCommandFactory( "+CTFR" );
+    assert( cmd.issue( "+123567890" ) == "+CTFR=+123567890" );
+    assert( cmd.issue( "1234567890", 123 ) == "+CTFR=1234567890,123" );
+    assert( cmd.issue( "+0987654321", 149 ) == "+CTFR=+0987654321,149" );
+}
+
 //===========================================================================
 void main( string[] args )
 //===========================================================================
@@ -296,6 +304,7 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+FCLASS", test_atcommand_PlusFCLASS );
     Test.add_func( "/AtCommand/+VTS", test_atcommand_PlusVTS );
     Test.add_func( "/AtCommand/+CCFC", test_atcommand_PlusCCFC );
+    Test.add_func( "/AtCommand/+CTFR", test_atcommand_PlusCTFR );
     Test.run();
 }
 
