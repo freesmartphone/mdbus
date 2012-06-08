@@ -74,7 +74,7 @@ public bool isMainThread()
 
 public void callDelegateOnMainThread( VoidFuncWithVoidStarParam func,
                                       bool waitForCompletion = false,
-                                      void* param = 0x0 )
+                                      void* param = null )
 {
     var mutex = new GLib.Mutex();
     var cond = new GLib.Cond();
