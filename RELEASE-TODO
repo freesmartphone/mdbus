@@ -3,15 +3,13 @@ version 0.12
 
 * outstanding bugs scheduled for 0.12
 * switch to vala 0.16.x
-* we need a utility script to test the content of the distribution archives against what
-  is stored in the git repository. If there is a not allowed difference than the archive
-  should not marked as ready my `make distcheck`
+* when checking archives for distribution remove c sources and compile from scratch too
 * fsogsmd:
-    * call forwarding
+    * call forwarding [OK]
+    * transfer/deflect calls [OK]
     * converence calls
     * emergency calls
-        * how can we test this?
-    * join/release/held/transfer calls
+    * join/release/held calls
     * homezone API
         * needed anymore?
     * voice mails API
