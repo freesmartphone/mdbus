@@ -19,7 +19,7 @@
 
 using GLib;
 
-public class FsoGps.Channel : FsoFramework.AbstractCommandQueue, FsoFramework.IParserDelegate
+public class FsoGps.Channel : FsoFramework.AbstractCommandQueue
 {
     public const int COMMAND_QUEUE_BUFFER_SIZE = 4096;
 
@@ -34,18 +34,18 @@ public class FsoGps.Channel : FsoFramework.AbstractCommandQueue, FsoFramework.IP
         buffer = new char[COMMAND_QUEUE_BUFFER_SIZE];
         this.name = name;
         this.parser = parser;
-        parser.setDelegate( this );
+        parser.setDelegates( haveCommand, isExpectedPrefix, onParserCompletedSolicited, onParserCompletedUnsolicited );
         theReceiver.registerChannel( name, this );
         theReceiver.signalStatusChanged.connect( onModemStatusChanged );
     }
 
-    public override void onTransportDataAvailable( FsoFramework.Transport t )
+    protected override void onReadFromTransport( FsoFramework.Transport t )
     {
         var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
 
         if ( bytesread == 0 )
         {
-            onTransportHangup( t );
+            onHupFromTransport();
             return;
         }
 
@@ -56,22 +56,22 @@ public class FsoGps.Channel : FsoFramework.AbstractCommandQueue, FsoFramework.IP
         parser.feed( (string)buffer, bytesread );
     }
 
-    public bool onParserHaveCommand()
+    protected bool haveCommand()
     {
         return false; // NMEA is not interactive
     }
 
-    public bool onParserIsExpectedPrefix( string line )
+    protected bool isExpectedPrefix( string line )
     {
         return false;
     }
 
-    public void onParserSolicitedCompleted( string[] response )
+    protected void onParserCompletedSolicited( string[] response )
     {
         assert_not_reached();
     }
 
-    public void onParserUnsolicitedCompleted( string[] response )
+    protected void onParserCompletedUnsolicited( string[] response )
     {
         transport.logger.info( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) );
         urchandler( "", response[0], null );
