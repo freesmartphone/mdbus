@@ -41,7 +41,8 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
     private uint writewatch;
     private int writepriority;
 
-    protected ITransportDelegate? _delegate;
+    protected TransportFunc hupfunc;
+    protected TransportFunc readfunc;
 
     protected ByteArray buffer;
 
@@ -62,15 +63,15 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         {
             logger.error( "HUP => closing channel" );
             close();
-            if ( _delegate != null )
-                _delegate.onTransportHangup( this );
+            if ( hupfunc != null )
+                hupfunc( this );
             return false;
         }
 
         if ( ( condition & IOCondition.IN ) == IOCondition.IN )
         {
-            if ( _delegate != null )
-                _delegate.onTransportDataAvailable( this );
+            if ( readfunc != null )
+                readfunc( this );
             return true;
         }
 
@@ -386,15 +387,22 @@ public class FsoFramework.BaseTransport : FsoFramework.Transport
         return ( fd != -1 );
     }
 
-    public override void setDelegate( ITransportDelegate? d )
+    public override void setDelegates( TransportFunc? readfunc, TransportFunc? hupfunc )
     {
-        _delegate = d;
+        this.readfunc = readfunc;
+        this.hupfunc = hupfunc;
     }
 
     public override void setPriorities( int rp, int wp )
     {
         this.readpriority = rp;
         this.writepriority = wp;
+    }
+
+    public override void getDelegates( out TransportFunc? readfun, out TransportFunc? hupfun )
+    {
+        readfun = this.readfunc;
+        hupfun = this.hupfunc;
     }
 
     public override int read( void* data, int len )
