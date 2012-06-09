@@ -31,7 +31,7 @@ const int LINE_DISCIPLINE_N_GSM = 21;
 const uchar MKNOD_TTYGSM_MAJOR = 249;
 
 //========================================================================//
-public class Terminal : GLib.Object, FsoFramework.ITransportDelegate
+public class Terminal : Object
 //========================================================================//
 {
     Transport transport;
@@ -176,7 +176,7 @@ public class Terminal : GLib.Object, FsoFramework.ITransportDelegate
                 quitWithMessage( "FATAL: Unknown transport method '%s'.".printf( transportname ) );
                 return MAINLOOP_DONT_CALL_AGAIN;
         }
-        transport.setDelegate( this );
+        transport.setDelegates( onTransportRead, onTransportHup );
         transport.open();
 
         if ( !transport.isOpen() )
@@ -209,17 +209,18 @@ public class Terminal : GLib.Object, FsoFramework.ITransportDelegate
         return true;
     }
 
-    public void onTransportDataAvailable( FsoFramework.Transport transport )
+    public void onTransportRead( Transport transport )
     {
         int numread = transport.read( buffer, BUFFER_SIZE-1 );
         buffer[numread] = 0;
         stdout.printf( "%s", (string)buffer );
     }
 
-    public void onTransportHangup( Transport transport )
+    public void onTransportHup( Transport transport )
     {
         quitWithMessage( "FATAL: Peer closed connection." );
     }
+
 }
 
 // vim:ts=4:sw=4:expandtab
