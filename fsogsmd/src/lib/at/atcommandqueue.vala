@@ -81,7 +81,7 @@ public class FsoGsm.AtCommandHandler : FsoFramework.AbstractCommandHandler
 /**
  * @class FsoGsm.AtCommandQueue
  **/
-public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue, FsoFramework.IParserDelegate
+public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue
 {
     public const int COMMAND_QUEUE_BUFFER_SIZE = 4096;
 
@@ -93,19 +93,19 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue, FsoFrame
         base( transport );
         this.parser = parser;
         // FIXME: the delegates need to be owned!
-        parser.setDelegate( this );
+        parser.setDelegates( haveCommand, isExpectedPrefix, onParserCompletedSolicited, onParserCompletedUnsolicited );
         buffer = malloc( COMMAND_QUEUE_BUFFER_SIZE );
     }
 
     ~AtCommandQueue()
     {
-        parser.setDelegate( null );
+        parser.setDelegates( null, null, null, null );
 #if DEBUG
         debug( "ATCommandQueue destructed" );
 #endif
     }
 
-    public override void onTransportDataAvailable( FsoFramework.Transport t )
+    protected override void onReadFromTransport( FsoFramework.Transport t )
     {
         var bytesread = transport.read( buffer, COMMAND_QUEUE_BUFFER_SIZE );
 
@@ -121,18 +121,18 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue, FsoFrame
         parser.feed( (string)buffer, bytesread );
     }
 
-    public bool onParserHaveCommand()
+    protected bool haveCommand()
     {
         return ( current != null );
     }
 
-    public bool onParserIsExpectedPrefix( string line )
+    protected bool isExpectedPrefix( string line )
     {
         assert( current != null );
         return ((AtCommandHandler)current).command.is_valid_prefix( line );
     }
 
-    public void onParserSolicitedCompleted( string[] response )
+    protected void onParserCompletedSolicited( string[] response )
     {
         // FIXME: make sure we don't get unref'ed while we're in this method
         // better: var this_ref = this;
@@ -144,7 +144,7 @@ public class FsoGsm.AtCommandQueue : FsoFramework.AbstractCommandQueue, FsoFrame
         this.unref();
     }
 
-    public void onParserUnsolicitedCompleted( string[] response )
+    protected void onParserCompletedUnsolicited( string[] response )
     {
         assert( transport.logger.debug( "URC: %s".printf( FsoFramework.StringHandling.stringListToString( response ) ) ) );
 

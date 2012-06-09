@@ -129,7 +129,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 #endif
         this.length = length;
         GLib.Memory.copy( this.muxbuffer, data, length );
-        _delegate.onTransportDataAvailable( tdelegate );
+        tdelegate.readfunc( tdelegate );
         assert( this.length == 0 ); // everything has been consumed
         return length;
     }
@@ -174,9 +174,9 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
 #if DEBUG
         message( "FROM MODEM CLOSE REQ" );
 #endif
-        if ( _delegate != null )
+        if ( hupfunc != null )
         {
-            _delegate.onTransportHangup( this ); // signalize that the modem has forced us to close the channel
+            this.hupfunc( this ); // signalize that the modem has forced us to close the channel
         }
         else
         {
@@ -195,7 +195,7 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
             assert( length < MUX_TRANSPORT_MAX_BUFFER );
             GLib.Memory.copy( this.muxbuffer, data, length ); // prepare data
             this.length = length;
-            _delegate.onTransportDataAvailable( this ); // signalize data being available
+            this.readfunc( this ); // signalize data being available
             assert( this.length == 0 ); // all has been consumed
             return length;
         }

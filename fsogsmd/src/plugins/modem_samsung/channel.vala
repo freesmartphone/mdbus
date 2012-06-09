@@ -70,7 +70,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         current_modem_status = status;
     }
 
-    public override void onTransportDataAvailable( FsoFramework.Transport t )
+    protected override void onReadFromTransport( FsoFramework.Transport t )
     {
         SamsungIpc.Response response = SamsungIpc.Response();
 
