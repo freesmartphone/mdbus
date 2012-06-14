@@ -21,7 +21,7 @@ using GLib;
 
 public class FsoGsm.DeviceServiceManager : FsoGsm.ServiceManager
 {
-    private static FsoGsm.Modem modem;
+    private FsoGsm.Modem modem;
 
     public bool initialized { get; private set; default = false; }
 
