@@ -27,7 +27,7 @@ public class SamsungSimGetAuthStatus : SimGetAuthStatus
         // NOTE: there is no command to gather the actual SIM auth status
         // we have to remember the last state and set it to the right value
         // whenever a command/response needs a modified sim auth state
-        var data = theModem.data();
+        var data = modem.data();
         status = data.simAuthStatus;
     }
 }
@@ -37,9 +37,9 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         unowned SamsungIpc.Response? response;
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
 
-        if ( theModem.data().simAuthStatus == FreeSmartphone.GSM.SIMAuthStatus.READY )
+        if ( modem.data().simAuthStatus == FreeSmartphone.GSM.SIMAuthStatus.READY )
             return;
 
         if ( pin.length != 4 && pin.length != 8 )
@@ -61,7 +61,7 @@ public class SamsungSimGetInformation : SimGetInformation
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         unowned SamsungIpc.Response? response;
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
 
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 

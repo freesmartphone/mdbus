@@ -34,8 +34,8 @@ public class AtNetworkGetSignalStrength : NetworkGetSignalStrength
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
+        var cmd = modem.createAtCommand<PlusCSQ>( "+CSQ" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.execute() );
         checkResponseValid( cmd, response );
         signal = cmd.signal;
     }
@@ -46,7 +46,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
 #if 0
-        if ( theModem.data().simIssuer == null )
+        if ( modem.data().simIssuer == null )
         {
             var mediator = new AtSimGetInformation();
             yield mediator.run();
@@ -61,8 +61,8 @@ public class AtNetworkGetStatus : NetworkGetStatus
         status.insert( "act", "unknown" );
 
         // query field strength
-        var csq = theModem.createAtCommand<PlusCSQ>( "+CSQ" );
-        var response = yield theModem.processAtCommandAsync( csq, csq.execute() );
+        var csq = modem.createAtCommand<PlusCSQ>( "+CSQ" );
+        var response = yield modem.processAtCommandAsync( csq, csq.execute() );
         if ( csq.validate( response ) == Constants.AtResponse.VALID )
         {
             intvalue = csq.signal;
@@ -72,15 +72,15 @@ public class AtNetworkGetStatus : NetworkGetStatus
         bool overrideProviderWithSimIssuer = false;
 #endif
         // query telephony registration status and lac/cid
-        var creg = theModem.createAtCommand<PlusCREG>( "+CREG" );
-        var cregResult = yield theModem.processAtCommandAsync( creg, creg.query() );
+        var creg = modem.createAtCommand<PlusCREG>( "+CREG" );
+        var cregResult = yield modem.processAtCommandAsync( creg, creg.query() );
         if ( creg.validate( cregResult ) == Constants.AtResponse.VALID )
         {
             strvalue = Constants.networkRegistrationStatusToString( creg.status );
             status.insert( "registration", strvalue );
 
 #if 0
-            overrideProviderWithSimIssuer = ( theModem.data().simIssuer != null && creg.status == 1 /* home */ );
+            overrideProviderWithSimIssuer = ( modem.data().simIssuer != null && creg.status == 1 /* home */ );
 #endif
 
             if ( creg.lac != "" )
@@ -91,8 +91,8 @@ public class AtNetworkGetStatus : NetworkGetStatus
         }
 
         // query operator code
-        var cops = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var copsResult3 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
+        var cops = modem.createAtCommand<PlusCOPS>( "+COPS" );
+        var copsResult3 = yield modem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.NUMERIC ) );
         if ( cops.validate( copsResult3 ) == Constants.AtResponse.VALID )
         {
             strvalue = cops.oper;
@@ -100,7 +100,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
         }
 
         // query registration mode, operator name, access technology
-        var copsResult = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC ) );
+        var copsResult = yield modem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC ) );
         if ( cops.validate( copsResult ) == Constants.AtResponse.VALID )
         {
             strvalue = Constants.networkRegistrationModeToString( cops.mode );
@@ -121,7 +121,7 @@ public class AtNetworkGetStatus : NetworkGetStatus
         }
 
         // query operator display name
-        var copsResult2 = yield theModem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC_SHORT ) );
+        var copsResult2 = yield modem.processAtCommandAsync( cops, cops.query( PlusCOPS.Format.ALPHANUMERIC_SHORT ) );
         if ( cops.validate( copsResult2 ) == Constants.AtResponse.VALID )
         {
             // only override default, if set
@@ -151,16 +151,16 @@ public class AtNetworkGetStatus : NetworkGetStatus
         // check whether we want to override display name with SIM issuer
         if ( overrideProviderWithSimIssuer )
         {
-            status.insert( "display", theModem.data().simIssuer );
+            status.insert( "display", modem.data().simIssuer );
         }
 #endif
 
         // query pdp registration status and lac/cid
-        var cgreg = theModem.createAtCommand<PlusCGREG>( "+CGREG" );
-        var cgregResult = yield theModem.processAtCommandAsync( cgreg, cgreg.query() );
+        var cgreg = modem.createAtCommand<PlusCGREG>( "+CGREG" );
+        var cgregResult = yield modem.processAtCommandAsync( cgreg, cgreg.query() );
         if ( cgreg.validate( cgregResult ) == Constants.AtResponse.VALID )
         {
-            var cgregResult2 = yield theModem.processAtCommandAsync( cgreg, cgreg.queryFull( cgreg.mode ) );
+            var cgregResult2 = yield modem.processAtCommandAsync( cgreg, cgreg.queryFull( cgreg.mode ) );
             if ( cgreg.validate( cgregResult2 ) == Constants.AtResponse.VALID )
             {
                 strvalue = Constants.networkRegistrationStatusToString( cgreg.status );
@@ -178,8 +178,8 @@ public class AtNetworkListProviders : NetworkListProviders
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
+        var cmd = modem.createAtCommand<PlusCOPS>( "+COPS" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.test() );
         checkTestResponseValid( cmd, response );
         providers = cmd.providers;
     }
@@ -189,8 +189,8 @@ public class AtNetworkRegister : NetworkRegister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
+        var cmd = modem.createAtCommand<PlusCOPS>( "+COPS" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -199,8 +199,8 @@ public class AtNetworkUnregister : NetworkUnregister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.UNREGISTER ) );
+        var cmd = modem.createAtCommand<PlusCOPS>( "+COPS" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.UNREGISTER ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -209,8 +209,8 @@ public class AtNetworkSendUssdRequest : NetworkSendUssdRequest
 {
     public override async void run( string request ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCUSD>( "+CUSD" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query( request ) );
+        var cmd = modem.createAtCommand<PlusCUSD>( "+CUSD" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query( request ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -219,8 +219,8 @@ public class AtNetworkGetCallingId : NetworkGetCallingId
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCLIR>( "+CLIR" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var cmd = modem.createAtCommand<PlusCLIR>( "+CLIR" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         status = (FreeSmartphone.GSM.CallingIdentificationStatus) cmd.value;
     }
@@ -230,8 +230,8 @@ public class AtNetworkSetCallingId : NetworkSetCallingId
 {
     public override async void run( FreeSmartphone.GSM.CallingIdentificationStatus status ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCLIR>( "+CLIR" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( status ) );
+        var cmd = modem.createAtCommand<PlusCLIR>( "+CLIR" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( status ) );
         checkResponseOk( cmd, response );
     }
 }

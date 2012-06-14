@@ -37,16 +37,16 @@ public class IsiSmsSendTextMessage : SmsSendTextMessage
     {
         validatePhoneNumber( recipient_number );
 
-        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report );
+        var hexpdus = modem.smshandler.formatTextMessage( recipient_number, contents, want_report );
 
-        transaction_index = theModem.smshandler.lastReferenceNumber();
+        transaction_index = modem.smshandler.lastReferenceNumber();
         //FIXME: What about ACK PDUs?
         timestamp = "now";
 
         // remember transaction indizes for later
         if ( want_report )
         {
-            theModem.smshandler.storeTransactionIndizesForSentMessage( hexpdus );
+            modem.smshandler.storeTransactionIndizesForSentMessage( hexpdus );
         }
     }
 }

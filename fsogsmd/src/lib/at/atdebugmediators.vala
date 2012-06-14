@@ -36,7 +36,7 @@ public class AtDebugCommand : DebugCommand
     {
         var cmd = new CustomAtCommand( command );
 
-        AtChannel channel = theModem.channel( category ) as AtChannel;
+        AtChannel channel = modem.channel( category ) as AtChannel;
         //FIXME: assert channel is really an At channel
         if ( channel == null )
         {
@@ -58,12 +58,12 @@ public class AtDebugInjectResponse : DebugInjectResponse
 {
     public override async void run( string command, string category ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( category );
+        var channel = modem.channel( category );
         if ( channel == null )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Channel $category not known" );
         }
-        theModem.injectResponse( command, category );
+        modem.injectResponse( command, category );
     }
 }
 
@@ -71,9 +71,9 @@ public class AtDebugPing : DebugPing
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<CustomAtCommand>( "CUSTOM" );
+        var cmd = modem.createAtCommand<CustomAtCommand>( "CUSTOM" );
 
-        AtChannel channel = theModem.channel( "main" ) as AtChannel;
+        AtChannel channel = modem.channel( "main" ) as AtChannel;
         //FIXME: assert channel is really an At channel
         if ( channel == null )
         {

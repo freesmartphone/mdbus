@@ -35,9 +35,9 @@ public class AtSmsRetrieveTextMessages : SmsRetrieveTextMessages
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         //FIXME: Bug in Vala
-        //messagebook = theModem.smshandler.storage.messagebook();
+        //messagebook = modem.smshandler.storage.messagebook();
         //FIXME: Work around
-        var array = theModem.smshandler.storage.messagebook();
+        var array = modem.smshandler.storage.messagebook();
         messagebook = new FreeSmartphone.GSM.SIMMessage[array.length] {};
         for( int i = 0; i < array.length; ++i )
         {
@@ -50,7 +50,7 @@ public class AtSmsGetSizeForTextMessage : SmsGetSizeForTextMessage
 {
     public override async void run( string contents ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var hexpdus = theModem.smshandler.formatTextMessage( "+123456789", contents, false );
+        var hexpdus = modem.smshandler.formatTextMessage( "+123456789", contents, false );
         size = hexpdus.size;
     }
 }
@@ -61,31 +61,31 @@ public class AtSmsSendTextMessage : SmsSendTextMessage
     {
         validatePhoneNumber( recipient_number );
 
-        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report );
+        var hexpdus = modem.smshandler.formatTextMessage( recipient_number, contents, want_report );
 
         // signalize that we're sending a couple of SMS
-        var cmms = theModem.createAtCommand<PlusCMMS>( "+CMMS" );
-        yield theModem.processAtCommandAsync( cmms, cmms.issue( 1 ) ); // not interested in the result
+        var cmms = modem.createAtCommand<PlusCMMS>( "+CMMS" );
+        yield modem.processAtCommandAsync( cmms, cmms.issue( 1 ) ); // not interested in the result
 
         // send the SMS one after another
         foreach( var hexpdu in hexpdus )
         {
-            var cmd = theModem.createAtCommand<PlusCMGS>( "+CMGS" );
-            var response = yield theModem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
+            var cmd = modem.createAtCommand<PlusCMGS>( "+CMGS" );
+            var response = yield modem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
             checkResponseValid( cmd, response );
             hexpdu.transaction_index = cmd.refnum;
         }
-        transaction_index = theModem.smshandler.lastReferenceNumber();
+        transaction_index = modem.smshandler.lastReferenceNumber();
         //FIXME: What about ACK PDUs?
         timestamp = "now";
 
         // signalize that we're done
-        yield theModem.processAtCommandAsync( cmms, cmms.issue( 0 ) ); // not interested in the result
+        yield modem.processAtCommandAsync( cmms, cmms.issue( 0 ) ); // not interested in the result
 
         // remember transaction indizes for later
         if ( want_report )
         {
-            theModem.smshandler.storeTransactionIndizesForSentMessage( hexpdus );
+            modem.smshandler.storeTransactionIndizesForSentMessage( hexpdus );
         }
     }
 }

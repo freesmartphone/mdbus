@@ -28,8 +28,8 @@ namespace Gtm601
     {
         public override async void run( string tones ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
         {
-            var cmd = theModem.createAtCommand<PlusVTS>( "+VTS" );
-            theModem.sendAtCommand( cmd, cmd.issue( tones ) );
+            var cmd = modem.createAtCommand<PlusVTS>( "+VTS" );
+            modem.sendAtCommand( cmd, cmd.issue( tones ) );
         }
     }
 
@@ -45,8 +45,8 @@ namespace Gtm601
         {
             var providers_tmp = new FreeSmartphone.GSM.NetworkProvider[] { };
 
-            var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-            var response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
+            var cmd = modem.createAtCommand<PlusCOPS>( "+COPS" );
+            var response = yield modem.processAtCommandAsync( cmd, cmd.test() );
             checkTestResponseValid( cmd, response );
 
             foreach ( var p in cmd.providers )
@@ -67,8 +67,8 @@ namespace Gtm601
     {
         public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
         {
-            var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
-            var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+            var cmd = modem.createAtCommand<PlusCSCA>( "+CSCA" );
+            var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
             checkResponseValid( cmd, response );
             number = Codec.hexToString( cmd.number );
         }
@@ -84,8 +84,8 @@ namespace Gtm601
             {
                 poll_again = false;
 
-                var cmd = theModem.createAtCommand<PlusCLCC>( "+CLCC" );
-                var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
+                var cmd = modem.createAtCommand<PlusCLCC>( "+CLCC" );
+                var response = yield modem.processAtCommandAsync( cmd, cmd.execute() );
 
                 var code = cmd.validateMulti( response );
                 if ( code == Constants.AtResponse.VALID )

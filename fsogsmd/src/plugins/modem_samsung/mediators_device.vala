@@ -25,8 +25,8 @@ public class SamsungDeviceGetFunctionality : DeviceGetFunctionality
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         level = gatherFunctionalityLevel();
-        autoregister = theModem.data().keepRegistration;
-        pin = theModem.data().simPin;
+        autoregister = modem.data().keepRegistration;
+        pin = modem.data().simPin;
     }
 }
 
@@ -37,7 +37,7 @@ public class SamsungDeviceGetFeatures : DeviceGetFeatures
         features = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         // Prefill results with what the modem claims
-        var data = theModem.data();
+        var data = modem.data();
         features.insert( "gsm", data.supportsGSM );
         features.insert( "voice", data.supportsVoice );
         features.insert( "cdma", data.supportsCDMA );
@@ -52,7 +52,7 @@ public class SamsungDeviceGetInformation : DeviceGetInformation
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         unowned SamsungIpc.Response? response = null;
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
 
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
@@ -83,7 +83,7 @@ public class SamsungDeviceGetPowerStatus : DeviceGetPowerStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         status = FreeSmartphone.Device.PowerStatus.UNKNOWN;
     }
 }
@@ -92,7 +92,7 @@ public class SamsungDeviceSetFunctionality : DeviceSetFunctionality
 {
     public override async void run( string level, bool autoregister, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
 
         switch ( level )
         {
@@ -111,12 +111,12 @@ public class SamsungDeviceSetFunctionality : DeviceSetFunctionality
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
         }
 
-        var data = theModem.data();
+        var data = modem.data();
         data.keepRegistration = autoregister;
         if ( pin != "" )
         {
             data.simPin = pin;
-            theModem.watchdog.resetUnlockMarker();
+            modem.watchdog.resetUnlockMarker();
         }
     }
 }

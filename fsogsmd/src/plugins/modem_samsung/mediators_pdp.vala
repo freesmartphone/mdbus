@@ -27,7 +27,7 @@ public class SamsungPdpSetCredentials : PdpSetCredentials
 {
     public override async void run( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var data = theModem.data();
+        var data = modem.data();
         data.contextParams = new ContextParams( apn, username, password );
     }
 }

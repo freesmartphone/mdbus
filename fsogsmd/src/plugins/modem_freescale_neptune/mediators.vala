@@ -33,9 +33,9 @@ public class NeptuneDeviceGetInformation : DeviceGetInformation
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var modem = theModem as FreescaleNeptune.Modem;
+        var modem = modem as FreescaleNeptune.Modem;
         /*
-        var channel = theModem.channel( "main" ) as AtChannel;
+        var channel = modem.channel( "main" ) as AtChannel;
         */
         info = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
@@ -46,8 +46,8 @@ public class NeptuneDeviceGetInformation : DeviceGetInformation
         info.insert( "revision", modem.revision );
 
         /* "+CGSN" */
-        var cgsn = theModem.createAtCommand<PlusCGSN>( "+CGSN" );
-        var response = yield theModem.processAtCommandAsync( cgsn, cgsn.query() );
+        var cgsn = modem.createAtCommand<PlusCGSN>( "+CGSN" );
+        var response = yield modem.processAtCommandAsync( cgsn, cgsn.query() );
         checkResponseValid( cgsn, response );
         info.insert( "imei", cgsn.value );
     }
@@ -67,8 +67,8 @@ public class NeptuneSimSendAuthCode : SimSendAuthCode
 {
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<NeptunePlusCPIN>( "+CPIN" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( 1, pin ) );
+        var cmd = modem.createAtCommand<NeptunePlusCPIN>( "+CPIN" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( 1, pin ) );
         var code = checkResponseExpected( cmd, response,
             { Constants.AtResponse.OK, Constants.AtResponse.CME_ERROR_016_INCORRECT_PASSWORD } );
 
@@ -97,8 +97,8 @@ public class NeptuneNetworkRegister : NetworkRegister
         // FIXME: find a better way to make NetworkRegister reliable,
         // avoid sleeping if possible.
         Thread.usleep(4000 * 1000);
-        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
+        var cmd = modem.createAtCommand<PlusCOPS>( "+COPS" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_BEST_PROVIDER ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -107,8 +107,8 @@ public class NeptuneNetworkUnregister : NetworkUnregister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCOPS>( "+COPS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.UNREGISTER ) );
+        var cmd = modem.createAtCommand<PlusCOPS>( "+COPS" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.UNREGISTER ) );
         // FIXME: find a better way to make NetworkRegister reliable,
         // avoid sleeping if possible.
         Thread.usleep(4000 * 1000);
@@ -128,8 +128,8 @@ public class NeptuneCallListCalls : CallListCalls
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCLCC>( "+CLCC" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var cmd = modem.createAtCommand<PlusCLCC>( "+CLCC" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
         checkMultiResponseValid( cmd, response );
         calls = cmd.calls;
     }

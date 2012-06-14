@@ -25,7 +25,7 @@ public class SamsungCallActivate : CallActivate
 {
     public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        yield theModem.callhandler.activate( id );
+        yield modem.callhandler.activate( id );
     }
 }
 
@@ -33,7 +33,7 @@ public class SamsungCallHoldActive : CallHoldActive
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        yield theModem.callhandler.hold();
+        yield modem.callhandler.hold();
     }
 }
 
@@ -42,7 +42,7 @@ public class SamsungCallInitiate : CallInitiate
     public override async void run( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         validatePhoneNumber( number );
-        id = yield theModem.callhandler.initiate( number, ctype );
+        id = yield modem.callhandler.initiate( number, ctype );
     }
 }
 
@@ -50,7 +50,7 @@ public class SamsungCallListCalls : CallListCalls
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
         var _calls = new FreeSmartphone.GSM.CallDetail[] { };
 
@@ -103,7 +103,7 @@ public class SamsungCallRelease : CallRelease
 {
     public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        yield theModem.callhandler.release( id );
+        yield modem.callhandler.release( id );
     }
 }
 
@@ -111,7 +111,7 @@ public class SamsungCallReleaseAll : CallReleaseAll
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        yield theModem.callhandler.releaseAll();
+        yield modem.callhandler.releaseAll();
     }
 }
 

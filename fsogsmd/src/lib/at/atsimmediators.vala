@@ -34,8 +34,8 @@ public class AtSimChangeAuthCode : SimChangeAuthCode
 {
     public override async void run( string oldpin, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCPWD>( "+CPWD" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( "SC", oldpin, newpin ) );
+        var cmd = modem.createAtCommand<PlusCPWD>( "+CPWD" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( "SC", oldpin, newpin ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -50,14 +50,14 @@ public class AtSimDeleteEntry : SimDeleteEntry
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
         }
 
-        var cmd = theModem.createAtCommand<PlusCPBW>( "+CPBW" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( cat, index ) );
+        var cmd = modem.createAtCommand<PlusCPBW>( "+CPBW" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( cat, index ) );
         checkResponseExpected( cmd, response, {
             Constants.AtResponse.OK,
             Constants.AtResponse.CME_ERROR_021_INVALID_INDEX
         } );
 
-        yield theModem.pbhandler.syncWithSim();
+        yield modem.pbhandler.syncWithSim();
     }
 }
 
@@ -65,13 +65,13 @@ public class AtSimDeleteMessage : SimDeleteMessage
 {
     public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCMGD>( "+CMGD" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( index ) );
+        var cmd = modem.createAtCommand<PlusCMGD>( "+CMGD" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( index ) );
         checkResponseExpected( cmd, response, {
             Constants.AtResponse.OK,
             Constants.AtResponse.CMS_ERROR_321_INVALID_MEMORY_INDEX
         } );
-        //FIXME: theModem.smshandler.resync();
+        //FIXME: modem.smshandler.resync();
     }
 }
 
@@ -79,8 +79,8 @@ public class AtSimGetAuthStatus : SimGetAuthStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var cmd = modem.createAtCommand<PlusCPIN>( "+CPIN" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         status = cmd.status;
     }
@@ -90,8 +90,8 @@ public class AtSimGetAuthCodeRequired : SimGetAuthCodeRequired
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCLCK>( "+CLCK" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query( "SC" ) );
+        var cmd = modem.createAtCommand<PlusCLCK>( "+CLCK" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query( "SC" ) );
         checkResponseValid( cmd, response );
         required = cmd.enabled;
     }
@@ -105,8 +105,8 @@ public class AtSimGetInformation : SimGetInformation
 
         Variant value;
 
-        var cimi = theModem.createAtCommand<PlusCGMR>( "+CIMI" );
-        var response = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
+        var cimi = modem.createAtCommand<PlusCGMR>( "+CIMI" );
+        var response = yield modem.processAtCommandAsync( cimi, cimi.execute() );
         if ( cimi.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cimi.value;
@@ -121,8 +121,8 @@ public class AtSimGetInformation : SimGetInformation
         value = "unknown";
 
         info.insert( "issuer", "unknown" );
-        var crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
-        response = yield theModem.processAtCommandAsync( crsm, crsm.issue(
+        var crsm = modem.createAtCommand<PlusCRSM>( "+CRSM" );
+        response = yield modem.processAtCommandAsync( crsm, crsm.issue(
                 Constants.SimFilesystemCommand.READ_BINARY,
                 Constants.simFilesystemEntryNameToCode( "EFspn" ), 0, 0, 17 ) );
         if ( crsm.validate( response ) == Constants.AtResponse.VALID )
@@ -134,8 +134,8 @@ public class AtSimGetInformation : SimGetInformation
 
         if ( value.get_string() == "unknown" )
         {
-            crsm = theModem.createAtCommand<PlusCRSM>( "+CRSM" );
-            response = yield theModem.processAtCommandAsync( crsm, crsm.issue(
+            crsm = modem.createAtCommand<PlusCRSM>( "+CRSM" );
+            response = yield modem.processAtCommandAsync( crsm, crsm.issue(
                 Constants.SimFilesystemCommand.READ_BINARY,
                 Constants.simFilesystemEntryNameToCode( "EF_SPN_CPHS" ), 0, 0, 10 ) );
             if ( crsm.validate( response ) == Constants.AtResponse.VALID )
@@ -145,11 +145,11 @@ public class AtSimGetInformation : SimGetInformation
                 info.insert( "issuer", value );
             }
         }
-        theModem.data().simIssuer = value.get_string();
+        modem.data().simIssuer = value.get_string();
 
         /* Phonebooks */
-        var cpbs = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
-        response = yield theModem.processAtCommandAsync( cpbs, cpbs.test() );
+        var cpbs = modem.createAtCommand<PlusCPBS>( "+CPBS" );
+        response = yield modem.processAtCommandAsync( cpbs, cpbs.test() );
         var pbnames = "";
         if ( cpbs.validateTest( response ) == Constants.AtResponse.VALID )
         {
@@ -162,8 +162,8 @@ public class AtSimGetInformation : SimGetInformation
         info.insert( "phonebooks", pbnames.strip() );
 
         /* Messages */
-        var cpms = theModem.createAtCommand<PlusCPMS>( "+CPMS" );
-        response = yield theModem.processAtCommandAsync( cpms, cpms.query() );
+        var cpms = modem.createAtCommand<PlusCPMS>( "+CPMS" );
+        response = yield modem.processAtCommandAsync( cpms, cpms.query() );
         if ( cpms.validate( response ) == Constants.AtResponse.VALID )
         {
             info.insert( "slots", cpms.total );
@@ -182,8 +182,8 @@ public class AtSimGetPhonebookInfo : SimGetPhonebookInfo
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
         }
 
-        var cmd = theModem.createAtCommand<PlusCPBW>( "+CPBW" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.test( cat ) );
+        var cmd = modem.createAtCommand<PlusCPBW>( "+CPBW" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.test( cat ) );
         checkTestResponseValid( cmd, response );
         slots = cmd.max;
         numberlength = cmd.nlength;
@@ -195,8 +195,8 @@ public class AtSimGetServiceCenterNumber : SimGetServiceCenterNumber
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var cmd = modem.createAtCommand<PlusCSCA>( "+CSCA" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         number = cmd.number;
     }
@@ -216,8 +216,8 @@ public class AtSimRetrieveMessage : SimRetrieveMessage
     {
         properties = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
-        var cmgr = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
-        var response = yield theModem.processAtCommandAsync( cmgr, cmgr.issue( index ) );
+        var cmgr = modem.createAtCommand<PlusCMGR>( "+CMGR" );
+        var response = yield modem.processAtCommandAsync( cmgr, cmgr.issue( index ) );
         checkMultiResponseValid( cmgr, response );
 
         var sms = Sms.Message.newFromHexPdu( cmgr.hexpdu, cmgr.tpdulen );
@@ -243,7 +243,7 @@ public class AtSimRetrievePhonebook : SimRetrievePhonebook
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid Category" );
         }
 
-        phonebook = theModem.pbhandler.storage.phonebook( cat, mindex, maxdex );
+        phonebook = modem.pbhandler.storage.phonebook( cat, mindex, maxdex );
     }
 }
 
@@ -251,8 +251,8 @@ public class AtSimSetAuthCodeRequired : SimSetAuthCodeRequired
 {
     public override async void run( bool required, string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCLCK>( "+CLCK" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( "SC", required, pin ) );
+        var cmd = modem.createAtCommand<PlusCLCK>( "+CLCK" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( "SC", required, pin ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -261,8 +261,8 @@ public class AtSimSendAuthCode : SimSendAuthCode
 {
     public override async void run( string pin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( pin ) );
+        var cmd = modem.createAtCommand<PlusCPIN>( "+CPIN" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( pin ) );
         var code = checkResponseExpected( cmd, response,
             { Constants.AtResponse.OK, Constants.AtResponse.CME_ERROR_016_INCORRECT_PASSWORD } );
 
@@ -273,7 +273,7 @@ public class AtSimSendAuthCode : SimSendAuthCode
         else
         {
             // PIN seems known good, save for later
-            theModem.data().simPin = pin;
+            modem.data().simPin = pin;
         }
         //FIXME: Was it intended to do this in background? (i.e. not yielding)
         gatherSimStatusAndUpdate();
@@ -284,8 +284,8 @@ public class AtSimSendStoredMessage : SimSendStoredMessage
 {
     public override async void run( int index ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCMSS>( "+CMSS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( index ) );
+        var cmd = modem.createAtCommand<PlusCMSS>( "+CMSS" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( index ) );
         checkResponseValid( cmd, response );
         transaction_index = cmd.refnum;
 
@@ -299,8 +299,8 @@ public class AtSimSetServiceCenterNumber : SimSetServiceCenterNumber
     public override async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         validatePhoneNumber( number );
-        var cmd = theModem.createAtCommand<PlusCSCA>( "+CSCA" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( number ) );
+        var cmd = modem.createAtCommand<PlusCSCA>( "+CSCA" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( number ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -311,7 +311,7 @@ public class AtSimStoreMessage : SimStoreMessage
     {
         validatePhoneNumber( recipient_number );
 
-        var hexpdus = theModem.smshandler.formatTextMessage( recipient_number, contents, want_report );
+        var hexpdus = modem.smshandler.formatTextMessage( recipient_number, contents, want_report );
 
         if ( hexpdus.size != 1 )
         {
@@ -321,8 +321,8 @@ public class AtSimStoreMessage : SimStoreMessage
         // send the SMS one after another
         foreach( var hexpdu in hexpdus )
         {
-            var cmd = theModem.createAtCommand<PlusCMGW>( "+CMGW" );
-            var response = yield theModem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
+            var cmd = modem.createAtCommand<PlusCMGW>( "+CMGW" );
+            var response = yield modem.processAtPduCommandAsync( cmd, cmd.issue( hexpdu ) );
             checkResponseValid( cmd, response );
             memory_index = cmd.memory_index;
         }
@@ -333,8 +333,8 @@ public class AtSimUnlock : SimUnlock
 {
     public override async void run( string puk, string newpin ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( puk, newpin ) );
+        var cmd = modem.createAtCommand<PlusCPIN>( "+CPIN" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( puk, newpin ) );
         checkResponseOk( cmd, response );
     }
 }
@@ -349,8 +349,8 @@ public class AtSimWriteEntry : SimWriteEntry
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid category" );
         }
 
-        var cmd = theModem.createAtCommand<PlusCPBW>( "+CPBW" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( cat, index, number, name ) );
+        var cmd = modem.createAtCommand<PlusCPBW>( "+CPBW" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( cat, index, number, name ) );
         checkResponseOk( cmd, response );
     }
 }

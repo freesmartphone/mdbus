@@ -34,9 +34,9 @@ public class AtDeviceGetAlarmTime : DeviceGetAlarmTime
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var data = theModem.data();
-        var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var data = modem.data();
+        var cmd = modem.createAtCommand<PlusCALA>( "+CALA" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
         // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
         // hence we need to catch this error and transform it into something valid
         try
@@ -65,8 +65,8 @@ public class AtDeviceGetCurrentTime : DeviceGetCurrentTime
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var cmd = modem.createAtCommand<PlusCCLK>( "+CCLK" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
         // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
         // hence we need to catch this error and transform it into something valid
         try
@@ -90,12 +90,12 @@ public class AtDeviceGetFunctionality : DeviceGetFunctionality
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cfun = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var response = yield theModem.processAtCommandAsync( cfun, cfun.query() );
+        var cfun = modem.createAtCommand<PlusCFUN>( "+CFUN" );
+        var response = yield modem.processAtCommandAsync( cfun, cfun.query() );
         checkResponseValid( cfun, response );
         level = Constants.deviceFunctionalityStatusToString( cfun.value );
-        autoregister = theModem.data().keepRegistration;
-        pin = theModem.data().simPin;
+        autoregister = modem.data().keepRegistration;
+        pin = modem.data().simPin;
     }
 }
 
@@ -107,8 +107,8 @@ public class AtDeviceGetInformation : DeviceGetInformation
 
         Variant value;
 
-        var cgmr = theModem.createAtCommand<PlusCGMR>( "+CGMR" );
-        var response = yield theModem.processAtCommandAsync( cgmr, cgmr.execute() );
+        var cgmr = modem.createAtCommand<PlusCGMR>( "+CGMR" );
+        var response = yield modem.processAtCommandAsync( cgmr, cgmr.execute() );
         if ( cgmr.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgmr.value;
@@ -119,8 +119,8 @@ public class AtDeviceGetInformation : DeviceGetInformation
             info.insert( "revision", "unknown" );
         }
 
-        var cgmm = theModem.createAtCommand<PlusCGMM>( "+CGMM" );
-        response = yield theModem.processAtCommandAsync( cgmm, cgmm.execute() );
+        var cgmm = modem.createAtCommand<PlusCGMM>( "+CGMM" );
+        response = yield modem.processAtCommandAsync( cgmm, cgmm.execute() );
         if ( cgmm.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgmm.value;
@@ -131,8 +131,8 @@ public class AtDeviceGetInformation : DeviceGetInformation
             info.insert( "model", "unknown" );
         }
 
-        var cgmi = theModem.createAtCommand<PlusCGMI>( "+CGMI" );
-        response = yield theModem.processAtCommandAsync( cgmi, cgmi.execute() );
+        var cgmi = modem.createAtCommand<PlusCGMI>( "+CGMI" );
+        response = yield modem.processAtCommandAsync( cgmi, cgmi.execute() );
         if ( cgmi.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgmi.value;
@@ -143,8 +143,8 @@ public class AtDeviceGetInformation : DeviceGetInformation
             info.insert( "manufacturer", "unknown" );
         }
 
-        var cgsn = theModem.createAtCommand<PlusCGSN>( "+CGSN" );
-        response = yield theModem.processAtCommandAsync( cgsn, cgsn.execute() );
+        var cgsn = modem.createAtCommand<PlusCGSN>( "+CGSN" );
+        response = yield modem.processAtCommandAsync( cgsn, cgsn.execute() );
         if ( cgsn.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cgsn.value;
@@ -155,8 +155,8 @@ public class AtDeviceGetInformation : DeviceGetInformation
             info.insert( "imei", "unknown" );
         }
 
-        var cmickey = theModem.createAtCommand<PlusCMICKEY>( "+CMICKEY" );
-        response = yield theModem.processAtCommandAsync( cmickey, cmickey.execute() );
+        var cmickey = modem.createAtCommand<PlusCMICKEY>( "+CMICKEY" );
+        response = yield modem.processAtCommandAsync( cmickey, cmickey.execute() );
         if ( cmickey.validate( response ) == Constants.AtResponse.VALID )
         {
             value = (string) cmickey.value;
@@ -172,7 +172,7 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         features = new GLib.HashTable<string,Variant>( str_hash, str_equal );
 
         // prefill results with what the modem claims
-        var data = theModem.data();
+        var data = modem.data();
         features.insert( "gsm", data.supportsGSM );
         features.insert( "voice", data.supportsVoice );
         features.insert( "cdma", data.supportsCDMA );
@@ -182,8 +182,8 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
         // now some additional runtime checks
 
         // GSM?
-        var gcap = theModem.createAtCommand<PlusGCAP>( "+GCAP" );
-        var response = yield theModem.processAtCommandAsync( gcap, gcap.execute() );
+        var gcap = modem.createAtCommand<PlusGCAP>( "+GCAP" );
+        var response = yield modem.processAtCommandAsync( gcap, gcap.execute() );
         if ( gcap.validate( response ) == Constants.AtResponse.VALID )
         {
             if ( "GSM" in gcap.value || data.supportsGSM )
@@ -192,22 +192,22 @@ public class AtDeviceGetFeatures : DeviceGetFeatures
             }
         }
         // PDP?
-        var cgclass = theModem.createAtCommand<PlusCGCLASS>( "+CGCLASS" );
-        response = yield theModem.processAtCommandAsync( cgclass, cgclass.test() );
+        var cgclass = modem.createAtCommand<PlusCGCLASS>( "+CGCLASS" );
+        response = yield modem.processAtCommandAsync( cgclass, cgclass.test() );
         if ( cgclass.validateTest( response ) == Constants.AtResponse.VALID )
         {
             features.insert( "gprs", cgclass.righthandside );
         }
         // FAX?
-        var fclass = theModem.createAtCommand<PlusFCLASS>( "+FCLASS" );
-        response = yield theModem.processAtCommandAsync( fclass, fclass.test() );
+        var fclass = modem.createAtCommand<PlusFCLASS>( "+FCLASS" );
+        response = yield modem.processAtCommandAsync( fclass, fclass.test() );
         if ( fclass.validateTest( response ) == Constants.AtResponse.VALID )
         {
             features.insert( "fax", fclass.righthandside );
         }
         // facilities
-        var fac = theModem.createAtCommand<PlusCLCK>( "+CLCK" );
-        response = yield theModem.processAtCommandAsync( fac, fac.test() );
+        var fac = modem.createAtCommand<PlusCLCK>( "+CLCK" );
+        response = yield modem.processAtCommandAsync( fac, fac.test() );
         if ( fac.validateTest( response ) == Constants.AtResponse.VALID )
         {
             features.insert( "facilities", fac.facilities );
@@ -219,8 +219,8 @@ public class AtDeviceGetMicrophoneMuted : DeviceGetMicrophoneMuted
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var cmd = modem.createAtCommand<PlusCMUT>( "+CMUT" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         muted = cmd.value == 1;
     }
@@ -230,8 +230,8 @@ public class AtDeviceGetSimBuffersSms : DeviceGetSimBuffersSms
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var cmd = modem.createAtCommand<PlusCNMI>( "+CNMI" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
         buffers = cmd.mt < 2;
     }
@@ -243,11 +243,11 @@ public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
     {
         yield gatherSpeakerVolumeRange();
 
-        var cmd = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var cmd = modem.createAtCommand<PlusCLVL>( "+CLVL" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, response );
 
-        var data = theModem.data();
+        var data = modem.data();
         var interval = 100.0 / ( data.speakerVolumeMaximum - data.speakerVolumeMinimum );
         volume = data.speakerVolumeMinimum + (int) Math.round( cmd.value * interval );
     }
@@ -257,8 +257,8 @@ public class AtDeviceGetPowerStatus : DeviceGetPowerStatus
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<PlusCBC>( "+CBC" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
+        var cmd = modem.createAtCommand<PlusCBC>( "+CBC" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.execute() );
         checkResponseValid( cmd, response );
 
         switch ( cmd.status )
@@ -291,8 +291,8 @@ public class AtDeviceSetAlarmTime : DeviceSetAlarmTime
     {
         var t = GLib.Time.gm( (time_t) since_epoch );
 
-        var cmd = theModem.createAtCommand<PlusCALA>( "+CALA" );
-        var response = yield theModem.processAtCommandAsync( cmd, since_epoch > 0 ? cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) : cmd.clear() );
+        var cmd = modem.createAtCommand<PlusCALA>( "+CALA" );
+        var response = yield modem.processAtCommandAsync( cmd, since_epoch > 0 ? cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) : cmd.clear() );
 
         // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
         // hence we need to catch this error and transform it into something valid
@@ -313,8 +313,8 @@ public class AtDeviceSetCurrentTime : DeviceSetCurrentTime
     {
         var t = GLib.Time.gm( (time_t) since_epoch );
 
-        var cmd = theModem.createAtCommand<PlusCCLK>( "+CCLK" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
+        var cmd = modem.createAtCommand<PlusCCLK>( "+CCLK" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( t.year+1900-2000, t.month+1, t.day, t.hour, t.minute, t.second, 0 ) );
 
         // org.freesmartphone.Device.RealtimeClock can not throw a org.freesmartphone.GSM.Error,
         // hence we need to catch this error and transform it into something valid
@@ -340,23 +340,23 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Functionality needs to be one of \"minimal\", \"airplane\", or \"full\"." );
         }
 
-        var cmd = theModem.createAtCommand<PlusCFUN>( "+CFUN" );
-        var queryanswer = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+        var cmd = modem.createAtCommand<PlusCFUN>( "+CFUN" );
+        var queryanswer = yield modem.processAtCommandAsync( cmd, cmd.query() );
         checkResponseValid( cmd, queryanswer );
         var curlevel = Constants.deviceFunctionalityStatusToString( cmd.value );
         if ( curlevel != level )
         {
-            var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( value ) );
+            var response = yield modem.processAtCommandAsync( cmd, cmd.issue( value ) );
             checkResponseExpected( cmd,
                 response,
                 { Constants.AtResponse.OK, Constants.AtResponse.CME_ERROR_011_SIM_PIN_REQUIRED } );
         }
-        var data = theModem.data();
+        var data = modem.data();
         data.keepRegistration = autoregister;
         if ( pin != "" )
         {
             data.simPin = pin;
-            theModem.watchdog.resetUnlockMarker();
+            modem.watchdog.resetUnlockMarker();
         }
         yield gatherSimStatusAndUpdate();
     }
@@ -366,8 +366,8 @@ public class AtDeviceSetMicrophoneMuted : DeviceSetMicrophoneMuted
 {
     public override async void run( bool muted ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmut = theModem.createAtCommand<PlusCMUT>( "+CMUT" );
-        var response = yield theModem.processAtCommandAsync( cmut, cmut.issue( muted ? 1 : 0 ) );
+        var cmut = modem.createAtCommand<PlusCMUT>( "+CMUT" );
+        var response = yield modem.processAtCommandAsync( cmut, cmut.issue( muted ? 1 : 0 ) );
 
         checkResponseOk( cmut, response );
     }
@@ -384,12 +384,12 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
 
         yield gatherSpeakerVolumeRange();
 
-        var data = theModem.data();
+        var data = modem.data();
         var interval = (double)( data.speakerVolumeMaximum - data.speakerVolumeMinimum ) / 100.0;
         var value = data.speakerVolumeMinimum + (int) Math.round( volume * interval );
 
-        var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
-        var response = yield theModem.processAtCommandAsync( clvl, clvl.issue( value ) );
+        var clvl = modem.createAtCommand<PlusCLVL>( "+CLVL" );
+        var response = yield modem.processAtCommandAsync( clvl, clvl.issue( value ) );
         checkResponseOk( clvl, response );
     }
 }

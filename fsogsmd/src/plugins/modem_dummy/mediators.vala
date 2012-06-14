@@ -84,8 +84,8 @@ public class DummyAtDeviceGetFunctionality : DeviceGetFunctionality
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         level = "full";
-        autoregister = theModem.data().keepRegistration;
-        pin = theModem.data().simPin;
+        autoregister = modem.data().keepRegistration;
+        pin = modem.data().simPin;
     }
 }
 
@@ -163,7 +163,7 @@ public class DummyAtDeviceSetFunctionality : DeviceSetFunctionality
 
         if ( modem_pin != pin )
         {
-            var simiface = theModem.theDevice<FreeSmartphone.GSM.SIM>();
+            var simiface = modem.theDevice<FreeSmartphone.GSM.SIM>();
             simiface.auth_status( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
         }
     }
@@ -319,7 +319,7 @@ public class DummyAtSimSendAuthCode : SimSendAuthCode
         {
             throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"PIN $pin not accepted" );
         }
-        theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+        modem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
     }
 }
 
@@ -477,7 +477,7 @@ public class DummyAtPdpActivateContext : PdpActivateContext
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var data = theModem.data();
+        var data = modem.data();
         if ( data.contextParams == null )
         {
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "No credentials set. Call org.freesmartphone.GSM.PDP.SetCredentials first." );
@@ -496,7 +496,7 @@ public class DummyAtPdpGetCredentials : PdpGetCredentials
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var data = theModem.data();
+        var data = modem.data();
         if ( data.contextParams == null )
         {
             apn = "";
@@ -516,7 +516,7 @@ public class DummyAtPdpSetCredentials : PdpSetCredentials
 {
     public override async void run( string apn, string username, string password ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var data = theModem.data();
+        var data = modem.data();
         data.contextParams = new ContextParams( apn, username, password );
     }
 }

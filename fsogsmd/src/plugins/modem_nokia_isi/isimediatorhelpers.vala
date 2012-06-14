@@ -58,7 +58,7 @@ static void registerMediators( HashMap<Type,Type> mediators )
 
     mediators[ typeof(DebugCommand) ]                    = typeof( IsiDebugCommand );
 
-    theModem.logger.debug( "Nokia ISI mediators registered" );
+    modem.logger.debug( "Nokia ISI mediators registered" );
 }
 
 public async void triggerUpdateNetworkStatus() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

@@ -68,7 +68,7 @@ public class IsiSimGetAuthStatus : SimGetAuthStatus
 
 
             default:
-                theModem.logger.warning( @"Unhandled ISI SIMAuth.Status $isicode" );
+                modem.logger.warning( @"Unhandled ISI SIMAuth.Status $isicode" );
                 status = FreeSmartphone.GSM.SIMAuthStatus.UNKNOWN;
                 break;
         }
@@ -121,7 +121,7 @@ public class IsiSimSendAuthCode : SimSendAuthCode
         switch ( isicode )
         {
             case GIsiClient.SIMAuth.IndicationType.OK:
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_UNLOCKED );
+                modem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_UNLOCKED );
                 break;
             case GIsiClient.SIMAuth.IndicationType.PUK:
                 throw new FreeSmartphone.GSM.Error.SIM_BLOCKED( @"ISI Code = $isicode" );
