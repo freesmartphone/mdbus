@@ -377,9 +377,7 @@ public abstract class FsoGsm.CallForwardingDisable : FsoGsm.AbstractMediator
 
 public abstract class FsoGsm.CallForwardingQuery : FsoGsm.AbstractMediator
 {
-    public bool active { get; protected set; }
-    public string number { get; protected set; }
-    public int timeout { get; protected set; }
+    public GLib.HashTable<string,Variant> status { get; protected set; }
 
     public abstract async void run( BearerClass cls, CallForwardingType reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }

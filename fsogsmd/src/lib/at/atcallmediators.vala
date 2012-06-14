@@ -134,12 +134,16 @@ public class AtCallForwardingQuery : FsoGsm.CallForwardingQuery
 {
     public override async void run( BearerClass cls, CallForwardingType reason ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        status = new GLib.HashTable<string,Variant>( null, null );
+
         var cmd = theModem.createAtCommand<PlusCCFC>( "+CCFC" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.query( reason, cls ) );
         checkResponseValid( cmd, response );
-        active = cmd.active;
-        number = cmd.number;
-        timeout = cmd.timeout;
+
+        status.insert( "active", cmd.active );
+        status.insert( "number", cmd.number );
+        if ( cls == BearerClass.VOICE && reason == CallForwardingType.NO_REPLY )
+            status.insert( "timeout", cmd.timeout );
     }
 }
 

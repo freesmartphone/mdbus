@@ -100,6 +100,9 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
 
         var m =  theModem.createMediator<CallForwardingEnable>();
         yield m.run( cls, reason, number, timeout );
+
+        var status = yield this.get_status( rule );
+        this.status_changed( rule, status ); // DBUS SIGNAL
     }
 
     public async void disable( string rule ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
@@ -111,9 +114,12 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
 
         var m =  theModem.createMediator<CallForwardingDisable>();
         yield m.run( cls, reason );
+
+        var status = yield this.get_status( rule );
+        this.status_changed( rule, status ); // DBUS SIGNAL
     }
 
-    public async FreeSmartphone.GSM.CallForwardingStatus get_status( string rule ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
+    public async GLib.HashTable<string,Variant> get_status( string rule ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         var cls = class_from_rule_name( rule );
         var reason = reason_from_rule_name( rule );
@@ -121,7 +127,7 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
         var m = theModem.createMediator<CallForwardingQuery>();
         yield m.run( cls, reason );
 
-        return FreeSmartphone.GSM.CallForwardingStatus(true, m.number, m.timeout);
+        return m.status;
     }
 }
 
