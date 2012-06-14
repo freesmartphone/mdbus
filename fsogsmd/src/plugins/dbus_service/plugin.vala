@@ -34,9 +34,20 @@ namespace DBusService
  **/
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
-    DBusService.deviceServiceManager = new FsoGsm.DeviceServiceManager( subsystem );
-    if ( DBusService.deviceServiceManager.initialized )
-        DBusService.resource = new DBusService.Resource( subsystem, DBusService.deviceServiceManager );
+    var modemtype = FsoFramework.theConfig.stringValue( "fsogsm", "modem_type", "none" );
+    if ( FsoGsm.ModemFactory.validateModemType( modemtype ) )
+    {
+        var modem = FsoGsm.ModemFactory.createFromTypeName( modemtype );
+
+        DBusService.deviceServiceManager = new FsoGsm.DeviceServiceManager( modem, subsystem );
+        if ( DBusService.deviceServiceManager.initialized )
+            DBusService.resource = new DBusService.Resource( subsystem, DBusService.deviceServiceManager );
+    }
+    else
+    {
+        FsoFramework.theLogger.error( @"Can't find modem for modem_type $modemtype; corresponding modem plugin loaded?" );
+    }
+
 
     return DBusService.MODULE_NAME;
 }

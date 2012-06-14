@@ -51,16 +51,9 @@ public class FsoGsm.DeviceServiceManager : FsoGsm.ServiceManager
     // public API
     //
 
-    public DeviceServiceManager( FsoFramework.Subsystem subsystem )
+    public DeviceServiceManager( FsoGsm.Modem modem, FsoFramework.Subsystem subsystem )
     {
         base( subsystem, FsoFramework.GSM.ServiceDBusName, FsoFramework.GSM.DeviceServicePath );
-
-        var modemtype = config.stringValue( "fsogsm", "modem_type", "none" );
-        if ( !FsoGsm.ModemFactory.validateModemType( modemtype ) )
-        {
-            logger.error( @"Can't find modem for modem_type $modemtype; corresponding modem plugin loaded?" );
-            return;
-        }
 
         base.registerService<FreeSmartphone.Info>( new FsoGsm.InfoService() );
         base.registerService<FreeSmartphone.Device.RealtimeClock>( new FsoGsm.DeviceRtcService() );
@@ -78,15 +71,13 @@ public class FsoGsm.DeviceServiceManager : FsoGsm.ServiceManager
         base.registerService<FreeSmartphone.GSM.SMS>( new FsoGsm.GsmSmsService() );
         base.registerService<FreeSmartphone.GSM.VoiceMail>( new FsoGsm.GsmVoiceMailService() );
 
-        modem = FsoGsm.ModemFactory.createFromTypeName( modemtype );
-        // FIXME validate modem is a valid one now
         modem.parent = this;
         modem.hangup.connect( onModemHangup );
-
         this.assignModem( modem );
 
         initialized = true;
-        logger.info( @"Ready. Configured for modem $modemtype" );
+
+        logger.info( @"Ready. Configured for modem !!! FIXME !!!" );
     }
 
     public override async bool enable()
