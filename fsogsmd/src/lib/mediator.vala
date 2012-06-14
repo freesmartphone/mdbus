@@ -23,12 +23,19 @@ using FsoGsm.Constants;
  * Mediator Interfaces and Base Class
  **/
 
-public abstract interface FsoGsm.Mediator
+public interface FsoGsm.Mediator : GLib.Object
 {
+    public abstract void assign_modem( FsoGsm.Modem modem );
 }
 
 public abstract class FsoGsm.AbstractMediator : FsoGsm.Mediator, GLib.Object
 {
+    protected FsoGsm.Modem modem { get; private set; }
+
+    public void assign_modem( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
+    }
 }
 
 //

@@ -224,7 +224,7 @@ public class FsoGsm.NullCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractO
 /**
  * @class FsoGsm.AbstractCallHandler
  **/
-public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallHandler, FsoFramework.AbstractObject
+public abstract class FsoGsm.AbstractCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractObject
 {
     protected bool inSyncCallStatus;
     protected uint timeout;

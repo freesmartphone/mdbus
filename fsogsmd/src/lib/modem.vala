@@ -889,6 +889,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
         assert( logger.debug( @"Created mediator $(typeof(T).name())" ) );
 
+        var m = obj as FsoGsm.Mediator;
+        if ( m != null )
+            m.assign_modem( this );
+
         return obj;
     }
 
