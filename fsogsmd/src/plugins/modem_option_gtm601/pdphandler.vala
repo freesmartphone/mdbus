@@ -61,7 +61,7 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
             checkResponseOk( cmd_owancall, response );
             activated = true;
 
-            Timeout.add_seconds( 1, () => { sc_activate.callback(); return false; } );
+            Timeout.add_seconds( 5, () => { sc_activate.callback(); return false; } );
             yield;
 
             response = yield theModem.processAtCommandAsync( cmd_owandata, cmd_owandata.issue() );
