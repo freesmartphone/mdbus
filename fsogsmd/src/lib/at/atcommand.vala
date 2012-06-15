@@ -70,10 +70,13 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
     protected string[] prefix;
     protected int length;
 
+    private FsoGsm.Modem modem;
+
     construct
     {
         length = 1;
     }
+
 
     ~AbstractAtCommand()
     {
@@ -82,12 +85,17 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
 #endif
     }
 
+    public void assign_modem( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
+    }
+
     public string encodeString( string str )
     {
         if ( str == null || str == "" )
             return "";
 
-        var data = theModem.data();
+        var data = modem.data();
         switch ( data.charset )
         {
             case "UCS2":
@@ -108,7 +116,7 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
         if ( str.length == 0 )
             return "";
 
-        var data = theModem.data();
+        var data = modem.data();
         switch ( data.charset )
         {
             case "UCS2":
@@ -168,7 +176,7 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
             return Constants.AtResponse.CONNECT;
         }
 
-        assert( theModem.logger.debug( @"Did not receive OK (instead '$statusline') for $(Type.from_instance(this).name())" ) );
+        assert( modem.logger.debug( @"Did not receive OK (instead '$statusline') for $(Type.from_instance(this).name())" ) );
         var errorcode = 0;
 
         if ( ! ( ":" in statusline ) )
@@ -211,7 +219,7 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
         // check whether we have received enough lines
         if ( response.length <= length )
         {
-            theModem.logger.warning( @"Unexpected length $(response.length) for $(Type.from_instance(this).name())" );
+            modem.logger.warning( @"Unexpected length $(response.length) for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNEXPECTED_LENGTH;
         }
 
@@ -221,10 +229,10 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
         }
         catch ( AtCommandError e )
         {
-            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
+            modem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
+        assert( modem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
         return Constants.AtResponse.VALID;
     }
 
@@ -242,7 +250,7 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
         // second, check whether we have received enough lines
         if ( response.length <= length )
         {
-            theModem.logger.warning( @"Unexpected test length $(response.length) for $(Type.from_instance(this).name())" );
+            modem.logger.warning( @"Unexpected test length $(response.length) for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNEXPECTED_LENGTH;
         }
 
@@ -252,10 +260,10 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
         }
         catch ( AtCommandError e )
         {
-            assert( theModem.logger.debug( @"Unexpected test format for $(Type.from_instance(this).name())" ) );
+            assert( modem.logger.debug( @"Unexpected test format for $(Type.from_instance(this).name())" ) );
             return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        assert( theModem.logger.debug( @"Did receive a valid test response for $(Type.from_instance(this).name())" ) );
+        assert( modem.logger.debug( @"Did receive a valid test response for $(Type.from_instance(this).name())" ) );
         return Constants.AtResponse.VALID;
     }
 
@@ -285,10 +293,10 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
             // <HACK>
             response.length++;
             // </HACK>
-            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
+            modem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
+        assert( modem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
         return Constants.AtResponse.VALID;
     }
 
@@ -303,10 +311,10 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
         }
         catch ( AtCommandError e )
         {
-            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
+            modem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
+        assert( modem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
         return Constants.AtResponse.VALID;
     }
 
@@ -318,7 +326,7 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
         // check whether we have received enough lines
         if ( response.length < 2 )
         {
-            theModem.logger.warning( @"Unexpected length $(response.length) for $(Type.from_instance(this).name())" );
+            modem.logger.warning( @"Unexpected length $(response.length) for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNEXPECTED_LENGTH;
         }
 
@@ -328,10 +336,10 @@ public abstract class FsoGsm.AbstractAtCommand : GLib.Object, FsoGsm.AtCommandQu
         }
         catch ( AtCommandError e )
         {
-            theModem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
+            modem.logger.warning( @"Unexpected format for $(Type.from_instance(this).name())" );
             return Constants.AtResponse.UNABLE_TO_PARSE;
         }
-        assert( theModem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
+        assert( modem.logger.debug( @"Did receive a valid response for $(Type.from_instance(this).name())" ) );
         return Constants.AtResponse.VALID;
     }
 

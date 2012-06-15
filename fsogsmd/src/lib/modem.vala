@@ -528,8 +528,16 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     private void registerAtCommands()
     {
         commands = new HashMap<string,FsoGsm.AtCommand>();
+
         registerGenericAtCommands( commands );
         registerCustomAtCommands( commands );
+
+        foreach ( var command in commands.values )
+        {
+            var cmd = command as AbstractAtCommand;
+            if ( cmd != null )
+                cmd.assign_modem( this );
+        }
     }
 
     private void registerAtCommandSequence( string channel, string purpose, AtCommandSequence sequence )
