@@ -86,12 +86,13 @@ public class FsoGsm.Call
         return result; 
     }
 
-    public void notify( FreeSmartphone.GSM.CallDetail detail )
+    private void notify( FreeSmartphone.GSM.CallDetail detail )
     {
-        var obj = theModem.theDevice<FreeSmartphone.GSM.Call>();
-        obj.call_status( detail.id, detail.status, detail.properties );
+        status_changed( detail.id, detail.status, detail.properties );
         this.detail = detail;
     }
+
+    public signal void status_changed( int id, FreeSmartphone.GSM.CallStatus status, GLib.HashTable<string,Variant> properties );
 }
 
 /**
@@ -238,7 +239,13 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.CallHandler, FsoFramew
     {
         calls = new FsoGsm.Call[Constants.CALL_INDEX_MAX+1] {};
         for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
+        {
             calls[i] = new Call.newFromId( i );
+            calls[i].status_changed.connect( ( id, status, properties ) => {
+                var obj = modem.theDevice<FreeSmartphone.GSM.Call>();
+                obj.call_status( id, status, properties );
+            } );
+        }
     }
 
     //

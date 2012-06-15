@@ -29,9 +29,12 @@ public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractOb
 {
     protected HashMap<int, FsoGsm.Call> calls;
 
-    public IsiCallHandler()
+    private FsoGsm.Modem modem;
+
+    public IsiCallHandler( FsoGsm.Modem modem )
     {
-        calls = new HashMap<int, FsoGsm.Call>();
+        this.modem = modem;
+        this.calls = new HashMap<int, FsoGsm.Call>();
     }
 
     public override string repr()
@@ -52,6 +55,10 @@ public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractOb
         {
             assert( logger.debug( @"new call with id $(istatus.id)" ) );
             call = new FsoGsm.Call.newFromId( istatus.id );
+            call.status_changed.connect( ( id, status, properties ) => {
+                var obj = modem.theDevice<FreeSmartphone.GSM.Call>();
+                obj.call_status( id, status, properties );
+            } );
             calls.set( istatus.id, call );
         }
 
