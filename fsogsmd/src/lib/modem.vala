@@ -21,7 +21,6 @@ using Gee;
 
 namespace FsoGsm
 {
-    public FsoGsm.Modem theModem;
     public const string CONFIG_SECTION = "fsogsm";
     internal const string PPPD_DEFAULT_COMMAND = "/usr/sbin/pppd";
 
@@ -296,10 +295,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     construct
     {
-        // only one modem allowed per process
-        assert( FsoGsm.theModem == null );
-        FsoGsm.theModem = this;
-
         // channel map
         channels = new HashMap<string,FsoGsm.Channel>();
 
