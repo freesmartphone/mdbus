@@ -26,10 +26,6 @@ HashMap<string,FsoGsm.AtCommand> commands;
 
 void setup()
 {
-    // Take care we have a valid modem which is used by the commands to access it's logger
-    // object
-    FsoGsm.theModem = new FsoGsm.NullModem();
-
     commands = new HashMap<string,FsoGsm.AtCommand>();
     registerGenericAtCommands( commands );
 }
