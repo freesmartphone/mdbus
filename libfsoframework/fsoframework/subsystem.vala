@@ -59,6 +59,10 @@ public interface FsoFramework.Subsystem : Object
      **/
     public abstract void registerObjectForServiceWithPrefix<T>( string servicename, string prefixpath, T obj );
     /**
+     * Unregister an object with the IPC mechanism.
+     **/
+    public abstract void unregisterObjectForService<T>( string servicename, string objectpath );
+    /**
      * Query registered plugins with a certain path prefix.
      **/
     public abstract Object[] allObjectsWithPrefix( string? prefix = null );
@@ -181,6 +185,11 @@ public abstract class FsoFramework.AbstractSubsystem : FsoFramework.Subsystem, O
         assert_not_reached();
     }
 
+    public virtual void unregisterObjectForService<T>( string servicename, string objectpath )
+    {
+        assert_not_reached();
+    }
+
     public void shutdown()
     {
         foreach ( var plugin in _plugins )
@@ -219,7 +228,7 @@ public abstract interface DBusObjects
 public class FsoFramework.DBusExportObject
 {
     public Object object;
-    public int[] refids;
+    public int[] registrations;
 }
 
 /**
@@ -227,9 +236,16 @@ public class FsoFramework.DBusExportObject
  */
 public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
 {
+    private class ServiceRegistration
+    {
+        public uint ref_id;
+        public string object_path;
+        public Type iface_type;
+    }
+
     DBusConnection connection;
 
-    Gee.HashMap<string, Gee.ArrayList<uint>> refids;
+    Gee.HashMap<string, Gee.ArrayList<ServiceRegistration>> registrations;
     Gee.HashMap<string, Object> dbusobjects;
     Gee.HashMap<string, int> counters;
     Gee.HashSet<string> busnames;
@@ -239,7 +255,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
     public DBusSubsystem( string name )
     {
         base( name );
-        refids = new Gee.HashMap<string, Gee.ArrayList<uint>>();
+        registrations = new Gee.HashMap<string, Gee.ArrayList<ServiceRegistration>>();
         dbusobjects = new Gee.HashMap<string, Object>();
         counters = new Gee.HashMap<string, int>();
         busnames = new Gee.HashSet<string>();
@@ -290,21 +306,62 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
         }
     }
 
+    public override void unregisterObjectForService<T>( string servicename, string objectpath )
+    {
+        ensureConnection();
+
+        // FIXME is that really necessary? should'd we rely on the use to provide a
+        // proper object path and fail if he does not?
+        var cleanedname = objectpath.replace( "-", "_" ).replace( ":", "_" );
+
+        Gee.ArrayList<ServiceRegistration>? registrationsForService = registrations[servicename];
+        if ( registrationsForService == null )
+            return;
+
+        ServiceRegistration registrationToRemove = null;
+        foreach ( var registration in registrationsForService )
+        {
+            if ( registration.object_path == objectpath && registration.iface_type == typeof(T) )
+            {
+                connection.unregister_object( registration.ref_id );
+                registrationToRemove = registration;
+                break;
+            }
+        }
+
+        if ( registrationToRemove != null )
+            registrationsForService.remove( registrationToRemove );
+    }
+
     public override void registerObjectForService<T>( string servicename, string objectpath, T obj )
     {
         ensureConnection();
 
+        // FIXME is that really necessary? should'd we rely on the use to provide a
+        // proper object path and fail if he does not?
         var cleanedname = objectpath.replace( "-", "_" ).replace( ":", "_" );
+
         try
         {
             var refid = connection.register_object<T>( cleanedname, obj );
-            Gee.ArrayList<uint>? refidsForObject = refids[servicename];
-            if ( refidsForObject == null )
+
+            Gee.ArrayList<ServiceRegistration>? registrationsForService = registrations[servicename];
+            if ( registrationsForService == null )
             {
-                refidsForObject = new Gee.ArrayList<uint>();
-                refids[servicename] = refidsForObject;
+                registrationsForService = new Gee.ArrayList<ServiceRegistration>();
+                registrations[servicename] = registrationsForService;
             }
-            refidsForObject.add( refid );
+
+            var registration = new ServiceRegistration() {
+                ref_id = refid,
+                object_path = cleanedname,
+                iface_type = typeof(T)
+            };
+
+            registrationsForService.add( registration );
+
+            // FIXME thats invalid if more than one object gets registered for the same
+            // object path; allObjectsWithPrefix() will return a wrong result then ...
             dbusobjects[cleanedname] = (Object) obj;
         }
         catch ( Error e )
