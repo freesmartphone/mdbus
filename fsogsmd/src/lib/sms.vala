@@ -162,6 +162,8 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
     public ISmsStorage storage { get; set; }
     public bool supported { get; protected set; }
 
+    protected FsoGsm.Modem modem { get; private set; }
+
     protected abstract async string retrieveImsiFromSIM();
     protected abstract async void fillStorageWithMessageFromSIM();
     protected abstract async bool readSmsMessageFromSIM( uint index, out string hexpdu, out int tpdulen );
@@ -221,7 +223,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
         {
             logger.info( @"Got new SMS from $(sms.number())" );
             var msg = storage.message( sms.hash() );
-            var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
+            var obj = modem.theDevice<FreeSmartphone.GSM.SMS>();
             obj.incoming_text_message( msg.number, msg.timestamp, msg.contents );
         }
     }
@@ -241,7 +243,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
         var transaction_index = storage.confirmReceivedMessage( reference );
         if ( transaction_index >= 0 )
         {
-            var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
+            var obj = modem.theDevice<FreeSmartphone.GSM.SMS>();
             obj.incoming_message_report( transaction_index, status.to_string(), number, text );
         }
     }
@@ -250,12 +252,10 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
     // protected
     //
 
-    protected AbstractSmsHandler()
+    protected AbstractSmsHandler( FsoGsm.Modem modem )
     {
-        //FIXME: Use random init or read from file, so that this is increasing even during relaunches
-        if ( theModem == null )
-            logger.warning( "SMS Handler created before modem" );
-        else theModem.signalStatusChanged.connect( onModemStatusChanged );
+        this.modem = modem;
+        this.modem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
     //

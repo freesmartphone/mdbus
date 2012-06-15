@@ -209,7 +209,7 @@ void test_sms_encode_submit_single_default_alphabet()
 void test_sms_encode_submit_concatenated_default_alphabet()
 //===========================================================================
 {
-    SmsHandler handler = new AtSmsHandler();
+    SmsHandler handler = new AtSmsHandler( null );
     var pdu = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT, false );
     assert( pdu.size == 4 );
 

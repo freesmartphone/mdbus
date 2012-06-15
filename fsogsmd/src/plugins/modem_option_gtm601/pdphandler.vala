@@ -31,6 +31,13 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
     public const string MODULE_NAME = "fsogsm.pdp_option_gtm601";
     public const string HSO_IFACE = "hso0";
 
+    private FsoGsm.Modem modem;
+
+    public void assign_modem( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
+    }
+
     public override string repr()
     {
         return "<>";
@@ -38,7 +45,7 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
 
     public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var data = theModem.data();
+        var data = modem.data();
         var activated = false;
 
         if ( data.contextParams == null )
@@ -51,20 +58,20 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
         }
 
-        var cmd_owancall = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
-        var cmd_owandata = theModem.createAtCommand<Gtm601.UnderscoreOWANDATA>( "_OWANDATA" );
+        var cmd_owancall = modem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
+        var cmd_owandata = modem.createAtCommand<Gtm601.UnderscoreOWANDATA>( "_OWANDATA" );
         string[] response = { };
 
         try
         {
-            response = yield theModem.processAtCommandAsync( cmd_owancall, cmd_owancall.issue( true ) );
+            response = yield modem.processAtCommandAsync( cmd_owancall, cmd_owancall.issue( true ) );
             checkResponseOk( cmd_owancall, response );
             activated = true;
 
             Timeout.add_seconds( 5, () => { sc_activate.callback(); return false; } );
             yield;
 
-            response = yield theModem.processAtCommandAsync( cmd_owandata, cmd_owandata.issue() );
+            response = yield modem.processAtCommandAsync( cmd_owandata, cmd_owandata.issue() );
             checkResponseValid( cmd_owandata, response );
 
             if ( !cmd_owandata.connected )
@@ -85,7 +92,7 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
         {
             if ( activated )
             {
-                response = yield theModem.processAtCommandAsync( cmd_owancall, cmd_owancall.issue( false ) );
+                response = yield modem.processAtCommandAsync( cmd_owancall, cmd_owancall.issue( false ) );
                 checkResponseOk( cmd_owancall, response );
             }
 
@@ -97,8 +104,8 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
     {
         try
         {
-            var cmd = theModem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
-            var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( false ) );
+            var cmd = modem.createAtCommand<Gtm601.UnderscoreOWANCALL>( "_OWANCALL" );
+            var response = yield modem.processAtCommandAsync( cmd, cmd.issue( false ) );
             checkResponseOk( cmd, response );
         }
         catch ( GLib.Error e )

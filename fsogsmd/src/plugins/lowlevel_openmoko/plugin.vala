@@ -26,8 +26,9 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
     public const string MODULE_NAME = "fsogsm.lowlevel_openmoko";
     private string powerNode;
     private string fcNode;
-    private FsoGsm.AbstractModem modem; // for access to modem properties
     private const uint POWERUP_RETRIES = 5;
+    private FsoFramework.TransportSpec modem_transport_spec;
+
 
     construct
     {
@@ -35,8 +36,9 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
         powerNode = config.stringValue( MODULE_NAME, "power_node", "unknown" );
         // flow control node
         fcNode = config.stringValue( MODULE_NAME, "fc_node", "unknown" );
-        // modem
-        modem = FsoGsm.theModem as FsoGsm.AbstractModem;
+
+        var modem_config = config.stringValue( "fsogsm", "modem_access", "invalid:invalid:-1" );
+        modem_transport_spec = FsoFramework.TransportSpec.parse( modem_config );
 
         logger.info( "Registering openmoko low level poweron/poweroff handling" );
     }
@@ -64,7 +66,7 @@ class LowLevel.Openmoko : FsoGsm.LowLevel, FsoFramework.AbstractObject
         FsoFramework.FileHandling.write( "1\n", powerNode );
         Thread.usleep( 1000 * 1000 );
 
-        var transport = modem.modem_transport_spec.create();
+        var transport = modem_transport_spec.create();
         transport.open();
         assert( transport.isOpen() );
 

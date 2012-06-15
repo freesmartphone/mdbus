@@ -134,14 +134,14 @@ public void checkMultiResponseValid( FsoGsm.AtCommand command, string[] response
 /**
  * Modem facilities helpers
  **/
-public async void gatherSimOperators() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+public async void gatherSimOperators( FsoGsm.Modem modem ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     /*
-    var data = theModem.data();
+    var data = modem.data();
     if ( data.simOperatorbook == null );
     {
-        var copn = theModem.createAtCommand<PlusCOPN>( "+COPN" );
-        var response = yield theModem.processAtCommandAsync( copn, copn.execute() );
+        var copn = modem.createAtCommand<PlusCOPN>( "+COPN" );
+        var response = yield modem.processAtCommandAsync( copn, copn.execute() );
         if ( copn.validateMulti( response ) == Constants.AtResponse.VALID )
         {
             data.simOperatorbook = copn.operators;
@@ -154,13 +154,13 @@ public async void gatherSimOperators() throws FreeSmartphone.GSM.Error, FreeSmar
     */
 }
 
-public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+public async void gatherSpeakerVolumeRange( FsoGsm.Modem modem ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
-    var data = theModem.data();
+    var data = modem.data();
     if ( data.speakerVolumeMinimum == -1 )
     {
-        var clvl = theModem.createAtCommand<PlusCLVL>( "+CLVL" );
-        var response = yield theModem.processAtCommandAsync( clvl, clvl.test() );
+        var clvl = modem.createAtCommand<PlusCLVL>( "+CLVL" );
+        var response = yield modem.processAtCommandAsync( clvl, clvl.test() );
         if ( clvl.validateTest( response ) == Constants.AtResponse.VALID )
         {
             data.speakerVolumeMinimum = clvl.min;
@@ -168,34 +168,34 @@ public async void gatherSpeakerVolumeRange() throws FreeSmartphone.GSM.Error, Fr
         }
         else
         {
-            theModem.logger.warning( "Modem does not support querying volume range. Assuming (0-255)" );
+            modem.logger.warning( "Modem does not support querying volume range. Assuming (0-255)" );
             data.speakerVolumeMinimum = 0;
             data.speakerVolumeMaximum = 255;
         }
     }
 }
 
-public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+public async void gatherSimStatusAndUpdate( FsoGsm.Modem modem ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
 {
     if ( inGatherSimStatusAndUpdate )
     {
-        assert( theModem.logger.debug( "already gathering sim status... ignoring additional trigger" ) );
+        assert( modem.logger.debug( "already gathering sim status... ignoring additional trigger" ) );
         return;
     }
     inGatherSimStatusAndUpdate = true;
 
-    yield gatherSimOperators();
+    yield gatherSimOperators( modem );
 
-    var data = theModem.data();
+    var data = modem.data();
 
-    var cmd = theModem.createAtCommand<PlusCPIN>( "+CPIN" );
-    var response = yield theModem.processAtCommandAsync( cmd, cmd.query() );
+    var cmd = modem.createAtCommand<PlusCPIN>( "+CPIN" );
+    var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
     var rcode = cmd.validate( response );
     if ( rcode == Constants.AtResponse.VALID )
     {
-        theModem.logger.info( @"SIM Auth status $(cmd.status)" );
+        modem.logger.info( @"SIM Auth status $(cmd.status)" );
         // send the dbus signal
-        var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
+        var obj = modem.theDevice<FreeSmartphone.GSM.SIM>();
         obj.auth_status( cmd.status );
 
         // check whether we need to advance the modem state
@@ -204,16 +204,16 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
             data.simAuthStatus = cmd.status;
 
             // advance global modem state
-            var modemStatus = theModem.status();
+            var modemStatus = modem.status();
             if ( modemStatus >= Modem.Status.INITIALIZING && modemStatus <= Modem.Status.ALIVE_REGISTERED )
             {
                 if ( cmd.status == FreeSmartphone.GSM.SIMAuthStatus.READY )
                 {
-                    theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED, true );
+                    modem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED, true );
                 }
                 else
                 {
-                    theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED, true );
+                    modem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED, true );
                 }
             }
         }
@@ -221,12 +221,12 @@ public async void gatherSimStatusAndUpdate() throws FreeSmartphone.GSM.Error, Fr
     else if ( rcode == Constants.AtResponse.CME_ERROR_010_SIM_NOT_INSERTED ||
               rcode == Constants.AtResponse.CME_ERROR_013_SIM_FAILURE )
     {
-        theModem.logger.info( "SIM not inserted or broken" );
-        theModem.advanceToState( Modem.Status.ALIVE_NO_SIM );
+        modem.logger.info( "SIM not inserted or broken" );
+        modem.advanceToState( Modem.Status.ALIVE_NO_SIM );
     }
     else
     {
-        theModem.logger.warning( "Unhandled error while querying SIM PIN status" );
+        modem.logger.warning( "Unhandled error while querying SIM PIN status" );
     }
 
     inGatherSimStatusAndUpdate = false;

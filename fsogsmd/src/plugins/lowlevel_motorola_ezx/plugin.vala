@@ -23,15 +23,11 @@ using FsoGsm;
 class LowLevel.MotorolaEZX : FsoGsm.LowLevel, FsoFramework.AbstractObject
 {
     public const string MODULE_NAME = "fsogsm.lowlevel_motorola_ezx";
-    private FsoGsm.AbstractModem modem; // for access to modem properties
     private static bool initDone = false;
     private int muxfds[16];
 
     construct
     {
-        // modem
-        modem = FsoGsm.theModem as FsoGsm.AbstractModem;
-
         logger.info( "Registering Motorola EZX low level poweron/poweroff handling" );
     }
 

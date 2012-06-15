@@ -39,17 +39,17 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     protected override async void cancelOutgoingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Cancelling outgoing call with ID $id" ) );
-        var cmd = theModem.data().atCommandCancelOutgoing;
+        var cmd = modem.data().atCommandCancelOutgoing;
         if ( cmd != null )
         {
             var c1 = new CustomAtCommand();
-            var r1 = yield theModem.processAtCommandAsync( c1, cmd );
+            var r1 = yield modem.processAtCommandAsync( c1, cmd );
             checkResponseOk( c1, r1 );
         }
         else
         {
-            var c2 = theModem.createAtCommand<V250H>( "H" );
-            var r2 = yield theModem.processAtCommandAsync( c2, c2.execute() );
+            var c2 = modem.createAtCommand<V250H>( "H" );
+            var r2 = yield modem.processAtCommandAsync( c2, c2.execute() );
             checkResponseOk( c2, r2 );
         }
     }
@@ -57,17 +57,17 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     protected override async void rejectIncomingWithId( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         assert( logger.debug( @"Rejecting incoming call with ID $id" ) );
-        var cmd = theModem.data().atCommandRejectIncoming;
+        var cmd = modem.data().atCommandRejectIncoming;
         if ( cmd != null )
         {
             var c1 = new CustomAtCommand();
-            var r1 = yield theModem.processAtCommandAsync( c1, cmd );
+            var r1 = yield modem.processAtCommandAsync( c1, cmd );
             checkResponseOk( c1, r1 );
         }
         else
         {
-            var c2 = theModem.createAtCommand<V250H>( "H" );
-            var r2 = yield theModem.processAtCommandAsync( c2, c2.execute() );
+            var c2 = modem.createAtCommand<V250H>( "H" );
+            var r2 = yield modem.processAtCommandAsync( c2, c2.execute() );
             checkResponseOk( c2, r2 );
         }
     }
@@ -84,7 +84,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         try
         {
             assert( logger.debug( "Synchronizing call status" ) );
-            var m = theModem.createMediator<FsoGsm.CallListCalls>();
+            var m = modem.createMediator<FsoGsm.CallListCalls>();
             yield m.run();
 
             // workaround for https://bugzilla.gnome.org/show_bug.cgi?id=585847
@@ -138,8 +138,8 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
                         new GLib.HashTable<string,GLib.Variant>( str_hash, str_equal )
                     );
 
-                    var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
-                    var result = yield theModem.processAtCommandAsync( ceer, ceer.execute() );
+                    var ceer = modem.createAtCommand<PlusCEER>( "+CEER" );
+                    var result = yield modem.processAtCommandAsync( ceer, ceer.execute() );
                     if ( ceer.validate( result ) == Constants.AtResponse.VALID )
                     {
                         detail.properties.insert( "cause", ceer.reason );
@@ -158,8 +158,18 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     }
 
     //
+    // public API
+    //
+
+    public GenericAtCallHandler( FsoGsm.Modem modem )
+    {
+        base( modem );
+    }
+
+    //
     // DBus methods, delegated from the Call mediators
     //
+
     public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         validateCallId( id );
@@ -172,15 +182,15 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
         if ( numberOfBusyCalls() == 0 ) // simple case
         {
-            var cmd = theModem.createAtCommand<V250D>( "A" );
-            var response = yield theModem.processAtCommandAsync( cmd, cmd.execute() );
+            var cmd = modem.createAtCommand<V250D>( "A" );
+            var response = yield modem.processAtCommandAsync( cmd, cmd.execute() );
             checkResponseOk( cmd, response );
         }
         else
         {
             // call is present and incoming or held
-            var cmd2 = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-            var response2 = yield theModem.processAtCommandAsync( cmd2, cmd2.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
+            var cmd2 = modem.createAtCommand<PlusCHLD>( "+CHLD" );
+            var response2 = yield modem.processAtCommandAsync( cmd2, cmd2.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
             checkResponseOk( cmd2, response2 );
         }
     }
@@ -193,8 +203,8 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "System busy" );
         }
 
-        var cmd = theModem.createAtCommand<V250D>( "D" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
+        var cmd = modem.createAtCommand<V250D>( "D" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( number, ctype == "voice" ) );
         checkResponseOk( cmd, response );
 
         startTimeoutIfNecessary();
@@ -212,8 +222,8 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Call incoming. Can't hold active calls without activating" );
         }
-        var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
+        var cmd = modem.createAtCommand<PlusCHLD>( "+CHLD" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.HOLD_ALL_AND_ACCEPT_WAITING_OR_HELD ) );
         checkResponseOk( cmd, response );
     }
 
@@ -237,16 +247,16 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         }
         else
         {
-            var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-            var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id ) );
+            var cmd = modem.createAtCommand<PlusCHLD>( "+CHLD" );
+            var response = yield modem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SPECIFIC_AND_ACCEPT_WAITING_OR_HELD, id ) );
             checkResponseOk( cmd, response );
         }
     }
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var cmd = theModem.createAtCommand<V250H>( "H" );
-        yield theModem.processAtCommandAsync( cmd, cmd.execute() );
+        var cmd = modem.createAtCommand<V250H>( "H" );
+        yield modem.processAtCommandAsync( cmd, cmd.execute() );
         // no checkResponseOk, this call will always succeed
     }
 
@@ -261,8 +271,8 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.HELD ) == 0 )
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No held call present" );
 
-        var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SELF_AND_CONNECT_ACTIVE ) );
+        var cmd = modem.createAtCommand<PlusCHLD>( "+CHLD" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( PlusCHLD.Action.DROP_SELF_AND_CONNECT_ACTIVE ) );
         checkResponseOk( cmd, response );
 
         // FIXME do we really need to call this here or can we skip it as call state
@@ -278,8 +288,8 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
         validatePhoneNumber( number );
 
-        var cmd = theModem.createAtCommand<PlusCTFR>( "+CTFR" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( number, determinePhoneNumberType( number ) ) );
+        var cmd = modem.createAtCommand<PlusCTFR>( "+CTFR" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( number, determinePhoneNumberType( number ) ) );
         checkResponseOk( cmd, response );
 
         // FIXME do we really need to call this here or can we skip it as call state

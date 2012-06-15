@@ -423,6 +423,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             }
 
             pdphandler = Object.new( pdphandlerclass ) as FsoGsm.PdpHandler;
+            pdphandler.assign_modem( this );
             logger.info( @"Ready. Using pdp plugin $pdphandlertype to handle data connectivity" );
         }
     }
@@ -611,7 +612,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     protected virtual UnsolicitedResponseHandler createUnsolicitedHandler()
     {
-        return new AtUnsolicitedResponseHandler();
+        return new AtUnsolicitedResponseHandler( this );
     }
 
     /**
@@ -619,7 +620,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     protected virtual CallHandler createCallHandler()
     {
-        return new GenericAtCallHandler();
+        return new GenericAtCallHandler( this );
     }
 
     /**
@@ -627,7 +628,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     protected virtual SmsHandler createSmsHandler()
     {
-        return new AtSmsHandler();
+        return new AtSmsHandler( this );
     }
 
     /**
@@ -635,7 +636,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     protected virtual PhonebookHandler createPhonebookHandler()
     {
-        return new AtPhonebookHandler();
+        return new AtPhonebookHandler( this );
     }
 
     /**
@@ -643,7 +644,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     protected virtual WatchDog createWatchDog()
     {
-        return new GenericWatchDog();
+        return new GenericWatchDog( this );
     }
 
     /**

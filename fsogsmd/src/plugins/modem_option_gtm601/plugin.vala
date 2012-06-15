@@ -36,8 +36,7 @@ class Gtm601.Modem : FsoGsm.AbstractModem
 
     construct
     {
-        assert( theModem != null );
-        theModem.signalStatusChanged.connect( onModemStatusChange );
+        this.signalStatusChanged.connect( onModemStatusChange );
     }
 
     public override string repr()
@@ -52,7 +51,7 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         modem_data.simHasReadySignal = true; // $QCSIMSTAT
         modem_data.simReadyTimeout = 5; /* seconds */
 
-        theModem.atCommandSequence( "MODEM", "init" ).append( {
+        atCommandSequence( "MODEM", "init" ).append( {
             "$QCSIMSTAT=1",          /* enable sim status report */
             "_OSQI=1"                /* signal strength updates */
         } );
@@ -81,14 +80,14 @@ class Gtm601.Modem : FsoGsm.AbstractModem
     {
         var transport = modem_transport_spec.create();
         var parser = new FsoGsm.StateBasedAtParser();
-        new AtChannel( CHANNEL_NAME, transport, parser );
+        new AtChannel( this, CHANNEL_NAME, transport, parser );
 
         var modem_urc_access = FsoFramework.theConfig.stringValue( "fsogsm.modem_option_gtm601", "modem_urc_access", "" );
         if ( modem_urc_access.length > 0 )
         {
             transport = FsoFramework.TransportSpec.parse( modem_urc_access ).create();
             parser = new FsoGsm.StateBasedAtParser();
-            new AtChannel( URC_CHANNEL_NAME, transport, parser );
+            new AtChannel( this, URC_CHANNEL_NAME, transport, parser );
         }
     }
 
@@ -105,7 +104,7 @@ class Gtm601.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
     {
-        return new Gtm601.UnsolicitedResponseHandler();
+        return new Gtm601.UnsolicitedResponseHandler( this );
     }
 
     protected override void registerCustomAtCommands( HashMap<string,FsoGsm.AtCommand> commands )
@@ -130,7 +129,7 @@ class Gtm601.Modem : FsoGsm.AbstractModem
                  * On the GTA04 we get no AT command for incoming sms' during suspend but
                  * the phone awakes and the SMS is available on the SIM, so we can poll.
                  **/
-                var smshandler = theModem.smshandler as AtSmsHandler;
+                var smshandler = smshandler as AtSmsHandler;
                 smshandler.syncWithSim();
                 break;
 

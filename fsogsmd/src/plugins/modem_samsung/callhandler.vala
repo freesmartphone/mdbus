@@ -30,18 +30,19 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
 {
     private Samsung.SoundHandler _soundhandler;
 
-    construct
-    {
-        _soundhandler = new Samsung.SoundHandler();
-    }
-
     //
     // public API
     //
 
+    public CallHandler( FsoGsm.Modem modem )
+    {
+        base( modem );
+        _soundhandler = new Samsung.SoundHandler( modem );
+    }
+
     public override async int initiate( string number, string ctype ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         var num = lowestOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.RELEASE );
         unowned SamsungIpc.Response? response = null;
 
@@ -83,7 +84,7 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
 
     public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         if ( id < 1 || id > Constants.CALL_INDEX_MAX )
@@ -126,7 +127,7 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
 
     public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         if ( id < 1 || id > Constants.CALL_INDEX_MAX )
@@ -196,7 +197,7 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
         try
         {
             assert( logger.debug( "Synchronizing call status" ) );
-            var m = theModem.createMediator<FsoGsm.CallListCalls>();
+            var m = modem.createMediator<FsoGsm.CallListCalls>();
             yield m.run();
 
             // workaround for https://bugzilla.gnome.org/show_bug.cgi?id=585847
@@ -259,8 +260,8 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
                     );
 
                     /*
-                    var ceer = theModem.createAtCommand<PlusCEER>( "+CEER" );
-                    var result = yield theModem.processAtCommandAsync( ceer, ceer.execute() );
+                    var ceer = modem.createAtCommand<PlusCEER>( "+CEER" );
+                    var result = yield modem.processAtCommandAsync( ceer, ceer.execute() );
                     if ( ceer.validate( result ) == Constants.AtResponse.VALID )
                     {
                         detail.properties.insert( "cause", ceer.reason );

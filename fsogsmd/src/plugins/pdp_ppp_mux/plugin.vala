@@ -40,7 +40,7 @@ public class Pdp.PppMux : FsoGsm.AtPdpHandler
 
     protected override string[] buildCommandLine()
     {
-        var data = FsoGsm.theModem.data();
+        var data = modem.data();
         var cmdline = new string[] { data.pppCommand };
         // MUX is not a tty
         cmdline += "notty";
@@ -55,13 +55,13 @@ public class Pdp.PppMux : FsoGsm.AtPdpHandler
     protected async override void setupTransport()
     {
         // start forwarding to ppp
-        var transport = FsoGsm.theModem.channel( "data" ).transport as FsoGsm.LibGsm0710muxTransport;
+        var transport = modem.channel( "data" ).transport as FsoGsm.LibGsm0710muxTransport;
         transport.startForwardingToPPP( inputfd, outputfd );
     }
 
     protected override void shutdownTransport()
     {
-        var transport = FsoGsm.theModem.channel( "data" ).transport as FsoGsm.LibGsm0710muxTransport;
+        var transport = modem.channel( "data" ).transport as FsoGsm.LibGsm0710muxTransport;
 
         if ( transport.isForwardingToPPP() )
         {

@@ -25,6 +25,7 @@ public class Samsung.RfsChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
 {
     private SamsungIpc.Client rfsclient;
     private FsoFramework.Wakelock wakelock;
+    private FsoGsm.Modem modem;
 
     public string name { get; private set; }
 
@@ -89,16 +90,17 @@ public class Samsung.RfsChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     // public API
     //
 
-    public RfsChannel( string name, FsoFramework.Transport? transport )
+    public RfsChannel( FsoGsm.Modem modem, string name, FsoFramework.Transport? transport )
     {
         base( transport );
 
         transport.setDelegates( onReadFromTransport, _onHupFromTransport );
 
+        this.modem = modem;
         this.name = name;
         this.wakelock = new FsoFramework.Wakelock( "fsogsmd-modem-samsung-rfs" );
 
-        theModem.registerChannel( name, this );
+        modem.registerChannel( name, this );
 
         rfsclient = new SamsungIpc.Client( SamsungIpc.ClientType.RFS );
         rfsclient.set_log_handler( ( message ) => { theLogger.info( message ); } );

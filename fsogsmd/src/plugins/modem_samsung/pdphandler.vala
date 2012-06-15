@@ -39,7 +39,7 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
      **/
     private async void setupPdpContext( FsoGsm.ContextParams contextParams ) throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main") as Samsung.IpcChannel;
+        var channel = modem.channel( "main") as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         var contextSetupMessage = SamsungIpc.Gprs.DefinePdpContextMessage();
@@ -61,7 +61,7 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
      **/
     private async void activatePdpContext( FsoGsm.ContextParams contextParams ) throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main") as Samsung.IpcChannel;
+        var channel = modem.channel( "main") as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         var contextActMessage = SamsungIpc.Gprs.PdpContextMessage();
@@ -79,7 +79,7 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
      **/
     private async void deactivatePdpContext() throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         var contextDeactMessage = SamsungIpc.Gprs.PdpContextMessage();
@@ -121,20 +121,20 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
 
     protected override async void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        if ( theModem.data().contextParams == null )
+        if ( modem.data().contextParams == null )
         {
             disconnected();
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "Context parameters not set" );
         }
 
-        if ( theModem.data().contextParams.apn == null )
+        if ( modem.data().contextParams.apn == null )
         {
             disconnected();
             throw new FreeSmartphone.Error.INTERNAL_ERROR( "APN not set" );
         }
 
-        yield setupPdpContext( theModem.data().contextParams );
-        yield activatePdpContext( theModem.data().contextParams );
+        yield setupPdpContext( modem.data().contextParams );
+        yield activatePdpContext( modem.data().contextParams );
     }
 
     protected override async void sc_deactivate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

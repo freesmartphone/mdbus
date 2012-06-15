@@ -22,9 +22,9 @@ using Gee;
 /**
  * @class AtPhonebookHandler
  **/
-public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.AbstractObject
+public class FsoGsm.AtPhonebookHandler : FsoGsm.AbstractPhonebookHandler
 {
-    public PhonebookStorage storage { get; set; }
+    public override PhonebookStorage storage { get; set; }
 
     //
     // private
@@ -61,10 +61,10 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
     // public API
     //
 
-    public AtPhonebookHandler()
+    public AtPhonebookHandler( FsoGsm.Modem modem )
     {
-        assert( theModem != null ); // Can't create PB handler before modem
-        theModem.signalStatusChanged.connect( onModemStatusChanged );
+        base( modem );
+        modem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
     public override string repr()
@@ -72,14 +72,14 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
         return storage != null ? storage.repr() : "<None>";
     }
 
-    public async void syncWithSim()
+    public override async void syncWithSim()
     {
         if ( storage == null )
         {
             assert( logger.debug( @"No storage yet available; creating a new one ..." ) );
 
-            var cimi = theModem.createAtCommand<PlusCIMI>( "+CIMI" );
-            var resp = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
+            var cimi = modem.createAtCommand<PlusCIMI>( "+CIMI" );
+            var resp = yield modem.processAtCommandAsync( cimi, cimi.execute() );
             if ( cimi.validate( resp ) != Constants.AtResponse.VALID )
             {
                 logger.warning( "Can't synchronize PB storage with SIM" );
@@ -92,8 +92,8 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
         storage.clean();
 
         // retrieve all known phonebooks
-        var cmd = theModem.createAtCommand<PlusCPBS>( "+CPBS" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.test() );
+        var cmd = modem.createAtCommand<PlusCPBS>( "+CPBS" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.test() );
         if ( cmd.validateTest( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( "Can't parse phonebook result" );
@@ -106,12 +106,12 @@ public class FsoGsm.AtPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.A
 
         foreach ( var pbcode in phonebooks )
         {
-            var cpbr = theModem.createAtCommand<PlusCPBR>( "+CPBR" );
-            var answer = yield theModem.processAtCommandAsync( cpbr, cpbr.test( pbcode ) );
+            var cpbr = modem.createAtCommand<PlusCPBR>( "+CPBR" );
+            var answer = yield modem.processAtCommandAsync( cpbr, cpbr.test( pbcode ) );
             if ( cpbr.validateTest( answer ) == Constants.AtResponse.VALID )
             {
                 assert( logger.debug( @"Found phonebook '$pbcode' w/ indices $(cpbr.min)-$(cpbr.max)" ) );
-                response = yield theModem.processAtCommandAsync( cpbr, cpbr.issue( pbcode, cpbr.min, cpbr.max ) );
+                response = yield modem.processAtCommandAsync( cpbr, cpbr.issue( pbcode, cpbr.min, cpbr.max ) );
 
                 var valid = cpbr.validateMulti( response );
                 if ( valid != Constants.AtResponse.VALID && valid != Constants.AtResponse.CME_ERROR_022_NOT_FOUND )

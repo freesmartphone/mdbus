@@ -83,7 +83,7 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
                 throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Unknown type: $type" );
         }
 
-        var m = theModem.createMediator<CallForwardingDisable>();
+        var m = modem.createMediator<CallForwardingDisable>();
         yield m.run( BearerClass.DEFAULT, real_type );
     }
 
@@ -98,7 +98,7 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
         if ( timeout < 0 || timeout > 30 )
             throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Timeout is not inside range of [0:30]" );
 
-        var m =  theModem.createMediator<CallForwardingEnable>();
+        var m =  modem.createMediator<CallForwardingEnable>();
         yield m.run( cls, reason, number, timeout );
 
         var status = yield this.get_status( rule );
@@ -112,7 +112,7 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
         var cls = class_from_rule_name( rule );
         var reason = reason_from_rule_name( rule );
 
-        var m =  theModem.createMediator<CallForwardingDisable>();
+        var m =  modem.createMediator<CallForwardingDisable>();
         yield m.run( cls, reason );
 
         var status = yield this.get_status( rule );
@@ -124,7 +124,7 @@ public class FsoGsm.GsmCallForwardingService : FreeSmartphone.GSM.CallForwarding
         var cls = class_from_rule_name( rule );
         var reason = reason_from_rule_name( rule );
 
-        var m = theModem.createMediator<CallForwardingQuery>();
+        var m = modem.createMediator<CallForwardingQuery>();
         yield m.run( cls, reason );
 
         return m.status;

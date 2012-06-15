@@ -24,6 +24,7 @@ using FsoGsm;
 public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
 {
     private NokiaIsi.IsiUnsolicitedHandler unsolicitedHandler;
+    private FsoGsm.Modem modem;
 
     public string name;
 
@@ -62,17 +63,19 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
     //
     // public API
     //
-    public IsiChannel( string name, IsiTransport transport )
+    public IsiChannel( FsoGsm.Modem modem, string name, IsiTransport transport )
     {
         base( transport );
         this.name = name;
-        theModem.registerChannel( name, this );
-        theModem.signalStatusChanged.connect( onModemStatusChanged );
+        this.modem = modem;
+
+        modem.registerChannel( name, this );
+        modem.signalStatusChanged.connect( onModemStatusChanged );
     }
 
     public async void poweron()
     {
-        unsolicitedHandler = new NokiaIsi.IsiUnsolicitedHandler();
+        unsolicitedHandler = new NokiaIsi.IsiUnsolicitedHandler( modem );
         yield NokiaIsi.isimodem.poweron();
         FsoFramework.DataSharing.setValueForKey( "NokiaIsi.isimodem", NokiaIsi.isimodem );
     }
@@ -86,12 +89,12 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
 
             if ( getAuthStatus.status == FreeSmartphone.GSM.SIMAuthStatus.READY )
             {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+                modem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
             }
             else if ( getAuthStatus.status == FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED ||
                       getAuthStatus.status == FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED )
             {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
+                modem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
             }
 
         }
@@ -99,16 +102,16 @@ public class IsiChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQueue
         {
             if ( e1 is FreeSmartphone.GSM.Error.SIM_NOT_PRESENT )
             {
-                theModem.advanceToState( Modem.Status.ALIVE_NO_SIM );
+                modem.advanceToState( Modem.Status.ALIVE_NO_SIM );
             }
             else
             {
-                theModem.logger.error( @"Unexpected FSO error: $(e1.message) - what now?" );
+                modem.logger.error( @"Unexpected FSO error: $(e1.message) - what now?" );
             }
         }
         catch ( Error e2 )
         {
-            theModem.logger.error( @"Can't get SIM auth status: $(e2.message) - what now?" );
+            modem.logger.error( @"Can't get SIM auth status: $(e2.message) - what now?" );
             // FIXME: move to close status?
         }
 

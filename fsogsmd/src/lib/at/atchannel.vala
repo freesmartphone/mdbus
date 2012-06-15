@@ -26,15 +26,18 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
     protected string name;
     private bool isInitialized;
     private bool isMainChannel;
+    private FsoGsm.Modem modem;
 
-    public AtChannel( string? name, FsoFramework.Transport transport, FsoFramework.Parser parser )
+    public AtChannel( FsoGsm.Modem modem, string? name, FsoFramework.Transport transport, FsoFramework.Parser parser )
     {
         base( transport, parser );
         this.name = name;
+        this.modem = modem;
+
         if ( name != null ) // anonymous channels will not get registered with the modem
         {
-            theModem.registerChannel( name, this );
-            theModem.signalStatusChanged.connect( onModemStatusChanged );
+            modem.registerChannel( name, this );
+            modem.signalStatusChanged.connect( onModemStatusChanged );
             this.isMainChannel = ( name == "main" );
         }
     }
@@ -62,11 +65,11 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
     private async void initialize()
     {
-        assert( theModem.logger.debug( @"Initializing channel $name ..." ) );
+        assert( modem.logger.debug( @"Initializing channel $name ..." ) );
 
         if ( this.isMainChannel )
         {
-            var seq1 = theModem.atCommandSequence( "MODEM", "init" );
+            var seq1 = modem.atCommandSequence( "MODEM", "init" );
             yield seq1.performOnChannel( this );
             isMainInitialized = true;
         }
@@ -75,45 +78,45 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         {
             // make sure that we still are initializing; if not, just return as
             // we obviously have been requested to shutdown then
-            if ( theModem.status() == Modem.Status.CLOSING )
+            if ( modem.status() == Modem.Status.CLOSING )
             {
                 return;
             }
             // check wether the main channel successfully initialized the modem
-            else if ( theModem.status() == Modem.Status.ALIVE_SIM_READY )
+            else if ( modem.status() == Modem.Status.ALIVE_SIM_READY )
             {
                 isMainInitialized = true;
                 break;
             }
 
-            theModem.logger.debug( "Main channel not initialized yet... waiting" );
+            modem.logger.debug( "Main channel not initialized yet... waiting" );
             Timeout.add_seconds( 1, initialize.callback );
             yield;
         }
 
-        var seq2 = theModem.atCommandSequence( "CHANNEL", "init" );
+        var seq2 = modem.atCommandSequence( "CHANNEL", "init" );
         yield seq2.performOnChannel( this );
 
-        var seq3 = theModem.atCommandSequence( name, "init" );
+        var seq3 = modem.atCommandSequence( name, "init" );
         yield seq3.performOnChannel( this );
 
         // select charset, try to lock to preferred one (if available)
-        var charset = yield configureCharset( { theModem.data().charset, "UTF8", "UCS2", "HEX", "IRA" } );
+        var charset = yield configureCharset( { modem.data().charset, "UTF8", "UCS2", "HEX", "IRA" } );
 
         if ( charset == "unknown" )
         {
-            theModem.logger.warning( "Modem does not support the charset command or any of UTF8, UCS2, HEX, IRA" );
+            modem.logger.warning( "Modem does not support the charset command or any of UTF8, UCS2, HEX, IRA" );
         }
         else
         {
-            assert( theModem.logger.debug( @"Channel successfully configured for charset '$charset'" ) );
+            assert( modem.logger.debug( @"Channel successfully configured for charset '$charset'" ) );
         }
-        theModem.data().charset = charset;
+        modem.data().charset = charset;
 
         if ( this.isMainChannel )
         {
             setupNetworkRegistrationReport();
-            gatherSimStatusAndUpdate();
+            gatherSimStatusAndUpdate( modem );
             theModem.smshandler.configure();
         }
 
@@ -122,41 +125,41 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
     private async void shutdown()
     {
-        assert( theModem.logger.debug( @"Shutting down channel $name ..." ) );
+        assert( modem.logger.debug( @"Shutting down channel $name ..." ) );
 
         if ( this.isMainChannel )
         {
             if ( this.isInitialized )
             {
-                var seq = theModem.atCommandSequence( "MODEM", "shutdown" );
+                var seq = modem.atCommandSequence( "MODEM", "shutdown" );
                 yield seq.performOnChannel( this );
             }
             else
             {
-                theModem.logger.info( "Not sending shutdown commands, since modem hasn't been initialized yet" );
+                modem.logger.info( "Not sending shutdown commands, since modem hasn't been initialized yet" );
             }
         }
     }
 
     private async void simIsReady()
     {
-        var seq = theModem.atCommandSequence( name, "unlocked" );
+        var seq = modem.atCommandSequence( name, "unlocked" );
         yield seq.performOnChannel( this );
     }
 
     private async void simHasRegistered()
     {
-        var seq = theModem.atCommandSequence( name, "registered" );
+        var seq = modem.atCommandSequence( name, "registered" );
         yield seq.performOnChannel( this );
     }
 
     private async string configureCharset( string[] charsets )
     {
-        assert( theModem.logger.debug( "Configuring modem charset..." ) );
+        assert( modem.logger.debug( "Configuring modem charset..." ) );
 
         for ( int i = 0; i < charsets.length; ++i )
         {
-            var cmd = theModem.createAtCommand<PlusCSCS>( "+CSCS" );
+            var cmd = modem.createAtCommand<PlusCSCS>( "+CSCS" );
             var response = yield enqueueAsync( cmd, cmd.issue( charsets[i] ) );
             if ( cmd.validateOk( response ) == Constants.AtResponse.OK )
             {
@@ -169,7 +172,7 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
     private async void setupNetworkRegistrationReport()
     {
         string[] response = { };
-        var cmd = theModem.createAtCommand<PlusCREG>( "+CREG" );
+        var cmd = modem.createAtCommand<PlusCREG>( "+CREG" );
 
         response = yield enqueueAsync( cmd, cmd.issue( PlusCREG.Mode.ENABLE_WITH_NETORK_REGISTRATION_AND_LOCATION ) );
         if ( cmd.validateOk( response ) == Constants.AtResponse.OK )
@@ -178,7 +181,7 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         response = yield enqueueAsync( cmd, cmd.issue( PlusCREG.Mode.ENABLE_WITH_NETORK_REGISTRATION ) );
         if ( cmd.validateOk( response ) != Constants.AtResponse.OK )
         {
-            theModem.logger.error( "Failed to setup network registration reporting; reports will not be avaible ..." );
+            modem.logger.error( "Failed to setup network registration reporting; reports will not be avaible ..." );
         }
     }
 
@@ -189,14 +192,14 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
 
     public async bool suspend()
     {
-        var seq = theModem.atCommandSequence( name, "suspend" );
+        var seq = modem.atCommandSequence( name, "suspend" );
         yield seq.performOnChannel( this );
         return true;
     }
 
     public async bool resume()
     {
-        var seq = theModem.atCommandSequence( name, "resume" );
+        var seq = modem.atCommandSequence( name, "resume" );
         yield seq.performOnChannel( this );
         return true;
     }

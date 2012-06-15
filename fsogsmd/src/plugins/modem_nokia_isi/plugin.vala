@@ -195,7 +195,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
 
     protected override void createChannels()
     {
-        new IsiChannel( ISI_CHANNEL_NAME, new IsiTransport( modem_transport_spec.name ) );
+        new IsiChannel( this, ISI_CHANNEL_NAME, new IsiTransport( modem_transport_spec.name ) );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

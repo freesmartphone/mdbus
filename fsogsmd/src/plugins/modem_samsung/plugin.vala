@@ -59,12 +59,12 @@ class Samsung.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.CallHandler createCallHandler()
     {
-        return (FsoGsm.CallHandler) new Samsung.CallHandler();
+        return (FsoGsm.CallHandler) new Samsung.CallHandler( this );
     }
 
     protected override FsoGsm.SmsHandler createSmsHandler()
     {
-        return (FsoGsm.SmsHandler) new Samsung.SmsHandler();
+        return (FsoGsm.SmsHandler) new Samsung.SmsHandler( this );
     }
 
     protected override FsoGsm.PhonebookHandler createPhonebookHandler()
@@ -76,13 +76,13 @@ class Samsung.Modem : FsoGsm.AbstractModem
     {
         var fmt_transport = ( modem_transport_spec.type == "samsung" ) ?
             new FsoGsm.SamsungModemTransport( modem_transport_spec.name ) : modem_transport_spec.create();
-        new Samsung.IpcChannel( MAIN_CHANNEL_NAME, fmt_transport );
+        new Samsung.IpcChannel( this, MAIN_CHANNEL_NAME, fmt_transport );
 
         var rfs_modem_port = config.stringValue( "fsogsm.modem_samsung", "modem_rfs_access", "/dev/modem_rfs" );
         // FIXME evaluate rfs_modem_port the same way as the default modem access
         // configuration does.
         var rfs_transport = new FsoGsm.SamsungModemTransport( rfs_modem_port );
-        new Samsung.RfsChannel( RFS_CHANNEL_NAME, rfs_transport );
+        new Samsung.RfsChannel( this, RFS_CHANNEL_NAME, rfs_transport );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

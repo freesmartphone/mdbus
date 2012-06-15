@@ -241,7 +241,7 @@ public class AtDeviceGetSpeakerVolume : DeviceGetSpeakerVolume
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        yield gatherSpeakerVolumeRange();
+        yield gatherSpeakerVolumeRange( modem );
 
         var cmd = modem.createAtCommand<PlusCLVL>( "+CLVL" );
         var response = yield modem.processAtCommandAsync( cmd, cmd.query() );
@@ -358,7 +358,7 @@ public class AtDeviceSetFunctionality : DeviceSetFunctionality
             data.simPin = pin;
             modem.watchdog.resetUnlockMarker();
         }
-        yield gatherSimStatusAndUpdate();
+        yield gatherSimStatusAndUpdate( modem );
     }
 }
 
@@ -382,7 +382,7 @@ public class AtDeviceSetSpeakerVolume : DeviceSetSpeakerVolume
             throw new FreeSmartphone.Error.INVALID_PARAMETER( "Volume needs to be a percentage (0-100)" );
         }
 
-        yield gatherSpeakerVolumeRange();
+        yield gatherSpeakerVolumeRange( modem );
 
         var data = modem.data();
         var interval = (double)( data.speakerVolumeMaximum - data.speakerVolumeMinimum ) / 100.0;

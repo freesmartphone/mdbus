@@ -24,7 +24,7 @@ public class SamsungDeviceGetFunctionality : DeviceGetFunctionality
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        level = gatherFunctionalityLevel();
+        level = gatherFunctionalityLevel( modem );
         autoregister = modem.data().keepRegistration;
         pin = modem.data().simPin;
     }

@@ -232,6 +232,8 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.CallHandler, FsoFramew
 
     protected FsoFramework.Pair<string,string> supplementary;
 
+    protected FsoGsm.Modem modem { get; private set; }
+
     construct
     {
         calls = new FsoGsm.Call[Constants.CALL_INDEX_MAX+1] {};
@@ -316,6 +318,11 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.CallHandler, FsoFramew
     //
     // public API
     //
+
+    public AbstractCallHandler( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
+    }
 
     public virtual void handleIncomingCall( FsoGsm.CallInfo call_info )
     {

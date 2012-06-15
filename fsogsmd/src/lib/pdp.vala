@@ -48,6 +48,8 @@ public interface FsoGsm.IPdpHandler : FsoFramework.AbstractObject
     public abstract void disconnected();
 
     public abstract async void syncStatus();
+
+    public abstract void assign_modem( FsoGsm.Modem modem );
 }
 
 /**
@@ -82,6 +84,10 @@ public class FsoGsm.NullPdpHandler : IPdpHandler, FsoFramework.AbstractObject
     {
     }
 
+    public void assign_modem(  FsoGsm.Modem modem )
+    {
+    }
+
     public override string repr()
     {
         return @"<>";
@@ -96,6 +102,8 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
     private string lastNetworkRegistrationStatus = "unknown";
     private bool inSyncStatus = false;
 
+    protected FsoGsm.Modem modem { get; private set; }
+
     public FreeSmartphone.GSM.ContextStatus status { get; set; }
     public GLib.HashTable<string,Variant> properties { get; set; }
 
@@ -107,12 +115,17 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         // defer registration for network status updates a little bit as modem device is
         // not ready at this time (currently it's modem construction time).
         Idle.add( () => {
-            var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            var network = modem.theDevice<FreeSmartphone.GSM.Network>();
             network.status.connect( ( status ) => { syncStatus(); } );
-            var device = theModem.theDevice<FreeSmartphone.GSM.Device>();
+            var device = modem.theDevice<FreeSmartphone.GSM.Device>();
             device.device_status.connect( ( status ) => { syncStatus(); } );
             return false;
         } );
+    }
+
+    public void assign_modem( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
     }
 
     //
@@ -138,7 +151,7 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         this.status = status;
         this.properties = properties;
 
-        var obj = theModem.theDevice<FreeSmartphone.GSM.PDP>();
+        var obj = modem.theDevice<FreeSmartphone.GSM.PDP>();
         obj.context_status( status, properties );
     }
 
@@ -242,15 +255,15 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         inSyncStatus = true;
 
         var networkRegistrationStatus = lastNetworkRegistrationStatus;
-        var roamingAllowed = theModem.data().roamingAllowed;
+        var roamingAllowed = modem.data().roamingAllowed;
         var nextContextStatus = status;
 
-        if ( !theModem.isAlive() || this.status == FreeSmartphone.GSM.ContextStatus.RELEASED )
+        if ( !modem.isAlive() || this.status == FreeSmartphone.GSM.ContextStatus.RELEASED )
             return;
 
         try
         {
-            var network = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            var network = modem.theDevice<FreeSmartphone.GSM.Network>();
             var networkStatus = yield network.get_status();
 
             if ( ( networkRegistrationStatus = (string) networkStatus.lookup( "pdp.registration" ) ) == null &&

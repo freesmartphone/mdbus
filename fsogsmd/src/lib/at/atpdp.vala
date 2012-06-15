@@ -48,8 +48,8 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
     //
     protected virtual string[] buildCommandLine()
     {
-        var data = theModem.data();
-        var cmdline = new string[] { data.pppCommand, theModem.allocateDataPort() };
+        var data = modem.data();
+        var cmdline = new string[] { data.pppCommand, modem.allocateDataPort() };
         foreach ( var option in data.pppOptions )
         {
             cmdline += option;
@@ -70,16 +70,16 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
     protected async virtual void enterDataState() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         // enter data state
-        var cmd = theModem.createAtCommand<V250D>( "D" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( "*99***1#", false ) );
+        var cmd = modem.createAtCommand<V250D>( "D" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( "*99***1#", false ) );
         checkResponseConnect( cmd, response );
     }
 
     protected async virtual void leaveDataState()
     {
         // leave data state (ignoring response for now)
-        var cmd = theModem.createAtCommand<PlusCGACT>( "+CGACT" );
-        /* var response = */ yield theModem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
+        var cmd = modem.createAtCommand<PlusCGACT>( "+CGACT" );
+        /* var response = */ yield modem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
         /* checkResponseOk( cmd, response ); */
     }
 
@@ -104,7 +104,7 @@ public class FsoGsm.AtPdpHandler : FsoGsm.PdpHandler
         cmdline += "logfile";
         cmdline += config.stringValue( "fsogsm", "ppp_log_destination", PPP_LOG_FILE );
 
-        var data = theModem.data();
+        var data = modem.data();
 
         if ( data.contextParams == null )
         {

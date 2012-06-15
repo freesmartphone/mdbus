@@ -42,7 +42,7 @@ class Pdp.NokiaIsi : FsoGsm.PdpHandler
 
     public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var data = theModem.data();
+        var data = modem.data();
         GIsiComm.ModemAccess isimodem = FsoFramework.DataSharing.valueForKey( "NokiaIsi.isimodem") as GIsiComm.ModemAccess;
 
         isimodem.gpds.contextActivated.connect( onContextActivated );

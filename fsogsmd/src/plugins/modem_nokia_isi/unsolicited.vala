@@ -29,8 +29,12 @@ namespace NokiaIsi
  **/
 public class IsiUnsolicitedHandler : FsoFramework.AbstractObject
 {
-    public IsiUnsolicitedHandler()
+    private FsoGsm.Modem modem;
+
+    public IsiUnsolicitedHandler( FsoGsm.Modem modem )
     {
+        this.modem = modem;
+
         NokiaIsi.isimodem.net.signalStrength.connect( onSignalStrengthUpdate );
         NokiaIsi.isimodem.net.registrationStatus.connect( onRegistrationStatusUpdate );
         NokiaIsi.isimodem.call.statusChanged.connect( onCallStatusUpdate );
@@ -43,7 +47,7 @@ public class IsiUnsolicitedHandler : FsoFramework.AbstractObject
 
     private void onSignalStrengthUpdate( uint8 rssi )
     {
-        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
         obj.signal_strength( (int32) rssi );
     }
 
@@ -56,20 +60,20 @@ public class IsiUnsolicitedHandler : FsoFramework.AbstractObject
             case GIsiClient.Network.RegistrationStatus.HOME:
             case GIsiClient.Network.RegistrationStatus.ROAM:
             case GIsiClient.Network.RegistrationStatus.ROAM_BLINK:
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_REGISTERED );
+                modem.advanceToState( FsoGsm.Modem.Status.ALIVE_REGISTERED );
                 break;
 
             default:
                 break;
         }
 
-        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
         obj.status( isiRegStatusToFsoRegStatus( istatus ) );
     }
 
     private void onCallStatusUpdate( GIsiComm.Call.ISI_CallStatus istatus )
     {
-        var callhandler = theModem.callhandler as FsoGsm.IsiCallHandler;
+        var callhandler = modem.callhandler as FsoGsm.IsiCallHandler;
         callhandler.handleStatusUpdate( istatus );
     }
 }

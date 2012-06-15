@@ -40,7 +40,7 @@ class Singleline.Modem : FsoGsm.AbstractModem
     {
         var transport = modem_transport_spec.create();
         var parser = new FsoGsm.StateBasedAtParser();
-        new AtChannel( CHANNEL_NAME, transport, parser );
+        new AtChannel( this, CHANNEL_NAME, transport, parser );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

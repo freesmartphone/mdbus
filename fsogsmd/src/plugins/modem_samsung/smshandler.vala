@@ -31,7 +31,7 @@ public class Samsung.SmsHandler : FsoGsm.AbstractSmsHandler
 
     protected override async string retrieveImsiFromSIM()
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         // first we retrieve the IMSI from SIM card to create a unique storage for all SMS
@@ -48,7 +48,7 @@ public class Samsung.SmsHandler : FsoGsm.AbstractSmsHandler
 
     protected override async bool acknowledgeSmsMessage()
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         var ackmsg = SamsungIpc.Sms.DeliverReportMessage();
@@ -83,6 +83,11 @@ public class Samsung.SmsHandler : FsoGsm.AbstractSmsHandler
     //
     // public API
     //
+
+    public SmsHandler( FsoGsm.Modem modem )
+    {
+        base( modem );
+    }
 
     public override string repr()
     {

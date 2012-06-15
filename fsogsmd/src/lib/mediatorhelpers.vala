@@ -27,60 +27,60 @@ namespace FsoGsm
      * ALIVE_REGISTERED otherwise. This needs the NetworkGetStatus mediator to be
      * implemented.
      **/
-    public async void triggerUpdateNetworkStatus()
+    public async void triggerUpdateNetworkStatus( FsoGsm.Modem  modem )
     {
         if ( inTriggerUpdateNetworkStatus )
         {
-            assert( theModem.logger.debug( "already gathering network status... ignoring additional trigger" ) );
+            assert( modem.logger.debug( "already gathering network status... ignoring additional trigger" ) );
             return;
         }
         inTriggerUpdateNetworkStatus = true;
 
-        var mstat = theModem.status();
+        var mstat = modem.status();
 
         // ignore, if we don't have proper status to issue networking commands yet
         if ( mstat != Modem.Status.ALIVE_SIM_READY && mstat != Modem.Status.ALIVE_REGISTERED )
         {
-            assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() ignored while modem is in status $mstat" ) );
+            assert( modem.logger.debug( @"triggerUpdateNetworkStatus() ignored while modem is in status $mstat" ) );
             inTriggerUpdateNetworkStatus = false;
             return;
         }
 
         try
         {
-            var m = theModem.createMediator<FsoGsm.NetworkGetStatus>();
+            var m = modem.createMediator<FsoGsm.NetworkGetStatus>();
             yield m.run();
 
             // advance modem status, if necessary
             var status = m.status.lookup( "registration" ).get_string();
-            assert( theModem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
+            assert( modem.logger.debug( @"triggerUpdateNetworkStatus() status = $status" ) );
 
             switch ( status )
             {
                 case "home":
                 case "roaming":
-                    theModem.advanceToState( Modem.Status.ALIVE_REGISTERED );
-                    theModem.advanceNetworkState( Modem.NetworkStatus.REGISTERED );
+                    modem.advanceToState( Modem.Status.ALIVE_REGISTERED );
+                    modem.advanceNetworkState( Modem.NetworkStatus.REGISTERED );
                     break;
                 case "searching":
-                    theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
-                    theModem.advanceNetworkState( Modem.NetworkStatus.SEARCHING );
+                    modem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
+                    modem.advanceNetworkState( Modem.NetworkStatus.SEARCHING );
                     break;
                 case "denied":
                 case "unregistered":
                 case "unknown":
-                    theModem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
-                    theModem.advanceNetworkState( Modem.NetworkStatus.UNREGISTERED );
+                    modem.advanceToState( Modem.Status.ALIVE_SIM_READY, true );
+                    modem.advanceNetworkState( Modem.NetworkStatus.UNREGISTERED );
                     break;
             }
 
             // send dbus signal
-            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
             obj.status( m.status );
         }
         catch ( GLib.Error e )
         {
-            theModem.logger.warning( @"Can't query networking status: $(e.message)" );
+            modem.logger.warning( @"Can't query networking status: $(e.message)" );
             inTriggerUpdateNetworkStatus = false;
             return;
         }
@@ -146,11 +146,11 @@ namespace FsoGsm
         return provider;
     }
 
-    public async void updateNetworkSignalStrength( int strength )
+    public async void updateNetworkSignalStrength( FsoGsm.Modem modem, int strength )
     {
-        if ( theModem.status() == FsoGsm.Modem.Status.ALIVE_REGISTERED )
+        if ( modem.status() == FsoGsm.Modem.Status.ALIVE_REGISTERED )
         {
-            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
             obj.signal_strength( strength );
         }
         else

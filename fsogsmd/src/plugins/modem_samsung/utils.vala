@@ -20,38 +20,38 @@
 using FsoGsm;
 using FsoFramework;
 
-public void updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
+public void updateSimAuthStatus( FsoGsm.Modem modem, FreeSmartphone.GSM.SIMAuthStatus status )
 {
-    theModem.logger.info( @"SIM Auth status now $status" );
+    modem.logger.info( @"SIM Auth status now $status" );
 
     // send the dbus signal
-    var obj = theModem.theDevice<FreeSmartphone.GSM.SIM>();
+    var obj = modem.theDevice<FreeSmartphone.GSM.SIM>();
     obj.auth_status( status );
 
     // check whether we need to advance the modem state
-    var data = theModem.data();
+    var data = modem.data();
     if ( status != data.simAuthStatus )
     {
         data.simAuthStatus = status;
 
         // advance global modem state
-        var modemStatus = theModem.status();
+        var modemStatus = modem.status();
         if ( modemStatus == Modem.Status.INITIALIZING )
         {
             if ( status == FreeSmartphone.GSM.SIMAuthStatus.READY )
             {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+                modem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
             }
             else
             {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
+                modem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED );
             }
         }
         else if ( modemStatus == Modem.Status.ALIVE_SIM_LOCKED )
         {
             if ( status == FreeSmartphone.GSM.SIMAuthStatus.READY )
             {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
+                modem.advanceToState( Modem.Status.ALIVE_SIM_UNLOCKED );
             }
         }
         // NOTE: If we're registered to a network and we unregister then we need to
@@ -61,7 +61,7 @@ public void updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
         {
             if ( status == FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED )
             {
-                theModem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED, true );
+                modem.advanceToState( Modem.Status.ALIVE_SIM_LOCKED, true );
             }
         }
     }
@@ -70,18 +70,18 @@ public void updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus status )
 /**
  * Determine functionality level according to modem state
  **/
-public static string gatherFunctionalityLevel()
+public static string gatherFunctionalityLevel( FsoGsm.Modem modem )
 {
-    var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+    var channel = modem.channel( "main" ) as Samsung.IpcChannel;
     var functionality_level = "minimal";
 
     // Check if SIM access is possible, then we have basic functionality
-    if ( theModem.status() == Modem.Status.ALIVE_SIM_READY &&
+    if ( modem.status() == Modem.Status.ALIVE_SIM_READY &&
          channel.phone_pwr_state == SamsungIpc.Power.PhoneState.LPM )
     {
         functionality_level = "airplane";
     }
-    else if ( theModem.status() == Modem.Status.ALIVE_REGISTERED )
+    else if ( modem.status() == Modem.Status.ALIVE_REGISTERED )
     {
         functionality_level = "full";
     }

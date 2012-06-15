@@ -34,17 +34,18 @@ public class QualcommHtc.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedRespon
 
             if ( fullReady )
             {
-                theModem.logger.info( "qualcomm_htc sim ready" );
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+                modem.logger.info( "qualcomm_htc sim ready" );
+                modem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
             }
         }
     }
 
-    public UnsolicitedResponseHandler()
+    public UnsolicitedResponseHandler( FsoGsm.Modem modem )
     {
+        base( modem );
+
         registerUrc( "+PB_READY", plusPB_READY );
         registerUrc( "+HTCCTZV", plusHTCCTZV );
-
     }
 
     /**
@@ -68,7 +69,7 @@ public class QualcommHtc.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedRespon
      */
     public virtual void plusHTCCTZV( string prefix, string rhs )
     {
-        var htcctv = theModem.createAtCommand<PlusHTCCTZV>( "+HTCCTZV" );
+        var htcctv = modem.createAtCommand<PlusHTCCTZV>( "+HTCCTZV" );
         if ( htcctv.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
             GLib.Time t = {};
@@ -81,7 +82,7 @@ public class QualcommHtc.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedRespon
 
             var epoch = Linux.timegm( t );
 
-            var data = theModem.data();
+            var data = modem.data();
             data.networkTimeReport.setTimeAndZone( (int)epoch, htcctv.tzoffset );
         }
         else

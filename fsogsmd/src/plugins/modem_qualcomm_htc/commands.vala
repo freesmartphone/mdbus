@@ -100,7 +100,7 @@ public class MyPlusCEER : FsoGsm.PlusCEER
         }
         else
         {
-            theModem.logger.info( @"Unknown +CEER cause '$r'; please report to Mickey <smartphones-userland@linuxtogo.org>" );
+            FsoFramework.theLogger.info( @"Unknown +CEER cause '$r'; please report to Mickey <smartphones-userland@linuxtogo.org>" );
         }
     }
 }

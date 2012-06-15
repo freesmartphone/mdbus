@@ -22,8 +22,10 @@ using FsoGsm;
 
 public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHandler
 {
-    public UnsolicitedResponseHandler()
+    public UnsolicitedResponseHandler( FsoGsm.Modem modem )
     {
+        base( modem );
+
         registerUrc( "+MBAN", channelReady );
         registerUrc( "+CLIN", plusCLIN );
         registerUrc( "+CLIP", plusCLIP );
@@ -34,7 +36,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
 
     public virtual void channelReady( string prefix, string rhs )
     {
-        assert( theModem.logger.debug( "Congratulations Madam, it's a channel!" ) );
+        assert( modem.logger.debug( "Congratulations Madam, it's a channel!" ) );
     }
 
     /**
@@ -63,7 +65,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
      **/
     public override void plusCIEV( string prefix, string rhs )
     {
-        var ciev = theModem.createAtCommand<PlusCIEV>( "+CIEV" );
+        var ciev = modem.createAtCommand<PlusCIEV>( "+CIEV" );
         if ( ! ( ciev.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID ) )
         {
             logger.warning( @"Received invalid +CIEV message $rhs. Please report" );
@@ -74,11 +76,11 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
         {
             case 1:
                 // FIXME: Might want to remember the status
-                var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+                var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
                 obj.signal_strength( Constants.networkSignalIndicatorToPercentage( ciev.value2 ) );
                 break;
             default:
-                theModem.logger.warning( @"plusCIEV: $(ciev.value1),$(ciev.value2) unknown or not implemented" );
+                modem.logger.warning( @"plusCIEV: $(ciev.value1),$(ciev.value2) unknown or not implemented" );
                 break;
         }
     }
@@ -89,7 +91,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
      **/
     public void plusCLIN( string prefix, string rhs )
     {
-        theModem.callhandler.handleIncomingCall( new FsoGsm.CallInfo.with_ctype( "VOICE" ) );
+        modem.callhandler.handleIncomingCall( new FsoGsm.CallInfo.with_ctype( "VOICE" ) );
     }
 
     /**
@@ -97,7 +99,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
      **/
     public override void plusCLIP( string prefix, string rhs )
     {
-        assert( theModem.logger.debug( @"plusCLIP: not implemented on Neptune" ) );
+        assert( modem.logger.debug( @"plusCLIP: not implemented on Neptune" ) );
     }
 
 
@@ -107,7 +109,7 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
      **/
     public void plusEBPV( string prefix, string rhs )
     {
-        var modem = theModem as FreescaleNeptune.Modem;
+        var modem = modem as FreescaleNeptune.Modem;
         modem.revision = rhs;
     }
 
@@ -117,21 +119,21 @@ public class FreescaleNeptune.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedR
      **/
     public void plusEBAD( string prefix, string rhs )
     {
-        var modem = theModem as FreescaleNeptune.Modem;
+        var modem = modem as FreescaleNeptune.Modem;
 
         var octets = rhs.split( "," );
         for (uint i = 0; i < octets.length; i++) {
             modem.bdaddr[i] = (uint8) int.parse( octets[i] );
         }
 
-        theModem.logger.debug( "bdaddr: %02X:%02X:%02X:%02X:%02X:%02X".printf(
+        modem.logger.debug( "bdaddr: %02X:%02X:%02X:%02X:%02X:%02X".printf(
             modem.bdaddr[0], modem.bdaddr[1], modem.bdaddr[2],
             modem.bdaddr[3], modem.bdaddr[4], modem.bdaddr[5] ) );
     }
 
     public virtual void dummy( string prefix, string rhs )
     {
-        assert( theModem.logger.debug( @"URC: $prefix not implemented on Neptune" ) );
+        assert( modem.logger.debug( @"URC: $prefix not implemented on Neptune" ) );
     }
 }
 

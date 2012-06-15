@@ -22,9 +22,16 @@ using FsoGsm;
 
 public class Samsung.SoundHandler : FsoFramework.AbstractObject
 {
+    private FsoGsm.Modem modem;
+
+    public SoundHandler( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
+    }
+
     public async void mute_microphone( bool mute ) throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SND_MIC_MUTE_CTRL, new uint8[] { mute ? 0x1 : 0x0 } );
@@ -36,7 +43,7 @@ public class Samsung.SoundHandler : FsoFramework.AbstractObject
 
     public async void set_speaker_volume( SamsungIpc.Sound.VolumeType type, uint8 volume ) throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         var cmd = SamsungIpc.Sound.SpeakerVolumeControlMessage();
@@ -53,7 +60,7 @@ public class Samsung.SoundHandler : FsoFramework.AbstractObject
 
     public async void set_audio_path( SamsungIpc.Sound.AudioPath path ) throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
@@ -66,7 +73,7 @@ public class Samsung.SoundHandler : FsoFramework.AbstractObject
 
     public async void execute_clock_control() throws FreeSmartphone.Error
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.EXEC, SamsungIpc.MessageType.SND_CLOCK_CTRL, new uint8[] { 0x1 } );

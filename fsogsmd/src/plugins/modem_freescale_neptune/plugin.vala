@@ -111,7 +111,7 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
                 {
                     var muxnode = @"$(muxnode_prefix)$(dlci)";
                     var transport = FsoFramework.Transport.create( modem_transport_spec.name, muxnode, modem_transport_spec.speed );
-                    new AtChannel( channel, transport, new FsoGsm.StateBasedAtParser() );
+                    new AtChannel( this, channel, transport, new FsoGsm.StateBasedAtParser() );
                 }
                 else
                 {
@@ -129,7 +129,7 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
                 {
                     var transport = FsoFramework.Transport.create( modem_transport_spec.type, modem_transport_spec.name,
                         modem_transport_spec.speed + dlci );
-                    new AtChannel( channel, transport, new FsoGsm.StateBasedAtParser() );
+                    new AtChannel( this, channel, transport, new FsoGsm.StateBasedAtParser() );
                 }
                 else
                 {
@@ -151,7 +151,7 @@ class FreescaleNeptune.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
     {
-        return new FreescaleNeptune.UnsolicitedResponseHandler();
+        return new FreescaleNeptune.UnsolicitedResponseHandler( this );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

@@ -67,7 +67,7 @@ void test_fso_sms_storage_add_concatenated()
 void test_fso_sms_storage_store_transaction_index()
 //===========================================================================
 {
-    var handler = new AtSmsHandler();
+    var handler = new AtSmsHandler( null );
     handler.storage = SmsStorageFactory.create( "default", IMSI );
     //handler.storage.clean();
     var pdus = handler.formatTextMessage( PHONE_NUMBER, LONG_TEXT, true );
@@ -83,7 +83,7 @@ void test_fso_sms_storage_store_transaction_index()
 void test_fso_sms_storage_confirm_ack()
 //===========================================================================
 {
-    var handler = new AtSmsHandler();
+    var handler = new AtSmsHandler( null );
     handler.storage = SmsStorageFactory.create( "default", IMSI );
     //handler.storage.clean();
     assert( handler.storage.confirmReceivedMessage( 2 ) == -1 );

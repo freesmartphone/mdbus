@@ -149,8 +149,8 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
     {
         if ( modem_transport_spec.type.has_prefix( "ngsm" ) )
         {
-            new AtChannel( "main", new FsoFramework.SerialTransport( "/dev/ttygsm1", 115200 ), new FsoGsm.StateBasedAtParser() );
-            new AtChannel( "call", new FsoFramework.SerialTransport( "/dev/ttygsm3", 115200 ), new FsoGsm.StateBasedAtParser() );
+            new AtChannel( this, "main", new FsoFramework.SerialTransport( "/dev/ttygsm1", 115200 ), new FsoGsm.StateBasedAtParser() );
+            new AtChannel( this, "call", new FsoFramework.SerialTransport( "/dev/ttygsm3", 115200 ), new FsoGsm.StateBasedAtParser() );
             return;
         }
 
@@ -158,13 +158,13 @@ class CinterionMc75.Modem : FsoGsm.AbstractModem
         {
             var transport = new FsoGsm.LibGsm0710muxTransport( i+1 );
             var parser = new FsoGsm.StateBasedAtParser();
-            new AtChannel( CHANNEL_NAMES[i], transport, parser );
+            new AtChannel( this, CHANNEL_NAMES[i], transport, parser );
         }
     }
 
     protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
     {
-        return new CinterionMc75.UnsolicitedResponseHandler();
+        return new CinterionMc75.UnsolicitedResponseHandler( this );
     }
 
     protected override void registerCustomAtCommands( Gee.HashMap<string,FsoGsm.AtCommand> commands )

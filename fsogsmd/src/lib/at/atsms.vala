@@ -62,15 +62,15 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
     {
         // First we're gathing which types of SMS services are supported and select the
         // one which suites best for our needs.
-        var csms = theModem.createAtCommand<PlusCSMS>( "+CSMS" );
+        var csms = modem.createAtCommand<PlusCSMS>( "+CSMS" );
         // Try to enable GSM phase 2+ commands
-        var response = yield theModem.processAtCommandAsync( csms, csms.issue( 1 ) );
+        var response = yield modem.processAtCommandAsync( csms, csms.issue( 1 ) );
         if ( csms.validateOk( response ) != Constants.AtResponse.OK )
         {
             logger.warning( @"Desired SMS service mode is not available; SMS acknowledgement support will be disabled." );
             ack_supported = false;
 
-            response = yield theModem.processAtCommandAsync( csms, csms.issue( 0 ) );
+            response = yield modem.processAtCommandAsync( csms, csms.issue( 0 ) );
             if ( csms.validateOk( response ) != Constants.AtResponse.OK )
             {
                 logger.error( @"Could not set minimal SMS service mode; SMS support will be disabled" );
@@ -97,8 +97,8 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
     protected virtual async bool configureMessageFormat()
     {
         // We need to get into PDU mode otherwise we can't provide SMS support
-        var cmgf = theModem.createAtCommand<PlusCMGF>( "+CMGF" );
-        var response = yield theModem.processAtCommandAsync( cmgf, cmgf.issue( 0 ) );
+        var cmgf = modem.createAtCommand<PlusCMGF>( "+CMGF" );
+        var response = yield modem.processAtCommandAsync( cmgf, cmgf.issue( 0 ) );
         if ( cmgf.validateOk( response ) != Constants.AtResponse.OK )
         {
             logger.error( @"Could not enable SMS PDU mode; SMS support will be disabled" );
@@ -133,8 +133,8 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
         int bfr = 0;
 
         // Check which indications are supported for new SMS messages
-        var cnmi = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
-        var response = yield theModem.processAtCommandAsync( cnmi, cnmi.test() );
+        var cnmi = modem.createAtCommand<PlusCNMI>( "+CNMI" );
+        var response = yield modem.processAtCommandAsync( cnmi, cnmi.test() );
         if ( cnmi.validateTest( response ) != Constants.AtResponse.VALID )
         {
             logger.error( @"Could not retrieve support indications for new SMS messages; trying to set our default ..." );
@@ -156,7 +156,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
                 return false;
         }
 
-        response = yield theModem.processAtCommandAsync( cnmi, cnmi.issue( mode, mt, bm, ds, bfr ) );
+        response = yield modem.processAtCommandAsync( cnmi, cnmi.issue( mode, mt, bm, ds, bfr ) );
         if ( cnmi.validateOk( response ) != Constants.AtResponse.OK )
             return false;
 
@@ -165,8 +165,8 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
 
     protected override async string retrieveImsiFromSIM()
     {
-        var cimi = theModem.createAtCommand<PlusCIMI>( "+CIMI" );
-        var response = yield theModem.processAtCommandAsync( cimi, cimi.execute() );
+        var cimi = modem.createAtCommand<PlusCIMI>( "+CIMI" );
+        var response = yield modem.processAtCommandAsync( cimi, cimi.execute() );
         if ( cimi.validate( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( "Can't retrieve IMSI from SIM to be used as identifier for SMS storage" );
@@ -177,8 +177,8 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
 
     protected override async void fillStorageWithMessageFromSIM()
     {
-        var cmgl = theModem.createAtCommand<PlusCMGL>( "+CMGL" );
-        var cmglresponse = yield theModem.processAtCommandAsync( cmgl, cmgl.issue( PlusCMGL.Mode.ALL ) );
+        var cmgl = modem.createAtCommand<PlusCMGL>( "+CMGL" );
+        var cmglresponse = yield modem.processAtCommandAsync( cmgl, cmgl.issue( PlusCMGL.Mode.ALL ) );
         if ( cmgl.validateMulti( cmglresponse ) != Constants.AtResponse.VALID )
         {
             logger.warning( "Can't synchronize SMS storage with SIM" );
@@ -192,7 +192,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
             if ( ret == 1 )
             {
                 var msg = storage.message( sms.message.hash() );
-                var obj = theModem.theDevice<FreeSmartphone.GSM.SMS>();
+                var obj = modem.theDevice<FreeSmartphone.GSM.SMS>();
                 obj.incoming_text_message( msg.number, msg.timestamp, msg.contents );
             }
         }
@@ -203,8 +203,8 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
         hexpdu = "";
         tpdulen = 0;
 
-        var cmd = theModem.createAtCommand<PlusCMGR>( "+CMGR" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( index ) );
+        var cmd = modem.createAtCommand<PlusCMGR>( "+CMGR" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( index ) );
         if ( cmd.validateUrcPdu( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( @"Can't read new SMS from SIM storage at index $index." );
@@ -225,8 +225,8 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
             return true;
         }
 
-        var cmd = theModem.createAtCommand<PlusCNMA>( "+CNMA" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
+        var cmd = modem.createAtCommand<PlusCNMA>( "+CNMA" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
         if ( cmd.validate( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( @"Failed to acknowledge SMS message; further SMS message handling will maybe faulty!" );
@@ -240,9 +240,9 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
     // public
     //
 
-    public AtSmsHandler()
+    public AtSmsHandler( FsoGsm.Modem modem )
     {
-        base();
+        base( modem );
     }
 
     public override async void configure()

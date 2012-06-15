@@ -35,14 +35,16 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 
             if ( fullReady )
             {
-                theModem.logger.info( "TI Calypso SIM now ready" );
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+                modem.logger.info( "TI Calypso SIM now ready" );
+                modem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
             }
         }
     }
 
-    public UnsolicitedResponseHandler()
+    public UnsolicitedResponseHandler( FsoGsm.Modem modem )
     {
+        base( modem );
+
         registerUrc( "AT-Command Interpreter ready", channelReady );
         registerUrc( "%CPI", percentCPI );
         registerUrc( "%CPRI", percentCPRI );
@@ -53,7 +55,7 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 
     public virtual void channelReady( string prefix, string rhs )
     {
-        assert( theModem.logger.debug( "Congratulations Madam, it's a channel!" ) );
+        assert( modem.logger.debug( "Congratulations Madam, it's a channel!" ) );
     }
 
     public virtual void percentCPI( string prefix, string rhs )
@@ -62,9 +64,9 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
         {
             case '0':
             case '9':
-                var calypso = (TiCalypso.Modem) theModem;
+                var calypso = (TiCalypso.Modem) modem;
                 var cmd = new CustomAtCommand();
-                theModem.processAtCommandAsync( cmd, calypso.dspCommand );
+                modem.processAtCommandAsync( cmd, calypso.dspCommand );
                 break;
             default:
                 break;
@@ -74,11 +76,11 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 
     public virtual void percentCPRI( string prefix, string rhs )
     {
-        var cpri = theModem.createAtCommand<PercentCPRI>( "%CPRI" );
+        var cpri = modem.createAtCommand<PercentCPRI>( "%CPRI" );
         if ( cpri.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
             // FIXME: Might want to remember the status
-            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
             obj.cipher_status( (FreeSmartphone.GSM.CipherStatus) cpri.telcipher, (FreeSmartphone.GSM.CipherStatus) cpri.pdpcipher );
         }
     }
@@ -107,7 +109,7 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
      **/
     public virtual void percentCSTAT( string prefix, string rhs )
     {
-        var cstat = theModem.createAtCommand<PercentCSTAT>( "%CSTAT" );
+        var cstat = modem.createAtCommand<PercentCSTAT>( "%CSTAT" );
         if ( cstat.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
             switch ( cstat.subsystem )
@@ -128,11 +130,11 @@ public class TiCalypso.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponse
 
     public virtual void percentCSQ( string prefix, string rhs )
     {
-        var csq = theModem.createAtCommand<PercentCSQ>( "%CSQ" );
+        var csq = modem.createAtCommand<PercentCSQ>( "%CSQ" );
         if ( csq.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
             // FIXME: Might want to remember the status
-            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
             obj.signal_strength( csq.strength );
         }
     }

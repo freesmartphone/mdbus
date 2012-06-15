@@ -46,8 +46,12 @@ public class FsoGsm.BaseUnsolicitedResponseHandler : FsoGsm.UnsolicitedResponseH
     private HashMap<string,UnsolicitedResponseHandlerFuncWrapper> urcs;
     private HashMap<string,UnsolicitedResponsePduHandlerFuncWrapper> urcpdus;
 
-    construct
+    protected FsoGsm.Modem modem { get; private set; }
+
+    public BaseUnsolicitedResponseHandler( FsoGsm.Modem modem )
     {
+        this.modem = modem;
+
         urcs = new HashMap<string,UnsolicitedResponseHandlerFuncWrapper>();
         urcpdus = new HashMap<string,UnsolicitedResponsePduHandlerFuncWrapper>();
     }
@@ -106,8 +110,11 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     //
     // public API
     //
-    public AtUnsolicitedResponseHandler()
+
+    public AtUnsolicitedResponseHandler( FsoGsm.Modem modem )
     {
+        base( modem );
+
         registerUrc( "+CALA", plusCALA );
         registerUrc( "+CCWA", plusCCWA );
         registerUrc( "+CGEV", plusCGEV );
@@ -134,7 +141,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
     public virtual void plusCALA( string prefix, string rhs )
     {
         // send dbus signal
-        var obj = theModem.theDevice<FreeSmartphone.Device.RealtimeClock>();
+        var obj = modem.theDevice<FreeSmartphone.Device.RealtimeClock>();
         obj.alarm( 0 );
     }
 
@@ -143,7 +150,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         // The call waiting parameters are irrelevant, as we're going to pull them
         // immediately via +CLCC anyways. Note that we force type to be
         // 'VOICE' since call waiting does only apply to voice calls.
-        theModem.callhandler.handleIncomingCall( new FsoGsm.CallInfo.with_ctype( "VOICE" ) );
+        modem.callhandler.handleIncomingCall( new FsoGsm.CallInfo.with_ctype( "VOICE" ) );
     }
 
     public virtual void plusCGEV( string prefix, string rhs )
@@ -153,12 +160,12 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCGREG( string prefix, string rhs )
     {
-        triggerUpdateNetworkStatus();
+        triggerUpdateNetworkStatus( modem );
     }
 
     public virtual void plusCIEV( string prefix, string rhs )
     {
-        var ciev = theModem.createAtCommand<PlusCIEV>( "+CIEV" );
+        var ciev = modem.createAtCommand<PlusCIEV>( "+CIEV" );
         if ( ciev.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
             logger.warning( @"Received unhandled +CIEV $(ciev.value1), $(ciev.value2)" );
@@ -175,10 +182,10 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCMTI( string prefix, string rhs )
     {
-        var cmti = theModem.createAtCommand<PlusCMTI>( "+CMTI" );
+        var cmti = modem.createAtCommand<PlusCMTI>( "+CMTI" );
         if ( cmti.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
-            theModem.smshandler.handleIncomingSmsOnSim( cmti.index );
+            modem.smshandler.handleIncomingSmsOnSim( cmti.index );
         }
         else
         {
@@ -188,20 +195,20 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCREG( string prefix, string rhs )
     {
-        triggerUpdateNetworkStatus();
+        triggerUpdateNetworkStatus( modem );
     }
 
     public virtual void plusCRING( string prefix, string rhs )
     {
-        theModem.callhandler.handleIncomingCall( new FsoGsm.CallInfo.with_ctype( rhs ) );
+        modem.callhandler.handleIncomingCall( new FsoGsm.CallInfo.with_ctype( rhs ) );
     }
 
     public virtual void plusCSSI( string prefix, string rhs )
     {
-        var cssi = theModem.createAtCommand<PlusCSSI>( "+CSSI" );
+        var cssi = modem.createAtCommand<PlusCSSI>( "+CSSI" );
         if ( cssi.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
-            theModem.callhandler.addSupplementaryInformation( Constants.callDirectionToString( 0 ), Constants.cssiCodeToString( cssi.value ) );
+            modem.callhandler.addSupplementaryInformation( Constants.callDirectionToString( 0 ), Constants.cssiCodeToString( cssi.value ) );
         }
         else
         {
@@ -211,10 +218,10 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCSSU( string prefix, string rhs )
     {
-        var cssu = theModem.createAtCommand<PlusCSSU>( "+CSSU" );
+        var cssu = modem.createAtCommand<PlusCSSU>( "+CSSU" );
         if ( cssu.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
-            theModem.callhandler.addSupplementaryInformation( Constants.callDirectionToString( 1 ), Constants.cssuCodeToString( cssu.value ) );
+            modem.callhandler.addSupplementaryInformation( Constants.callDirectionToString( 1 ), Constants.cssuCodeToString( cssu.value ) );
         }
         else
         {
@@ -235,20 +242,20 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
         {
             var utcoffset = Constants.ctzvToTimeZone( tzoffset );
             logger.info( @"Received time zone report from GSM: $utcoffset minutes" );
-            var data = theModem.data();
+            var data = modem.data();
             data.networkTimeReport.setZone( utcoffset );
         }
     }
 
     public virtual void plusCUSD( string prefix, string rhs )
     {
-        var cusd = theModem.createAtCommand<PlusCUSD>( "+CUSD" );
+        var cusd = modem.createAtCommand<PlusCUSD>( "+CUSD" );
         if ( cusd.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
 #if DEBUG
             debug( @"CUSD MODE: $(cusd.mode), RESULT: $(cusd.result), CODE: $(cusd.code)" );
 #endif
-            var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+            var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
             obj.incoming_ussd( (FreeSmartphone.GSM.UssdStatus)cusd.mode, cusd.result );
         }
         else
@@ -267,10 +274,10 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCDS( string prefix, string rhs, string pdu )
     {
-        var cds = theModem.createAtCommand<PlusCDS>( "+CDS" );
+        var cds = modem.createAtCommand<PlusCDS>( "+CDS" );
         if ( cds.validateUrcPdu( { @"$prefix: $rhs", pdu } ) == Constants.AtResponse.VALID )
         {
-            theModem.smshandler.handleIncomingSmsReport( cds.hexpdu, cds.tpdulen );
+            modem.smshandler.handleIncomingSmsReport( cds.hexpdu, cds.tpdulen );
         }
         else
         {
@@ -280,7 +287,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCBM( string prefix, string rhs, string pdu )
     {
-        var cbm = theModem.createAtCommand<PlusCBM>( "+CBM" );
+        var cbm = modem.createAtCommand<PlusCBM>( "+CBM" );
         if ( cbm.validateUrcPdu( { @"$prefix: $rhs", pdu } ) == Constants.AtResponse.VALID )
         {
             Cb.Message? cb = Cb.Message.newFromHexPdu( cbm.hexpdu, cbm.tpdulen );
@@ -293,7 +300,7 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
                 string lang;
                 var text = cb.decode_all( out lang );
 
-                var obj = theModem.theDevice<FreeSmartphone.GSM.CB>();
+                var obj = modem.theDevice<FreeSmartphone.GSM.CB>();
                 obj.incoming_cell_broadcast( text, lang, new GLib.HashTable<string,Variant>( GLib.str_hash, GLib.str_equal ) );
             }
         }
@@ -305,10 +312,10 @@ public class FsoGsm.AtUnsolicitedResponseHandler : FsoGsm.BaseUnsolicitedRespons
 
     public virtual void plusCMT( string prefix, string rhs, string pdu )
     {
-        var cmt = theModem.createAtCommand<PlusCMT>( "+CMT" );
+        var cmt = modem.createAtCommand<PlusCMT>( "+CMT" );
         if ( cmt.validateUrcPdu( { @"$prefix: $rhs", pdu } ) == Constants.AtResponse.VALID )
         {
-            theModem.smshandler.handleIncomingSms( cmt.hexpdu, cmt.tpdulen );
+            modem.smshandler.handleIncomingSms( cmt.hexpdu, cmt.tpdulen );
         }
         else
         {

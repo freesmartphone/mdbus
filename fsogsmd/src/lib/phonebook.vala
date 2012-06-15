@@ -154,11 +154,25 @@ public class FsoGsm.PhonebookStorage : FsoFramework.AbstractObject
 /**
  * @interface PhonebookHandler
  */
-public interface FsoGsm.PhonebookHandler : FsoFramework.AbstractObject
+public interface FsoGsm.PhonebookHandler : GLib.Object
 {
     public abstract PhonebookStorage storage { get; set; }
 
     public abstract async void syncWithSim();
+}
+
+public abstract class FsoGsm.AbstractPhonebookHandler : FsoGsm.PhonebookHandler, FsoFramework.AbstractObject
+{
+    protected FsoGsm.Modem modem { get; private set; }
+
+    public abstract PhonebookStorage storage { get; set; }
+
+    public abstract async void syncWithSim();
+
+    public AbstractPhonebookHandler( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
+    }
 }
 
 // vim:ts=4:sw=4:expandtab

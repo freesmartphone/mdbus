@@ -22,8 +22,10 @@ using Gee;
 
 public class Gtm601.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHandler
 {
-    public UnsolicitedResponseHandler()
+    public UnsolicitedResponseHandler( FsoGsm.Modem modem )
     {
+        base( modem );
+
         registerUrc( "$QCSIMSTAT", dollarQCSIMSTAT );
         registerUrc( "_OSIGQ", underscoreOSIGQ );
     }
@@ -35,9 +37,9 @@ public class Gtm601.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHan
     {
         if ( rhs.has_suffix( "SIM INIT COMPLETED" ) )
         {
-            theModem.logger.info( "GTM 601 SIM now ready" );
+            modem.logger.info( "GTM 601 SIM now ready" );
             Timeout.add_seconds( 2, () => {
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+                modem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
                 return false; // don't call again
             } );
         }
@@ -48,11 +50,11 @@ public class Gtm601.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHan
      **/
     public virtual void underscoreOSIGQ( string prefix, string rhs )
     {
-        var cmd = theModem.createAtCommand<UnderscoreOSIGQ>( "_OSIGQ" );
+        var cmd = modem.createAtCommand<UnderscoreOSIGQ>( "_OSIGQ" );
         if ( cmd.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
             var strength = Constants.networkSignalToPercentage( cmd.strength );
-            updateNetworkSignalStrength( strength );
+            updateNetworkSignalStrength( modem, strength );
         }
         else
         {

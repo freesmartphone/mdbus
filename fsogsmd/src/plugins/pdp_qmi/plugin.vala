@@ -107,7 +107,7 @@ class Pdp.Qmi : FsoGsm.PdpHandler
 
     public async override void sc_activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        var data = theModem.data();
+        var data = modem.data();
 
         if ( data.contextParams == null )
         {

@@ -22,13 +22,20 @@ using FsoGsm;
 
 public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 {
+    private FsoGsm.Modem modem;
+
+    public UnsolicitedResponseHandler( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
+    }
+
     /**
      * Handling the various possible unsolicited responses we get from the modem
      **/
     public void process( SamsungIpc.Response response )
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
-        var callhandler = theModem.callhandler as Samsung.CallHandler;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
+        var callhandler = modem.callhandler as Samsung.CallHandler;
 
         switch ( response.command )
         {
@@ -44,7 +51,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 break;
 
             case SamsungIpc.MessageType.NET_REGIST:
-                triggerUpdateNetworkStatus();
+                triggerUpdateNetworkStatus( modem );
                 break;
 
             case SamsungIpc.MessageType.PWR_PHONE_STATE:
@@ -54,11 +61,11 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
             case SamsungIpc.MessageType.DISP_RSSI_INFO:
                 // Don't report signal strength when we are not registered
-                if ( theModem.status() != FsoGsm.Modem.Status.ALIVE_REGISTERED )
+                if ( modem.status() != FsoGsm.Modem.Status.ALIVE_REGISTERED )
                     break;
                 handle_signal_strength( response.data[0] );
                 // notify the user about the change of signal strength
-                var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+                var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
                 obj.signal_strength( ModemState.network_signal_strength );
                 break;
 
@@ -96,7 +103,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         ModemState.network_signal_strength = Constants.networkSignalToPercentage( r );
 
         // notify the user about the change of signal strength
-        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+        var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
         obj.signal_strength( ModemState.network_signal_strength );
 
     }
@@ -115,21 +122,21 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
         switch ( (uint8) message.status )
         {
             case SamsungIpc.Security.SimStatus.INIT_COMPLETE:
-                updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.READY );
+                updateSimAuthStatus( modem, FreeSmartphone.GSM.SIMAuthStatus.READY );
                 break;
 
             case SamsungIpc.Security.SimStatus.LOCK_SC:
                 switch ( message.lock_status )
                 {
                     case SamsungIpc.Security.SimLockStatus.PIN1_REQ:
-                        updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
+                        updateSimAuthStatus( modem, FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
                         break;
                     case SamsungIpc.Security.SimLockStatus.PUK_REQ:
-                        updateSimAuthStatus( FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
+                        updateSimAuthStatus( modem, FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
                         break;
                     case SamsungIpc.Security.SimLockStatus.CARD_BLOCKED:
                         // FIXME we need a modem status for a blocked sim card!
-                        theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_NO_SIM );
+                        modem.advanceToState( FsoGsm.Modem.Status.ALIVE_NO_SIM );
                         break;
                 }
                 break;
@@ -141,7 +148,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
             case SamsungIpc.Security.SimStatus.SIM_LOCK_REQUIRED:
             case SamsungIpc.Security.SimStatus.CARD_ERROR:
             case SamsungIpc.Security.SimStatus.CARD_NOT_PRESENT:
-                theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_NO_SIM );
+                modem.advanceToState( FsoGsm.Modem.Status.ALIVE_NO_SIM );
                 break;
         }
     }
@@ -156,7 +163,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
     private void handle_gprs_ip_configuration( SamsungIpc.Response response )
     {
-        var pdphandler = theModem.pdphandler as Samsung.PdpHandler;
+        var pdphandler = modem.pdphandler as Samsung.PdpHandler;
         if (pdphandler == null)
             return;
 
@@ -173,7 +180,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
 
     private async void handle_sms_device_ready()
     {
-        var channel = theModem.channel( "main" ) as Samsung.IpcChannel;
+        var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response;
 
         // When we get the SMS_DEVICE_READY urc we're already ready for processing

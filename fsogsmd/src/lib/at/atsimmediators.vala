@@ -276,7 +276,7 @@ public class AtSimSendAuthCode : SimSendAuthCode
             modem.data().simPin = pin;
         }
         //FIXME: Was it intended to do this in background? (i.e. not yielding)
-        gatherSimStatusAndUpdate();
+        gatherSimStatusAndUpdate( modem );
     }
 }
 

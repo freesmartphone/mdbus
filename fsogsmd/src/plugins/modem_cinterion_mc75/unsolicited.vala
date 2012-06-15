@@ -22,16 +22,18 @@ using Gee;
 
 public class CinterionMc75.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResponseHandler
 {
-    public UnsolicitedResponseHandler()
+    public UnsolicitedResponseHandler( FsoGsm.Modem modem )
     {
+        base( modem );
+
         registerUrc( "^SSIM READY", dachSSIM_READY );
         registerUrc( "^SIND", dachSIND );
     }
 
     public virtual void dachSSIM_READY( string prefix, string rhs )
     {
-        theModem.logger.info( "mc75i sim ready" );
-        theModem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
+        modem.logger.info( "mc75i sim ready" );
+        modem.advanceToState( FsoGsm.Modem.Status.ALIVE_SIM_READY );
     }
 
     public virtual void dachSIND( string prefix, string rhs )
@@ -41,7 +43,7 @@ public class CinterionMc75.UnsolicitedResponseHandler : FsoGsm.AtUnsolicitedResp
 
     public override void plusCIEV( string prefix, string rhs )
     {
-        var ciev = theModem.createAtCommand<CinterionPlusCIEV>( "+CIEV" );
+        var ciev = modem.createAtCommand<CinterionPlusCIEV>( "+CIEV" );
         if ( ciev.validateUrc( @"$prefix: $rhs" ) == Constants.AtResponse.VALID )
         {
             logger.warning( "Received unhandled +CIEV %s, %d".printf( ciev.value1, ciev.value2 ) );

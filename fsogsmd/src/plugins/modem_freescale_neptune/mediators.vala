@@ -77,7 +77,7 @@ public class NeptuneSimSendAuthCode : SimSendAuthCode
             throw new FreeSmartphone.GSM.Error.SIM_AUTH_FAILED( @"PIN $pin not accepted" );
         }
 
-        gatherSimStatusAndUpdate();
+        gatherSimStatusAndUpdate( modem );
     }
 }
 

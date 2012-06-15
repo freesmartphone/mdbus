@@ -67,15 +67,15 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         var deep_sleep = config.stringValue( MODULE_NAME, "deep_sleep", "never" );
         if ( deep_sleep == "always" )
         {
-            theModem.atCommandSequence( "MODEM", "init" ).append( { "%SLEEP=4" } );
+            atCommandSequence( "MODEM", "init" ).append( { "%SLEEP=4" } );
         }
         else
         {
-            theModem.atCommandSequence( "MODEM", "init" ).append( { "%SLEEP=2" } );
+            atCommandSequence( "MODEM", "init" ).append( { "%SLEEP=2" } );
         }
 
         // configure power off
-        theModem.atCommandSequence( "MODEM", "shutdown" ).append( { "@POFF" } );
+        atCommandSequence( "MODEM", "shutdown" ).append( { "@POFF" } );
 
         // sequence for initializing every channel
         registerAtCommandSequence( "CHANNEL", "init", new AtCommandSequence( {
@@ -185,7 +185,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         {
             var transport = new FsoGsm.LibGsm0710muxTransport( i+1 );
             var parser = new FsoGsm.StateBasedAtParser();
-            new AtChannel( CHANNEL_NAMES[i], transport, parser );
+            new AtChannel( this, CHANNEL_NAMES[i], transport, parser );
         }
     }
 
@@ -201,7 +201,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.UnsolicitedResponseHandler createUnsolicitedHandler()
     {
-        return new TiCalypso.UnsolicitedResponseHandler();
+        return new TiCalypso.UnsolicitedResponseHandler( this );
     }
 
     protected override FsoGsm.Channel channelForCommand( FsoGsm.AtCommand command, string query )

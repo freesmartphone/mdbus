@@ -31,6 +31,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     private FreeSmartphone.UsageSync usage_sync;
     private uint suspend_lock = 0;
     private FsoGsm.Modem.Status current_modem_status = FsoGsm.Modem.Status.UNKNOWN;
+    private FsoGsm.Modem modem;
 
     public new Samsung.UnsolicitedResponseHandler urchandler { get; private set; }
     public string name { get; private set; }
@@ -59,7 +60,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
                 {
                     ModemState.reset_network_data();
                     // Force update of the signal strength for all connected clients
-                    var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
+                    var obj = modem.theDevice<FreeSmartphone.GSM.Network>();
                     obj.signal_strength( ModemState.network_signal_strength );
                 }
                 break;
@@ -255,17 +256,18 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
     // public API
     //
 
-    public IpcChannel( string name, FsoFramework.Transport? transport )
+    public IpcChannel( FsoGsm.Modem modem, string name, FsoFramework.Transport? transport )
     {
         base( transport );
 
+        this.modem = modem;
         this.name = name;
-        this.urchandler = new Samsung.UnsolicitedResponseHandler();
+        this.urchandler = new Samsung.UnsolicitedResponseHandler( this.modem );
         this.wakelock = new FsoFramework.Wakelock( "fsogsmd-modem-samsung" );
         Idle.add( () => { request_usage_service(); return false; } );
 
-        theModem.registerChannel( name, this );
-        theModem.signalStatusChanged.connect( onModemStatusChanged );
+        modem.registerChannel( name, this );
+        modem.signalStatusChanged.connect( onModemStatusChanged );
 
         fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.FMT );
         fmtclient.set_log_handler( ( message ) => { theLogger.info( message ); } );
