@@ -71,6 +71,7 @@ public class FsoGsm.DeviceServiceManager : FsoGsm.ServiceManager
         base.registerService<FreeSmartphone.GSM.SMS>( new FsoGsm.GsmSmsService() );
         base.registerService<FreeSmartphone.GSM.VoiceMail>( new FsoGsm.GsmVoiceMailService() );
 
+        this.modem = modem;
         modem.parent = this;
         modem.hangup.connect( onModemHangup );
         this.assignModem( modem );
