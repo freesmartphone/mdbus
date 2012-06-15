@@ -79,14 +79,16 @@ public class FsoGsm.NetworkTimeReport
     {
         this.time = time;
         this.timestamp = (int) TimeVal().tv_sec;
-        sendUpdateSignal();
+
+        status_changed( this.time, this.zone );
     }
 
     public void setZone( int zone )
     {
         this.zone = zone;
         this.zonestamp = (int) TimeVal().tv_sec;
-        sendUpdateSignal();
+
+        status_changed( this.time, this. zone );
     }
 
     public void setTimeAndZone( int time, int zone )
@@ -95,14 +97,11 @@ public class FsoGsm.NetworkTimeReport
         this.zone = zone;
         this.timestamp = (int) TimeVal().tv_sec;
         this.zonestamp = (int) TimeVal().tv_sec;
-        sendUpdateSignal();
+
+        status_changed( this.time, this.zone );
     }
 
-    private void sendUpdateSignal()
-    {
-        var obj = theModem.theDevice<FreeSmartphone.GSM.Network>();
-        obj.time_report( time, zone );
-    }
+    public signal void status_changed( int time, int zone );
 }
 
 public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
@@ -456,6 +455,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
         modem_data.cmdSequences = new HashMap<string,AtCommandSequence>();
 
         modem_data.networkTimeReport = new NetworkTimeReport();
+        modem_data.networkTimeReport.status_changed.connect( ( time, zone ) => {
+            var obj = theDevice<FreeSmartphone.GSM.Network>();
+            obj.time_report( time, zone );
+        } );
 
         modem_data.simPin = config.stringValue( CONFIG_SECTION, "auto_unlock", "" );
         modem_data.keepRegistration = config.boolValue( CONFIG_SECTION, "auto_register", false );
