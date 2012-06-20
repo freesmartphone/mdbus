@@ -2,7 +2,7 @@ version 0.12
 =====================================================================
 
 * outstanding bugs scheduled for 0.12
-* switch to vala 0.16.x
+* switch to vala 0.16.x [OK]
 * when checking archives for distribution remove c sources and compile from scratch too
 * fsogsmd:
     * call forwarding [OK]
