@@ -21,7 +21,7 @@ using Gee;
 
 namespace FsoGsm
 {
-    public const string PB_STORAGE_DEFAULT_STORAGE_DIR = "/tmp/fsogsmd/pb";
+    public const string PB_STORAGE_DEFAULT_STORAGE_DIR = "/var/tmp/fsogsmd/pb";
     public const int PB_STORAGE_DIRECTORY_PERMISSIONS = (int)Posix.S_IRUSR|Posix.S_IWUSR|Posix.S_IXUSR|Posix.S_IRGRP|Posix.S_IXGRP|Posix.S_IROTH|Posix.S_IXOTH;
 } /* namespace FsoGsm */
 

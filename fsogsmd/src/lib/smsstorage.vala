@@ -21,7 +21,7 @@ using Gee;
 
 namespace FsoGsm
 {
-    public const string SMS_STORAGE_DEFAULT_STORAGE_DIR = "/tmp/fsogsmd/sms";
+    public const string SMS_STORAGE_DEFAULT_STORAGE_DIR = "/var/tmp/fsogsmd/sms";
     public const string SMS_STORAGE_SENT_UNCONFIRMED = "sent-unconfirmed";
     public const int SMS_STORAGE_DIRECTORY_PERMISSIONS = (int) Posix.S_IRUSR | Posix.S_IWUSR |
                                                                Posix.S_IXUSR | Posix.S_IRGRP |
