@@ -43,7 +43,7 @@ AC_SUBST([LT_AGE])
 # Vala building options -- allows tarball builds without installing vala
 #########################################################################################
 
-VALA_REQUIRED=0.14.2
+VALA_REQUIRED=0.16.0
 
 AC_ARG_ENABLE([vala], AS_HELP_STRING([--enable-vala],[Enable building from Vala sources]),
               [enable_vala=$enableval], [enable_vala=no])

@@ -28,7 +28,7 @@ AC_SUBST(LDFLAGS)
 # Vala building options -- allows tarball builds without installing vala
 #########################################################################################
 
-VALA_REQUIRED=0.14.2
+VALA_REQUIRED=0.16.0
 
 AC_ARG_ENABLE([vala], AS_HELP_STRING([--enable-vala],[Enable building from Vala sources]),
               [enable_vala=$enableval], [enable_vala=no])
@@ -53,7 +53,7 @@ AM_CONDITIONAL([HAVE_VALA], [test "x$enable_vala" = "xyes"])
 # Check for various dependencies
 #########################################################################################
 
-VALA_REQUIRED=0.14.2
+VALA_REQUIRED=0.16.0
 GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 XML_REQUIRED=2.7.3
