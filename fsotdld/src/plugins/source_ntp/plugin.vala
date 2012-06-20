@@ -124,7 +124,7 @@ class Source.Ntp : FsoTime.AbstractSource
 
         if ( ( condition & IOCondition.IN ) == IOCondition.IN )
         {
-            unowned SocketAddress reply_address;
+            SocketAddress reply_address;
             unowned uint8[] packet_data = (uint8[])(&packet);
             packet_data.length = (int) sizeof( NetworkTimeProtocol.Packet );
             var received = socket.receive_from( out reply_address, packet_data, null );
