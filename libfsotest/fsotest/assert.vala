@@ -74,7 +74,7 @@ namespace FsoFramework.Test
             if ( expected != actual )
             {
                 var msg = @"$(typed_value_to_string(expected)) != $(typed_value_to_string(actual))";
-                throw_unexpected_value<T>( @"Actual value is not the same as the expected one: $(msg)", message );
+                throw_unexpected_value( @"Actual value is not the same as the expected one: $(msg)", message );
             }
         }
 
