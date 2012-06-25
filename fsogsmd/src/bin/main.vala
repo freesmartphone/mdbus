@@ -32,10 +32,35 @@ public static void sighandler( int signum )
     } );
 }
 
+bool use_session_bus = false;
+
+const OptionEntry[] options =
+{
+    { "test", 's', 0, OptionArg.NONE, ref use_session_bus, "Operate on DBus session bus for testing purpose", null },
+    { null }
+};
+
 public static int main( string[] args )
 {
+    try
+    {
+        var opt_context = new OptionContext( "" );
+        opt_context.set_summary( "FreeSmartphone.org GSM daemon" );
+        opt_context.set_description( "This daemon implements the freesmartphone.org GSM API" );
+        opt_context.set_help_enabled( true );
+        opt_context.add_main_entries( options, null );
+        opt_context.parse( ref args );
+    }
+    catch ( OptionError e )
+    {
+        stdout.printf( "%s\n", e.message );
+        stdout.printf( "Run '%s --help' to see a full list of available command line options.\n", args[0] );
+        return 1;
+    }
+
     var bin = FsoFramework.Utility.programName();
-    subsystem = new FsoFramework.DBusSubsystem( "fsogsm" );
+    var bus_type = use_session_bus ? BusType.SESSION : BusType.SYSTEM;
+    subsystem = new FsoFramework.DBusSubsystem( "fsogsm", bus_type );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
     FsoFramework.theLogger.info( "loaded %u plugins".printf( count ) );
