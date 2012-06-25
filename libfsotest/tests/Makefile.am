@@ -20,12 +20,14 @@ LDADD = \
 noinst_PROGRAMS = \
 	testassert \
 	testsignalwaiter \
+	testtestcase \
 	$(NULL)
 
 TEST_PROGS += $(noinst_PROGRAMS)
 
 testsignalwaiter_SOURCES = testsignalwaiter.vala
 testassert_SOURCES = testassert.vala
+testtestcase_SOURCES = testtestcase.vala
 
 CLEANFILES = $(TEST_PROGS)
 MAINTAINERCLEANFILES = \
