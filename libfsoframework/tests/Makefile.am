@@ -83,4 +83,5 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST += \
 	$(MAINTAINERCLEANFILES) \
+	lt-testsubsystem.conf \
 	$(NULL)
