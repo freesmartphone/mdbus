@@ -252,13 +252,17 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
 
     uint watch;
 
-    public DBusSubsystem( string name )
+    BusType bus_type;
+
+    public DBusSubsystem( string name, BusType type = GLib.BusType.SYSTEM )
     {
         base( name );
         registrations = new Gee.HashMap<string, Gee.ArrayList<ServiceRegistration>>();
         dbusobjects = new Gee.HashMap<string, Object>();
         counters = new Gee.HashMap<string, int>();
         busnames = new Gee.HashSet<string>();
+
+        bus_type = type;
     }
 
     ~DBusSubsystem()
@@ -279,7 +283,7 @@ public class FsoFramework.DBusSubsystem : FsoFramework.AbstractSubsystem
             assert( logger.debug( @"Connection not present yet; creating." ) );
             try
             {
-                connection = Bus.get_sync( BusType.SYSTEM );
+                connection = Bus.get_sync( bus_type );
             }
             catch ( Error e )
             {
