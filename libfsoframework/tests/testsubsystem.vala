@@ -67,26 +67,18 @@ void test_subsystem_load()
 }
 
 //===========================================================================
-void test_subsystem_dbus_register_name()
+[DBus (name = "org.freesmartphone.Testing")]
+public interface IDummyObject : GLib.Object
 //===========================================================================
 {
-    // FIXME: Something is wrong in teardown handling here. If, instead of
-    // org.freesmartphone.ogsmd, you try to do this with DBUS_TEST_BUSNAME,
-    // you will get an assertion in gdbus_proxy moaning about "unassociated objects"
-    // This might as well be a bug in dbus-glib or dbus :/
-    var subsystem = new DBusSubsystem( "tests" );
-    var ok1 = subsystem.registerServiceName( "org.freesmartphone.ogsmd" );
-    assert ( ok1 );
-    var ok2 = subsystem.registerServiceName( "org.freesmartphone.ogsmd" );
-    assert ( ok2 );
+    public abstract int ThisMethodIsPresent( int value ) throws GLib.Error, GLib.IOError, GLib.DBusError;
 }
 
 //===========================================================================
-[DBus (name = "org.freesmartphone.Testing")]
+class DummyObject : Object, IDummyObject
 //===========================================================================
-class DummyObject : Object
 {
-    public int ThisMethodIsPresent( int value ) throws DBus.Error
+    public int ThisMethodIsPresent( int value ) throws GLib.Error, GLib.IOError, GLib.DBusError
     {
         return value;
     }
@@ -97,30 +89,28 @@ class Pong : Object
 //===========================================================================
 {
     public bool replied = false;
-    dynamic DBus.Object dbusobj;
 
-    public Pong( dynamic DBus.Object obj )
+    private IDummyObject dbusobj;
+
+    public Pong( IDummyObject obj )
     {
         dbusobj = obj;
     }
 
-    public void reply( int value, Error e )
-    {
-        replied = ( value == 42 );
-        if ( replied )
-            loop.quit();
-    }
-
-    public bool call()
+    public bool ping()
     {
         try
         {
-            dbusobj.ThisMethodIsPresent( 42, reply );
+            var value = dbusobj.ThisMethodIsPresent( 42 );
+            replied = ( value == 42 );
+            if ( replied )
+                loop.quit();
         }
-        catch ( DBus.Error e )
+        catch ( GLib.Error e )
         {
             error( "%s", e.message );
         }
+
         return false;
     }
 }
@@ -131,20 +121,17 @@ void test_subsystem_dbus_register_objects()
 {
     // server side
     var subsystem = new DBusSubsystem( "tests" );
-    var ok = subsystem.registerServiceName( DBUS_TEST_BUSNAME );
-    assert ( ok );
     var obj = new DummyObject();
-    subsystem.registerServiceObject( DBUS_TEST_BUSNAME, DBUS_TEST_OBJPATH, obj );
+    subsystem.registerObjectForService<IDummyObject>( DBUS_TEST_BUSNAME, DBUS_TEST_OBJPATH, obj );
 
     // client side
-    var conn = DBus.Bus.get( DBus.BusType.SYSTEM );
-    dynamic DBus.Object dbusobj = conn.get_object( DBUS_TEST_BUSNAME, DBUS_TEST_OBJPATH, DBUS_TEST_INTERFACE );
+    var dbusobj = Bus.get_proxy_sync<IDummyObject>( BusType.SYSTEM, DBUS_TEST_BUSNAME, DBUS_TEST_OBJPATH );
     assert( dbusobj != null );
 
     var pong = new Pong( dbusobj );
     loop = new MainLoop( null, false );
 
-    Idle.add( pong.call );
+    Idle.add( pong.ping );
     loop.run();
 
     assert( pong.replied );
@@ -159,7 +146,6 @@ void main (string[] args)
     Test.add_func( "/Subsystem/New", test_subsystem_new );
     Test.add_func( "/Subsystem/RegisterPlugins", test_subsystem_register );
     Test.add_func( "/Subsystem/LoadPlugins", test_subsystem_load );
-    Test.add_func( "/Subsystem/DBusName", test_subsystem_dbus_register_name );
     Test.add_func( "/Subsystem/DBusObjects", test_subsystem_dbus_register_objects );
 
     Test.run ();
