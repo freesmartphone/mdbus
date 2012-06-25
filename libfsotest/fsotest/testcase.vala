@@ -42,12 +42,13 @@ public abstract class FsoFramework.Test.TestCase : Object
         this._suite.add (new GLib.TestCase (adaptor.name, adaptor.set_up, adaptor.run, adaptor.tear_down, sizeof(Adaptor)));
     }
 
-    public void add_async_test (string name, AsyncBegin async_begin, AsyncFinish async_finish)
+    public void add_async_test (string name, AsyncBegin async_begin, AsyncFinish async_finish, int timeout = 200)
     {
         var adaptor = new Adaptor (name, () => { }, this);
         adaptor.is_async = true;
         adaptor.async_begin = async_begin;
         adaptor.async_finish = async_finish;
+        adaptor.async_timeout = timeout;
         this._adaptors += adaptor;
 
         this._suite.add (new GLib.TestCase (adaptor.name, adaptor.set_up, adaptor.run, adaptor.tear_down, sizeof(Adaptor)));
@@ -69,6 +70,8 @@ public abstract class FsoFramework.Test.TestCase : Object
     private class Adaptor
     {
         public string name { get; private set; }
+        public int async_timeout { get; set; }
+
         private unowned TestMethod _test;
         private TestCase _test_case;
 
@@ -87,7 +90,6 @@ public abstract class FsoFramework.Test.TestCase : Object
         {
             GLib.set_printerr_handler (this._printerr_func_stack_trace);
             Log.set_default_handler (this._log_func_stack_trace);
-
             this._test_case.set_up ();
         }
 
@@ -119,7 +121,7 @@ public abstract class FsoFramework.Test.TestCase : Object
             {
                 try
                 {
-                    assert( wait_for_async (200, this.async_begin, this.async_finish) );
+                    assert( wait_for_async (async_timeout, this.async_begin, this.async_finish) );
                 }
                 catch (GLib.Error err)
                 {
