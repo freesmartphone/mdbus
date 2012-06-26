@@ -97,7 +97,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( id ) );
         if ( cmd.validate( response ) != Constants.AtResponse.VALID )
         {
-            logger.warning( @"Can't acknowledge new SMS" );
+            logger.warning( @"Failed to acknowledge SMS message; further SMS message handling will maybe faulty!" );
             return false;
         }
 
