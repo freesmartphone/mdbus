@@ -162,7 +162,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
     protected abstract async string retrieveImsiFromSIM();
     protected abstract async void fillStorageWithMessageFromSIM();
     protected abstract async bool readSmsMessageFromSIM( uint index, out string hexpdu, out int tpdulen );
-    protected abstract async bool acknowledgeSmsMessage( int id );
+    protected abstract async bool acknowledgeSmsMessage();
 
     //
     // private
@@ -326,7 +326,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
 
     public async void handleIncomingSms( string hexpdu, int tpdulen )
     {
-        var result = yield acknowledgeSmsMessage( 0 );
+        var result = yield acknowledgeSmsMessage();
         if ( !result )
         {
             logger.warning( @"Could not acknowledge incoming message" );

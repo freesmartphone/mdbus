@@ -85,7 +85,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
         return true;
     }
 
-    protected override async bool acknowledgeSmsMessage( int id )
+    protected override async bool acknowledgeSmsMessage()
     {
         if ( ! ack_supported )
         {
@@ -94,7 +94,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
         }
 
         var cmd = theModem.createAtCommand<PlusCNMA>( "+CNMA" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( id ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
         if ( cmd.validate( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( @"Failed to acknowledge SMS message; further SMS message handling will maybe faulty!" );
