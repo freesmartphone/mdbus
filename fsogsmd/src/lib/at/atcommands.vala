@@ -1742,6 +1742,66 @@ public class PlusCSMS : AbstractAtCommand
     }
 }
 
+public class PlusCMGF : AbstractAtCommand
+{
+    public int mode { get; private set; }
+
+    public int[] supported_modes { get; private set; default = { }; }
+
+    public PlusCMGF()
+    {
+        try
+        {
+            re = new Regex( """\+CMGF: (?P<mode>\d)""");
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+
+        prefix = { "+CMGF" };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        mode = to_int( "mode" );
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        var iter = new AtResultIter( new string[] { response } );
+        int mode = 0;
+        int[] modes = { };
+
+        if ( !iter.next( "+CMGF:" ) )
+            throw new AtCommandError.UNABLE_TO_PARSE( @"Wrong prefix: expected +CMGF" );
+
+        if ( !iter.open_list() )
+            return;
+
+        while ( iter.next_number( out mode ) )
+            modes += mode;
+
+        supported_modes = modes;
+    }
+
+    public string issue( int mode )
+    {
+        return @"+CMGF=$mode";
+    }
+
+    public string test()
+    {
+        return @"+CMGF=?";
+    }
+
+    public string query()
+    {
+        return @"+CMGF?";
+    }
+}
+
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // low level access (SIM, charset, etc.)
@@ -1819,6 +1879,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CPMS" ]             = new FsoGsm.PlusCPMS();
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
     table[ "+CSMS" ]             = new FsoGsm.PlusCSMS();
+    table[ "+CMGF" ]             = new FsoGsm.PlusCMGF();
 
     // cell broadcast
     table[ "+CBM" ]              = new FsoGsm.PlusCBM();

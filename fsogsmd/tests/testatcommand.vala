@@ -322,6 +322,36 @@ void test_atcommand_PlusCSMS()
     }
 }
 
+void test_atcommand_PlusCMGF()
+{
+    FsoGsm.PlusCMGF cmd = (FsoGsm.PlusCMGF) atCommandFactory( "+CMGF" );
+
+    assert( cmd.issue( 1 ) == "+CMGF=1" );
+    assert( cmd.query() == "+CMGF?" );
+    assert( cmd.test() == "+CMGF=?" );
+
+    try
+    {
+        cmd = (FsoGsm.PlusCMGF) atCommandFactory( "+CMGF" );
+        cmd.parse( "+CMGF: 3" );
+        assert( cmd.mode == 3 );
+
+        cmd = (FsoGsm.PlusCMGF) atCommandFactory( "+CMGF" );
+        cmd.parseTest( "+CMGF: (1,2)" );
+        assert( cmd.supported_modes.length == 2 );
+        assert( cmd.supported_modes[0] == 1 );
+        assert( cmd.supported_modes[1] == 2 );
+
+        cmd.parseTest( "+CMGF: (3)" );
+        assert( cmd.supported_modes.length == 1 );
+        assert( cmd.supported_modes[0] == 3 );
+    }
+    catch ( Error e )
+    {
+        assert_not_reached();
+    }
+}
+
 //===========================================================================
 void main( string[] args )
 //===========================================================================
@@ -340,6 +370,7 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+CCFC", test_atcommand_PlusCCFC );
     Test.add_func( "/AtCommand/+CTFR", test_atcommand_PlusCTFR );
     Test.add_func( "/AtCommand/+CSMS", test_atcommand_PlusCSMS );
+    Test.add_func( "/AtCommand/+CMGF", test_atcommand_PlusCMGF );
     Test.run();
 }
 
