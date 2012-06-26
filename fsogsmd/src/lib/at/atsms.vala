@@ -85,7 +85,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
     protected override async bool acknowledgeSmsMessage( int id )
     {
         var cmd = theModem.createAtCommand<PlusCNMA>( "+CNMA" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( id ) );
         if ( cmd.validate( response ) != Constants.AtResponse.VALID )
         {
             logger.warning( @"Can't acknowledge new SMS" );
