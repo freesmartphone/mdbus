@@ -1676,6 +1676,72 @@ public class PlusCTFR : AbstractAtCommand
     }
 }
 
+public class PlusCSMS : AbstractAtCommand
+{
+    public int mt { get; private set; }
+    public int mo { get; private set; }
+    public int bm { get; private set; }
+
+    public int[] supported_services { get; private set; default = { }; }
+
+    public PlusCSMS()
+    {
+        try
+        {
+            re = new Regex( """\+CSMS: (?P<mt>\d),(?P<mo>\d),(?P<bm>\d)""");
+        }
+        catch ( GLib.RegexError e )
+        {
+            assert_not_reached(); // fail here if Regex is broken
+        }
+
+        prefix = { "+CSMS: " };
+    }
+
+    public override void parse( string response ) throws AtCommandError
+    {
+        base.parse( response );
+        mt = to_int( "mt" );
+        mo = to_int( "mo" );
+        bm = to_int( "bm" );
+    }
+
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        var iter = new AtResultIter( new string[] { response } );
+        int service = 0;
+        int[] services = { };
+
+        supported_services = { };
+
+        if ( !iter.next( "+CSMS:" ) )
+            throw new AtCommandError.UNABLE_TO_PARSE( @"Can't parse $response" );
+
+        if ( !iter.open_list() )
+            throw new AtCommandError.UNABLE_TO_PARSE( @"Can't parse $response" );
+
+        while ( iter.next_number( out service ) )
+            services += service;
+
+        supported_services = services;
+    }
+
+    public string issue( int service )
+    {
+        return @"+CSMS=$service";
+    }
+
+    public string query()
+    {
+        return @"+CSMS?";
+    }
+
+    public string test()
+    {
+        return @"+CSMS=?";
+    }
+}
+
 public void registerGenericAtCommands( HashMap<string,AtCommand> table )
 {
     // low level access (SIM, charset, etc.)
@@ -1752,6 +1818,7 @@ public void registerGenericAtCommands( HashMap<string,AtCommand> table )
     table[ "+CNMA" ]             = new FsoGsm.PlusCNMA();
     table[ "+CPMS" ]             = new FsoGsm.PlusCPMS();
     table[ "+CSCA" ]             = new FsoGsm.PlusCSCA();
+    table[ "+CSMS" ]             = new FsoGsm.PlusCSMS();
 
     // cell broadcast
     table[ "+CBM" ]              = new FsoGsm.PlusCBM();

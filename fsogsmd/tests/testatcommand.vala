@@ -288,6 +288,40 @@ void test_atcommand_PlusCTFR()
     assert( cmd.issue( "+0987654321", 149 ) == "+CTFR=+0987654321,149" );
 }
 
+void test_atcommand_PlusCSMS()
+{
+    FsoGsm.PlusCSMS cmd = (FsoGsm.PlusCSMS) atCommandFactory( "+CSMS" );
+
+    assert( cmd.issue( 1 ) == "+CSMS=1" );
+    assert( cmd.issue( 123 ) == "+CSMS=123" );
+
+    assert( cmd.query() == "+CSMS?" );
+    assert( cmd.test() == "+CSMS=?" );
+
+    try
+    {
+        cmd = (FsoGsm.PlusCSMS) atCommandFactory( "+CSMS" );
+        cmd.parse( "+CSMS: 1,2,3" );
+        assert( cmd.mt == 1 );
+        assert( cmd.mo == 2 );
+        assert( cmd.bm == 3 );
+
+        cmd = (FsoGsm.PlusCSMS) atCommandFactory( "+CSMS" );
+        cmd.parseTest( "+CSMS: (1,2)" );
+        assert( cmd.supported_services.length == 2 );
+        assert( cmd.supported_services[0] == 1 );
+        assert( cmd.supported_services[1] == 2 );
+
+        cmd.parseTest( "+CSMS: (3)" );
+        assert( cmd.supported_services.length == 1 );
+        assert( cmd.supported_services[0] == 3 );
+    }
+    catch ( Error e )
+    {
+        assert_not_reached();
+    }
+}
+
 //===========================================================================
 void main( string[] args )
 //===========================================================================
@@ -305,6 +339,7 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+VTS", test_atcommand_PlusVTS );
     Test.add_func( "/AtCommand/+CCFC", test_atcommand_PlusCCFC );
     Test.add_func( "/AtCommand/+CTFR", test_atcommand_PlusCTFR );
+    Test.add_func( "/AtCommand/+CSMS", test_atcommand_PlusCSMS );
     Test.run();
 }
 
