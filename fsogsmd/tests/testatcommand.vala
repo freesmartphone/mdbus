@@ -352,6 +352,36 @@ void test_atcommand_PlusCMGF()
     }
 }
 
+void test_atcommand_PlusCNMI()
+{
+    FsoGsm.PlusCNMI cmd = (FsoGsm.PlusCNMI) atCommandFactory( "+CNMI" );
+
+    assert( cmd.issue( 1, 2, 3, 4, 5 ) == "+CNMI=1,2,3,4,5" );
+    assert( cmd.query() == "+CNMI?" );
+    assert( cmd.test() == "+CNMI=?" );
+
+    try
+    {
+        cmd = (FsoGsm.PlusCNMI) atCommandFactory( "+CNMI" );
+        cmd.parse( "+CNMI: 1,2,3,4,5" );
+        assert( cmd.mode == 1 );
+        assert( cmd.mt == 2 );
+        assert( cmd.bm == 3 );
+        assert( cmd.ds == 4 );
+        assert( cmd.bfr == 5 );
+
+        cmd = (FsoGsm.PlusCNMI) atCommandFactory( "+CNMI" );
+        cmd.parseTest( "+CNMI: (1,2),(3,4),(5,6),(7,8),(9,0)" );
+        assert( cmd.supported_modes.length == 2 );
+        assert( cmd.supported_modes[0] == 1 );
+        assert( cmd.supported_modes[1] == 2 );
+    }
+    catch ( Error e )
+    {
+        assert_not_reached();
+    }
+}
+
 //===========================================================================
 void main( string[] args )
 //===========================================================================
@@ -371,6 +401,7 @@ void main( string[] args )
     Test.add_func( "/AtCommand/+CTFR", test_atcommand_PlusCTFR );
     Test.add_func( "/AtCommand/+CSMS", test_atcommand_PlusCSMS );
     Test.add_func( "/AtCommand/+CMGF", test_atcommand_PlusCMGF );
+    Test.add_func( "/AtCommand/+CNMI", test_atcommand_PlusCNMI );
     Test.run();
 }
 

@@ -851,11 +851,13 @@ public class PlusCNMA : SimpleAtCommand<int>
 
 public class PlusCNMI : AbstractAtCommand
 {
-    public int mode;
-    public int mt;
-    public int bm;
-    public int ds;
-    public int bfr;
+    public int mode { get; private set; }
+    public int mt { get; private set; }
+    public int bm { get; private set; }
+    public int ds { get; private set; }
+    public int bfr { get; private set; }
+
+    public int[] supported_modes { get; private set; default = { }; }
 
     public PlusCNMI()
     {
@@ -880,9 +882,34 @@ public class PlusCNMI : AbstractAtCommand
         bfr = to_int( "bfr" );
     }
 
+    public override void parseTest( string response ) throws AtCommandError
+    {
+        var iter = new AtResultIter( new string[] { response } );
+        int[] modes = { };
+        int mode = 0;
+
+        supported_modes = { };
+
+        if ( !iter.next( "+CNMI:" ) )
+            throw new AtCommandError.UNABLE_TO_PARSE( @"Expected prefix +CNMI" );
+
+        if ( !iter.open_list() )
+            return;
+
+        while ( iter.next_number( out mode ) )
+            modes += mode;
+
+        supported_modes = modes;
+    }
+
     public string query()
     {
         return "+CNMI?";
+    }
+
+    public string test()
+    {
+        return "+CNMI=?";
     }
 
     public string issue( int mode, int mt, int bm, int ds, int bfr )
