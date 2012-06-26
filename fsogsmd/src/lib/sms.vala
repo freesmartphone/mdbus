@@ -259,7 +259,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
     // public API
     //
 
-    public async void configure()
+    public virtual async void configure()
     {
         assert( logger.debug( @"Initializing SMS handler ..." ) );
     }

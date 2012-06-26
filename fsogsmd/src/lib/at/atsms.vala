@@ -24,6 +24,9 @@ using Gee;
  **/
 public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
 {
+    private bool ack_supported = true;
+    private bool supported = true;
+
     //
     // protected
     //
@@ -84,6 +87,12 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
 
     protected override async bool acknowledgeSmsMessage( int id )
     {
+        if ( ! ack_supported )
+        {
+            assert( logger.debug( @"Skipping SMS acknowledgement because it's disabled" ) );
+            return true;
+        }
+
         var cmd = theModem.createAtCommand<PlusCNMA>( "+CNMA" );
         var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( id ) );
         if ( cmd.validate( response ) != Constants.AtResponse.VALID )
@@ -91,6 +100,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
             logger.warning( @"Can't acknowledge new SMS" );
             return false;
         }
+
         return true;
     }
 
@@ -101,6 +111,30 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
     public AtSmsHandler()
     {
         base();
+    }
+
+    public override async void configure()
+    {
+        base.configure();
+
+        // First we're gathing which types of SMS services are supported and select the
+        // one which suites best for our needs.
+        var csms = theModem.createAtCommand<PlusCSMS>( "+CSMS" );
+        // Try to enable GSM phase 2+ commands
+        var response = yield theModem.processAtCommandAsync( csms, csms.issue( 1 ) );
+        if ( csms.validateOk( response ) != Constants.AtResponse.OK )
+        {
+            logger.warning( @"Desired SMS service mode is not available; SMS acknowledgement support will be disabled." );
+            ack_supported = false;
+
+            response = yield theModem.processAtCommandAsync( csms, csms.issue( 0 ) );
+            if ( csms.validateOk( response ) != Constants.AtResponse.OK )
+            {
+                logger.error( @"Could not set minimal SMS service mode; SMS support will be disabled" );
+                supported = false;
+                return;
+            }
+        }
     }
 
     public override string repr()
