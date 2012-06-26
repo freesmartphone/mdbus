@@ -95,12 +95,25 @@ void test_atresultiter_list()
     assert( iter.next_unquoted_string( out str ) );
     assert( str == "testbla3" );
     assert( iter.close_list() );
+
+    response = "+CCFC: (1,2,3)";
+    iter = new AtResultIter( new string[] { response } );
+
+    assert( iter.next( prefix ) );
+    assert( iter.open_list() );
+    assert( iter.next_number( out num ) );
+    assert( num == 1 );
+    assert( iter.next_number( out num ) );
+    assert( num == 2 );
+    assert( iter.next_number( out num ) );
+    assert( num == 3 );
+    assert( iter.close_list() );
 }
 
 void test_atresultiter_multiple_lines()
 {
     var response0 = "+CCFC: \"test12\",3,(\"test34\",testbla3)";
-     var response1 = "+CCLC: \"test32\",9,(\"test14\",testbla4)";
+    var response1 = "+CCLC: \"test32\",9,(\"test14\",testbla4)";
     var str = "";
     var num = 0;
     var iter = new AtResultIter( new string[] { response0, response1 } );
