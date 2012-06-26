@@ -83,6 +83,8 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
 {
     public abstract ISmsStorage storage { get; set; }
 
+    public abstract async void configure();
+
     public abstract async void handleIncomingSmsOnSim( uint index );
     public abstract async void handleIncomingSms( string hexpdu, int tpdulen );
     public abstract async void handleIncomingSmsReport( string hexpdu, int tpdulen );
@@ -104,6 +106,10 @@ public class FsoGsm.NullSmsHandler : FsoFramework.AbstractObject, FsoGsm.SmsHand
     public NullSmsHandler()
     {
         storage = SmsStorageFactory.create( "null", "" );
+    }
+
+    public async void configure()
+    {
     }
 
     public async void handleIncomingSmsOnSim( uint index )
@@ -253,6 +259,11 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
     // public API
     //
 
+    public async void configure()
+    {
+        assert( logger.debug( @"Initializing SMS handler ..." ) );
+    }
+
     public uint16 lastReferenceNumber()
     {
         return storage.lastReferenceNumber();
@@ -320,7 +331,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
         {
             logger.warning( @"Could not acknowledge incoming message" );
             // FIXME should we revert here without processing the message anymore so it
-            // gets lost (the modem has to resend it anyway and it should be saved within
+            // get lost (the modem has to resend it anyway and it should be saved within
             // the SMS storage center until we can successfully acknowledge it?)
         }
 
