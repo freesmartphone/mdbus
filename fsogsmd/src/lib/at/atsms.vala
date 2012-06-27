@@ -135,6 +135,16 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
                 return;
             }
         }
+
+        // We need to get into PDU mode otherwise we can't provide SMS support
+        var cmgf = theModem.createAtCommand<PlusCMGF>( "+CMGF" );
+        response = yield theModem.processAtCommandAsync( cmgf, cmgf.issue( 0 ) );
+        if ( cmgf.validateOk( response ) != Constants.AtResponse.OK )
+        {
+            logger.error( @"Could not enable SMS PDU mode; SMS support will be disabled" );
+            supported = false;
+            return;
+        }
     }
 
     public override string repr()
