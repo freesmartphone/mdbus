@@ -82,6 +82,7 @@ public class WrapHexPdu
 public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
 {
     public abstract ISmsStorage storage { get; set; }
+    public abstract bool supported { get; protected set; }
 
     public abstract async void configure();
 
@@ -102,6 +103,7 @@ public interface FsoGsm.SmsHandler : FsoFramework.AbstractObject
 public class FsoGsm.NullSmsHandler : FsoFramework.AbstractObject, FsoGsm.SmsHandler
 {
     public ISmsStorage storage { get; set; }
+    public bool supported { get; protected set; }
 
     public NullSmsHandler()
     {
@@ -158,6 +160,7 @@ public class FsoGsm.NullSmsHandler : FsoFramework.AbstractObject, FsoGsm.SmsHand
 public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramework.AbstractObject
 {
     public ISmsStorage storage { get; set; }
+    public bool supported { get; protected set; }
 
     protected abstract async string retrieveImsiFromSIM();
     protected abstract async void fillStorageWithMessageFromSIM();

@@ -25,7 +25,6 @@ using Gee;
 public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
 {
     private bool ack_supported = true;
-    private bool supported = true;
 
     //
     // protected
