@@ -32,6 +32,11 @@ namespace FsoFramework
         TRUE = 1,
     }
 
+    public class TypedArrayWrapper<T>
+    {
+        public T[] data;
+    }
+
     public class Pair<T1,T2>
     {
         public T1 first;
