@@ -78,10 +78,6 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
                 return false;
             }
         }
-        else
-        {
-            return false;
-        }
 
         return true;
     }
