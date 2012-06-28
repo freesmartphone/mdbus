@@ -495,12 +495,10 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             "+CMEE=1",      /* report mobile equipment errors = numerical format */
             "+CRC=1",       /* extended cellular result codes = enable */
             "+CSNS=0",      /* single numbering scheme = voice */
-            "+CMGF=0",      /* sms mode = PDU */
             "+CLIP=0",      /* calling line id present = disable */
             "+CLIR=0",      /* calling line id restrict = disable */
             "+COLP=0",      /* connected line id present = disable */
             "+CCWA=0",      /* call waiting = disable */
-            "+CSMS=1"       /* gsm phase 2+ commands = enable */
         } );
         initsequence.append( config.stringListValue( CONFIG_SECTION, "modem_init", { } ) );
         registerAtCommandSequence( "MODEM", "init", initsequence );
