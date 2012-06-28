@@ -26,6 +26,7 @@
 
 using Gee;
 using FsoGsm.Constants;
+using FsoFramework;
 
 namespace FsoGsm {
 
@@ -857,7 +858,7 @@ public class PlusCNMI : AbstractAtCommand
     public int ds { get; private set; }
     public int bfr { get; private set; }
 
-    public int[] supported_modes { get; private set; default = { }; }
+    public HashTable<int,ArrayList<int>> supported_opts { get; private set; }
 
     public PlusCNMI()
     {
@@ -885,21 +886,26 @@ public class PlusCNMI : AbstractAtCommand
     public override void parseTest( string response ) throws AtCommandError
     {
         var iter = new AtResultIter( new string[] { response } );
-        int[] modes = { };
-        int mode = 0;
 
-        supported_modes = { };
+        supported_opts = new HashTable<int,ArrayList<int>>( null, null );
 
         if ( !iter.next( "+CNMI:" ) )
             throw new AtCommandError.UNABLE_TO_PARSE( @"Expected prefix +CNMI" );
 
-        if ( !iter.open_list() )
-            return;
+        for ( int n = 0; n < 5; n++ )
+        {
+            int num = 0;
 
-        while ( iter.next_number( out mode ) )
-            modes += mode;
+            if ( !iter.open_list() )
+                return;
 
-        supported_modes = modes;
+            supported_opts[n] = new ArrayList<int>();
+            while ( iter.next_number( out num ) )
+                supported_opts[n].add( num );
+
+            if ( !iter.close_list() )
+                return;
+        }
     }
 
     public string query()

@@ -372,9 +372,22 @@ void test_atcommand_PlusCNMI()
 
         cmd = (FsoGsm.PlusCNMI) atCommandFactory( "+CNMI" );
         cmd.parseTest( "+CNMI: (1,2),(3,4),(5,6),(7,8),(9,0)" );
-        assert( cmd.supported_modes.length == 2 );
-        assert( cmd.supported_modes[0] == 1 );
-        assert( cmd.supported_modes[1] == 2 );
+        assert( cmd.supported_opts.size() == 5 );
+        assert( cmd.supported_opts[0].size == 2 );
+        assert( cmd.supported_opts[0].get(0) == 1 );
+        assert( cmd.supported_opts[0].get(1) == 2 );
+        assert( cmd.supported_opts[1].size == 2 );
+        assert( cmd.supported_opts[1].get(0) == 3 );
+        assert( cmd.supported_opts[1].get(1) == 4 );
+        assert( cmd.supported_opts[2].size == 2 );
+        assert( cmd.supported_opts[2].get(0) == 5 );
+        assert( cmd.supported_opts[2].get(1) == 6 );
+        assert( cmd.supported_opts[3].size == 2 );
+        assert( cmd.supported_opts[3].get(0) == 7 );
+        assert( cmd.supported_opts[3].get(1) == 8 );
+        assert( cmd.supported_opts[4].size == 2 );
+        assert( cmd.supported_opts[4].get(0) == 9 );
+        assert( cmd.supported_opts[4].get(1) == 0 );
     }
     catch ( Error e )
     {
