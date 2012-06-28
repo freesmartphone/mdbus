@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *               2012 Simon Busch <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +30,76 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
     //
     // protected
     //
+
+    /**
+     * Choose a preferred value from a list if it's in a list of supported values too
+     *
+     * @param pref Priorized list of prefered values.
+     * @param supported List of supported values
+     * @return The most priorized, prefered and supported value. Otherwise -1
+     **/
+    protected int choose_from_preference( int[] pref, ArrayList<int> supported )
+    {
+        foreach ( var p in pref )
+        {
+            if ( p in pref )
+                return p;
+        }
+
+        return -1;
+    }
+
+    /**
+     * Configure procedure how receiving new messages from the network is indicated by the
+     * modem. As first step we check which modes are supported and trying to find the best
+     * solution to feed our needs.
+     *
+     * If a single modem needs a different configuration (because some settings are
+     * supported by the modem but not working correctly) it should subclass this class and
+     * override this method to provide it's specific configuration.
+     *
+     * Inspired by ofono's configuration (see drivers/atmodem/sms.c)
+     *
+     * See TS 27.005, section 3.4.1 for more details.
+     **/
+    protected virtual async bool configureMessageIndications()
+    {
+        int mode = 2;
+        int mt = 2;
+        int bm = 2;
+        int ds = 1;
+        int bfr = 0;
+
+        // Check which indications are supported for new SMS messages
+        var cnmi = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
+        var response = yield theModem.processAtCommandAsync( cnmi, cnmi.test() );
+        if ( cnmi.validateTest( response ) != Constants.AtResponse.VALID )
+        {
+            logger.error( @"Could not retrieve support indications for new SMS messages; trying to set our default ..." );
+        }
+        else
+        {
+            // buffer message reception indications when possible
+            mode = choose_from_preference( new int[] { 2, 3, 1, 0 } , cnmi.supported_opts[0] );
+            // prefer to deliver SMS via +CMT if we have support for acknowledgement
+            mt = choose_from_preference( ack_supported ? new int[] { 2, 1 } : new int[] { 1 }, cnmi.supported_opts[1] );
+            // always deliver CB via +CBM or don't deliver at all
+            bm = choose_from_preference( new int[] { 2, 0 }, cnmi.supported_opts[2] );
+            // deliver status reports via +CDS , +CSDI or don't deliver at all
+            ds = choose_from_preference( new int[] { 1, 2, 0 }, cnmi.supported_opts[3] );
+            // don't really care about buffering
+            bfr = choose_from_preference( new int[] { 0, 1 }, cnmi.supported_opts[4] );
+
+            if ( mode == -1 || mt == -1 || bm == -1 || ds == -1 || bfr == -1 )
+                return false;
+        }
+
+        response = yield theModem.processAtCommandAsync( cnmi, cnmi.issue( mode, mt, bm, ds, bfr ) );
+        if ( cnmi.validateOk( response ) != Constants.AtResponse.OK )
+            return false;
+
+        return true;
+    }
 
     protected override async string retrieveImsiFromSIM()
     {
@@ -144,6 +215,15 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
             supported = false;
             return;
         }
+
+        if ( !yield configureMessageIndications() )
+        {
+            logger.error( @"Could not configure SMS message indications; SMS support will be disabled" );
+            supported = false;
+            return;
+        }
+
+        assert( logger.info( @"Successfully configure for SMS message handling" ) );
     }
 
     public override string repr()
