@@ -14,6 +14,7 @@ modem_option_gtm601_la_SOURCES = \
 	mediators.vala \
 	unsolicited.vala \
 	pdphandler.vala \
+	smshandler.vala \
 	$(NULL)
 modem_option_gtm601_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \

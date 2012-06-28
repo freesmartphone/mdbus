@@ -68,14 +68,6 @@ class Gtm601.Modem : FsoGsm.AbstractModem
             """+CTZR=1"""
         } ) );
 
-        var cnmiCommand = modem_data.simBuffersSms ? """+CNMI=2,1,2,1,1""" : """+CNMI=2,2,2,1,1""";
-
-        // sequence for when the modem is registered
-        registerAtCommandSequence( "main", "registered", new AtCommandSequence( {
-            cnmiCommand,
-            """+CSMS=1""" /* enable SMS phase 2 */
-        } ) );
-
         registerAtCommandSequence( "main", "suspend", new AtCommandSequence( {
             """_OSQI=0""" /* disable signal strength updates */
         } ) );
@@ -121,6 +113,11 @@ class Gtm601.Modem : FsoGsm.AbstractModem
         PlusCOPS.providerNameDeliveredInConfiguredCharset = true;
 
         Gtm601.registerCustomAtCommands( commands );
+    }
+
+    protected override FsoGsm.SmsHandler createSmsHandler()
+    {
+        return new Gtm601.SmsHandler();
     }
 
     private void onModemStatusChange( FsoGsm.Modem.Status status )
