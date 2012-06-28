@@ -50,6 +50,70 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
     }
 
     /**
+     * Configure SMS message service mode. See 27.005, section 3.2.1 for more details.
+     *
+     * If a single modem needs a different configuration (because some settings are
+     * supported by the modem but not working correctly) it should subclass this class and
+     * override this method to provide it's specific configuration.
+     *
+     * @return True, if configuration was successfull. False, otherwise.
+     **/
+    protected virtual async bool configureMessageService()
+    {
+        // First we're gathing which types of SMS services are supported and select the
+        // one which suites best for our needs.
+        var csms = theModem.createAtCommand<PlusCSMS>( "+CSMS" );
+        // Try to enable GSM phase 2+ commands
+        var response = yield theModem.processAtCommandAsync( csms, csms.issue( 1 ) );
+        if ( csms.validateOk( response ) != Constants.AtResponse.OK )
+        {
+            logger.warning( @"Desired SMS service mode is not available; SMS acknowledgement support will be disabled." );
+            ack_supported = false;
+
+            response = yield theModem.processAtCommandAsync( csms, csms.issue( 0 ) );
+            if ( csms.validateOk( response ) != Constants.AtResponse.OK )
+            {
+                logger.error( @"Could not set minimal SMS service mode; SMS support will be disabled" );
+                supported = false;
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Configure SMS message format. See 27.005, section 3.2.3 for more details.
+     *
+     * We intend to use PDU format when possible and disable SMS message support
+     * otherwise.
+     *
+     * If a single modem needs a different configuration (because some settings are
+     * supported by the modem but not working correctly) it should subclass this class and
+     * override this method to provide it's specific configuration.
+     *
+     * @return True, if configuration was successfull. False, otherwise.
+     **/
+    protected virtual async bool configureMessageFormat()
+    {
+        // We need to get into PDU mode otherwise we can't provide SMS support
+        var cmgf = theModem.createAtCommand<PlusCMGF>( "+CMGF" );
+        var response = yield theModem.processAtCommandAsync( cmgf, cmgf.issue( 0 ) );
+        if ( cmgf.validateOk( response ) != Constants.AtResponse.OK )
+        {
+            logger.error( @"Could not enable SMS PDU mode; SMS support will be disabled" );
+            supported = false;
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Configure procedure how receiving new messages from the network is indicated by the
      * modem. As first step we check which modes are supported and trying to find the best
      * solution to feed our needs.
@@ -61,6 +125,8 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
      * Inspired by ofono's configuration (see drivers/atmodem/sms.c)
      *
      * See TS 27.005, section 3.4.1 for more details.
+     *
+     * @return True, if configuration was successfull. False, otherwise.
      **/
     protected virtual async bool configureMessageIndications()
     {
@@ -187,31 +253,16 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
     {
         base.configure();
 
-        // First we're gathing which types of SMS services are supported and select the
-        // one which suites best for our needs.
-        var csms = theModem.createAtCommand<PlusCSMS>( "+CSMS" );
-        // Try to enable GSM phase 2+ commands
-        var response = yield theModem.processAtCommandAsync( csms, csms.issue( 1 ) );
-        if ( csms.validateOk( response ) != Constants.AtResponse.OK )
+        if ( !yield configureMessageService() )
         {
-            logger.warning( @"Desired SMS service mode is not available; SMS acknowledgement support will be disabled." );
-            ack_supported = false;
-
-            response = yield theModem.processAtCommandAsync( csms, csms.issue( 0 ) );
-            if ( csms.validateOk( response ) != Constants.AtResponse.OK )
-            {
-                logger.error( @"Could not set minimal SMS service mode; SMS support will be disabled" );
-                supported = false;
-                return;
-            }
+            logger.error( @"Could not configure SMS message service; SMS support will be disabled" );
+            supported = false;
+            return;
         }
 
-        // We need to get into PDU mode otherwise we can't provide SMS support
-        var cmgf = theModem.createAtCommand<PlusCMGF>( "+CMGF" );
-        response = yield theModem.processAtCommandAsync( cmgf, cmgf.issue( 0 ) );
-        if ( cmgf.validateOk( response ) != Constants.AtResponse.OK )
+        if ( !yield configureMessageFormat() )
         {
-            logger.error( @"Could not enable SMS PDU mode; SMS support will be disabled" );
+            logger.error( @"Could not configure SMS message format; SMS support will be disabled" );
             supported = false;
             return;
         }
