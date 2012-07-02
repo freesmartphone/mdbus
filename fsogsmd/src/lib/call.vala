@@ -243,6 +243,12 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.Mediator, FsoGsm.CallH
     // protected
     //
 
+    protected void validateCallId( int id ) throws FreeSmartphone.Error
+    {
+        if ( id < 1 || id > Constants.CALL_INDEX_MAX )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
+    }
+
     protected int numberOfBusyCalls()
     {
         var num = 0;

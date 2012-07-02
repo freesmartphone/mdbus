@@ -162,11 +162,10 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
     //
     public override async void activate( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        if ( id < 1 || id > Constants.CALL_INDEX_MAX )
-        {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
-        }
-        if ( calls[id].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING && calls[id].detail.status != FreeSmartphone.GSM.CallStatus.HELD )
+        validateCallId( id );
+
+        if ( calls[id].detail.status != FreeSmartphone.GSM.CallStatus.INCOMING &&
+             calls[id].detail.status != FreeSmartphone.GSM.CallStatus.HELD )
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to activate found" );
         }
@@ -220,10 +219,8 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     public override async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        if ( id < 1 || id > Constants.CALL_INDEX_MAX )
-        {
-            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Call index needs to be within [ 1, %d ]".printf( (int)Constants.CALL_INDEX_MAX) );
-        }
+        validateCallId( id );
+
         if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.RELEASE )
         {
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No suitable call to release found" );
