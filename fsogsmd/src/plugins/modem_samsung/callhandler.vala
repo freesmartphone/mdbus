@@ -167,6 +167,14 @@ public class Samsung.CallHandler : FsoGsm.AbstractCallHandler
     {
     }
 
+    public override async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    public override async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
     public override string repr()
     {
         return @"<>";

@@ -289,6 +289,14 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         // polling is always active as long as we have an active call?
         startTimeoutIfNecessary();
     }
+
+    public override async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    public override async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
 }
 
 // vim:ts=4:sw=4:expandtab

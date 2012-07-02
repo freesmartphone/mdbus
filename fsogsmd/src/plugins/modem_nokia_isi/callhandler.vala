@@ -220,6 +220,14 @@ public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractOb
     public async void deflect( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
     }
+
+    public override async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
+
+    public override async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+    }
 }
 
 // vim:ts=4:sw=4:expandtab
