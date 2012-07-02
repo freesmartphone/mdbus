@@ -498,7 +498,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             "+CLIP=0",      /* calling line id present = disable */
             "+CLIR=0",      /* calling line id restrict = disable */
             "+COLP=0",      /* connected line id present = disable */
-            "+CCWA=0",      /* call waiting = disable */
+            "+CCWA=0"      /* call waiting = disable */
         } );
         initsequence.append( config.stringListValue( CONFIG_SECTION, "modem_init", { } ) );
         registerAtCommandSequence( "MODEM", "init", initsequence );
