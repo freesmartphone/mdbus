@@ -4,6 +4,7 @@ NULL =
 SUBDIRS = \
 	api \
 	system \
+	vapi \
 	$(NULL)
 
 if WANT_DATAFILES
