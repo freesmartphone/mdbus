@@ -297,6 +297,8 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(CallSendDtmf) ]                 = typeof( AtCallSendDtmf );
     table[ typeof(CallTransfer) ]                 = typeof( AtCallTransfer );
     table[ typeof(CallDeflect) ]                  = typeof( AtCallDeflect );
+    table[ typeof(CallActivateConference) ]       = typeof( AtCallActivateConference );
+    table[ typeof(CallJoin) ]                     = typeof( AtCallJoin );
 
     table[ typeof(CallForwardingEnable) ]         = typeof( AtCallForwardingEnable );
     table[ typeof(CallForwardingDisable) ]        = typeof( AtCallForwardingDisable );

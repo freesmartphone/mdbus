@@ -147,6 +147,22 @@ public class AtCallForwardingQuery : FsoGsm.CallForwardingQuery
     }
 }
 
+public class AtCallActivateConference : FsoGsm.CallActivateConference
+{
+    public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        theModem.callhandler.conference();
+    }
+}
+
+public class AtCallJoin : FsoGsm.CallJoin
+{
+    public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        theModem.callhandler.join();
+    }
+}
+
 } // namespace FsoGsm
 
 // vim:ts=4:sw=4:expandtab
