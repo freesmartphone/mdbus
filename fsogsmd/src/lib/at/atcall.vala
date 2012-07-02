@@ -289,6 +289,32 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     public override async void conference( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.ACTIVE ) != 0 )
+        {
+            if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.HELD ||
+                 calls[id].detail.status == FreeSmartphone.GSM.CallStatus.INCOMING )
+            {
+                throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Specified call is not in held or incoming status" );
+            }
+        }
+        else
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "Without an active call we can't create a conference call" );
+        }
+
+        // If we deal with an incoming call we have to activate it first and hold our
+        // current active call. If we deal with an active and an already held call we can
+        // step through and add both to the conference.
+        if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.INCOMING )
+        {
+            var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
+            var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( (PlusCHLD.Action) 2 ) );
+            checkResponseOk( cmd, response );
+        }
+
+        var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
+        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( (PlusCHLD.Action) 3 ) );
+        checkResponseOk( cmd, response );
     }
 
     public override async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
