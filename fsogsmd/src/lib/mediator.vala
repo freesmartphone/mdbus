@@ -361,6 +361,16 @@ public abstract class FsoGsm.CallDeflect : FsoGsm.AbstractMediator
     public abstract async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
+public abstract class FsoGsm.CallJoin : FsoGsm.AbstractMediator
+{
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.CallActivateConference : FsoGsm.AbstractMediator
+{
+    public abstract async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
 //
 // org.freesmartphone.GSM.CallForwarding.*
 //

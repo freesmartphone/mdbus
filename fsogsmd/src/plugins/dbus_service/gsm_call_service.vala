@@ -35,7 +35,8 @@ public class FsoGsm.GsmCallService : FreeSmartphone.GSM.Call, Service
     public async void activate_conference( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.CallActivateConference>();
+        yield m.run( id );
     }
 
     public async void emergency( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
@@ -62,7 +63,8 @@ public class FsoGsm.GsmCallService : FreeSmartphone.GSM.Call, Service
     public async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.CallJoin>();
+        yield m.run();
     }
 
     public async FreeSmartphone.GSM.CallDetail[] list_calls() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
