@@ -151,7 +151,7 @@ public class AtCallActivateConference : FsoGsm.CallActivateConference
 {
     public override async void run( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
-        theModem.callhandler.conference();
+        theModem.callhandler.conference( id );
     }
 }
 

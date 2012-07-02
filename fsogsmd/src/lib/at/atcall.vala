@@ -290,7 +290,7 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         startTimeoutIfNecessary();
     }
 
-    public override async void conference() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public override async void conference( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
     }
 
