@@ -221,11 +221,11 @@ public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractOb
     {
     }
 
-    public override async void conference( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async void conference( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
     }
 
-    public override async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    public async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
     }
 }
