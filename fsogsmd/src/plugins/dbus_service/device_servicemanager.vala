@@ -78,7 +78,8 @@ public class FsoGsm.DeviceServiceManager : FsoGsm.ServiceManager
 
         initialized = true;
 
-        logger.info( @"Ready. Configured for modem !!! FIXME !!!" );
+        var modemtype = FsoFramework.theConfig.stringValue( "fsogsm", "modem_type", "none" );
+        logger.info( @"Ready. Configured for modem $modemtype" );
     }
 
     public override async bool enable()
