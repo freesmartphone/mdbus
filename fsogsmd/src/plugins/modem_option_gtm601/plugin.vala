@@ -116,7 +116,7 @@ class Gtm601.Modem : FsoGsm.AbstractModem
 
     protected override FsoGsm.SmsHandler createSmsHandler()
     {
-        return new Gtm601.SmsHandler();
+        return new Gtm601.SmsHandler( this );
     }
 
     private void onModemStatusChange( FsoGsm.Modem.Status status )

@@ -317,13 +317,13 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
         // step through and add both to the conference.
         if ( calls[id].detail.status == FreeSmartphone.GSM.CallStatus.INCOMING )
         {
-            var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-            var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( (PlusCHLD.Action) 2 ) );
+            var cmd = modem.createAtCommand<PlusCHLD>( "+CHLD" );
+            var response = yield modem.processAtCommandAsync( cmd, cmd.issue( (PlusCHLD.Action) 2 ) );
             checkResponseOk( cmd, response );
         }
 
-        var cmd = theModem.createAtCommand<PlusCHLD>( "+CHLD" );
-        var response = yield theModem.processAtCommandAsync( cmd, cmd.issue( (PlusCHLD.Action) 3 ) );
+        var cmd = modem.createAtCommand<PlusCHLD>( "+CHLD" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( (PlusCHLD.Action) 3 ) );
         checkResponseOk( cmd, response );
     }
 

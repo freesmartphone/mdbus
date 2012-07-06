@@ -117,7 +117,7 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         {
             setupNetworkRegistrationReport();
             gatherSimStatusAndUpdate( modem );
-            theModem.smshandler.configure();
+            modem.smshandler.configure();
         }
 
         this.isInitialized = true;

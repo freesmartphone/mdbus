@@ -23,12 +23,17 @@ using FsoGsm;
 
 public class Gtm601.SmsHandler : AtSmsHandler
 {
+    public SmsHandler( FsoGsm.Modem modem )
+    {
+        base( modem );
+    }
+
     protected override async bool configureMessageIndications()
     {
         // FIXME: do we really want to use a different configuration here?
         // As far as I know the default configuration should work.
-        var cnmi = theModem.createAtCommand<PlusCNMI>( "+CNMI" );
-        var response = yield theModem.processAtCommandAsync( cnmi, theModem.data().simBuffersSms ? """+CNMI=2,1,2,1,1""" : """+CNMI=2,2,2,1,1""" );
+        var cnmi = modem.createAtCommand<PlusCNMI>( "+CNMI" );
+        var response = yield modem.processAtCommandAsync( cnmi, modem.data().simBuffersSms ? """+CNMI=2,1,2,1,1""" : """+CNMI=2,2,2,1,1""" );
         if ( cnmi.validateOk( response ) != Constants.AtResponse.OK )
             return false;
 
