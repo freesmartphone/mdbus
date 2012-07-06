@@ -35,6 +35,7 @@ gsmvoice_alsa_forwarder_la_CFLAGS = \
 	$(GEE_CFLAGS) \
 	-lsamplerate -D_GNU_SOURCE \
 	-DHAVE_SAMPLERATE_H \
+	-lasound \
 	$(DEBUG_CFLAGS) \
 	$(NULL)
 gsmvoice_alsa_forwarder_la_LIBADD = \
