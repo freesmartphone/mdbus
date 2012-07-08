@@ -129,21 +129,7 @@ namespace FsoGsm
 
     public async string findProviderNameForMccMnc( string mccmnc )
     {
-        string provider = "unknown";
-
-        try
-        {
-            var world_service = Bus.get_proxy_sync<FreeSmartphone.Data.World>( BusType.SYSTEM,
-                FsoFramework.Data.WorldServicePath, FsoFramework.Data.WorldServiceFace );
-
-            provider = yield world_service.get_provider_name_for_mcc_mnc( mccmnc );
-        }
-        catch ( GLib.Error err )
-        {
-            FsoFramework.theLogger.warning( @"Could not find and valid provider name for MCC/MNC $mccmnc" );
-        }
-
-        return provider;
+        return "unknown";
     }
 
     public async void updateNetworkSignalStrength( FsoGsm.Modem modem, int strength )
