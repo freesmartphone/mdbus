@@ -40,6 +40,7 @@ provider_location_cellidwifi_la_LIBADD = \
 	$(GEE_LIBS) \
 	$(SOUP_LIBS) \
 	$(JSON_CFLAGS) \
+	$(top_builddir)/src/lib/libfsotdl.la \
 	$(NULL)
 provider_location_cellidwifi_la_LDFLAGS = -no-undefined -module -avoid-version
 # provider_location_cellidwifi_la_LIBTOOLFLAGS = --tag=disable-static
