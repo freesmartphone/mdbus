@@ -132,6 +132,12 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         switch ( event.op )
         {
             case Linux.RfKillOp.ADD:
+                if ( event.type == Linux.RfKillType.WLAN && ignore_wifi )
+                {
+                    warning( @"Ignore WiFi rfkill as defined by configuration" );
+                    break;
+                }
+
                 instances.insert( (int)event.idx, new Kernel26.RfKillPowerControl( event.idx, event.type, event.soft == 1, event.hard == 1 ) );
                 break;
             case Linux.RfKillOp.DEL:
@@ -197,6 +203,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
 internal HashTable<int,Kernel26.RfKillPowerControl> instances;
 internal static string devfs_root;
 internal weak FsoFramework.Subsystem subsystem;
+internal static bool ignore_wifi = false;
 
 internal static int fd;
 internal static uint watch;
@@ -214,6 +221,7 @@ public static string fso_factory_function( FsoFramework.Subsystem system ) throw
 
     subsystem = system;
     devfs_root = FsoFramework.theConfig.stringValue( "cornucopia", "devfs_root", "/dev" );
+    ignore_wifi = FsoFramework.theConfig.boolValue( "fsodevice.kernel26_wifi", "ignore_wifi", false );
 
     fd = Posix.open( Path.build_filename( devfs_root, "rfkill" ), Posix.O_RDWR );
     if ( fd == -1 )
