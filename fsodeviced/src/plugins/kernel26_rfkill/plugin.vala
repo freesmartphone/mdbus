@@ -91,22 +91,6 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
         return "<%u:%s:soft%s:hard%s>".printf( id, type, softoff ? "off":"on", hardoff ? "off":"on" );
     }
 
-    private void init()
-    {
-        if ( fd != -1 )
-        {
-            return;
-        }
-        fd = Posix.open( Path.build_filename( devfs_root, "rfkill" ), Posix.O_RDWR );
-        if ( fd == -1 )
-        {
-            logger.error( @"Can't open $devfs_root: $(strerror(errno)); rfkill plugin will not be operating" );
-            return;
-        }
-        channel = new IOChannel.unix_new( fd );
-        watch = channel.add_watch( IOCondition.IN | IOCondition.HUP, onActionFromRfKill );
-    }
-
     internal static bool onActionFromRfKill( IOChannel source, IOCondition condition )
     {
         if ( ( condition & IOCondition.HUP ) == IOCondition.HUP )
@@ -132,7 +116,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
             return true;
         }
 
-        error( "Unsupported IOCondition %u", (int)condition );
+        warning( "Unsupported IOCondition %u", (int)condition );
         return true;
     }
 
@@ -165,7 +149,7 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
                 instance.powerChangedTo( event.soft == 1, event.hard == 1 );
                 break;
             default:
-                error( "unknown rfkill op %u; ignoring", event.op );
+                warning( "unknown rfkill op %u; ignoring", event.op );
                 break;
         }
     }
@@ -193,14 +177,13 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
 
         var bwritten = Posix.write( fd, &event, sizeof( Linux.RfKillEvent ) );
         if ( bwritten == -1 )
-        {
             logger.error( @"Could not write rfkill event: $(strerror(errno))" );
-        }
     }
 
     //
     // DBUS API (org.freesmartphone.Device.PowerControl)
     //
+
     public async bool get_power() throws DBusError, IOError
     {
         return getPower();
@@ -214,7 +197,6 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
 } /* namespace */
 
 internal HashTable<int,Kernel26.RfKillPowerControl> instances;
-internal static string sysfs_root;
 internal static string devfs_root;
 internal weak FsoFramework.Subsystem subsystem;
 
