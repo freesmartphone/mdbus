@@ -270,7 +270,7 @@ public class Samsung.IpcChannel : FsoGsm.Channel, FsoFramework.AbstractCommandQu
         modem.signalStatusChanged.connect( onModemStatusChanged );
 
         fmtclient = new SamsungIpc.Client( SamsungIpc.ClientType.FMT );
-        fmtclient.set_log_handler( ( message ) => { theLogger.info( message ); } );
+        fmtclient.set_log_handler( ( message ) => { theLogger.debug( message ); } );
         fmtclient.set_io_handlers( modem_read_request, modem_write_request );
     }
 
