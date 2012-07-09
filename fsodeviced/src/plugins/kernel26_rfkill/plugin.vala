@@ -109,9 +109,9 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
                 warning( "can't read full rfkill event, got only %d bytes", (int)bytesread );
                 return true;
             }
-#if DEBUG
+
             debug( "onActionFromRfKill: read %d bytes", (int)bytesread );
-#endif
+
             handleEvent( event );
             return true;
         }
@@ -122,14 +122,12 @@ class RfKillPowerControl : FsoDevice.ISimplePowerControl, FreeSmartphone.Device.
 
     protected static void handleEvent( Linux.RfKillEvent event )
     {
-#if DEBUG
         debug( "got rfkill event: ID %u, %s, %s, SOFTBLOCK %s, HARDBLOCK %s",
             event.idx,
             typeValue[event.type],
             opValue[event.op],
             event.soft == 1 ? "true" : "false",
             event.hard == 1 ? "true" : "false" );
-#endif
 
         switch ( event.op )
         {
