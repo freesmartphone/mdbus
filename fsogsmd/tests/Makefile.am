@@ -10,7 +10,10 @@ AM_CFLAGS = \
 	$(FSO_CFLAGS) \
 	$(NULL)
 
-noinst_PROGRAMS = $(TEST_PROGS)
+noinst_PROGRAMS = \
+	$(TEST_PROGS) \
+	integration_tests \
+	$(NULL)
 
 LDADD = \
 	$(GLIB_LIBS) \
@@ -29,7 +32,9 @@ AM_VALAFLAGS = \
 	--pkg fsobasics-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsogsm-2.0 \
-	--pkg fsogsm3rdparty
+	--pkg fsotest-2.0 \
+	--pkg fsogsm3rdparty \
+	$(NULL)
 
 TEST_PROGS += testatcommand
 testatcommand_SOURCES = testatcommand.vala
@@ -54,6 +59,8 @@ testsmsstorage_SOURCES = testsmsstorage.vala smsdata.vala
 
 TEST_PROGS += testatresultiter
 testatresultiter_SOURCES = testatresultiter.vala
+
+integration_tests_SOURCES = integration-tests.vala
 
 # TEST_PROGS += testoptiongtm601
 # FIXME adding the sources from the modem plugin itself to the list of sources for
