@@ -204,9 +204,9 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         bool autoregister = false;
 
         yield gsm_device.get_functionality( out level, out autoregister, out pin );
-        Assert.are_equal<string>( level, "minimal" );
+        Assert.is_true( level == "minimal" || level == "airplane" );
         Assert.are_equal<bool>( autoregister, false );
-        Assert.are_equal<string>( pin, "" );
+        Assert.is_true( pin == "" || pin == null );
     }
 
     public async void test_set_full_device_functionality() throws GLib.Error, AssertError
@@ -225,9 +225,9 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         Assert.are_equal<FreeSmartphone.GSM.SIMAuthStatus>( sim_auth_status, FreeSmartphone.GSM.SIMAuthStatus.READY );
 
         yield gsm_device.get_functionality( out level, out autoregister, out pin );
-        Assert.are_equal<string>( level, "full" );
-        Assert.are_equal<bool>( autoregister, true );
-        Assert.are_equal<string>( pin, pin_from_config );
+        Assert.is_true( level == "full" );
+        Assert.is_true( autoregister == true );
+        Assert.is_true( pin == pin_from_config );
     }
 
     public async void test_validate_device_features() throws GLib.Error, AssertError
@@ -251,9 +251,9 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         Timeout.add_seconds( 3, () => { test_set_airplane_device_functionality.callback(); return false; } );
 
         yield gsm_device.get_functionality( out level, out autoregister, out pin );
-        Assert.are_equal<string>( level, "airplane" );
+        Assert.is_true( level == "airplane" );
         // NOTE autoregister is only valid if level is "full"
-        Assert.are_equal<string>( pin, pin_from_config );
+        Assert.is_true( pin == pin_from_config );
     }
 }
 
