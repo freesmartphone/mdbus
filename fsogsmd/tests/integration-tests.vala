@@ -66,8 +66,9 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
 
     private void stop_daemon()
     {
-        // fsogsmd_process.stop();
-        // phonesim_process.stop();
+        GLib.Log.set_always_fatal( GLib.LogLevelFlags.LEVEL_CRITICAL );
+        fsogsmd_process.stop();
+        phonesim_process.stop();
     }
 
     //
@@ -138,7 +139,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         }
     }
 
-    ~TestGSM()
+    public void shutdown()
     {
         stop_daemon();
     }
@@ -253,14 +254,28 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     }
 }
 
+FsoTest.TestGSM gsm_suite = null;
+
+public static void sighandler( int signum )
+{
+    Posix.signal( signum, null ); // restore original sighandler
+    gsm_suite.shutdown();
+    FsoFramework.theLogger.info( "received signal -%d, exiting.".printf( signum ) );
+}
+
 public static int main( string[] args )
 {
     GLib.Test.init( ref args );
 
+    Posix.signal( Posix.SIGABRT, sighandler );
+
     TestSuite root = TestSuite.get_root();
-    root.add_suite( new FsoTest.TestGSM().get_suite() );
+    gsm_suite = new FsoTest.TestGSM();
+    root.add_suite( gsm_suite.get_suite() );
 
     GLib.Test.run();
+
+    gsm_suite.shutdown();
 
     return 0;
 }
