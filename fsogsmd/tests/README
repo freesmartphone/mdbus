@@ -1,0 +1,13 @@
+To run the fsogsmd integration test suite you have to install the following dependencies:
+- ofono-phonesim
+
+You can execute the integration test suite only in the tests subdirectory of fsogsmd
+directory.
+
+To execute the test suite simply
+
+# ./integration-tests
+
+When developing test cases it may suitable to switch the log output with
+
+# FSO_LOG_TO=stderr:colors FSO_LOG_LEVEL=DEBUG ./integration-tests
