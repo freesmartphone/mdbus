@@ -382,6 +382,10 @@ public static int main( string[] args )
 {
     GLib.Test.init( ref args );
 
+    Posix.signal( Posix.SIGINT, sighandler );
+    Posix.signal( Posix.SIGTERM, sighandler );
+    Posix.signal( Posix.SIGBUS, sighandler );
+    Posix.signal( Posix.SIGSEGV, sighandler );
     Posix.signal( Posix.SIGABRT, sighandler );
 
     TestSuite root = TestSuite.get_root();
