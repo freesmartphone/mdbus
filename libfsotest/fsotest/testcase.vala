@@ -125,7 +125,8 @@ public abstract class FsoFramework.Test.TestCase : Object
                 }
                 catch (GLib.Error err)
                 {
-                    critical(@"Got exception while excuting asynchronous test: $(err.message)");
+                    message(@"Got exception while excuting asynchronous test: $(err.message)");
+                    GLib.Test.fail();
                 }
             }
             else

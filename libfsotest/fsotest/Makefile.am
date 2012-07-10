@@ -19,6 +19,7 @@ libfsotest_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
 	--pkg glib-2.0 \
+	--pkg glib-2.0-ext \
 	--pkg gio-2.0 \
 	--pkg gee-1.0 \
 	--pkg config \

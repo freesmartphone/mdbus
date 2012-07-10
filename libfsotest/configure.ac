@@ -96,7 +96,8 @@ AM_CONDITIONAL( [WANT_DEBUG], [test x"$enable_debug" = x"yes"])
 AC_CONFIG_FILES([Makefile
   fsotest-2.0.pc
   fsotest/Makefile
-  tests/Makefile])
+  tests/Makefile
+  vapi/Makefile])
 
 AC_OUTPUT
 
