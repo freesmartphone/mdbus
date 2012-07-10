@@ -25,6 +25,76 @@ namespace FsoTest
     public const string FREESMARTPHONE_ERROR_DOMAIN = "free_smartphone_error-quark";
 }
 
+[DBus (name = "org.ofono.phonesim.Script", timeout = 120000)]
+public interface IPhonesimService : GLib.Object
+{
+    [DBus (name = "SetPath")]
+    public abstract async void set_path( string path ) throws GLib.IOError, GLib.DBusError;
+    [DBus (name = "GetPath")]
+    public abstract async string get_path() throws GLib.IOError, GLib.DBusError;
+    [DBus (name = "Run")]
+    public abstract async void run( string name ) throws GLib.IOError, GLib.DBusError;
+}
+
+public interface IRemotePhoneControl : GLib.Object
+{
+    public abstract async void initiate_call( string number, bool hide ) throws RemotePhoneControlError;
+}
+
+public errordomain RemotePhoneControlError
+{
+    FAILED,
+}
+
+public class PhonesimRemotePhoneControl : FsoFramework.AbstractObject, IRemotePhoneControl
+{
+    private IPhonesimService _phonesim;
+    private string _script_path;
+
+    //
+    // private
+    //
+
+    private async void ensure_connection() throws RemotePhoneControlError
+    {
+        if ( _phonesim != null )
+            return;
+
+        try
+        {
+            _phonesim = yield GLib.Bus.get_proxy<IPhonesimService>( BusType.SESSION, "org.ofono.phonesim", "/" );
+            _script_path = GLib.DirUtils.make_tmp( "fsogsmd-integration-tests-XXXXXX" );
+            logger.debug( @"script_path = $_script_path" );
+            yield _phonesim.set_path( _script_path );
+        }
+        catch ( GLib.Error error )
+        {
+            throw new RemotePhoneControlError.FAILED( @"Failed to establish a connection to the phonesim service: $(error.message)" );
+        }
+    }
+
+    //
+    // public API
+    //
+
+    public async void initiate_call( string number, bool hide ) throws RemotePhoneControlError
+    {
+        yield ensure_connection();
+
+        string script_name = "initiate_call.js";
+        string script = """tabCall.gbIncomingCall.leCaller.text = "%s"; tabCall.gbIncomingCall.pbIncomingCall.click();"""
+            .printf( number );
+        FsoFramework.FileHandling.write( script, @"$(_script_path)/$(script_name)", true );
+
+        yield _phonesim.run( script_name );
+    }
+
+    public override string repr()
+    {
+        return @"<>";
+    }
+}
+
 public class FsoTest.TestGSM : FsoFramework.Test.TestCase
 {
     private FreeSmartphone.GSM.Device gsm_device;
@@ -38,6 +108,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     private string pin_from_config;
     private IProcessGuard fsogsmd_process;
     private IProcessGuard phonesim_process;
+    private IRemotePhoneControl remote_control;
 
     //
     // private
@@ -51,7 +122,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         phonesim_process = new GProcessGuard();
 
         // FIXME prefix with directory where the phonesim configuration is stored
-        if ( !phonesim_process.launch( new string[] { "phonesim", "-p", "3001", "phonesim-default.xml" } ) )
+        if ( !phonesim_process.launch( new string[] { "phonesim", "-p", "3001", "-gui", "phonesim-default.xml" } ) )
             return false;
 
         Posix.sleep( 3 );
@@ -79,7 +150,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     {
         base("FreeSmartphone.GSM");
 
-        var timeout = 10000; // 10 seconds
+        var timeout = 60000; // 60 seconds
 
         add_async_test( "ValidateInitialDeviceStatus",
                         cb => test_validate_initial_device_status( cb ),
@@ -102,12 +173,17 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
                         cb => test_set_full_device_functionality( cb ),
                         res => test_set_full_device_functionality.end( res ), timeout );
 
+        add_async_test( "IncomingCall",
+                        cb => test_incoming_call( cb ),
+                        res => test_incoming_call.end( res ), timeout );
+
         add_async_test( "SetAirplaneDeviceFunctionality",
                         cb => test_set_airplane_device_functionality( cb ),
                         res => test_set_airplane_device_functionality.end( res ), timeout );
 
         pin_from_config = theConfig.stringValue( "test-gsm", "pin", "1234" );
 
+        remote_control = new PhonesimRemotePhoneControl();
         start_daemon();
 
         try
@@ -254,6 +330,42 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         Assert.is_true( level == "airplane" );
         // NOTE autoregister is only valid if level is "full"
         Assert.is_true( pin == pin_from_config );
+    }
+
+    public async void test_incoming_call() throws GLib.Error, AssertError
+    {
+        FreeSmartphone.GSM.CallDetail[] calls;
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0 );
+
+        // FIXME number needs to be configurable for real world tests
+        yield remote_control.initiate_call( "+491234567890", false );
+
+        Timeout.add_seconds( 4, () => { test_incoming_call.callback(); return false; } );
+        yield;
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        Assert.is_true( calls[0].id == 1 );
+        Assert.is_true( calls[0].status == FreeSmartphone.GSM.CallStatus.INCOMING );
+        if ( calls[0].properties.size() > 0 )
+        {
+            var number = calls[0].properties.lookup( "number" );
+            if ( number != null )
+                Assert.is_true( number == "+491234567890" );
+        }
+
+        Timeout.add_seconds( 4, () => { test_incoming_call.callback(); return false; } );
+        yield;
+
+        yield gsm_call.release( 1 );
+
+        Timeout.add_seconds( 4, () => { test_incoming_call.callback(); return false; } );
+        yield;
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0 );
     }
 }
 
