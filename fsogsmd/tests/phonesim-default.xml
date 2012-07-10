@@ -2212,7 +2212,7 @@
     <!-- Set phone functionality Full -->
     <command>AT+CFUN=1</command>
     <response>OK</response>
-    <set name="FUN" value="0"/>
+    <set name="FUN" value="1"/>
 </chat>
 
 <chat>
