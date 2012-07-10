@@ -76,7 +76,7 @@ namespace FsoFramework.Test
          **/
         public void add_signal( Object emitter, string signame, int timeout = 200 )
         {
-            var s = new SignalWrapper() { emitter = emitter, signame = signame, timeout = 200 };
+            var s = new SignalWrapper() { emitter = emitter, signame = signame, timeout = timeout };
             s.triggered.connect( () => {
                 succeeded_count++;
                 if ( succeeded_count == signals.length() )
