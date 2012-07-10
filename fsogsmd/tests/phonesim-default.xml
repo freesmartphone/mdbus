@@ -226,7 +226,7 @@
 
     <!-- Name of the PIN that is required (eg. "PIN") -->
     <!-- READY: PIN/PUK not required; SIM PIN: PIN required; SIM PUK: PUK REQUIRED -->
-    <set name="PINNAME" value="READY"/>
+    <set name="PINNAME" value="SIM PIN"/>
 
     <!-- Value of the PIN that is required -->
     <set name="PINVALUE" value="2468"/>
