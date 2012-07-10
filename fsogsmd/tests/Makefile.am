@@ -8,6 +8,7 @@ AM_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(FSO_CFLAGS) \
+	-g -DDEBUG \
 	$(NULL)
 
 noinst_PROGRAMS = \
@@ -34,6 +35,7 @@ AM_VALAFLAGS = \
 	--pkg fsogsm-2.0 \
 	--pkg fsotest-2.0 \
 	--pkg fsogsm3rdparty \
+	-g \
 	$(NULL)
 
 TEST_PROGS += testatcommand
@@ -70,6 +72,11 @@ integration_tests_SOURCES = integration-tests.vala
 #	$(top_srcdir)/src/plugins/modem_option_gtm601/commands.vala \
 #	testoptiongtm601.vala \
 #	$(NULL)
+
+EXTRA_DIST += \
+	fsogsmd.conf \
+	phonesim-default.xml \
+	$(NULL)
 
 CLEANFILES =
 MAINTAINERCLEANFILES = \

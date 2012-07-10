@@ -1,5 +1,5 @@
 /*
- * (C) 2011 Simon Busch <morphis@gravedo.de>
+ * (C) 2011-2012 Simon Busch <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@ namespace FsoTest
 
 public class FsoTest.TestGSM : FsoFramework.Test.TestCase
 {
-    private FreeSmartphone.Usage usage;
     private FreeSmartphone.GSM.Device gsm_device;
     private FreeSmartphone.GSM.Network gsm_network;
     private FreeSmartphone.GSM.SIM gsm_sim;
@@ -37,14 +36,47 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     private FreeSmartphone.GSM.CB gsm_cb;
     private FreeSmartphone.GSM.VoiceMail gsm_voicemail;
     private string pin_from_config;
+    private IProcessGuard fsogsmd_process;
+    private IProcessGuard phonesim_process;
+
+    //
+    // private
+    //
+
+    private bool start_daemon()
+    {
+        // FIXME check wether one of both processes is already running
+
+        fsogsmd_process = new GProcessGuard();
+        phonesim_process = new GProcessGuard();
+
+        // FIXME prefix with directory where the phonesim configuration is stored
+        if ( !phonesim_process.launch( new string[] { "phonesim", "-p", "3001", "phonesim-default.xml" } ) )
+            return false;
+
+        Posix.sleep( 3 );
+
+        if ( !fsogsmd_process.launch( new string[] { "fsogsmd", "--test" } ) )
+            return false;
+
+        Posix.sleep( 3 );
+
+        return true;
+    }
+
+    private void stop_daemon()
+    {
+        // fsogsmd_process.stop();
+        // phonesim_process.stop();
+    }
+
+    //
+    // public
+    //
 
     public TestGSM()
     {
         base("FreeSmartphone.GSM");
-
-        add_async_test( "RequestResource",
-                        cb => test_request_gsm_resource( cb ),
-                        res => test_request_gsm_resource.end( res ) );
 
         add_async_test( "ValidateInitialDeviceStatus",
                         cb => test_validate_initial_device_status( cb ),
@@ -70,40 +102,35 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
                         cb => test_set_airplane_device_functionality( cb ),
                         res => test_set_airplane_device_functionality.end( res ) );
 
-        add_async_test( "RequestResource",
-                        cb => test_release_gsm_resource( cb ),
-                        res => test_release_gsm_resource.end( res ) );
-
         pin_from_config = theConfig.stringValue( "test-gsm", "pin", "1234" );
+
+        start_daemon();
 
         try
         {
-            usage = Bus.get_proxy_sync<FreeSmartphone.Usage>( BusType.SYSTEM, FsoFramework.Usage.ServiceDBusName,
-                FsoFramework.Usage.ServicePathPrefix );
+            gsm_device = Bus.get_proxy_sync<FreeSmartphone.GSM.Device>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
 
-            gsm_device = Bus.get_proxy_sync<FreeSmartphone.GSM.Device>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath );
+            gsm_network = Bus.get_proxy_sync<FreeSmartphone.GSM.Network>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
 
-            gsm_network = Bus.get_proxy_sync<FreeSmartphone.GSM.Network>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath );
+            gsm_sim = Bus.get_proxy_sync<FreeSmartphone.GSM.SIM>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
 
-            gsm_sim = Bus.get_proxy_sync<FreeSmartphone.GSM.SIM>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath );
+            gsm_call = Bus.get_proxy_sync<FreeSmartphone.GSM.Call>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
 
-            gsm_call = Bus.get_proxy_sync<FreeSmartphone.GSM.Call>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath );
+            gsm_pdp = Bus.get_proxy_sync<FreeSmartphone.GSM.PDP>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
 
-            gsm_pdp = Bus.get_proxy_sync<FreeSmartphone.GSM.PDP>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath );
+            gsm_sms = Bus.get_proxy_sync<FreeSmartphone.GSM.SMS>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
 
-            gsm_sms = Bus.get_proxy_sync<FreeSmartphone.GSM.SMS>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath );
+            gsm_cb = Bus.get_proxy_sync<FreeSmartphone.GSM.CB>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
 
-            gsm_cb = Bus.get_proxy_sync<FreeSmartphone.GSM.CB>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath );
-
-            gsm_voicemail = Bus.get_proxy_sync<FreeSmartphone.GSM.VoiceMail>( BusType.SYSTEM, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath );
+            gsm_voicemail = Bus.get_proxy_sync<FreeSmartphone.GSM.VoiceMail>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
         }
         catch ( GLib.Error err )
         {
@@ -111,23 +138,11 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         }
     }
 
-    /**
-     * Test GSM resource registration as very often the modem is initialized while the
-     * user requests the resource. If the resource is still accessible after the request
-     * the test is successfull.
-     */
-    public async void test_request_gsm_resource() throws GLib.Error, AssertError
+    ~TestGSM()
     {
-        string[] resources;
-
-        resources = yield usage.list_resources();
-        Assert.is_true( "GSM" in resources );
-
-        yield usage.request_resource( "GSM" );
-
-        resources = yield usage.list_resources();
-        Assert.is_true( "GSM" in resources );
+        stop_daemon();
     }
+
 
     /**
      * Check the various status bits of the GSM service. All should be in a well definied
@@ -235,11 +250,6 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         Assert.are_equal<string>( level, "airplane" );
         // NOTE autoregister is only valid if level is "full"
         Assert.are_equal<string>( pin, pin_from_config );
-    }
-
-    public async void test_release_gsm_resource() throws GLib.Error, AssertError
-    {
-        yield usage.release_resource( "GSM" );
     }
 }
 
