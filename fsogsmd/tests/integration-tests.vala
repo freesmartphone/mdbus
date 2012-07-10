@@ -79,29 +79,32 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     {
         base("FreeSmartphone.GSM");
 
+        var timeout = 10000; // 10 seconds
+
         add_async_test( "ValidateInitialDeviceStatus",
                         cb => test_validate_initial_device_status( cb ),
-                        res => test_validate_initial_device_status.end( res ) );
+                        res => test_validate_initial_device_status.end( res ), timeout );
 
         add_async_test( "ValidateInitialSimAuthStatus",
                         cb => test_validate_initial_sim_auth_status( cb ),
-                        res => test_validate_initial_sim_auth_status.end( res ) );
+                        res => test_validate_initial_sim_auth_status.end( res ), timeout );
 
         add_async_test( "ValidateInitialNetworkStatus",
                         cb => test_validate_initial_network_status( cb ),
-                        res => test_validate_initial_network_status.end( res ) );
+                        res => test_validate_initial_network_status.end( res ), timeout );
 
         add_async_test( "ValidateInitialDeviceFunctionality",
                         cb => test_validate_initial_device_functionality( cb ),
-                        res => test_validate_initial_device_functionality.end( res ) );
+                        res => test_validate_initial_device_functionality.end( res ),
+                        timeout );
 
         add_async_test( "SetFullDeviceFunctionality",
                         cb => test_set_full_device_functionality( cb ),
-                        res => test_set_full_device_functionality.end( res ) );
+                        res => test_set_full_device_functionality.end( res ), timeout );
 
         add_async_test( "SetAirplaneDeviceFunctionality",
                         cb => test_set_airplane_device_functionality( cb ),
-                        res => test_set_airplane_device_functionality.end( res ) );
+                        res => test_set_airplane_device_functionality.end( res ), timeout );
 
         pin_from_config = theConfig.stringValue( "test-gsm", "pin", "1234" );
 
