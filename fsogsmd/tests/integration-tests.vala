@@ -105,7 +105,18 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     private FreeSmartphone.GSM.SMS gsm_sms;
     private FreeSmartphone.GSM.CB gsm_cb;
     private FreeSmartphone.GSM.VoiceMail gsm_voicemail;
-    private string pin_from_config;
+
+    private struct Configuration
+    {
+        public string pin;
+        public int default_timeout;
+        public bool remote_enabled;
+        public string remote_type;
+        public string remote_number0;
+    }
+
+    private Configuration config;
+
     private IProcessGuard fsogsmd_process;
     private IProcessGuard phonesim_process;
     private IRemotePhoneControl remote_control;
@@ -150,40 +161,47 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     {
         base("FreeSmartphone.GSM");
 
-        var timeout = 60000; // 60 seconds
+        config.default_timeout = theConfig.intValue( "default", "timeout", 60000 );
+        config.pin = theConfig.stringValue( "default", "pin", "1234" );
+        config.remote_enabled = theConfig.boolValue( "remote_control", "enabled", true );
+        config.remote_type = theConfig.stringValue( "remote_control", "type", "phonesim" );
+        config.remote_number0 = theConfig.stringValue( "remote_control", "number0", "+491234567890" );
 
         add_async_test( "ValidateInitialDeviceStatus",
                         cb => test_validate_initial_device_status( cb ),
-                        res => test_validate_initial_device_status.end( res ), timeout );
+                        res => test_validate_initial_device_status.end( res ), config.default_timeout );
 
         add_async_test( "ValidateInitialSimAuthStatus",
                         cb => test_validate_initial_sim_auth_status( cb ),
-                        res => test_validate_initial_sim_auth_status.end( res ), timeout );
+                        res => test_validate_initial_sim_auth_status.end( res ), config.default_timeout );
 
         add_async_test( "ValidateInitialNetworkStatus",
                         cb => test_validate_initial_network_status( cb ),
-                        res => test_validate_initial_network_status.end( res ), timeout );
+                        res => test_validate_initial_network_status.end( res ), config.default_timeout );
 
         add_async_test( "ValidateInitialDeviceFunctionality",
                         cb => test_validate_initial_device_functionality( cb ),
                         res => test_validate_initial_device_functionality.end( res ),
-                        timeout );
+                        config.default_timeout );
 
         add_async_test( "SetFullDeviceFunctionality",
                         cb => test_set_full_device_functionality( cb ),
-                        res => test_set_full_device_functionality.end( res ), timeout );
+                        res => test_set_full_device_functionality.end( res ), config.default_timeout );
 
-        add_async_test( "IncomingCall",
-                        cb => test_incoming_call( cb ),
-                        res => test_incoming_call.end( res ), timeout );
+        if ( config.remote_enabled )
+        {
+            add_async_test( "IncomingCall",
+                            cb => test_incoming_call( cb ),
+                            res => test_incoming_call.end( res ), config.default_timeout );
+        }
 
         add_async_test( "SetAirplaneDeviceFunctionality",
                         cb => test_set_airplane_device_functionality( cb ),
-                        res => test_set_airplane_device_functionality.end( res ), timeout );
+                        res => test_set_airplane_device_functionality.end( res ), config.default_timeout );
 
-        pin_from_config = theConfig.stringValue( "test-gsm", "pin", "1234" );
-
+        // FIXME if we have different remote control types respect them here
         remote_control = new PhonesimRemotePhoneControl();
+
         start_daemon();
 
         try
@@ -305,7 +323,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         string level = "", pin = "";
         bool autoregister = false;
 
-        yield gsm_device.set_functionality( "full", true, pin_from_config );
+        yield gsm_device.set_functionality( "full", true, config.pin );
         Timeout.add_seconds( 3, () => { test_set_full_device_functionality.callback(); return false; } );
         yield;
 
@@ -318,7 +336,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         yield gsm_device.get_functionality( out level, out autoregister, out pin );
         Assert.is_true( level == "full" );
         Assert.is_true( autoregister == true );
-        Assert.is_true( pin == pin_from_config );
+        Assert.is_true( pin == config.pin );
     }
 
     public async void test_validate_device_features() throws GLib.Error, AssertError
@@ -344,7 +362,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         yield gsm_device.get_functionality( out level, out autoregister, out pin );
         Assert.is_true( level == "airplane" );
         // NOTE autoregister is only valid if level is "full"
-        Assert.is_true( pin == pin_from_config );
+        Assert.is_true( pin == config.pin );
     }
 
     public async void test_incoming_call() throws GLib.Error, AssertError
@@ -355,7 +373,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         Assert.is_true( calls.length == 0 );
 
         // FIXME number needs to be configurable for real world tests
-        yield remote_control.initiate_call( "+491234567890", false );
+        yield remote_control.initiate_call( config.remote_number0, false );
 
         Timeout.add_seconds( 4, () => { test_incoming_call.callback(); return false; } );
         yield;
@@ -368,7 +386,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         {
             var number = calls[0].properties.lookup( "number" );
             if ( number != null )
-                Assert.is_true( number == "+491234567890" );
+                Assert.is_true( number == config.remote_number0 );
         }
 
         Timeout.add_seconds( 4, () => { test_incoming_call.callback(); return false; } );
