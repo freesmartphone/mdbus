@@ -86,7 +86,14 @@ public class PhonesimRemotePhoneControl : FsoFramework.AbstractObject, IRemotePh
             .printf( number );
         FsoFramework.FileHandling.write( script, @"$(_script_path)/$(script_name)", true );
 
-        yield _phonesim.run( script_name );
+        try
+        {
+            yield _phonesim.run( script_name );
+        }
+        catch ( GLib.Error error )
+        {
+            throw new RemotePhoneControlError.FAILED( @"Could not excute script to initial a call from remote side" );
+        }
     }
 
     public override string repr()
