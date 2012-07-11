@@ -1,8 +1,8 @@
 1:'Codec Operation Mode':1:1
 2:'DAC1 Digital Fine Playback Volume':2:0,0
-3:'DAC2 Digital Fine Playback Volume':2:63,63
+3:'DAC2 Digital Fine Playback Volume':2:45,45
 4:'DAC1 Digital Coarse Playback Volume':2:0,0
-5:'DAC2 Digital Coarse Playback Volume':2:2,2
+5:'DAC2 Digital Coarse Playback Volume':2:0,0
 6:'DAC1 Analog Playback Volume':2:0,0
 7:'DAC2 Analog Playback Volume':2:18,18
 8:'DAC1 Analog Playback Switch':2:0,0
@@ -68,4 +68,3 @@
 68:'Right2 Analog Loopback Switch':1:0
 69:'Left1 Analog Loopback Switch':1:0
 70:'Right1 Analog Loopback Switch':1:0
-71:'Media Volume':2:103,103
