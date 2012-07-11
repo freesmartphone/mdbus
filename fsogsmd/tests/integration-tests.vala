@@ -232,16 +232,31 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     public async void test_validate_initial_device_status() throws GLib.Error, AssertError
     {
         var device_status = yield gsm_device.get_device_status();
+
         if ( device_status == FreeSmartphone.GSM.DeviceStatus.ALIVE_NO_SIM )
             Assert.fail( "No SIM is plugged into the device; can not continue" );
         else if ( device_status == FreeSmartphone.GSM.DeviceStatus.UNKNOWN )
             Assert.fail( "Can not continue as GSM device is in a unknown state" );
         else if ( device_status == FreeSmartphone.GSM.DeviceStatus.ALIVE_SIM_UNLOCKED ||
                   device_status == FreeSmartphone.GSM.DeviceStatus.ALIVE_REGISTERED )
-            Assert.fail( "SIM card is already unlocked or modem registered to network" );
+            Assert.fail( "SIM card is already unlocked or modem registered to network; can't continue with testing" );
         else if ( device_status != FreeSmartphone.GSM.DeviceStatus.INITIALIZING &&
                   device_status != FreeSmartphone.GSM.DeviceStatus.ALIVE_SIM_LOCKED )
             Assert.fail( @"GSM device is in a unexpected state $device_status" );
+
+        // Wait until modem leaves INITIALIZING state
+        var retries = 5;
+        while ( device_status == FreeSmartphone.GSM.DeviceStatus.INITIALIZING )
+        {
+            if ( retries == 0 )
+                Assert.fail( @"Modem didn't leave INITIALIZING state in a reasonable time" );
+
+            Timeout.add_seconds( 1, () => { test_validate_initial_device_status.callback(); return false; } );
+            yield;
+
+            device_status = yield gsm_device.get_device_status();
+            retries--;
+        }
     }
 
     public async void test_validate_initial_sim_auth_status() throws GLib.Error, AssertError
