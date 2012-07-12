@@ -37,9 +37,9 @@ Herring.WiFiPowerControl wifipowercontrol = null;
 public static string fso_factory_function( FsoFramework.Subsystem subsystem ) throws Error
 {
     var config = FsoFramework.theConfig;
-    var sysfs_root = config.stringValue( "cornucopia", "sysfs_root", "/sys" );
 
-    resumehandler = new Herring.ResumeHandler();
+    if ( config.hasSection( @"$(Herring.MODULE_NAME)/resume_handler" ) )
+        resumehandler = new Herring.ResumeHandler();
 
     if ( config.hasSection( @"$(Herring.MODULE_NAME)/alsa_stream_keeper" ) )
         streamkeeper = new Herring.AlsaStreamKeeper();

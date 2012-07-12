@@ -140,8 +140,8 @@ internal class Herring.ResumeHandler : FsoFramework.AbstractObject
     {
         Idle.add( () => { request_usage_service(); return false; } );
 
-        inputnodenumber = config.intValue( Herring.MODULE_NAME, "wakeup_inputnode", -1 );
-        powerkeycode = config.intValue( Herring.MODULE_NAME, "wakeup_powerkeycode", -1 );
+        inputnodenumber = config.intValue( @"$(Herring.MODULE_NAME)/resume_handler", "wakeup_inputnode", -1 );
+        powerkeycode = config.intValue( @"$(Herring.MODULE_NAME)/resume_handler", "wakeup_powerkeycode", -1 );
     }
 
     public override string repr()

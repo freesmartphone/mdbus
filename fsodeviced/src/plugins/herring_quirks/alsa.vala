@@ -32,7 +32,8 @@ internal class Herring.AlsaStreamKeeper : FsoFramework.AbstractObject
     public AlsaStreamKeeper()
     {
         var rc = PcmDevice.open( out pcm, cardname, PcmStream.PLAYBACK );
-        assert( pcm != null );
+        if ( rc < 0 || pcm == null )
+            logger.error( @"Failed to open PCM device" );
     }
 
     ~AlsaStreamKeeper()
