@@ -39,7 +39,7 @@ namespace Herring
                                  FsoFramework.FileHandling.isPresent( nvram_path );
 
             module = new FsoFramework.Kernel26Module( "bcm4329" );
-            module.arguments = "iface_name=$(iface_name) firmware_path=$(firmware_path) nvram_path=$(nvram_path)";
+            module.arguments = @"iface_name=$(iface_name) firmware_path=$(firmware_path) nvram_path=$(nvram_path)";
 
             subsystem.registerObjectForServiceWithPrefix<FreeSmartphone.Device.PowerControl>(
                 FsoFramework.Device.ServiceDBusName, FsoFramework.Device.PowerControlServicePath, this );
