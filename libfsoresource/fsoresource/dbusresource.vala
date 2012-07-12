@@ -28,11 +28,12 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
 {
     private FsoFramework.DBusSubsystem subsystem;
     private FreeSmartphone.Usage usage;
-    private string name;
     private ObjectPath path;
     private FsoFramework.DBusServiceNotifier dbusnotifier;
     private bool resourceRegistrationPending = false;
     private bool resourceRegistered = false;
+
+    protected string name { get; private set; }
 
     private void onUsageServiceAppearing( string busname )
     {
