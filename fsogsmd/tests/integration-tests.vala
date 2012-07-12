@@ -25,20 +25,31 @@ namespace FsoTest
     public const string FREESMARTPHONE_ERROR_DOMAIN = "free_smartphone_error-quark";
 }
 
+[DBus (name = "org.ofono.phonesim.Error")]
+public errordomain PhonesimError
+{
+    [DBus (name = "FileNotFound")]
+    FILE_NOT_FOUND,
+    [DBus (name = "ScriptExecError")]
+    SCRIPT_EXEC_ERROR,
+}
+
 [DBus (name = "org.ofono.phonesim.Script", timeout = 120000)]
 public interface IPhonesimService : GLib.Object
 {
     [DBus (name = "SetPath")]
-    public abstract async void set_path( string path ) throws GLib.IOError, GLib.DBusError;
+    public abstract async void set_path( string path ) throws GLib.IOError, GLib.DBusError, PhonesimError;
     [DBus (name = "GetPath")]
-    public abstract async string get_path() throws GLib.IOError, GLib.DBusError;
+    public abstract async string get_path() throws GLib.IOError, GLib.DBusError, PhonesimError;
     [DBus (name = "Run")]
-    public abstract async void run( string name ) throws GLib.IOError, GLib.DBusError;
+    public abstract async string run( string name ) throws GLib.IOError, GLib.DBusError, PhonesimError;
 }
 
 public interface IRemotePhoneControl : GLib.Object
 {
     public abstract async void initiate_call( string number, bool hide ) throws RemotePhoneControlError;
+    public abstract async void activate_incoming_call( int id ) throws RemotePhoneControlError;
+
 }
 
 public errordomain RemotePhoneControlError
@@ -63,8 +74,6 @@ public class PhonesimRemotePhoneControl : FsoFramework.AbstractObject, IRemotePh
         try
         {
             _phonesim = yield GLib.Bus.get_proxy<IPhonesimService>( BusType.SESSION, "org.ofono.phonesim", "/" );
-            _script_path = GLib.DirUtils.make_tmp( "fsogsmd-integration-tests-XXXXXX" );
-            logger.debug( @"script_path = $_script_path" );
             yield _phonesim.set_path( _script_path );
         }
         catch ( GLib.Error error )
@@ -73,27 +82,54 @@ public class PhonesimRemotePhoneControl : FsoFramework.AbstractObject, IRemotePh
         }
     }
 
+    private async void execute_script( string script ) throws RemotePhoneControlError
+    {
+        string path = "tmp.js";
+        FsoFramework.FileHandling.write( script, @"$(_script_path)/$(path)", true );
+
+        yield ensure_connection();
+
+        try
+        {
+            var result = yield _phonesim.run( path );
+        }
+        catch ( PhonesimError pe )
+        {
+            throw new RemotePhoneControlError.FAILED( @"Could not execute script on phonesim side: $(pe.message)" );
+        }
+        catch ( GLib.Error error )
+        {
+            throw new RemotePhoneControlError.FAILED( @"Could not excute script on phonesim side" );
+        }
+    }
+
     //
     // public API
     //
 
+    public PhonesimRemotePhoneControl()
+    {
+        _script_path = GLib.DirUtils.make_tmp( "fsogsmd-integration-tests-XXXXXX" );
+    }
+
     public async void initiate_call( string number, bool hide ) throws RemotePhoneControlError
     {
-        yield ensure_connection();
-
-        string script_name = "initiate_call.js";
         string script = """tabCall.gbIncomingCall.leCaller.text = "%s"; tabCall.gbIncomingCall.pbIncomingCall.click();"""
             .printf( number );
-        FsoFramework.FileHandling.write( script, @"$(_script_path)/$(script_name)", true );
+        yield execute_script( script );
+    }
 
-        try
-        {
-            yield _phonesim.run( script_name );
-        }
-        catch ( GLib.Error error )
-        {
-            throw new RemotePhoneControlError.FAILED( @"Could not excute script to initial a call from remote side" );
-        }
+    public async void activate_incoming_call( int id ) throws RemotePhoneControlError
+    {
+        string script = """
+            var found = false;
+            var id = %i;
+            if ( id > 0 && id < tabCall.twCallMgt.rowCount ) {
+                tabCall.twCallMgt.selectRow( id );
+                found = true;
+            }
+            if ( found ) tabCall.pbActive.click();""".printf( id );
+        yield execute_script( script );
     }
 
     public override string repr()
@@ -160,6 +196,21 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         phonesim_process.stop();
     }
 
+    private void validate_call( FreeSmartphone.GSM.CallDetail call, int expected_id,
+        FreeSmartphone.GSM.CallStatus expected_status, string expected_number ) throws GLib.Error, AssertError
+    {
+        Assert.is_true( call.id == expected_id, "Expected call id $expected_id but got $(call.id)" );
+        Assert.is_true( call.status == expected_status, @"Expected call status $expected_status but got $(call.status)" );
+        if ( call.properties.size() > 0 )
+        {
+            var number = call.properties.lookup( "peer" );
+            if ( number != null )
+                Assert.is_true( number.get_string() == expected_number, @"Expected number $expected_number but got $(number.get_string())" );
+            else Assert.fail( @"Missing property 'peer' in call status properties is not available" );
+        }
+        else Assert.fail( @"Missing property 'peer' in call status properties is not available" );
+    }
+
     //
     // public
     //
@@ -200,6 +251,16 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
             add_async_test( "IncomingCall",
                             cb => test_incoming_call( cb ),
                             res => test_incoming_call.end( res ), config.default_timeout );
+
+            add_async_test( "AcceptIncomingCallAndReleaseLater",
+                            cb => test_accept_incoming_call_and_release_later( cb ),
+                            res => test_accept_incoming_call_and_release_later.end( res ),
+                            config.default_timeout );
+
+            add_async_test( "AcceptedOutgoingCall",
+                            cb => test_accepted_outgoing_call( cb ),
+                            res => test_accepted_outgoing_call.end( res ),
+                            config.default_timeout );
         }
 
         add_async_test( "SetAirplaneDeviceFunctionality",
@@ -379,33 +440,72 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         calls = yield gsm_call.list_calls();
         Assert.is_true( calls.length == 0 );
 
-        // FIXME number needs to be configurable for real world tests
         yield remote_control.initiate_call( config.remote_number0, false );
-
-        Timeout.add_seconds( 4, () => { test_incoming_call.callback(); return false; } );
-        yield;
+        yield asyncWaitSeconds( 1 );
 
         calls = yield gsm_call.list_calls();
-        Assert.is_true( calls.length == 1 );
-        Assert.is_true( calls[0].id == 1 );
-        Assert.is_true( calls[0].status == FreeSmartphone.GSM.CallStatus.INCOMING );
-        if ( calls[0].properties.size() > 0 )
-        {
-            var number = calls[0].properties.lookup( "number" );
-            if ( number != null )
-                Assert.is_true( number == config.remote_number0 );
-        }
-
-        Timeout.add_seconds( 4, () => { test_incoming_call.callback(); return false; } );
-        yield;
+        Assert.is_true( calls.length == 1, @"Expected only one call but there are $(calls.length) calls" );
+        validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.INCOMING, config.remote_number0 );
 
         yield gsm_call.release( 1 );
 
-        Timeout.add_seconds( 4, () => { test_incoming_call.callback(); return false; } );
-        yield;
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0 );
+    }
+
+    public async void test_accept_incoming_call_and_release_later() throws GLib.Error, AssertError
+    {
+        FreeSmartphone.GSM.CallDetail[] calls;
 
         calls = yield gsm_call.list_calls();
         Assert.is_true( calls.length == 0 );
+
+        yield remote_control.initiate_call( config.remote_number0, false );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.INCOMING, config.remote_number0 );
+
+        yield gsm_call.activate( 1 );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.ACTIVE, config.remote_number0 );
+
+        // let the call in active state for some seconds
+        yield asyncWaitSeconds( 2 );
+        yield gsm_call.release( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0 );
+    }
+
+    public async void test_accepted_outgoing_call() throws GLib.Error, AssertError
+    {
+        FreeSmartphone.GSM.CallDetail[] calls;
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0 );
+
+        var id = yield gsm_call.initiate( config.remote_number0, "voice" );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.OUTGOING, config.remote_number0 );
+
+        // FIXME id doesn't have to match as there are not exchanged between phonesim and
+        // fsogsmd but if we keep everything in the right order and don't do crazy things
+        // we can assume which id is used in phonesim for a new call easily. In this case
+        // it's the same as both phonesim and fsogsmd starts counting new calls with 1.
+        yield remote_control.activate_incoming_call( id );
+        yield asyncWaitSeconds( 20 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.ACTIVE, config.remote_number0 );
     }
 }
 
@@ -427,6 +527,7 @@ public static int main( string[] args )
     Posix.signal( Posix.SIGBUS, sighandler );
     Posix.signal( Posix.SIGSEGV, sighandler );
     Posix.signal( Posix.SIGABRT, sighandler );
+    Posix.signal( Posix.SIGTRAP, sighandler );
 
     TestSuite root = TestSuite.get_root();
     gsm_suite = new FsoTest.TestGSM();
