@@ -26,6 +26,7 @@ namespace Herring
 
 Herring.ResumeHandler resumehandler = null;
 Herring.AlsaStreamKeeper streamkeeper = null;
+Herring.WiFiPowerControl wifipowercontrol = null;
 
 /**
  * This function gets called on plugin initialization time.
@@ -42,6 +43,9 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 
     if ( config.hasSection( @"$(Herring.MODULE_NAME)/alsa_stream_keeper" ) )
         streamkeeper = new Herring.AlsaStreamKeeper();
+
+    if ( config.hasSection( @"$(Herring.MODULE_NAME)/wifi_power_control" ) )
+        wifipowercontrol = new Herring.WiFiPowerControl( subsystem );
 
     return Herring.MODULE_NAME;
 }

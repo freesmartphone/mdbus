@@ -16,6 +16,7 @@ herring_quirks_la_SOURCES = \
 	plugin.vala \
 	resumehandler.vala \
 	alsa.vala \
+	powercontrol.vala \
 	$(NULL)
 herring_quirks_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
