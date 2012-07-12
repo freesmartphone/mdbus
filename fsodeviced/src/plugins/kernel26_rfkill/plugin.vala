@@ -221,7 +221,7 @@ public static string fso_factory_function( FsoFramework.Subsystem system ) throw
 
     subsystem = system;
     devfs_root = FsoFramework.theConfig.stringValue( "cornucopia", "devfs_root", "/dev" );
-    ignore_wifi = FsoFramework.theConfig.boolValue( "fsodevice.kernel26_wifi", "ignore_wifi", false );
+    ignore_wifi = FsoFramework.theConfig.boolValue( "fsodevice.kernel26_rfkill", "ignore_wifi", false );
 
     fd = Posix.open( Path.build_filename( devfs_root, "rfkill" ), Posix.O_RDWR );
     if ( fd == -1 )
