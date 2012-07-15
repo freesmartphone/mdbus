@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Simon Busch <morphis@gravedo.de>
+ * Copyright (C) 2011-2012 Simon Busch <morphis@gravedo.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,35 +19,5 @@
 
 using GLib;
 using Alsa;
-
-internal class Herring.AlsaStreamKeeper : FsoFramework.AbstractObject
-{
-    private PcmDevice pcm;
-    private string cardname = "default";
-
-    //
-    // public API
-    //
-
-    public AlsaStreamKeeper()
-    {
-        var rc = PcmDevice.open( out pcm, cardname, PcmStream.PLAYBACK );
-        if ( rc < 0 || pcm == null )
-            logger.error( @"Failed to open PCM device" );
-    }
-
-    ~AlsaStreamKeeper()
-    {
-        if ( pcm != null )
-        {
-            pcm.close();
-        }
-    }
-
-    public override string repr()
-    {
-        return @"<>";
-    }
-}
 
 // vim:ts=4:sw=4:expandtab

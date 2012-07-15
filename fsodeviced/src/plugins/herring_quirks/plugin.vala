@@ -25,7 +25,6 @@ namespace Herring
 }
 
 Herring.ResumeHandler resumehandler = null;
-Herring.AlsaStreamKeeper streamkeeper = null;
 Herring.WiFiPowerControl wifipowercontrol = null;
 
 /**
@@ -40,9 +39,6 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
 
     if ( config.hasSection( @"$(Herring.MODULE_NAME)/resume_handler" ) )
         resumehandler = new Herring.ResumeHandler();
-
-    if ( config.hasSection( @"$(Herring.MODULE_NAME)/alsa_stream_keeper" ) )
-        streamkeeper = new Herring.AlsaStreamKeeper();
 
     if ( config.hasSection( @"$(Herring.MODULE_NAME)/wifi_power_control" ) )
         wifipowercontrol = new Herring.WiFiPowerControl( subsystem );
