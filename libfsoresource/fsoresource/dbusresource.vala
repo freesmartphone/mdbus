@@ -137,6 +137,11 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
         return new GLib.HashTable<string,GLib.Variant?>( GLib.str_hash, GLib.str_equal );
     }
 
+    public virtual FreeSmartphone.UsageResourcePolicy default_policy()
+    {
+        return FreeSmartphone.UsageResourcePolicy.AUTO;
+    }
+
     //
     // DBUS API
     //
@@ -168,6 +173,13 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
     {
         assert( logger.debug( @"Inquiring dependencies for $classname..." ) );
         var result = yield dependencies();
+        return result;
+    }
+
+    public async FreeSmartphone.UsageResourcePolicy get_default_policy() throws DBusError, IOError
+    {
+        assert( logger.debug( @"Inquiring default policy for $classname..." ) );
+        var result = default_policy();
         return result;
     }
 }
