@@ -34,7 +34,7 @@ public class BasePowerControlResource : FsoFramework.AbstractDBusResource
         this.bpc = bpc;
     }
 
-    public override async void enableResource()
+    public override async void enableResource() throws FreeSmartphone.ResourceError
     {
         logger.debug( "enabling..." );
         bpc.setPower( true );
