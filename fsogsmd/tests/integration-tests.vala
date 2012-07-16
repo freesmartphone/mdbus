@@ -121,14 +121,7 @@ public class PhonesimRemotePhoneControl : FsoFramework.AbstractObject, IRemotePh
 
     public async void activate_incoming_call( int id ) throws RemotePhoneControlError
     {
-        string script = """
-            var found = false;
-            var id = %i;
-            if ( id > 0 && id < tabCall.twCallMgt.rowCount ) {
-                tabCall.twCallMgt.selectRow( id );
-                found = true;
-            }
-            if ( found ) tabCall.pbActive.click();""".printf( id );
+        string script = "tabCall.pbActive.click();";
         yield execute_script( script );
     }
 
@@ -501,11 +494,17 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         // we can assume which id is used in phonesim for a new call easily. In this case
         // it's the same as both phonesim and fsogsmd starts counting new calls with 1.
         yield remote_control.activate_incoming_call( id );
-        yield asyncWaitSeconds( 20 );
+        yield asyncWaitSeconds( 1 );
 
         calls = yield gsm_call.list_calls();
         Assert.is_true( calls.length == 1 );
         validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.ACTIVE, config.remote_number0 );
+
+        yield gsm_call.release( 1 );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0 );
     }
 }
 
