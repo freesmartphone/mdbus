@@ -27,11 +27,14 @@ namespace FsoDevice {
 public class BasePowerControlResource : FsoFramework.AbstractDBusResource
 {
     private weak ISimplePowerControl bpc;
+    private FreeSmartphone.UsageResourcePolicy policy;
 
-    public BasePowerControlResource( ISimplePowerControl bpc, string name, FsoFramework.Subsystem subsystem )
+    public BasePowerControlResource( ISimplePowerControl bpc, string name, FsoFramework.Subsystem subsystem,
+        FreeSmartphone.UsageResourcePolicy policy = FreeSmartphone.UsageResourcePolicy.AUTO )
     {
         base( name, subsystem );
         this.bpc = bpc;
+        this.policy = policy;
     }
 
     public override async void enableResource() throws FreeSmartphone.ResourceError
@@ -54,6 +57,11 @@ public class BasePowerControlResource : FsoFramework.AbstractDBusResource
     public override async void resumeResource()
     {
         logger.debug( "resuming..." );
+    }
+
+    public override FreeSmartphone.UsageResourcePolicy default_policy()
+    {
+        return policy;
     }
 }
 
