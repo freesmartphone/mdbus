@@ -229,7 +229,6 @@ AC_CONFIG_FILES([
   src/plugins/accelerometer/Makefile
   src/plugins/accelerometer_kxsd9/Makefile
   src/plugins/accelerometer_lis302/Makefile
-  src/plugins/ambientlight_n900/Makefile
   src/plugins/audio/Makefile
   src/plugins/backlight_omappanel/Makefile
   src/plugins/gpio_input/Makefile
@@ -244,16 +243,14 @@ AC_CONFIG_FILES([
   src/plugins/kernel_idle/Makefile
   src/plugins/kernel_info/Makefile
   src/plugins/kernel_input/Makefile
-  src/plugins/n900_powercontrol/Makefile
   src/plugins/openmoko_powercontrol/Makefile
   src/plugins/gta04_quirks/Makefile
   src/plugins/herring_quirks/Makefile
+  src/plugins/n900_quirks/Makefile
   src/plugins/powercontrol_ifconfig/Makefile
   src/plugins/player_alsa/Makefile
   src/plugins/player_canberra/Makefile
   src/plugins/player_gstreamer/Makefile
-  src/plugins/powersupply_n900/Makefile
-  src/plugins/proximity_n900/Makefile
   src/plugins/router_alsa/Makefile
   src/plugins/router_qdsp5/Makefile
   src/plugins/thinkpad_powercontrol/Makefile
