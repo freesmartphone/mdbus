@@ -33,10 +33,12 @@ public static void sighandler( int signum )
 }
 
 bool use_session_bus = false;
+bool show_version = false;
 
 const OptionEntry[] options =
 {
     { "test", 's', 0, OptionArg.NONE, ref use_session_bus, "Operate on DBus session bus for testing purpose", null },
+    { "version", 'v', 0, OptionArg.NONE, ref show_version, "Display version number", null },
     { null }
 };
 
@@ -55,6 +57,12 @@ public static int main( string[] args )
     {
         stdout.printf( "%s\n", e.message );
         stdout.printf( "Run '%s --help' to see a full list of available command line options.\n", args[0] );
+        return 1;
+    }
+
+    if ( show_version )
+    {
+        stdout.printf( "fsogsmd %s\n".printf( Config.PACKAGE_VERSION ) );
         return 1;
     }
 
