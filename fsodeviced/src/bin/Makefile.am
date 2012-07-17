@@ -12,6 +12,7 @@ sbin_PROGRAMS = fsodeviced
 fsodeviced_SOURCES = main.vala
 fsodeviced_VALAFLAGS = \
 	--vapidir $(top_srcdir)/vapi \
+	--pkg config \
 	--pkg posix \
 	--pkg gio-2.0 \
 	--pkg fsoframework-2.0 \
