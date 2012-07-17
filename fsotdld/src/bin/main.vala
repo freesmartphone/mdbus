@@ -21,6 +21,17 @@
 
 GLib.MainLoop mainloop;
 
+bool use_session_bus = false;
+bool show_version = false;
+
+const OptionEntry[] options =
+{
+    { "test", 't', 0, OptionArg.NONE, ref use_session_bus, "Operate on DBus session bus for testing purpose", null },
+    { "version", 'v', 0, OptionArg.NONE, ref show_version, "Display version number", null },
+    { null }
+};
+
+
 public static void sighandler( int signum )
 {
     Posix.signal( signum, null ); // restore original sighandler
@@ -30,7 +41,30 @@ public static void sighandler( int signum )
 
 public static int main( string[] args )
 {
-    var subsystem = new FsoFramework.DBusSubsystem( "fsotdl" );
+    try
+    {
+        var opt_context = new OptionContext( "" );
+        opt_context.set_summary( "FreeSmartphone.org Time and Location daemon" );
+        opt_context.set_description( "This daemon implements the freesmartphone.org Time and Location API" );
+        opt_context.set_help_enabled( true );
+        opt_context.add_main_entries( options, null );
+        opt_context.parse( ref args );
+    }
+    catch ( OptionError e )
+    {
+        stdout.printf( "%s\n", e.message );
+        stdout.printf( "Run '%s --help' to see a full list of available command line options.\n", args[0] );
+        return 1;
+    }
+
+    if ( show_version )
+    {
+        stdout.printf( "fsotdld %s\n".printf( Config.PACKAGE_VERSION ) );
+        return 1;
+    }
+
+    var bus_type = use_session_bus ? BusType.SESSION : BusType.SYSTEM;
+    var subsystem = new FsoFramework.DBusSubsystem( "fsotdl", bus_type );
     subsystem.registerPlugins();
     uint count = subsystem.loadPlugins();
     FsoFramework.theLogger.info( "loaded %u plugins".printf( count ) );
