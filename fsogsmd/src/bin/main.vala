@@ -37,7 +37,7 @@ bool show_version = false;
 
 const OptionEntry[] options =
 {
-    { "test", 's', 0, OptionArg.NONE, ref use_session_bus, "Operate on DBus session bus for testing purpose", null },
+    { "test", 't', 0, OptionArg.NONE, ref use_session_bus, "Operate on DBus session bus for testing purpose", null },
     { "version", 'v', 0, OptionArg.NONE, ref show_version, "Display version number", null },
     { null }
 };
