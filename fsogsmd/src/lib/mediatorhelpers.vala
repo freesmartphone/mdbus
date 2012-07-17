@@ -129,7 +129,22 @@ namespace FsoGsm
 
     public async string findProviderNameForMccMnc( string mccmnc )
     {
-        return "unknown";
+        string result = "unknown";
+        var mbpi = FsoGsm.MBPI.Database.instance();
+
+        foreach ( var country in mbpi.allCountries().values )
+        {
+            foreach ( var provider in country.providers.values )
+            {
+                foreach ( var code in provider.codes )
+                {
+                    if ( code == mccmnc )
+                        result = provider.name;
+                }
+            }
+        }
+
+        return result;
     }
 
     public async void updateNetworkSignalStrength( FsoGsm.Modem modem, int strength )
