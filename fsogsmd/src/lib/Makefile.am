@@ -47,6 +47,7 @@ libfsogsm_la_SOURCES = \
 	smsstorage.vala \
 	watchdog.vala \
 	serviceprovider.vala \
+	mbpi.vala \
 	\
 	$(top_srcdir)/src/3rdparty/conversions.c \
 	$(top_srcdir)/src/3rdparty/smsutil.c \
@@ -77,6 +78,7 @@ libfsogsm_la_VALAFLAGS = \
 	--pkg fsoframework-2.0 \
 	--pkg fsotransport-2.0 \
 	--pkg fsogsm3rdparty \
+	--pkg libxml-2.0 \
 	--pkg config \
 	--header fsogsm.h \
 	--library fsogsm-2.0 \
@@ -90,6 +92,7 @@ libfsogsm_la_CFLAGS = \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(GSMMUX_CFLAGS) \
+	$(XML_CFLAGS) \
 	$(DEBUG_CFLAGS) \
 	$(NULL)
 
@@ -104,6 +107,7 @@ libfsogsm_la_LIBADD = \
 	$(GEE_LIBS) \
 	$(GSMMUX_LIBS) \
 	$(THIRDPARTY_LIBS) \
+	$(XML_LIBS) \
 	$(NULL)
 libfsogsm_la_LDFLAGS = -no-undefined -avoid-version
 

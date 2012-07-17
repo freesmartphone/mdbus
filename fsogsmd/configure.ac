@@ -63,6 +63,7 @@ MSMCOMM_SPECS_REQUIRED=0.10.0
 FSO_GLIB_REQUIRED=2012.06.06.01
 FSO_REQUIRED=0.11.0
 SAMSUNG_IPC_REQUIRED=0.1
+MBPI_REQUIRED=20090918
 
 PKG_CHECK_MODULES(GLIB,
   glib-2.0 >= $GLIB_REQUIRED
@@ -70,6 +71,11 @@ PKG_CHECK_MODULES(GLIB,
   gio-2.0 >= $GLIB_REQUIRED)
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
+
+PKG_CHECK_MODULES(XML,
+  libxml-2.0 >= $XML_REQUIRED)
+AC_SUBST(XML_CFLAGS)
+AC_SUBST(XML_LIBS)
 
 PKG_CHECK_MODULES(GEE,
   gee-1.0 >= $GEE_REQUIRED)
@@ -85,6 +91,15 @@ PKG_CHECK_MODULES(FSO,
   fsotest-2.0 >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
+
+PKG_CHECK_MODULES(MBPI,
+  mobile-broadband-provider-info >= $MBPI_REQUIRED)
+MBPI_DATABASE="`$PKG_CONFIG --variable=database mobile-broadband-provider-info`"
+if (test -z "{MPBI_DATABASE}"); then
+  AC_ERROR([Can not find mobile broadband provider info database file])
+fi
+AC_SUBST(MBPI_DATABASE)
+AC_DEFINE_UNQUOTED([MBPI_DATABASE_PATH], ["${MBPI_DATABASE}"], [Path to xml service provider file])
 
 #########################################################################################
 # dbus conf directory

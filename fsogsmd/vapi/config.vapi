@@ -5,6 +5,7 @@ namespace Config
     public const string PACKAGE_GITV;
     public const string PACKAGE_DATADIR;
     public const string PACKAGE_LIBDIR;
+    public const string MBPI_DATABASE_PATH;
 }
 
 // vim:ts=4:sw=4:expandtab
