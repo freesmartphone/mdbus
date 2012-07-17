@@ -329,6 +329,15 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     public override async void join() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        if ( numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.ACTIVE ) != 0 &&
+             numberOfCallsWithStatus( FreeSmartphone.GSM.CallStatus.HELD ) != 0 )
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No active or hold calls to join" );
+        }
+
+        var cmd = modem.createAtCommand<PlusCHLD>( "+CHLD" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( (PlusCHLD.Action) 4 ));
+        checkResponseOk( cmd, response );
     }
 }
 
