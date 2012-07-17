@@ -13,6 +13,7 @@ fsoaudiod_SOURCES = main.vala
 fsoaudiod_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
+	--pkg config \
 	--pkg posix \
 	--pkg gio-2.0 \
 	--pkg fsoframework-2.0 \
