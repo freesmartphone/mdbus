@@ -8,9 +8,9 @@ version 0.12
     * use /var/tmp instead of /tmp for SMS and PB storage [OK]
     * call forwarding [OK]
     * transfer/deflect calls [OK]
-    * converence calls
+    * converence calls [OK]
     * emergency calls
-    * join/release/held calls
+    * join active and held calls [OK]
     * homezone API
         * needed anymore?
     * voice mails API
