@@ -284,6 +284,17 @@ public abstract class FsoGsm.AbstractCallHandler : FsoGsm.CallHandler, FsoFramew
         return num;
     }
 
+    protected int numberOfCallsWithSpecificStatus( FreeSmartphone.GSM.CallStatus[] status )
+    {
+        var num = 0;
+        for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
+        {
+            if ( calls[i].detail.status in status )
+                num++;
+        }
+        return num;
+    }
+
     protected int lowestOfCallsWithStatus( FreeSmartphone.GSM.CallStatus status )
     {
         for ( int i = Constants.CALL_INDEX_MIN; i != Constants.CALL_INDEX_MAX; ++i )
