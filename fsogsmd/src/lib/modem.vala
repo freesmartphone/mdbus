@@ -124,6 +124,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
         public string functionality;
         public string simPin;
         public bool keepRegistration;
+        public string[] emergencyNumbers;
 
         // Device Capabilities
         public bool supportsGSM;
@@ -483,6 +484,12 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
             //"silent",     /* Wait for the modem to send the first LCP packet */
             "usepeerdns" } );
         modem_data.roamingAllowed = false;
+
+        // default emergency numbers as per TS 22.101 section 10.1.1
+        modem_data.emergencyNumbers = new string[] {
+            "911", "112",                            /* default emergency numbers */
+            "119", "118", "999", "110", "08", "000"  /* when SIM is not available */
+        };
 
         // add some basic init/exit/suspend/resume sequences
         var seq = modem_data.cmdSequences;
