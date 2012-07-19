@@ -42,7 +42,8 @@ public class FsoGsm.GsmCallService : FreeSmartphone.GSM.Call, Service
     public async void emergency( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability( FsoGsm.Modem.Status.ALIVE_REGISTERED );
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
+        var m = modem.createMediator<FsoGsm.CallEmergency>();
+        yield m.run( number );
     }
 
     public async void hold_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
