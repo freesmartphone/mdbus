@@ -255,6 +255,13 @@ public class FsoGsm.GenericAtCallHandler : FsoGsm.AbstractCallHandler
 
     public override async void releaseAll() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
+        if ( numberOfCallsWithSpecificStatus( new FreeSmartphone.GSM.CallStatus[] {
+                FreeSmartphone.GSM.CallStatus.INCOMING, FreeSmartphone.GSM.CallStatus.OUTGOING,
+                FreeSmartphone.GSM.CallStatus.HELD, FreeSmartphone.GSM.CallStatus.ACTIVE } ) == 0 )
+        {
+            throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No call to release available" );
+        }
+
         var cmd = modem.createAtCommand<V250H>( "H" );
         yield modem.processAtCommandAsync( cmd, cmd.execute() );
         // no checkResponseOk, this call will always succeed
