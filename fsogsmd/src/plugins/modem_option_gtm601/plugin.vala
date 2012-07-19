@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Klaus 'mrmoku' Kurzmann
- * Copyright (C) 2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2011-2012 Klaus 'mrmoku' Kurzmann
+ * Copyright (C) 2011-2012 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  * Copyright (C) 2012 Lukas 'Slyon' Märdian <lukasmaerdian@gmail.com>
  *
  * This program is free software; you can redistribute it and/or

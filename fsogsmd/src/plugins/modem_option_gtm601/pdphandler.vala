@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2012 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *                         Klaus 'mrmoku' Kurzmann <mok@fluxnetz.de>
  *
  * This program is free software; you can redistribute it and/or

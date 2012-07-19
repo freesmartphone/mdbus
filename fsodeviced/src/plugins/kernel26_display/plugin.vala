@@ -1,6 +1,6 @@
 /*
- * (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
- * (C) 2009 Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
+ * (C) 2009-2012 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * (C) 2009-2012 Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

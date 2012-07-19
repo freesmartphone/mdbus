@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
- * Copyright (C) 2010 Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
+ * Copyright (C) 2009-2012 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2010-2012 Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

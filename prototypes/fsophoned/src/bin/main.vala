@@ -1,5 +1,5 @@
 /*
- * (C) 2011 Michael 'Mickey' Lauer <mickey@vanille-media.de>
+ * (C) 2011-2012 Michael 'Mickey' Lauer <mickey@vanille-media.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

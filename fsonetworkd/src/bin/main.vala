@@ -1,5 +1,5 @@
 /*
- * (C) 2009 Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
+ * (C) 2009-2012 Sudharshan "Sup3rkiddo" S <sudharsh@gmail.com>
  * All Rights Reserved
  *
  * This library is free software; you can redistribute it and/or

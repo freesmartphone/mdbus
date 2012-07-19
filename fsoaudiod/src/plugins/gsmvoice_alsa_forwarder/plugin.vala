@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2011-2012 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  * Copyright (C) 2012 Denis 'GNUtoo' Carikli <GNUtoo@no-log.org>
 
  * This program is free software; you can redistribute it and/or

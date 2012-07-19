@@ -1,6 +1,6 @@
 /*
  * Valadate - Unit testing library for GObject-based libraries.
- * Copyright (C) 2009  Jan Hudec <bulb@ucw.cz>
+ * Copyright (C) 2009-2012  Jan Hudec <bulb@ucw.cz>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published

@@ -1,5 +1,5 @@
 /*
- * (C) 2011 Simon Busch <morphis@gravedo.de>
+ * (C) 2011-2012 Simon Busch <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Klaus 'mrmoku' Kurzmann   <mok@fluxnetz.de>
- *               2011 Lukas 'slyon' Märdian     <lukasmaerdian@gmail.com>
+ * Copyright (C) 2011-2012 Klaus 'mrmoku' Kurzmann   <mok@fluxnetz.de>
+ *               2011-2012 Lukas 'slyon' Märdian     <lukasmaerdian@gmail.com>
  *               2012 Simon Busch               <morphis@gravedo.de>
  *
  * This program is free software; you can redistribute it and/or
