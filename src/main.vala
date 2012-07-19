@@ -1,7 +1,7 @@
 /*
  * -- Mickey's DBus Utility V2 --
  *
- * Copyright (C) 2009-2011 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ * Copyright (C) 2009-2012 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
  *                         Frederik 'playya' Sdun <frederik.sdun@googlemail.com>
  *                         Simon Busch <morphis@gravedo.de>
  *
