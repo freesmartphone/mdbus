@@ -3,3 +3,40 @@ freesmartphone.org gsm daemon
 ====================================
 
 This daemon implements the freesmartphone.org GSM API
+
+Compilation and installation
+====================================
+
+In order to compile fsogsmd you need the following software installed on your
+build system:
+
+- GCC compiler
+- GLib library     (>= 2.26.0)
+- Vala compiler    (>= 0.16.0)
+- libgee           (>= 0.5.0)
+- libxml-2.0       (>= 2.7.3)
+- libgsm0710mux    (>= 0.12.0)
+- libfso-glib      (>= 2012.06.06.01)
+- libfsobasics     (>= 0.12.0)
+- libfsosystem     (>= 0.12.0)
+- libfsoframework  (>= 0.12.0)
+- libfsoresource   (>= 0.12.0)
+- libfsotest       (>= 0.12.0)
+
+when compiling with support for Nokia Isi modem:
+- libgisi          (>= 0.1.0)
+
+when compiling with support for Samsung modem:
+- libsamsung-ipc   (>= 0.1.0)
+
+Additionally there are the following runtime dependencies:
+- mobile-broadband-provider-info (>= 20090918)
+
+To configure execute (please take a look at the provided options of the configure
+script with ./configure --help before):
+
+# ./configure [options]
+
+To compile and install execute:
+
+# make && make install
