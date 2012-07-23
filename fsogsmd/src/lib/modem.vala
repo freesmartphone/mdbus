@@ -230,7 +230,7 @@ public abstract interface FsoGsm.Modem : FsoFramework.AbstractObject
     public abstract T createAtCommand<T>( string command );
     public abstract T theDevice<T>();
     public abstract IServiceProvider parent { get; set; } // the DBus object
-    public abstract CallHandler callhandler { get; set; } // the Call handler
+    public abstract ICallHandler callhandler { get; set; } // the Call handler
     public abstract SmsHandler smshandler { get; set; } // the Sms handler
     public abstract PhonebookHandler pbhandler { get; set; } // the Phonebook handler
     public abstract WatchDog watchdog { get; set; } // the WatchDog
@@ -282,7 +282,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected UnsolicitedResponseHandler urc;
 
     public IServiceProvider parent { get; set; } // the DBus object
-    public CallHandler callhandler { get; set; } // the Call handler
+    public ICallHandler callhandler { get; set; } // the Call handler
     public SmsHandler smshandler { get; set; } // the SMS handler
     public PhonebookHandler pbhandler { get; set; } // the Phonebook handler
     public WatchDog watchdog { get; set; } // the WatchDog
@@ -517,7 +517,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     private void registerHandlers()
     {
         urc = createUnsolicitedHandler();
-        callhandler = createCallHandler();
+        callhandler = new CallHandler( createCallDriver() );
         smshandler = createSmsHandler();
         pbhandler = createPhonebookHandler();
         watchdog = createWatchDog();
@@ -629,11 +629,11 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     }
 
     /**
-     * Override this to return a custom type of Call handler to be used for this modem.
+     * Override this to return a custom type of Call driver to be used for this modem.
      **/
-    protected virtual CallHandler createCallHandler()
+    protected virtual ICallDriver createCallDriver()
     {
-        return new GenericAtCallHandler( this );
+        return new NullCallDriver();
     }
 
     /**

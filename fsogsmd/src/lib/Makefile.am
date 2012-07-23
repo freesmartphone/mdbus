@@ -10,7 +10,6 @@ AM_VALAFLAGS =
 modlibexecdir = $(libdir)/cornucopia/modules/fsogsm
 modlibexec_LTLIBRARIES = libfsogsm.la
 libfsogsm_la_SOURCES = \
-	at/atcall.vala \
 	at/atchannel.vala \
 	at/atcommand.vala \
 	at/atcommands.vala \
@@ -48,6 +47,8 @@ libfsogsm_la_SOURCES = \
 	watchdog.vala \
 	serviceprovider.vala \
 	mbpi.vala \
+	callhandler.vala \
+	calldriver.vala \
 	\
 	$(top_srcdir)/src/3rdparty/conversions.c \
 	$(top_srcdir)/src/3rdparty/smsutil.c \
