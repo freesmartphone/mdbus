@@ -289,6 +289,7 @@ AC_CONFIG_FILES([
   src/plugins/pdp_nokia_isi/Makefile
   src/ppp/Makefile
   tests/Makefile
+  tests/integration/Makefile
   vapi/Makefile
 ])
 AC_OUTPUT

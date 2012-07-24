@@ -2,6 +2,8 @@ include $(top_srcdir)/Makefile.decl
 
 NULL =
 
+SUBDIRS = integration
+
 AM_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
 	-I$(top_srcdir)/src/3rdparty \
@@ -13,7 +15,6 @@ AM_CFLAGS = \
 
 noinst_PROGRAMS = \
 	$(TEST_PROGS) \
-	integration_tests \
 	$(NULL)
 
 LDADD = \
@@ -62,8 +63,6 @@ testsmsstorage_SOURCES = testsmsstorage.vala smsdata.vala
 TEST_PROGS += testatresultiter
 testatresultiter_SOURCES = testatresultiter.vala
 
-integration_tests_SOURCES = integration-tests.vala
-
 # TEST_PROGS += testoptiongtm601
 # FIXME adding the sources from the modem plugin itself to the list of sources for
 # compilation of this test is ugly, we should rather load the plugin and use it the common
@@ -72,11 +71,6 @@ integration_tests_SOURCES = integration-tests.vala
 #	$(top_srcdir)/src/plugins/modem_option_gtm601/commands.vala \
 #	testoptiongtm601.vala \
 #	$(NULL)
-
-EXTRA_DIST += \
-	fsogsmd.conf \
-	phonesim-default.xml \
-	$(NULL)
 
 CLEANFILES =
 MAINTAINERCLEANFILES = \
