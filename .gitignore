@@ -30,8 +30,5 @@ stamp-h1
 *.service
 *.vapi
 
-test*
-
 build
 core
-

@@ -1,1 +1,3 @@
 test*
+!*.vala
+integration_tests
