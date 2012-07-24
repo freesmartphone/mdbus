@@ -35,7 +35,12 @@ AM_VALAFLAGS = \
 	-g \
 	$(NULL)
 
-integration_tests_SOURCES = integration-tests.vala
+integration_tests_SOURCES = \
+	main.vala \
+	remotecontrol.vala \
+	phonesim_remotecontrol.vala \
+	calltests.vala \
+	$(NULL)
 
 EXTRA_DIST += \
 	fsogsmd.conf \
