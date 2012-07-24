@@ -49,7 +49,7 @@ public interface IRemotePhoneControl : GLib.Object
 {
     public abstract async void initiate_call( string number, bool hide ) throws RemotePhoneControlError;
     public abstract async void activate_incoming_call( int id ) throws RemotePhoneControlError;
-
+    public abstract async void hangup_incoming_call( int id ) throws RemotePhoneControlError;
 }
 
 public errordomain RemotePhoneControlError
@@ -127,6 +127,12 @@ public class PhonesimRemotePhoneControl : FsoFramework.AbstractObject, IRemotePh
     public async void activate_incoming_call( int id ) throws RemotePhoneControlError
     {
         string script = """tabCall.twCallMgt.selectRow( %i ); tabCall.pbActive.click();""".printf( id );
+        yield execute_script( script );
+    }
+
+    public async void hangup_incoming_call( int id ) throws RemotePhoneControlError
+    {
+        string script = """tabCall.twCallMgt.selectRow( %i ); tabCall.pbHangup.click();""".printf( id );
         yield execute_script( script );
     }
 
@@ -258,6 +264,11 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
             add_async_test( "AcceptedOutgoingCall",
                             cb => test_accepted_outgoing_call( cb ),
                             res => test_accepted_outgoing_call.end( res ),
+                            config.default_timeout );
+
+            add_async_test( "DeclinedOutgoingCall",
+                            cb => test_declined_outgoing_call( cb ),
+                            res => test_declined_outgoing_call.end( res ),
                             config.default_timeout );
         }
 
@@ -502,6 +513,27 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.ACTIVE, config.remote_number0 );
 
         yield gsm_call.release( 1 );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0 );
+    }
+
+    public async void test_declined_outgoing_call() throws GLib.Error, AssertError
+    {
+        FreeSmartphone.GSM.CallDetail[] calls;
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0, "There are still active calls" );
+
+        var id = yield gsm_call.initiate( config.remote_number0, "voice" );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.OUTGOING, config.remote_number0 );
+
+        yield remote_control.hangup_incoming_call( 0 );
         yield asyncWaitSeconds( 1 );
 
         calls = yield gsm_call.list_calls();
