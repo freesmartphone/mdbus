@@ -119,6 +119,11 @@ public class PhonesimRemotePhoneControl : FsoFramework.AbstractObject, IRemotePh
         yield execute_script( script );
     }
 
+    /*
+     * FIXME id doesn't have to match as there are not exchanged between phonesim and
+     * fsogsmd but if we keep everything in the right order and don't do crazy things
+     * we can assume which id is used in phonesim for a new call easily.
+     */
     public async void activate_incoming_call( int id ) throws RemotePhoneControlError
     {
         string script = """tabCall.twCallMgt.selectRow( %i ); tabCall.pbActive.click();""".printf( id );
@@ -489,9 +494,6 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         Assert.is_true( calls.length == 1 );
         validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.OUTGOING, config.remote_number0 );
 
-        // FIXME id doesn't have to match as there are not exchanged between phonesim and
-        // fsogsmd but if we keep everything in the right order and don't do crazy things
-        // we can assume which id is used in phonesim for a new call easily.
         yield remote_control.activate_incoming_call( 0 );
         yield asyncWaitSeconds( 1 );
 
