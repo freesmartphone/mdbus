@@ -121,7 +121,7 @@ public class PhonesimRemotePhoneControl : FsoFramework.AbstractObject, IRemotePh
 
     public async void activate_incoming_call( int id ) throws RemotePhoneControlError
     {
-        string script = "tabCall.pbActive.click();";
+        string script = """tabCall.twCallMgt.selectRow( %i ); tabCall.pbActive.click();""".printf( id );
         yield execute_script( script );
     }
 
@@ -491,9 +491,8 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
 
         // FIXME id doesn't have to match as there are not exchanged between phonesim and
         // fsogsmd but if we keep everything in the right order and don't do crazy things
-        // we can assume which id is used in phonesim for a new call easily. In this case
-        // it's the same as both phonesim and fsogsmd starts counting new calls with 1.
-        yield remote_control.activate_incoming_call( id );
+        // we can assume which id is used in phonesim for a new call easily.
+        yield remote_control.activate_incoming_call( 0 );
         yield asyncWaitSeconds( 1 );
 
         calls = yield gsm_call.list_calls();
