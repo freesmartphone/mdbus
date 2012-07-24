@@ -252,9 +252,9 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
 
         if ( config.remote_enabled )
         {
-            add_async_test( "IncomingCall",
-                            cb => test_incoming_call( cb ),
-                            res => test_incoming_call.end( res ), config.default_timeout );
+            add_async_test( "DeclineIncomingCall",
+                            cb => test_decline_incoming_call( cb ),
+                            res => test_decline_incoming_call.end( res ), config.default_timeout );
 
             add_async_test( "AcceptIncomingCallAndReleaseLater",
                             cb => test_accept_incoming_call_and_release_later( cb ),
@@ -442,7 +442,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         Assert.is_true( pin == config.pin );
     }
 
-    public async void test_incoming_call() throws GLib.Error, AssertError
+    public async void test_decline_incoming_call() throws GLib.Error, AssertError
     {
         FreeSmartphone.GSM.CallDetail[] calls;
 
