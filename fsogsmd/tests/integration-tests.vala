@@ -142,7 +142,7 @@ public class PhonesimRemotePhoneControl : FsoFramework.AbstractObject, IRemotePh
     }
 }
 
-public class FsoTest.TestGSM : FsoFramework.Test.TestCase
+public class FsoTest.GsmCallTest : FsoFramework.Test.TestCase
 {
     private FreeSmartphone.GSM.Device gsm_device;
     private FreeSmartphone.GSM.Network gsm_network;
@@ -220,7 +220,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     // public
     //
 
-    public TestGSM()
+    public GsmCallTest()
     {
         base("FreeSmartphone.GSM");
 
@@ -604,12 +604,12 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
     }
 }
 
-FsoTest.TestGSM gsm_suite = null;
+FsoTest.GsmCallTest gsm_call_suite = null;
 
 public static void sighandler( int signum )
 {
     Posix.signal( signum, null ); // restore original sighandler
-    gsm_suite.shutdown();
+    gsm_call_suite.shutdown();
     FsoFramework.theLogger.info( "received signal -%d, exiting.".printf( signum ) );
 }
 
@@ -625,12 +625,12 @@ public static int main( string[] args )
     Posix.signal( Posix.SIGTRAP, sighandler );
 
     TestSuite root = TestSuite.get_root();
-    gsm_suite = new FsoTest.TestGSM();
-    root.add_suite( gsm_suite.get_suite() );
+    gsm_call_suite = new FsoTest.GsmCallTest();
+    root.add_suite( gsm_call_suite.get_suite() );
 
     GLib.Test.run();
 
-    gsm_suite.shutdown();
+    gsm_call_suite.shutdown();
 
     return 0;
 }
