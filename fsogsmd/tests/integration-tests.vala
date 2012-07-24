@@ -160,6 +160,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         public bool remote_enabled;
         public string remote_type;
         public string remote_number0;
+        public string remote_number1;
     }
 
     private Configuration config;
@@ -228,6 +229,7 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         config.remote_enabled = theConfig.boolValue( "remote_control", "enabled", true );
         config.remote_type = theConfig.stringValue( "remote_control", "type", "phonesim" );
         config.remote_number0 = theConfig.stringValue( "remote_control", "number0", "+491234567890" );
+        config.remote_number1 = theConfig.stringValue( "remote_control", "number1", "+499876543210" );
 
         add_async_test( "ValidateInitialDeviceStatus",
                         cb => test_validate_initial_device_status( cb ),
@@ -264,6 +266,11 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
             add_async_test( "AcceptedOutgoingCall",
                             cb => test_accepted_outgoing_call( cb ),
                             res => test_accepted_outgoing_call.end( res ),
+                            config.default_timeout );
+
+            add_async_test( "IncomingWhileActiveCall",
+                            cb => test_incoming_while_active_call( cb ),
+                            res => test_incoming_while_active_call.end( res ),
                             config.default_timeout );
 
             add_async_test( "DeclinedOutgoingCall",
@@ -534,6 +541,62 @@ public class FsoTest.TestGSM : FsoFramework.Test.TestCase
         validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.OUTGOING, config.remote_number0 );
 
         yield remote_control.hangup_incoming_call( 0 );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0 );
+    }
+
+    public async void test_incoming_while_active_call() throws GLib.Error, AssertError
+    {
+        FreeSmartphone.GSM.CallDetail[] calls;
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 0, "There are still active calls" );
+
+        yield remote_control.initiate_call( config.remote_number0, false );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.INCOMING, config.remote_number0 );
+
+        yield gsm_call.activate( 1 );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.ACTIVE, config.remote_number0 );
+
+        // We have now one active call and get a new incoming which we will accept after
+        // we released the first one.
+
+        yield remote_control.initiate_call( config.remote_number1, false );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 2 );
+        validate_call( calls[0], 1, FreeSmartphone.GSM.CallStatus.ACTIVE, config.remote_number0 );
+        validate_call( calls[1], 2, FreeSmartphone.GSM.CallStatus.INCOMING, config.remote_number1 );
+
+        // Now release the first call in favour of accepting the second one
+        yield gsm_call.release( 1 );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        validate_call( calls[0], 2, FreeSmartphone.GSM.CallStatus.INCOMING, config.remote_number1 );
+
+        yield gsm_call.activate( 2 );
+        yield asyncWaitSeconds( 1 );
+
+        calls = yield gsm_call.list_calls();
+        Assert.is_true( calls.length == 1 );
+        validate_call( calls[0], 2, FreeSmartphone.GSM.CallStatus.ACTIVE, config.remote_number1 );
+        yield asyncWaitSeconds( 2 );
+
+        // Finally release the second call too
+        yield gsm_call.release( 2 );
         yield asyncWaitSeconds( 1 );
 
         calls = yield gsm_call.list_calls();
