@@ -1,16 +1,8 @@
-version 0.12
+version 0.13
 =====================================================================
 
-* outstanding bugs scheduled for 0.12
-* switch to vala 0.16.x [OK]
-* when checking archives for distribution remove c sources and compile from scratch too
 * fsogsmd:
-    * use /var/tmp instead of /tmp for SMS and PB storage [OK]
-    * call forwarding [OK]
-    * transfer/deflect calls [OK]
-    * converence calls [OK]
     * emergency calls
-    * join active and held calls [OK]
     * homezone API
         * needed anymore?
     * voice mails API
@@ -21,6 +13,26 @@ version 0.12
           able to access the modem. If the lock is released other clients can access the
           modem again. Usable for doing firmware upgrade where no other program should be
           allowed to use the modem.
+    * cover more API areas with our integration tests
+    * mock variant of our modem class to do real unit tests for handlers and mediators
+    * merge morphis/device-status?
+    * merge morphis/multi-device?
+    * merge morphis/hfp?
+* fsodeviced:
+    * store idle times somewhere so they are the same after a daemon restart
+
+version 0.12
+=====================================================================
+
+* outstanding bugs scheduled for 0.12
+* switch to vala 0.16.x [OK]
+* fsogsmd:
+    * use /var/tmp instead of /tmp for SMS and PB storage [OK]
+    * call forwarding [OK]
+    * transfer/deflect calls [OK]
+    * converence calls [OK]
+    * join active and held calls [OK]
+    * register with specific network providers [OK]
 
 version 0.11
 =====================================================================
