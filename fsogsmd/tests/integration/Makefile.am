@@ -39,6 +39,7 @@ integration_tests_SOURCES = \
 	main.vala \
 	remotecontrol.vala \
 	phonesim_remotecontrol.vala \
+	basetest.vala \
 	calltests.vala \
 	$(NULL)
 

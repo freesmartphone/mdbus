@@ -25,7 +25,7 @@ namespace FsoTest
     public const string FREESMARTPHONE_ERROR_DOMAIN = "free_smartphone_error-quark";
 }
 
-public class FsoTest.GsmCallTest : FsoFramework.Test.TestCase
+public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
 {
     private FreeSmartphone.GSM.Device gsm_device;
     private FreeSmartphone.GSM.Network gsm_network;
@@ -47,42 +47,6 @@ public class FsoTest.GsmCallTest : FsoFramework.Test.TestCase
     }
 
     private Configuration config;
-
-    private IProcessGuard fsogsmd_process;
-    private IProcessGuard phonesim_process;
-    private IRemotePhoneControl remote_control;
-
-    //
-    // private
-    //
-
-    private bool start_daemon()
-    {
-        // FIXME check wether one of both processes is already running
-
-        fsogsmd_process = new GProcessGuard();
-        phonesim_process = new GProcessGuard();
-
-        // FIXME prefix with directory where the phonesim configuration is stored
-        if ( !phonesim_process.launch( new string[] { "phonesim", "-p", "3001", "-gui", "phonesim-default.xml" } ) )
-            return false;
-
-        Posix.sleep( 3 );
-
-        if ( !fsogsmd_process.launch( new string[] { "fsogsmd", "--test" } ) )
-            return false;
-
-        Posix.sleep( 3 );
-
-        return true;
-    }
-
-    private void stop_daemon()
-    {
-        GLib.Log.set_always_fatal( GLib.LogLevelFlags.LEVEL_CRITICAL );
-        fsogsmd_process.stop();
-        phonesim_process.stop();
-    }
 
     private void validate_call( FreeSmartphone.GSM.CallDetail call, int expected_id,
         FreeSmartphone.GSM.CallStatus expected_status, string expected_number ) throws GLib.Error, AssertError
@@ -166,11 +130,6 @@ public class FsoTest.GsmCallTest : FsoFramework.Test.TestCase
                         cb => test_set_airplane_device_functionality( cb ),
                         res => test_set_airplane_device_functionality.end( res ), config.default_timeout );
 
-        // FIXME if we have different remote control types respect them here
-        remote_control = new PhonesimRemotePhoneControl();
-
-        start_daemon();
-
         try
         {
             gsm_device = Bus.get_proxy_sync<FreeSmartphone.GSM.Device>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
@@ -202,12 +161,6 @@ public class FsoTest.GsmCallTest : FsoFramework.Test.TestCase
             critical( @"Could not create proxy objects for GSM services: $(err.message)" );
         }
     }
-
-    public void shutdown()
-    {
-        stop_daemon();
-    }
-
 
     /**
      * Check the various status bits of the GSM service. All should be in a well definied
