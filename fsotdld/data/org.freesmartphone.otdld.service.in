@@ -1,4 +1,4 @@
 [D-BUS Service]
-Name=org.freesmartphone.otimed
-Exec=@prefix@/sbin/fsotimed
+Name=org.freesmartphone.ocontextd
+Exec=@prefix@/sbin/fsotdld
 User=root
