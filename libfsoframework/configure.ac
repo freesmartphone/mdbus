@@ -122,6 +122,29 @@ eval PACKAGE_LIBDIR="${pkglibdir}"
 AC_DEFINE_UNQUOTED([PACKAGE_LIBDIR], ["${PACKAGE_LIBDIR}"], [Module directory])
 
 #########################################################################################
+# check for disabling of fast baud rates
+#########################################################################################
+
+AC_ARG_ENABLE(fast-baud,
+  AS_HELP_STRING([--disable-fast-baud], [Disable fast baud rates (default=yes)]),
+  [fastbaud="$enableval"],
+  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+    #include <termios.h>
+    int tspeed = B2500000 + B4000000;
+  ]])],fastbaud="yes",fastbaud="no") )
+AM_CONDITIONAL( [FAST_BAUD], [test x"$fastbaud" = x"yes"])
+
+#########################################################################################
+# check for disabling the n_gsm support
+#########################################################################################
+
+AC_ARG_ENABLE(ngsm,
+  AS_HELP_STRING([--disable-ngsm], [Disable support for the N_GSM line discipline (default=yes)]),
+  [ngsm="$enableval"],
+  [ngsm="yes"])
+AM_CONDITIONAL( [WANT_NGSM], [test x"$ngsm" = x"yes"])
+
+#########################################################################################
 # check for debugging
 #########################################################################################
 
@@ -142,11 +165,14 @@ AC_CONFIG_FILES([
   fsosystem/Makefile
   fsobasics/fsobasics-2.0.pc
   fsobasics/Makefile
+  fsotransport/fsotransport-2.0.pc
+  fsotransport/Makefile
   fsoframework/fsoframework-2.0.pc
   fsoframework/Makefile
   tests/Makefile
   tests/fsosystem/Makefile
   tests/fsobasics/Makefile
+  tests/fsotransport/Makefile
   tests/fsoframework/Makefile])
 AC_OUTPUT
 

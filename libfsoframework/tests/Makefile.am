@@ -4,6 +4,7 @@ NULL =
 SUBDIRS = \
 	fsosystem \
 	fsobasics \
+	fsotransport \
 	fsoframework \
 	$(NULL)
 

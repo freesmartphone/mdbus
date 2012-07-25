@@ -5,6 +5,7 @@ NULL =
 SUBDIRS = \
   fsosystem \
   fsobasics \
+  fsotransport \
   fsoframework \
   vapi \
   tests \
@@ -12,6 +13,7 @@ SUBDIRS = \
 
 EXTRA_DIST += \
   MAINTAINERS \
+  3rdparty/linux/gsmmux.h \
   $(NULL)
 
 MAINTAINERCLEANFILES = \
