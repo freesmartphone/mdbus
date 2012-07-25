@@ -6,6 +6,7 @@ SUBDIRS = \
   fsosystem \
   fsobasics \
   fsotransport \
+  fsoresource \
   fsoframework \
   vapi \
   tests \

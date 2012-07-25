@@ -5,6 +5,7 @@ SUBDIRS = \
 	fsosystem \
 	fsobasics \
 	fsotransport \
+	fsoresource \
 	fsoframework \
 	$(NULL)
 
