@@ -3,4 +3,5 @@ NULL =
 
 EXTRA_DIST += \
 	config.vapi \
+	linuxext.vapi \
 	$(NULL)

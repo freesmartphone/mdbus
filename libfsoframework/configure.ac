@@ -129,6 +129,8 @@ AM_CONDITIONAL( [WANT_DEBUG], [test x"$debug" = x"yes"])
 AC_CONFIG_FILES([
   Makefile
   vapi/Makefile
+  fsosystem/fsosystem-2.0.pc
+  fsosystem/Makefile
   fsoframework/fsoframework-2.0.pc
   fsoframework/Makefile
   tests/Makefile])
