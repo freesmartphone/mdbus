@@ -135,6 +135,31 @@ public abstract class FsoTest.GsmBaseTest : FsoFramework.Test.TestCase
 
     }
 
+    protected async void ensure_sim_authenticated() throws GLib.Error, AssertError
+    {
+        var sim_auth_status = yield gsm_sim.get_auth_status();
+        if ( sim_auth_status != FreeSmartphone.GSM.SIMAuthStatus.READY )
+        {
+            yield gsm_sim.send_auth_code( config.pin );
+            yield asyncWaitSeconds( 1 );
+            sim_auth_status = yield gsm_sim.get_auth_status();
+            Assert.is_true( sim_auth_status == FreeSmartphone.GSM.SIMAuthStatus.READY );
+        }
+    }
+
+    protected async void ensure_full_functionality() throws GLib.Error, AssertError
+    {
+        var device_status = yield gsm_device.get_device_status();
+
+        if ( device_status != FreeSmartphone.GSM.DeviceStatus.ALIVE_REGISTERED )
+        {
+            yield gsm_device.set_functionality( "full", true, config.pin );
+            yield asyncWaitSeconds( 3 );
+            device_status = yield gsm_device.get_device_status();
+            Assert.is_true( device_status == FreeSmartphone.GSM.DeviceStatus.ALIVE_REGISTERED );
+        }
+    }
+
     //
     // public
     //
