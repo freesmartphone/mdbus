@@ -8,12 +8,8 @@ SUBDIRS = \
   tests \
   $(NULL)
 
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = fsoframework-2.0.pc
-
 EXTRA_DIST += \
   MAINTAINERS \
-  fsoframework-2.0.pc.in \
   $(NULL)
 
 MAINTAINERCLEANFILES = \

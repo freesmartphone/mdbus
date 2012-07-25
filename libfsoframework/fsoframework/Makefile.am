@@ -60,6 +60,13 @@ BUILT_SOURCES = \
 	fsoframework-2.0.vapi \
 	$(NULL)
 
+EXTRA_DIST += \
+	fsoframework-2.0.pc.in \
+	$(NULL)
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = fsoframework-2.0.pc
+
 CLEANFILES =
 MAINTAINERCLEANFILES = \
 	$(BUILT_SOURCES) \
