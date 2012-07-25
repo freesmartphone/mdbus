@@ -195,6 +195,22 @@ public class AtNetworkRegister : NetworkRegister
     }
 }
 
+public class AtNetworkRegisterWithProvider : NetworkRegisterWithProvider
+{
+    public override async void run( string provider ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
+    {
+        int mccmnc = int.parse( provider );
+
+        if ( mccmnc <= 0 )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( "Invalid provider identifcation provided: $provider" );
+
+        var cmd = modem.createAtCommand<PlusCOPS>( "+COPS" );
+        var response = yield modem.processAtCommandAsync( cmd, cmd.issue( PlusCOPS.Action.REGISTER_WITH_SPECIFIC_PROVIDER,
+            PlusCOPS.Format.NUMERIC, mccmnc ) );
+        checkResponseOk( cmd, response );
+    }
+}
+
 public class AtNetworkUnregister : NetworkUnregister
 {
     public override async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

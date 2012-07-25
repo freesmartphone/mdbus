@@ -283,6 +283,7 @@ public void registerGenericAtMediators( HashMap<Type,Type> table )
     table[ typeof(NetworkGetStatus) ]             = typeof( AtNetworkGetStatus );
     table[ typeof(NetworkListProviders) ]         = typeof( AtNetworkListProviders );
     table[ typeof(NetworkRegister) ]              = typeof( AtNetworkRegister );
+    table[ typeof(NetworkRegisterWithProvider) ]  = typeof( AtNetworkRegisterWithProvider );
     table[ typeof(NetworkUnregister) ]            = typeof( AtNetworkUnregister );
     table[ typeof(NetworkSendUssdRequest) ]       = typeof( AtNetworkSendUssdRequest );
     table[ typeof(NetworkGetCallingId) ]          = typeof( AtNetworkGetCallingId );
