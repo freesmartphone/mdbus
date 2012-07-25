@@ -72,7 +72,7 @@ GLIB_REQUIRED=2.26.0
 GEE_REQUIRED=0.5.0
 FSO_REQUIRED=0.11.0
 LIBNL_REQUIRED=3.2
-GSM_REQUIRED=1.2.0
+GSM0710_REQUIRED=1.2.0
 FSO_GLIB_REQUIRED=2012.06.06.01
 
 PKG_CHECK_MODULES(GLIB,
@@ -96,7 +96,7 @@ AC_SUBST(LIBNL_CFLAGS)
 AC_SUBST(LIBNL_LIBS)
 
 PKG_CHECK_MODULES(GSM0710,
-  gsm0710-1.0 >= $GSM_REQUIRED)
+  gsm0710-1.0 >= $GSM0710_REQUIRED)
 AC_SUBST(GSM0710_CFLAGS)
 AC_SUBST(GSM0710_LIBS)
 
@@ -167,6 +167,8 @@ AC_CONFIG_FILES([
   fsobasics/Makefile
   fsotransport/fsotransport-2.0.pc
   fsotransport/Makefile
+  gsm0710mux/gsm0710mux-1.0.pc
+  gsm0710mux/Makefile
   fsoresource/fsoresource-2.0.pc
   fsoresource/Makefile
   fsoframework/fsoframework-2.0.pc

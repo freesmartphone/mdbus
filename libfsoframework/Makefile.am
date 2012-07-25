@@ -6,8 +6,9 @@ SUBDIRS = \
   fsosystem \
   fsobasics \
   fsotransport \
-  fsoresource \
+  gsm0710mux \
   fsoframework \
+  fsoresource \
   vapi \
   tests \
   $(NULL)
