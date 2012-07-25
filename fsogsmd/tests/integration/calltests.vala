@@ -209,6 +209,8 @@ public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
 
     public async void test_set_airplane_device_functionality() throws GLib.Error, AssertError
     {
+        ensure_full_functionality();
+
         string level = "", pin = "";
         bool autoregister = false;
 
@@ -223,6 +225,8 @@ public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
 
     public async void test_decline_incoming_call() throws GLib.Error, AssertError
     {
+        ensure_full_functionality();
+
         FreeSmartphone.GSM.CallDetail[] calls;
 
         calls = yield gsm_call.list_calls();
@@ -243,6 +247,8 @@ public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
 
     public async void test_accept_incoming_call_and_release_later() throws GLib.Error, AssertError
     {
+        ensure_full_functionality();
+
         FreeSmartphone.GSM.CallDetail[] calls;
 
         calls = yield gsm_call.list_calls();
@@ -272,6 +278,8 @@ public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
 
     public async void test_accepted_outgoing_call() throws GLib.Error, AssertError
     {
+        ensure_full_functionality();
+
         FreeSmartphone.GSM.CallDetail[] calls;
 
         calls = yield gsm_call.list_calls();
@@ -300,6 +308,8 @@ public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
 
     public async void test_declined_outgoing_call() throws GLib.Error, AssertError
     {
+        ensure_full_functionality();
+
         FreeSmartphone.GSM.CallDetail[] calls;
 
         calls = yield gsm_call.list_calls();
@@ -321,6 +331,8 @@ public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
 
     public async void test_incoming_while_active_call() throws GLib.Error, AssertError
     {
+        ensure_full_functionality();
+
         FreeSmartphone.GSM.CallDetail[] calls;
 
         calls = yield gsm_call.list_calls();
