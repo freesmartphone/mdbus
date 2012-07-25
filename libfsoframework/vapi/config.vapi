@@ -4,6 +4,7 @@ namespace Config
     public const string PACKAGE_VERSION;
     public const string PACKAGE_GITV;
     public const string PACKAGE_LIBDIR;
+    public const string SYSCONFDIR;
 }
 
 // vim:ts=4:sw=4:expandtab

@@ -3,6 +3,7 @@ NULL =
 
 SUBDIRS = \
 	fsosystem \
+	fsobasics \
 	fsoframework \
 	$(NULL)
 

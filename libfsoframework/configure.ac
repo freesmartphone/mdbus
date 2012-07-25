@@ -101,6 +101,15 @@ AC_SUBST(GSM0710_CFLAGS)
 AC_SUBST(GSM0710_LIBS)
 
 #########################################################################################
+# check for backtrace
+#########################################################################################
+
+AC_MSG_NOTICE([Checking whether this C library has support for backtraces...])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <execinfo.h>
+  void test() { backtrace( 0, 0 ); } ])], [backtrace="yes"], [backtrace="no"] )
+AM_CONDITIONAL( [HAVE_BACKTRACE], [test x"$backtrace" = x"yes"])
+
+#########################################################################################
 # gather libdir
 #########################################################################################
 
@@ -131,10 +140,13 @@ AC_CONFIG_FILES([
   vapi/Makefile
   fsosystem/fsosystem-2.0.pc
   fsosystem/Makefile
+  fsobasics/fsobasics-2.0.pc
+  fsobasics/Makefile
   fsoframework/fsoframework-2.0.pc
   fsoframework/Makefile
   tests/Makefile
   tests/fsosystem/Makefile
+  tests/fsobasics/Makefile
   tests/fsoframework/Makefile])
 AC_OUTPUT
 
