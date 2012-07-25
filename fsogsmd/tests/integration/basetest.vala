@@ -20,12 +20,37 @@ using GLib;
 using FsoFramework;
 using FsoFramework.Test;
 
+namespace FsoTest
+{
+    public const string FREESMARTPHONE_ERROR_DOMAIN = "free_smartphone_error-quark";
+}
+
 public abstract class FsoTest.GsmBaseTest : FsoFramework.Test.TestCase
 {
     private IProcessGuard fsogsmd_process;
     private IProcessGuard phonesim_process;
 
     protected IRemotePhoneControl remote_control { get; private set; }
+    protected FreeSmartphone.GSM.Device gsm_device;
+    protected FreeSmartphone.GSM.Network gsm_network;
+    protected FreeSmartphone.GSM.SIM gsm_sim;
+    protected FreeSmartphone.GSM.Call gsm_call;
+    protected FreeSmartphone.GSM.PDP gsm_pdp;
+    protected FreeSmartphone.GSM.SMS gsm_sms;
+    protected FreeSmartphone.GSM.CB gsm_cb;
+    protected FreeSmartphone.GSM.VoiceMail gsm_voicemail;
+
+    protected struct Configuration
+    {
+        public string pin;
+        public int default_timeout;
+        public bool remote_enabled;
+        public string remote_type;
+        public string remote_number0;
+        public string remote_number1;
+    }
+
+    protected Configuration config;
 
     //
     // private
@@ -59,7 +84,6 @@ public abstract class FsoTest.GsmBaseTest : FsoFramework.Test.TestCase
         phonesim_process.stop();
     }
 
-
     //
     // protected
     //
@@ -67,8 +91,48 @@ public abstract class FsoTest.GsmBaseTest : FsoFramework.Test.TestCase
     protected GsmBaseTest( string name )
     {
         base( name );
+
+        config.default_timeout = theConfig.intValue( "default", "timeout", 60000 );
+        config.pin = theConfig.stringValue( "default", "pin", "1234" );
+        config.remote_enabled = theConfig.boolValue( "remote_control", "enabled", true );
+        config.remote_type = theConfig.stringValue( "remote_control", "type", "phonesim" );
+        config.remote_number0 = theConfig.stringValue( "remote_control", "number0", "+491234567890" );
+        config.remote_number1 = theConfig.stringValue( "remote_control", "number1", "+499876543210" );
+
         remote_control = new PhonesimRemotePhoneControl();
         start_daemon();
+
+        try
+        {
+            gsm_device = Bus.get_proxy_sync<FreeSmartphone.GSM.Device>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+
+            gsm_network = Bus.get_proxy_sync<FreeSmartphone.GSM.Network>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+
+            gsm_sim = Bus.get_proxy_sync<FreeSmartphone.GSM.SIM>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+
+            gsm_call = Bus.get_proxy_sync<FreeSmartphone.GSM.Call>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+
+            gsm_pdp = Bus.get_proxy_sync<FreeSmartphone.GSM.PDP>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+
+            gsm_sms = Bus.get_proxy_sync<FreeSmartphone.GSM.SMS>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+
+            gsm_cb = Bus.get_proxy_sync<FreeSmartphone.GSM.CB>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+
+            gsm_voicemail = Bus.get_proxy_sync<FreeSmartphone.GSM.VoiceMail>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
+                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
+        }
+        catch ( GLib.Error err )
+        {
+            critical( @"Could not create proxy objects for GSM services: $(err.message)" );
+        }
+
     }
 
     //

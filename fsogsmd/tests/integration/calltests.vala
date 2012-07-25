@@ -20,34 +20,8 @@ using GLib;
 using FsoFramework;
 using FsoFramework.Test;
 
-namespace FsoTest
-{
-    public const string FREESMARTPHONE_ERROR_DOMAIN = "free_smartphone_error-quark";
-}
-
 public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
 {
-    private FreeSmartphone.GSM.Device gsm_device;
-    private FreeSmartphone.GSM.Network gsm_network;
-    private FreeSmartphone.GSM.SIM gsm_sim;
-    private FreeSmartphone.GSM.Call gsm_call;
-    private FreeSmartphone.GSM.PDP gsm_pdp;
-    private FreeSmartphone.GSM.SMS gsm_sms;
-    private FreeSmartphone.GSM.CB gsm_cb;
-    private FreeSmartphone.GSM.VoiceMail gsm_voicemail;
-
-    private struct Configuration
-    {
-        public string pin;
-        public int default_timeout;
-        public bool remote_enabled;
-        public string remote_type;
-        public string remote_number0;
-        public string remote_number1;
-    }
-
-    private Configuration config;
-
     private void validate_call( FreeSmartphone.GSM.CallDetail call, int expected_id,
         FreeSmartphone.GSM.CallStatus expected_status, string expected_number ) throws GLib.Error, AssertError
     {
@@ -70,13 +44,6 @@ public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
     public GsmCallTest()
     {
         base("FreeSmartphone.GSM");
-
-        config.default_timeout = theConfig.intValue( "default", "timeout", 60000 );
-        config.pin = theConfig.stringValue( "default", "pin", "1234" );
-        config.remote_enabled = theConfig.boolValue( "remote_control", "enabled", true );
-        config.remote_type = theConfig.stringValue( "remote_control", "type", "phonesim" );
-        config.remote_number0 = theConfig.stringValue( "remote_control", "number0", "+491234567890" );
-        config.remote_number1 = theConfig.stringValue( "remote_control", "number1", "+499876543210" );
 
         add_async_test( "ValidateInitialDeviceStatus",
                         cb => test_validate_initial_device_status( cb ),
@@ -129,37 +96,6 @@ public class FsoTest.GsmCallTest : FsoTest.GsmBaseTest
         add_async_test( "SetAirplaneDeviceFunctionality",
                         cb => test_set_airplane_device_functionality( cb ),
                         res => test_set_airplane_device_functionality.end( res ), config.default_timeout );
-
-        try
-        {
-            gsm_device = Bus.get_proxy_sync<FreeSmartphone.GSM.Device>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
-
-            gsm_network = Bus.get_proxy_sync<FreeSmartphone.GSM.Network>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
-
-            gsm_sim = Bus.get_proxy_sync<FreeSmartphone.GSM.SIM>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
-
-            gsm_call = Bus.get_proxy_sync<FreeSmartphone.GSM.Call>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
-
-            gsm_pdp = Bus.get_proxy_sync<FreeSmartphone.GSM.PDP>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
-
-            gsm_sms = Bus.get_proxy_sync<FreeSmartphone.GSM.SMS>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
-
-            gsm_cb = Bus.get_proxy_sync<FreeSmartphone.GSM.CB>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
-
-            gsm_voicemail = Bus.get_proxy_sync<FreeSmartphone.GSM.VoiceMail>( BusType.SESSION, FsoFramework.GSM.ServiceDBusName,
-                FsoFramework.GSM.DeviceServicePath, DBusProxyFlags.DO_NOT_AUTO_START );
-        }
-        catch ( GLib.Error err )
-        {
-            critical( @"Could not create proxy objects for GSM services: $(err.message)" );
-        }
     }
 
     /**
