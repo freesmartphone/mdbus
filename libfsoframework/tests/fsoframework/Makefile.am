@@ -4,10 +4,12 @@ NULL =
 
 AM_CFLAGS = \
 	-I$(top_srcdir) \
+	-I$(top_srcdir)/fsobasics \
 	-I$(top_srcdir)/fsoframework \
 	$(GLIB_CFLAGS) \
 	$(DBUS_CFLAGS) \
 	$(FSOBASICS_CFLAGS) \
+	$(LIBNL_CFLAGS) \
 	$(NULL)
 
 noinst_PROGRAMS = $(TEST_PROGS)
@@ -15,7 +17,7 @@ noinst_PROGRAMS = $(TEST_PROGS)
 LDADD = \
 	$(GLIB_LIBS) \
 	$(DBUS_LIBS) \
-	$(FSOBASICS_LIBS) \
+	$(top_builddir)/fsobasics/libfsobasics.la \
 	$(top_builddir)/fsoframework/libfsoframework.la \
 	$(NULL)
 

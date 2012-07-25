@@ -5,8 +5,9 @@ NULL =
 AM_CFLAGS = \
 	-I$(top_srcdir) \
 	$(GLIB_CFLAGS) \
-	$(FSOBASICS_CFLAGS) \
 	-D G_LOG_DOMAIN=\"fsoframework\" \
+	$(LIBNL_CFLAGS) \
+	-I$(top_srcdir)/fsobasics \
 	$(NULL)
 
 AM_VALAFLAGS = \
@@ -26,6 +27,7 @@ libfsoframework_la_SOURCES = \
 libfsoframework_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \
 	--vapidir $(top_srcdir)/vapi \
+	--vapidir $(top_srcdir)/fsobasics \
 	--pkg glib-2.0 \
 	--pkg gmodule-2.0 \
 	--pkg gio-2.0 \
@@ -39,7 +41,7 @@ libfsoframework_la_VALAFLAGS = \
 
 libfsoframework_la_LIBADD = \
 	$(GLIB_LIBS) \
-	$(FSOBASICS_LIBS) \
+	$(top_builddir)/fsobasics/libfsobasics.la \
 	$(NULL)
 libfsoframework_la_LDFLAGS = \
 	$(AM_LDFLAGS) \
