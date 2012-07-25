@@ -465,6 +465,7 @@ public abstract class FsoGsm.MonitorGetNeighbourCellInformation : FsoGsm.Abstrac
 //
 // org.freesmartphone.GSM.VoiceMail.*
 //
+
 public abstract class FsoGsm.VoiceMailboxGetNumber : FsoGsm.AbstractMediator
 {
     public string number;
@@ -475,6 +476,13 @@ public abstract class FsoGsm.VoiceMailboxGetNumber : FsoGsm.AbstractMediator
 public abstract class FsoGsm.VoiceMailboxSetNumber : FsoGsm.AbstractMediator
 {
     public abstract async void run( string number ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
+}
+
+public abstract class FsoGsm.VoiceMailboxGetRecordings : FsoGsm.AbstractMediator
+{
+    public string[] stored_mails;
+
+    public abstract async void run() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
 }
 
 // vim:ts=4:sw=4:expandtab

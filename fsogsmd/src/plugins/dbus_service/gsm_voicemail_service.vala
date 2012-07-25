@@ -43,9 +43,9 @@ public class FsoGsm.GsmVoiceMailService : FreeSmartphone.GSM.VoiceMail, Service
     public async string[] get_stored_voice_mails() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error, DBusError, IOError
     {
         checkAvailability();
-        throw new FreeSmartphone.Error.INTERNAL_ERROR( "Not yet implemented" );
-        //var m = modem.createMediator<FsoGsm.VoiceMailboxGetRecordings>();
-        //yield m.run( number );
+        var m = modem.createMediator<FsoGsm.VoiceMailboxGetRecordings>();
+        yield m.run();
+        return m.stored_mails;
     }
 }
 
