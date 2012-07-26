@@ -67,9 +67,10 @@ pluginc_la_LDFLAGS = -no-undefined -module -avoid-version
 TEST_PROGS += \
 	testdbus \
 	testplugin \
-	testsubsystem \
 	testobject \
 	$(NULL)
+
+# testsubsystem
 
 testdbus_SOURCES = testdbus.vala
 testplugin_SOURCES = testplugin.vala
