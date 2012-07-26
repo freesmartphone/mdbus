@@ -1,7 +1,0 @@
-Before 1.0:
-
-(Deep Sleep)
- * Configure option for 'reset_timer_on' = 'read', 'write', 'readwrite'
-
-(Flow control)
- * Configure option for 'on_flow_control' = 'drop', 'stall'
