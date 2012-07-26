@@ -9,6 +9,7 @@ SUBDIRS = \
   gsm0710mux \
   fsoframework \
   fsoresource \
+  fsotest \
   vapi \
   tests \
   $(NULL)

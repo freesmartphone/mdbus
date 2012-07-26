@@ -173,11 +173,14 @@ AC_CONFIG_FILES([
   fsoresource/Makefile
   fsoframework/fsoframework-2.0.pc
   fsoframework/Makefile
+  fsotest/fsotest-2.0.pc
+  fsotest/Makefile
   tests/Makefile
   tests/fsosystem/Makefile
   tests/fsobasics/Makefile
   tests/fsotransport/Makefile
   tests/fsoresource/Makefile
+  tests/fsotest/Makefile
   tests/fsoframework/Makefile])
 AC_OUTPUT
 

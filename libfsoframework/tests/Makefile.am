@@ -7,6 +7,7 @@ SUBDIRS = \
 	fsotransport \
 	fsoresource \
 	fsoframework \
+	fsotest \
 	$(NULL)
 
 CLEANFILES =
