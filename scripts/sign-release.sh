@@ -1,5 +1,5 @@
 #/bin/sh
-srcrev=$1
+srcrev=$2
 release_ver=$1
 . ./scripts/list_components.sh
 for comp in $COMPONENTS; do
