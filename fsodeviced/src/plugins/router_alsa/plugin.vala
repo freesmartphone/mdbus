@@ -288,8 +288,11 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         updateScenarioIfChanged( scenario );
     }
 
-    public override void saveScenario( string scenario )
+    public override void saveScenario( string scenario ) throws FreeSmartphone.Error
     {
+        if ( !allscenarios.has_key( scenario ) )
+            throw new FreeSmartphone.Error.INVALID_PARAMETER( @"Can't save a unknown scenario" );
+
         try
         {
             var scene = new FsoDevice.BunchOfMixerControls( device.allMixerControls() );

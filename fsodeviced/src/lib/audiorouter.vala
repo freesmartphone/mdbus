@@ -27,7 +27,7 @@ public interface AudioRouter : GLib.Object
     public abstract string pullScenario() throws FreeSmartphone.Device.AudioError;
     public abstract void pushScenario( string scenario );
     public abstract void setScenario( string scenario );
-    public abstract void saveScenario( string scenario );
+    public abstract void saveScenario( string scenario ) throws FreeSmartphone.Error;
     public abstract uint8 currentVolume() throws FreeSmartphone.Error;
     public abstract void setVolume( uint8 volume ) throws FreeSmartphone.Error;
 }
@@ -62,7 +62,7 @@ public class NullRouter : AudioRouter, GLib.Object
     {
     }
 
-    public void saveScenario( string scenario )
+    public void saveScenario( string scenario ) throws FreeSmartphone.Error
     {
     }
 
@@ -84,7 +84,7 @@ public abstract class BaseAudioRouter : AudioRouter, GLib.Object
     public abstract string pullScenario() throws FreeSmartphone.Device.AudioError;
     public abstract void pushScenario( string scenario );
     public abstract void setScenario( string scenario );
-    public abstract void saveScenario( string scenario );
+    public abstract void saveScenario( string scenario ) throws FreeSmartphone.Error;
 
     public virtual uint8 currentVolume() throws FreeSmartphone.Error
     {

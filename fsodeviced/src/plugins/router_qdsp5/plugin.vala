@@ -97,7 +97,7 @@ class Qdsp5 : FsoDevice.BaseAudioRouter
         updateScenarioIfChanged( scenario );
     }
 
-    public override void saveScenario( string scenario )
+    public override void saveScenario( string scenario ) throws FreeSmartphone.Error
     {
     }
 }
