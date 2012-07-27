@@ -71,7 +71,8 @@ AC_SUBST(GEE_LIBS)
 
 PKG_CHECK_MODULES(FSO,
   fso-glib-1.0 >= $FSO_GLIB_REQUIRED
-  fsoframework-2.0 >= $FSO_REQUIRED)
+  fsoframework-2.0 >= $FSO_REQUIRED
+  fsotest-2.0 >= $FSO_REQUIRED)
 AC_SUBST(FSO_CFLAGS)
 AC_SUBST(FSO_LIBS)
 
@@ -162,6 +163,7 @@ AC_CONFIG_FILES([
   src/plugins/lowlevel_kernel26_staysalive/Makefile
   src/plugins/lowlevel_openmoko/Makefile
   tests/Makefile
+  tests/integration/Makefile
 ])
 AC_OUTPUT
 
