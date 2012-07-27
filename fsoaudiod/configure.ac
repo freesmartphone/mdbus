@@ -1,5 +1,5 @@
 m4_define([fsoaudiod_released], [0])
-m4_define([fsoaudiod_base_version], [0.12.0])
+m4_define([fsoaudiod_base_version], [0.13.0])
 m4_define([fsoaudiod_maybe_gitrev], m4_if(fsoaudiod_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([fsoaudiod_version], m4_if(fsoaudiod_released, [1], [fsoaudiod_base_version], [fsoaudiod_base_version-fsoaudiod_maybe_gitrev]))
 
