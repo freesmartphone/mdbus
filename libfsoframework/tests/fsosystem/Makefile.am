@@ -25,13 +25,17 @@ AM_VALAFLAGS = \
 
 noinst_PROGRAMS = \
 	testpath \
+	testmodules \
+	testnetwork \
 	$(NULL)
 
-TEST_PROGS += $(noinst_PROGRAMS)
+TEST_PROGS += testpath
 
-testpath_SOURCES = \
-	testpath.vala \
-	$(NULL)
+testpath_SOURCES = testpath.vala
+
+testmodules_SOURCES = testmodules.vala
+
+testnetwork_SOURCES = testnetwork.vala
 
 CLEANFILES = \
 	$(TEST_PROGS) \
