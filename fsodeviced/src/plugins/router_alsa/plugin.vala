@@ -54,6 +54,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
     private void addScenario( string scenario, File file, uint idxMainVolume )
     {
         FsoDevice.MixerControl[] controls = {};
+        int line_count = 0;
 
         try
         {
@@ -64,6 +65,8 @@ class LibAlsa : FsoDevice.BaseAudioRouter
             // Read lines until end of file (null) is reached
             while ( ( line = in_stream.read_line( null, null ) ) != null )
             {
+                line_count++;
+
                 var stripped = line.strip();
                 if ( stripped == "" || stripped.has_prefix( "#" ) ) // skip empty lines and comments
                     continue;
@@ -74,18 +77,19 @@ class LibAlsa : FsoDevice.BaseAudioRouter
                 }
                 catch ( FsoDevice.SoundError e )
                 {
-                    FsoFramework.theLogger.warning( @"Invalid line '$line'. Ignoring." );
+                    FsoFramework.theLogger.error( @"Got error while parsing line $line_count of scenario $scenario:" );
+                    FsoFramework.theLogger.error( @"$(e.message)" );
                 }
             }
-#if DEBUG
-            debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
-#endif
+
+            FsoFramework.theLogger.debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
+
             var bunch = new FsoDevice.BunchOfMixerControls( controls, idxMainVolume );
             allscenarios[scenario] = bunch;
         }
         catch ( Error e )
         {
-            FsoFramework.theLogger.warning( "%s".printf( e.message ) );
+            FsoFramework.theLogger.warning( @"$(e.message)" );
         }
     }
 

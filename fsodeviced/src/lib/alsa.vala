@@ -129,12 +129,16 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
 
     public MixerControl controlForId( uint idx ) throws SoundError
     {
+        assert( list != null );
+
+        if ( idx < 0 || idx > list.get_used() )
+            throw new SoundError.DEVICE_ERROR( @"No control with index $idx available" );
+
         ElemId eid;
         var res = ElemId.alloc( out eid );
         if ( res < 0 )
             throw new SoundError.DEVICE_ERROR( "%s".printf( Alsa.strerror( res ) ) );
 
-        assert( list != null );
         list.get_id( idx, eid );
 
         ElemInfo info;
