@@ -3,3 +3,37 @@ freesmartphone.org device daemon
 ====================================
 
 This daemon implements the freesmartphone.org Device API
+
+Compilation and installation
+====================================
+
+In order to compile fsogsmd you need the following software installed on your
+build system:
+
+- GCC compiler
+- GLib library     (>= 2.26.0)
+- Vala compiler    (>= 0.16.0)
+- libgee           (>= 0.5.0)
+- libfso-glib      (>= 2012.07.27.01)
+- libfsobasics     (>= 0.12.0)
+- libfsosystem     (>= 0.12.0)
+- libfsoframework  (>= 0.12.0)
+- libfsotransport  (>= 0.12.0)
+- libfsoresource   (>= 0.12.0)
+- libfsotest       (>= 0.12.0)
+- libasound        (>= 0.20)
+
+when compiling with support for canberra:
+- canberra         (>= 0.17)
+
+when compiling with support for gstreamer:
+- gstreamer        (>= 0.10.20)
+
+To configure execute (please take a look at the provided options of the configure
+script with ./configure --help before):
+
+# ./configure [options]
+
+To compile and install execute:
+
+# make && make install
