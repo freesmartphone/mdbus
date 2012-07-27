@@ -295,9 +295,9 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 
         try
         {
-            var scene = new FsoDevice.BunchOfMixerControls( device.allMixerControls() );
+            var scenario_controls = new FsoDevice.BunchOfMixerControls( allscenarios[scenario].controls );
             var filename = Path.build_filename( dataPath, scenario );
-            FsoFramework.FileHandling.write( scene.to_string(), filename );
+            FsoFramework.FileHandling.write( scenario_controls.to_string(), filename );
         }
         catch ( Error e )
         {
