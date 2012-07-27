@@ -24,6 +24,7 @@ LDADD = \
 AM_VALAFLAGS = \
 	-C \
 	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/fsobasics \
 	--vapidir $(top_srcdir)/fsoframework \
 	--pkg posix \
 	--pkg glib-2.0 \

@@ -7,6 +7,7 @@ AM_CFLAGS = \
 	$(NULL)
 AM_VALAFLAGS = \
 	--basedir $(top_srcdir) \
+	--vapidir $(top_srcdir)/fsobasics \
 	--vapidir $(top_srcdir)/fsotest \
 	--pkg posix \
 	--pkg glib-2.0 \
