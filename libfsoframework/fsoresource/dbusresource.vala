@@ -176,7 +176,7 @@ public abstract class AbstractDBusResource : FreeSmartphone.Resource, FsoFramewo
         return result;
     }
 
-    public async FreeSmartphone.UsageResourcePolicy get_default_policy() throws DBusError, IOError
+    public async FreeSmartphone.UsageResourcePolicy get_default_policy() throws FreeSmartphone.ResourceError, FreeSmartphone.Error, DBusError, IOError
     {
         assert( logger.debug( @"Inquiring default policy for $classname..." ) );
         var result = default_policy();

@@ -50,7 +50,7 @@ public class DummyResource : GLib.Object, FreeSmartphone.Resource
         suspended = false;
     }
 
-    public async FreeSmartphone.UsageResourcePolicy get_default_policy() throws FreeSmartphone.UsageError, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
+    public async FreeSmartphone.UsageResourcePolicy get_default_policy() throws FreeSmartphone.ResourceError, FreeSmartphone.Error, GLib.DBusError, GLib.IOError
     {
         return FreeSmartphone.UsageResourcePolicy.AUTO;
     }
