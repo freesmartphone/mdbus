@@ -34,10 +34,6 @@ integration_tests_SOURCES = \
 	main.vala \
 	$(NULL)
 
-EXTRA_DIST += \
-	fsousaged.conf \
-	$(NULL)
-
 CLEANFILES =
 MAINTAINERCLEANFILES = \
 	Makefile.in \
