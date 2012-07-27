@@ -3,13 +3,17 @@ include $(top_srcdir)/Makefile.decl
 NULL =
 
 AM_CFLAGS = \
+	$(FSO_GLIB_CFLAGS) \
 	$(GLIB_CFLAGS) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/fsoresource \
 	$(NULL)
 
 LDADD = \
+	$(top_builddir)/fsobasics/libfsobasics.la \
+	$(top_builddir)/fsoframework/libfsoframework.la \
 	$(top_builddir)/fsoresource/libfsoresource.la \
+	$(FSO_GLIB_LIBS) \
 	$(GLIB_LIBS)
 	$(NULL)
 
@@ -21,6 +25,7 @@ AM_VALAFLAGS = \
 	--pkg posix \
 	--pkg glib-2.0 \
 	--pkg gio-2.0 \
+	--pkg fso-glib-1.0 \
 	--pkg fsoframework-2.0 \
 	--pkg fsoresource-2.0 \
 	$(NULL)

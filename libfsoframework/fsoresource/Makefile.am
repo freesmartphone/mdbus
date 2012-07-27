@@ -45,7 +45,7 @@ libfsoresource_la_CFLAGS = \
 
 libfsoresource_la_LIBADD = \
 	$(GLIB_LIBS) \
-	$(FSO_GLIB_CFLAGS) \
+	$(FSO_GLIB_LIBS) \
 	$(NULL)
 libfsoresource_la_LDFLAGS = \
 	$(AM_LDFLAGS) \
