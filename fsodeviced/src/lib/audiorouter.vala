@@ -76,7 +76,7 @@ public class NullRouter : AudioRouter, GLib.Object
     }
 }
 
-public abstract class BaseAudioRouter : AudioRouter, GLib.Object
+public abstract class BaseAudioRouter : AudioRouter, FsoFramework.AbstractObject
 {
     public abstract bool isScenarioAvailable( string scenario );
     public abstract string[] availableScenarios();
