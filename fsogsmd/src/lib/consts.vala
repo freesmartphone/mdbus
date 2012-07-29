@@ -384,6 +384,9 @@ namespace FsoGsm.Constants
             case AtResponse.CME_ERROR_048_PH_SIM_PUK_REQUIRED:
                 return new FreeSmartphone.GSM.Error.AUTHORIZATION_REQUIRED( detail );
 
+            case AtResponse.CME_ERROR_021_INVALID_INDEX:
+                return new FreeSmartphone.GSM.Error.SIM_INVALID_INDEX( "Accessed invalid SIM index" );
+
             default:
                 return new FreeSmartphone.GSM.Error.DEVICE_FAILED( detail );
         }
