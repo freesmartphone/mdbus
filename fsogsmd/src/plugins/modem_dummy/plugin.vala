@@ -57,9 +57,9 @@ class Dummy.Modem : FsoGsm.AbstractModem
         registerDummyMediators( mediators );
     }
 
-    protected override CallHandler createCallHandler()
+    protected override ICallDriver createCallDriver()
     {
-        return new NullCallHandler();
+        return new NullCallDriver();
     }
 
     protected override SmsHandler createSmsHandler()
