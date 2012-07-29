@@ -252,7 +252,6 @@ AC_CONFIG_FILES([
   src/plugins/player_canberra/Makefile
   src/plugins/player_gstreamer/Makefile
   src/plugins/router_alsa/Makefile
-  src/plugins/router_qdsp5/Makefile
   src/plugins/thinkpad_powercontrol/Makefile
   src/plugins/vibrator_ledclass/Makefile
   src/plugins/vibrator_omapvibe/Makefile
