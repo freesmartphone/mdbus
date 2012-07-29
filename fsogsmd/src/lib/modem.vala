@@ -633,7 +633,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
      **/
     protected virtual ICallDriver createCallDriver()
     {
-        return new NullCallDriver();
+        return new AtCallDriver( this );
     }
 
     /**
