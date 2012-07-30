@@ -634,7 +634,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected virtual ICallHandler createCallHandler()
     {
         var driver = createCallDriver();
-        return new CallHandler( driver );
+        return new CallHandler( this, driver );
     }
 
     /**

@@ -124,7 +124,7 @@ public class FsoGsm.CallHandler : FsoGsm.ICallHandler, FsoFramework.AbstractObje
     private uint timeout;
     private FsoGsm.Call[] calls;
     private FsoFramework.Pair<string,string> supplementary;
-    private FsoGsm.Modem modem { get; private set; }
+    private FsoGsm.Modem modem;
 
     construct
     {
@@ -301,8 +301,9 @@ public class FsoGsm.CallHandler : FsoGsm.ICallHandler, FsoFramework.AbstractObje
     // public API
     //
 
-    public CallHandler( ICallDriver driver )
+    public CallHandler( FsoGsm.Modem modem, ICallDriver driver )
     {
+        this.modem = modem;
         this.driver = driver;
     }
 
