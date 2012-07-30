@@ -25,7 +25,7 @@ using GIsiComm;
 /**
  * @class IsiCallHandler
  **/
-public class FsoGsm.IsiCallHandler : FsoGsm.CallHandler, FsoFramework.AbstractObject
+public class FsoGsm.IsiCallHandler : FsoGsm.ICallHandler, FsoFramework.AbstractObject
 {
     protected HashMap<int, FsoGsm.Call> calls;
 

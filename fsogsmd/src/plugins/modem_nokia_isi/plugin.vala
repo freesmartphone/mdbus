@@ -178,7 +178,7 @@ class NokiaIsi.Modem : FsoGsm.AbstractModem
         return null;
     }
 
-    protected override CallHandler createCallHandler()
+    protected override ICallHandler createCallHandler()
     {
 		return new IsiCallHandler( this );
     }
