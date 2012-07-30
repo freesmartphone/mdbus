@@ -40,6 +40,7 @@ libfsogsm_la_SOURCES = \
 	lowlevel.vala \
 	mediator.vala \
 	mediatorhelpers.vala \
+	factories.vala \
 	modem.vala \
 	phonebook.vala \
 	pdp.vala \

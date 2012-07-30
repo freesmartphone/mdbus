@@ -330,97 +330,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
 
     private void initLowlevel()
     {
-        // check preferred low level poweron/poweroff plugin and instanciate
         var lowleveltype = config.stringValue( CONFIG_SECTION, "lowlevel_type", "none" );
-        string typename = "none";
-
-        switch ( lowleveltype )
-        {
-            case "motorola_ezx":
-                typename = "LowLevelMotorolaEZX";
-                break;
-            case "openmoko":
-                typename = "LowLevelOpenmoko";
-                break;
-            case "nokia900":
-                typename = "LowLevelNokia900";
-                break;
-            case "samsung_crespo":
-                typename = "LowLevelSamsungCrespo";
-                break;
-            case "gta04":
-                typename = "LowLevelGTA04";
-                break;
-            default:
-                logger.warning( @"Invalid lowlevel_type $lowleveltype; vendor specifics will NOT be available" );
-                lowlevel = new FsoGsm.NullLowLevel();
-                return;
-        }
-
-        if ( lowleveltype != "none" )
-        {
-            var lowlevelclass = Type.from_name( typename );
-            if ( lowlevelclass == Type.INVALID  )
-            {
-                logger.warning( @"Can't find plugin for lowlevel_type $lowleveltype; vendor specifics will NOT be available" );
-                lowlevel = new FsoGsm.NullLowLevel();
-                return;
-            }
-
-            lowlevel = Object.new( lowlevelclass ) as FsoGsm.LowLevel;
-            logger.info( @"Ready. Using lowlevel plugin $lowleveltype to handle vendor specifics" );
-        }
+        lowlevel = createLowLevelFromType( lowleveltype );
     }
 
     private void initPdpHandler()
     {
-        // check preferred pdp handler plugin and instanciate
         var pdphandlertype = config.stringValue( CONFIG_SECTION, "pdp_type", "none" );
-        string typename = "none";
-
-        switch ( pdphandlertype )
-        {
-            case "ppp":
-                typename = "PdpPpp";
-                break;
-            case "mux":
-                typename = "PdpPppMux";
-                break;
-            case "qmi":
-                typename = "PdpQmi";
-                break;
-            case "ippp":
-                typename = "PdpPppInternal";
-                break;
-            case "nokia_isi":
-                typename = "PdpNokiaIsi";
-                break;
-            case "samsung_ipc":
-                typename = "SamsungPdpHandler";
-                break;
-            case "option_gtm601":
-                typename = "PdpOptionGtm601";
-                break;
-            default:
-                logger.warning( @"Invalid pdp_type $pdphandlertype; data connectivity will NOT be available" );
-                pdphandler = new FsoGsm.NullPdpHandler();
-                return;
-        }
-
-        if ( pdphandlertype != "none" )
-        {
-            var pdphandlerclass = Type.from_name( typename );
-            if ( pdphandlerclass == Type.INVALID  )
-            {
-                logger.warning( @"Can't find plugin for pdp_type $pdphandlertype; data connectivity will NOT be available" );
-                pdphandler = new FsoGsm.NullPdpHandler();
-                return;
-            }
-
-            pdphandler = Object.new( pdphandlerclass ) as FsoGsm.PdpHandler;
-            pdphandler.assign_modem( this );
-            logger.info( @"Ready. Using pdp plugin $pdphandlertype to handle data connectivity" );
-        }
+        pdphandler = createPdpHandlerFromType( pdphandlertype );
+        pdphandler.assign_modem( this );
     }
 
     private void initData()
