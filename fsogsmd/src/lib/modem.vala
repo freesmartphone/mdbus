@@ -1054,14 +1054,6 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     }
 }
 
-public abstract class FsoGsm.AbstractGsmModem : FsoGsm.AbstractModem
-{
-}
-
-public abstract class FsoGsm.AbstractCdmaModem : FsoGsm.AbstractModem
-{
-}
-
 /**
  * Dummy implementation of a modem. Should be only used for testing purpose.
  **/
