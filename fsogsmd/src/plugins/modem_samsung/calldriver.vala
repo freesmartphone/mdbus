@@ -29,7 +29,7 @@ public class Samsung.CallDriver : ICallDriver, FsoFramework.AbstractObject
     // public API
     //
 
-    public CallDriver( FsoGsm.Modem modem)
+    public CallDriver( FsoGsm.Modem modem )
     {
         _modem = modem;
         _soundhandler = new Samsung.SoundHandler( _modem );
@@ -83,16 +83,6 @@ public class Samsung.CallDriver : ICallDriver, FsoFramework.AbstractObject
 
         // FIXME we want this right here?
         yield _soundhandler.mute_microphone( false );
-    }
-
-    public async void hangup_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
-    }
-
-    public async void hangup_all() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        throw new FreeSmartphone.Error.UNSUPPORTED( "Not implemented" );
     }
 
     public async void hold_all_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

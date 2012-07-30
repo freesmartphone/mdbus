@@ -378,7 +378,8 @@ public class FsoGsm.CallHandler : FsoGsm.ICallHandler, FsoFramework.AbstractObje
             throw new FreeSmartphone.GSM.Error.CALL_NOT_FOUND( "No call to release available" );
         }
 
-        yield driver.hangup_all();
+        yield driver.release_all_active();
+        yield driver.release_all_held();
     }
 
     public async void transfer() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error

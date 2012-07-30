@@ -22,8 +22,6 @@ public interface FsoGsm.ICallDriver : GLib.Object
 {
     public abstract async void dial( string number, string type ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-    public abstract async void hangup_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
-    public abstract async void hangup_all() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void hold_all_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void release( int id ) throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;
     public abstract async void release_all_held() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error;

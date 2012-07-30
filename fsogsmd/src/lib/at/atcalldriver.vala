@@ -47,18 +47,6 @@ public class FsoGsm.AtCallDriver : FsoGsm.ICallDriver, FsoFramework.AbstractObje
         checkResponseOk( cmd, response );
     }
 
-    public async void hangup_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-    }
-
-    public async void hangup_all() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
-    {
-        // FIXME need implementation of PlusCHUP
-        // var cmd = modem.createAtCommand<PlusCHLD>( "+CHUP" );
-        // var response = yield modem.processAtCommandAsync( cmd, cmd.issue() );
-        // checkResponseOk( cmd, response );
-    }
-
     public async void hold_all_active() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
         var cmd = modem.createAtCommand<PlusCHLD>( "+CHLD" );
