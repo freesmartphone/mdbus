@@ -35,7 +35,6 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
     public void process( SamsungIpc.Response response )
     {
         var channel = modem.channel( "main" ) as Samsung.IpcChannel;
-        var callhandler = modem.callhandler as Samsung.CallHandler;
 
         switch ( response.command )
         {
@@ -74,10 +73,15 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 break;
 
             case SamsungIpc.MessageType.CALL_INCOMING:
+                modem.callhandler.handleIncomingCall( new FsoGsm.CallInfo() );
+                break;
+
             case SamsungIpc.MessageType.CALL_RELEASE:
+                modem.callhandler.handleEndingCall( new FsoGsm.CallInfo() );
+                break;
+
             case SamsungIpc.MessageType.CALL_STATUS:
-            case SamsungIpc.MessageType.CALL_OUTGOING:
-                callhandler.syncCallStatusAsync();
+                // We got or will get this as we're polling for call status changes
                 break;
 
             case SamsungIpc.MessageType.SMS_DEVICE_READY:

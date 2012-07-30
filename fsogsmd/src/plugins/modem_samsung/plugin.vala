@@ -57,9 +57,9 @@ class Samsung.Modem : FsoGsm.AbstractModem
         return (FsoGsm.UnsolicitedResponseHandler) null;
     }
 
-    protected override FsoGsm.CallHandler createCallHandler()
+    protected override FsoGsm.ICallDriver createCallDriver()
     {
-        return (FsoGsm.CallHandler) new Samsung.CallHandler( this );
+        return new Samsung.CallDriver( this );
     }
 
     protected override FsoGsm.SmsHandler createSmsHandler()

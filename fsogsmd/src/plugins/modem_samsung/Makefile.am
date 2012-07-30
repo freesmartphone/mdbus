@@ -24,7 +24,7 @@ modem_samsung_la_SOURCES = \
  mediators_sms.vala \
  pdphandler.vala \
  mediators_call.vala \
- callhandler.vala \
+ calldriver.vala \
  soundhandler.vala \
  smshandler.vala \
  utils.vala \
