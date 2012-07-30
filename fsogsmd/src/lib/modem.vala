@@ -517,7 +517,7 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     private void registerHandlers()
     {
         urc = createUnsolicitedHandler();
-        callhandler = new CallHandler( createCallDriver() );
+        callhandler = createCallHandler();
         smshandler = createSmsHandler();
         pbhandler = createPhonebookHandler();
         watchdog = createWatchDog();
@@ -626,6 +626,15 @@ public abstract class FsoGsm.AbstractModem : FsoGsm.Modem, FsoFramework.Abstract
     protected virtual UnsolicitedResponseHandler createUnsolicitedHandler()
     {
         return new AtUnsolicitedResponseHandler( this );
+    }
+
+    /**
+     * Override this to return a custom type of Call handler to be used for this modem.
+     **/
+    protected virtual ICallHandler createCallHandler()
+    {
+        var driver = createCallDriver();
+        return new CallHandler( driver );
     }
 
     /**
