@@ -43,7 +43,7 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
         unowned SamsungIpc.Response? response = null;
 
         var contextSetupMessage = SamsungIpc.Gprs.DefinePdpContextMessage();
-        contextSetupMessage.setup( contextParams.apn );
+        contextSetupMessage.setup( 0, true, contextParams.apn ); // FIXME cid
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
             SamsungIpc.MessageType.GPRS_DEFINE_PDP_CONTEXT, contextSetupMessage.data );
@@ -52,7 +52,7 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"Did not receive a response from modem for PDP context setup" );
 
         var r = (SamsungIpc.Generic.PhoneResponseMessage*) response.data;
-        if ( r.code == SamsungIpc.Gprs.ErrorType.UNAVAILABLE )
+        if ( r.code != 0 )
             throw new FreeSmartphone.Error.INTERNAL_ERROR( @"It is not possible to setup a PDP context yet" );
     }
 
@@ -64,8 +64,8 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
         var channel = modem.channel( "main") as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
-        var contextActMessage = SamsungIpc.Gprs.PdpContextMessage();
-        contextActMessage.setup( true, contextParams.username, contextParams.password );
+        var contextActMessage = SamsungIpc.Gprs.PdpContextSetMessage();
+        contextActMessage.setup( 0, true, contextParams.username, contextParams.password ); // FIXME cid
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
             SamsungIpc.MessageType.GPRS_PDP_CONTEXT, contextActMessage.data );
@@ -82,8 +82,8 @@ class Samsung.PdpHandler : FsoGsm.PdpHandler
         var channel = modem.channel( "main" ) as Samsung.IpcChannel;
         unowned SamsungIpc.Response? response = null;
 
-        var contextDeactMessage = SamsungIpc.Gprs.PdpContextMessage();
-        contextDeactMessage.setup( false, null, null );
+        var contextDeactMessage = SamsungIpc.Gprs.PdpContextSetMessage();
+        contextDeactMessage.setup( 0, false, null, null ); // FIXME cid
 
         response = yield channel.enqueue_async( SamsungIpc.RequestType.SET,
             SamsungIpc.MessageType.GPRS_PDP_CONTEXT, contextDeactMessage.data );
