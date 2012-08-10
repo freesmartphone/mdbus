@@ -31,13 +31,6 @@ class Pdp.OptionGtm601 : FsoGsm.PdpHandler
     public const string MODULE_NAME = "fsogsm.pdp_option_gtm601";
     public const string HSO_IFACE = "hso0";
 
-    private FsoGsm.Modem modem;
-
-    public void assign_modem( FsoGsm.Modem modem )
-    {
-        this.modem = modem;
-    }
-
     public override string repr()
     {
         return "<>";

@@ -123,11 +123,6 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
         } );
     }
 
-    public void assign_modem( FsoGsm.Modem modem )
-    {
-        this.modem = modem;
-    }
-
     //
     // protected API
     //
@@ -158,6 +153,11 @@ public abstract class FsoGsm.PdpHandler : IPdpHandler, FsoFramework.AbstractObje
     //
     // public API
     //
+
+    public void assign_modem( FsoGsm.Modem modem )
+    {
+        this.modem = modem;
+    }
 
     public async void activate() throws FreeSmartphone.GSM.Error, FreeSmartphone.Error
     {
