@@ -11,7 +11,7 @@
 11:'DAC Voice Analog Downlink Volume':1:0
 12:'DAC Voice Analog Downlink Switch':1:0
 13:'PreDriv Playback Volume':2:0,0
-14:'Headset Playback Volume':2:0,0
+14:'Headset Playback Volume':2:1,1
 15:'Carkit Playback Volume':2:0,0
 16:'Earpiece Playback Volume':1:0
 17:'TX1 Digital Capture Volume':2:0,0
@@ -34,7 +34,7 @@
 34:'Vibra Mux':1:0
 35:'HandsfreeR Switch':1:0
 36:'HandsfreeR Mux':1:2
-37:'HandsfreeL Switch':0:0
+37:'HandsfreeL Switch':1:0
 38:'HandsfreeL Mux':1:2
 39:'CarkitR Mixer Voice':1:0
 40:'CarkitR Mixer AudioR1':1:0
