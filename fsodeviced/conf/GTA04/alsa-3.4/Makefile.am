@@ -5,6 +5,7 @@ NULL=
 confdir = $(sysconfdir)/freesmartphone/conf/GTA04/alsa-3.4
 dist_conf_DATA = \
 	gsmhandset \
+	headset \
 	stereoout \
 	$(NULL)
 
@@ -12,7 +13,6 @@ dist_conf_DATA = \
 #       gsmbluetooth
 #       gsmheadset
 #       gsmspeaker
-#       headset
 #       voiphandset
 
 MAINTAINERCLEANFILES = Makefile.in
