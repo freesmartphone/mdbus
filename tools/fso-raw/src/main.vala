@@ -1,7 +1,6 @@
 /**
- * -- Mickey's DBus Utility V2 --
- *
  * Copyright (C) 2009-2012 Michael 'Mickey' Lauer <mlauer@vanille-media.de>
+ *                         Lukas 'Slyon' Märdian <luk@slyon.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +23,6 @@ using GLib;
 //=========================================================================//
 const string FSO_USAGE_BUS   = "org.freesmartphone.ousaged";
 const string FSO_USAGE_PATH  = "/org/freesmartphone/Usage";
-
-//=========================================================================//
-MainLoop mainloop;
 
 //=========================================================================//
 
