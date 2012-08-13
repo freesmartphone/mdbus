@@ -159,29 +159,14 @@ int main( string[] args )
 
     commands.allocateResources( resources );
 
-    var child = Posix.fork();
-    if ( child < 0 )
-        critical( "Could not fork." );
-
-    if ( child > 0 )
+    try
     {
-        int status;
-        var pid = Posix.wait( out status );
-        return 0;
+        Process.spawn_sync ( null, command, null, SpawnFlags.SEARCH_PATH, null, null );
     }
-    else
+    catch(SpawnError e)
     {
-        string cmdline = "";
-        i = 0;
-        while ( command[i++] != null )
-        {
-            cmdline += command[i-1];
-            cmdline += " ";
-        }
-        return Posix.system( cmdline );
+        stderr.printf("Error: GLib.Process.spawn_sync failed");
     }
-
-    // rely on automatic resource cleanup
 
     return 0;
 }
