@@ -48,7 +48,7 @@ public class SamsungSimSendAuthCode : SimSendAuthCode
         var pinStatusMessage = SamsungIpc.Security.PinStatusSetMessage();
         pinStatusMessage.setup( SamsungIpc.Security.PinType.PIN1, pin, "" );
 
-        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SEC_PIN_STATUS, pinStatusMessage.data );
+        response = yield channel.enqueue_async( SamsungIpc.RequestType.SET, SamsungIpc.MessageType.SEC_SIM_STATUS, pinStatusMessage.data );
 
         var phoneresp = (SamsungIpc.Generic.PhoneResponseMessage*) (response.data);
         assert( FsoFramework.theLogger.debug( "code = 0x%04x".printf( phoneresp.code ) ) );

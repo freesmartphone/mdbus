@@ -45,7 +45,7 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 ModemState.sim_icc_type = response.data[0];
                 break;
 
-            case SamsungIpc.MessageType.SEC_PIN_STATUS:
+            case SamsungIpc.MessageType.SEC_SIM_STATUS:
                 handle_sim_status( response );
                 break;
 
@@ -130,15 +130,15 @@ public class Samsung.UnsolicitedResponseHandler : FsoFramework.AbstractObject
                 break;
 
             case SamsungIpc.Security.SimStatus.LOCK_SC:
-                switch ( message.lock_status )
+                switch ( message.facility_lock )
                 {
-                    case SamsungIpc.Security.SimLockStatus.PIN1_REQ:
+                    case SamsungIpc.Security.FacilityLockType.SC_PIN1_REQ:
                         updateSimAuthStatus( modem, FreeSmartphone.GSM.SIMAuthStatus.PIN_REQUIRED );
                         break;
-                    case SamsungIpc.Security.SimLockStatus.PUK_REQ:
+                    case SamsungIpc.Security.FacilityLockType.SC_PUK_REQ:
                         updateSimAuthStatus( modem, FreeSmartphone.GSM.SIMAuthStatus.PUK_REQUIRED );
                         break;
-                    case SamsungIpc.Security.SimLockStatus.CARD_BLOCKED:
+                    case SamsungIpc.Security.FacilityLockType.SC_CARD_BLOCKED:
                         // FIXME we need a modem status for a blocked sim card!
                         modem.advanceToState( FsoGsm.Modem.Status.ALIVE_NO_SIM );
                         break;
