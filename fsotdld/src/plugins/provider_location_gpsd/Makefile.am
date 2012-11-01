@@ -43,6 +43,10 @@ provider_location_gpsd_la_LIBADD = \
 provider_location_gpsd_la_LDFLAGS = -no-undefined -module -avoid-version
 # provider_location_gpsd_la_LIBTOOLFLAGS = --tag=disable-static
 
+EXTRA_DIST += \
+	libgps.vapi \
+	$(NULL)
+
 CLEANFILES =
 MAINTAINERCLEANFILES = \
   Makefile.in \

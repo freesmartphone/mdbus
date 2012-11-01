@@ -39,6 +39,10 @@ libfsotdl_la_LIBADD = \
 	$(NULL)
 libfsotdl_la_LDFLAGS = -no-undefined -avoid-version
 
+EXTRA_DIST += \
+	fsotdl-2.0.deps \
+	$(NULL)
+
 CLEANFILES =
 MAINTAINERCLEANFILES = \
 	Makefile.in \
