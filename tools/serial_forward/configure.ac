@@ -14,6 +14,12 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 
+AC_ARG_ENABLE(debug,
+  [  --enable-debug            Enable debug build (default=disabled)],
+  [enable_debug=$enableval],
+  [enable_debug="no"])
+AM_CONDITIONAL( [WANT_DEBUG], [test x"$enable_debug" = x"yes"])
+
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
