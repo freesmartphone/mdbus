@@ -58,6 +58,22 @@ pthread_t main_job;
 int arg_default_xrun = 0;
 int arg_default_wake = 0;
 
+void reset_variables(void)
+{
+	quit = 0;
+	verbose = 0;
+	workarounds = 0;
+	daemonize = 0;
+	use_syslog = 0;
+	loopbacks = NULL;
+	loopbacks_count = 0;
+	my_argv = NULL;
+	my_argc = 0;
+	threads_count = 0;
+	arg_default_xrun = 0;
+	arg_default_wake = 0;
+}
+
 static void my_exit(struct loopback_thread *thread, int exitcode)
 {
 	int i;
@@ -922,5 +938,6 @@ int forwarder_start(char * conf_path)
 
 void forwarder_stop()
 {
+	reset_variables();
 	signal_handler(SIGTERM);
 }
