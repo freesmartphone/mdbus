@@ -131,7 +131,7 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
     {
         assert( list != null );
 
-        if ( idx < 0 || idx > list.get_used() )
+        if ( idx < 0 || idx >= list.get_used() )
             throw new SoundError.DEVICE_ERROR( @"No control with index $idx available" );
 
         ElemId eid;
