@@ -17,53 +17,54 @@
 18:'TX2 Digital Capture Volume':2:15,15
 19:'Analog Capture Volume':2:4,4
 20:'AVADC Clock Priority':1:0
-21:'HS ramp delay':1:0
-22:'Vibra H-bridge mode':1:0
-23:'Vibra H-bridge direction':1:0
-24:'Digimic LR Swap':1:0
-25:'Analog Right Sub Mic Capture Switch':1:0
-26:'Analog Right AUXR Capture Switch':1:0
-27:'Analog Left Main Mic Capture Switch':1:1
-28:'Analog Left Headset Mic Capture Switch':1:0
-29:'Analog Left AUXL Capture Switch':1:0
-30:'Analog Left Carkit Mic Capture Switch':1:0
-31:'TX2 Capture Route':1:0
-32:'TX1 Capture Route':1:0
-33:'Vibra Route':1:0
-34:'Vibra Mux':1:0
-35:'HandsfreeR Switch':1:1
-36:'HandsfreeR Mux':1:2
-37:'HandsfreeL Switch':1:1
-38:'HandsfreeL Mux':1:2
-39:'CarkitR Mixer Voice':1:0
-40:'CarkitR Mixer AudioR1':1:0
-41:'CarkitR Mixer AudioR2':1:0
-42:'CarkitL Mixer Voice':1:0
-43:'CarkitL Mixer AudioL1':1:0
-44:'CarkitL Mixer AudioL2':1:0
-45:'HeadsetR Mixer Voice':1:0
-46:'HeadsetR Mixer AudioR1':1:0
-47:'HeadsetR Mixer AudioR2':1:0
-48:'HeadsetL Mixer Voice':1:0
-49:'HeadsetL Mixer AudioL1':1:0
-50:'HeadsetL Mixer AudioL2':1:0
-51:'PredriveR Mixer Voice':1:0
-52:'PredriveR Mixer AudioR1':1:0
-53:'PredriveR Mixer AudioR2':1:0
-54:'PredriveR Mixer AudioL2':1:0
-55:'PredriveL Mixer Voice':1:0
-56:'PredriveL Mixer AudioL1':1:0
-57:'PredriveL Mixer AudioL2':1:0
-58:'PredriveL Mixer AudioR2':1:0
-59:'Earpiece Mixer Voice':1:0
-60:'Earpiece Mixer AudioL1':1:0
-61:'Earpiece Mixer AudioL2':1:0
-62:'Earpiece Mixer AudioR1':1:0
-63:'Voice Digital Loopback Volume':1:0
-64:'Right Digital Loopback Volume':1:0
-65:'Left Digital Loopback Volume':1:0
-66:'Voice Analog Loopback Switch':1:0
-67:'Left2 Analog Loopback Switch':1:0
-68:'Right2 Analog Loopback Switch':1:0
-69:'Left1 Analog Loopback Switch':1:0
-70:'Right1 Analog Loopback Switch':1:0
+21:'Voice route':1:0
+22:'HS ramp delay':1:0
+23:'Vibra H-bridge mode':1:0
+24:'Vibra H-bridge direction':1:0
+25:'Digimic LR Swap':1:0
+26:'Analog Right Sub Mic Capture Switch':1:0
+27:'Analog Right AUXR Capture Switch':1:0
+28:'Analog Left Main Mic Capture Switch':1:1
+29:'Analog Left Headset Mic Capture Switch':1:0
+30:'Analog Left AUXL Capture Switch':1:0
+31:'Analog Left Carkit Mic Capture Switch':1:0
+32:'TX2 Capture Route':1:0
+33:'TX1 Capture Route':1:0
+34:'Vibra Route':1:0
+35:'Vibra Mux':1:0
+36:'HandsfreeR Switch':1:1
+37:'HandsfreeR Mux':1:2
+38:'HandsfreeL Switch':1:1
+39:'HandsfreeL Mux':1:2
+40:'CarkitR Mixer Voice':1:0
+41:'CarkitR Mixer AudioR1':1:0
+42:'CarkitR Mixer AudioR2':1:0
+43:'CarkitL Mixer Voice':1:0
+44:'CarkitL Mixer AudioL1':1:0
+45:'CarkitL Mixer AudioL2':1:0
+46:'HeadsetR Mixer Voice':1:0
+47:'HeadsetR Mixer AudioR1':1:0
+48:'HeadsetR Mixer AudioR2':1:0
+49:'HeadsetL Mixer Voice':1:0
+50:'HeadsetL Mixer AudioL1':1:0
+51:'HeadsetL Mixer AudioL2':1:0
+52:'PredriveR Mixer Voice':1:0
+53:'PredriveR Mixer AudioR1':1:0
+54:'PredriveR Mixer AudioR2':1:0
+55:'PredriveR Mixer AudioL2':1:0
+56:'PredriveL Mixer Voice':1:0
+57:'PredriveL Mixer AudioL1':1:0
+58:'PredriveL Mixer AudioL2':1:0
+59:'PredriveL Mixer AudioR2':1:0
+60:'Earpiece Mixer Voice':1:0
+61:'Earpiece Mixer AudioL1':1:0
+62:'Earpiece Mixer AudioL2':1:0
+63:'Earpiece Mixer AudioR1':1:0
+64:'Voice Digital Loopback Volume':1:0
+65:'Right Digital Loopback Volume':1:0
+66:'Left Digital Loopback Volume':1:0
+67:'Voice Analog Loopback Switch':1:0
+68:'Left2 Analog Loopback Switch':1:0
+69:'Right2 Analog Loopback Switch':1:0
+70:'Left1 Analog Loopback Switch':1:0
+71:'Right1 Analog Loopback Switch':1:0
