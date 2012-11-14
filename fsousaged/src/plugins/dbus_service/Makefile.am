@@ -25,6 +25,7 @@ dbus_service_la_VALAFLAGS = \
 	$(NULL)
 dbus_service_la_CFLAGS = \
 	-I$(top_srcdir)/src/lib \
+	-DDBUS_SYSTEM_SERVICE_DIR="\"$(DBUS_SYSTEM_SERVICE_DIR)\"" \
 	$(GLIB_CFLAGS) \
 	$(GEE_CFLAGS) \
 	$(FSO_CFLAGS) \

@@ -116,7 +116,6 @@ else
 	DBUS_SYSTEM_SERVICE_DIR="${path_dbusdata}/dbus-1/system-services"
 fi
 AC_SUBST(DBUS_SYSTEM_SERVICE_DIR)
-AC_DEFINE_UNQUOTED([DBUS_SYSTEM_SERVICE_DIR], ["${DBUS_SYSTEM_SERVICE_DIR}"], [dbus system service activation dir])
 
 #########################################################################################
 # data files
