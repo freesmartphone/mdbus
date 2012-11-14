@@ -15,6 +15,7 @@ modlibexec_LTLIBRARIES = gta04_quirks.la
 gta04_quirks_la_SOURCES = \
 	plugin.vala \
 	powercontrol.vala \
+	info.vala \
 	$(NULL)
 gta04_quirks_la_VALAFLAGS = \
 	--basedir $(top_srcdir) \

@@ -21,11 +21,13 @@ using GLib;
 
 namespace Gta04
 {
-    public static const string MODULE_NAME = "fsodevice.gta04_powercontrol";
+    public static const string MODULE_NAME = "fsodevice.gta04_quirks";
 }
 
 internal List<FsoDevice.BasePowerControlResource> resources;
 internal List<FsoDevice.BasePowerControl> instances;
+
+internal Gta04.Info info;
 
 /**
  * This function gets called on plugin initialization time.
@@ -52,26 +54,18 @@ public static string fso_factory_function( FsoFramework.Subsystem subsystem ) th
         }
     }
 
+    if ( config.hasSection( @"$(Gta04.MODULE_NAME)/info" ) )
+    {
+        var info = new Gta04.Info( subsystem );
+    }
+
     return Gta04.MODULE_NAME;
 }
 
 [ModuleInit]
 public static void fso_register_function( TypeModule module )
 {
-    FsoFramework.theLogger.debug( "fsodevice.gta04_quirks fso_register_function()" );
+    FsoFramework.theLogger.debug( @"$(Gta04.MODULE_NAME) fso_register_function()" );
 }
-
-/**
- * This function gets called on plugin load time.
- * @return false, if the plugin operating conditions are present.
- * @note Some versions of glib contain a bug that leads to a SIGSEGV
- * in g_module_open, if you return true here.
- **/
-/*public static bool g_module_check_init( void* m )
-{
-    var ok = FsoFramework.FileHandling.isPresent( Kernel26.SYS_CLASS_LEDS );
-    return (!ok);
-}
-*/
 
 // vim:ts=4:sw=4:expandtab
