@@ -88,6 +88,9 @@ class Accelerometer : FreeSmartphone.Device.Orientation,
                 case "kxsd9":
                     typename = "HardwareAccelerometerKxsd9";
                     break;
+                case "bma180":
+                    typename = "HardwareAccelerometerBma180";
+                    break;
                 default:
                     logger.error( "Unknown accelerometer device type '%s'".printf( devicetype ) );
                     return; // don't call me again

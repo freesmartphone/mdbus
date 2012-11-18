@@ -7,6 +7,7 @@ SUBDIRS = \
 	accelerometer \
 	accelerometer_kxsd9 \
 	accelerometer_lis302 \
+	accelerometer_bma180 \
 	\
 	audio \
 	router_alsa \
