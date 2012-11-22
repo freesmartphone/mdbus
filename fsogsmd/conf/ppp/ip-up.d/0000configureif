@@ -1,0 +1,8 @@
+#!/bin/sh
+
+[ "x$6" = "xfsogsmd" ] && {
+    ip addr flush dev $1
+    ip addr add $4 peer $5 dev $1
+    ip route add default dev $1
+}
+
