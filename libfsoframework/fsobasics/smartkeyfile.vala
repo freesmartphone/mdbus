@@ -182,10 +182,26 @@ public class FsoFramework.SmartKeyFile : Object
     }
     */
 
+    private string retrieveSectionOverrideIfExists( string section_raw )
+    {
+        string model = "";
+        string section = section_raw;
+
+        if ( FsoFramework.DataSharing.valueForKey("model") != null )
+            model = (string)FsoFramework.DataSharing.valueForKey("model");
+
+        if ( model != "" && kf.has_group(section+"@"+model))
+            section += "@"+model;
+
+        return section;
+    }
+
+
     //TODO: Consider rewriting this once Vala has generics
-    public string stringValue( string section, string key, string defaultvalue = "" )
+    public string stringValue( string section_raw, string key, string defaultvalue = "" )
     {
         string value;
+        string section = retrieveSectionOverrideIfExists( section_raw );
 
         try
         {
@@ -198,9 +214,10 @@ public class FsoFramework.SmartKeyFile : Object
         return value.strip();
     }
 
-    public double doubleValue( string section, string key, double defaultvalue = 0.0 )
+    public double doubleValue( string section_raw, string key, double defaultvalue = 0.0 )
     {
         double value;
+        string section = retrieveSectionOverrideIfExists( section_raw );
 
         try
         {
@@ -213,9 +230,10 @@ public class FsoFramework.SmartKeyFile : Object
         return value;
     }
 
-    public int intValue( string section, string key, int defaultvalue = 0 )
+    public int intValue( string section_raw, string key, int defaultvalue = 0 )
     {
         int value;
+        string section = retrieveSectionOverrideIfExists( section_raw );
 
         try
         {
@@ -228,9 +246,10 @@ public class FsoFramework.SmartKeyFile : Object
         return value;
     }
 
-    public bool boolValue( string section, string key, bool defaultvalue = false )
+    public bool boolValue( string section_raw, string key, bool defaultvalue = false )
     {
         bool value;
+        string section = retrieveSectionOverrideIfExists( section_raw );
 
         try
         {
@@ -243,9 +262,10 @@ public class FsoFramework.SmartKeyFile : Object
         return value;
     }
 
-    public string[]? stringListValue( string section, string key, string[]? defaultvalue = null )
+    public string[]? stringListValue( string section_raw, string key, string[]? defaultvalue = null )
     {
         string[] value;
+        string section = retrieveSectionOverrideIfExists( section_raw );
 
         try
         {
@@ -258,9 +278,10 @@ public class FsoFramework.SmartKeyFile : Object
         return value;
     }
 
-    public bool hasSection( string section )
+    public bool hasSection( string section_raw )
     {
-        return kf.has_group( section );
+        string section = retrieveSectionOverrideIfExists( section_raw);
+        return kf.has_group( section ) || kf.has_group( section_raw );
     }
 
     public List<string> sectionsWithPrefix( string? prefix = null )
@@ -279,8 +300,9 @@ public class FsoFramework.SmartKeyFile : Object
         return list;
     }
 
-    public bool hasKey( string section, string key )
+    public bool hasKey( string section_raw, string key )
     {
+        string section = retrieveSectionOverrideIfExists( section_raw );
         try
         {
             return kf.has_key( section, key );
@@ -291,10 +313,11 @@ public class FsoFramework.SmartKeyFile : Object
         }
     }
 
-    public List<string> keysWithPrefix( string section, string? prefix = null )
+    public List<string> keysWithPrefix( string section_raw, string? prefix = null )
     {
         var list = new List<string>();
         string[] keys;
+        string section = retrieveSectionOverrideIfExists( section_raw );
 
         try
         {
@@ -316,8 +339,9 @@ public class FsoFramework.SmartKeyFile : Object
         return list;
     }
 
-    public void write<T>( string section, string key, T value )
+    public void write<T>( string section_raw, string key, T value )
     {
+        string section = retrieveSectionOverrideIfExists( section_raw );
         if ( typeof(T) == typeof(int) )
         {
             kf.set_integer( section, key, (int)value );
