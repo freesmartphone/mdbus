@@ -75,6 +75,7 @@ namespace Gta04
                 if ( !FsoFramework.FileHandling.isPresent( sysfs_revision_check_gpio ) )
                 {
                     _ret["Revision"] = "A3";
+                    FsoFramework.DataSharing.setValueForKey("model", "gta04a3");
                 }
                 else
                 {
