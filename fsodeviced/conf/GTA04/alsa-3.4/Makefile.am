@@ -5,7 +5,7 @@ NULL=
 confdir = $(sysconfdir)/freesmartphone/conf/GTA04/alsa-3.4
 dist_conf_DATA = \
 	gsmhandset \
-	gsmheadset \
+	gsmspeaker \
 	headset \
 	stereoout \
 	$(NULL)

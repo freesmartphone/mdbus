@@ -4,7 +4,7 @@ NULL=
 
 SUBDIRS = alsa-default
 
-confdir = $(sysconfdir)/freesmartphone/conf/GTA04/hwrouting
+confdir = $(sysconfdir)/freesmartphone/conf/GTA04/swrouting
 dist_conf_DATA = \
 	alsa.conf \
 	$(NULL)

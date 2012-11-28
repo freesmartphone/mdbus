@@ -217,8 +217,8 @@ AC_CONFIG_FILES([
   conf/openmoko_gta/alsa-2.6.39/Makefile
   conf/GTA04/Makefile
   conf/GTA04/alsa-3.4/Makefile
-  conf/GTA04/hwrouting/Makefile
-  conf/GTA04/hwrouting/alsa-default/Makefile
+  conf/GTA04/swrouting/Makefile
+  conf/GTA04/swrouting/alsa-default/Makefile
   conf/herring/Makefile
   conf/herring/alsa-default/Makefile
   data/Makefile

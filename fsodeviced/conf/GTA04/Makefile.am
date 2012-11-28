@@ -2,7 +2,7 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-SUBDIRS = alsa-3.4 hwrouting
+SUBDIRS = alsa-3.4 swrouting
 
 confdir = $(sysconfdir)/freesmartphone/conf/GTA04
 dist_conf_DATA = \

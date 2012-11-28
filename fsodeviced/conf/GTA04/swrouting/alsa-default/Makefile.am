@@ -2,10 +2,10 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-confdir = $(sysconfdir)/freesmartphone/conf/GTA04/hwrouting/alsa-default
+confdir = $(sysconfdir)/freesmartphone/conf/GTA04/swrouting/alsa-default
 dist_conf_DATA = \
 	gsmhandset \
-	gsmspeaker \
+	gsmheadset \
 	headset \
 	stereoout \
 	$(NULL)
