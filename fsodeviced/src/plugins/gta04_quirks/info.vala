@@ -78,7 +78,8 @@ namespace Gta04
                     }
                 }
                 //manually adopt the GTA04 Revision
-                if ( !FsoFramework.FileHandling.isPresent( sysfs_revision_check_gpio ) )
+                if ( FsoFramework.DataSharing.valueForKey("model") != null &&
+                     (string)FsoFramework.DataSharing.valueForKey("model") == "gta04a3")
                 {
                     _ret["Revision"] = "A3";
                 }
