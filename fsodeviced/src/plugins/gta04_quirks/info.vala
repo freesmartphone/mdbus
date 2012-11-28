@@ -37,6 +37,12 @@ namespace Gta04
             this.subsystem = subsystem;
             sysfs_revision_check_gpio = config.stringValue( Gta04.MODULE_NAME+"/info", "revision_check_gpio", "/sys/class/gpio/gpio186/value" );
             subsystem.registerObjectForService<FreeSmartphone.Device.Info>( FsoFramework.Device.ServiceDBusName, FsoFramework.Device.InfoServicePath, this );
+
+            if ( !FsoFramework.FileHandling.isPresent( sysfs_revision_check_gpio ) )
+            {
+                FsoFramework.DataSharing.setValueForKey("model", "gta04a3");
+            }
+
             logger.info( "Created new Info Object" );
         }
 
@@ -75,7 +81,6 @@ namespace Gta04
                 if ( !FsoFramework.FileHandling.isPresent( sysfs_revision_check_gpio ) )
                 {
                     _ret["Revision"] = "A3";
-                    FsoFramework.DataSharing.setValueForKey("model", "gta04a3");
                 }
                 else
                 {
