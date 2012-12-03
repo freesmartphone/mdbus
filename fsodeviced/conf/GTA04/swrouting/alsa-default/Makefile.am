@@ -2,17 +2,17 @@ include $(top_srcdir)/Makefile.decl
 
 NULL=
 
-confdir = $(sysconfdir)/freesmartphone/conf/GTA04/alsa-3.4
+confdir = $(sysconfdir)/freesmartphone/conf/GTA04/swrouting/alsa-default
 dist_conf_DATA = \
 	gsmhandset \
-	gsmspeaker \
+	gsmheadset \
 	headset \
 	stereoout \
 	$(NULL)
 
 #       capturehandset
 #       gsmbluetooth
-#       gsmspeaker
+#       gsmheadset
 #       voiphandset
 
 MAINTAINERCLEANFILES = Makefile.in

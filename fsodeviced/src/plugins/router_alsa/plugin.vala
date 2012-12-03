@@ -95,7 +95,11 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 
     private void initScenarios()
     {
-        configurationPath = FsoFramework.Utility.machineConfigurationDir() + "/alsa.conf";
+        // load extra_path config
+        var config = FsoFramework.theConfig;
+        var extra_path = config.stringValue( Router.LibAlsa.MODULE_NAME, "extra_path", "" );
+
+        configurationPath = FsoFramework.Utility.machineConfigurationDir() + @"/$extra_path/alsa.conf";
 
         scenarios = new GLib.Queue<string>();
         allscenarios = new Gee.HashMap<string,FsoDevice.BunchOfMixerControls>();
@@ -106,7 +110,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
         if ( alsaconf.loadFromFile( configurationPath ) )
         {
             var soundcard = alsaconf.stringValue( "alsa", "cardname", "default" );
-            dataPath = FsoFramework.Utility.machineConfigurationDir() + @"/alsa-$soundcard";
+            dataPath = FsoFramework.Utility.machineConfigurationDir() + @"/$extra_path/alsa-$soundcard";
 
             try
             {
