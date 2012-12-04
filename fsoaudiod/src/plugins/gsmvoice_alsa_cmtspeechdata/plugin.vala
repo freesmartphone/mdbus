@@ -37,6 +37,7 @@ class FsoAudio.GsmVoiceCmtspeechdata.Plugin : FsoFramework.AbstractObject
         assert( logger.debug( @"onCallStatusSignal $id w/ status $status" ) );
         switch ( status )
         {
+            case FreeSmartphone.GSM.CallStatus.INCOMING:
             case FreeSmartphone.GSM.CallStatus.OUTGOING:
                 cmthandler.setAudioStatus( true );
                 break;
