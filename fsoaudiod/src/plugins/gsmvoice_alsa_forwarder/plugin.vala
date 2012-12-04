@@ -93,7 +93,8 @@ class FsoAudio.GsmVoiceForwarder.Plugin : FsoFramework.AbstractObject
         assert( logger.debug( @"onCallStatusSignal $id w/ status $status" ) );
         switch ( status )
         {
-            case FreeSmartphone.GSM.CallStatus.ACTIVE:
+            case FreeSmartphone.GSM.CallStatus.OUTGOING:
+            case FreeSmartphone.GSM.CallStatus.INCOMING:
                 this.forwarder.start();
                 break;
 
