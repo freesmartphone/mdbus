@@ -113,7 +113,7 @@ namespace Herring
 
         public AlsaPowerControl( FsoFramework.Subsystem subsystem )
         {
-            base( "alsa-audio-private", subsystem );
+            base( "alsa_audio_private", subsystem );
             _powered = false;
             _pcm_allocator = new AlsaPcmDeviceAllocator();
 
