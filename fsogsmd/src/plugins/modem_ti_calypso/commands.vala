@@ -241,7 +241,7 @@ public class PercentEM23 : AbstractAtCommand
     {
         try
         {
-            re = new Regex( """(?P<val1>\d+),(?P<val2>\d+),(?P<val3>\d+),(?P<val4>\d+),(?P<val5>\d+),(?P<val6>\d+)""" );
+            re = new Regex( """(?P<val1>-?\d+),(?P<val2>-?\d+),(?P<val3>-?\d+),(?P<val4>-?\d+),(?P<val5>-?\d+),(?P<val6>-?\d+)""" );
         }
         catch ( GLib.RegexError e )
         {
