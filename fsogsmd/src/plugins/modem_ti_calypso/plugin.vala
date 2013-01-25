@@ -74,9 +74,6 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             atCommandSequence( "MODEM", "init" ).append( { "%SLEEP=2" } );
         }
 
-        // configure power off
-        atCommandSequence( "MODEM", "shutdown" ).append( { "@POFF" } );
-
         // sequence for initializing every channel
         registerAtCommandSequence( "CHANNEL", "init", new AtCommandSequence( {
             """E0Q0V1""",
