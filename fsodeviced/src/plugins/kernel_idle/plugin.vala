@@ -261,10 +261,10 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
             {
                 // allow sending of suspend
                 idlestatus.timeouts[FreeSmartphone.Device.IdleState.SUSPEND] = config.intValue( KERNEL_IDLE_PLUGIN_NAME, states[FreeSmartphone.Device.IdleState.SUSPEND], 20 );
-                // relaunch timer, if necessary
-                if ( idlestatus.status == FreeSmartphone.Device.IdleState.LOCK )
-                    idlestatus.onState( FreeSmartphone.Device.IdleState.LOCK );
             }
+            // relaunch timer, if necessary
+            if ( idlestatus.status == FreeSmartphone.Device.IdleState.LOCK )
+                idlestatus.onState( FreeSmartphone.Device.IdleState.LOCK );
         }
 
         if ( r is DisplayResource )
@@ -274,18 +274,15 @@ class IdleNotifier : FreeSmartphone.Device.IdleNotifier, FsoFramework.AbstractOb
             {
                 // prohibit sending of idle_dim (and later)
                 idlestatus.timeouts[displayResourcePreventState] = -1;
-                // relaunch timer, if necessary
-                if ( (int)idlestatus.status > (int)FreeSmartphone.Device.IdleState.IDLE )
-                    idlestatus.onState( FreeSmartphone.Device.IdleState.IDLE );
             }
             else
             {
                 // allow sending of idle_dim (and later)
                 idlestatus.timeouts[displayResourcePreventState] = config.intValue( KERNEL_IDLE_PLUGIN_NAME, states[displayResourcePreventState], 10 );
-                // relaunch timer, if necessary
-                if ( idlestatus.status == FreeSmartphone.Device.IdleState.IDLE )
-                    idlestatus.onState( FreeSmartphone.Device.IdleState.IDLE );
             }
+            // relaunch timer, if necessary
+            if ( idlestatus.status >= displayResourcePreventState - 1 )
+                idlestatus.onState( displayResourcePreventState - 1 );
         }
 
     }
