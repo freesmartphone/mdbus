@@ -285,7 +285,9 @@ public class FsoGsm.LibGsm0710muxTransport : FsoFramework.BaseTransport
             message( "EOF FROM PPP" );
             return;
         }
+#if DEBUG
         message( "ON DATA FROM PPP" );
+#endif
         var bwritten = write( data, (int)length );
         assert( bwritten == length );
     }
