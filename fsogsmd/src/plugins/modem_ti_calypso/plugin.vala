@@ -83,7 +83,8 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """%CUNS=2""",
             """+CMEE=1""",
             """+CRC=1""",
-            """+CSNS=0"""
+            """+CSNS=0""",
+            """+CREG=0"""
         } ) );
 
         // sequence for initializing main channel
