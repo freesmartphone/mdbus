@@ -174,7 +174,7 @@ public class PercentEM21 : AbstractAtCommand
     {
         try
         {
-            re = new Regex( """%EM: (?P<arfcn>\d+),(?P<c1>\d+),(?P<c2>\d+),(?P<rxlev>\d+),(?P<bsic>\d+),(?P<cid>\d+),(?P<dsc>\d+),(?P<txlev>\d+),(?P<tn>\d+),(?P<rlt>\d+),(?P<tav>\d+),(?P<rxlev_f>\d+),(?P<rxlev_s>\d+),(?P<rxqual_f>\d+),(?P<rxqual_s>\d+),(?P<lac>\d+),(?P<cba>\d+),(?P<cbq>\d+),(?P<ctype>\d+),(?P<vocoder>\d+)""" );
+            re = new Regex( """%EM: (?P<arfcn>\d+),(?P<c1>-?\d+),(?P<c2>\d+),(?P<rxlev>\d+),(?P<bsic>\d+),(?P<cid>\d+),(?P<dsc>\d+),(?P<txlev>\d+),(?P<tn>\d+),(?P<rlt>\d+),(?P<tav>\d+),(?P<rxlev_f>\d+),(?P<rxlev_s>\d+),(?P<rxqual_f>\d+),(?P<rxqual_s>\d+),(?P<lac>\d+),(?P<cba>\d+),(?P<cbq>\d+),(?P<ctype>\d+),(?P<vocoder>\d+)""" );
         }
         catch ( GLib.RegexError e )
         {
