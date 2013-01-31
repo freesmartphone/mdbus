@@ -26,9 +26,10 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
     protected string name;
     private bool isInitialized;
     private bool isMainChannel;
+    private bool isUrcChannel;
     private FsoGsm.Modem modem;
 
-    public AtChannel( FsoGsm.Modem modem, string? name, FsoFramework.Transport transport, FsoFramework.Parser parser )
+    public AtChannel( FsoGsm.Modem modem, string? name, FsoFramework.Transport transport, FsoFramework.Parser parser, bool isUrcChannel = true )
     {
         base( transport, parser );
         this.name = name;
@@ -39,6 +40,7 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
             modem.registerChannel( name, this );
             modem.signalStatusChanged.connect( onModemStatusChanged );
             this.isMainChannel = ( name == "main" );
+            this.isUrcChannel = isUrcChannel;
         }
     }
 
@@ -113,9 +115,13 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         }
         modem.data().charset = charset;
 
-        if ( this.isMainChannel )
+        if ( this.isUrcChannel )
         {
             setupNetworkRegistrationReport();
+        }
+
+        if ( this.isMainChannel )
+        {
             gatherSimStatusAndUpdate( modem );
             modem.smshandler.configure();
         }

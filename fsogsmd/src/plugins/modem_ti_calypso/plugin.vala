@@ -80,8 +80,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """%CUNS=2""",
             """+CMEE=1""",
             """+CRC=1""",
-            """+CSNS=0""",
-            """+CREG=0"""
+            """+CSNS=0"""
         } ) );
 
         // sequence for initializing main channel
@@ -183,7 +182,7 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         {
             var transport = new FsoGsm.LibGsm0710muxTransport( i+1 );
             var parser = new FsoGsm.StateBasedAtParser();
-            new AtChannel( this, CHANNEL_NAMES[i], transport, parser );
+            new AtChannel( this, CHANNEL_NAMES[i], transport, parser, CHANNEL_NAMES[i] == "urc" );
         }
     }
 
