@@ -219,6 +219,10 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         {
             return channels["call"];
         }
+        if ( query.has_prefix( "+CNMA" ) )
+        {
+            return channels["urc"];
+        }
         return channels[ "main" ];
     }
 
