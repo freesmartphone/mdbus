@@ -114,12 +114,8 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
             """@ST="-26""""
         } ) );
 
-        var cnmiCommand = modem_data.simBuffersSms ? """+CNMI=2,1,2,1,1""" : """+CNMI=2,2,2,1,1""";
-
         // sequence for when the modem is registered
         registerAtCommandSequence( "urc", "registered", new AtCommandSequence( {
-            cnmiCommand,
-            """+CSMS=1""", /* enable SMS phase 2 */
             """%CPHS=1""" /* enable CPHS phase 2 */
         } ) );
 
@@ -219,7 +215,9 @@ class TiCalypso.Modem : FsoGsm.AbstractModem
         {
             return channels["call"];
         }
-        if ( query.has_prefix( "+CNMA" ) )
+        if ( query.has_prefix( "+CNMA" ) ||
+             query.has_prefix( "+CNMI" ) ||
+             query.has_prefix( "+CSMS" ) )
         {
             return channels["urc"];
         }
