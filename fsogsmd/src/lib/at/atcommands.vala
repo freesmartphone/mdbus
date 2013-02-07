@@ -889,6 +889,9 @@ public class PlusCNMI : AbstractAtCommand
 
         supported_opts = new HashTable<int,ArrayList<int>>( null, null );
 
+        for ( int n = 0; n < 5; n++ )
+            supported_opts[n] = new ArrayList<int>();
+
         if ( !iter.next( "+CNMI:" ) )
             throw new AtCommandError.UNABLE_TO_PARSE( @"Expected prefix +CNMI" );
 
@@ -899,7 +902,6 @@ public class PlusCNMI : AbstractAtCommand
             if ( !iter.open_list() )
                 return;
 
-            supported_opts[n] = new ArrayList<int>();
             while ( iter.next_number( out num ) )
                 supported_opts[n].add( num );
 
