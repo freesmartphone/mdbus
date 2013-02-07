@@ -245,35 +245,37 @@ namespace FsoGsm
             return true;
         }
 
-        public bool open_list()
+        public bool skip_char( char c )
         {
             int len = _line.length;
 
             if ( _line_pos >= len )
                 return false;
 
-            if ( _line[_line_pos] != '(' )
+            if ( _line[_line_pos] != c )
                 return false;
 
             _line_pos++;
 
-            while ( _line_pos < len && _line[_line_pos] == ' ' )
-                _line_pos++;
+           return true;
+        }
+
+        public bool open_list()
+        {
+            if ( !skip_char( '(' ) )
+                return false;
+
+            while ( skip_char( ' ' ) )
+                ;
 
             return true;
         }
 
         public bool close_list()
         {
-            int len = _line.length;
-
-            if ( _line_pos >= len )
+            if ( !skip_char( ')' ) )
                 return false;
 
-            if ( _line[_line_pos] != ')' )
-                return false;
-
-            _line_pos++;
             _line_pos = skip_to_next_field( _line, _line_pos );
 
             return true;

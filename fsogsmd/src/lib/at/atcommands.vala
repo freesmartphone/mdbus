@@ -905,6 +905,14 @@ public class PlusCNMI : AbstractAtCommand
             while ( iter.next_number( out num ) )
                 supported_opts[n].add( num );
 
+            if ( iter.skip_char( '-' ) )
+            {
+                int l = 0;
+                iter.next_number( out l );
+                while ( num < l )
+                    supported_opts[n].add( ++num );
+            }
+
             if ( !iter.close_list() )
                 return;
         }

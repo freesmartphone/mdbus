@@ -384,6 +384,28 @@ void test_atcommand_PlusCNMI()
         assert( cmd.supported_opts[4].size == 2 );
         assert( cmd.supported_opts[4].get(0) == 9 );
         assert( cmd.supported_opts[4].get(1) == 0 );
+
+        cmd = (FsoGsm.PlusCNMI) atCommandFactory( "+CNMI" );
+        cmd.parseTest( "+CNMI: (0-2),(0-3),(0,2),(0,1),(0,1)" );
+        assert( cmd.supported_opts.size() == 5 );
+        assert( cmd.supported_opts[0].size == 3 );
+        assert( cmd.supported_opts[0].get(0) == 0 );
+        assert( cmd.supported_opts[0].get(1) == 1 );
+        assert( cmd.supported_opts[0].get(2) == 2 );
+        assert( cmd.supported_opts[1].size == 4 );
+        assert( cmd.supported_opts[1].get(0) == 0 );
+        assert( cmd.supported_opts[1].get(1) == 1 );
+        assert( cmd.supported_opts[1].get(2) == 2 );
+        assert( cmd.supported_opts[1].get(3) == 3 );
+        assert( cmd.supported_opts[2].size == 2 );
+        assert( cmd.supported_opts[2].get(0) == 0 );
+        assert( cmd.supported_opts[2].get(1) == 2 );
+        assert( cmd.supported_opts[3].size == 2 );
+        assert( cmd.supported_opts[3].get(0) == 0 );
+        assert( cmd.supported_opts[3].get(1) == 1 );
+        assert( cmd.supported_opts[4].size == 2 );
+        assert( cmd.supported_opts[4].get(0) == 0 );
+        assert( cmd.supported_opts[4].get(1) == 1 );
     }
     catch ( Error e )
     {
