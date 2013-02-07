@@ -181,6 +181,7 @@ public abstract class FsoGsm.AbstractSmsHandler : FsoGsm.SmsHandler, FsoFramewor
 
     private async void simIsReady()
     {
+        yield configure();
         yield syncWithSim();
     }
 

@@ -123,7 +123,6 @@ public class FsoGsm.AtChannel : FsoGsm.AtCommandQueue, FsoGsm.Channel
         if ( this.isMainChannel )
         {
             gatherSimStatusAndUpdate( modem );
-            modem.smshandler.configure();
         }
 
         this.isInitialized = true;
