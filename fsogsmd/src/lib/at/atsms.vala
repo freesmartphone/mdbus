@@ -227,7 +227,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
 
         var cmd = modem.createAtCommand<PlusCNMA>( "+CNMA" );
         var response = yield modem.processAtCommandAsync( cmd, cmd.issue( 0 ) );
-        if ( cmd.validate( response ) != Constants.AtResponse.VALID )
+        if ( cmd.validateOk( response ) != Constants.AtResponse.OK )
         {
             logger.warning( @"Failed to acknowledge SMS message; further SMS message handling will maybe faulty!" );
             return false;
@@ -270,7 +270,7 @@ public class FsoGsm.AtSmsHandler : FsoGsm.AbstractSmsHandler
             return;
         }
 
-        assert( logger.info( @"Successfully configure for SMS message handling" ) );
+        assert( logger.info( @"Successfully configured for SMS message handling" ) );
     }
 
     public override string repr()
