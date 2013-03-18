@@ -84,7 +84,7 @@ class LibAlsa : FsoDevice.BaseAudioRouter
 
             logger.debug( "Scenario %s successfully read from file %s".printf( scenario, file.get_path() ) );
 
-            var bunch = new FsoDevice.BunchOfMixerControls( controls, idxMainVolume );
+            var bunch = new FsoDevice.BunchOfMixerControls( controls, device.getMixerVolumeId(controls, idxMainVolume) );
             allscenarios[scenario] = bunch;
         }
         catch ( Error e )

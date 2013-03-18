@@ -325,6 +325,89 @@ public class FsoDevice.SoundDevice : FsoFramework.AbstractObject
         mel.get_playback_volume_range( out min, out max );
         mel.set_playback_volume_all( min + val * ( max-min ) / 100 );
     }
+
+    /**
+     * Lookup mixer ID (mixer interface) for scenario ID (control interface)
+     * @return corresponding mixer ID for given scenario ID, fallback to 'Master' if nothing found
+     **/
+    public uint getMixerVolumeId(MixerControl[] controls, uint idx)
+    {
+        uint numid;
+        string description;
+        string source = "";
+        foreach ( FsoDevice.MixerControl control in controls )
+        {
+            numid = (uint)int.parse( control.to_string().split( ":" )[0] );
+            description = control.to_string().split( ":" )[1];
+            int len = description.length;
+            //cut leading and trailing prime (') if existent, e.g. 'Master Playback Volume' => Master Playback Volume
+            if ( description[0] == "'"[0] && description[len-1] == "'"[0] )
+                description = description[1:-1];
+
+            len = description.split( " " ).length;
+            if ( numid == idx && len >= 3)
+            {
+                string direction = description.split( " " )[len-2];
+                string function = description.split( " " )[len-1];
+                debug ( @"$numid, $direction, $function" );
+
+                //we're only interested in "xxx Playback Volume" controls ("SOURCE DIRECTION FUNCTION")
+                if ( direction == "Playback" && function == "Volume" )
+                {
+                    string[] s = description.split( " " );
+                    s = s[0:len-2];
+                    source = string.joinv ( " ", s );
+                    debug ( @"control SOURCE: $source" );
+                    break;
+                }
+            }
+        }
+        if ( source != "" )
+        {
+            Alsa.Mixer mix;
+            Alsa.Mixer.open( out mix );
+            assert( mix != null );
+            mix.attach( cardname );
+            mix.register();
+            mix.load();
+
+            Alsa.SimpleElementId seid;
+            Alsa.SimpleElementId.alloc(out seid);
+
+            Alsa.MixerElement mel = mix.first_elem();
+            if( mel == null )
+            {
+                warning( "mix.first_elem() returned NULL" );
+                return 0;
+            }
+            int i = 0;
+            mel.get_id(seid);
+
+            //look for the mixer element with the same name as the control source
+            while ( seid.get_name() != source )
+            {
+                mel = mel.next();
+                assert( mel != null );
+                mel.get_id(seid);
+                i++;
+            }
+            if ( mel != null )
+            {
+                debug( @"mixer name: $(seid.get_name())" );
+                return i;
+            }
+            else
+            {
+                warning( @"main_volume=$(idx) doesn't match any mixer element. Falling back to 'Master'." );
+                return 0;
+            }
+        }
+        else
+        {
+            warning( @"main_volume=$(idx) doesn't match any mixer element. Falling back to 'Master'." );
+            return 0;
+        }
+    }
 }
 
 /**
