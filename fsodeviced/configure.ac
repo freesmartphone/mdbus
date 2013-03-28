@@ -259,6 +259,7 @@ AC_CONFIG_FILES([
   src/plugins/vibrator_ledclass/Makefile
   src/plugins/vibrator_omapvibe/Makefile
   src/plugins/vibrator_timedoutputclass/Makefile
+  src/plugins/vibrator_forcefeedback/Makefile
   tests/Makefile
 ])
 AC_OUTPUT

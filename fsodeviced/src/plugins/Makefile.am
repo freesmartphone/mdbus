@@ -34,6 +34,7 @@ SUBDIRS = \
 	vibrator_ledclass \
 	vibrator_omapvibe \
 	vibrator_timedoutputclass \
+	vibrator_forcefeedback \
 	\
 	gta04_quirks \
 	herring_quirks \
