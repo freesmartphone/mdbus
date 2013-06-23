@@ -108,7 +108,7 @@ class Commands : Object
             return true;
         }
         var reWellKnown = /[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+/;
-        if ( reWellKnown.match( busname ) )
+        if ( reWellKnown.match( busname ) && !busname.has_suffix("."))
         {
             return true;
         }
