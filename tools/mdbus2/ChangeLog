@@ -1,4 +1,59 @@
+2013-06-23  Simon Busch  <morphis@gravedo.de>
+
+	mdbus2: prepare for bug fix release 2.3.1
+
+	mdbus2: reject invalid busnames suffixed with .
+	When handing an invalid busname to mdbus2 like org.test. it aborts with the following
+	error messages.
+
+	(mdbus2:3277): GLib-GIO-CRITICAL **: g_dbus_connection_signal_subscribe: assertion `sender
+	== NULL || (g_dbus_is_name (sender) && (connection->flags &
+	G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION))' failed
+
+	(mdbus2:3277): GLib-GIO-CRITICAL **: g_dbus_connection_signal_subscribe: assertion `sender
+	== NULL || (g_dbus_is_name (sender) && (connection->flags &
+	G_DBUS_CONNECTION_FLAGS_MESSAGE_BUS_CONNECTION))' failed
+
+	(mdbus2:3277): GLib-GIO-CRITICAL **: g_dbus_message_new_method_call: assertion `name ==
+	NULL || g_dbus_is_name (name)' failed
+
+	(mdbus2:3277): GLib-GIO-CRITICAL **: g_dbus_message_set_body: assertion `G_IS_DBUS_MESSAGE
+	(message)' failed
+
+	(mdbus2:3277): GLib-GIO-CRITICAL **: g_dbus_connection_send_message_with_reply_sync:
+	assertion `G_IS_DBUS_MESSAGE (message)' failed
+
+	(mdbus2:3277): GLib-GObject-CRITICAL **: g_object_unref: assertion `G_IS_OBJECT (object)'
+	failed
+
+2012-07-19  Simon Busch  <morphis@gravedo.de>
+
+	Update copyright notice for all source files
+
+2012-06-20  Simon Busch  <morphis@gravedo.de>
+
+	Bump required vala version to 0.16.0
+
+2012-06-05  Simon Busch  <morphis@gravedo.de>
+
+	Use --debug instead of -g as Vala debug option and get back -D DEBUG
+	Using -g gives use some strange behaviour of automake. -g will end up in DIST_COMMON
+	variable where it should never be ...
+
+2012-06-04  Simon Busch  <morphis@gravedo.de>
+
+	Remove "-D DEBUG" from debug options as it gives us some trouble with automake/autoconf
+	Some how "-D DEBUG" ends up in the automake variable DIST_COMMON which has a list of files
+	should be included in distribution archive. make distcheck will fail this way. We need to
+	figure out why it ends up there ...
+
+	Update all Makefile.decl files to ship DEBUG_VALAFLAGS/DEBUG_CFLAGS
+
 2012-05-29  Simon Busch  <morphis@gravedo.de>
+
+	tools: mdbus2: leave release mode and prepare for next
+
+	tools: mdbus2: prepare for 2.3.0 release
 
 	tools: mdbus2: mdbus2 is now known as mdbus2 for release as well
 
