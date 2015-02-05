@@ -1,5 +1,5 @@
 ===========================================================
-mdbus 2.1.0
+mdbus – DBus has never been that much fun!
 ===========================================================
 
 This utility helps you to explore and interact with DBus
@@ -19,5 +19,3 @@ that happens on the bus is monitored.
 
 NOTE: Mickey's DBus Utility requires well-behaved services,
 i.e. those which implement the DBus introspection protocol.
-
-mdbus2: DBus has never been that much fun!

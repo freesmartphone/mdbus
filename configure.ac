@@ -3,7 +3,7 @@ m4_define([mdbus_base_version], [2.4.0])
 m4_define([mdbus_maybe_gitrev], m4_if(mdbus_released, [1], [], [m4_esyscmd([git show-ref --hash=5 HEAD | tr -d '\n\r'])]))
 m4_define([mdbus_version], m4_if(mdbus_released, [1], [mdbus_base_version], [mdbus_base_version-mdbus_maybe_gitrev]))
 
-AC_INIT([mdbus2], mdbus_version, [smartphones-userland@linuxtogo.org], [mdbus2])
+AC_INIT([mdbus2], mdbus_version, [mlauer@vanille-media.de], [mdbus2])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_PREREQ([2.65])
@@ -52,7 +52,7 @@ AM_CONDITIONAL([HAVE_VALA], [test "x$enable_vala" = "xyes"])
 # Check for various dependencies
 #########################################################################################
 
-GLIB_REQUIRED=2.26.0
+GLIB_REQUIRED=2.26.2
 
 AC_CHECK_LIB(readline, rl_bind_key,
              [LIBREADLINE=-lreadline
