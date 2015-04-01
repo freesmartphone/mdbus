@@ -1,0 +1,217 @@
+.TH MDBUS2 1 "MARCH 2015" Linux "User Manuals"
+.SH NAME
+.PP
+mdbus2 \- Interactive DBus introspection, interaction, and monitoring
+.SH SYNOPSIS
+.PP
+\fB\fCmdbus2\fR [\fB\fCOPTIONS...\fR] [ \fB\fCservicename\fR [ \fB\fCobjectpath\fR [ \fB\fCmethod\fR [ \fB\fCparams...\fR ] ] ] ]
+.PP
+\fB\fCmdbus2 \-si\fR
+.PP
+\fB\fCmdbus2 \-sl\fR
+.SH DESCRIPTION
+.PP
+The \fB\fCmdbus2\fR command is used to explore and interact with DBus
+services on your \fIsystem bus\fP and \fIsession bus\fP\&.
+.PP
+Called without
+any parameters, it will show the available services on the
+selected bus. Given a \fIservice name\fP, it will show the available
+\fIobjects\fP exported by the service. Given a service name and an
+\fIobject path\fP, it will show the exposed \fImethods\fP, \fIsignals\fP, and
+\fIproperties\fP of that object.
+.PP
+Supplying a \fImethod name\fP (and \fIparameters\fP), you can call methods on the object and get the return 
+.BR value (s).
+.PP
+In the \fIlistening mode\fP, you can observe signals sent on the selected bus.
+.PP
+Also included is an \fIinteractive shell\fP with tab\-completion and command history.
+.SH OPTIONS
+.TP
+\fB\fC\-\-show\-anonymous\fR, \fB\fC\-a\fR
+Also show \fIunique\fP (anonymous) services on the bus.    
+.TP
+\fB\fC\-\-system\fR, \fB\fC\-s\fR
+Use the system bus instead of the session bus (which is the default).
+.TP
+\fB\fC\-show\-pids\fR, \fB\fC\-p\fR
+Show UNIX process IDs.
+.TP
+\fB\fClisten\fR, \fB\fC\-l\fR
+Start the listener mode, in which you can observe signals on the bus.
+.TP
+\fB\fCinteractive\fR, \fB\fC\-i\fR
+Start an interactive shell.
+.TP
+\fB\fCannotate\-types\fR, \fB\fC\-t\fR
+Annotate DBus types.
+.SH EXAMPLES
+.PP
+Find out which bus names are currently registered on the system bus:
+.PP
+.RS
+.nf
+root@om\-gta02:~# mdbus \-s
+:1.0
+:1.1
+:1.2
+:1.42
+:1.47
+:1.60
+:1.61
+org.bluez
+org.freedesktop.Avahi
+org.freedesktop.DBus
+org.freesmartphone.frameworkd
+org.freesmartphone.ogsmd
+org.pyneo.muxer
+.fi
+.RE
+.PP
+Find out which objects are served by a certain service:
+.PP
+.RS
+.nf
+root@om\-gta02:~# mdbus \-s org.freesmartphone.frameworkd
+/
+/org
+/org/freesmartphone
+/org/freesmartphone/Framework
+/org/freesmartphone/GSM
+/org/freesmartphone/GSM/Device
+/org/freesmartphone/GSM/Server
+.fi
+.RE
+.PP
+Find out the interface of a certain object:
+.PP
+.RS
+.nf
+root@om\-gta02:~# mdbus \-s org.freesmartphone.ogsmd /org/freesmartphone/GSM/Device
+[METHOD]    org.freesmartphone.GSM.Call.Activate( i:index )
+[METHOD]    org.freesmartphone.GSM.Call.ActivateConference( i:index )
+[METHOD]    org.freesmartphone.GSM.Call.HoldActive()
+[METHOD]    org.freesmartphone.GSM.Call.Initiate( s:number, s:type_ )
+[METHOD]    org.freesmartphone.GSM.Call.Release( i:index )
+[METHOD]    org.freesmartphone.GSM.Call.ReleaseAll()
+[METHOD]    org.freesmartphone.GSM.Call.ReleaseHeld()
+[SIGNAL]    org.freesmartphone.GSM.Call.CallStatus( i:index, s:status, a{sv}:properties )
+[METHOD]    org.freedesktop.DBus.Introspectable.Introspect()
+[METHOD]    org.freesmartphone.GSM.Device.CancelCommand()
+[METHOD]    org.freesmartphone.GSM.Device.GetAntennaPower()
+[METHOD]    org.freesmartphone.GSM.Device.GetFeatures()
+[METHOD]    org.freesmartphone.GSM.Device.GetInfo()
+[METHOD]    org.freesmartphone.GSM.Device.PrepareForSuspend()
+[METHOD]    org.freesmartphone.GSM.Device.RecoverFromSuspend()
+[METHOD]    org.freesmartphone.GSM.Device.SetAntennaPower( b:power )
+[METHOD]    org.freesmartphone.GSM.SIM.ChangeAuthCode( s:old_pin, s:new_pin )
+[METHOD]    org.freesmartphone.GSM.SIM.DeleteEntry( i:index )
+[METHOD]    org.freesmartphone.GSM.SIM.DeleteMessage( i:index )
+[METHOD]    org.freesmartphone.GSM.SIM.GetAuthStatus()
+[METHOD]    org.freesmartphone.GSM.SIM.GetImsi()
+[METHOD]    org.freesmartphone.GSM.SIM.GetMessagebookInfo()
+[METHOD]    org.freesmartphone.GSM.SIM.GetPhonebookInfo()
+[METHOD]    org.freesmartphone.GSM.SIM.GetServiceCenterNumber()
+[METHOD]    org.freesmartphone.GSM.SIM.GetSimCountryCode()
+[METHOD]    org.freesmartphone.GSM.SIM.GetSubscriberNumbers()
+[METHOD]    org.freesmartphone.GSM.SIM.RetrieveEntry( i:index )
+[METHOD]    org.freesmartphone.GSM.SIM.RetrieveMessage( i:index )
+[METHOD]    org.freesmartphone.GSM.SIM.RetrieveMessagebook( s:category )
+[METHOD]    org.freesmartphone.GSM.SIM.RetrievePhonebook()
+[METHOD]    org.freesmartphone.GSM.SIM.SendAuthCode( s:code )
+[METHOD]    org.freesmartphone.GSM.SIM.SetServiceCenterNumber( s:number )
+[METHOD]    org.freesmartphone.GSM.SIM.StoreEntry( i:index, s:name, s:number )
+[METHOD]    org.freesmartphone.GSM.SIM.StoreMessage( s:number, s:contents )
+[METHOD]    org.freesmartphone.GSM.SIM.Unlock( s:puk, s:new_pin )
+[SIGNAL]    org.freesmartphone.GSM.SIM.AuthStatus( s:status )
+[SIGNAL]    org.freesmartphone.GSM.SIM.NewMessage( i:index )
+[METHOD]    org.freesmartphone.GSM.Network.DisableCallForwarding( s:reason, s:class_ )
+[METHOD]    org.freesmartphone.GSM.Network.EnableCallForwarding( s:reason, s:class_, s:number, i:timeout )
+[METHOD]    org.freesmartphone.GSM.Network.GetCallForwarding( s:reason )
+[METHOD]    org.freesmartphone.GSM.Network.GetCallingIdentification()
+[METHOD]    org.freesmartphone.GSM.Network.GetNetworkCountryCode()
+[METHOD]    org.freesmartphone.GSM.Network.GetSignalStrength()
+[METHOD]    org.freesmartphone.GSM.Network.GetStatus()
+[METHOD]    org.freesmartphone.GSM.Network.ListProviders()
+[METHOD]    org.freesmartphone.GSM.Network.Register()
+[METHOD]    org.freesmartphone.GSM.Network.RegisterWithProvider( i:operator_code )
+[METHOD]    org.freesmartphone.GSM.Network.SetCallingIdentification( s:status )
+[METHOD]    org.freesmartphone.GSM.Network.Unregister()
+[SIGNAL]    org.freesmartphone.GSM.Network.SignalStrength( i:strength )
+[SIGNAL]    org.freesmartphone.GSM.Network.Status( a{sv}:status )
+[METHOD]    org.freesmartphone.GSM.PDP.ActivateContext( s:apn, s:user, s:password )
+[METHOD]    org.freesmartphone.GSM.PDP.DeactivateContext()
+[METHOD]    org.freesmartphone.GSM.PDP.GetCurrentGprsClass()
+[METHOD]    org.freesmartphone.GSM.PDP.ListAvailableGprsClasses()
+[METHOD]    org.freesmartphone.GSM.PDP.SetCurrentGprsClass( s:class_ )
+[SIGNAL]    org.freesmartphone.GSM.PDP.ContextStatus( i:index, s:status, a{sv}:properties )
+[METHOD]    org.freesmartphone.GSM.Test.Command( s:command )
+[METHOD]    org.freesmartphone.GSM.Test.Echo( s:echo )
+.fi
+.RE
+.PP
+Call a method on an interface:
+.PP
+.RS
+.nf
+root@om\-gta02 ~ $ mdbus \-s org.freesmartphone.ogsmd /org/freesmartphone/GSM/Device org.freesmartphone.GSM.Device.GetInfo
+{   'imei': '354651011234567',
+    'manufacturer': 'FIC/OpenMoko',
+    'model': '"Neo1973 GTA02 Embedded GSM Modem"',
+    'revision': '"HW: GTA02BV5, GSM: gsm_ac_gp_fd_pu_em_cph_ds_vc_cal35_ri_36_amd8_ts0\-Moko8"'}
+.fi
+.RE
+.PP
+Use it in listening mode:
+.PP
+.RS
+.nf
+root@om\-gta02:/local/pkg/fso/framework/framework# mdbus \-s \-l
+listening for signals on SystemBus from service 'all', object 'all'...
+ [SIGNAL]    org.freedesktop.DBus.NameOwnerChanged    from org.freedesktop.DBus /org/freedesktop/DBus
+(dbus.String(u'org.pyneo.muxer'), dbus.String(u':1.6'), dbus.String(u''))
+ [SIGNAL]    org.freedesktop.DBus.NameOwnerChanged    from org.freedesktop.DBus /org/freedesktop/DBus
+(dbus.String(u':1.6'), dbus.String(u':1.6'), dbus.String(u''))
+ [SIGNAL]    org.freedesktop.DBus.NameOwnerChanged    from org.freedesktop.DBus /org/freedesktop/DBus
+(dbus.String(u':1.28'), dbus.String(u''), dbus.String(u':1.28'))
+ [SIGNAL]    org.freedesktop.DBus.NameOwnerChanged    from org.freedesktop.DBus /org/freedesktop/DBus
+(dbus.String(u'org.freesmartphone.frameworkd'), dbus.String(u''), dbus.String(u':1.28'))
+ [SIGNAL]    org.freedesktop.DBus.NameOwnerChanged    from org.freedesktop.DBus /org/freedesktop/DBus
+(dbus.String(u'org.freesmartphone.ogsmd'), dbus.String(u''), dbus.String(u':1.28'))
+ [SIGNAL]    org.freedesktop.DBus.NameOwnerChanged    from org.freedesktop.DBus /org/freedesktop/DBus
+(dbus.String(u':1.29'), dbus.String(u''), dbus.String(u':1.29'))
+ [SIGNAL]    org.freedesktop.DBus.NameOwnerChanged    from org.freedesktop.DBus /org/freedesktop/DBus
+(dbus.String(u'org.pyneo.muxer'), dbus.String(u''), dbus.String(u':1.29'))
+ [SIGNAL]    org.freedesktop.DBus.NameOwnerChanged    from org.freedesktop.DBus /org/freedesktop/DBus
+(dbus.String(u':1.30'), dbus.String(u''), dbus.String(u':1.30'))
+ [SIGNAL]    org.freesmartphone.GSM.SIM.ReadyStatus    from :1.28 /org/freesmartphone/GSM/Device
+(dbus.Boolean(False),)
+ [SIGNAL]    org.freesmartphone.GSM.SIM.AuthStatus    from :1.28 /org/freesmartphone/GSM/Device
+(dbus.String(u'SIM PIN'),)
+ [SIGNAL]    org.freesmartphone.GSM.SIM.AuthStatus    from :1.28 /org/freesmartphone/GSM/Device
+(dbus.String(u'READY'),)
+ [SIGNAL]    org.freesmartphone.GSM.SIM.ReadyStatus    from :1.28 /org/freesmartphone/GSM/Device
+(dbus.Boolean(True),)
+.fi
+.RE
+.SH BUGS
+.PP
+Please send bug reports to 
+\[la]fso@openphoenux.org\[ra] or use our issue tracker at the project page
+\[la]https://github.com/freesmartphone/mdbus/issues\[ra]\&.
+.SH NOTE
+.PP
+mdbus2 requires \fIwell\-behaved DBus services\fP, this means, services that adhere to the DBus introspection protocol.
+.SH AUTHOR
+.PP
+Michael 'Mickey' Lauer 
+\[la]mickey@vanille.de\[ra]
+.SH SEE ALSO
+.PP
+.BR dbus-send (1), 
+.BR dbus-monitor (1), 
+.BR gdbus (1), 
+.BR qdbus (1), 
+DBus Homepage
+\[la]http://www.freedesktop.org/dbus\[ra]

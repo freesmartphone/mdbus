@@ -110,6 +110,7 @@ AM_CONDITIONAL( [WANT_BC], [test x"$bash_completion" = x"yes"])
 
 AC_CONFIG_FILES([
   Makefile
+  man/Makefile
   src/Makefile
   data/Makefile
 ])
