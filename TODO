@@ -2,3 +2,6 @@ Random ideas:
 
 * Colored output on terms that support it?
 * A GUI mode?
+* Support caching? This would be useful especially in interactive mode.
+  I don't know how we would find out dynamic changes though, as
+  services can add/remove objects or even add/remove methods at any time.

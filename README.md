@@ -19,10 +19,12 @@ DESCRIPTION
 -----------
 
 The `mdbus2` command is used to explore and interact with DBus
-services on your *system bus* and *session bus*.
+services on your *system bus* and *session bus*. The system-wide message bus
+exists only once and is installed on many systems as the "messagebus" service.
+The session message bus is per-user-login (started each time a user logs in)
+and usually tied to your X11 session.
 
-Called without
-any parameters, it will show the available services on the
+In the simplest form, mdbus2 shows the available services on the
 selected bus. Given a *service name*, it will show the available
 *objects* exported by the service. Given a service name and an
 *object path*, it will show the exposed *methods*, *signals*, and
@@ -46,13 +48,13 @@ OPTIONS
 `-show-pids`, `-p`
   Show UNIX process IDs.
 
-`listen`, `-l`
+`--listen`, `-l`
   Start the listener mode, in which you can observe signals on the bus.
 
-`interactive`, `-i`
+`--interactive`, `-i`
   Start an interactive shell.
   
-`annotate-types`, `-t`
+`--annotate-types`, `-t`
   Annotate DBus types.
 
 EXAMPLES
@@ -191,10 +193,11 @@ BUGS
 
 Please send bug reports to fso@openphoenux.org or use our issue tracker at [the project page](https://github.com/freesmartphone/mdbus/issues).
 
-NOTE
-----
+NOTES
+-----
 
-mdbus2 requires *well-behaved DBus services*, this means, services that adhere to the DBus introspection protocol.
+* mdbus2 requires *well-behaved DBus services*, this means, services that adhere to the DBus introspection protocol.
+* Your message bus configuration may keep mdbus2 from seeing all messages, especially if you run it as a non-root user.
 
 AUTHOR
 ------
@@ -204,5 +207,4 @@ Michael 'Mickey' Lauer <mickey@vanille.de>
 SEE ALSO
 --------
 
-dbus-send(1), dbus-monitor(1), gdbus(1), qdbus(1), [DBus Homepage](
-http://www.freedesktop.org/dbus)
+dbus-send(1), dbus-monitor(1), gdbus(1), qdbus(1), [DBus Homepage](http://www.freedesktop.org/dbus)
