@@ -31,12 +31,6 @@ mdbus2_LDADD = \
 	$(GLIB_LIBS) \
 	$(NULL)
 
-man_MANS = mdbus2.1
-
-EXTRA_DIST += \
-	$(man_MANS) \
-	$(NULL)
-
 CLEANFILES =
 MAINTAINERCLEANFILES = \
 	Makefile.in \
