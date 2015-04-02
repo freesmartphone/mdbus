@@ -43,7 +43,7 @@ OPTIONS
   Also show *unique* (anonymous) services on the bus.    
 
 `--system`, `-s`
-  Use the system bus instead of the session bus (which is the default).
+  Use the system bus instead of the (default) session bus.
 
 `-show-pids`, `-p`
   Show UNIX process IDs.

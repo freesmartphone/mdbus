@@ -12,10 +12,12 @@ mdbus2 \- Interactive DBus introspection, interaction, and monitoring
 .SH DESCRIPTION
 .PP
 The \fB\fCmdbus2\fR command is used to explore and interact with DBus
-services on your \fIsystem bus\fP and \fIsession bus\fP\&.
+services on your \fIsystem bus\fP and \fIsession bus\fP\&. The system\-wide message bus
+exists only once and is installed on many systems as the "messagebus" service.
+The session message bus is per\-user\-login (started each time a user logs in)
+and usually tied to your X11 session.
 .PP
-Called without
-any parameters, it will show the available services on the
+In the simplest form, mdbus2 shows the available services on the
 selected bus. Given a \fIservice name\fP, it will show the available
 \fIobjects\fP exported by the service. Given a service name and an
 \fIobject path\fP, it will show the exposed \fImethods\fP, \fIsignals\fP, and
@@ -33,18 +35,18 @@ Also included is an \fIinteractive shell\fP with tab\-completion and command his
 Also show \fIunique\fP (anonymous) services on the bus.    
 .TP
 \fB\fC\-\-system\fR, \fB\fC\-s\fR
-Use the system bus instead of the session bus (which is the default).
+Use the system bus instead of the (default) session bus.
 .TP
 \fB\fC\-show\-pids\fR, \fB\fC\-p\fR
 Show UNIX process IDs.
 .TP
-\fB\fClisten\fR, \fB\fC\-l\fR
+\fB\fC\-\-listen\fR, \fB\fC\-l\fR
 Start the listener mode, in which you can observe signals on the bus.
 .TP
-\fB\fCinteractive\fR, \fB\fC\-i\fR
+\fB\fC\-\-interactive\fR, \fB\fC\-i\fR
 Start an interactive shell.
 .TP
-\fB\fCannotate\-types\fR, \fB\fC\-t\fR
+\fB\fC\-\-annotate\-types\fR, \fB\fC\-t\fR
 Annotate DBus types.
 .SH EXAMPLES
 .PP
@@ -200,9 +202,13 @@ listening for signals on SystemBus from service 'all', object 'all'...
 Please send bug reports to 
 \[la]fso@openphoenux.org\[ra] or use our issue tracker at the project page
 \[la]https://github.com/freesmartphone/mdbus/issues\[ra]\&.
-.SH NOTE
-.PP
+.SH NOTES
+.RS
+.IP \(bu 2
 mdbus2 requires \fIwell\-behaved DBus services\fP, this means, services that adhere to the DBus introspection protocol.
+.IP \(bu 2
+Your message bus configuration may keep mdbus2 from seeing all messages, especially if you run it as a non\-root user.
+.RE
 .SH AUTHOR
 .PP
 Michael 'Mickey' Lauer 
