@@ -48,6 +48,20 @@ Start an interactive shell.
 .TP
 \fB\fC\-\-annotate\-types\fR, \fB\fC\-t\fR
 Annotate DBus types.
+.SH USAGE
+.PP
+To invoke a method on an object implemented by a service, you need to specify the following values:
+.nr step0 0 1
+.RS
+.IP \n+[step0]
+\fB\fCservice name\fR, e.g. \fB\fCorg.freesmartphone.ogsmd\fR – The service name identifies the process serving a number of objects. Every process that attaches to the bus gets at least a non\-unique (anonymous) service name assigned, such as \fB\fC:1.0\fR\&. Unique names, such as \fB\fCorg.freesmartphone.ogsmd\fR, are usually given in all\-lowercase reverse domain name notation.
+.IP \n+[step0]
+\fB\fCobject path\fR, e.g. \fB\fC/org/freesmartphone/GSM/Device\fR – The object path identifies one concrete object served by the process. Object paths usually look like file system paths.
+.IP \n+[step0]
+\fB\fCmethod\fR, e.g. \fB\fCorg.freesmartphone.GSM.Call.Initiate\fR – The method name identifies an operation that is part of the interface (methods and signals) of an object. Method names are using \fICamelCase\fP with dot notation.
+.IP \n+[step0]
+\fB\fCparameters\fR, e.g. \fB\fC+49123456\fR voice`. \s+2\fB(To be described further).\fP\s-2
+.RE
 .SH EXAMPLES
 .PP
 Find out which bus names are currently registered on the system bus:

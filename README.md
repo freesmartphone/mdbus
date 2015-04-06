@@ -56,6 +56,15 @@ OPTIONS
   
 `--annotate-types`, `-t`
   Annotate DBus types.
+  
+USAGE
+-----
+To invoke a method on an object implemented by a service, you need to specify the following values:
+
+1. `service name`, e.g. `org.freesmartphone.ogsmd` – The service name identifies the process serving a number of objects. Every process that attaches to the bus gets at least a non-unique (anonymous) service name assigned, such as `:1.0`. Unique names, such as `org.freesmartphone.ogsmd`, are usually given in all-lowercase reverse domain name notation.
+2. `object path`, e.g. `/org/freesmartphone/GSM/Device` – The object path identifies one concrete object served by the process. Object paths usually look like file system paths.
+3. `method`, e.g. `org.freesmartphone.GSM.Call.Initiate` – The method name identifies an operation that is part of the interface (methods and signals) of an object. Method names are using *CamelCase* with dot notation.
+4. `parameters`, e.g. `+49123456` voice`. ***(To be described further).***
 
 EXAMPLES
 -----------
