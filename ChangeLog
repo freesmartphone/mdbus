@@ -1,4 +1,30 @@
+2015-04-06  Dr. Michael Lauer  <mickey@vanille-media.de>
+
+	man: add USAGE section describing some of the terminology used. NOTE: The parameter syntax still needs to be discussed.
+
+2015-04-02  Dr. Michael Lauer  <mickey@vanille-media.de>
+
+	manpage: improve wording as pointed out by DocScrutinizer
+
+2015-04-01  Dr. Michael Lauer  <mickey@vanille-media.de>
+
+	TODO++ and slight additions to the README.md
+
+	fix my preferred mail address
+
+	fix build
+
+	add a brand new manpage
+
+2015-02-05  Dr. Michael Lauer  <mickey@vanille-media.de>
+
+	prepare for releasing as 2.3.2
+
+	gitignore++, fix contact mail address, add TODO file
+
 2013-06-23  Simon Busch  <morphis@gravedo.de>
+
+	mdbus2: leave release mode and prepare for 2.4.0
 
 	mdbus2: prepare for bug fix release 2.3.1
 
@@ -206,7 +232,7 @@
 
 	mdbus2: only print object paths with interfaces for tab completion
 
-2010-10-26  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
+2010-10-25  Frederik 'playya' Sdun  <Frederik.Sdun@googlemail.com>
 
 	mdbus2: Remove deprecated syntax for vala
 
@@ -325,7 +351,7 @@
 
 	mdbus2: bail out, if readline is missing
 
-2010-04-29  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
+2010-04-28  Michael 'Mickey' Lauer  <mickey@vanille-media.de>
 
 	mdbus2: bump version number after release and strip unnecessary dependencies
 
